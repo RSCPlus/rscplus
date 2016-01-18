@@ -1,0 +1,59 @@
+<project name="rscplus" default="run">
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+	<property name="assets.dir" value="assets" />
+
+	<property name="jar.main-class" value="Client.Client" />
+	<property name="jar.name" value="${ant.project.name}.jar" />
+	<property name="jar.file" value="${dist.dir}/${jar.name}" />
+
+	<path id="build.classpath">
+		<fileset dir="${basedir}">
+			<include name="lib/*.jar"/>
+		</fileset>
+	</path>
+
+	<pathconvert property="jar.classpath" pathsep=" ">
+		<path refid="build.classpath"/>
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*.jar" to="lib/*.jar" />
+				</chainedmapper>
+			</mapper>
+	</pathconvert>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}">
+			<classpath refid="build.classpath" />
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/lib" />
+		<copy flatten="true" todir="${dist.dir}/lib" includeemptydirs="false">
+			<fileset dir="lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<jar destfile="${jar.file}" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${jar.main-class}" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
+			</manifest>
+			<fileset dir="." includes="${assets.dir}/**" />
+		</jar>
+	</target>
+
+	<target name="run" depends="dist">
+		<java jar="${jar.file}" dir="${dist.dir}" fork="true" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+</project>
