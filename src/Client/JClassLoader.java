@@ -37,7 +37,7 @@ import javax.xml.bind.DatatypeConverter;
 
 public class JClassLoader extends ClassLoader
 {
-	public boolean fetch(URL jarURL)
+	public boolean fetch(Launcher launcher, URL jarURL)
 	{
 		Logger.Info("Fetching Jar: " + jarURL);
 
@@ -86,7 +86,10 @@ public class JClassLoader extends ClassLoader
 						if(name.endsWith(".class"))
 						{
 							Logger.Info("Found cached file: " + name);
+							if(launcher != null)
+								launcher.setStatus("Loading " + name + "...");
 							name = name.substring(0, name.indexOf(".class"));
+							classData = JClassPatcher.patch(classData);
 							m_classData.put(name, classData);
 						}
 						totalLoaded += 1;
@@ -102,6 +105,8 @@ public class JClassLoader extends ClassLoader
 				}
 
 				totalNeeded += 1;
+				if(launcher != null)
+					launcher.setProgress(totalLoaded, totalNeeded);
 			}
 
 			JarEntry entry;
@@ -127,15 +132,20 @@ public class JClassLoader extends ClassLoader
 				fOut.close();
 
 				Logger.Info("Retrieved file: " + name);
+				if(launcher != null)
+					launcher.setStatus("Downloading " + name + "...");
 
 				if(name.endsWith(".class"))
 				{
 					filesNeeded.remove(name);
 					name = name.substring(0, name.indexOf(".class"));
+					classData = JClassPatcher.patch(classData);
 					m_classData.put(name, classData);
 				}
 
 				totalLoaded += 1;
+				if(launcher != null)
+					launcher.setProgress(totalLoaded, totalNeeded);
 			}
 
 			in.close();
@@ -155,9 +165,6 @@ public class JClassLoader extends ClassLoader
 		byte data[] = m_classData.get(name);
 		if(data == null)
 			return null;
-
-		// Patch class
-		data = JClassPatcher.patch(data);
 
 		return defineClass(data, 0, data.length);
 	}

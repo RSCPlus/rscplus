@@ -12,6 +12,7 @@ RuneScape Classic injection client to enhance the game.
 - Middle mouse camera rotation
 - HP, Prayer, and fatigue bars on the bottom right of the screen
 - Fatigue on-screen alert at 100%
+- Inventory free space counter
 
 ## Building
 *You must have git, apache-ant, and jdk 1.7+ installed to do this.*

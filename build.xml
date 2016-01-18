@@ -4,7 +4,7 @@
 	<property name="dist.dir" value="dist" />
 	<property name="assets.dir" value="assets" />
 
-	<property name="jar.main-class" value="Client.Client" />
+	<property name="jar.main-class" value="Client.Launcher" />
 	<property name="jar.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${dist.dir}/${jar.name}" />
 

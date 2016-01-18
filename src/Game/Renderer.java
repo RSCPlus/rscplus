@@ -84,7 +84,7 @@ public class Renderer
 	public static void present(Graphics g, Image image)
 	{
 		long time = System.currentTimeMillis();
-		float alpha_time =  0.25f + (((float)Math.sin(System.currentTimeMillis() / 100) + 1.0f) / 2.0f * 0.75f);
+		alpha_time =  0.25f + (((float)Math.sin(System.currentTimeMillis() / 100) + 1.0f) / 2.0f * 0.75f);
 
 		// Run other parts update methods
 		Client.update();
@@ -98,36 +98,10 @@ public class Renderer
 
 		if(Client.mode == Client.MODE_GAME)
 		{
-			int barSize = 4 + image_bar_frame.getWidth(null);
-			int x = width - (4 + barSize);
-			int y = height - image_bar_frame.getHeight(null);
-
-			int percentHP = 0;
-			int percentPrayer = 0;
-
-			if(Client.getBaseLevel(Client.SKILL_HP) > 0)
-			{
-				percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
-				percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
-			}
-
-			if(Client.getFatigue() >= 80)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getFatigue(), 100);
+			if(width >= 800)
+				drawLargeBars(g2);
 			else
-				drawBar(g2, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
-			x -= barSize;
-
-			if(percentPrayer <= 30)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-			else
-				drawBar(g2, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-			x -= barSize;
-
-			if(percentHP <= 30)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-			else
-				drawBar(g2, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-			x -= barSize;
+				drawSmallBars(g2);
 
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
@@ -221,6 +195,48 @@ public class Renderer
 		screenshot = true;
 	}
 
+	private static void drawLargeBars(Graphics2D g2)
+	{
+		if(Client.mode == Client.MODE_GAME)
+		{
+			int barSize = 4 + image_bar_frame.getWidth(null);
+			int x = width - (4 + barSize);
+			int y = height - image_bar_frame.getHeight(null);
+
+			int percentHP = 0;
+			int percentPrayer = 0;
+
+			if(Client.getBaseLevel(Client.SKILL_HP) > 0)
+			{
+				percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
+				percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
+			}
+
+			if(Client.getFatigue() >= 80)
+				drawBar(g2, x, y, color_low, alpha_time, Client.getFatigue(), 100);
+			else
+				drawBar(g2, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
+			x -= barSize;
+
+			if(percentPrayer <= 30)
+				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+			else
+				drawBar(g2, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+			x -= barSize;
+
+			if(percentHP <= 30)
+				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+			else
+				drawBar(g2, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+			x -= barSize;
+		}
+	}
+
+	private static void drawSmallBars(Graphics2D g2)
+	{
+		// TODO: Draw smaller version of bars
+	}
+
 	private static Dimension getStringBounds(Graphics2D g, String str)
 	{
 		FontRenderContext context = g.getFontRenderContext();
@@ -232,6 +248,7 @@ public class Renderer
 	public static int height;
 	public static int height_client;
 	public static int fps;
+	public static float alpha_time;
 
 	private static Font font_main;
 	private static Font font_big;

@@ -22,6 +22,7 @@
 package Game;
 
 import Client.JConfig;
+import Client.Launcher;
 import Client.Settings;
 import java.applet.Applet;
 import java.applet.AppletContext;
@@ -50,16 +51,6 @@ public class Game extends JFrame implements AppletStub, WindowListener
 
 		// Set window properties
 		addWindowListener(this);
-		setResizable(false);
-
-		// Set size and center window
-		getContentPane().setBackground(Color.BLACK);
-		getContentPane().setPreferredSize(new Dimension(Settings.RESOLUTION.width, Settings.RESOLUTION.height));
-		pack();
-		setMinimumSize(getSize());
-		setTitle(null);
-		setLocationRelativeTo(null);
-		setVisible(true);
 
 		instance = this;
 	}
@@ -69,8 +60,13 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		if(applet == null)
 			return;
 
+		setTitle(null);
+		getContentPane().setBackground(Color.BLACK);
 		getContentPane().add(applet);
-
+		getContentPane().setPreferredSize(new Dimension(Settings.RESOLUTION.width, Settings.RESOLUTION.height));
+		pack();
+		setMinimumSize(getSize());
+		setLocationRelativeTo(null);
 		setVisible(true);
 		setResizable(false);
 
@@ -127,8 +123,14 @@ public class Game extends JFrame implements AppletStub, WindowListener
 	{
 		if(applet != null)
 		{
-			applet.stop();
-			applet.destroy();
+			new Thread(new Runnable()
+			{
+				public void run()
+				{
+					applet.stop();
+					applet.destroy();
+				}
+			}).start();
 		}
 	}
 
@@ -136,6 +138,7 @@ public class Game extends JFrame implements AppletStub, WindowListener
 	public final void windowClosing(WindowEvent e)
 	{
 		dispose();
+		new Launcher();
 	}
 
 	@Override

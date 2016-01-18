@@ -69,7 +69,8 @@ public class JClassPatcher
 			patchClient(node);
 		}
 
-		dumpClass(node);
+		if(Settings.DEBUG)
+			dumpClass(node);
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		node.accept(writer);

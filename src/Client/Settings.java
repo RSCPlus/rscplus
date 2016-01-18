@@ -22,6 +22,9 @@
 package Client;
 
 import java.awt.Dimension;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 public class Settings
 {
@@ -51,6 +54,56 @@ public class Settings
 			Dir.DUMP = Dir.JAR + "/dump";
 			Util.MakeDirectory(Dir.DUMP);
 		}
+
+		// Load settings
+		try
+		{
+			Properties props = new Properties();
+			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
+			props.load(in);
+			in.close();
+
+			WORLD = getInt(props, "world", 2);
+			RESOLUTION.width = getInt(props, "width", 512);
+			RESOLUTION.height = getInt(props, "height", 346);
+		}
+		catch(Exception e) {}
+	}
+
+	public static void Save()
+	{
+		try
+		{
+			Properties props = new Properties();
+			props.setProperty("width", "" + RESOLUTION.width);
+			props.setProperty("height", "" + RESOLUTION.height);
+			props.setProperty("world", "" + WORLD);
+
+			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
+			props.store(out, "---rscplus config---");
+			out.close();
+		}
+		catch(Exception e)
+		{
+			Logger.Error("Unable to save settings");
+		}
+	}
+
+	private static int getInt(Properties props, String key, int def)
+	{
+		String value = props.getProperty(key);
+		if(value == null)
+			return def;
+
+		try
+		{
+			int intValue = Integer.parseInt(value);
+			return intValue;
+		}
+		catch(Exception e)
+		{
+			return def;
+		}
 	}
 
 	public static class Dir
@@ -61,7 +114,16 @@ public class Settings
 		public static String SCREENSHOT;
 	}
 
-	public static Dimension RESOLUTION = new Dimension(1280, 720);
+	public static String WORLD_LIST[] =
+	{
+		"1 (Veterans Only)",
+		"2",
+		"3",
+		"4",
+		"5"
+	};
+	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD_DEFAULT = 5;
-	public static boolean DEBUG = true;
+	public static int WORLD = 2;
+	public static boolean DEBUG = false;
 }
