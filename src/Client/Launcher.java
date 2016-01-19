@@ -182,7 +182,7 @@ public class Launcher extends JFrame implements Runnable
 		m_launchButton.setEnabled(true);
 	}
 
-	public void setStatus(String text)
+	public void setStatus(final String text)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -193,7 +193,7 @@ public class Launcher extends JFrame implements Runnable
 		});
 	}
 
-	public void setProgress(int value, int total)
+	public void setProgress(final int value, final int total)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
