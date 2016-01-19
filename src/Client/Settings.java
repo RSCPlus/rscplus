@@ -144,8 +144,8 @@ public class Settings
 		"5"
 	};
 
-	public static boolean HIDE_ROOFS = true;
+	public static boolean HIDE_ROOFS = false;
 	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD = 2;
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 }
