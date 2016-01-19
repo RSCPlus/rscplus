@@ -38,6 +38,31 @@ public class KeyboardHandler implements KeyListener
 			e.consume();
 		}
 
+		if(Client.show_questionmenu)
+		{
+			if(e.getKeyCode() == KeyEvent.VK_1)
+				dialogue_option = 0;
+			else if(e.getKeyCode() == KeyEvent.VK_2)
+				dialogue_option = 1;
+			else if(e.getKeyCode() == KeyEvent.VK_3)
+				dialogue_option = 2;
+			else if(e.getKeyCode() == KeyEvent.VK_4)
+				dialogue_option = 3;
+			else if(e.getKeyCode() == KeyEvent.VK_5)
+				dialogue_option = 4;
+			else if(e.getKeyCode() == KeyEvent.VK_6)
+				dialogue_option = 5;
+			else if(e.getKeyCode() == KeyEvent.VK_7)
+				dialogue_option = 6;
+			else if(e.getKeyCode() == KeyEvent.VK_8)
+				dialogue_option = 7;
+			else if(e.getKeyCode() == KeyEvent.VK_9)
+				dialogue_option = 8;
+
+			if(dialogue_option >= 0)
+				e.consume();
+		}
+
 		if(!e.isConsumed())
 			listener_key.keyPressed(e);
 	}
@@ -47,6 +72,9 @@ public class KeyboardHandler implements KeyListener
 	{
 		if(listener_key == null)
 			return;
+
+		// Reset dialogue option
+		dialogue_option = -1;
 
 		listener_key.keyReleased(e);
 	}
@@ -60,5 +88,6 @@ public class KeyboardHandler implements KeyListener
 		listener_key.keyTyped(e);
 	}
 
+	public static int dialogue_option = -1;
 	public static KeyListener listener_key;
 }

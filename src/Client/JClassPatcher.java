@@ -37,6 +37,8 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -134,6 +136,8 @@ public class JClassPatcher
 		while(methodNodeList.hasNext())
 		{
 			MethodNode methodNode = methodNodeList.next();
+
+			// I (I)V is where most of the interface is processed
 
 			if(methodNode.name.equals("O") && methodNode.desc.equals("(I)V"))
 			{
@@ -284,6 +288,55 @@ public class JClassPatcher
 				MethodInsnNode call = new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init", "()V", false);
 				methodNode.instructions.insertBefore(findNode, call);
 			}
+			else if(methodNode.name.equals("G") && methodNode.desc.equals("(I)V"))
+			{
+				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
+
+				IntInsnNode packetOpcode = new IntInsnNode(Opcodes.BIPUSH, 116);
+				IntInsnNode unknown1 = new IntInsnNode(Opcodes.BIPUSH, 115);
+				IntInsnNode unknown2 = new IntInsnNode(Opcodes.SIPUSH, 21294);
+				MethodInsnNode createPacket = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "da", "b", "(II)V", false);
+				FieldInsnNode instance2 = new FieldInsnNode(Opcodes.GETFIELD, "da", "f", "Lja;");
+				MethodInsnNode writeByte = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ja", "c", "(II)V", false);
+				MethodInsnNode formatPacket = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "da", "b", "(I)V", false);
+				LabelNode label = new LabelNode();
+
+				methodNode.instructions.insert(lastNode, label);
+
+				// Hide dialogue
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.PUTFIELD, "client", "Ph", "Z"));
+				methodNode.instructions.insert(lastNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Format
+				methodNode.instructions.insert(lastNode, formatPacket);
+				methodNode.instructions.insert(lastNode, unknown2);
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Write byte
+				methodNode.instructions.insert(lastNode, writeByte);
+				methodNode.instructions.insert(lastNode, unknown1);
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
+				methodNode.instructions.insert(lastNode, instance2);
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Create Packet
+				methodNode.instructions.insert(lastNode, createPacket);
+				methodNode.instructions.insert(lastNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insert(lastNode, packetOpcode);
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Check if dialogue option is pressed
+				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IF_ICMPGE, label));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Id", "I")); // Menu option count
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
+				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IFLT, label));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
+			}
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
@@ -293,6 +346,8 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Vk", "[Ljava/lang/String;", "Game/Client", "skill_name", "[Ljava/lang/String;", true, false);
 			hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
+
+			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
 
@@ -558,13 +613,13 @@ public class JClassPatcher
 
 	private static String decodeInstruction(AbstractInsnNode insnNode)
 	{
-		Printer printer = new Textifier();
-		TraceMethodVisitor mp = new TraceMethodVisitor(printer);
-
 		insnNode.accept(mp);
 		StringWriter sw = new StringWriter();
 		printer.print(new PrintWriter(sw));
 		printer.getText().clear();
 		return sw.toString();
 	}
+
+	private static Printer printer = new Textifier();
+	private static TraceMethodVisitor mp = new TraceMethodVisitor(printer);
 }

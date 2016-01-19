@@ -8,6 +8,7 @@ RuneScape Classic injection client to enhance the game.
 ## Features
 - Screenshot with Ctrl+S (for now)
 - Game resolution changing (not 100% complete, but playable)
+- NPC Dialogue options with 1-9 on keyboard (like rs3/osrs)
 - XP Drops
 - Mouse wheel zoom
 - Middle mouse camera rotation

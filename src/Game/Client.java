@@ -110,6 +110,11 @@ public class Client
 		return string;
 	}
 
+	public static void test()
+	{
+		System.out.println("options");
+	}
+
 	public static final int SKILL_HP = 3;
 	public static final int SKILL_PRAYER = 5;
 
@@ -119,6 +124,8 @@ public class Client
 	public static int mode = MODE_LOGIN;
 
 	public static int inventory_count;
+
+	public static boolean show_questionmenu;
 
 	public static int fatigue;
 	public static int current_level[];
