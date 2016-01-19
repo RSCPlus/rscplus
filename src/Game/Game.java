@@ -34,13 +34,12 @@ import java.awt.event.WindowListener;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 public class Game extends JFrame implements AppletStub, WindowListener
 {
 	public Game()
 	{
-		// Calculate game window size
-
 		// Set window icon
 		URL iconURL = getClass().getResource("/assets/icon.png");
 		if(iconURL != null)
@@ -51,6 +50,13 @@ public class Game extends JFrame implements AppletStub, WindowListener
 
 		// Set window properties
 		addWindowListener(this);
+		getContentPane().setBackground(Color.BLACK);
+		getContentPane().setPreferredSize(new Dimension(Settings.RESOLUTION.width, Settings.RESOLUTION.height));
+		setResizable(false);
+		setTitle(null);
+		pack();
+		pack();
+		setLocationRelativeTo(null);
 
 		instance = this;
 	}
@@ -60,15 +66,8 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		if(applet == null)
 			return;
 
-		setTitle(null);
-		getContentPane().setBackground(Color.BLACK);
 		getContentPane().add(applet);
-		getContentPane().setPreferredSize(new Dimension(Settings.RESOLUTION.width, Settings.RESOLUTION.height));
-		pack();
-		setMinimumSize(getSize());
-		setLocationRelativeTo(null);
 		setVisible(true);
-		setResizable(false);
 
 		Renderer.init();
 		applet.init();

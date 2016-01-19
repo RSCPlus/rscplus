@@ -45,8 +45,8 @@ public class Renderer
 {
 	public static void init()
 	{
-		width = Game.instance.applet.getWidth();
-		height = Game.instance.applet.getHeight();
+		width = Game.instance.getContentPane().getWidth();
+		height = Game.instance.getContentPane().getHeight();
 		height_client = height - 12;
 		game_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 

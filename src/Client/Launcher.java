@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.FlowLayout;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,19 +23,30 @@ public class Launcher extends JFrame implements Runnable
 		instance = this;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("rscplus Launcher");
-		setResizable(false);
 		getContentPane().setBackground(Color.BLACK);
-		getContentPane().setLayout(new FlowLayout());
+
+		// Set window icon
+		URL iconURL = getClass().getResource("/assets/icon.png");
+		if(iconURL != null)
+		{
+			ImageIcon icon = new ImageIcon(iconURL);
+			setIconImage(icon.getImage());
+		}
 
 		// Set size
-		getContentPane().setPreferredSize(new Dimension(300, 120));
+		getContentPane().setPreferredSize(new Dimension(280, 120));
+		getContentPane().setLayout(null);
+		setResizable(false);
+		setTitle("rscplus Launcher");
 		pack();
-		setMinimumSize(getSize());
+		pack();
+		setLocationRelativeTo(null);
 
 		// Add components
 		JLabel label = new JLabel("World: ");
 		label.setForeground(Color.GRAY.brighter());
+		label.setSize(64, 12);
+		label.setLocation(42, 16);
 		getContentPane().add(label);
 
 		m_worldSelector = new JComboBox();
@@ -50,30 +60,42 @@ public class Launcher extends JFrame implements Runnable
 				Settings.WORLD = m_worldSelector.getSelectedIndex() + 1;
 			}
 		});
-
+		m_worldSelector.setSize(150, 20);
+		m_worldSelector.setLocation(label.getX() + label.getWidth(), label.getY() - 4);
 		getContentPane().add(m_worldSelector);
 
 		label = new JLabel("Resolution: ");
 		label.setForeground(Color.GRAY.brighter());
+		label.setSize(128, 12);
+		label.setLocation(8, 40);
 		getContentPane().add(label);
 		m_resolutionWidth = new JTextField(3);
 		m_resolutionWidth.setText("" + Settings.RESOLUTION.width);
+		m_resolutionWidth.setSize(40, 20);
+		m_resolutionWidth.setLocation(m_worldSelector.getX(), label.getY() - 4);
 		getContentPane().add(m_resolutionWidth);
 		label = new JLabel("x");
+		label.setSize(128, 12);
+		label.setLocation(m_worldSelector.getX() + m_resolutionWidth.getWidth() + 8, m_resolutionWidth.getY() + 3);
 		label.setForeground(Color.GRAY.brighter());
 		getContentPane().add(label);
 		m_resolutionHeight = new JTextField(3);
 		m_resolutionHeight.setText("" + Settings.RESOLUTION.height);
+		m_resolutionHeight.setSize(40, 20);
+		m_resolutionHeight.setLocation(label.getX() + 15, m_resolutionWidth.getY());
 		getContentPane().add(m_resolutionHeight);
 
 		m_progressBar = new JProgressBar();
 		m_progressBar.setStringPainted(true);
-		m_progressBar.setBorderPainted(false);
+		m_progressBar.setBorderPainted(true);
 		m_progressBar.setForeground(Color.GRAY.brighter());
 		m_progressBar.setBackground(Color.BLACK);
 		m_progressBar.setString("Waiting for game to be launched...");
+		m_progressBar.setSize(getContentPane().getWidth() - 16, 20);
+		m_progressBar.setLocation(8, m_resolutionWidth.getY() + 30);
 		getContentPane().add(m_progressBar);
 
+		//pack();
 		m_launchButton = new JButton("Launch");
 		m_launchButton.addActionListener(new ActionListener()
 		{
@@ -86,17 +108,11 @@ public class Launcher extends JFrame implements Runnable
 				new Thread(Launcher.instance).start();
 			}
 		});
+		m_launchButton.setSize(100, 20);
+		m_launchButton.setLocation((getContentPane().getWidth() / 2) - (m_launchButton.getWidth() / 2),
+					   getContentPane().getHeight() - m_launchButton.getHeight() - 8);
 		getContentPane().add(m_launchButton);
 
-		// Set window icon
-		URL iconURL = getClass().getResource("/assets/icon.png");
-		if(iconURL != null)
-		{
-			ImageIcon icon = new ImageIcon(iconURL);
-			setIconImage(icon.getImage());
-		}
-
-		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
