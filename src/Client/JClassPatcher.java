@@ -138,8 +138,33 @@ public class JClassPatcher
 			MethodNode methodNode = methodNodeList.next();
 
 			// I (I)V is where most of the interface is processed
+			if(methodNode.name.equals("I") && methodNode.desc.equals("(I)V"))
+			{
+				// Show combat menu
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
 
-			if(methodNode.name.equals("O") && methodNode.desc.equals("(I)V"))
+					if(insnNode.getOpcode() == Opcodes.BIPUSH)
+					{
+						IntInsnNode bipush = (IntInsnNode)insnNode;
+
+						if(bipush.operand == -9)
+						{
+							AbstractInsnNode findNode = insnNode;
+							while(findNode.getOpcode() != Opcodes.IF_ICMPEQ)
+								findNode = findNode.getNext();
+
+							LabelNode label = ((JumpInsnNode)findNode).label;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU", "Z"));
+							methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFGT, label));
+							break;
+						}
+					}
+				}
+			}
+			else if(methodNode.name.equals("O") && methodNode.desc.equals("(I)V"))
 			{
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while(insnNodeList.hasNext())

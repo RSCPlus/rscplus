@@ -49,12 +49,6 @@ public class Settings
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.MakeDirectory(Dir.SCREENSHOT);
 
-		if(DEBUG)
-		{
-			Dir.DUMP = Dir.JAR + "/dump";
-			Util.MakeDirectory(Dir.DUMP);
-		}
-
 		// Load settings
 		try
 		{
@@ -67,9 +61,16 @@ public class Settings
 			RESOLUTION.width = getInt(props, "width", 512);
 			RESOLUTION.height = getInt(props, "height", 346);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
+			COMBAT_MENU = getBoolean(props, "combat_menu", false);
 			DEBUG = getBoolean(props, "debug", false);
 		}
 		catch(Exception e) {}
+
+		if(DEBUG)
+		{
+			Dir.DUMP = Dir.JAR + "/dump";
+			Util.MakeDirectory(Dir.DUMP);
+		}
 	}
 
 	public static void Save()
@@ -81,6 +82,7 @@ public class Settings
 			props.setProperty("height", "" + RESOLUTION.height);
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+			props.setProperty("combat_menu", "" + COMBAT_MENU);
 			props.setProperty("debug", "" + DEBUG);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
@@ -144,6 +146,7 @@ public class Settings
 		"5"
 	};
 
+	public static boolean COMBAT_MENU = false;
 	public static boolean HIDE_ROOFS = false;
 	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD = 2;
