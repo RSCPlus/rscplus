@@ -74,9 +74,14 @@ public class KeyboardHandler implements KeyListener
 			return;
 
 		// Reset dialogue option
-		dialogue_option = -1;
+		if(dialogue_option >= 0)
+		{
+			dialogue_option = -1;
+			e.consume();
+		}
 
-		listener_key.keyReleased(e);
+		if(!e.isConsumed())
+			listener_key.keyReleased(e);
 	}
 
 	@Override

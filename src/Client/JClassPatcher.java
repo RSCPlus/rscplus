@@ -290,6 +290,7 @@ public class JClassPatcher
 			}
 			else if(methodNode.name.equals("G") && methodNode.desc.equals("(I)V"))
 			{
+				// NPC Dialogue keyboard
 				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
 
 				IntInsnNode packetOpcode = new IntInsnNode(Opcodes.BIPUSH, 116);
