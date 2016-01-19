@@ -8,6 +8,7 @@ RuneScape Classic injection client to enhance the game.
 ## Features
 - Screenshot with Ctrl+S (for now)
 - Game resolution changing (not 100% complete, but playable)
+- XP Drops
 - Mouse wheel zoom
 - Middle mouse camera rotation
 - HP, Prayer, and fatigue bars on the bottom right of the screen

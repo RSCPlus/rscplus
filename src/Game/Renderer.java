@@ -83,8 +83,11 @@ public class Renderer
 
 	public static void present(Graphics g, Image image)
 	{
-		long time = System.currentTimeMillis();
+		time = System.currentTimeMillis();
 		alpha_time =  0.25f + (((float)Math.sin(System.currentTimeMillis() / 100) + 1.0f) / 2.0f * 0.75f);
+
+		delta_time = (float)(time - delta_timer) / 1000.0f;
+		delta_timer = time;
 
 		// Run other parts update methods
 		Client.update();
@@ -106,6 +109,8 @@ public class Renderer
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
+
+			Client.xpdrop_handler.draw(g2);
 
 			g2.setFont(font_big);
 			if(Client.getFatigue() >= 100)
@@ -249,20 +254,23 @@ public class Renderer
 	public static int height_client;
 	public static int fps;
 	public static float alpha_time;
+	public static float delta_time;
+	public static long time;
 
 	private static Font font_main;
 	private static Font font_big;
 
 	private static int frames = 0;
 	private static long second_timer = 0;
+	private static long delta_timer = 0;
 	private static boolean screenshot = false;
 
-	private static Color color_text = new Color(240, 240, 240);
-	private static Color color_shadow = new Color(15, 15, 15);
-	private static Color color_hp = new Color(0, 210, 0);
-	private static Color color_fatigue = new Color(210, 210, 0);
-	private static Color color_prayer = new Color(0, 105, 210);
-	private static Color color_low = new Color(255, 0, 0);
+	public static Color color_text = new Color(240, 240, 240);
+	public static Color color_shadow = new Color(15, 15, 15);
+	public static Color color_hp = new Color(0, 210, 0);
+	public static Color color_fatigue = new Color(210, 210, 0);
+	public static Color color_prayer = new Color(0, 105, 210);
+	public static Color color_low = new Color(255, 0, 0);
 
 	private static Image image_border;
 	private static Image image_bar_frame;

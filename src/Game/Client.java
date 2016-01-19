@@ -57,9 +57,7 @@ public class Client
 				xpdrop_state[i] += xpGain;
 
 				if(xpGain > 0.0f && dropXP)
-				{
-					System.out.println("+" + xpGain + " (" + skill_name[i] + ")");
-				}
+					xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
 			}
 		}
 	}
@@ -129,6 +127,8 @@ public class Client
 	public static String skill_name[];
 
 	public static String strings[];
+
+	public static XPDropHandler xpdrop_handler = new XPDropHandler();
 
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;

@@ -34,7 +34,6 @@ import java.awt.event.WindowListener;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 public class Game extends JFrame implements AppletStub, WindowListener
 {

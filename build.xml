@@ -39,6 +39,11 @@
 				<include name="**/*.jar" />
 			</fileset>
 		</copy>
+		<copy flatten="true" todir="${dist.dir}" includeemptydirs="false">
+			<fileset dir=".">
+				<include name="LICENSE" />
+			</fileset>
+		</copy>
 		<jar destfile="${jar.file}" basedir="${build.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="${jar.main-class}" />
