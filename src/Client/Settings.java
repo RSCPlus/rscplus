@@ -66,6 +66,8 @@ public class Settings
 			WORLD = getInt(props, "world", 2);
 			RESOLUTION.width = getInt(props, "width", 512);
 			RESOLUTION.height = getInt(props, "height", 346);
+			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
+			DEBUG = getBoolean(props, "debug", false);
 		}
 		catch(Exception e) {}
 	}
@@ -78,6 +80,8 @@ public class Settings
 			props.setProperty("width", "" + RESOLUTION.width);
 			props.setProperty("height", "" + RESOLUTION.height);
 			props.setProperty("world", "" + WORLD);
+			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+			props.setProperty("debug", "" + DEBUG);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -106,6 +110,23 @@ public class Settings
 		}
 	}
 
+	private static boolean getBoolean(Properties props, String key, boolean def)
+	{
+		String value = props.getProperty(key);
+		if(value == null)
+			return def;
+
+		try
+		{
+			boolean boolValue = Boolean.parseBoolean(value);
+			return boolValue;
+		}
+		catch(Exception e)
+		{
+			return def;
+		}
+	}
+
 	public static class Dir
 	{
 		public static String JAR;
@@ -122,8 +143,9 @@ public class Settings
 		"4",
 		"5"
 	};
+
+	public static boolean HIDE_ROOFS = true;
 	public static Dimension RESOLUTION = new Dimension(512, 346);
-	public static int WORLD_DEFAULT = 5;
 	public static int WORLD = 2;
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 }

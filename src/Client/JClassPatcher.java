@@ -290,6 +290,8 @@ public class JClassPatcher
 			}
 			else if(methodNode.name.equals("G") && methodNode.desc.equals("(I)V"))
 			{
+				// TODO: This can be shortened, I'll fix it another time
+
 				// NPC Dialogue keyboard
 				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
 
@@ -337,6 +339,31 @@ public class JClassPatcher
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
 				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IFLT, label));
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
+			}
+			else if(methodNode.name.equals("f") && methodNode.desc.equals("(I)V"))
+			{
+				// Hide Roof option
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					if(insnNode.getOpcode() == Opcodes.GETFIELD)
+					{
+						FieldInsnNode field = (FieldInsnNode)insnNode;
+
+						if(field.owner.equals("client") && field.name.equals("yj"))
+						{
+							AbstractInsnNode nextNode = insnNode.getNext();
+							if(nextNode.getOpcode() == Opcodes.IFNE)
+							{
+								LabelNode label = ((JumpInsnNode)nextNode).label;
+								methodNode.instructions.insert(nextNode, new JumpInsnNode(Opcodes.IFGT, label));
+								methodNode.instructions.insert(nextNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS", "Z"));
+							}
+						}
+					}
+				}
 			}
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
