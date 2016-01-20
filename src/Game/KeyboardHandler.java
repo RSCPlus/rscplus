@@ -21,6 +21,8 @@
 
 package Game;
 
+import Client.Logger;
+import Client.Settings;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -32,9 +34,19 @@ public class KeyboardHandler implements KeyListener
 		if(listener_key == null)
 			return;
 
-		if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S)
+		if(e.isControlDown() || e.isAltDown())
 		{
-			Renderer.takeScreenshot();
+			command_key = e.getKeyCode();
+
+			if(command_key == KeyEvent.VK_S)
+				Renderer.takeScreenshot();
+
+			if(command_key == KeyEvent.VK_R)
+				Settings.toggleHideRoofs();
+
+			if(command_key == KeyEvent.VK_C)
+				Settings.toggleCombatMenu();
+
 			e.consume();
 		}
 
@@ -64,7 +76,10 @@ public class KeyboardHandler implements KeyListener
 		}
 
 		if(!e.isConsumed())
+		{
+			Logger.Debug("Key Pressed: " + e.getKeyCode());
 			listener_key.keyPressed(e);
+		}
 	}
 
 	@Override
@@ -80,8 +95,14 @@ public class KeyboardHandler implements KeyListener
 			e.consume();
 		}
 
+		if(isCommandKey(e))
+			e.consume();
+
 		if(!e.isConsumed())
+		{
+			Logger.Debug("Key Released: " + e.getKeyCode());
 			listener_key.keyReleased(e);
+		}
 	}
 
 	@Override
@@ -90,8 +111,25 @@ public class KeyboardHandler implements KeyListener
 		if(listener_key == null)
 			return;
 
-		listener_key.keyTyped(e);
+		if(isCommandKey(e))
+			e.consume();
+
+		if(dialogue_option >= 0)
+			e.consume();
+
+		if(!e.isConsumed())
+		{
+			Logger.Debug("Key Typed: " + e.getKeyCode());
+			listener_key.keyTyped(e);
+		}
 	}
+
+	private static boolean isCommandKey(KeyEvent e)
+	{
+		return (e.isControlDown() || e.isAltDown() || e.getKeyCode() == KeyEvent.VK_ALT || e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == command_key);
+	}
+
+	private static int command_key = -1;
 
 	public static int dialogue_option = -1;
 	public static KeyListener listener_key;

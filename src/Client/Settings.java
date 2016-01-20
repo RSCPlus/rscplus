@@ -95,6 +95,18 @@ public class Settings
 		}
 	}
 
+	public static void toggleHideRoofs()
+	{
+		HIDE_ROOFS = !HIDE_ROOFS;
+		Save();
+	}
+
+	public static void toggleCombatMenu()
+	{
+		COMBAT_MENU = !COMBAT_MENU;
+		Save();
+	}
+
 	private static int getInt(Properties props, String key, int def)
 	{
 		String value = props.getProperty(key);
