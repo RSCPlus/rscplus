@@ -126,7 +126,8 @@ public class KeyboardHandler implements KeyListener
 
 	private static boolean isCommandKey(KeyEvent e)
 	{
-		return (e.isControlDown() || e.isAltDown() || e.getKeyCode() == KeyEvent.VK_ALT || e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == command_key);
+		return (e.isControlDown() || e.isAltDown() || e.getKeyCode() == KeyEvent.VK_ALT ||
+			e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == command_key);
 	}
 
 	private static int command_key = -1;
