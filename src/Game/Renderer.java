@@ -111,6 +111,7 @@ public class Renderer
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
 
 			Client.xpdrop_handler.draw(g2);
+			Client.xpbar.draw(g2);
 
 			g2.setFont(font_big);
 			if(Client.getFatigue() >= 100)
@@ -148,25 +149,52 @@ public class Renderer
 		}
 	}
 
-	public static void drawBar(Graphics2D g, int x, int y, Color color, float alpha, int value, int total)
+	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total)
 	{
 		// Prevent divide by zero
 		if(total == 0)
 			return;
 
-		int width = image_bar_frame.getWidth(null) - 2;
+		int width = image.getWidth(null) - 2;
 		int percent = value * width / total;
 
 		g.setColor(color_shadow);
-		g.fillRect(x + 1, y, width, image_bar_frame.getHeight(null));
+		g.fillRect(x + 1, y, width, image.getHeight(null));
 
 		g.setColor(color);
 		setAlpha(g, alpha);
-		g.fillRect(x + 1, y, percent, image_bar_frame.getHeight(null));
+		g.fillRect(x + 1, y, percent, image.getHeight(null));
 		setAlpha(g, 1.0f);
 
 		g.drawImage(image_bar_frame, x, y, null);
-		drawShadowText(g, value + "/" + total, x + (image_bar_frame.getWidth(null) / 2), y + (image_bar_frame.getHeight(null) / 2) - 2, color_text, true);
+		drawShadowText(g, value + "/" + total, x + (image.getWidth(null) / 2), y + (image.getHeight(null) / 2) - 2, color_text, true);
+	}
+
+	public static void drawBarString(Graphics2D g, Image image, int x, int y, Color color, float alpha,
+					 int value, int total, String text)
+	{
+		// Prevent divide by zero
+		if(total == 0)
+			return;
+
+		Dimension bounds = new Dimension(110, 16);
+		x -= (bounds.width / 2);
+		y -= (bounds.height / 2);
+
+		setAlpha(g, alpha);
+
+		g.setColor(color_gray);
+		g.fillRect(x - 1, y - 1, bounds.width + 2, bounds.height + 2);
+
+		g.setColor(color_shadow);
+		g.fillRect(x, y, bounds.width, bounds.height);
+
+		g.setColor(color);
+		int percent = value * (bounds.width - 2) / total;
+		g.fillRect(x + 1, y + 1, percent, bounds.height - 2);
+
+		drawShadowText(g, text, x + (bounds.width / 2), y + (bounds.height / 2) - 2, color_text, true);
+		setAlpha(g, 1.0f);
 	}
 
 	public static void setAlpha(Graphics2D g, float alpha)
@@ -218,21 +246,21 @@ public class Renderer
 			}
 
 			if(Client.getFatigue() >= 80)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getFatigue(), 100);
+				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getFatigue(), 100);
 			else
-				drawBar(g2, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
+				drawBar(g2, image_bar_frame, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
 			x -= barSize;
 
 			if(percentPrayer <= 30)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
 			else
-				drawBar(g2, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+				drawBar(g2, image_bar_frame, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
 			x -= barSize;
 
 			if(percentHP <= 30)
-				drawBar(g2, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
 			else
-				drawBar(g2, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+				drawBar(g2, image_bar_frame, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
 			x -= barSize;
 		}
 	}
@@ -267,12 +295,13 @@ public class Renderer
 
 	public static Color color_text = new Color(240, 240, 240);
 	public static Color color_shadow = new Color(15, 15, 15);
+	public static Color color_gray = new Color(60, 60, 60);
 	public static Color color_hp = new Color(0, 210, 0);
 	public static Color color_fatigue = new Color(210, 210, 0);
 	public static Color color_prayer = new Color(0, 105, 210);
 	public static Color color_low = new Color(255, 0, 0);
 
-	private static Image image_border;
-	private static Image image_bar_frame;
+	public static Image image_border;
+	public static Image image_bar_frame;
 	private static BufferedImage game_image;
 }

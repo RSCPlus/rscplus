@@ -57,24 +57,45 @@ public class Client
 				xpdrop_state[i] += xpGain;
 
 				if(xpGain > 0.0f && dropXP)
+				{
 					xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
+
+					if(i == SKILL_HP && xpbar.currentSkill != -1)
+						continue;
+
+					xpbar.setSkill(i);
+				}
 			}
 		}
 	}
 
 	public static void init_login()
 	{
+		for(int i = 0; i < xpdrop_state.length; i++)
+			xpdrop_state[i] = 0.0f;
+
 		Camera.init();
 		mode = MODE_LOGIN;
 	}
 
 	public static void init_game()
 	{
-		for(int i = 0; i < xpdrop_state.length; i++)
-			xpdrop_state[i] = 0.0f;
-
 		Camera.init();
 		mode = MODE_GAME;
+	}
+
+	public static float getXPforLevel(int level)
+	{
+		float xp = 0.0f;
+		for(int x = 1; x < level; x++)
+			xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
+		return xp;
+	}
+
+	public static float getXPUntilLevel(int skill)
+	{
+		float xpNextLevel = getXPforLevel(base_level[skill] + 1);
+		return xpNextLevel - getXP(skill);
 	}
 
 	public static int getLevel(int i)
@@ -136,6 +157,7 @@ public class Client
 	public static String strings[];
 
 	public static XPDropHandler xpdrop_handler = new XPDropHandler();
+	public static XPBar xpbar = new XPBar();
 
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
