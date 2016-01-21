@@ -273,6 +273,9 @@ public class JClassPatcher
 				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
 
 				// Send combat style option
+				LabelNode label = new LabelNode();
+
+				methodNode.instructions.insert(lastNode, label);
 
 				// Format
 				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "da", "b", "(I)V", false));
@@ -294,6 +297,11 @@ public class JClassPatcher
 				methodNode.instructions.insert(lastNode, new IntInsnNode(Opcodes.BIPUSH, 29));
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
 				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Skip combat packet if style is already controlled
+				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IF_ICMPLE, label));
+				methodNode.instructions.insert(lastNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
 
 				// Client init_game
 				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_game", "()V", false));
