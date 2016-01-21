@@ -431,6 +431,48 @@ public class JClassPatcher
 					}
 				}
 			}
+			else if(methodNode.name.equals("d") && methodNode.desc.equals("(B)V"))
+			{
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					// Center logout dialogue
+					if(insnNode.getOpcode() == Opcodes.SIPUSH || insnNode.getOpcode() == Opcodes.BIPUSH)
+					{
+						IntInsnNode call = (IntInsnNode)insnNode;
+						if(call.operand == 256)
+						{
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+						else if(call.operand == 173)
+						{
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+						else if(call.operand == 126)
+						{
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
+							methodNode.instructions.insert(insnNode, new IntInsnNode(Opcodes.SIPUSH, 130));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+						else if(call.operand == 137)
+						{
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
+							methodNode.instructions.insert(insnNode, new IntInsnNode(Opcodes.SIPUSH, 36));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+					}
+				}
+			}
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
