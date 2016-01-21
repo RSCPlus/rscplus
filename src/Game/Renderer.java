@@ -83,11 +83,11 @@ public class Renderer
 
 	public static void present(Graphics g, Image image)
 	{
-		time = System.currentTimeMillis();
-		alpha_time =  0.25f + (((float)Math.sin(System.currentTimeMillis() / 100) + 1.0f) / 2.0f * 0.75f);
-
-		delta_time = (float)(time - delta_timer) / 1000.0f;
-		delta_timer = time;
+		// Update timing
+		long new_time = System.currentTimeMillis();
+		delta_time = (float)(new_time - time) / 1000.0f;
+		time = new_time;
+		alpha_time =  0.25f + (((float)Math.sin(time / 100) + 1.0f) / 2.0f * 0.75f);
 
 		// Run other parts update methods
 		Client.update();
@@ -99,7 +99,7 @@ public class Renderer
 		g2.drawImage(image, 0, 0, null);
 		g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
 
-		if(Client.mode == Client.MODE_GAME)
+		if(Client.state == Client.STATE_GAME)
 		{
 			if(width >= 800)
 				drawLargeBars(g2);
@@ -139,11 +139,11 @@ public class Renderer
 		}
 
 		frames++;
-		if(time > second_timer)
+		if(time > fps_timer)
 		{
 			fps = frames;
 			frames = 0;
-			second_timer = time + 1000;
+			fps_timer = time + 1000;
 
 			Game.instance.setTitle("FPS: " + fps);
 		}
@@ -168,33 +168,6 @@ public class Renderer
 
 		g.drawImage(image_bar_frame, x, y, null);
 		drawShadowText(g, value + "/" + total, x + (image.getWidth(null) / 2), y + (image.getHeight(null) / 2) - 2, color_text, true);
-	}
-
-	public static void drawBarString(Graphics2D g, Image image, int x, int y, Color color, float alpha,
-					 int value, int total, String text)
-	{
-		// Prevent divide by zero
-		if(total == 0)
-			return;
-
-		Dimension bounds = new Dimension(110, 16);
-		x -= (bounds.width / 2);
-		y -= (bounds.height / 2);
-
-		setAlpha(g, alpha);
-
-		g.setColor(color_gray);
-		g.fillRect(x - 1, y - 1, bounds.width + 2, bounds.height + 2);
-
-		g.setColor(color_shadow);
-		g.fillRect(x, y, bounds.width, bounds.height);
-
-		g.setColor(color);
-		int percent = value * (bounds.width - 2) / total;
-		g.fillRect(x + 1, y + 1, percent, bounds.height - 2);
-
-		drawShadowText(g, text, x + (bounds.width / 2), y + (bounds.height / 2) - 2, color_text, true);
-		setAlpha(g, 1.0f);
 	}
 
 	public static void setAlpha(Graphics2D g, float alpha)
@@ -230,39 +203,36 @@ public class Renderer
 
 	private static void drawLargeBars(Graphics2D g2)
 	{
-		if(Client.mode == Client.MODE_GAME)
+		int barSize = 4 + image_bar_frame.getWidth(null);
+		int x = width - (4 + barSize);
+		int y = height - image_bar_frame.getHeight(null);
+
+		int percentHP = 0;
+		int percentPrayer = 0;
+
+		if(Client.getBaseLevel(Client.SKILL_HP) > 0)
 		{
-			int barSize = 4 + image_bar_frame.getWidth(null);
-			int x = width - (4 + barSize);
-			int y = height - image_bar_frame.getHeight(null);
-
-			int percentHP = 0;
-			int percentPrayer = 0;
-
-			if(Client.getBaseLevel(Client.SKILL_HP) > 0)
-			{
-				percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
-				percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
-			}
-
-			if(Client.getFatigue() >= 80)
-				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getFatigue(), 100);
-			else
-				drawBar(g2, image_bar_frame, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
-			x -= barSize;
-
-			if(percentPrayer <= 30)
-				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-			else
-				drawBar(g2, image_bar_frame, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-			x -= barSize;
-
-			if(percentHP <= 30)
-				drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-			else
-				drawBar(g2, image_bar_frame, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-			x -= barSize;
+			percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
+			percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
 		}
+
+		if(Client.getFatigue() >= 80)
+			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getFatigue(), 100);
+		else
+			drawBar(g2, image_bar_frame, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
+		x -= barSize;
+
+		if(percentPrayer <= 30)
+			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+		else
+			drawBar(g2, image_bar_frame, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
+		x -= barSize;
+
+		if(percentHP <= 30)
+			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+		else
+			drawBar(g2, image_bar_frame, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
+		x -= barSize;
 	}
 
 	private static void drawSmallBars(Graphics2D g2)
@@ -289,8 +259,7 @@ public class Renderer
 	private static Font font_big;
 
 	private static int frames = 0;
-	private static long second_timer = 0;
-	private static long delta_timer = 0;
+	private static long fps_timer = 0;
 	private static boolean screenshot = false;
 
 	public static Color color_text = new Color(240, 240, 240);

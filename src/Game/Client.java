@@ -27,7 +27,7 @@ public class Client
 	{
 		for(int i = 0; i < strings.length; i++)
 		{
-			// Patch friend's list remove text coordinate
+			// Patch friend's list "Remove" option X coordinate
 			if(strings[i].contains("~439~"))
 			{
 				strings[i] = strings[i].replace("~439~", "~" + (Renderer.width - (512 - 439)) + "~");
@@ -47,7 +47,7 @@ public class Client
 
 	public static void update()
 	{
-		if(mode == MODE_GAME)
+		if(state == STATE_GAME)
 		{
 			// Process XP drops
 			boolean dropXP = (xpdrop_state[SKILL_HP] > 0.0f);
@@ -75,13 +75,13 @@ public class Client
 			xpdrop_state[i] = 0.0f;
 
 		Camera.init();
-		mode = MODE_LOGIN;
+		state = STATE_LOGIN;
 	}
 
 	public static void init_game()
 	{
 		Camera.init();
-		mode = MODE_GAME;
+		state = STATE_GAME;
 	}
 
 	public static float getXPforLevel(int level)
@@ -139,10 +139,10 @@ public class Client
 	public static final int SKILL_HP = 3;
 	public static final int SKILL_PRAYER = 5;
 
-	public static final int MODE_LOGIN = 1;
-	public static final int MODE_GAME = 2;
+	public static final int STATE_LOGIN = 1;
+	public static final int STATE_GAME = 2;
 
-	public static int mode = MODE_LOGIN;
+	public static int state = STATE_LOGIN;
 
 	public static int inventory_count;
 

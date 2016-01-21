@@ -19,7 +19,7 @@ public class XPDropHandler
 		{
 			XPDrop xpdrop = iterator.next();
 			xpdrop.process(g);
-			if(xpdrop.y < 0)
+			if(xpdrop.y < 0 || xpdrop.y > Renderer.height)
 				iterator.remove();
 		}
 	}

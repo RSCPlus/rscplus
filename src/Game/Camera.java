@@ -74,6 +74,6 @@ public class Camera
 	public static int rotation;
 	public static int distance1;
 	public static int distance2;
-	public static int distance3;
-	public static int distance4;
+	public static int distance3; // This one is divided onto something to do with fog (it's usually 1)
+	public static int distance4; // This one seems to be fog distance
 }
