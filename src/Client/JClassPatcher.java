@@ -367,12 +367,12 @@ public class JClassPatcher
 			}
 			else if(methodNode.name.equals("f") && methodNode.desc.equals("(I)V"))
 			{
-				// Hide Roof option
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while(insnNodeList.hasNext())
 				{
 					AbstractInsnNode insnNode = insnNodeList.next();
 
+					// Hide Roof option
 					if(insnNode.getOpcode() == Opcodes.GETFIELD)
 					{
 						FieldInsnNode field = (FieldInsnNode)insnNode;
@@ -386,6 +386,18 @@ public class JClassPatcher
 								methodNode.instructions.insert(nextNode, new JumpInsnNode(Opcodes.IFGT, label));
 								methodNode.instructions.insert(nextNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS", "Z"));
 							}
+						}
+					}
+
+					// Move wilderness skull
+					if(insnNode.getOpcode() == Opcodes.SIPUSH)
+					{
+						IntInsnNode call = (IntInsnNode)insnNode;
+						if(call.operand == 465 || call.operand == 453)
+						{
+							call.operand = 512 - call.operand;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
 						}
 					}
 				}
