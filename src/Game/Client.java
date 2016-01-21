@@ -89,6 +89,7 @@ public class Client
 	public static void init_game()
 	{
 		Camera.init();
+		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
 	}
 
@@ -165,6 +166,11 @@ public class Client
 	public static final int STATE_LOGIN = 1;
 	public static final int STATE_GAME = 2;
 
+	public static final int COMBAT_CONTROLLED = 0;
+	public static final int COMBAT_AGGRESSIVE = 1;
+	public static final int COMBAT_ACCURATE = 2;
+	public static final int COMBAT_DEFENSIVE = 3;
+
 	public static int state = STATE_LOGIN;
 
 	public static int inventory_count;
@@ -176,6 +182,7 @@ public class Client
 	public static int base_level[];
 	public static int xp[];
 	public static String skill_name[];
+	public static int combat_style;
 
 	public static String strings[];
 

@@ -21,6 +21,7 @@
 
 package Client;
 
+import Game.Client;
 import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -64,6 +65,7 @@ public class Settings
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
+			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
 
 			if(VIEW_DISTANCE < 2300)
 			{
@@ -73,6 +75,17 @@ public class Settings
 			else if(VIEW_DISTANCE > 10000)
 			{
 				VIEW_DISTANCE = 10000;
+				Save();
+			}
+
+			if(COMBAT_STYLE < Client.COMBAT_CONTROLLED)
+			{
+				COMBAT_STYLE = Client.COMBAT_CONTROLLED;
+				Save();
+			}
+			else if(COMBAT_STYLE > Client.COMBAT_DEFENSIVE)
+			{
+				COMBAT_STYLE = Client.COMBAT_DEFENSIVE;
 				Save();
 			}
 		}
@@ -97,6 +110,7 @@ public class Settings
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
+			props.setProperty("combat_style", "" + COMBAT_STYLE);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -173,6 +187,7 @@ public class Settings
 
 	public static int VIEW_DISTANCE = 10000;
 	public static boolean COMBAT_MENU = false;
+	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
 	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD = 2;

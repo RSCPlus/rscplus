@@ -8,7 +8,7 @@
 - Game resolution changing (not 100% complete, but playable)
 - NPC Dialogue options with 1-9 on keyboard (like rs3/osrs)
 - Roof hiding
-- Option to always show combat experience menu
+- Option to always show combat style menu, and persistent combat style setting
 - XP Drops
 - Screenshots
 - Mouse wheel zoom

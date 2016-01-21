@@ -270,18 +270,33 @@ public class JClassPatcher
 			}
 			else if(methodNode.name.equals("i") && methodNode.desc.equals("(I)V"))
 			{
-				// Client.init_game patch
-				AbstractInsnNode findNode = methodNode.instructions.getFirst();
-				for(;;)
-				{
-					if(findNode.getOpcode() == Opcodes.RETURN)
-						break;
-					findNode = findNode.getNext();
-				}
+				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
 
-				MethodInsnNode call = new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_game", "()V", false);
+				// Send combat style option
 
-				methodNode.instructions.insertBefore(findNode, call);
+				// Format
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "da", "b", "(I)V", false));
+				methodNode.instructions.insert(lastNode, new IntInsnNode(Opcodes.SIPUSH, 21294));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Write byte
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ja", "c", "(II)V", false));
+				methodNode.instructions.insert(lastNode, new IntInsnNode(Opcodes.BIPUSH, -80));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "da", "f", "Lja;"));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Create Packet
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "da", "b", "(II)V", false));
+				methodNode.instructions.insert(lastNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insert(lastNode, new IntInsnNode(Opcodes.BIPUSH, 29));
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
+				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+				// Client init_game
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_game", "()V", false));
 			}
 			else if(methodNode.name.equals("o") && methodNode.desc.equals("(I)V"))
 			{
@@ -542,6 +557,28 @@ public class JClassPatcher
 					}
 				}
 			}
+			else if(methodNode.name.equals("k") && methodNode.desc.equals("(B)V"))
+			{
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					// Save settings from combat menu
+					if(insnNode.getOpcode() == Opcodes.PUTFIELD)
+					{
+						FieldInsnNode field = (FieldInsnNode)insnNode;
+
+						if(field.owner.equals("client") && field.name.equals("Fg"))
+						{
+							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "Save", "()V", false));
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Fg", "I"));
+							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+						}
+					}
+				}
+			}
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
@@ -551,6 +588,7 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Vk", "[Ljava/lang/String;", "Game/Client", "skill_name", "[Ljava/lang/String;", true, false);
 			hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
+			hookClassVariable(methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
 
 			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
 
