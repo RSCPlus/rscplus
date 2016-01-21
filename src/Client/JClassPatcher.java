@@ -390,6 +390,35 @@ public class JClassPatcher
 					}
 				}
 			}
+			else if(methodNode.name.equals("a") && methodNode.desc.equals("(IIZ)Z"))
+			{
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					// Move the load screen text dialogue
+					if(insnNode.getOpcode() == Opcodes.SIPUSH)
+					{
+						IntInsnNode call = (IntInsnNode)insnNode;
+						if(call.operand == 256)
+						{
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+						else if(call.operand == 192)
+						{
+							// TODO: Not 100% sure on this offset, it's not 346/2
+							call.operand = 2;
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height", "I"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IADD));
+							methodNode.instructions.insert(insnNode, new IntInsnNode(Opcodes.SIPUSH, 19));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
+						}
+					}
+				}
+			}
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);

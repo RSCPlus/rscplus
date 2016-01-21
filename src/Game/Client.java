@@ -21,6 +21,11 @@
 
 package Game;
 
+import Client.Settings;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+
 public class Client
 {
 	public static void init()
@@ -41,6 +46,9 @@ public class Client
 		Game.instance.applet.addMouseMotionListener(handler_mouse);
 		Game.instance.applet.addMouseWheelListener(handler_mouse);
 		Game.instance.applet.addKeyListener(handler_keyboard);
+
+		if(Settings.DEBUG)
+			dumpStrings();
 
 		init_login();
 	}
@@ -131,9 +139,24 @@ public class Client
 		return string;
 	}
 
-	public static void test()
+	private static void dumpStrings()
 	{
-		System.out.println("options");
+		BufferedWriter writer = null;
+
+		try
+		{
+			File file = new File(Settings.Dir.DUMP + "/strings.dump");
+			writer = new BufferedWriter(new FileWriter(file));
+
+			for(int i = 0; i < strings.length; i++)
+				writer.write(i + ": " + strings[i] + "\n");
+
+			writer.close();
+		}
+		catch(Exception e)
+		{
+			try { writer.close(); } catch(Exception e2) {}
+		}
 	}
 
 	public static final int SKILL_HP = 3;
