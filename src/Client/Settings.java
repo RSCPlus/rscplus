@@ -63,6 +63,18 @@ public class Settings
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
 			DEBUG = getBoolean(props, "debug", false);
+			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
+
+			if(VIEW_DISTANCE < 2300)
+			{
+				VIEW_DISTANCE = 2300;
+				Save();
+			}
+			else if(VIEW_DISTANCE > 10000)
+			{
+				VIEW_DISTANCE = 10000;
+				Save();
+			}
 		}
 		catch(Exception e) {}
 
@@ -84,6 +96,7 @@ public class Settings
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
 			props.setProperty("debug", "" + DEBUG);
+			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -158,6 +171,7 @@ public class Settings
 		"5"
 	};
 
+	public static int VIEW_DISTANCE = 10000;
 	public static boolean COMBAT_MENU = false;
 	public static boolean HIDE_ROOFS = false;
 	public static Dimension RESOLUTION = new Dimension(512, 346);

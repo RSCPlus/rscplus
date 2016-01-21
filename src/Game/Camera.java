@@ -21,13 +21,15 @@
 
 package Game;
 
+import Client.Settings;
+
 public class Camera
 {
 	public static void init()
 	{
 		zoom = 750;
 		rotation = 126;
-		setDistance(9000);
+		setDistance(Settings.VIEW_DISTANCE);
 	}
 
 	public static void setDistance(int distance)
