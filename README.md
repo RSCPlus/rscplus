@@ -37,8 +37,9 @@ ant run
 You can also probably just import it into Eclipse if you use that.
 
 ## Download
+
+*NOTE: If you don't trust this build, go to the Building section above and review the code for safety.*
+
 **Latest**: https://dl.dropboxusercontent.com/u/61045381/rscplus.zip
 
-*Do not trust any other client based off of this source without the source code being available.*
-
-*NOTE: If you don't trust this build, go to the Building section above and review the code.*
+*Do not trust any other client based off of this source without the source code being available and reviewing it (I expect you to do the same with this one).*
