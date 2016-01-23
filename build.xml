@@ -2,11 +2,12 @@
 	<property name="src.dir" value="src" />
 	<property name="build.dir" value="build" />
 	<property name="dist.dir" value="dist" />
+	<property name="bin.dir" value="bin" />
 	<property name="assets.dir" value="assets" />
 
 	<property name="jar.main-class" value="Client.Launcher" />
 	<property name="jar.name" value="${ant.project.name}.jar" />
-	<property name="jar.file" value="${dist.dir}/${jar.name}" />
+	<property name="jar.file" value="${bin.dir}/${jar.name}" />
 
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
@@ -31,15 +32,15 @@
 		</javac>
 	</target>
 
-	<target name="dist" depends="compile">
-		<mkdir dir="${dist.dir}" />
-		<mkdir dir="${dist.dir}/lib" />
-		<copy flatten="true" todir="${dist.dir}/lib" includeemptydirs="false">
+	<target name="install" depends="compile">
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${bin.dir}/lib" />
+		<copy flatten="true" todir="${bin.dir}/lib" includeemptydirs="false">
 			<fileset dir="lib">
 				<include name="**/*.jar" />
 			</fileset>
 		</copy>
-		<copy flatten="true" todir="${dist.dir}" includeemptydirs="false">
+		<copy flatten="true" todir="${bin.dir}" includeemptydirs="false">
 			<fileset dir=".">
 				<include name="LICENSE" />
 			</fileset>
@@ -53,12 +54,23 @@
 		</jar>
 	</target>
 
-	<target name="run" depends="dist">
-		<java jar="${jar.file}" dir="${dist.dir}" fork="true" />
+	<target name="dist" depends="install">
+		<zip destfile="${dist.dir}/rscplus.zip">
+			<fileset dir="${bin.dir}">
+				<include name="rscplus.jar" />
+				<include name="lib/*.jar" />
+				<include name="LICENSE" />
+			</fileset>
+		</zip>
+	</target>
+
+	<target name="run" depends="install">
+		<java jar="${jar.file}" dir="${bin.dir}" fork="true" />
 	</target>
 
 	<target name="clean">
 		<delete dir="${build.dir}" />
+		<delete dir="${bin.dir}" />
 		<delete dir="${dist.dir}" />
 	</target>
 </project>

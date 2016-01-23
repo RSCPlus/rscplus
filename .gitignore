@@ -3,7 +3,8 @@ Thumbs.db
 # Ignore Finder view option files created by OS X
 .DS_Store
 # Ignore files output by build
-/[Bb]uild*/
+/[Bb]in/
+/[Bb]uild/
 /[Dd]ist/
 # Ignore files created by posix people
 *~

@@ -29,14 +29,17 @@
 - *[Command Key]* + c - Toggle combat experience menu
 
 ## Building
+
+Build Status: [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
+
 *You must have git, apache-ant, and jdk 1.7+ installed to do this.*
 ```
 git clone https://github.com/OrN/rscplus
 cd rscplus
-ant run
+ant install
 ```
 
-You can also probably just import it into Eclipse if you use that.
+The result should be in the *bin* folder.
 
 ## Download
 There are two ways to obtain the client mod.
