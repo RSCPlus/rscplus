@@ -2,11 +2,13 @@
 
 *RuneScape Classic is made and owned by Jagex Ltd. and this project is not in any way affiliated with them.*
 
-*NOTE: There is no gaurantee this client will not get you banned, use at your own risk.*
+*There is no gaurantee this client mod will not get you banned, use at your own risk.*
+
+*The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
 ## Features
 - Game resolution changing (not 100% complete, but playable)
-- NPC Dialogue options with 1-9 on keyboard (like rs3/osrs)
+- NPC Dialogue options with 1-9 on keyboard
 - Roof hiding
 - Option to always show combat style menu, and persistent combat style setting
 - XP Drops
@@ -37,9 +39,9 @@ ant run
 You can also probably just import it into Eclipse if you use that.
 
 ## Download
+There are two ways to obtain the client mod.
 
-*NOTE: If you don't trust this build, go to the Building section above and review the code for safety.*
+- Building from source and reviewing the code, see the above section labeled **Building**. *(Recommended)*
+- Downloading the build I uploaded [here](https://dl.dropboxusercontent.com/u/61045381/rscplus.zip) for the latest revision. *(Not Recommended, but if you must...)*
 
-**Latest**: https://dl.dropboxusercontent.com/u/61045381/rscplus.zip
-
-*Do not trust any other client based off of this source without the source code being available and reviewing it (I expect you to do the same with this one).*
+I'm only providing that download link so people don't go around asking others to build it for them and risk them modifying it on them.

@@ -1,5 +1,5 @@
 /**
- *	rscplus, RuneScape Classic injection client to enhance the game
+ *	rscplus
  *
  *	This file is part of rscplus.
  *
