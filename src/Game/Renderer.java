@@ -132,7 +132,9 @@ public class Renderer
 			try
 			{
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-				ImageIO.write(game_image, "png", new File(Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png"));
+				String fname = Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
+				ImageIO.write(game_image, "png", new File(fname));
+				Client.displayMessage("@cya@Screenshot saved to '" + fname + "'");
 			}
 			catch(Exception e) {}
 			screenshot = false;

@@ -167,7 +167,7 @@ public class Launcher extends JFrame implements Runnable
 			return;
 		}
 
-		JClassLoader classLoader = new JClassLoader();
+		classLoader = new JClassLoader();
 		if(!classLoader.fetch(this, config.getJarURL()))
 		{
 			error("Unable to fetch Jar");
@@ -238,6 +238,8 @@ public class Launcher extends JFrame implements Runnable
 	}
 
 	public static Launcher instance;
+
+	public JClassLoader classLoader;
 
 	private JComboBox m_worldSelector;
 	private JTextField m_resolutionWidth;

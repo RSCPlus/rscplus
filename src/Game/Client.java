@@ -93,6 +93,20 @@ public class Client
 		state = STATE_GAME;
 	}
 
+	public static void displayMessage(String message)
+	{
+		if(Client.state != Client.STATE_GAME || Reflection.displayMessage == null)
+			return;
+
+		try
+		{
+			boolean accessible = Reflection.displayMessage.isAccessible();
+			Reflection.displayMessage.setAccessible(true);
+			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, 0, 0, null, null);
+			Reflection.displayMessage.setAccessible(accessible);
+		} catch(Exception e) {}
+	}
+
 	public static float getXPforLevel(int level)
 	{
 		float xp = 0.0f;
@@ -188,6 +202,9 @@ public class Client
 
 	public static XPDropHandler xpdrop_handler = new XPDropHandler();
 	public static XPBar xpbar = new XPBar();
+
+	// Game's client instance
+	public static Object instance;
 
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;

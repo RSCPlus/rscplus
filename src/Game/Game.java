@@ -68,6 +68,7 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		getContentPane().add(applet);
 		setVisible(true);
 
+		Reflection.Load();
 		Renderer.init();
 		applet.init();
 		applet.start();

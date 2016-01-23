@@ -42,10 +42,22 @@ public class KeyboardHandler implements KeyListener
 				Renderer.takeScreenshot();
 
 			if(command_key == KeyEvent.VK_R)
+			{
 				Settings.toggleHideRoofs();
+				if(Settings.HIDE_ROOFS)
+					Client.displayMessage("@cya@Roofs are now hidden");
+				else
+					Client.displayMessage("@cya@Roofs are now shown");
+			}
 
 			if(command_key == KeyEvent.VK_C)
+			{
 				Settings.toggleCombatMenu();
+				if(Settings.COMBAT_MENU)
+					Client.displayMessage("@cya@Combat style is now shown");
+				else
+					Client.displayMessage("@cya@Combat style is now hidden");
+			}
 
 			e.consume();
 		}

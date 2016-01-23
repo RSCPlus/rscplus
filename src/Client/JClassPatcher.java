@@ -333,8 +333,9 @@ public class JClassPatcher
 
 				// Client.init patch
 				AbstractInsnNode findNode = methodNode.instructions.getFirst();
-				MethodInsnNode call = new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init", "()V", false);
-				methodNode.instructions.insertBefore(findNode, call);
+				methodNode.instructions.insertBefore(findNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(findNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "instance", "Ljava/lang/Object;"));
+				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init", "()V", false));
 			}
 			else if(methodNode.name.equals("G") && methodNode.desc.equals("(I)V"))
 			{
