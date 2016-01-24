@@ -28,9 +28,7 @@
 - *[Command Key]* + r - Toggle roof hiding
 - *[Command Key]* + c - Toggle combat experience menu
 
-## Building
-
-Build Status: [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
+## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
 
 *You must have git, apache-ant, and jdk 1.7+ installed to do this.*
 ```
@@ -42,9 +40,4 @@ ant install
 The result should be in the *bin* folder.
 
 ## Download
-There are two ways to obtain the client mod.
-
-- Building from source and reviewing the code, see the above section labeled **Building**. *(Recommended)*
-- Downloading the build I uploaded [here](https://dl.dropboxusercontent.com/u/61045381/rscplus.zip) for the latest revision. *(Not Recommended, but if you must...)*
-
-I'm only providing that download link so people don't go around asking others to build it for them and risk them modifying it on them.
+The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.zip).
