@@ -75,7 +75,7 @@ public class XPBar
 		g.setColor(Renderer.color_hp);
 		g.fillRect(x + 1, y + 1, percent, bounds.height - 2);
 
-		Renderer.drawShadowText(g, Client.skill_name[currentSkill], x + (bounds.width / 2), y + (bounds.height / 2) - 2,
+		Renderer.drawShadowText(g, Client.skill_name[currentSkill] + " (" + Client.base_level[currentSkill] + ")", x + (bounds.width / 2), y + (bounds.height / 2) - 2,
 					Renderer.color_text, true);
 
 		Renderer.setAlpha(g, 1.0f);
