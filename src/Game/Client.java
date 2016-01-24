@@ -38,6 +38,10 @@ public class Client
 				strings[i] = strings[i].replace("~439~", "~" + (Renderer.width - (512 - 439)) + "~");
 				strings[i] = fixLengthString(strings[i]);
 			}
+			else if(strings[i].contains("Oh dear! You are dead..."))
+			{
+				strings[i] = "YOU DIED";
+			}
 		}
 
 		handler_mouse = new MouseHandler();
