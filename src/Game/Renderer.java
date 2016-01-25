@@ -104,17 +104,72 @@ public class Renderer
 
 		if(Client.state == Client.STATE_GAME)
 		{
-			if(width >= 800)
-				drawLargeBars(g2);
-			else
-				drawSmallBars(g2);
-
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
 
-			// Draw skill boosts
-			int y = 130;
+			int percentHP = 0;
+			int percentPrayer = 0;
+			float alphaHP = 1.0f;
+			float alphaPrayer = 1.0f;
+			float alphaFatigue = 1.0f;
+			Color colorHP = color_hp;
+			Color colorPrayer = color_prayer;
+			Color colorFatigue = color_fatigue;
+
+			if(Client.getBaseLevel(Client.SKILL_HP) > 0)
+			{
+				percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
+				percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
+			}
+
+			if(percentHP < 30)
+			{
+				colorHP = color_low;
+				alphaHP = alpha_time;
+			}
+
+			if(percentPrayer < 30)
+			{
+				colorPrayer = color_low;
+				alphaPrayer = alpha_time;
+			}
+
+			if(Client.getFatigue() >= 80)
+			{
+				colorFatigue = color_low;
+				alphaFatigue = alpha_time;
+			}
+
+			// Draw HP, Prayer, Fatigue overlay
+			int x = 24;
+			int y = 138;
+			if(width < 800)
+			{
+				setAlpha(g2, alphaHP);
+				drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/" + Client.base_level[Client.SKILL_HP], x, y, colorHP, false); y += 16;
+				setAlpha(g2, alphaPrayer);
+				drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/" + Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false); y += 16;
+				setAlpha(g2, alphaFatigue);
+				drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false); y += 16;
+			}
+			else
+			{
+				int barSize = 4 + image_bar_frame.getWidth(null);
+				int x2 = width - (4 + barSize);
+				int y2 = height - image_bar_frame.getHeight(null);
+
+				drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
+				x2 -= barSize;
+
+				drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer, Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
+				x2 -= barSize;
+
+				drawBar(g2, image_bar_frame, x2, y2, colorHP, alphaHP, Client.current_level[Client.SKILL_HP], Client.base_level[Client.SKILL_HP]);
+				x2 -= barSize;
+			}
+
+			// Draw under combat style info
 			for(int i = 0; i < 18; i++)
 			{
 				if(Client.current_level[i] != Client.base_level[i] && (i != Client.SKILL_HP && i != Client.SKILL_PRAYER))
@@ -129,11 +184,14 @@ public class Renderer
 						color = color_hp;
 					}
 
-					drawShadowText(g2, boost, 8, y, color, false);
-					drawShadowText(g2, Client.skill_name[i], 32, y, color, false);
+					drawShadowText(g2, boost, x, y, color, false);
+					drawShadowText(g2, Client.skill_name[i], x + 32, y, color, false);
 					y += 14;
 				}
 			}
+
+			Client.xpdrop_handler.draw(g2);
+			Client.xpbar.draw(g2);
 
 			if(Settings.DEBUG)
 			{
@@ -160,9 +218,6 @@ public class Renderer
 				drawShadowText(g2, "Camera Distance4: " + Camera.distance4, 32, y, color_text, false); y += 16;
 			}
 
-			Client.xpdrop_handler.draw(g2);
-			Client.xpbar.draw(g2);
-
 			g2.setFont(font_big);
 			if(Settings.FATIGUE_ALERT && Client.getFatigue() >= 100)
 			{
@@ -174,9 +229,7 @@ public class Renderer
 
 		g2.dispose();
 
-		g.drawImage(game_image, 0, 0, null);
-
-		// Right now is a good time to take a screenshot
+		// Right now is a good time to take a screenshot if one is requested
 		if(screenshot)
 		{
 			try
@@ -189,6 +242,8 @@ public class Renderer
 			catch(Exception e) {}
 			screenshot = false;
 		}
+
+		g.drawImage(game_image, 0, 0, null);
 
 		frames++;
 		if(time > fps_timer)
@@ -253,45 +308,6 @@ public class Renderer
 		screenshot = true;
 	}
 
-	private static void drawLargeBars(Graphics2D g2)
-	{
-		int barSize = 4 + image_bar_frame.getWidth(null);
-		int x = width - (4 + barSize);
-		int y = height - image_bar_frame.getHeight(null);
-
-		int percentHP = 0;
-		int percentPrayer = 0;
-
-		if(Client.getBaseLevel(Client.SKILL_HP) > 0)
-		{
-			percentHP = Client.getLevel(Client.SKILL_HP) * 100 / Client.getBaseLevel(Client.SKILL_HP);
-			percentPrayer = Client.getLevel(Client.SKILL_PRAYER) * 100 / Client.getBaseLevel(Client.SKILL_PRAYER);
-		}
-
-		if(Client.getFatigue() >= 80)
-			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getFatigue(), 100);
-		else
-			drawBar(g2, image_bar_frame, x, y, color_fatigue, 1.0f, Client.getFatigue(), 100);
-		x -= barSize;
-
-		if(percentPrayer <= 30)
-			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-		else
-			drawBar(g2, image_bar_frame, x, y, color_prayer, 1.0f, Client.getLevel(Client.SKILL_PRAYER), Client.getBaseLevel(Client.SKILL_PRAYER));
-		x -= barSize;
-
-		if(percentHP <= 30)
-			drawBar(g2, image_bar_frame, x, y, color_low, alpha_time, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-		else
-			drawBar(g2, image_bar_frame, x, y, color_hp, 1.0f, Client.getLevel(Client.SKILL_HP), Client.getBaseLevel(Client.SKILL_HP));
-		x -= barSize;
-	}
-
-	private static void drawSmallBars(Graphics2D g2)
-	{
-		// TODO: Draw smaller version of bars
-	}
-
 	private static Dimension getStringBounds(Graphics2D g, String str)
 	{
 		FontRenderContext context = g.getFontRenderContext();
@@ -319,7 +335,7 @@ public class Renderer
 	public static Color color_gray = new Color(60, 60, 60);
 	public static Color color_hp = new Color(0, 210, 0);
 	public static Color color_fatigue = new Color(210, 210, 0);
-	public static Color color_prayer = new Color(0, 105, 210);
+	public static Color color_prayer = new Color(160, 160, 210);
 	public static Color color_low = new Color(255, 0, 0);
 
 	public static Image image_border;

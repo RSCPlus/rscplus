@@ -55,21 +55,15 @@ public class JClassPatcher
 		reader.accept(node, ClassReader.SKIP_DEBUG);
 
 		if(node.name.equals("ua"))
-		{
 			patchRenderer(node);
-		}
 		else if(node.name.equals("lb"))
-		{
 			patchCamera(node);
-		}
 		else if(node.name.equals("e"))
-		{
 			patchApplet(node);
-		}
 		else if(node.name.equals("client"))
-		{
 			patchClient(node);
-		}
+
+		patchGeneric(node);
 
 		if(Settings.DEBUG)
 			dumpClass(node);
@@ -77,6 +71,23 @@ public class JClassPatcher
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		node.accept(writer);
 		return writer.toByteArray();
+	}
+
+	private static void patchGeneric(ClassNode node)
+	{
+		Iterator<MethodNode> methodNodeList = node.methods.iterator();
+		while(methodNodeList.hasNext())
+		{
+			MethodNode methodNode = methodNodeList.next();
+
+			hookClassVariable(methodNode, "e", "m", "I", "Game/Renderer", "width", "I", false, true);
+			hookClassVariable(methodNode, "e", "a", "I", "Game/Renderer", "height", "I", false, true);
+
+			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
+			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
+
+			//hookClassVariable(methodNode, "client", "Tb", "[Lta;", "Game/Client", "players", "[Ljava/lang/Object;", true, false);
+		}
 	}
 
 	private static void patchApplet(ClassNode node)
@@ -588,9 +599,12 @@ public class JClassPatcher
 					}
 				}
 			}
+			else if(methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V"))
+			{
+				AbstractInsnNode insnNode = methodNode.instructions.getFirst();
 
-			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
-			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
+				
+			}
 
 			hookClassVariable(methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
 			hookClassVariable(methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
