@@ -208,6 +208,10 @@ public class Renderer
 				y += 16;
 				drawShadowText(g2, "Fatigue: " + ((float)Client.fatigue * 100.0f / 750.0f), 32, y, color_text, false); y += 16;
 
+				// Draw Mouse Info
+				y += 16;
+				drawShadowText(g2, "Mouse Position: " + MouseHandler.x + ", " + MouseHandler.y, 32, y, color_text, false); y += 16;
+
 				// Draw camera info
 				y += 16;
 				drawShadowText(g2, "Camera Rotation: " + Camera.rotation, 32, y, color_text, false); y += 16;

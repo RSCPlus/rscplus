@@ -36,6 +36,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		if(listener_mouse == null)
 			return;
 
+		x = e.getX();
+		y = e.getY();
 		listener_mouse.mouseClicked(e);
 	}
 
@@ -45,6 +47,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		if(listener_mouse == null)
 			return;
 
+		x = e.getX();
+		y = e.getY();
 		listener_mouse.mouseEntered(e);
 	}
 
@@ -54,6 +58,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		if(listener_mouse == null)
 			return;
 
+		x = e.getX();
+		y = e.getY();
 		listener_mouse.mouseExited(e);
 	}
 
@@ -71,7 +77,11 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		}
 
 		if(!e.isConsumed())
+		{
+			x = e.getX();
+			y = e.getY();
 			listener_mouse.mousePressed(e);
+		}
 	}
 
 	@Override
@@ -87,7 +97,11 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		}
 
 		if(!e.isConsumed())
+		{
+			x = e.getX();
+			y = e.getY();
 			listener_mouse.mouseReleased(e);
+		}
 	}
 
 	@Override
@@ -108,7 +122,11 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		}
 
 		if(!e.isConsumed())
+		{
+			x = e.getX();
+			y = e.getY();
 			listener_mouse_motion.mouseDragged(e);
+		}
 	}
 
 	@Override
@@ -117,6 +135,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 		if(listener_mouse_motion == null)
 			return;
 
+		x = e.getX();
+		y = e.getY();
 		listener_mouse_motion.mouseMoved(e);
 	}
 
@@ -130,6 +150,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 	private Point m_rotatePosition;
 	private float m_rotateX = 0.0f;
 
+	public static int x;
+	public static int y;
 	public static MouseListener listener_mouse = null;
 	public static MouseMotionListener listener_mouse_motion = null;
 }
