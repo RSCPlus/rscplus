@@ -130,7 +130,7 @@ public class Renderer
 					}
 
 					drawShadowText(g2, boost, 8, y, color, false);
-					drawShadowText(g2, Client.skill_name[i], 48, y, color, false);
+					drawShadowText(g2, Client.skill_name[i], 32, y, color, false);
 					y += 14;
 				}
 			}
