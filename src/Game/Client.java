@@ -178,8 +178,24 @@ public class Client
 		}
 	}
 
+	public static final int SKILL_ATTACK = 0;
+	public static final int SKILL_DEFENSE = 1;
+	public static final int SKILL_STRENGTH = 2;
 	public static final int SKILL_HP = 3;
+	public static final int SKILL_RANGED = 4;
 	public static final int SKILL_PRAYER = 5;
+	public static final int SKILL_MAGIC = 6;
+	public static final int SKILL_COOKING = 7;
+	public static final int SKILL_WOODCUT = 8;
+	public static final int SKILL_FLETCHING = 9;
+	public static final int SKILL_FISHING = 10;
+	public static final int SKILL_FIREMAKING = 11;
+	public static final int SKILL_CRAFTING = 12;
+	public static final int SKILL_SMITHING = 13;
+	public static final int SKILL_MINING = 14;
+	public static final int SKILL_HERBLAW = 15;
+	public static final int SKILL_AGILITY = 16;
+	public static final int SKILL_THIEVING = 17;
 
 	public static final int STATE_LOGIN = 1;
 	public static final int STATE_GAME = 2;

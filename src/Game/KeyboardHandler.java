@@ -59,6 +59,15 @@ public class KeyboardHandler implements KeyListener
 					Client.displayMessage("@cya@Combat style is now hidden");
 			}
 
+			if(command_key == KeyEvent.VK_D)
+			{
+				Settings.toggleDebug();
+				if(Settings.DEBUG)
+					Client.displayMessage("@cya@Debug mode is on");
+				else
+					Client.displayMessage("@cya@Debug mode is off");
+			}
+
 			e.consume();
 		}
 

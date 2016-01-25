@@ -134,6 +134,12 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleDebug()
+	{
+		DEBUG = !DEBUG;
+		Save();
+	}
+
 	private static int getInt(Properties props, String key, int def)
 	{
 		String value = props.getProperty(key);

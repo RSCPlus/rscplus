@@ -39,6 +39,8 @@ public class Game extends JFrame implements AppletStub, WindowListener
 {
 	public Game()
 	{
+		instance = this;
+
 		// Set window icon
 		URL iconURL = getClass().getResource("/assets/icon.png");
 		if(iconURL != null)
@@ -56,8 +58,6 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		pack();
 		pack();
 		setLocationRelativeTo(null);
-
-		instance = this;
 	}
 
 	public void start()

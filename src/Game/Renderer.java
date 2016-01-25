@@ -74,7 +74,10 @@ public class Renderer
 			image_border = ImageIO.read(Game.instance.getClass().getResource("/assets/border.png"));
 			image_bar_frame = ImageIO.read(Game.instance.getClass().getResource("/assets/bar.png"));
 		}
-		catch(Exception e) {}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static void resize(int w, int h)
@@ -109,6 +112,31 @@ public class Renderer
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
+
+			if(Settings.DEBUG)
+			{
+				int y = 32;
+
+				// Draw Skills
+				for(int i = 0; i < 18; i++)
+				{
+					drawShadowText(g2, Client.skill_name[i] + " (" + i + "): " + Client.current_level[i] + "/" + Client.base_level[i] + " (" + Client.getXP(i) + " xp)", 32, y, color_text, false);
+					y += 16;
+				}
+
+				// Draw Fatigue
+				y += 16;
+				drawShadowText(g2, "Fatigue: " + ((float)Client.fatigue * 100.0f / 750.0f), 32, y, color_text, false); y += 16;
+
+				// Draw camera info
+				y += 16;
+				drawShadowText(g2, "Camera Rotation: " + Camera.rotation, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Zoom: " + Camera.zoom, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance1: " + Camera.distance1, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance2: " + Camera.distance2, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance3: " + Camera.distance3, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance4: " + Camera.distance4, 32, y, color_text, false); y += 16;
+			}
 
 			Client.xpdrop_handler.draw(g2);
 			Client.xpbar.draw(g2);
