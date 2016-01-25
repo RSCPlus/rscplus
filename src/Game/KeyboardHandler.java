@@ -68,6 +68,15 @@ public class KeyboardHandler implements KeyListener
 					Client.displayMessage("@cya@Debug mode is off");
 			}
 
+			if(command_key == KeyEvent.VK_F)
+			{
+				Settings.toggleFatigueAlert();
+				if(Settings.FATIGUE_ALERT)
+					Client.displayMessage("@cya@Fatigue alert is now on");
+				else
+					Client.displayMessage("@cya@Fatigue alert is now off");
+			}
+
 			e.consume();
 		}
 

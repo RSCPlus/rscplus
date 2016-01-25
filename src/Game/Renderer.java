@@ -164,7 +164,7 @@ public class Renderer
 			Client.xpbar.draw(g2);
 
 			g2.setFont(font_big);
-			if(Client.getFatigue() >= 100)
+			if(Settings.FATIGUE_ALERT && Client.getFatigue() >= 100)
 			{
 				setAlpha(g2, alpha_time);
 				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);

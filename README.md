@@ -27,6 +27,7 @@
 - *[Command Key]* + s - Take screenshot (Saved in the screenshots directory)
 - *[Command Key]* + r - Toggle roof hiding
 - *[Command Key]* + c - Toggle combat experience menu
+- *[Command Key]* + f - Toggle fatigue alert at 100%
 - *[Command Key]* + d - Toggle debug mode
 
 ## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)

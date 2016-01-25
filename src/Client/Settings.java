@@ -66,6 +66,7 @@ public class Settings
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
+			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", true);
 
 			if(VIEW_DISTANCE < 2300)
 			{
@@ -111,6 +112,7 @@ public class Settings
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
+			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -137,6 +139,12 @@ public class Settings
 	public static void toggleDebug()
 	{
 		DEBUG = !DEBUG;
+		Save();
+	}
+
+	public static void toggleFatigueAlert()
+	{
+		FATIGUE_ALERT = !FATIGUE_ALERT;
 		Save();
 	}
 
@@ -192,6 +200,7 @@ public class Settings
 	};
 
 	public static int VIEW_DISTANCE = 10000;
+	public static boolean FATIGUE_ALERT = true;
 	public static boolean COMBAT_MENU = false;
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
