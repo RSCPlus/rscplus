@@ -113,9 +113,31 @@ public class Renderer
 			// in client.class that contains the max inventory slots
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
 
+			// Draw skill boosts
+			int y = 130;
+			for(int i = 0; i < 18; i++)
+			{
+				if(Client.current_level[i] != Client.base_level[i] && (i != Client.SKILL_HP && i != Client.SKILL_PRAYER))
+				{
+					int diff = Client.current_level[i] - Client.base_level[i];
+					Color color = color_low;
+
+					String boost = "" + diff;
+					if(diff > 0)
+					{
+						boost = "+" + boost;
+						color = color_hp;
+					}
+
+					drawShadowText(g2, boost, 8, y, color, false);
+					drawShadowText(g2, Client.skill_name[i], 48, y, color, false);
+					y += 14;
+				}
+			}
+
 			if(Settings.DEBUG)
 			{
-				int y = 32;
+				y = 32;
 
 				// Draw Skills
 				for(int i = 0; i < 18; i++)
