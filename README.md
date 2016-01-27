@@ -6,6 +6,8 @@
 
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
+As always, please remember **without someone wasting their life working on it, there is no rscplus**. Support the movement - I don't accept donations, but apparently I give them out~
+
 ## Features
 - Game resolution changing (not 100% complete, but playable)
 - NPC Dialogue options with 1-9 on keyboard
