@@ -42,7 +42,7 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		instance = this;
 
 		// Set window icon
-		URL iconURL = getClass().getResource("/assets/icon.png");
+		URL iconURL = Settings.getResource("/assets/icon.png");
 		if(iconURL != null)
 		{
 			ImageIcon icon = new ImageIcon(iconURL);

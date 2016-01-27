@@ -22,9 +22,13 @@
 package Client;
 
 import Game.Client;
+import Game.Game;
+
 import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 public class Settings
@@ -43,6 +47,8 @@ public class Settings
 				Dir.JAR = Dir.JAR.substring(0, index);
 		}
 		catch(Exception e) {}
+
+		Logger.Info("Jar Location: " + Dir.JAR);
 
 		// Load other directories
 		Dir.CACHE = Dir.JAR + "/cache";
@@ -122,6 +128,52 @@ public class Settings
 		{
 			Logger.Error("Unable to save settings");
 		}
+	}
+
+	public static URL getResource(String fname)
+	{
+		URL url = null;
+		try
+		{
+			url = Launcher.instance.getClass().getResource(fname);
+		}
+		catch(Exception e) {}
+
+		if(url == null)
+		{
+			try
+			{
+				url = new URL("file://" + Dir.JAR + "/.." + fname);
+			}
+			catch(Exception e) { e.printStackTrace(); }
+		}
+
+		Logger.Info("Loading resource: " + fname);
+
+		return url;
+	}
+
+	public static InputStream getResourceAsStream(String fname)
+	{
+		InputStream stream = null;
+		try
+		{
+			stream = Launcher.instance.getClass().getResourceAsStream(fname);
+		}
+		catch(Exception e) {}
+
+		if(stream == null)
+		{
+			try
+			{
+				stream = new FileInputStream(Dir.JAR + "/.." + fname);
+			}
+			catch(Exception e) { e.printStackTrace(); }
+		}
+
+		Logger.Info("Loading resource as stream: " + fname);
+
+		return stream;
 	}
 
 	public static void toggleHideRoofs()

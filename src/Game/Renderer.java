@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
-import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -54,13 +53,13 @@ public class Renderer
 		try
 		{
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			InputStream is = Game.instance.getClass().getResourceAsStream("/assets/Helvetica-Bold.ttf");
+			InputStream is = Settings.getResourceAsStream("/assets/Helvetica-Bold.ttf");
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			ge.registerFont(font);
 			font_main = font.deriveFont(Font.PLAIN, 11.0f);
 			font_big = font.deriveFont(Font.PLAIN, 22.0f);
 
-			is = Game.instance.getClass().getResourceAsStream("/assets/TimesRoman.ttf");
+			is = Settings.getResourceAsStream("/assets/TimesRoman.ttf");
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
 		}
 		catch(Exception e)
@@ -71,8 +70,8 @@ public class Renderer
 		// Load images
 		try
 		{
-			image_border = ImageIO.read(Game.instance.getClass().getResource("/assets/border.png"));
-			image_bar_frame = ImageIO.read(Game.instance.getClass().getResource("/assets/bar.png"));
+			image_border = ImageIO.read(Settings.getResource("/assets/border.png"));
+			image_bar_frame = ImageIO.read(Settings.getResource("/assets/bar.png"));
 		}
 		catch(Exception e)
 		{
