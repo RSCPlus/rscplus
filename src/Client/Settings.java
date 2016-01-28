@@ -73,6 +73,10 @@ public class Settings
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
 			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", true);
+			TWITCH_HIDE = getBoolean(props, "twitch_hide", false);
+			TWITCH_USERNAME = getString(props, "twitch_username", "");
+			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
+			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
 
 			if(VIEW_DISTANCE < 2300)
 			{
@@ -119,6 +123,10 @@ public class Settings
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
 			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
+			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
+			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
+			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
+			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -200,6 +208,21 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleTwitchHide()
+	{
+		TWITCH_HIDE = !TWITCH_HIDE;
+		Save();
+	}
+
+	private static String getString(Properties props, String key, String def)
+	{
+		String value = props.getProperty(key);
+		if(value == null)
+			return def;
+
+		return value;
+	}
+
 	private static int getInt(Properties props, String key, int def)
 	{
 		String value = props.getProperty(key);
@@ -259,4 +282,8 @@ public class Settings
 	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD = 2;
 	public static boolean DEBUG = false;
+	public static boolean TWITCH_HIDE = false;
+	public static String TWITCH_USERNAME = "";
+	public static String TWITCH_OAUTH = "";
+	public static String TWITCH_CHANNEL = "";
 }

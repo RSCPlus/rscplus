@@ -31,6 +31,7 @@ As always, please remember **without someone wasting their life working on it, t
 - *[Command Key]* + c - Toggle combat experience menu
 - *[Command Key]* + f - Toggle fatigue alert at 100%
 - *[Command Key]* + d - Toggle debug mode
+- *[Command Key]* + t - Toggle twitch chat hidden/shown
 
 ## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
 

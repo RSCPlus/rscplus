@@ -202,6 +202,14 @@ public class JClassPatcher
 							methodNode.instructions.insertBefore(insnNode, widthField);
 							methodNode.instructions.insert(insnNode, add);
 						}
+						/*else if(call.operand == 502)
+						{
+							call.operand = 512 - call.operand;
+							FieldInsnNode widthField = new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I");
+							InsnNode add = new InsnNode(Opcodes.ISUB);
+							methodNode.instructions.insertBefore(insnNode, widthField);
+							methodNode.instructions.insert(insnNode, add);
+						}*/
 					}
 				}
 			}

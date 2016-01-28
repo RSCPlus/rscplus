@@ -22,6 +22,7 @@
 package Game;
 
 import Client.Settings;
+import Client.TwitchIRC;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -88,6 +89,8 @@ public class Client
 
 		Camera.init();
 		state = STATE_LOGIN;
+
+		twitch.disconnect();
 	}
 
 	public static void init_game()
@@ -95,9 +98,12 @@ public class Client
 		Camera.init();
 		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
+
+		if(Settings.TWITCH_CHANNEL.length() > 0)
+			twitch.connect();
 	}
 
-	public static void displayMessage(String message)
+	public static void displayMessage(String message, int chat_type)
 	{
 		if(Client.state != Client.STATE_GAME || Reflection.displayMessage == null)
 			return;
@@ -106,7 +112,7 @@ public class Client
 		{
 			boolean accessible = Reflection.displayMessage.isAccessible();
 			Reflection.displayMessage.setAccessible(true);
-			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, 0, 0, null, null);
+			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, chat_type, 0, null, null);
 			Reflection.displayMessage.setAccessible(accessible);
 		} catch(Exception e) {}
 	}
@@ -200,6 +206,11 @@ public class Client
 	public static final int STATE_LOGIN = 1;
 	public static final int STATE_GAME = 2;
 
+	public static final int CHAT_NONE = 0;
+	public static final int CHAT_PRIVATE = 1;
+	public static final int CHAT_QUEST = 3;
+	public static final int CHAT_CHAT = 4;
+
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
 	public static final int COMBAT_ACCURATE = 2;
@@ -226,6 +237,7 @@ public class Client
 	// Game's client instance
 	public static Object instance;
 
+	private static TwitchIRC twitch = new TwitchIRC();
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
 	private static float xpdrop_state[] = new float[18];

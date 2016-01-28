@@ -21,6 +21,8 @@
 
 package Client;
 
+import Game.Client;
+
 public class Logger
 {
 	public enum Type
@@ -42,7 +44,11 @@ public class Logger
 		if(!Settings.DEBUG && type == Type.DEBUG)
 			return;
 
-		System.out.println("[" + m_logTypeName[type.id] + "] " + message);
+		String msg = "[" + m_logTypeName[type.id] + "] " + message;
+		System.out.println(msg);
+
+		if(type == Type.DEBUG)
+			Client.displayMessage("@cya@" + msg, Client.CHAT_NONE);
 	}
 
 	public static void Debug(String message)

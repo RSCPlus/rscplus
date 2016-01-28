@@ -81,6 +81,40 @@ public class Renderer
 
 	public static void resize(int w, int h)
 	{
+		// TODO: Full resizable
+		//
+		// 1. Need to resize the client's game Image (via it's ImageConsumer)
+		// 2. Need to resize the renderer's pixel buffer
+		// 3. Need to pass that new buffer to the camera
+		// 4. Run a certain camera method (can't remember off the top of my head, it's in one of the hooks), it'll set it up for the new size
+		// 5. Move all menus relative to the new size (the top right menus, the chat, all of that good stuff)
+		//
+		// That may not be all, but it's a start.
+		// There may be some shortcuts calling some of the init methods for the HUD components in client.class
+		//
+		// As of right now, all of this isn't easy to add because of the lack of anything menu related for our reflection,
+		// but as soon as it's all set, it will not be hard to do at all.
+		//
+		// Resizable in it's most basic form is a joke, don't let anybody ever fool you and say they worked hard implementing it.
+		//	A lot of the RSC engine's drawing is based on the client's current width/height, so when you resize it, it works right away.
+		//	Now, there are a few exceptions to this. The right click menu has static coordinates for it's bounds, and can only
+		//	be fixed patching the bytecode. The menus (top right bar, chat, etc.) also use static coordinates, so they all must
+		//	be patched as well. In rscplus, we patch it all using the current windows width/height, so most things will work right away.
+		//	For example, when full resizable is added, any corrected UI elements like loading/logging out will be 100% working.
+		//
+		// 1. Set client class width/height
+		// 2. Patch hardcoded mouse coordinates for right click menu
+		// 3. Patch renderer "~###~" text coords to support 4 digit dimensions "~####~" (old method is meant for the 512x346 game window size)
+		//	NOTE: Technically we can't go past 9999xX because of this, but it includes up to 8K resolution.
+		// 4. Patch the friend's list remove text coordinate with the new one
+		// 5. Patch friend's list mouse coordinates for the new size
+		//
+		// I am absolutely amazed that these so-called "client hackers" that are just getting this feature couldn't do this until after rscplus
+		// was released. I don't know every client mod out there, but I do know of at least one that got resizable and asks for money.
+		//
+		// I'm surprised there was a demand for it. Seeing as none of their users play long enough to need to see the screen.
+		//
+		// ~ OrNoX
 	}
 
 	public static void present(Graphics g, Image image)
@@ -240,7 +274,7 @@ public class Renderer
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 				String fname = Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
 				ImageIO.write(game_image, "png", new File(fname));
-				Client.displayMessage("@cya@Screenshot saved to '" + fname + "'");
+				Client.displayMessage("@cya@Screenshot saved to '" + fname + "'", Client.CHAT_NONE);
 			}
 			catch(Exception e) {}
 			screenshot = false;
