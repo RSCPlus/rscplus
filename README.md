@@ -8,6 +8,16 @@
 
 As always, please remember **without someone wasting their life working on it, there is no rscplus**. Support the movement - I don't accept donations, but apparently I give them out~
 
+## Contributing
+
+- Fork the project
+- Create a branch in your fork
+- Work on it
+- Make sure the branch is up-to-date with master
+- Pull request the branch
+
+*I will not accept any automation requests.*
+
 ## Features
 - Game resolution changing (not 100% complete, but playable)
 - NPC Dialogue options with 1-9 on keyboard
