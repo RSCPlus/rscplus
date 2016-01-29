@@ -21,5 +21,5 @@ Mouse wheel scroll - Zoom camera
 
 ~ Chat Commands
 
-::<skillname> - Tells skill level and xp in chat
+::[skillname] - Tells skill level and xp in chat
 ::total - Shows total level and total xp in chat

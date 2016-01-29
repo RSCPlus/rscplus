@@ -46,7 +46,8 @@ As always, please remember **without someone wasting their life working on it, t
 
 ## Chat Commands
 
-*::<skillname>* - Tells skill level and xp in chat
+*::[skillname]* - Tells skill level and xp in chat
+
 *::total* - Shows total level and total xp in chat
 
 ## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
