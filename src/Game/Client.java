@@ -133,7 +133,6 @@ public class Client
 	public static String processPrivateCommand(String line)
 	{
 		line = processClientCommand(line);
-		Logger.Info(line);
 		return line;
 	}
 
