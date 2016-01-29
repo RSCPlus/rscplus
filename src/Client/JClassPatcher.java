@@ -203,6 +203,7 @@ public class JClassPatcher
 				{
 					AbstractInsnNode insnNode = insnNodeList.next();
 
+					// Chat command patch
 					if(insnNode.getOpcode() == Opcodes.SIPUSH)
 					{
 						IntInsnNode call = (IntInsnNode)insnNode;
@@ -220,6 +221,30 @@ public class JClassPatcher
 							methodNode.instructions.insert(insertNode, new VarInsnNode(Opcodes.ASTORE, 2));
 							methodNode.instructions.insert(insertNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "processChatCommand", "(Ljava/lang/String;)Ljava/lang/String;"));
 							methodNode.instructions.insert(insertNode, new VarInsnNode(Opcodes.ALOAD, 2));
+						}
+					}
+				}
+			}
+			else if(methodNode.name.equals("h") && methodNode.desc.equals("(B)V"))
+			{
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					// Private chat command patch
+					if(insnNode.getOpcode() == Opcodes.GETFIELD)
+					{
+						FieldInsnNode field = (FieldInsnNode)insnNode;
+						if(field.owner.equals("client") && field.name.equals("Ob") && insnNode.getPrevious().getPrevious().getOpcode() != Opcodes.INVOKEVIRTUAL)
+						{
+							insnNode = insnNode.getPrevious().getPrevious();
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTFIELD, "client", "Ob", "Ljava/lang/String;"));
+							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "processPrivateCommand", "(Ljava/lang/String;)Ljava/lang/String;"));
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Ob", "Ljava/lang/String;"));
+							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+							break;
 						}
 					}
 				}

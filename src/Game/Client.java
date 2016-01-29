@@ -130,6 +130,13 @@ public class Client
 		return line;
 	}
 
+	public static String processPrivateCommand(String line)
+	{
+		line = processClientCommand(line);
+		Logger.Info(line);
+		return line;
+	}
+
 	private static String processClientCommand(String line)
 	{
 		if(line.startsWith("::"))
