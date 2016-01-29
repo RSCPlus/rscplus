@@ -21,6 +21,7 @@
 
 package Game;
 
+import Client.Logger;
 import Client.Settings;
 import Client.TwitchIRC;
 import java.io.BufferedWriter;
@@ -99,8 +100,53 @@ public class Client
 		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
 
-		if(Settings.TWITCH_CHANNEL.length() > 0)
+		if(TwitchIRC.isUsing())
 			twitch.connect();
+	}
+
+	public static String processChatCommand(String line)
+	{
+		if(TwitchIRC.isUsing() && line.startsWith("/"))
+		{
+			String message = line.substring(1, line.length());
+			String messageArray[] = message.split(" ");
+
+			message = processClientCommand(message);
+
+			if(messageArray[0] != null && messageArray[0].equals("me") && messageArray.length > 1)
+			{
+				message = message.substring(3, message.length());
+				twitch.sendEmote(message, true);
+			}
+			else
+			{
+				twitch.sendMessage(message, true);
+			}
+			return "::";
+		}
+
+		line = processClientCommand(line);
+
+		return line;
+	}
+
+	private static String processClientCommand(String line)
+	{
+		if(line.startsWith("::"))
+		{
+			String command = line.substring(2, line.length()).toLowerCase();
+
+			if(command.equals("total"))
+				return "My Total Level is " + getTotalLevel() + " (" + getTotalXP() + " xp).";
+
+			for(int i = 0; i < 18; i++)
+			{
+				if(command.equals(skill_name[i].toLowerCase()))
+					return "My " + skill_name[i] + " level is " + base_level[i] + " (" + getXP(i) + " xp).";
+			}
+		}
+
+		return line;
 	}
 
 	public static void displayMessage(String message, int chat_type)
@@ -134,6 +180,22 @@ public class Client
 	public static int getLevel(int i)
 	{
 		return current_level[i];
+	}
+
+	public static int getTotalLevel()
+	{
+		int total = 0;
+		for(int i = 0; i < 18; i++)
+			total += Client.base_level[i];
+		return total;
+	}
+
+	public static float getTotalXP()
+	{
+		float xp = 0;
+		for(int i = 0; i < 18; i++)
+			xp += getXP(i);
+		return xp;
 	}
 
 	public static int getBaseLevel(int i)

@@ -65,6 +65,11 @@ public class TwitchIRC implements Runnable
 		active = false;
 	}
 
+	public static boolean isUsing()
+	{
+		return (Settings.TWITCH_CHANNEL.length() > 0);
+	}
+
 	public void run()
 	{
 		try
@@ -79,6 +84,7 @@ public class TwitchIRC implements Runnable
 					m_writer.write("JOIN #" + Settings.TWITCH_CHANNEL.toLowerCase() + "\r\n");
 					m_writer.flush();
 					Client.displayMessage("@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL + "]@yel@ Twitch chat", Client.CHAT_CHAT);
+					Client.displayMessage("@lre@Messages starting with @whi@/@lre@ are sent to Twitch.", Client.CHAT_CHAT);
 					break;
 				}
 				else if(line.contains("NOTICE"))
@@ -175,7 +181,33 @@ public class TwitchIRC implements Runnable
 			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.toLowerCase() + " :" + message + "\r\n");
 			m_writer.flush();
 			if(show)
-				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + Settings.TWITCH_USERNAME.toLowerCase() + "@yel@: " + message, Client.CHAT_CHAT);
+			{
+				String username = Settings.TWITCH_USERNAME.toLowerCase();
+				if(username.equals(Settings.TWITCH_CHANNEL.toLowerCase()))
+					username = "@cya@" + username;
+				else
+					username = "@yel@" + username;
+				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@yel@: " + message, Client.CHAT_CHAT);
+			}
+		}
+		catch(Exception e) {}
+	}
+
+	public void sendEmote(String message, boolean show)
+	{
+		try
+		{
+			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.toLowerCase() + " :" + Character.toString((char)1) + "ACTION " + message + Character.toString((char)1) + "\r\n");
+			m_writer.flush();
+			if(show)
+			{
+				String username = Settings.TWITCH_USERNAME.toLowerCase();
+				if(username.equals(Settings.TWITCH_CHANNEL.toLowerCase()))
+					username = "@cya@" + username;
+				else
+					username = "@yel@" + username;
+				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@lre@ " + message, Client.CHAT_CHAT);
+			}
 		}
 		catch(Exception e) {}
 	}

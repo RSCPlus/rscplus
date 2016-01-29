@@ -60,6 +60,8 @@ public class JClassPatcher
 			patchCamera(node);
 		else if(node.name.equals("e"))
 			patchApplet(node);
+		else if(node.name.equals("qa"))
+			patchUnknown(node);
 		else if(node.name.equals("client"))
 			patchClient(node);
 
@@ -87,6 +89,25 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
 
 			//hookClassVariable(methodNode, "client", "Tb", "[Lta;", "Game/Client", "players", "[Ljava/lang/Object;", true, false);
+		}
+	}
+
+	private static void patchUnknown(ClassNode node)
+	{
+		Logger.Info("Patching unknown (" + node.name + ".class)");
+
+		Iterator<MethodNode> methodNodeList = node.methods.iterator();
+		while(methodNodeList.hasNext())
+		{
+			MethodNode methodNode = methodNodeList.next();
+
+			/*if(methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;I)V"))
+			{
+				// This can be used as an "autotyper"
+				AbstractInsnNode first = methodNode.instructions.getFirst();
+				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
+			}*/
+
 		}
 	}
 
@@ -171,6 +192,34 @@ public class JClassPatcher
 							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU", "Z"));
 							methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFGT, label));
 							break;
+						}
+					}
+				}
+			}
+			else if(methodNode.name.equals("J") && methodNode.desc.equals("(I)V"))
+			{
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while(insnNodeList.hasNext())
+				{
+					AbstractInsnNode insnNode = insnNodeList.next();
+
+					if(insnNode.getOpcode() == Opcodes.SIPUSH)
+					{
+						IntInsnNode call = (IntInsnNode)insnNode;
+						if(call.operand == 627)
+						{
+							AbstractInsnNode jmpNode = insnNode;
+							while(jmpNode.getOpcode() != Opcodes.IFEQ)
+								jmpNode = jmpNode.getNext();
+
+							AbstractInsnNode insertNode = insnNode;
+							while(insertNode.getOpcode() != Opcodes.INVOKEVIRTUAL)
+								insertNode = insertNode.getPrevious();
+
+							JumpInsnNode jmp = (JumpInsnNode)jmpNode;
+							methodNode.instructions.insert(insertNode, new VarInsnNode(Opcodes.ASTORE, 2));
+							methodNode.instructions.insert(insertNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "processChatCommand", "(Ljava/lang/String;)Ljava/lang/String;"));
+							methodNode.instructions.insert(insertNode, new VarInsnNode(Opcodes.ALOAD, 2));
 						}
 					}
 				}
