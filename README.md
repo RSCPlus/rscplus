@@ -29,6 +29,7 @@ As always, please remember **without someone wasting their life working on it, t
 - Middle mouse camera rotation
 - HP, Prayer, and fatigue bars on the bottom right of the screen
 - Fatigue on-screen alert at 100%
+- Integrated Twitch chat into in-game chat
 - Inventory free space counter
 
 ## Controls
@@ -42,6 +43,11 @@ As always, please remember **without someone wasting their life working on it, t
 - *[Command Key]* + f - Toggle fatigue alert at 100%
 - *[Command Key]* + d - Toggle debug mode
 - *[Command Key]* + t - Toggle twitch chat hidden/shown
+
+## Chat Commands
+
+*::<skillname>* - Tells skill level and xp in chat
+*::total* - Shows total level and total xp in chat
 
 ## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
 
