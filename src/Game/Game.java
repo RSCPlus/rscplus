@@ -52,14 +52,13 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		}
 
 		// Set window properties
-		addComponentListener(this);
-		addWindowListener(this);
-		getContentPane().setBackground(Color.BLACK);
-		getContentPane().setPreferredSize(new Dimension(512, 346));
 		setTitle(null);
 		setResizable(true);
+		addWindowListener(this);
+		addComponentListener(this);
+		getContentPane().setBackground(Color.BLACK);
+		getContentPane().setPreferredSize(new Dimension(512, 346));
 		pack();
-		setMinimumSize(getSize());
 		setLocationRelativeTo(null);
 	}
 
@@ -181,6 +180,9 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	{
 		if(applet == null)
 			return;
+
+		if(getMinimumSize().width < 512)
+			setMinimumSize(getSize());
 
 		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
 	}

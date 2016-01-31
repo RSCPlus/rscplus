@@ -48,6 +48,8 @@ public class Renderer
 	public static void init()
 	{
 		// Resize game window
+		new_size.width = Game.instance.getContentPane().getWidth();
+		new_size.height = Game.instance.getContentPane().getHeight();
 		handle_resize();
 
 		// Load fonts
@@ -84,12 +86,15 @@ public class Renderer
 	{
 		new_size.width = w;
 		new_size.height = h;
+
+		Logger.Info("New Size: " + w + "x" + h);
 	}
 
 	public static void handle_resize()
 	{
 		width = new_size.width;
 		height = new_size.height;
+
 		height_client = height - 12;
 		pixels = new int[width * height];
 		game_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -265,31 +270,36 @@ public class Renderer
 
 			if(Settings.DEBUG)
 			{
+				x = 32;
 				y = 32;
 
 				// Draw Skills
 				for(int i = 0; i < 18; i++)
 				{
-					drawShadowText(g2, Client.skill_name[i] + " (" + i + "): " + Client.current_level[i] + "/" + Client.base_level[i] + " (" + Client.getXP(i) + " xp)", 32, y, color_text, false);
+					drawShadowText(g2, Client.skill_name[i] + " (" + i + "): " + Client.current_level[i] + "/" + Client.base_level[i] + " (" + Client.getXP(i) + " xp)", x, y, color_text, false);
 					y += 16;
 				}
 
 				// Draw Fatigue
 				y += 16;
-				drawShadowText(g2, "Fatigue: " + ((float)Client.fatigue * 100.0f / 750.0f), 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Fatigue: " + ((float)Client.fatigue * 100.0f / 750.0f), x, y, color_text, false); y += 16;
 
 				// Draw Mouse Info
 				y += 16;
-				drawShadowText(g2, "Mouse Position: " + MouseHandler.x + ", " + MouseHandler.y, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Mouse Position: " + MouseHandler.x + ", " + MouseHandler.y, x, y, color_text, false); y += 16;
 
 				// Draw camera info
 				y += 16;
-				drawShadowText(g2, "Camera Rotation: " + Camera.rotation, 32, y, color_text, false); y += 16;
-				drawShadowText(g2, "Camera Zoom: " + Camera.zoom, 32, y, color_text, false); y += 16;
-				drawShadowText(g2, "Camera Distance1: " + Camera.distance1, 32, y, color_text, false); y += 16;
-				drawShadowText(g2, "Camera Distance2: " + Camera.distance2, 32, y, color_text, false); y += 16;
-				drawShadowText(g2, "Camera Distance3: " + Camera.distance3, 32, y, color_text, false); y += 16;
-				drawShadowText(g2, "Camera Distance4: " + Camera.distance4, 32, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Rotation: " + Camera.rotation, x, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Zoom: " + Camera.zoom, x, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance1: " + Camera.distance1, x, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance2: " + Camera.distance2, x, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance3: " + Camera.distance3, x, y, color_text, false); y += 16;
+				drawShadowText(g2, "Camera Distance4: " + Camera.distance4, x, y, color_text, false); y += 16;
+
+				x = 256;
+				y = 32;
+				drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false); y += 16;
 			}
 
 			g2.setFont(font_big);
@@ -403,7 +413,7 @@ public class Renderer
 		return new Dimension((int)bounds.getWidth(), (int)bounds.getHeight());
 	}
 
-	private static Dimension new_size = new Dimension(512, 346);
+	private static Dimension new_size = new Dimension(0, 0);
 
 	public static Object instance = null;
 
