@@ -21,6 +21,7 @@
 
 package Game;
 
+import Client.Logger;
 import Client.Settings;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -33,21 +34,21 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageConsumer;
 import java.awt.RenderingHints;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import javax.imageio.ImageIO;
 
 public class Renderer
 {
 	public static void init()
 	{
-		width = Game.instance.getContentPane().getWidth();
-		height = Game.instance.getContentPane().getHeight();
-		height_client = height - 12;
-		game_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		// Resize game window
+		handle_resize();
 
 		// Load fonts
 		try
@@ -81,40 +82,37 @@ public class Renderer
 
 	public static void resize(int w, int h)
 	{
-		// TODO: Full resizable
-		//
-		// 1. Need to resize the client's game Image (via it's ImageConsumer)
-		// 2. Need to resize the renderer's pixel buffer
-		// 3. Need to pass that new buffer to the camera
-		// 4. Run a certain camera method (can't remember off the top of my head, it's in one of the hooks), it'll set it up for the new size
-		// 5. Move all menus relative to the new size (the top right menus, the chat, all of that good stuff)
-		//
-		// That may not be all, but it's a start.
-		// There may be some shortcuts calling some of the init methods for the HUD components in client.class
-		//
-		// As of right now, all of this isn't easy to add because of the lack of anything menu related for our reflection,
-		// but as soon as it's all set, it will not be hard to do at all.
-		//
-		// Resizable in it's most basic form is a joke, don't let anybody ever fool you and say they worked hard implementing it.
-		//	A lot of the RSC engine's drawing is based on the client's current width/height, so when you resize it, it works right away.
-		//	Now, there are a few exceptions to this. The right click menu has static coordinates for it's bounds, and can only
-		//	be fixed patching the bytecode. The menus (top right bar, chat, etc.) also use static coordinates, so they all must
-		//	be patched as well. In rscplus, we patch it all using the current windows width/height, so most things will work right away.
-		//	For example, when full resizable is added, any corrected UI elements like loading/logging out will be 100% working.
-		//
-		// 1. Set client class width/height
-		// 2. Patch hardcoded mouse coordinates for right click menu
-		// 3. Patch renderer "~###~" text coords to support 4 digit dimensions "~####~" (old method is meant for the 512x346 game window size)
-		//	NOTE: Technically we can't go past 9999xX because of this, but it includes up to 8K resolution.
-		// 4. Patch the friend's list remove text coordinate with the new one
-		// 5. Patch friend's list mouse coordinates for the new size
-		//
-		// I am absolutely amazed that these so-called "client hackers" that are just getting this feature couldn't do this until after rscplus
-		// was released. I don't know every client mod out there, but I do know of at least one that got resizable and asks for money.
-		//
-		// I'm surprised there was a demand for it. Seeing as none of their users play long enough to need to see the screen.
-		//
-		// ~ OrNoX
+		new_size.width = w;
+		new_size.height = h;
+	}
+
+	public static void handle_resize()
+	{
+		width = new_size.width;
+		height = new_size.height;
+		height_client = height - 12;
+		pixels = new int[width * height];
+		game_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		Camera.resize();
+		Menu.resize();
+
+		if(image_consumer != null)
+			image_consumer.setDimensions(width, height);
+
+		if(Client.strings != null)
+			Client.strings[262] = fixLengthString("~" + (Renderer.width - (512 - 439)) + "~@whi@Remove");
+
+		if(Renderer.instance != null && Reflection.setGameBounds != null)
+		{
+			try
+			{
+				boolean accessible = Reflection.setGameBounds.isAccessible();
+				Reflection.setGameBounds.setAccessible(true);
+				Reflection.setGameBounds.invoke(Renderer.instance, 0, Renderer.width, Renderer.height, 0, (byte)119);
+				Reflection.setGameBounds.setAccessible(accessible);
+			} catch(Exception e) { e.printStackTrace(); }
+		}
 	}
 
 	public static void present(Graphics g, Image image)
@@ -137,6 +135,45 @@ public class Renderer
 
 		if(Client.state == Client.STATE_GAME)
 		{
+			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
+			{
+				NPC npc = iterator.next();
+				Color color = color_low;
+
+				boolean show = false;
+
+				if(npc.type == NPC.TYPE_PLAYER)
+				{
+					color = color_fatigue;
+
+					if(Client.isFriend(npc.name))
+					{
+						color = color_hp;
+						show = true;
+					}
+				}
+				else if(npc.type == NPC.TYPE_MOB && Settings.SHOW_NPCINFO)
+				{
+					show = true;
+				}
+
+				if(show && npc.name != null)
+				{
+					if(Settings.SHOW_HITBOX)
+					{
+						setAlpha(g2, 0.3f);
+						g2.setColor(color);
+						g2.fillRect(npc.x, npc.y, npc.width, npc.height);
+						g2.setColor(Color.BLACK);
+						g2.drawRect(npc.x, npc.y, npc.width, npc.height);
+						setAlpha(g2, 1.0f);
+					}
+
+					drawShadowText(g2, npc.name, npc.x + (npc.width / 2), npc.y - 20, color, true);
+				}
+			}
+			Client.npc_list.clear();
+
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
 			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
@@ -288,9 +325,10 @@ public class Renderer
 			fps = frames;
 			frames = 0;
 			fps_timer = time + 1000;
-
-			Game.instance.setTitle("FPS: " + fps);
 		}
+
+		if(width != new_size.width || height != new_size.height)
+			handle_resize();
 	}
 
 	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total)
@@ -345,6 +383,19 @@ public class Renderer
 		screenshot = true;
 	}
 
+	private static String fixLengthString(String string)
+	{
+		for(int i = 0; i < string.length(); i++)
+		{
+			if(string.charAt(i) == '~' && string.charAt(i + 4) == '~')
+			{
+				String coord = string.substring(i + 1, 3);
+				string = string.replace(coord, "0" + coord);
+			}
+		}
+		return string;
+	}
+
 	private static Dimension getStringBounds(Graphics2D g, String str)
 	{
 		FontRenderContext context = g.getFontRenderContext();
@@ -352,13 +403,21 @@ public class Renderer
 		return new Dimension((int)bounds.getWidth(), (int)bounds.getHeight());
 	}
 
+	private static Dimension new_size = new Dimension(512, 346);
+
+	public static Object instance = null;
+
 	public static int width;
 	public static int height;
 	public static int height_client;
+	public static int pixels[];
+
 	public static int fps;
 	public static float alpha_time;
 	public static float delta_time;
 	public static long time;
+
+	public static ImageConsumer image_consumer = null;
 
 	private static Font font_main;
 	private static Font font_big;

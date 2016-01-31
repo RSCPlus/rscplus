@@ -65,6 +65,9 @@ public class JClassPatcher
 		else if(node.name.equals("client"))
 			patchClient(node);
 
+		// ta - entity
+		// ta.n - last entity message
+
 		patchGeneric(node);
 
 		if(Settings.DEBUG)
@@ -82,13 +85,30 @@ public class JClassPatcher
 		{
 			MethodNode methodNode = methodNodeList.next();
 
-			hookClassVariable(methodNode, "e", "m", "I", "Game/Renderer", "width", "I", false, true);
-			hookClassVariable(methodNode, "e", "a", "I", "Game/Renderer", "height", "I", false, true);
+			hookClassVariable(methodNode, "ua", "fb", "Ljava/awt/image/ImageConsumer;", "Game/Renderer", "image_consumer", "Ljava/awt/image/ImageConsumer;", true, true);
+			hookClassVariable(methodNode, "ua", "u", "I", "Game/Renderer", "width", "I", false, true);
+			hookClassVariable(methodNode, "ua", "k", "I", "Game/Renderer", "height", "I", false, true);
+			hookClassVariable(methodNode, "ua", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
+
+			hookClassVariable(methodNode, "client", "li", "Lba;", "Game/Renderer", "instance", "Ljava/lang/Object;", true, false);
+
+			hookClassVariable(methodNode, "ba", "u", "I", "Game/Renderer", "width", "I", false, true);
+			hookClassVariable(methodNode, "ba", "k", "I", "Game/Renderer", "height", "I", false, true);
+			hookClassVariable(methodNode, "ba", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
+
+			hookStaticVariable(methodNode, "ua", "h", "[Ljava/lang/String;", "Game/Client", "friends", "[Ljava/lang/String;");
+			hookStaticVariable(methodNode, "n", "g", "I", "Game/Client", "friends_count", "I");
 
 			hookClassVariable(methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
 			hookClassVariable(methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
 
-			//hookClassVariable(methodNode, "client", "Tb", "[Lta;", "Game/Client", "players", "[Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "e", "m", "I", "Game/Renderer", "width", "I", false, true);
+			hookClassVariable(methodNode, "e", "a", "I", "Game/Renderer", "height", "I", false, true);
+
+			hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
+
+			//hookClassVariable(methodNode, "client", "Tb", "[Lta;", "Game/Client", "npcs", "[Ljava/lang/Object;", true, false);
+			//hookClassVariable(methodNode, "client", "rg", "[Lta;", "Game/Client", "players", "[Ljava/lang/Object;", true, false);
 		}
 	}
 
@@ -249,43 +269,39 @@ public class JClassPatcher
 					}
 				}
 			}
-			else if(methodNode.name.equals("O") && methodNode.desc.equals("(I)V"))
+			else if(methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V"))
 			{
-				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-				while(insnNodeList.hasNext())
-				{
-					AbstractInsnNode insnNode = insnNodeList.next();
+				// Draw NPC hook
+				AbstractInsnNode insnNode = methodNode.instructions.getLast();
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 1));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 7));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
 
-					// Chatbox fix
-					if(insnNode.getOpcode() == Opcodes.SIPUSH)
-					{
-						IntInsnNode call = (IntInsnNode)insnNode;
-						if(call.operand == 324)
-						{
-							call.operand = 334 - call.operand;
-							FieldInsnNode widthField = new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I");
-							InsnNode add = new InsnNode(Opcodes.ISUB);
-							methodNode.instructions.insertBefore(insnNode, widthField);
-							methodNode.instructions.insert(insnNode, add);
-						}
-						else if(call.operand == 269)
-						{
-							call.operand = 334 - call.operand;
-							FieldInsnNode widthField = new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I");
-							InsnNode add = new InsnNode(Opcodes.ISUB);
-							methodNode.instructions.insertBefore(insnNode, widthField);
-							methodNode.instructions.insert(insnNode, add);
-						}
-						/*else if(call.operand == 502)
-						{
-							call.operand = 512 - call.operand;
-							FieldInsnNode widthField = new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I");
-							InsnNode add = new InsnNode(Opcodes.ISUB);
-							methodNode.instructions.insertBefore(insnNode, widthField);
-							methodNode.instructions.insert(insnNode, add);
-						}*/
-					}
-				}
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "e", "Mb", "[Ljava/lang/String;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "t", "I"));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;)V"));
+			}
+			else if(methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V"))
+			{
+				// Draw Player hook
+
+				AbstractInsnNode insnNode = methodNode.instructions.getLast();
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 7));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "C", "Ljava/lang/String;"));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;)V"));
 			}
 			else if(methodNode.name.equals("L") && methodNode.desc.equals("(I)V"))
 			{
@@ -681,12 +697,6 @@ public class JClassPatcher
 					}
 				}
 			}
-			else if(methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V"))
-			{
-				AbstractInsnNode insnNode = methodNode.instructions.getFirst();
-
-				
-			}
 
 			hookClassVariable(methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
 			hookClassVariable(methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
@@ -695,6 +705,9 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
 			hookClassVariable(methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
 
+			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", true, false);
+
 			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
@@ -702,7 +715,26 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "ug", "I", "Game/Camera", "rotation", "I", true, true);
 			hookClassVariable(methodNode, "client", "ac", "I", "Game/Camera", "zoom", "I", false, true);
 
-			hookStaticVariable(methodNode, "client", "il", "[Ljava/lang/String;", "Game/Client", "strings", "[Ljava/lang/String;", true, true);
+			hookStaticVariable(methodNode, "client", "il", "[Ljava/lang/String;", "Game/Client", "strings", "[Ljava/lang/String;");
+
+			// Chat menu
+			hookClassVariable(methodNode, "client", "yd", "Lqa;", "Game/Menu", "chat_menu", "Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "client", "Fh", "I", "Game/Menu", "chat_type1", "I", true, false);
+			hookClassVariable(methodNode, "client", "bh", "I", "Game/Menu", "chat_input", "I", true, false);
+			hookClassVariable(methodNode, "client", "ud", "I", "Game/Menu", "chat_type2", "I", true, false);
+			hookClassVariable(methodNode, "client", "mc", "I", "Game/Menu", "chat_type3", "I", true, false);
+
+			// Quest menu
+			hookClassVariable(methodNode, "client", "fe", "Lqa;", "Game/Menu", "quest_menu", "Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "client", "lk", "I", "Game/Menu", "quest_handle", "I", true, false);
+
+			// Friends menu
+			hookClassVariable(methodNode, "client", "zk", "Lqa;", "Game/Menu", "friend_menu", "Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "client", "Hi", "I", "Game/Menu", "friend_handle", "I", true, false);
+
+			// Spell menu
+			hookClassVariable(methodNode, "client", "Mc", "Lqa;", "Game/Menu", "spell_menu", "Ljava/lang/Object;", true, false);
+			hookClassVariable(methodNode, "client", "Ud", "I", "Game/Menu", "spell_handle", "I", true, false);
 		}
 	}
 
@@ -857,7 +889,7 @@ public class JClassPatcher
 	}
 
 	private static void hookStaticVariable(MethodNode methodNode, String owner, String var, String desc,
-					       String newClass, String newVar, String newDesc, boolean canRead, boolean canWrite)
+					       String newClass, String newVar, String newDesc)
 	{
 		Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 		while(insnNodeList.hasNext())
@@ -870,18 +902,9 @@ public class JClassPatcher
 				FieldInsnNode field = (FieldInsnNode)insnNode;
 				if(field.owner.equals(owner) && field.name.equals(var) && field.desc.equals(desc))
 				{
-					if(opcode == Opcodes.GETSTATIC && canWrite)
-					{
-						field.owner = newClass;
-						field.name = newVar;
-						field.desc = newDesc;
-					}
-					else if(opcode == Opcodes.PUTSTATIC && canRead)
-					{
-						field.owner = newClass;
-						field.name = newVar;
-						field.desc = newDesc;
-					}
+					field.owner = newClass;
+					field.name = newVar;
+					field.desc = newDesc;
 				}
 			}
 		}

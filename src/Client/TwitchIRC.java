@@ -110,7 +110,7 @@ public class TwitchIRC implements Runnable
 					m_writer.write("PONG " + lineArray[1] + "\r\n");
 					m_writer.flush();
 				}
-				else if(lineArray[1] != null && lineArray[1].equals("PRIVMSG"))
+				else if(lineArray[1] != null && lineArray[1].equals("PRIVMSG") && !Settings.TWITCH_HIDE)
 				{
 					String username = line.substring(1, line.indexOf("!"));
 					String message = line.substring(line.indexOf(":", 2) + 1, line.length());
@@ -134,7 +134,7 @@ public class TwitchIRC implements Runnable
 						Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@yel@: " + msgColor + message, Client.CHAT_CHAT);
 					}
 				}
-				else if(lineArray[1] != null && lineArray[1].equals("NOTICE"))
+				else if(lineArray[1] != null && lineArray[1].equals("NOTICE") && !Settings.TWITCH_HIDE)
 				{
 					String message = line.substring(line.indexOf(":", 2) + 1, line.length());
 					Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + message, Client.CHAT_CHAT);

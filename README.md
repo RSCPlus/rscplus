@@ -6,7 +6,7 @@
 
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
-As always, please remember **without someone wasting their life working on it, there is no rscplus**. Support the movement - I don't accept donations, but apparently I give them out~
+I'm glad I started this project. Thanks everybody that had nice things to say about it, I enjoy reading them.
 
 ## Contributing
 
@@ -19,7 +19,7 @@ As always, please remember **without someone wasting their life working on it, t
 *I will not accept any automation requests.*
 
 ## Features
-- Game resolution changing (not 100% complete, but playable)
+- Game resolution changing (about 80% complete)
 - NPC Dialogue options with 1-9 on keyboard
 - Roof hiding
 - Option to always show combat style menu, and persistent combat style setting
@@ -31,6 +31,7 @@ As always, please remember **without someone wasting their life working on it, t
 - Fatigue on-screen alert at 100%
 - Integrated Twitch chat into in-game chat
 - Inventory free space counter
+- Highlight friends and show their names when they're near you
 
 ## Controls
 *[Command Key]* can be either Alt or Ctrl.
@@ -43,6 +44,8 @@ As always, please remember **without someone wasting their life working on it, t
 - *[Command Key]* + f - Toggle fatigue alert at 100%
 - *[Command Key]* + d - Toggle debug mode
 - *[Command Key]* + t - Toggle twitch chat hidden/shown
+- *[Command Key]* + n - Toggle NPC info
+- *[Command Key]* + h - Toggle hitboxes for NPC info
 
 ## Chat Commands
 
@@ -60,6 +63,8 @@ ant install
 ```
 
 The result should be in the *bin* folder.
+
+There is also an Eclipse project in the source root you can import.
 
 ## Download
 The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.zip).

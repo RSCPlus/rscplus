@@ -27,6 +27,8 @@ import Client.TwitchIRC;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Client
 {
@@ -34,13 +36,7 @@ public class Client
 	{
 		for(int i = 0; i < strings.length; i++)
 		{
-			// Patch friend's list "Remove" option X coordinate
-			if(strings[i].contains("~439~"))
-			{
-				strings[i] = strings[i].replace("~439~", "~" + (Renderer.width - (512 - 439)) + "~");
-				strings[i] = fixLengthString(strings[i]);
-			}
-			else if(strings[i].contains("Oh dear! You are dead..."))
+			if(strings[i].contains("Oh dear! You are dead..."))
 			{
 				strings[i] = "YOU DIED";
 			}
@@ -169,6 +165,17 @@ public class Client
 		} catch(Exception e) {}
 	}
 
+	public static void drawNPC(int x, int y, int width, int height, String name)
+	{
+		// ILOAD 6 is index
+		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB));
+	}
+
+	public static void drawPlayer(int x, int y, int width, int height, String name)
+	{
+		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER));
+	}
+
 	public static float getXPforLevel(int level)
 	{
 		float xp = 0.0f;
@@ -219,17 +226,15 @@ public class Client
 		return (fatigue * 100 / 750);
 	}
 
-	private static String fixLengthString(String string)
+	public static boolean isFriend(String name)
 	{
-		for(int i = 0; i < string.length(); i++)
+		for(int i = 0; i < friends_count; i++)
 		{
-			if(string.charAt(i) == '~' && string.charAt(i + 4) == '~')
-			{
-				String coord = string.substring(i + 1, 3);
-				string = string.replace(coord, "0" + coord);
-			}
+			if(friends[i] != null && friends[i].equals(name))
+				return true;
 		}
-		return string;
+
+		return false;
 	}
 
 	private static void dumpStrings()
@@ -251,6 +256,8 @@ public class Client
 			try { writer.close(); } catch(Exception e2) {}
 		}
 	}
+
+	public static List<NPC> npc_list = new ArrayList<NPC>();
 
 	public static final int SKILL_ATTACK = 0;
 	public static final int SKILL_DEFENSE = 1;
@@ -296,6 +303,9 @@ public class Client
 	public static int xp[];
 	public static String skill_name[];
 	public static int combat_style;
+
+	public static int friends_count;
+	public static String friends[];
 
 	public static String strings[];
 

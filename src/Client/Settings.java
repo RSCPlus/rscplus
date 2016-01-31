@@ -65,10 +65,10 @@ public class Settings
 			in.close();
 
 			WORLD = getInt(props, "world", 2);
-			RESOLUTION.width = getInt(props, "width", 512);
-			RESOLUTION.height = getInt(props, "height", 346);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
+			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", true);
+			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
@@ -114,11 +114,11 @@ public class Settings
 		try
 		{
 			Properties props = new Properties();
-			props.setProperty("width", "" + RESOLUTION.width);
-			props.setProperty("height", "" + RESOLUTION.height);
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
+			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
+			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
@@ -193,6 +193,18 @@ public class Settings
 	public static void toggleCombatMenu()
 	{
 		COMBAT_MENU = !COMBAT_MENU;
+		Save();
+	}
+
+	public static void toggleShowHitbox()
+	{
+		SHOW_HITBOX = !SHOW_HITBOX;
+		Save();
+	}
+
+	public static void toggleShowNPCInfo()
+	{
+		SHOW_NPCINFO = !SHOW_NPCINFO;
 		Save();
 	}
 
@@ -279,8 +291,9 @@ public class Settings
 	public static boolean COMBAT_MENU = false;
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
-	public static Dimension RESOLUTION = new Dimension(512, 346);
 	public static int WORLD = 2;
+	public static boolean SHOW_NPCINFO = true;
+	public static boolean SHOW_HITBOX = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;
 	public static String TWITCH_USERNAME = "";

@@ -50,6 +50,15 @@ public class KeyboardHandler implements KeyListener
 					Client.displayMessage("@cya@Roofs are now shown", Client.CHAT_NONE);
 			}
 
+			if(command_key == KeyEvent.VK_H)
+			{
+				Settings.toggleShowHitbox();
+				if(Settings.SHOW_HITBOX)
+					Client.displayMessage("@cya@Hitboxes are now shown", Client.CHAT_NONE);
+				else
+					Client.displayMessage("@cya@Hitboxes are now hidden", Client.CHAT_NONE);
+			}
+
 			if(command_key == KeyEvent.VK_C)
 			{
 				Settings.toggleCombatMenu();
@@ -84,6 +93,15 @@ public class KeyboardHandler implements KeyListener
 					Client.displayMessage("@cya@Twitch chat is now hidden", Client.CHAT_NONE);
 				else
 					Client.displayMessage("@cya@Twitch chat is now shown", Client.CHAT_NONE);
+			}
+
+			if(command_key == KeyEvent.VK_N)
+			{
+				Settings.toggleShowNPCInfo();
+				if(Settings.SHOW_NPCINFO)
+					Client.displayMessage("@cya@NPC info is now shown", Client.CHAT_NONE);
+				else
+					Client.displayMessage("@cya@NPC info is now hidden", Client.CHAT_NONE);
 			}
 
 			e.consume();

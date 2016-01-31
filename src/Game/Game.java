@@ -29,13 +29,15 @@ import java.applet.AppletContext;
 import java.applet.AppletStub;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
-public class Game extends JFrame implements AppletStub, WindowListener
+public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
 {
 	public Game()
 	{
@@ -50,13 +52,14 @@ public class Game extends JFrame implements AppletStub, WindowListener
 		}
 
 		// Set window properties
+		addComponentListener(this);
 		addWindowListener(this);
 		getContentPane().setBackground(Color.BLACK);
-		getContentPane().setPreferredSize(new Dimension(Settings.RESOLUTION.width, Settings.RESOLUTION.height));
-		setResizable(false);
+		getContentPane().setPreferredSize(new Dimension(512, 346));
 		setTitle(null);
+		setResizable(true);
 		pack();
-		pack();
+		setMinimumSize(getSize());
 		setLocationRelativeTo(null);
 	}
 
@@ -113,8 +116,6 @@ public class Game extends JFrame implements AppletStub, WindowListener
 	@Override
 	public final void appletResize(int width, int height)
 	{
-		if(applet != null)
-			Renderer.resize(width, height);
 	}
 
 	@Override
@@ -162,6 +163,30 @@ public class Game extends JFrame implements AppletStub, WindowListener
 
 	@Override
 	public final void windowIconified(WindowEvent e)
+	{
+	}
+
+	@Override
+	public final void componentHidden(ComponentEvent e)
+	{
+	}
+
+	@Override
+	public final void componentMoved(ComponentEvent e)
+	{
+	}
+
+	@Override
+	public final void componentResized(ComponentEvent e)
+	{
+		if(applet == null)
+			return;
+
+		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
+	}
+
+	@Override
+	public final void componentShown(ComponentEvent e)
 	{
 	}
 

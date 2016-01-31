@@ -32,6 +32,20 @@ public class Camera
 		setDistance(Settings.VIEW_DISTANCE);
 	}
 
+	public static void resize()
+	{
+		if(Reflection.displayMessage == null || instance == null)
+			return;
+
+		try
+		{
+			boolean accessible = Reflection.setCameraSize.isAccessible();
+			Reflection.setCameraSize.setAccessible(true);
+			Reflection.setCameraSize.invoke(Camera.instance, Renderer.height_client / 2, true, Renderer.width, Renderer.width / 2, Renderer.height_client / 2, fov, Renderer.width / 2);
+			Reflection.setCameraSize.setAccessible(accessible);
+		} catch(Exception e) {}
+	}
+
 	public static void setDistance(int distance)
 	{
 		distance1 = distance + 100;
@@ -70,8 +84,11 @@ public class Camera
 			zoom -= 1;
 	}
 
+	public static Object instance = null;
+
 	public static int zoom;
 	public static int rotation;
+	public static int fov;
 	public static int distance1;
 	public static int distance2;
 	public static int distance3; // This one is divided onto something to do with fog (it's usually 1)

@@ -18,6 +18,8 @@ Mouse wheel scroll - Zoom camera
 [Command Key] + f - Toggle fatigue alert at 100%
 [Command Key] + d - Toggle debug mode
 [Command Key] + t - Toggle twitch chat hidden/shown
+[Command Key] + n - Toggle NPC info
+[Command Key] + h - Toggle hitboxes for NPC info
 
 ~ Chat Commands
 

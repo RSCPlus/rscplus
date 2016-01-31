@@ -34,7 +34,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 public class Launcher extends JFrame implements Runnable
@@ -55,7 +54,7 @@ public class Launcher extends JFrame implements Runnable
 		}
 
 		// Set size
-		getContentPane().setPreferredSize(new Dimension(280, 120));
+		getContentPane().setPreferredSize(new Dimension(280, 98));
 		getContentPane().setLayout(null);
 		setResizable(false);
 		setTitle("rscplus Launcher");
@@ -85,27 +84,6 @@ public class Launcher extends JFrame implements Runnable
 		m_worldSelector.setLocation(label.getX() + label.getWidth(), label.getY() - 4);
 		getContentPane().add(m_worldSelector);
 
-		label = new JLabel("Resolution: ");
-		label.setForeground(Color.GRAY.brighter());
-		label.setSize(128, 12);
-		label.setLocation(8, 40);
-		getContentPane().add(label);
-		m_resolutionWidth = new JTextField(3);
-		m_resolutionWidth.setText("" + Settings.RESOLUTION.width);
-		m_resolutionWidth.setSize(40, 20);
-		m_resolutionWidth.setLocation(m_worldSelector.getX(), label.getY() - 4);
-		getContentPane().add(m_resolutionWidth);
-		label = new JLabel("x");
-		label.setSize(128, 12);
-		label.setLocation(m_worldSelector.getX() + m_resolutionWidth.getWidth() + 8, m_resolutionWidth.getY() + 3);
-		label.setForeground(Color.GRAY.brighter());
-		getContentPane().add(label);
-		m_resolutionHeight = new JTextField(3);
-		m_resolutionHeight.setText("" + Settings.RESOLUTION.height);
-		m_resolutionHeight.setSize(40, 20);
-		m_resolutionHeight.setLocation(label.getX() + 15, m_resolutionWidth.getY());
-		getContentPane().add(m_resolutionHeight);
-
 		m_progressBar = new JProgressBar();
 		m_progressBar.setStringPainted(true);
 		m_progressBar.setBorderPainted(true);
@@ -113,7 +91,7 @@ public class Launcher extends JFrame implements Runnable
 		m_progressBar.setBackground(Color.BLACK);
 		m_progressBar.setString("Waiting for game to be launched...");
 		m_progressBar.setSize(getContentPane().getWidth() - 16, 20);
-		m_progressBar.setLocation(8, m_resolutionWidth.getY() + 30);
+		m_progressBar.setLocation(8, m_worldSelector.getY() + 30);
 		getContentPane().add(m_progressBar);
 
 		//pack();
@@ -123,8 +101,6 @@ public class Launcher extends JFrame implements Runnable
 			public void actionPerformed(ActionEvent e)
 			{
 				m_worldSelector.setEnabled(false);
-				m_resolutionWidth.setEnabled(false);
-				m_resolutionHeight.setEnabled(false);
 				m_launchButton.setEnabled(false);
 				new Thread(Launcher.instance).start();
 			}
@@ -139,18 +115,6 @@ public class Launcher extends JFrame implements Runnable
 
 	public void run()
 	{
-		try
-		{
-			Settings.RESOLUTION.width = Integer.parseInt(m_resolutionWidth.getText());
-			Settings.RESOLUTION.height = Integer.parseInt(m_resolutionHeight.getText());
-
-			if(Settings.RESOLUTION.width < 512)
-				Settings.RESOLUTION.width = 512;
-			if(Settings.RESOLUTION.height < 346)
-				Settings.RESOLUTION.height = 346;
-		}
-		catch(Exception e) {}
-
 		Settings.Save();
 
 		setStatus("Loading JConfig...");
@@ -198,8 +162,6 @@ public class Launcher extends JFrame implements Runnable
 		setStatus("Error: " + text);
 		setProgress(0, 0);
 		m_worldSelector.setEnabled(true);
-		m_resolutionWidth.setEnabled(true);
-		m_resolutionHeight.setEnabled(true);
 		m_launchButton.setEnabled(true);
 	}
 
@@ -242,8 +204,6 @@ public class Launcher extends JFrame implements Runnable
 	public JClassLoader classLoader;
 
 	private JComboBox m_worldSelector;
-	private JTextField m_resolutionWidth;
-	private JTextField m_resolutionHeight;
 	private JProgressBar m_progressBar;
 	private JButton m_launchButton;
 }
