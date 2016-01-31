@@ -101,7 +101,7 @@ public class Renderer
 			image_consumer.setDimensions(width, height);
 
 		if(Client.strings != null)
-			Client.strings[262] = fixLengthString("~" + (Renderer.width - (512 - 439)) + "~@whi@Remove");
+			Client.strings[262] = fixLengthString("~" + (Renderer.width - (512 - 439)) + "~@whi@Remove         WWWWWWWWWW");
 
 		if(Renderer.instance != null && Reflection.setGameBounds != null)
 		{
