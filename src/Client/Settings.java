@@ -67,7 +67,7 @@ public class Settings
 			WORLD = getInt(props, "world", 2);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
-			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", true);
+			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
@@ -292,7 +292,7 @@ public class Settings
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
 	public static int WORLD = 2;
-	public static boolean SHOW_NPCINFO = true;
+	public static boolean SHOW_NPCINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;
