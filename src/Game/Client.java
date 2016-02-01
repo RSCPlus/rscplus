@@ -107,7 +107,7 @@ public class Client
 			String message = line.substring(1, line.length());
 			String messageArray[] = message.split(" ");
 
-			message = processClientCommand(message);
+			message = processClientChatCommand(message);
 
 			if(messageArray[0] != null && messageArray[0].equals("me") && messageArray.length > 1)
 			{
@@ -128,11 +128,42 @@ public class Client
 
 	public static String processPrivateCommand(String line)
 	{
-		line = processClientCommand(line);
+		line = processClientChatCommand(line);
 		return line;
 	}
 
 	private static String processClientCommand(String line)
+	{
+		if(line.startsWith("::"))
+		{
+			String command = line.substring(2, line.length()).toLowerCase();
+
+			if(command.equals("toggleroofs"))
+				Settings.toggleHideRoofs();
+			else if(command.equals("togglecombat"))
+				Settings.toggleCombatMenu();
+			else if(command.equals("togglehitbox"))
+				Settings.toggleShowHitbox();
+			else if(command.equals("togglefatigue"))
+				Settings.toggleFatigueAlert();
+			else if(command.equals("toggletwitch"))
+				Settings.toggleTwitchHide();
+			else if(command.equals("toggleplayerinfo"))
+				Settings.togglePlayerInfo();
+			else if(command.equals("togglenpcinfo"))
+				Settings.toggleNPCInfo();
+			else if(command.equals("screenshot"))
+				Renderer.takeScreenshot();
+			else if(command.equals("debug"))
+				Settings.toggleDebug();
+
+			return "::";
+		}
+
+		return line;
+	}
+
+	private static String processClientChatCommand(String line)
 	{
 		if(line.startsWith("::"))
 		{

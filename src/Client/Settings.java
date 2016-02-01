@@ -68,6 +68,7 @@ public class Settings
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
+			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
@@ -118,6 +119,7 @@ public class Settings
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
+			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
@@ -187,42 +189,80 @@ public class Settings
 	public static void toggleHideRoofs()
 	{
 		HIDE_ROOFS = !HIDE_ROOFS;
+		if(HIDE_ROOFS)
+			Client.displayMessage("@cya@Roofs are now hidden", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Roofs are now shown", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleCombatMenu()
 	{
 		COMBAT_MENU = !COMBAT_MENU;
+		if(COMBAT_MENU)
+			Client.displayMessage("@cya@Combat style is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Combat style is now hidden", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleShowHitbox()
 	{
 		SHOW_HITBOX = !SHOW_HITBOX;
+		if(SHOW_HITBOX)
+			Client.displayMessage("@cya@Hitboxes are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Hitboxes are now hidden", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleShowNPCInfo()
 	{
 		SHOW_NPCINFO = !SHOW_NPCINFO;
+		if(Settings.SHOW_NPCINFO)
+			Client.displayMessage("@cya@NPC info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@NPC info is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+
+	public static void toggleShowPlayerInfo()
+	{
+		SHOW_PLAYERINFO = !SHOW_PLAYERINFO;
+		if(Settings.SHOW_PLAYERINFO)
+			Client.displayMessage("@cya@Player info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Player info is now hidden", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleDebug()
 	{
 		DEBUG = !DEBUG;
+		if(DEBUG)
+			Client.displayMessage("@cya@Debug mode is on", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Debug mode is off", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleFatigueAlert()
 	{
 		FATIGUE_ALERT = !FATIGUE_ALERT;
+		if(FATIGUE_ALERT)
+			Client.displayMessage("@cya@Fatigue alert is now on", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Fatigue alert is now off", Client.CHAT_NONE);
 		Save();
 	}
 
 	public static void toggleTwitchHide()
 	{
 		TWITCH_HIDE = !TWITCH_HIDE;
+		if(TWITCH_HIDE)
+			Client.displayMessage("@cya@Twitch chat is now hidden", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Twitch chat is now shown", Client.CHAT_NONE);
 		Save();
 	}
 
@@ -293,6 +333,7 @@ public class Settings
 	public static boolean HIDE_ROOFS = false;
 	public static int WORLD = 2;
 	public static boolean SHOW_NPCINFO = false;
+	public static boolean SHOW_PLAYERINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;

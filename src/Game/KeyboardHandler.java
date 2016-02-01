@@ -42,67 +42,28 @@ public class KeyboardHandler implements KeyListener
 				Renderer.takeScreenshot();
 
 			if(command_key == KeyEvent.VK_R)
-			{
 				Settings.toggleHideRoofs();
-				if(Settings.HIDE_ROOFS)
-					Client.displayMessage("@cya@Roofs are now hidden", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Roofs are now shown", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_H)
-			{
 				Settings.toggleShowHitbox();
-				if(Settings.SHOW_HITBOX)
-					Client.displayMessage("@cya@Hitboxes are now shown", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Hitboxes are now hidden", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_C)
-			{
 				Settings.toggleCombatMenu();
-				if(Settings.COMBAT_MENU)
-					Client.displayMessage("@cya@Combat style is now shown", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Combat style is now hidden", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_D)
-			{
 				Settings.toggleDebug();
-				if(Settings.DEBUG)
-					Client.displayMessage("@cya@Debug mode is on", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Debug mode is off", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_F)
-			{
 				Settings.toggleFatigueAlert();
-				if(Settings.FATIGUE_ALERT)
-					Client.displayMessage("@cya@Fatigue alert is now on", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Fatigue alert is now off", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_T)
-			{
 				Settings.toggleTwitchHide();
-				if(Settings.TWITCH_HIDE)
-					Client.displayMessage("@cya@Twitch chat is now hidden", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@Twitch chat is now shown", Client.CHAT_NONE);
-			}
 
 			if(command_key == KeyEvent.VK_N)
-			{
 				Settings.toggleShowNPCInfo();
-				if(Settings.SHOW_NPCINFO)
-					Client.displayMessage("@cya@NPC info is now shown", Client.CHAT_NONE);
-				else
-					Client.displayMessage("@cya@NPC info is now hidden", Client.CHAT_NONE);
-			}
+
+			if(command_key == KeyEvent.VK_P)
+				Settings.toggleShowPlayerInfo();
 
 			e.consume();
 		}

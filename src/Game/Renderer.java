@@ -86,8 +86,6 @@ public class Renderer
 	{
 		new_size.width = w;
 		new_size.height = h;
-
-		Logger.Info("New Size: " + w + "x" + h);
 	}
 
 	public static void handle_resize()
@@ -156,24 +154,28 @@ public class Renderer
 						color = color_hp;
 						show = true;
 					}
+					else if(Settings.SHOW_PLAYERINFO)
+					{
+						show = true;
+					}
 				}
 				else if(npc.type == NPC.TYPE_MOB && Settings.SHOW_NPCINFO)
 				{
 					show = true;
 				}
 
+				if(Settings.SHOW_HITBOX)
+				{
+					setAlpha(g2, 0.3f);
+					g2.setColor(color);
+					g2.fillRect(npc.x, npc.y, npc.width, npc.height);
+					g2.setColor(Color.BLACK);
+					g2.drawRect(npc.x, npc.y, npc.width, npc.height);
+					setAlpha(g2, 1.0f);
+				}
+
 				if(show && npc.name != null)
 				{
-					if(Settings.SHOW_HITBOX)
-					{
-						setAlpha(g2, 0.3f);
-						g2.setColor(color);
-						g2.fillRect(npc.x, npc.y, npc.width, npc.height);
-						g2.setColor(Color.BLACK);
-						g2.drawRect(npc.x, npc.y, npc.width, npc.height);
-						setAlpha(g2, 1.0f);
-					}
-
 					drawShadowText(g2, npc.name, npc.x + (npc.width / 2), npc.y - 20, color, true);
 				}
 			}

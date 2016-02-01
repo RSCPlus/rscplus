@@ -19,9 +19,19 @@ Mouse wheel scroll - Zoom camera
 [Command Key] + d - Toggle debug mode
 [Command Key] + t - Toggle twitch chat hidden/shown
 [Command Key] + n - Toggle NPC info
+[Command Key] + p - Toggle Player info
 [Command Key] + h - Toggle hitboxes for NPC info
 
 ~ Chat Commands
 
 ::[skillname] - Tells skill level and xp in chat
 ::total - Shows total level and total xp in chat
+::screenshot - Take screenshot (Saved in the screenshots directory)
+::toggleroofs - Toggle roof hiding
+::togglecombat - Toggle combat experience menu
+::togglefatigue - Toggle fatigue alert at 100%
+::debug - Toggle debug mode
+::toggletwitch - Toggle twitch chat hidden/shown
+::togglenpcinfo - Toggle NPC info
+::toggleplayerinfo - Toggle Player info
+::togglehitbox - Toggle hitboxes for NPC info
