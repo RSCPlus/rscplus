@@ -61,7 +61,7 @@ public class JClassPatcher
 		else if(node.name.equals("e"))
 			patchApplet(node);
 		else if(node.name.equals("qa"))
-			patchUnknown(node);
+			patchMenu(node);
 		else if(node.name.equals("client"))
 			patchClient(node);
 
@@ -112,22 +112,33 @@ public class JClassPatcher
 		}
 	}
 
-	private static void patchUnknown(ClassNode node)
+	private static void patchMenu(ClassNode node)
 	{
-		Logger.Info("Patching unknown (" + node.name + ".class)");
+		Logger.Info("Patching menu (" + node.name + ".class)");
 
 		Iterator<MethodNode> methodNodeList = node.methods.iterator();
 		while(methodNodeList.hasNext())
 		{
 			MethodNode methodNode = methodNodeList.next();
 
-			/*if(methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;I)V"))
+			// Menu swap hook
+			if(methodNode.name.equals("e") && methodNode.desc.equals("(II)V"))
+			{
+				AbstractInsnNode first = methodNode.instructions.getFirst();
+
+				LabelNode label = new LabelNode();
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Menu", "switchList", "(Ljava/lang/Object;)Z"));
+				methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFGT, label));
+				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(first, label);
+			}
+			/*else if(methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;I)V"))
 			{
 				// This can be used as an "autotyper"
 				AbstractInsnNode first = methodNode.instructions.getFirst();
 				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 			}*/
-
 		}
 	}
 

@@ -72,6 +72,8 @@ public class Reflection
 			c = Launcher.instance.classLoader.loadClass("qa");
 			menuX = c.getDeclaredField("kb");
 			menuY = c.getDeclaredField("B");
+			menuScroll = c.getDeclaredField("j");
+			
 		}
 		catch(Exception e)
 		{
@@ -81,6 +83,7 @@ public class Reflection
 
 	public static Field menuX = null;
 	public static Field menuY = null;
+	public static Field menuScroll = null;
 
 	public static Method displayMessage = null;
 	public static Method setCameraSize = null;

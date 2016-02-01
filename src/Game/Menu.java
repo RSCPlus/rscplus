@@ -29,7 +29,7 @@ public class Menu
 {
 	public static void resize()
 	{
-		if(chat_menu != null)
+		if(chat_menu != null && Reflection.menuX != null)
 		{
 			try
 			{
@@ -60,11 +60,40 @@ public class Menu
 				Reflection.menuX.setAccessible(accessibleX);
 				Reflection.menuY.setAccessible(accessibleY);
 			}
-			catch(Exception e)
-			{
-			}
+			catch(Exception e) {}
 		}
 	}
+
+	public static boolean switchList(Object menu)
+	{
+		// Spell menu scroll persistence
+		if(menu == spell_menu)
+		{
+			try
+			{
+				boolean accessibleScroll = Reflection.menuScroll.isAccessible();
+				Reflection.menuScroll.setAccessible(true);
+
+				int[] scroll = (int[])Reflection.menuScroll.get(spell_menu);
+
+				// Swap scroll values
+				spell_swap_scroll[spell_swap_idx] = scroll[spell_handle];
+				spell_swap_idx ^= 1;
+				scroll[spell_handle] = spell_swap_scroll[spell_swap_idx];
+
+				Reflection.menuScroll.set(spell_menu, scroll);
+				Reflection.menuScroll.setAccessible(accessibleScroll);
+
+				return false;
+			}
+			catch(Exception e) {}
+		}
+
+		return true;
+	}
+
+	private static int spell_swap_idx = 0;
+	private static int spell_swap_scroll[] = { 0, 0 };
 
 	public static Object chat_menu;
 	public static int chat_type1;
