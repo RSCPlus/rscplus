@@ -149,9 +149,9 @@ public class Client
 			else if(command.equals("toggletwitch"))
 				Settings.toggleTwitchHide();
 			else if(command.equals("toggleplayerinfo"))
-				Settings.togglePlayerInfo();
+				Settings.toggleShowPlayerInfo();
 			else if(command.equals("togglenpcinfo"))
-				Settings.toggleNPCInfo();
+				Settings.toggleShowNPCInfo();
 			else if(command.equals("screenshot"))
 				Renderer.takeScreenshot();
 			else if(command.equals("debug"))
