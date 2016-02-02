@@ -95,7 +95,6 @@ public class KeyboardHandler implements KeyListener
 
 		if(!e.isConsumed())
 		{
-			Logger.Debug("Key Pressed: " + e.getKeyCode());
 			listener_key.keyPressed(e);
 		}
 	}
@@ -118,7 +117,6 @@ public class KeyboardHandler implements KeyListener
 
 		if(!e.isConsumed())
 		{
-			Logger.Debug("Key Released: " + e.getKeyCode());
 			listener_key.keyReleased(e);
 		}
 	}
@@ -137,7 +135,6 @@ public class KeyboardHandler implements KeyListener
 
 		if(!e.isConsumed())
 		{
-			Logger.Debug("Key Typed: " + e.getKeyCode());
 			listener_key.keyTyped(e);
 		}
 	}

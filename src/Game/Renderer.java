@@ -153,6 +153,8 @@ public class Renderer
 						g2.drawRect(item.x, item.y, item.width, item.height);
 						setAlpha(g2, 1.0f);
 					}
+
+					drawShadowText(g2, item.getName(), item.x + (item.width / 2), item.y - 20, color_prayer, true);
 				}
 
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
@@ -202,7 +204,8 @@ public class Renderer
 
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
-			drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
+			if(!Client.show_sleeping)
+				drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
 
 			int percentHP = 0;
 			int percentPrayer = 0;
@@ -250,6 +253,7 @@ public class Renderer
 					drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/" + Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false); y += 16;
 					setAlpha(g2, alphaFatigue);
 					drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false); y += 16;
+					setAlpha(g2, 1.0f);
 				}
 			}
 			else

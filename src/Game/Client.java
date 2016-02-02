@@ -98,6 +98,9 @@ public class Client
 
 		if(TwitchIRC.isUsing())
 			twitch.connect();
+
+		// Patch game data
+		Item.patchItemNames();
 	}
 
 	public static String processChatCommand(String line)
@@ -207,9 +210,9 @@ public class Client
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER));
 	}
 
-	public static void drawItem(int x, int y, int width, int height)
+	public static void drawItem(int x, int y, int width, int height, int id)
 	{
-		item_list.add(new Item(x, y, width, height));
+		item_list.add(new Item(x, y, width, height, id));
 	}
 
 	public static float getXPforLevel(int level)
@@ -288,6 +291,7 @@ public class Client
 			File file = new File(Settings.Dir.DUMP + "/strings.dump");
 			writer = new BufferedWriter(new FileWriter(file));
 
+			writer.write("Client:\n\n");
 			for(int i = 0; i < strings.length; i++)
 				writer.write(i + ": " + strings[i] + "\n");
 

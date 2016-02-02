@@ -107,6 +107,10 @@ public class JClassPatcher
 
 			hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
+			hookStaticVariable(methodNode, "client", "il", "[Ljava/lang/String;", "Game/Client", "strings", "[Ljava/lang/String;");
+
+			hookStaticVariable(methodNode, "ac", "x", "[Ljava/lang/String;", "Game/Item", "item_name", "[Ljava/lang/String;");
+
 			//hookClassVariable(methodNode, "client", "Tb", "[Lta;", "Game/Client", "npcs", "[Ljava/lang/Object;", true, false);
 			//hookClassVariable(methodNode, "client", "rg", "[Lta;", "Game/Client", "players", "[Ljava/lang/Object;", true, false);
 		}
@@ -324,7 +328,8 @@ public class JClassPatcher
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 7));
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 1));
-				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawItem", "(IIII)V"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawItem", "(IIIII)V"));
 			}
 			else if(methodNode.name.equals("L") && methodNode.desc.equals("(I)V"))
 			{
@@ -749,8 +754,6 @@ public class JClassPatcher
 
 			hookClassVariable(methodNode, "client", "ug", "I", "Game/Camera", "rotation", "I", true, true);
 			hookClassVariable(methodNode, "client", "ac", "I", "Game/Camera", "zoom", "I", false, true);
-
-			hookStaticVariable(methodNode, "client", "il", "[Ljava/lang/String;", "Game/Client", "strings", "[Ljava/lang/String;");
 
 			// Chat menu
 			hookClassVariable(methodNode, "client", "yd", "Lqa;", "Game/Menu", "chat_menu", "Ljava/lang/Object;", true, false);
