@@ -302,6 +302,14 @@ public class Renderer
 				x = 256;
 				y = 32;
 				drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false); y += 16;
+
+				// Draw Inventory items
+				y += 16;
+				for(int i = 0; i < Client.inventory_count; i++)
+				{
+					drawShadowText(g2, "(" + i + "): " + Client.inventory_items[i], x, y, color_text, false);
+					y += 16;
+				}
 			}
 
 			g2.setFont(font_big);

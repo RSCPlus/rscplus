@@ -328,6 +328,8 @@ public class Client
 
 	public static boolean show_questionmenu;
 
+	public static int inventory_items[];
+
 	public static int fatigue;
 	public static int current_level[];
 	public static int base_level[];
