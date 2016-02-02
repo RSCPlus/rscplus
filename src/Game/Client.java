@@ -155,6 +155,8 @@ public class Client
 				Settings.toggleShowPlayerInfo();
 			else if(command.equals("togglenpcinfo"))
 				Settings.toggleShowNPCInfo();
+			else if(command.equals("toggleiteminfo"))
+				Settings.toggleShowItemInfo();
 			else if(command.equals("screenshot"))
 				Renderer.takeScreenshot();
 			else if(command.equals("debug"))

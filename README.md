@@ -44,6 +44,7 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 - *[Command Key]* + f - Toggle fatigue alert at 100%
 - *[Command Key]* + d - Toggle debug mode
 - *[Command Key]* + t - Toggle twitch chat hidden/shown
+- *[Command Key]* + i - Toggle Item info
 - *[Command Key]* + n - Toggle NPC info
 - *[Command Key]* + p - Toggle Player info
 - *[Command Key]* + h - Toggle hitboxes for NPC info
@@ -65,6 +66,8 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 *::debug* - Toggle debug mode
 
 *::toggletwitch* - Toggle twitch chat hidden/shown
+
+*::toggleiteminfo* - Toggle Item info
 
 *::togglenpcinfo* - Toggle NPC info
 

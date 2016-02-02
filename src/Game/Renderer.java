@@ -154,7 +154,8 @@ public class Renderer
 						setAlpha(g2, 1.0f);
 					}
 
-					drawShadowText(g2, item.getName(), item.x + (item.width / 2), item.y - 20, color_prayer, true);
+					if(Settings.SHOW_ITEMINFO)
+						drawShadowText(g2, item.getName(), item.x + (item.width / 2), item.y - 20, color_prayer, true);
 				}
 
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)

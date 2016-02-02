@@ -77,6 +77,8 @@ public class Item
 				item_name[i] = item_name[934] + " (unidentified)";
 			else if(i == 935)
 				item_name[i] = "Torstol potion";
+
+			// TODO: Add potion dosage
 		}
 	}
 

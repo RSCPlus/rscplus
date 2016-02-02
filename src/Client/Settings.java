@@ -67,6 +67,7 @@ public class Settings
 			WORLD = getInt(props, "world", 2);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
+			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", false);
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
@@ -118,6 +119,7 @@ public class Settings
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
+			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
@@ -213,6 +215,16 @@ public class Settings
 			Client.displayMessage("@cya@Hitboxes are now shown", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@Hitboxes are now hidden", Client.CHAT_NONE);
+		Save();
+	}
+
+	public static void toggleShowItemInfo()
+	{
+		SHOW_ITEMINFO = !SHOW_ITEMINFO;
+		if(Settings.SHOW_ITEMINFO)
+			Client.displayMessage("@cya@Item info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Item info is now hidden", Client.CHAT_NONE);
 		Save();
 	}
 
@@ -334,6 +346,7 @@ public class Settings
 	public static int WORLD = 2;
 	public static boolean SHOW_NPCINFO = false;
 	public static boolean SHOW_PLAYERINFO = false;
+	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;

@@ -59,6 +59,9 @@ public class KeyboardHandler implements KeyListener
 			if(command_key == KeyEvent.VK_T)
 				Settings.toggleTwitchHide();
 
+			if(command_key == KeyEvent.VK_I)
+				Settings.toggleShowItemInfo();
+
 			if(command_key == KeyEvent.VK_N)
 				Settings.toggleShowNPCInfo();
 
