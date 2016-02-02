@@ -268,6 +268,11 @@ public class Client
 		return false;
 	}
 
+	public static boolean isInterfaceOpen()
+	{
+		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel || show_duelconfirm || show_report != 0 || show_friends != 0);
+	}
+
 	private static void dumpStrings()
 	{
 		BufferedWriter writer = null;
@@ -312,6 +317,13 @@ public class Client
 	public static final int STATE_LOGIN = 1;
 	public static final int STATE_GAME = 2;
 
+	public static final int MENU_NONE = 0;
+	public static final int MENU_INVENTORY = 1;
+	public static final int MENU_MINIMAP = 2;
+	public static final int MENU_STATS = 3;
+	public static final int MENU_FRIENDS = 4;
+	public static final int MENU_SETTINGS = 5;
+
 	public static final int CHAT_NONE = 0;
 	public static final int CHAT_PRIVATE = 1;
 	public static final int CHAT_QUEST = 3;
@@ -326,7 +338,17 @@ public class Client
 
 	public static int inventory_count;
 
+	public static boolean show_bank;
+	public static boolean show_duel;
+	public static boolean show_duelconfirm;
+	public static int show_friends;
+	public static int show_menu;
 	public static boolean show_questionmenu;
+	public static int show_report;
+	public static boolean show_shop;
+	public static boolean show_trade;
+	public static boolean show_tradeconfirm;
+	public static boolean show_welcome;
 
 	public static int inventory_items[];
 

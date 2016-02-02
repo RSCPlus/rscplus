@@ -136,47 +136,50 @@ public class Renderer
 		g2.drawImage(image, 0, 0, null);
 		g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
 
-		if(Client.state == Client.STATE_GAME)
+		if(Client.state == Client.STATE_GAME || Client.show_menu != Client.MENU_NONE)
 		{
-			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
+			if(!Client.isInterfaceOpen())
 			{
-				NPC npc = iterator.next();
-				Color color = color_low;
-
-				boolean show = false;
-
-				if(npc.type == NPC.TYPE_PLAYER)
+				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
 				{
-					color = color_fatigue;
+					NPC npc = iterator.next();
+					Color color = color_low;
 
-					if(Client.isFriend(npc.name))
+					boolean show = false;
+
+					if(npc.type == NPC.TYPE_PLAYER)
 					{
-						color = color_hp;
+						color = color_fatigue;
+
+						if(Client.isFriend(npc.name))
+						{
+							color = color_hp;
+							show = true;
+						}
+						else if(Settings.SHOW_PLAYERINFO)
+						{
+							show = true;
+						}
+					}
+					else if(npc.type == NPC.TYPE_MOB && Settings.SHOW_NPCINFO)
+					{
 						show = true;
 					}
-					else if(Settings.SHOW_PLAYERINFO)
+
+					if(Settings.SHOW_HITBOX)
 					{
-						show = true;
+						setAlpha(g2, 0.3f);
+						g2.setColor(color);
+						g2.fillRect(npc.x, npc.y, npc.width, npc.height);
+						g2.setColor(Color.BLACK);
+						g2.drawRect(npc.x, npc.y, npc.width, npc.height);
+						setAlpha(g2, 1.0f);
 					}
-				}
-				else if(npc.type == NPC.TYPE_MOB && Settings.SHOW_NPCINFO)
-				{
-					show = true;
-				}
 
-				if(Settings.SHOW_HITBOX)
-				{
-					setAlpha(g2, 0.3f);
-					g2.setColor(color);
-					g2.fillRect(npc.x, npc.y, npc.width, npc.height);
-					g2.setColor(Color.BLACK);
-					g2.drawRect(npc.x, npc.y, npc.width, npc.height);
-					setAlpha(g2, 1.0f);
-				}
-
-				if(show && npc.name != null)
-				{
-					drawShadowText(g2, npc.name, npc.x + (npc.width / 2), npc.y - 20, color, true);
+					if(show && npc.name != null)
+					{
+						drawShadowText(g2, npc.name, npc.x + (npc.width / 2), npc.y - 20, color, true);
+					}
 				}
 			}
 			Client.npc_list.clear();
@@ -310,6 +313,9 @@ public class Renderer
 					drawShadowText(g2, "(" + i + "): " + Client.inventory_items[i], x, y, color_text, false);
 					y += 16;
 				}
+
+				y += 16;
+				drawShadowText(g2, "Menu: " + Client.show_menu, x, y, color_text, false); y += 16;
 			}
 
 			g2.setFont(font_big);

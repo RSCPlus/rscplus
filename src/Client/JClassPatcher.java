@@ -719,7 +719,17 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
 			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", true, false);
 
+			hookClassVariable(methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
+			hookClassVariable(methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Pj", "Z", "Game/Client", "show_duelconfirm", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Bj", "I", "Game/Client", "show_friends", "I", true, false);
+			hookClassVariable(methodNode, "client", "qc", "I", "Game/Client", "show_menu", "I", true, false);
 			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
+			hookClassVariable(methodNode, "client", "uk", "Z", "Game/Client", "show_shop", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Hk", "Z", "Game/Client", "show_trade", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, false);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
 			hookClassVariable(methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
