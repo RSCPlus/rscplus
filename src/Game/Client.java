@@ -207,6 +207,11 @@ public class Client
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER));
 	}
 
+	public static void drawItem(int x, int y, int width, int height)
+	{
+		item_list.add(new Item(x, y, width, height));
+	}
+
 	public static float getXPforLevel(int level)
 	{
 		float xp = 0.0f;
@@ -270,7 +275,8 @@ public class Client
 
 	public static boolean isInterfaceOpen()
 	{
-		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel || show_duelconfirm || show_report != 0 || show_friends != 0);
+		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel || show_duelconfirm ||
+			show_report != 0 || show_friends != 0 || show_sleeping);
 	}
 
 	private static void dumpStrings()
@@ -294,6 +300,7 @@ public class Client
 	}
 
 	public static List<NPC> npc_list = new ArrayList<NPC>();
+	public static List<Item> item_list = new ArrayList<Item>();
 
 	public static final int SKILL_ATTACK = 0;
 	public static final int SKILL_DEFENSE = 1;
@@ -346,6 +353,7 @@ public class Client
 	public static boolean show_questionmenu;
 	public static int show_report;
 	public static boolean show_shop;
+	public static boolean show_sleeping;
 	public static boolean show_trade;
 	public static boolean show_tradeconfirm;
 	public static boolean show_welcome;

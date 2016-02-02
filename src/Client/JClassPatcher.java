@@ -314,6 +314,18 @@ public class JClassPatcher
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "C", "Ljava/lang/String;"));
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;)V"));
 			}
+			else if(methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V"))
+			{
+				// Draw Item hook
+
+				// ILOAD 4 is item id
+				AbstractInsnNode insnNode = methodNode.instructions.getLast();
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 3));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 7));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 1));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawItem", "(IIII)V"));
+			}
 			else if(methodNode.name.equals("L") && methodNode.desc.equals("(I)V"))
 			{
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -727,6 +739,7 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
 			hookClassVariable(methodNode, "client", "uk", "Z", "Game/Client", "show_shop", "Z", true, false);
+			hookClassVariable(methodNode, "client", "Qk", "Z", "Game/Client", "show_sleeping", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Hk", "Z", "Game/Client", "show_trade", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, false);

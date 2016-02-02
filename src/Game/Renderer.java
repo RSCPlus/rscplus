@@ -140,6 +140,21 @@ public class Renderer
 		{
 			if(!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE)
 			{
+				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
+				{
+					Item item = iterator.next();
+
+					if(Settings.SHOW_HITBOX)
+					{
+						setAlpha(g2, 0.3f);
+						g2.setColor(color_prayer);
+						g2.fillRect(item.x, item.y, item.width, item.height);
+						g2.setColor(Color.BLACK);
+						g2.drawRect(item.x, item.y, item.width, item.height);
+						setAlpha(g2, 1.0f);
+					}
+				}
+
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
 				{
 					NPC npc = iterator.next();
@@ -183,6 +198,7 @@ public class Renderer
 				}
 			}
 			Client.npc_list.clear();
+			Client.item_list.clear();
 
 			// TODO: Inventory max is hardcoded here, I think there's a variable somewhere
 			// in client.class that contains the max inventory slots
@@ -310,6 +326,7 @@ public class Renderer
 
 				x = 256;
 				y = 32;
+				drawShadowText(g2, "FPS: " + fps, x, y, color_text, false); y += 16;
 				drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false); y += 16;
 
 				// Draw Inventory items
@@ -325,7 +342,7 @@ public class Renderer
 			}
 
 			g2.setFont(font_big);
-			if(Settings.FATIGUE_ALERT && Client.getFatigue() >= 100)
+			if(Settings.FATIGUE_ALERT && Client.getFatigue() >= 98 && !Client.isInterfaceOpen())
 			{
 				setAlpha(g2, alpha_time);
 				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
