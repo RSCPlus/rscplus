@@ -226,12 +226,15 @@ public class Renderer
 			int y = 138;
 			if(width < 800)
 			{
-				setAlpha(g2, alphaHP);
-				drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/" + Client.base_level[Client.SKILL_HP], x, y, colorHP, false); y += 16;
-				setAlpha(g2, alphaPrayer);
-				drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/" + Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false); y += 16;
-				setAlpha(g2, alphaFatigue);
-				drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false); y += 16;
+				if(!Client.isInterfaceOpen())
+				{
+					setAlpha(g2, alphaHP);
+					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/" + Client.base_level[Client.SKILL_HP], x, y, colorHP, false); y += 16;
+					setAlpha(g2, alphaPrayer);
+					drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/" + Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false); y += 16;
+					setAlpha(g2, alphaFatigue);
+					drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false); y += 16;
+				}
 			}
 			else
 			{
@@ -250,23 +253,26 @@ public class Renderer
 			}
 
 			// Draw under combat style info
-			for(int i = 0; i < 18; i++)
+			if(!Client.isInterfaceOpen())
 			{
-				if(Client.current_level[i] != Client.base_level[i] && (i != Client.SKILL_HP && i != Client.SKILL_PRAYER))
+				for(int i = 0; i < 18; i++)
 				{
-					int diff = Client.current_level[i] - Client.base_level[i];
-					Color color = color_low;
-
-					String boost = "" + diff;
-					if(diff > 0)
+					if(Client.current_level[i] != Client.base_level[i] && (i != Client.SKILL_HP && i != Client.SKILL_PRAYER))
 					{
-						boost = "+" + boost;
-						color = color_hp;
-					}
+						int diff = Client.current_level[i] - Client.base_level[i];
+						Color color = color_low;
 
-					drawShadowText(g2, boost, x, y, color, false);
-					drawShadowText(g2, Client.skill_name[i], x + 32, y, color, false);
-					y += 14;
+						String boost = "" + diff;
+						if(diff > 0)
+						{
+							boost = "+" + boost;
+							color = color_hp;
+						}
+
+						drawShadowText(g2, boost, x, y, color, false);
+						drawShadowText(g2, Client.skill_name[i], x + 32, y, color, false);
+						y += 14;
+					}
 				}
 			}
 
