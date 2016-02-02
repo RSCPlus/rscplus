@@ -136,9 +136,9 @@ public class Renderer
 		g2.drawImage(image, 0, 0, null);
 		g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
 
-		if(Client.state == Client.STATE_GAME || Client.show_menu != Client.MENU_NONE)
+		if(Client.state == Client.STATE_GAME)
 		{
-			if(!Client.isInterfaceOpen())
+			if(!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE)
 			{
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
 				{
