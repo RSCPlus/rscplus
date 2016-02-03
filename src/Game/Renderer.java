@@ -35,12 +35,16 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 public class Renderer
@@ -140,23 +144,58 @@ public class Renderer
 		{
 			if(!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE)
 			{
+				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
+				List<Point> item_text_loc = new ArrayList<Point>();
+
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
 				{
 					Item item = iterator.next();
 
 					if(Settings.SHOW_HITBOX)
 					{
-						setAlpha(g2, 0.3f);
-						g2.setColor(color_prayer);
-						g2.fillRect(item.x, item.y, item.width, item.height);
-						g2.setColor(Color.BLACK);
-						g2.drawRect(item.x, item.y, item.width, item.height);
-						setAlpha(g2, 1.0f);
+						boolean show = true;
+						for (Iterator<Rectangle> boxIterator = item_hitbox.iterator(); boxIterator.hasNext();)
+						{
+							Rectangle rect = boxIterator.next();
+							if(rect.x == item.x && rect.y == item.y && rect.width == item.width && rect.height == item.height)
+							{
+								show = false;
+								break;
+							}
+						}
+
+						if(show)
+						{
+							setAlpha(g2, 0.3f);
+							g2.setColor(color_prayer);
+							g2.fillRect(item.x, item.y, item.width, item.height);
+							g2.setColor(Color.BLACK);
+							g2.drawRect(item.x, item.y, item.width, item.height);
+							setAlpha(g2, 1.0f);
+							item_hitbox.add(new Rectangle(item.x, item.y, item.width, item.height));
+						}
 					}
 
 					if(Settings.SHOW_ITEMINFO)
-						drawShadowText(g2, item.getName(), item.x + (item.width / 2), item.y - 20, color_prayer, true);
+					{
+						int x = item.x + (item.width / 2);
+						int y = item.y - 20;
+
+						for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();)
+						{
+							Point loc = locIterator.next();
+							if(loc.x == x && loc.y == y)
+								y -= 12;
+						}
+
+						drawShadowText(g2, item.getName(), x, y, color_prayer, true);
+						item_text_loc.add(new Point(x, y));
+					}
 				}
+
+				List<Rectangle> npc_hitbox = new ArrayList<Rectangle>();
+				List<Rectangle> player_hitbox = new ArrayList<Rectangle>();
+				List<Point> entity_text_loc = new ArrayList<Point>();
 
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
 				{
@@ -186,17 +225,46 @@ public class Renderer
 
 					if(Settings.SHOW_HITBOX)
 					{
-						setAlpha(g2, 0.3f);
-						g2.setColor(color);
-						g2.fillRect(npc.x, npc.y, npc.width, npc.height);
-						g2.setColor(Color.BLACK);
-						g2.drawRect(npc.x, npc.y, npc.width, npc.height);
-						setAlpha(g2, 1.0f);
+						List<Rectangle> hitbox = player_hitbox;
+						boolean showHitbox = true;
+
+						if(npc.type == NPC.TYPE_MOB)
+							hitbox = npc_hitbox;
+
+						for (Iterator<Rectangle> boxIterator = hitbox.iterator(); boxIterator.hasNext();)
+						{
+							Rectangle rect = boxIterator.next();
+							if(rect.x == npc.x && rect.y == npc.y && rect.width == npc.width && rect.height == npc.height)
+							{
+								showHitbox = false;
+								break;
+							}
+						}
+
+						if(showHitbox)
+						{
+							setAlpha(g2, 0.3f);
+							g2.setColor(color);
+							g2.fillRect(npc.x, npc.y, npc.width, npc.height);
+							g2.setColor(Color.BLACK);
+							g2.drawRect(npc.x, npc.y, npc.width, npc.height);
+							setAlpha(g2, 1.0f);
+							hitbox.add(new Rectangle(npc.x, npc.y, npc.width, npc.height));
+						}
 					}
 
 					if(show && npc.name != null)
 					{
-						drawShadowText(g2, npc.name, npc.x + (npc.width / 2), npc.y - 20, color, true);
+						int x = npc.x + (npc.width / 2);
+						int y = npc.y - 20;
+						for (Iterator<Point> locIterator = entity_text_loc.iterator(); locIterator.hasNext();)
+						{
+							Point loc = locIterator.next();
+							if(loc.x == x && loc.y == y)
+								y -= 12;
+						}
+						drawShadowText(g2, npc.name, x, y, color, true);
+						entity_text_loc.add(new Point(x, y));
 					}
 				}
 			}
