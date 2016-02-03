@@ -100,6 +100,8 @@ public class KeyboardHandler implements KeyListener
 		{
 			if(Client.lastpm_username != null)
 			{
+				Client.pm_text = "";
+				Client.pm_enteredText = "";
 				Client.pm_username = Client.lastpm_username;
 				Client.show_friends = 2;
 			}

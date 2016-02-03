@@ -387,6 +387,8 @@ public class Client
 	public static String friends[];
 
 	public static String pm_username;
+	public static String pm_text;
+	public static String pm_enteredText;
 	public static String lastpm_username = null;
 
 	public static String strings[];

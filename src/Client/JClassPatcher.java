@@ -90,6 +90,11 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "ua", "k", "I", "Game/Renderer", "height", "I", false, true);
 			hookClassVariable(methodNode, "ua", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
+			hookClassVariable(methodNode, "e", "Ob", "Ljava/lang/String;", "Game/Client", "pm_enteredText", "Ljava/lang/String;", true, true);
+			hookClassVariable(methodNode, "client", "Ob", "Ljava/lang/String;", "Game/Client", "pm_enteredText", "Ljava/lang/String;", true, true);
+			hookClassVariable(methodNode, "e", "x", "Ljava/lang/String;", "Game/Client", "pm_text", "Ljava/lang/String;", true, true);
+			hookClassVariable(methodNode, "client", "x", "Ljava/lang/String;", "Game/Client", "pm_text", "Ljava/lang/String;", true, true);
+
 			hookClassVariable(methodNode, "client", "li", "Lba;", "Game/Renderer", "instance", "Ljava/lang/Object;", true, false);
 
 			hookClassVariable(methodNode, "ba", "u", "I", "Game/Renderer", "width", "I", false, true);
