@@ -48,6 +48,7 @@ public class Client
 		Game.instance.applet.addMouseMotionListener(handler_mouse);
 		Game.instance.applet.addMouseWheelListener(handler_mouse);
 		Game.instance.applet.addKeyListener(handler_keyboard);
+		Game.instance.applet.setFocusTraversalKeysEnabled(false);
 
 		if(Settings.DEBUG)
 			dumpStrings();
@@ -199,6 +200,15 @@ public class Client
 			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, chat_type, 0, null, null);
 			Reflection.displayMessage.setAccessible(accessible);
 		} catch(Exception e) {}
+	}
+
+	public static void messageHook(String username, String message, int type)
+	{
+		if(type == Client.CHAT_PRIVATE)
+		{
+			if(username != null)
+				lastpm_username = username;
+		}
 	}
 
 	public static void drawNPC(int x, int y, int width, int height, String name)
@@ -375,6 +385,9 @@ public class Client
 
 	public static int friends_count;
 	public static String friends[];
+
+	public static String pm_username;
+	public static String lastpm_username = null;
 
 	public static String strings[];
 

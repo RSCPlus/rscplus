@@ -725,6 +725,14 @@ public class JClassPatcher
 					}
 				}
 			}
+			else if(methodNode.name.equals("a") && methodNode.desc.equals("(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V"))
+			{
+				AbstractInsnNode first = methodNode.instructions.getFirst();
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
+				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "messageHook", "(Ljava/lang/String;Ljava/lang/String;I)V"));
+			}
 
 			hookClassVariable(methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
 			hookClassVariable(methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
@@ -739,7 +747,7 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
 			hookClassVariable(methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Pj", "Z", "Game/Client", "show_duelconfirm", "Z", true, false);
-			hookClassVariable(methodNode, "client", "Bj", "I", "Game/Client", "show_friends", "I", true, false);
+			hookClassVariable(methodNode, "client", "Bj", "I", "Game/Client", "show_friends", "I", true, true);
 			hookClassVariable(methodNode, "client", "qc", "I", "Game/Client", "show_menu", "I", true, false);
 			hookClassVariable(methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
@@ -748,6 +756,8 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Hk", "Z", "Game/Client", "show_trade", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, false);
+
+			hookClassVariable(methodNode, "client", "Qd", "Z", "Game/Client", "pm_username", "Ljava/lang/String;", true, true);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
 			hookClassVariable(methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);

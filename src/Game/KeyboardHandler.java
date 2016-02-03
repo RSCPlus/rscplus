@@ -96,6 +96,16 @@ public class KeyboardHandler implements KeyListener
 				e.consume();
 		}
 
+		if(Client.state == Client.STATE_GAME && e.getKeyCode() == KeyEvent.VK_TAB && !Client.isInterfaceOpen())
+		{
+			if(Client.lastpm_username != null)
+			{
+				Client.pm_username = Client.lastpm_username;
+				Client.show_friends = 2;
+			}
+			e.consume();
+		}
+
 		if(!e.isConsumed())
 		{
 			listener_key.keyPressed(e);
@@ -115,7 +125,7 @@ public class KeyboardHandler implements KeyListener
 			e.consume();
 		}
 
-		if(isCommandKey(e))
+		if(isCommandKey(e) || e.getKeyCode() == KeyEvent.VK_TAB)
 			e.consume();
 
 		if(!e.isConsumed())
