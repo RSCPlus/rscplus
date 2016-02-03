@@ -757,7 +757,7 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, false);
 
-			hookClassVariable(methodNode, "client", "Qd", "Z", "Game/Client", "pm_username", "Ljava/lang/String;", true, true);
+			hookClassVariable(methodNode, "client", "Qd", "Ljava/lang/String;", "Game/Client", "pm_username", "Ljava/lang/String;", true, true);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
 			hookClassVariable(methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
