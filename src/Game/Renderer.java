@@ -144,55 +144,6 @@ public class Renderer
 		{
 			if(!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE)
 			{
-				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
-				List<Point> item_text_loc = new ArrayList<Point>();
-
-				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
-				{
-					Item item = iterator.next();
-
-					if(Settings.SHOW_HITBOX)
-					{
-						boolean show = true;
-						for (Iterator<Rectangle> boxIterator = item_hitbox.iterator(); boxIterator.hasNext();)
-						{
-							Rectangle rect = boxIterator.next();
-							if(rect.x == item.x && rect.y == item.y && rect.width == item.width && rect.height == item.height)
-							{
-								show = false;
-								break;
-							}
-						}
-
-						if(show)
-						{
-							setAlpha(g2, 0.3f);
-							g2.setColor(color_prayer);
-							g2.fillRect(item.x, item.y, item.width, item.height);
-							g2.setColor(Color.BLACK);
-							g2.drawRect(item.x, item.y, item.width, item.height);
-							setAlpha(g2, 1.0f);
-							item_hitbox.add(new Rectangle(item.x, item.y, item.width, item.height));
-						}
-					}
-
-					if(Settings.SHOW_ITEMINFO)
-					{
-						int x = item.x + (item.width / 2);
-						int y = item.y - 20;
-
-						for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();)
-						{
-							Point loc = locIterator.next();
-							if(loc.x == x && loc.y == y)
-								y -= 12;
-						}
-
-						drawShadowText(g2, item.getName(), x, y, color_prayer, true);
-						item_text_loc.add(new Point(x, y));
-					}
-				}
-
 				List<Rectangle> npc_hitbox = new ArrayList<Rectangle>();
 				List<Rectangle> player_hitbox = new ArrayList<Rectangle>();
 				List<Point> entity_text_loc = new ArrayList<Point>();
@@ -265,6 +216,55 @@ public class Renderer
 						}
 						drawShadowText(g2, npc.name, x, y, color, true);
 						entity_text_loc.add(new Point(x, y));
+					}
+				}
+
+				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
+				List<Point> item_text_loc = new ArrayList<Point>();
+
+				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
+				{
+					Item item = iterator.next();
+
+					if(Settings.SHOW_HITBOX)
+					{
+						boolean show = true;
+						for (Iterator<Rectangle> boxIterator = item_hitbox.iterator(); boxIterator.hasNext();)
+						{
+							Rectangle rect = boxIterator.next();
+							if(rect.x == item.x && rect.y == item.y && rect.width == item.width && rect.height == item.height)
+							{
+								show = false;
+								break;
+							}
+						}
+
+						if(show)
+						{
+							setAlpha(g2, 0.3f);
+							g2.setColor(color_prayer);
+							g2.fillRect(item.x, item.y, item.width, item.height);
+							g2.setColor(Color.BLACK);
+							g2.drawRect(item.x, item.y, item.width, item.height);
+							setAlpha(g2, 1.0f);
+							item_hitbox.add(new Rectangle(item.x, item.y, item.width, item.height));
+						}
+					}
+
+					if(Settings.SHOW_ITEMINFO)
+					{
+						int x = item.x + (item.width / 2);
+						int y = item.y - 20;
+
+						for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();)
+						{
+							Point loc = locIterator.next();
+							if(loc.x == x && loc.y == y)
+								y -= 12;
+						}
+
+						drawShadowText(g2, item.getName(), x, y, color_prayer, true);
+						item_text_loc.add(new Point(x, y));
 					}
 				}
 			}
