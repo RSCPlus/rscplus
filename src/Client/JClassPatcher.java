@@ -854,56 +854,60 @@ public class JClassPatcher
 			}
 			else if(methodNode.name.equals("a") && methodNode.desc.equals("(IILjava/lang/String;IIBI)V"))
 			{
-				AbstractInsnNode start = null;
-
-				// ~###~ string patch to increase it to ~####~
-				// Fixes higher resolutions for the friends list
-				// FIXME: This will break any use of ~###~ by players, although it doesn't really matter
-				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-				while(insnNodeList.hasNext())
+				AbstractInsnNode start = methodNode.instructions.getFirst();
+				while(start != null)
 				{
-					AbstractInsnNode insnNode = insnNodeList.next();
+					if(start.getOpcode() == Opcodes.ALOAD && start.getNext().getOpcode() == Opcodes.ILOAD &&
+					   start.getNext().getNext().getOpcode() == Opcodes.INVOKEVIRTUAL && start.getNext().getNext().getNext().getOpcode() == Opcodes.ISTORE)
+					{
+						break;
+					}
 
-					if(insnNode.getOpcode() == Opcodes.ICONST_4)
-					{
-						AbstractInsnNode nextNode = insnNode.getPrevious();
-						if(nextNode.getOpcode() == Opcodes.IXOR)
-						{
-							start = insnNode;
-						}
-					}
+					start = start.getNext();
 				}
+				start = start.getPrevious();
 
-				AbstractInsnNode begin = start;
-				while(begin != null)
-				{
-					if(begin.getOpcode() == Opcodes.ICONST_4)
-					{
-						AbstractInsnNode remove = begin;
-						InsnNode newOpcode = new InsnNode(Opcodes.ICONST_5);
-						methodNode.instructions.insertBefore(begin, newOpcode);
-						begin = begin.getNext();
-						methodNode.instructions.remove(remove);
-					}
-					else if(begin.getOpcode() == Opcodes.BIPUSH)
-					{
-						IntInsnNode push = (IntInsnNode)begin;
-						if(push.operand == -4)
-							push.operand = -5;
-						begin = begin.getNext();
-					}
-					else if(begin.getOpcode() == Opcodes.IINC)
-					{
-						IincInsnNode iinc = (IincInsnNode)begin;
-						if(iinc.incr == 4)
-							iinc.incr = 5;
-						begin = begin.getNext();
-					}
-					else
-					{
-						begin = begin.getNext();
-					}
-				}
+				LabelNode finishLabel = ((JumpInsnNode)start.getPrevious().getPrevious()).label;
+				LabelNode failLabel = new LabelNode();
+
+				methodNode.instructions.insertBefore(start, new IntInsnNode(Opcodes.BIPUSH, 126));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ALOAD, 3));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 10));
+				methodNode.instructions.insertBefore(start, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "charAt", "(I)C"));
+				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.IF_ICMPNE, failLabel));
+
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 10));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_5));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ALOAD, 3));
+				methodNode.instructions.insertBefore(start, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "length", "()I"));
+				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.IF_ICMPGE, failLabel));
+
+				methodNode.instructions.insertBefore(start, new IntInsnNode(Opcodes.BIPUSH, 126));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ALOAD, 3));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 10));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_5));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
+				methodNode.instructions.insertBefore(start, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "charAt", "(I)C"));
+				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.IF_ICMPNE, failLabel));
+
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ALOAD, 3));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 10));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_1));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 10));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_5));
+				methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
+				methodNode.instructions.insertBefore(start, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "substring", "(II)Ljava/lang/String;"));
+				methodNode.instructions.insertBefore(start, new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I"));
+				methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ISTORE, 4));
+				methodNode.instructions.insertBefore(start, new IincInsnNode(10, 5));
+
+				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, finishLabel));
+
+				methodNode.instructions.insertBefore(start, failLabel);
+
+				System.out.println(start);
 			}
 		}
 	}
