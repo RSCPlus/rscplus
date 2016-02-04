@@ -125,6 +125,7 @@ public class Client
 			return "::";
 		}
 
+		line = processClientChatCommand(line);
 		line = processClientCommand(line);
 
 		return line;
