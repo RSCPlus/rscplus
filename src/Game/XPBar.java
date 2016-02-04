@@ -78,6 +78,23 @@ public class XPBar
 		Renderer.drawShadowText(g, Client.skill_name[currentSkill] + " (" + Client.base_level[currentSkill] + ")", x + (bounds.width / 2), y + (bounds.height / 2) - 2,
 					Renderer.color_text, true);
 
+		if(MouseHandler.x >= x && MouseHandler.x <= x + bounds.width &&
+		   MouseHandler.y > y && MouseHandler.y < y + bounds.height)
+		{
+			x = MouseHandler.x;
+			y = MouseHandler.y + 16;
+			g.setColor(Renderer.color_gray);
+			Renderer.setAlpha(g, 0.5f);
+			g.fillRect(x - 100, y, 200, 60);
+			Renderer.setAlpha(g, 1.0f);
+
+			y += 8;
+			Renderer.drawShadowText(g, Client.skill_name[currentSkill], x, y, Renderer.color_text, true); y += 12;
+			Renderer.drawShadowText(g, "Level: " + Client.current_level[currentSkill] + "/" + Client.base_level[currentSkill], x, y, Renderer.color_text, true); y += 12;
+			Renderer.drawShadowText(g, "XP: " + Client.getXP(currentSkill), x, y, Renderer.color_text, true); y += 12;
+			Renderer.drawShadowText(g, "XP until Level: " + Client.getXPUntilLevel(currentSkill), x, y, Renderer.color_text, true); y += 12;
+		}
+
 		Renderer.setAlpha(g, 1.0f);
 	}
 
