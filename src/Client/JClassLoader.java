@@ -89,7 +89,7 @@ public class JClassLoader extends ClassLoader
 							if(launcher != null)
 								launcher.setStatus("Loading " + name + "...");
 							name = name.substring(0, name.indexOf(".class"));
-							classData = JClassPatcher.patch(classData);
+							classData = patchClass(classData);
 							m_classData.put(name, classData);
 						}
 						totalLoaded += 1;
@@ -139,7 +139,7 @@ public class JClassLoader extends ClassLoader
 				{
 					filesNeeded.remove(name);
 					name = name.substring(0, name.indexOf(".class"));
-					classData = JClassPatcher.patch(classData);
+					classData = patchClass(classData);
 					m_classData.put(name, classData);
 				}
 
@@ -167,6 +167,11 @@ public class JClassLoader extends ClassLoader
 			return null;
 
 		return defineClass(data, 0, data.length);
+	}
+
+	private byte[] patchClass(byte data[])
+	{
+		return JClassPatcher.getInstance().patch(data);
 	}
 
 	private Map<String, byte[]> m_classData = new HashMap<String, byte[]>();

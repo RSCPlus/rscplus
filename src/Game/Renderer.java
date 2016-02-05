@@ -148,7 +148,7 @@ public class Renderer
 				List<Rectangle> player_hitbox = new ArrayList<Rectangle>();
 				List<Point> entity_text_loc = new ArrayList<Point>();
 
-				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
+				for(Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();)
 				{
 					NPC npc = iterator.next();
 					Color color = color_low;
@@ -222,7 +222,7 @@ public class Renderer
 				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
 				List<Point> item_text_loc = new ArrayList<Point>();
 
-				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
+				for(Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();)
 				{
 					Item item = iterator.next();
 
