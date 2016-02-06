@@ -24,6 +24,7 @@ package Game;
 import Client.Logger;
 import Client.Settings;
 import Client.TwitchIRC;
+import java.applet.Applet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -44,11 +45,13 @@ public class Client
 
 		handler_mouse = new MouseHandler();
 		handler_keyboard = new KeyboardHandler();
-		Game.instance.applet.addMouseListener(handler_mouse);
-		Game.instance.applet.addMouseMotionListener(handler_mouse);
-		Game.instance.applet.addMouseWheelListener(handler_mouse);
-		Game.instance.applet.addKeyListener(handler_keyboard);
-		Game.instance.applet.setFocusTraversalKeysEnabled(false);
+
+		Applet applet = Game.getInstance().getApplet();
+		applet.addMouseListener(handler_mouse);
+		applet.addMouseMotionListener(handler_mouse);
+		applet.addMouseWheelListener(handler_mouse);
+		applet.addKeyListener(handler_keyboard);
+		applet.setFocusTraversalKeysEnabled(false);
 
 		if(Settings.DEBUG)
 			dumpStrings();

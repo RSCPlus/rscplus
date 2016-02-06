@@ -159,6 +159,11 @@ public class JClassLoader extends ClassLoader
 		return true;
 	}
 
+	private byte[] patchClass(byte data[])
+	{
+		return JClassPatcher.getInstance().patch(data);
+	}
+
 	@Override
 	public final Class findClass(String name)
 	{
@@ -167,11 +172,6 @@ public class JClassLoader extends ClassLoader
 			return null;
 
 		return defineClass(data, 0, data.length);
-	}
-
-	private byte[] patchClass(byte data[])
-	{
-		return JClassPatcher.getInstance().patch(data);
 	}
 
 	private Map<String, byte[]> m_classData = new HashMap<String, byte[]>();

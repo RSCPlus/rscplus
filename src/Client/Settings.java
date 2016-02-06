@@ -147,7 +147,7 @@ public class Settings
 		URL url = null;
 		try
 		{
-			url = Launcher.instance.getClass().getResource(fname);
+			url = Game.getInstance().getClass().getResource(fname);
 		}
 		catch(Exception e) {}
 
@@ -170,7 +170,7 @@ public class Settings
 		InputStream stream = null;
 		try
 		{
-			stream = Launcher.instance.getClass().getResourceAsStream(fname);
+			stream = Game.getInstance().getClass().getResourceAsStream(fname);
 		}
 		catch(Exception e) {}
 

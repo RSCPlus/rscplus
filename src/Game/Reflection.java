@@ -21,6 +21,7 @@
 
 package Game;
 
+import Client.JClassLoader;
 import Client.Launcher;
 import Client.Logger;
 import java.lang.reflect.Field;
@@ -32,8 +33,10 @@ public class Reflection
 	{
 		try
 		{
+			JClassLoader classLoader = Launcher.getInstance().getClassLoader();
+
 			// Client
-			Class<?> c = Launcher.instance.classLoader.loadClass("client");
+			Class<?> c = classLoader.loadClass("client");
 			Method[] methods = c.getDeclaredMethods();
 			for(Method method : methods)
 			{
@@ -45,7 +48,7 @@ public class Reflection
 			}
 
 			// Camera
-			c = Launcher.instance.classLoader.loadClass("lb");
+			c = classLoader.loadClass("lb");
 			methods = c.getDeclaredMethods();
 			for(Method method : methods)
 			{
@@ -57,7 +60,7 @@ public class Reflection
 			}
 
 			// Renderer
-			c = Launcher.instance.classLoader.loadClass("ua");
+			c = classLoader.loadClass("ua");
 			methods = c.getDeclaredMethods();
 			for(Method method : methods)
 			{
@@ -69,7 +72,7 @@ public class Reflection
 			}
 
 			// Menu
-			c = Launcher.instance.classLoader.loadClass("qa");
+			c = classLoader.loadClass("qa");
 			menuX = c.getDeclaredField("kb");
 			menuY = c.getDeclaredField("B");
 			menuScroll = c.getDeclaredField("j");

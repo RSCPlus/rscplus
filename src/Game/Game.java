@@ -33,15 +33,28 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.Insets;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
 {
-	public Game()
+	public void setApplet(Applet applet)
 	{
-		instance = this;
+		m_applet = applet;
+		m_applet.setStub(this);
+	}
+
+	public Applet getApplet()
+	{
+		return m_applet;
+	}
+
+	public void start()
+	{
+		if(m_applet == null)
+			return;
 
 		// Set window icon
 		URL iconURL = Settings.getResource("/assets/icon.png");
@@ -55,25 +68,26 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		setTitle(null);
 		setResizable(true);
 		addWindowListener(this);
-		addComponentListener(this);
+
+		// Add applet to window
+		setContentPane(m_applet);
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
 		pack();
+
+		// Position window and make it visible
 		setLocationRelativeTo(null);
-	}
-
-	public void start()
-	{
-		if(applet == null)
-			return;
-
-		getContentPane().add(applet);
 		setVisible(true);
 
 		Reflection.Load();
 		Renderer.init();
-		applet.init();
-		applet.start();
+		m_applet.init();
+		m_applet.start();
+	}
+
+	public JConfig getJConfig()
+	{
+		return m_config;
 	}
 
 	@Override
@@ -90,7 +104,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	@Override
 	public final URL getCodeBase()
 	{
-		return config.getURL("codebase");
+		return m_config.getURL("codebase");
 	}
 
 
@@ -103,7 +117,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	@Override
 	public final String getParameter(String key)
 	{
-		return config.parameters.get(key);
+		return m_config.parameters.get(key);
 	}
 
 	@Override
@@ -120,29 +134,23 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	@Override
 	public final void windowClosed(WindowEvent e)
 	{
-		if(applet != null)
-		{
-			new Thread(new Runnable()
-			{
-				public void run()
-				{
-					applet.stop();
-					applet.destroy();
-				}
-			}).start();
-		}
+		if(m_applet == null)
+			return;
+
+		m_applet.stop();
+		m_applet.destroy();
 	}
 
 	@Override
 	public final void windowClosing(WindowEvent e)
 	{
 		dispose();
-		new Launcher();
 	}
 
 	@Override
 	public final void windowOpened(WindowEvent e)
 	{
+		addComponentListener(this);
 	}
 
 	@Override
@@ -178,7 +186,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	@Override
 	public final void componentResized(ComponentEvent e)
 	{
-		if(applet == null)
+		if(m_applet == null)
 			return;
 
 		if(getMinimumSize().width < 512)
@@ -192,7 +200,14 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	{
 	}
 
-	public static Game instance;
-	public JConfig config;
-	public Applet applet = null;
+	public static Game getInstance()
+	{
+		return (instance == null)?(instance = new Game()):instance;
+	}
+
+	private JConfig m_config = new JConfig();
+	private Applet m_applet = null;
+
+	// Singleton
+	private static Game instance = null;
 }

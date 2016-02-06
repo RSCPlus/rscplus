@@ -52,8 +52,8 @@ public class Renderer
 	public static void init()
 	{
 		// Resize game window
-		new_size.width = Game.instance.getContentPane().getWidth();
-		new_size.height = Game.instance.getContentPane().getHeight();
+		new_size.width = 512;
+		new_size.height = 346;
 		handle_resize();
 
 		// Load fonts

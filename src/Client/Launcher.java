@@ -38,10 +38,8 @@ import javax.swing.SwingUtilities;
 
 public class Launcher extends JFrame implements Runnable
 {
-	public Launcher()
+	public void init()
 	{
-		instance = this;
-
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setBackground(Color.BLACK);
 
@@ -118,7 +116,7 @@ public class Launcher extends JFrame implements Runnable
 		Settings.Save();
 
 		setStatus("Loading JConfig...");
-		JConfig config = new JConfig();
+		JConfig config = Game.getInstance().getJConfig();
 		if(!config.fetch(Util.MakeWorldURL(Settings.WORLD)))
 		{
 			error("Unable to fetch JConfig");
@@ -131,20 +129,18 @@ public class Launcher extends JFrame implements Runnable
 			return;
 		}
 
-		classLoader = new JClassLoader();
-		if(!classLoader.fetch(this, config.getJarURL()))
+		m_classLoader = new JClassLoader();
+		if(!m_classLoader.fetch(this, config.getJarURL()))
 		{
 			error("Unable to fetch Jar");
 		}
 
 		setStatus("Launching game...");
-		Game game = new Game();
+		Game game = Game.getInstance();
 		try
 		{
-			Class<?> client = classLoader.loadClass(config.getJarClass());
-			game.applet = (Applet)client.newInstance();
-			game.applet.setStub(game);
-			game.config = config;
+			Class<?> client = m_classLoader.loadClass(config.getJarClass());
+			game.setApplet((Applet)client.newInstance());
 		}
 		catch(Exception e)
 		{
@@ -193,17 +189,27 @@ public class Launcher extends JFrame implements Runnable
 		});
 	}
 
+	public JClassLoader getClassLoader()
+	{
+		return m_classLoader;
+	}
+
 	public static void main(String args[])
 	{
 		Settings.Load();
-		new Launcher();
+		Launcher.getInstance().init();
 	}
 
-	public static Launcher instance;
-
-	public JClassLoader classLoader;
+	public static Launcher getInstance()
+	{
+		return (instance == null)?(instance = new Launcher()):instance;
+	}
 
 	private JComboBox m_worldSelector;
 	private JProgressBar m_progressBar;
 	private JButton m_launchButton;
+	private JClassLoader m_classLoader;
+
+	// Singleton
+	private static Launcher instance;
 }
