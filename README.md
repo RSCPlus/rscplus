@@ -32,6 +32,7 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 - Integrated Twitch chat into in-game chat
 - Inventory free space counter
 - Highlight friends and show their names when they're near you
+- And more...
 
 ## Controls
 *[Command Key]* can be either Alt or Ctrl.
@@ -92,4 +93,4 @@ The result should be in the *bin* folder.
 There is also an Eclipse project in the source root you can import.
 
 ## Download
-The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.zip).
+The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.jar).
