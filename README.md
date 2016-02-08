@@ -48,6 +48,7 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 - *[Command Key]* + n - Toggle NPC info
 - *[Command Key]* + p - Toggle Player info
 - *[Command Key]* + h - Toggle hitboxes for NPC info
+- *[Command Key]* + 1-5 - World switch on login screen
 
 ## Chat Commands
 
@@ -75,13 +76,15 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 
 *::togglehitbox* - Toggle hitboxes for NPC info
 
+*::fov* - Change FoV from 8-9
+
 ## Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
 
 *You must have git, apache-ant, and jdk 1.7+ installed to do this.*
 ```
 git clone https://github.com/OrN/rscplus
 cd rscplus
-ant install
+ant dist
 ```
 
 The result should be in the *bin* folder.

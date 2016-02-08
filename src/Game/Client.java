@@ -56,7 +56,11 @@ public class Client
 		if(Settings.DEBUG)
 			dumpStrings();
 
+		// Initialize login
 		init_login();
+
+		// Skip first login screen and don't wipe user info
+		login_screen = 2;
 	}
 
 	public static void update()
@@ -92,6 +96,8 @@ public class Client
 		state = STATE_LOGIN;
 
 		twitch.disconnect();
+
+		setLoginMessage("Please enter your username and password", "");
 	}
 
 	public static void init_game()
@@ -144,7 +150,8 @@ public class Client
 	{
 		if(line.startsWith("::"))
 		{
-			String command = line.substring(2, line.length()).toLowerCase();
+			String commandArray[] = line.substring(2, line.length()).toLowerCase().split(" ");
+			String command = commandArray[0];
 
 			if(command.equals("toggleroofs"))
 				Settings.toggleHideRoofs();
@@ -166,6 +173,10 @@ public class Client
 				Renderer.takeScreenshot();
 			else if(command.equals("debug"))
 				Settings.toggleDebug();
+			else if(command.equals("fov") && commandArray.length > 1)
+				Camera.setFoV(Integer.parseInt(commandArray[1]));
+
+			if(commandArray[0] != null)
 
 			return "::";
 		}
@@ -203,6 +214,20 @@ public class Client
 			Reflection.displayMessage.setAccessible(true);
 			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, chat_type, 0, null, null);
 			Reflection.displayMessage.setAccessible(accessible);
+		} catch(Exception e) {}
+	}
+
+	public static void setLoginMessage(String line1, String line2)
+	{
+		if(Reflection.setLoginText == null)
+			return;
+
+		try
+		{
+			boolean accessible = Reflection.setLoginText.isAccessible();
+			Reflection.setLoginText.setAccessible(true);
+			Reflection.setLoginText.invoke(Client.instance, (byte)-49, line2, line1);
+			Reflection.setLoginText.setAccessible(accessible);
 		} catch(Exception e) {}
 	}
 
@@ -394,6 +419,9 @@ public class Client
 	public static String pm_text;
 	public static String pm_enteredText;
 	public static String lastpm_username = null;
+
+	public static int login_screen;
+	public static String username_login;
 
 	public static String strings[];
 

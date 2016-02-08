@@ -32,42 +32,30 @@
 		</javac>
 	</target>
 
-	<target name="install" depends="compile">
+	<target name="dist" depends="compile">
 		<mkdir dir="bin" />
 		<mkdir dir="${bin.dir}" />
-		<mkdir dir="${bin.dir}/lib" />
-		<copy flatten="true" todir="${bin.dir}/lib" includeemptydirs="false">
-			<fileset dir="lib">
-				<include name="**/*.jar" />
-			</fileset>
-		</copy>
-		<copy flatten="true" todir="${bin.dir}" includeemptydirs="false">
+
+		<jar destfile="${jar.file}.tmp" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${jar.main-class}" />
+			</manifest>
+		</jar>
+
+		<zip destfile="${jar.file}">
+			<zipgroupfileset dir="bin/rscplus" includes="rscplus.jar.tmp" />
+			<zipgroupfileset dir="lib" includes="*.jar" />
 			<fileset dir=".">
+				<include name="${assets.dir}/**" />
 				<include name="LICENSE" />
 				<include name="readme.txt" />
 			</fileset>
-		</copy>
-		<jar destfile="${jar.file}" basedir="${build.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="${jar.main-class}" />
-				<attribute name="Class-Path" value="${jar.classpath}" />
-			</manifest>
-			<fileset dir="." includes="${assets.dir}/**" />
-		</jar>
-	</target>
-
-	<target name="dist" depends="install">
-		<zip destfile="${dist.dir}/rscplus.zip">
-			<fileset dir="bin">
-				<include name="rscplus/rscplus.jar" />
-				<include name="rscplus/lib/*.jar" />
-				<include name="rscplus/LICENSE" />
-				<include name="rscplus/readme.txt" />
-			</fileset>
 		</zip>
+
+		<delete file="${jar.file}.tmp" />
 	</target>
 
-	<target name="run" depends="install">
+	<target name="run" depends="dist">
 		<java jar="${jar.file}" dir="${bin.dir}" fork="true" />
 	</target>
 

@@ -82,6 +82,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 			y = e.getY();
 			listener_mouse.mousePressed(e);
 		}
+
+		mouseClicked = true;
 	}
 
 	@Override
@@ -102,6 +104,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 			y = e.getY();
 			listener_mouse.mouseReleased(e);
 		}
+
+		mouseClicked = false;
 	}
 
 	@Override
@@ -150,8 +154,9 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 	private Point m_rotatePosition;
 	private float m_rotateX = 0.0f;
 
-	public static int x;
-	public static int y;
+	public static int x = 0;
+	public static int y = 0;
+	public static boolean mouseClicked = false;
 	public static MouseListener listener_mouse = null;
 	public static MouseMotionListener listener_mouse_motion = null;
 }

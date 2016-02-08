@@ -54,6 +54,15 @@ public class Camera
 		distance4 = distance;
 	}
 
+	public static void setFoV(int fov)
+	{
+		if(fov < 8)
+			fov = 8;
+
+		Camera.fov = fov;
+		resize();
+	}
+
 	public static void addRotation(int amount)
 	{
 		rotation = (rotation + amount) & 0xFF;
@@ -86,9 +95,9 @@ public class Camera
 
 	public static Object instance = null;
 
+	public static int fov = 9;
 	public static int zoom;
 	public static int rotation;
-	public static int fov;
 	public static int distance1;
 	public static int distance2;
 	public static int distance3; // This one is divided onto something to do with fog (it's usually 1)

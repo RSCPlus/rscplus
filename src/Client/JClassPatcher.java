@@ -123,9 +123,10 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
 			hookClassVariable(methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
+			hookClassVariable(methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
 
 			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
-			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", true, false);
+			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true);
 
 			hookClassVariable(methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
 			hookClassVariable(methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
@@ -141,6 +142,8 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, false);
 
 			hookClassVariable(methodNode, "client", "Qd", "Ljava/lang/String;", "Game/Client", "pm_username", "Ljava/lang/String;", true, true);
+
+			hookClassVariable(methodNode, "client", "wh", "Ljava/lang/String;", "Game/Client", "username_login", "Ljava/lang/String;", true, true);
 
 			hookClassVariable(methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
 			hookClassVariable(methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
@@ -472,7 +475,7 @@ public class JClassPatcher
 			else if(methodNode.name.equals("o") && methodNode.desc.equals("(I)V"))
 			{
 				// Client.init_login patch
-				AbstractInsnNode findNode = methodNode.instructions.getFirst();
+				AbstractInsnNode findNode = methodNode.instructions.getLast();
 				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_login", "()V", false));
 			}
 			else if(methodNode.name.equals("a") && methodNode.desc.equals("(B)V"))

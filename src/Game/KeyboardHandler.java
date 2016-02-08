@@ -23,6 +23,7 @@ package Game;
 
 import Client.Logger;
 import Client.Settings;
+import Game.Game;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -68,10 +69,28 @@ public class KeyboardHandler implements KeyListener
 			if(command_key == KeyEvent.VK_P)
 				Settings.toggleShowPlayerInfo();
 
+			if(Client.state == Client.STATE_LOGIN)
+			{
+				int worldSwitch = 0;
+				if(e.getKeyCode() == KeyEvent.VK_1)
+					worldSwitch = 1;
+				else if(e.getKeyCode() == KeyEvent.VK_2)
+					worldSwitch = 2;
+				else if(e.getKeyCode() == KeyEvent.VK_3)
+					worldSwitch = 3;
+				else if(e.getKeyCode() == KeyEvent.VK_4)
+					worldSwitch = 4;
+				else if(e.getKeyCode() == KeyEvent.VK_5)
+					worldSwitch = 5;
+
+				if(worldSwitch != 0)
+					Game.getInstance().getJConfig().changeWorld(worldSwitch);
+			}
+
 			e.consume();
 		}
 
-		if(Client.show_questionmenu)
+		if(Client.show_questionmenu && !e.isConsumed())
 		{
 			if(e.getKeyCode() == KeyEvent.VK_1)
 				dialogue_option = 0;

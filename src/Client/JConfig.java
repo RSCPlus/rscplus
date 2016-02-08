@@ -96,6 +96,26 @@ public class JConfig
 		return (Integer.valueOf(version) <= VERSION && Integer.valueOf(subVersion) <= SUBVERSION);
 	}
 
+	public void changeWorld(int world)
+	{
+		// Clip world to 1 - 5
+		if(world > 5)
+			world = 5;
+		else if(world < 1)
+			world = 1;
+
+		parameters.put("nodeid", "" + (5000 + world));
+		if(world == 1)
+			parameters.put("servertype", "" + 3);
+		else
+			parameters.put("servertype", "" + 1);
+		m_data.put("codebase", "http://classic" + world + ".runescape.com/");
+
+		// Update settins
+		Settings.WORLD = world;
+		Settings.Save();
+	}
+
 	public String getString(String key)
 	{
 		return m_data.get(key);

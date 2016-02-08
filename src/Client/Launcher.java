@@ -40,6 +40,8 @@ public class Launcher extends JFrame implements Runnable
 {
 	public void init()
 	{
+		Logger.Info("Starting rscplus");
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setBackground(Color.BLACK);
 
@@ -52,63 +54,22 @@ public class Launcher extends JFrame implements Runnable
 		}
 
 		// Set size
-		getContentPane().setPreferredSize(new Dimension(280, 98));
-		getContentPane().setLayout(null);
-		setResizable(false);
+		getContentPane().setPreferredSize(new Dimension(280, 32));
 		setTitle("rscplus Launcher");
-		pack();
 		pack();
 		setLocationRelativeTo(null);
 
-		// Add components
-		JLabel label = new JLabel("World: ");
-		label.setForeground(Color.GRAY.brighter());
-		label.setSize(64, 12);
-		label.setLocation(42, 16);
-		getContentPane().add(label);
-
-		m_worldSelector = new JComboBox();
-		for(int i = 0; i < Settings.WORLD_LIST.length; i++)
-			m_worldSelector.addItem(Settings.WORLD_LIST[i]);
-		m_worldSelector.setSelectedIndex(Settings.WORLD - 1);
-		m_worldSelector.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				Settings.WORLD = m_worldSelector.getSelectedIndex() + 1;
-			}
-		});
-		m_worldSelector.setSize(150, 20);
-		m_worldSelector.setLocation(label.getX() + label.getWidth(), label.getY() - 4);
-		getContentPane().add(m_worldSelector);
-
+		// Add progress bar
 		m_progressBar = new JProgressBar();
 		m_progressBar.setStringPainted(true);
 		m_progressBar.setBorderPainted(true);
 		m_progressBar.setForeground(Color.GRAY.brighter());
 		m_progressBar.setBackground(Color.BLACK);
-		m_progressBar.setString("Waiting for game to be launched...");
-		m_progressBar.setSize(getContentPane().getWidth() - 16, 20);
-		m_progressBar.setLocation(8, m_worldSelector.getY() + 30);
+		m_progressBar.setString("Initializing");
 		getContentPane().add(m_progressBar);
 
-		//pack();
-		m_launchButton = new JButton("Launch");
-		m_launchButton.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				m_worldSelector.setEnabled(false);
-				m_launchButton.setEnabled(false);
-				new Thread(Launcher.instance).start();
-			}
-		});
-		m_launchButton.setSize(100, 20);
-		m_launchButton.setLocation((getContentPane().getWidth() / 2) - (m_launchButton.getWidth() / 2),
-					   getContentPane().getHeight() - m_launchButton.getHeight() - 8);
-		getContentPane().add(m_launchButton);
-
 		setVisible(true);
+		new Thread(this).start();
 	}
 
 	public void run()
@@ -130,7 +91,7 @@ public class Launcher extends JFrame implements Runnable
 		}
 
 		m_classLoader = new JClassLoader();
-		if(!m_classLoader.fetch(this, config.getJarURL()))
+		if(!m_classLoader.fetch(config.getJarURL()))
 		{
 			error("Unable to fetch Jar");
 		}
@@ -156,9 +117,7 @@ public class Launcher extends JFrame implements Runnable
 	public void error(String text)
 	{
 		setStatus("Error: " + text);
-		setProgress(0, 0);
-		m_worldSelector.setEnabled(true);
-		m_launchButton.setEnabled(true);
+		try { Thread.sleep(5000); } catch(Exception e) {}
 	}
 
 	public void setStatus(final String text)
@@ -205,9 +164,7 @@ public class Launcher extends JFrame implements Runnable
 		return (instance == null)?(instance = new Launcher()):instance;
 	}
 
-	private JComboBox m_worldSelector;
 	private JProgressBar m_progressBar;
-	private JButton m_launchButton;
 	private JClassLoader m_classLoader;
 
 	// Singleton

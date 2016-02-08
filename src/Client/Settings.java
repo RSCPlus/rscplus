@@ -71,6 +71,7 @@ public class Settings
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
+			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
@@ -79,6 +80,11 @@ public class Settings
 			TWITCH_USERNAME = getString(props, "twitch_username", "");
 			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
+
+			if(WORLD < 1)
+				WORLD = 1;
+			else if(WORLD > 5)
+				WORLD = 5;
 
 			if(VIEW_DISTANCE < 2300)
 			{
@@ -123,6 +129,7 @@ public class Settings
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
+			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
@@ -331,7 +338,7 @@ public class Settings
 
 	public static String WORLD_LIST[] =
 	{
-		"1 (Veterans Only)",
+		"1",
 		"2",
 		"3",
 		"4",
@@ -348,6 +355,7 @@ public class Settings
 	public static boolean SHOW_PLAYERINFO = false;
 	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
+	public static boolean SOFTWARE_CURSOR = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;
 	public static String TWITCH_USERNAME = "";

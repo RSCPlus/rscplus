@@ -33,7 +33,9 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.awt.Insets;
+import java.awt.Point;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -74,6 +76,12 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
 		pack();
+
+		// Hide cursor if software cursor
+		if(Settings.SOFTWARE_CURSOR)
+		{
+			setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
+		}
 
 		// Position window and make it visible
 		setLocationRelativeTo(null);

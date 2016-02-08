@@ -79,6 +79,7 @@ public class Renderer
 		{
 			image_border = ImageIO.read(Settings.getResource("/assets/border.png"));
 			image_bar_frame = ImageIO.read(Settings.getResource("/assets/bar.png"));
+			image_cursor = ImageIO.read(Settings.getResource("/assets/cursor.png"));
 		}
 		catch(Exception e)
 		{
@@ -140,6 +141,7 @@ public class Renderer
 		g2.drawImage(image, 0, 0, null);
 		g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
 
+		// In-game ui
 		if(Client.state == Client.STATE_GAME)
 		{
 			if(!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE)
@@ -414,6 +416,8 @@ public class Renderer
 				drawShadowText(g2, "Menu: " + Client.show_menu, x, y, color_text, false); y += 16;
 			}
 
+			//drawShadowText(g2, "Test: " + Client.test, 100, 100, color_text, false);
+
 			g2.setFont(font_big);
 			if(Settings.FATIGUE_ALERT && Client.getFatigue() >= 98 && !Client.isInterfaceOpen())
 			{
@@ -421,6 +425,45 @@ public class Renderer
 				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
+		}
+		else if(Client.state == Client.STATE_LOGIN)
+		{
+			if(Settings.DEBUG)
+				drawShadowText(g2, "DEBUG MODE", width / 2, 8, color_text, true);
+
+			// Draw world list
+			drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
+			for(int i = 0; i < Settings.WORLD_LIST.length; i++)
+			{
+				Rectangle bounds = new Rectangle(152 + (i * 18), height - 12, 16, 12);
+				Color color = color_text;
+
+				if(i == Settings.WORLD - 1)
+					color = color_low;
+
+				setAlpha(g2, 0.5f);
+				g2.setColor(color);
+				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+				setAlpha(g2, 1.0f);
+				drawShadowText(g2, Settings.WORLD_LIST[i], bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true);
+
+				// Handle world selection click
+				if(MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width &&
+				   MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height &&
+				   MouseHandler.mouseClicked)
+				{
+					Game.getInstance().getJConfig().changeWorld(i + 1);
+				}
+			}
+
+			//drawShadowText(g2, "There are currently " + somePlayerCount + " players online.", width / 2, 8, color_text, true);
+		}
+
+		// Draw software cursor
+		if(Settings.SOFTWARE_CURSOR)
+		{
+			setAlpha(g2, 1.0f);
+			g2.drawImage(image_cursor, MouseHandler.x, MouseHandler.y, null);
 		}
 
 		g2.dispose();
@@ -558,5 +601,6 @@ public class Renderer
 
 	public static Image image_border;
 	public static Image image_bar_frame;
+	public static Image image_cursor;
 	private static BufferedImage game_image;
 }
