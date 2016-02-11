@@ -231,13 +231,22 @@ public class Client
 		} catch(Exception e) {}
 	}
 
+	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type)
 	{
+		if(type == 0)
+		{
+			if(username == null && message != null && message.contains("The spell fails! You may try again in 20 seconds"))
+				magic_timer = Renderer.time + 21000L;
+		}
+
 		if(type == Client.CHAT_PRIVATE)
 		{
 			if(username != null)
 				lastpm_username = username;
 		}
+
+		System.out.println(username + ": " + message + " (" + type + ")");
 	}
 
 	public static void drawNPC(int x, int y, int width, int height, String name)
@@ -389,6 +398,7 @@ public class Client
 	public static int state = STATE_LOGIN;
 
 	public static int inventory_count;
+	public static long magic_timer = 0L;
 
 	public static boolean show_bank;
 	public static boolean show_duel;
