@@ -157,7 +157,7 @@ public class Item
 				item_name[i] = item_name[i] + " (2)";
 			else if(i == 965)
 				item_name[i] = item_name[i] + " (1)";
-			}
+		}
 	}
 
 	public String getName()
