@@ -21,23 +21,21 @@
 
 package Game;
 
-import Client.Logger;
-import Client.Settings;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageConsumer;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageConsumer;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -45,7 +43,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.imageio.ImageIO;
+
+import Client.Settings;
+import Client.Util;
 
 public class Renderer
 {
@@ -463,7 +465,17 @@ public class Renderer
 				}
 			}
 
-			//drawShadowText(g2, "There are currently " + somePlayerCount + " players online.", width / 2, 8, color_text, true);
+			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
+			
+			int worldPopArray[];
+			int totalPop = 0;
+			worldPopArray = Util.getPop();
+			for (int i = 1; i < worldPopArray.length; i++) {
+			    drawShadowText(g2, "W" + i + " - " + worldPopArray[i], width - 56, 14 + (15*i), color_text, false);
+			    totalPop += worldPopArray[i];
+			}
+			
+			drawShadowText(g2, "There are currently " + totalPop + " players online.", width / 2, 8, color_text, true);
 		}
 
 		// Draw software cursor
