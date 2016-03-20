@@ -77,8 +77,86 @@ public class Item
 				item_name[i] = item_name[934] + " (unidentified)";
 			else if(i == 935)
 				item_name[i] = "Torstol potion";
-
-			// TODO: Add potion dosage
+			else if(i == 221) // Strength Potion
+				item_name[i] = item_name[i] + " (4)";
+			else if(i == 222)
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 223)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 224)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 474) // attack Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 475)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 476)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 477) // stat restoration Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 478)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 479)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 480) // defense Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 481)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 482)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 483) // restore prayer Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 484)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 485)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 486) // Super attack Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 487)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 488)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 489) // fishing Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 490)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 491)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 492) // Super strength Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 493)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 494)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 495) // Super defense Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 496)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 497)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 498) // ranging Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 499)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 500)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 566) // Cure poison Potion
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 567)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 568)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 569) // Poison antidote
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 570)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 571)
+				item_name[i] = item_name[i] + " (1)";
+			else if(i == 963) // Potion of Zamorak
+				item_name[i] = item_name[i] + " (3)";
+			else if(i == 964)
+				item_name[i] = item_name[i] + " (2)";
+			else if(i == 965)
+				item_name[i] = item_name[i] + " (1)";
 		}
 	}
 
