@@ -466,15 +466,16 @@ public class Renderer
 			}
 
 			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
-			
+
 			int worldPopArray[];
 			int totalPop = 0;
 			worldPopArray = Util.getPop();
-			for (int i = 1; i < worldPopArray.length; i++) {
-			    drawShadowText(g2, "W" + i + " - " + worldPopArray[i], width - 56, 14 + (15*i), color_text, false);
-			    totalPop += worldPopArray[i];
+			for (int i = 1; i < worldPopArray.length; i++)
+			{
+				drawShadowText(g2, "W" + i + " - " + worldPopArray[i], width - 56, 14 + (15*i), color_text, false);
+				totalPop += worldPopArray[i];
 			}
-			
+
 			drawShadowText(g2, "There are currently " + totalPop + " players online.", width / 2, 8, color_text, true);
 		}
 
