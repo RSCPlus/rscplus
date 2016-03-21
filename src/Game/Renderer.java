@@ -439,7 +439,7 @@ public class Renderer
 		{
 			if(Settings.DEBUG)
 				drawShadowText(g2, "DEBUG MODE", width / 2, 8, color_text, true);
-				
+
 			// Draw world list
 			drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
 			for(int i = 0; i < Settings.WORLD_LIST.length; i++)
@@ -455,7 +455,7 @@ public class Renderer
 				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 				setAlpha(g2, 1.0f);
 				drawShadowText(g2, Settings.WORLD_LIST[i], bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true);
-				
+
 				// Handle world selection click
 				if(MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width &&
 				   MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height &&
