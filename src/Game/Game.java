@@ -67,7 +67,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		}
 
 		// Set window properties
-		setTitle(null);
+		setTitle("World " + (Settings.WORLD));
 		setResizable(true);
 		addWindowListener(this);
 
