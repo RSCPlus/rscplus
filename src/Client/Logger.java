@@ -45,7 +45,11 @@ public class Logger
 			return;
 
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;
-		System.out.println(msg);
+
+		if(type != Type.ERROR)
+			System.out.println(msg);
+		else
+			System.err.println(msg);
 
 		if(type == Type.DEBUG)
 			Client.displayMessage("@cya@" + msg, Client.CHAT_NONE);
