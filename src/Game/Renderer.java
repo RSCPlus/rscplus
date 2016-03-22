@@ -462,6 +462,7 @@ public class Renderer
 				   MouseHandler.mouseClicked)
 				{
 					Game.getInstance().getJConfig().changeWorld(i + 1);
+					Game.getInstance().setTitle("World " + (i+1));
 				}
 			}
 
