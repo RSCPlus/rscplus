@@ -108,9 +108,6 @@ public class Client
 
 		if(TwitchIRC.isUsing())
 			twitch.connect();
-
-		// Patch game data
-		Item.patchItemNames();
 	}
 
 	public static String processChatCommand(String line)

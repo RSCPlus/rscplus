@@ -60,6 +60,8 @@ public class JClassPatcher
 			patchApplet(node);
 		else if(node.name.equals("qa"))
 			patchMenu(node);
+		else if(node.name.equals("m"))
+			patchData(node);
 		else if(node.name.equals("client"))
 			patchClient(node);
 
@@ -192,6 +194,24 @@ public class JClassPatcher
 				methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFGT, label));
 				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(first, label);
+			}
+		}
+	}
+
+	private void patchData(ClassNode node)
+	{
+		Logger.Info("Patching data (" + node.name + ".class)");
+
+		Iterator<MethodNode> methodNodeList = node.methods.iterator();
+		while(methodNodeList.hasNext())
+		{
+			MethodNode methodNode = methodNodeList.next();
+
+			if(methodNode.name.equals("a") && methodNode.desc.equals("([BBZ)V"))
+			{
+				// Data hook patches
+				AbstractInsnNode lastNode = methodNode.instructions.getLast();
+				methodNode.instructions.insertBefore(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Item", "patchItemNames", "()V", false));
 			}
 		}
 	}
