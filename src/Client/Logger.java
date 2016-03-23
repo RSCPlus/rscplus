@@ -50,9 +50,6 @@ public class Logger
 			System.out.println(msg);
 		else
 			System.err.println(msg);
-
-		if(type == Type.DEBUG)
-			Client.displayMessage("@cya@" + msg, Client.CHAT_NONE);
 	}
 
 	public static void Debug(String message)
