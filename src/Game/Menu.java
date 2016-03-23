@@ -33,11 +33,6 @@ public class Menu
 		{
 			try
 			{
-				boolean accessibleX = Reflection.menuX.isAccessible();
-				boolean accessibleY = Reflection.menuY.isAccessible();
-				Reflection.menuX.setAccessible(true);
-				Reflection.menuY.setAccessible(true);
-
 				int[] y = (int[])Reflection.menuY.get(chat_menu);
 				y[chat_input] = Renderer.height_client - (334 - 324);
 				y[chat_type1] = Renderer.height_client - (334 - 269);
@@ -56,9 +51,6 @@ public class Menu
 				x = (int[])Reflection.menuX.get(spell_menu);
 				x[spell_handle] = Renderer.width - 199;
 				Reflection.menuX.set(spell_menu, x);
-
-				Reflection.menuX.setAccessible(accessibleX);
-				Reflection.menuY.setAccessible(accessibleY);
 			}
 			catch(Exception e) {}
 		}
@@ -71,9 +63,6 @@ public class Menu
 		{
 			try
 			{
-				boolean accessibleScroll = Reflection.menuScroll.isAccessible();
-				Reflection.menuScroll.setAccessible(true);
-
 				int[] scroll = (int[])Reflection.menuScroll.get(spell_menu);
 
 				// Swap scroll values
@@ -82,8 +71,6 @@ public class Menu
 				scroll[spell_handle] = spell_swap_scroll[spell_swap_idx];
 
 				Reflection.menuScroll.set(spell_menu, scroll);
-				Reflection.menuScroll.setAccessible(accessibleScroll);
-
 				return false;
 			}
 			catch(Exception e) {}

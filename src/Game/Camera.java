@@ -39,10 +39,7 @@ public class Camera
 
 		try
 		{
-			boolean accessible = Reflection.setCameraSize.isAccessible();
-			Reflection.setCameraSize.setAccessible(true);
 			Reflection.setCameraSize.invoke(Camera.instance, Renderer.height_client / 2, true, Renderer.width, Renderer.width / 2, Renderer.height_client / 2, fov, Renderer.width / 2);
-			Reflection.setCameraSize.setAccessible(accessible);
 		} catch(Exception e) {}
 	}
 

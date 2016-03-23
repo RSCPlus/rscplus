@@ -117,10 +117,7 @@ public class Renderer
 		{
 			try
 			{
-				boolean accessible = Reflection.setGameBounds.isAccessible();
-				Reflection.setGameBounds.setAccessible(true);
 				Reflection.setGameBounds.invoke(Renderer.instance, 0, Renderer.width, Renderer.height, 0, (byte)119);
-				Reflection.setGameBounds.setAccessible(accessible);
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 	}

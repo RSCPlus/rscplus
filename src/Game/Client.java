@@ -207,10 +207,7 @@ public class Client
 
 		try
 		{
-			boolean accessible = Reflection.displayMessage.isAccessible();
-			Reflection.displayMessage.setAccessible(true);
 			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, chat_type, 0, null, null);
-			Reflection.displayMessage.setAccessible(accessible);
 		} catch(Exception e) {}
 	}
 
@@ -221,10 +218,7 @@ public class Client
 
 		try
 		{
-			boolean accessible = Reflection.setLoginText.isAccessible();
-			Reflection.setLoginText.setAccessible(true);
 			Reflection.setLoginText.invoke(Client.instance, (byte)-49, line2, line1);
-			Reflection.setLoginText.setAccessible(accessible);
 		} catch(Exception e) {}
 	}
 

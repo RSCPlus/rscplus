@@ -81,7 +81,22 @@ public class Reflection
 			menuX = c.getDeclaredField("kb");
 			menuY = c.getDeclaredField("B");
 			menuScroll = c.getDeclaredField("j");
-			
+
+			// Set all accessible
+			if(menuX != null)
+				menuX.setAccessible(true);
+			if(menuY != null)
+				menuY.setAccessible(true);
+			if(menuScroll != null)
+				menuScroll.setAccessible(true);
+			if(displayMessage != null)
+				displayMessage.setAccessible(true);
+			if(setCameraSize != null)
+				setCameraSize.setAccessible(true);
+			if(setGameBounds != null)
+				setGameBounds.setAccessible(true);
+			if(setLoginText != null)
+				setLoginText.setAccessible(true);
 		}
 		catch(Exception e)
 		{
