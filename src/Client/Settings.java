@@ -21,15 +21,14 @@
 
 package Client;
 
-import Game.Client;
-import Game.Game;
-
-import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+
+import Game.Client;
+import Game.Game;
 
 public class Settings
 {
@@ -80,6 +79,7 @@ public class Settings
 			TWITCH_USERNAME = getString(props, "twitch_username", "");
 			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
+			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 0);
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -138,6 +138,7 @@ public class Settings
 			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
 			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
 			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
+			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -361,4 +362,5 @@ public class Settings
 	public static String TWITCH_USERNAME = "";
 	public static String TWITCH_OAUTH = "";
 	public static String TWITCH_CHANNEL = "";
+	public static int NAME_PATCH_TYPE = 0;
 }
