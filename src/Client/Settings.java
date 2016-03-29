@@ -80,6 +80,7 @@ public class Settings
 			TWITCH_USERNAME = getString(props, "twitch_username", "");
 			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
+			SAVE_LOGININFO = getBoolean(props, "save_logininfo", true);
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -138,6 +139,7 @@ public class Settings
 			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
 			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
 			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
+			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -361,4 +363,5 @@ public class Settings
 	public static String TWITCH_USERNAME = "";
 	public static String TWITCH_OAUTH = "";
 	public static String TWITCH_CHANNEL = "";
+	public static boolean SAVE_LOGININFO = true;
 }
