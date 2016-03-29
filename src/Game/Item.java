@@ -21,6 +21,7 @@
 
 package Game;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -53,7 +54,14 @@ public class Item
 		
 		try {
 			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:assets/itempatch.db");
+
+			// Check if running from a jar so you know where to look for the database
+			if (new File("assets/itempatch.db").exists()) {
+			    c = DriverManager.getConnection("jdbc:sqlite:assets/itempatch.db");
+			} else {
+			    c = DriverManager.getConnection("jdbc:sqlite::resource:assets/itempatch.db");
+			}
+
 			c.setAutoCommit(false);
 			Logger.Info("Opened item name database successfully");
 			

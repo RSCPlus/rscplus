@@ -1,7 +1,7 @@
 rscplus
 
 RuneScape Classic is made and owned by Jagex Ltd. and this project is not in any way affiliated with them.
-There is no gaurantee this client mod will not get you banned, use at your own risk.
+There is no guarantee this client mod will not get you banned, use at your own risk.
 The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.
 
 Code can be found here: https://github.com/OrN/rscplus

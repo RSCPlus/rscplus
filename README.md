@@ -2,7 +2,7 @@
 
 *RuneScape Classic is made and owned by Jagex Ltd. and this project is not in any way affiliated with them.*
 
-*There is no gaurantee this client mod will not get you banned, use at your own risk.*
+*There is no guarantee this client mod will not get you banned, use at your own risk.*
 
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
@@ -32,6 +32,7 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 - Integrated Twitch chat into in-game chat
 - Inventory free space counter
 - Highlight friends and show their names when they're near you
+- Configurable item name patching
 - And more...
 
 ## Controls

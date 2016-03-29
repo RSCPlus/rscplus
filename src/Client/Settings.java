@@ -107,6 +107,11 @@ public class Settings
 				COMBAT_STYLE = Client.COMBAT_DEFENSIVE;
 				Save();
 			}
+
+			if(NAME_PATCH_TYPE < 0)
+				NAME_PATCH_TYPE = 0;
+			else if(NAME_PATCH_TYPE > 3)
+				NAME_PATCH_TYPE = 3;
 		}
 		catch(Exception e) {}
 
