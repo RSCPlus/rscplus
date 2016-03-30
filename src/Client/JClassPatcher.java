@@ -125,7 +125,8 @@ public class JClassPatcher
 			hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
 			hookClassVariable(methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
-			hookClassVariable(methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
+			if(Settings.SAVE_LOGININFO == true)
+				hookClassVariable(methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
 
 			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
 			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true);
