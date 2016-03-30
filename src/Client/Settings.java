@@ -79,7 +79,7 @@ public class Settings
 			TWITCH_USERNAME = getString(props, "twitch_username", "");
 			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
-			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 0);
+			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 3);
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -367,5 +367,5 @@ public class Settings
 	public static String TWITCH_USERNAME = "";
 	public static String TWITCH_OAUTH = "";
 	public static String TWITCH_CHANNEL = "";
-	public static int NAME_PATCH_TYPE = 0;
+	public static int NAME_PATCH_TYPE = 3;
 }

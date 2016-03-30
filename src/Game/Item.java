@@ -66,32 +66,32 @@ public class Item
 			Logger.Info("Opened item name database successfully");
 			
 			switch(namePatchType) {
-			// Default patching of useful herblaw information like potion dosage and unf herbs and potions without changing anything else
+			/*
+			 * 0 No item name patching
+			 * 1 Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)
+			 * 2 Capitalizations and fixed spellings on top of type 1 changes
+			 * 3 Reworded vague stuff to be more descriptive on top of type 1 & 2 changes
+			 */
 			case 0:
 				break;
-			// Capitalization correction and spelling corrections (Iron Mace -> Iron mace)
 			case 1:
-				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type0 WHERE patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type1);");
+				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
 				break;
-			// Reworded, fixed spelling, or made minor additions to make it more clear what it is (milk -> Bucket of milk)
 			case 2:
-				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type0 WHERE patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type1) AND patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type2);");
-				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type1 WHERE patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type2);");				
+				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
+				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type1 WHERE patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type2);");
 				break;
-			// Extra information added to better describe it (Holy Symbol of saradomin -> Unblessed holy symbol (unstrung))
 			case 3:
-				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type0 WHERE patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type1) AND patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type2) AND patched_names_type0.item_id NOT IN (SELECT item_id FROM patched_names_type3);");
+				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
 				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type1 WHERE patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type2) AND patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type3);");
-				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type2 WHERE patched_names_type2.item_id NOT IN (SELECT item_id FROM patched_names_type3);");
+				queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type2 WHERE patched_names_type2.item_id NOT IN (SELECT item_id FROM patched_names_type3);");				
 				break;
 			default:
 				
 				break;
 			}
-			
-			queryDatabase(c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
-			
 			c.close();
+
 		} catch (SQLTimeoutException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
