@@ -103,7 +103,7 @@ public class Item
 	
 	public static void queryDatabase(Connection c, String query) {
 		try {
-		    Statement stmt = null;
+			Statement stmt = null;
 		    
 			stmt = c.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
