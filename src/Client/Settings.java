@@ -21,15 +21,14 @@
 
 package Client;
 
-import Game.Client;
-import Game.Game;
-
-import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+
+import Game.Client;
+import Game.Game;
 
 public class Settings
 {
@@ -80,6 +79,7 @@ public class Settings
 			TWITCH_USERNAME = getString(props, "twitch_username", "");
 			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
+			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 3);
 			SAVE_LOGININFO = getBoolean(props, "save_logininfo", true);
 
 			if(WORLD < 1)
@@ -108,6 +108,11 @@ public class Settings
 				COMBAT_STYLE = Client.COMBAT_DEFENSIVE;
 				Save();
 			}
+
+			if(NAME_PATCH_TYPE < 0)
+				NAME_PATCH_TYPE = 0;
+			else if(NAME_PATCH_TYPE > 3)
+				NAME_PATCH_TYPE = 3;
 		}
 		catch(Exception e) {}
 
@@ -139,6 +144,7 @@ public class Settings
 			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
 			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
 			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
+			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
@@ -363,5 +369,6 @@ public class Settings
 	public static String TWITCH_USERNAME = "";
 	public static String TWITCH_OAUTH = "";
 	public static String TWITCH_CHANNEL = "";
+	public static int NAME_PATCH_TYPE = 3;
 	public static boolean SAVE_LOGININFO = true;
 }

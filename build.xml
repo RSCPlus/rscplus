@@ -36,23 +36,18 @@
 		<mkdir dir="bin" />
 		<mkdir dir="${bin.dir}" />
 
-		<jar destfile="${jar.file}.tmp" basedir="${build.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="${jar.main-class}" />
-			</manifest>
-		</jar>
-
-		<zip destfile="${jar.file}">
-			<zipgroupfileset dir="bin/rscplus" includes="rscplus.jar.tmp" />
-			<zipgroupfileset dir="lib" includes="*.jar" />
+        <jar destfile="${jar.file}" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${jar.main-class}"/>
+            </manifest>
 			<fileset dir=".">
 				<include name="${assets.dir}/**" />
 				<include name="LICENSE" />
 				<include name="readme.txt" />
 			</fileset>
-		</zip>
-
-		<delete file="${jar.file}.tmp" />
+			<zipgroupfileset dir="lib" includes="*.jar" />
+        </jar>
+		
 	</target>
 
 	<target name="run" depends="dist">
