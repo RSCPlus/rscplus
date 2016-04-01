@@ -6,8 +6,6 @@
 
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
-I'm glad I started this project. Thanks everybody that had nice things to say about it, I enjoy reading them.
-
 ## Contributing
 
 - Fork the project
@@ -16,7 +14,7 @@ I'm glad I started this project. Thanks everybody that had nice things to say ab
 - Make sure the branch is up-to-date with master
 - Pull request the branch
 
-*I will not accept any automation requests.*
+*I will not accept any game automation features (macroing, etc.)*
 
 ## Features
 - Game resolution changing (about 80% complete)
