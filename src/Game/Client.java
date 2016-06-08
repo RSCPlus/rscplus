@@ -31,17 +31,24 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Client
-{
-	public static void init()
-	{
-		for(int i = 0; i < strings.length; i++)
-		{
-			if(strings[i].contains("Oh dear! You are dead..."))
-			{
+public class Client {
+
+	public static void adaptStrings() {
+		for (int i = 0; i < strings.length; i++) {
+			if (strings[i].contains("Oh dear! You are dead...")) {
 				strings[i] = "YOU DIED";
 			}
+			if (strings[i].startsWith("from:") && !Settings.SHOW_LOGINDETAILS) {
+				strings[i] = "@bla@from:";
+			}
+			if (strings[i].startsWith("@bla@from:") && Settings.SHOW_LOGINDETAILS) {
+				strings[i] = "from:";
+			}
 		}
+	}
+
+	public static void init() {
+		adaptStrings();
 
 		handler_mouse = new MouseHandler();
 		handler_keyboard = new KeyboardHandler();
@@ -53,7 +60,7 @@ public class Client
 		applet.addKeyListener(handler_keyboard);
 		applet.setFocusTraversalKeysEnabled(false);
 
-		if(Settings.DEBUG)
+		if (Settings.DEBUG)
 			dumpStrings();
 
 		// Initialize login
@@ -63,33 +70,35 @@ public class Client
 		login_screen = 2;
 	}
 
-	public static void update()
-	{
-		if(state == STATE_GAME)
-		{
+	public static void update() {
+		if (state == STATE_GAME) {
 			// Process XP drops
 			boolean dropXP = (xpdrop_state[SKILL_HP] > 0.0f);
-			for(int i = 0; i < xpdrop_state.length; i++)
-			{
+			for (int i = 0; i < xpdrop_state.length; i++) {
 				float xpGain = getXP(i) - xpdrop_state[i];
 				xpdrop_state[i] += xpGain;
 
-				if(xpGain > 0.0f && dropXP)
-				{
+				if (xpGain > 0.0f && dropXP) {
 					xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
 
-					if(i == SKILL_HP && xpbar.currentSkill != -1)
+					if (i == SKILL_HP && xpbar.currentSkill != -1)
 						continue;
 
 					xpbar.setSkill(i);
 				}
 			}
+			// + Fatigue drops
+			final float actualFatigue = (float) (fatigue * 100.0 / 750);
+			final float fatigueGain = actualFatigue - currentFatigue;
+			if (fatigueGain > 0.0f) {
+				xpdrop_handler.add("+" + fatigueGain + "% (Fatigue)");
+				currentFatigue = actualFatigue;
+			}
 		}
 	}
 
-	public static void init_login()
-	{
-		for(int i = 0; i < xpdrop_state.length; i++)
+	public static void init_login() {
+		for (int i = 0; i < xpdrop_state.length; i++)
 			xpdrop_state[i] = 0.0f;
 
 		Camera.init();
@@ -98,34 +107,29 @@ public class Client
 		twitch.disconnect();
 
 		setLoginMessage("Please enter your username and password", "");
+		adaptStrings();
 	}
 
-	public static void init_game()
-	{
+	public static void init_game() {
 		Camera.init();
 		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
 
-		if(TwitchIRC.isUsing())
+		if (TwitchIRC.isUsing())
 			twitch.connect();
 	}
 
-	public static String processChatCommand(String line)
-	{
-		if(TwitchIRC.isUsing() && line.startsWith("/"))
-		{
+	public static String processChatCommand(String line) {
+		if (TwitchIRC.isUsing() && line.startsWith("/")) {
 			String message = line.substring(1, line.length());
 			String messageArray[] = message.split(" ");
 
 			message = processClientChatCommand(message);
 
-			if(messageArray[0] != null && messageArray[0].equals("me") && messageArray.length > 1)
-			{
+			if (messageArray[0] != null && messageArray[0].equals("me") && messageArray.length > 1) {
 				message = message.substring(3, message.length());
 				twitch.sendEmote(message, true);
-			}
-			else
-			{
+			} else {
 				twitch.sendMessage(message, true);
 			}
 			return "::";
@@ -137,62 +141,72 @@ public class Client
 		return line;
 	}
 
-	public static String processPrivateCommand(String line)
-	{
+	public static String processPrivateCommand(String line) {
 		line = processClientChatCommand(line);
 		return line;
 	}
 
-	private static String processClientCommand(String line)
-	{
-		if(line.startsWith("::"))
-		{
+	private static String processClientCommand(String line) {
+		if (line.startsWith("::")) {
 			String commandArray[] = line.substring(2, line.length()).toLowerCase().split(" ");
 			String command = commandArray[0];
 
-			if(command.equals("toggleroofs"))
+			if (command.equals("toggleroofs"))
 				Settings.toggleHideRoofs();
-			else if(command.equals("togglecombat"))
+			else if (command.equals("togglecombat"))
 				Settings.toggleCombatMenu();
-			else if(command.equals("togglehitbox"))
+			else if (command.equals("togglehitbox"))
 				Settings.toggleShowHitbox();
-			else if(command.equals("togglefatigue"))
+			else if (command.equals("togglefatigue"))
 				Settings.toggleFatigueAlert();
-			else if(command.equals("toggletwitch"))
+			else if (command.equals("toggletwitch"))
 				Settings.toggleTwitchHide();
-			else if(command.equals("toggleplayerinfo"))
+			else if (command.equals("toggleplayerinfo"))
 				Settings.toggleShowPlayerInfo();
-			else if(command.equals("togglenpcinfo"))
+			else if (command.equals("togglenpcinfo"))
 				Settings.toggleShowNPCInfo();
-			else if(command.equals("toggleiteminfo"))
+			else if (command.equals("toggleiteminfo"))
 				Settings.toggleShowItemInfo();
-			else if(command.equals("screenshot"))
+			else if (command.equals("togglelogindetails"))
+				Settings.toggleShowLoginDetails();
+			else if (command.equals("screenshot"))
 				Renderer.takeScreenshot();
-			else if(command.equals("debug"))
+			else if (command.equals("debug"))
 				Settings.toggleDebug();
-			else if(command.equals("fov") && commandArray.length > 1)
+			else if (command.equals("fov") && commandArray.length > 1)
 				Camera.setFoV(Integer.parseInt(commandArray[1]));
 
-			if(commandArray[0] != null)
+			if (commandArray[0] != null)
 
-			return "::";
+				return "::";
 		}
 
 		return line;
 	}
 
-	private static String processClientChatCommand(String line)
-	{
-		if(line.startsWith("::"))
-		{
+	private static String processClientChatCommand(String line) {
+		if (line.startsWith("::")) {
 			String command = line.substring(2, line.length()).toLowerCase();
 
-			if(command.equals("total"))
+			if (command.equals("total"))
 				return "My Total Level is " + getTotalLevel() + " (" + getTotalXP() + " xp).";
 
-			for(int i = 0; i < 18; i++)
-			{
-				if(command.equals(skill_name[i].toLowerCase()))
+			if (command.equals("fatigue")) {
+				return "My Fatigue is at " + currentFatigue + "%.";
+			}
+
+			if (command.startsWith("next_")) {
+				for (int i = 0; i < 18; i++) {
+					if (command.equals("next_" + skill_name[i].toLowerCase())) {
+						final float neededXp = base_level[i] == 99 ? 0 : getXPforLevel(base_level[i] + 1) - getXP(i);
+						return "I need " + neededXp + " more xp for " + (base_level[i] == 99 ? 99 : base_level[i] + 1)
+								+ " " + skill_name[i] + ".";
+					}
+				}
+			}
+
+			for (int i = 0; i < 18; i++) {
+				if (command.equals(skill_name[i].toLowerCase()))
 					return "My " + skill_name[i] + " level is " + base_level[i] + " (" + getXP(i) + " xp).";
 			}
 		}
@@ -200,147 +214,139 @@ public class Client
 		return line;
 	}
 
-	public static void displayMessage(String message, int chat_type)
-	{
-		if(Client.state != Client.STATE_GAME || Reflection.displayMessage == null)
+	public static void displayMessage(String message, int chat_type) {
+		if (Client.state != Client.STATE_GAME || Reflection.displayMessage == null)
 			return;
 
-		try
-		{
+		try {
 			Reflection.displayMessage.invoke(Client.instance, false, null, 0, message, chat_type, 0, null, null);
-		} catch(Exception e) {}
+		} catch (Exception e) {
+		}
 	}
 
-	public static void setLoginMessage(String line1, String line2)
-	{
-		if(Reflection.setLoginText == null)
+	public static void setLoginMessage(String line1, String line2) {
+		if (Reflection.setLoginText == null)
 			return;
 
-		try
-		{
-			Reflection.setLoginText.invoke(Client.instance, (byte)-49, line2, line1);
-		} catch(Exception e) {}
+		try {
+			Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
+		} catch (Exception e) {
+		}
 	}
 
 	// All messages added to chat are routed here
-	public static void messageHook(String username, String message, int type)
-	{
-		if(type == 0)
-		{
-			if(username == null && message != null && message.contains("The spell fails! You may try again in 20 seconds"))
+	public static void messageHook(String username, String message, int type) {
+		if (type == 0) {
+			if (username == null && message != null
+					&& message.contains("The spell fails! You may try again in 20 seconds"))
 				magic_timer = Renderer.time + 21000L;
 		}
 
-		if(type == Client.CHAT_PRIVATE)
-		{
-			if(username != null)
+		if (type == Client.CHAT_PRIVATE) {
+			if (username != null)
 				lastpm_username = username;
 		}
 
 		System.out.println(username + ": " + message + " (" + type + ")");
 	}
 
-	public static void drawNPC(int x, int y, int width, int height, String name)
-	{
+	public static void drawNPC(int x, int y, int width, int height, String name) {
 		// ILOAD 6 is index
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB));
 	}
 
-	public static void drawPlayer(int x, int y, int width, int height, String name)
-	{
+	public static void drawPlayer(int x, int y, int width, int height, String name) {
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER));
 	}
 
-	public static void drawItem(int x, int y, int width, int height, int id)
-	{
+	public static void drawItem(int x, int y, int width, int height, int id) {
 		item_list.add(new Item(x, y, width, height, id));
 	}
 
-	public static float getXPforLevel(int level)
-	{
+	public static float getXPforLevel(int level) {
 		float xp = 0.0f;
-		for(int x = 1; x < level; x++)
+		for (int x = 1; x < level; x++)
 			xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
 		return xp;
 	}
 
-	public static float getXPUntilLevel(int skill)
-	{
+	public static float getXPUntilLevel(int skill) {
 		float xpNextLevel = getXPforLevel(base_level[skill] + 1);
 		return xpNextLevel - getXP(skill);
 	}
 
-	public static int getLevel(int i)
-	{
+	public static int getLevel(int i) {
 		return current_level[i];
 	}
 
-	public static int getTotalLevel()
-	{
+	public static int getTotalLevel() {
 		int total = 0;
-		for(int i = 0; i < 18; i++)
+		for (int i = 0; i < 18; i++)
 			total += Client.base_level[i];
 		return total;
 	}
 
-	public static float getTotalXP()
-	{
+	public static float getTotalXP() {
 		float xp = 0;
-		for(int i = 0; i < 18; i++)
+		for (int i = 0; i < 18; i++)
 			xp += getXP(i);
 		return xp;
 	}
 
-	public static int getBaseLevel(int i)
-	{
+	public static int getBaseLevel(int i) {
 		return base_level[i];
 	}
 
-	public static float getXP(int i)
-	{
-		return (float)xp[i] / 4.0f;
+	public static float getXP(int i) {
+		return (float) xp[i] / 4.0f;
 	}
 
-	public static int getFatigue()
-	{
+	public static int getFatigue() {
 		return (fatigue * 100 / 750);
 	}
 
-	public static boolean isFriend(String name)
-	{
-		for(int i = 0; i < friends_count; i++)
-		{
-			if(friends[i] != null && friends[i].equals(name))
+	public static void updateCurrentFatigue() {
+		final float nextFatigue = (float) (fatigue * 100.0 / 750);
+		if (currentFatigue != nextFatigue) {
+			currentFatigue = nextFatigue;
+		}
+	}
+
+	public static boolean isFriend(String name) {
+		for (int i = 0; i < friends_count; i++) {
+			if (friends[i] != null && friends[i].equals(name))
 				return true;
 		}
 
 		return false;
 	}
 
-	public static boolean isInterfaceOpen()
-	{
-		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel || show_duelconfirm ||
-			show_report != 0 || show_friends != 0 || show_sleeping);
+	public static boolean isInterfaceOpen() {
+		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel
+				|| show_duelconfirm || show_report != 0 || show_friends != 0 || show_sleeping);
 	}
 
-	private static void dumpStrings()
-	{
+	public static boolean isSleeping() {
+		return show_sleeping;
+	}
+
+	private static void dumpStrings() {
 		BufferedWriter writer = null;
 
-		try
-		{
+		try {
 			File file = new File(Settings.Dir.DUMP + "/strings.dump");
 			writer = new BufferedWriter(new FileWriter(file));
 
 			writer.write("Client:\n\n");
-			for(int i = 0; i < strings.length; i++)
+			for (int i = 0; i < strings.length; i++)
 				writer.write(i + ": " + strings[i] + "\n");
 
 			writer.close();
-		}
-		catch(Exception e)
-		{
-			try { writer.close(); } catch(Exception e2) {}
+		} catch (Exception e) {
+			try {
+				writer.close();
+			} catch (Exception e2) {
+			}
 		}
 	}
 
@@ -407,6 +413,7 @@ public class Client
 	public static int inventory_items[];
 
 	public static int fatigue;
+	private static float currentFatigue;
 	public static int current_level[];
 	public static int base_level[];
 	public static int xp[];

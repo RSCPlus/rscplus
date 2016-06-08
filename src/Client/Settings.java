@@ -70,6 +70,7 @@ public class Settings
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
+			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
@@ -135,6 +136,7 @@ public class Settings
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
+			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
@@ -262,6 +264,16 @@ public class Settings
 			Client.displayMessage("@cya@Player info is now hidden", Client.CHAT_NONE);
 		Save();
 	}
+	
+	public static void toggleShowLoginDetails()
+	{
+		SHOW_LOGINDETAILS = !SHOW_LOGINDETAILS;
+		if(Settings.SHOW_LOGINDETAILS)
+			Client.displayMessage("@cya@Login details will appear next time", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Login details will not appear next time", Client.CHAT_NONE);
+		Save();
+	}
 
 	public static void toggleDebug()
 	{
@@ -363,6 +375,7 @@ public class Settings
 	public static boolean SHOW_PLAYERINFO = false;
 	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
+	public static boolean SHOW_LOGINDETAILS = false;
 	public static boolean SOFTWARE_CURSOR = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;
