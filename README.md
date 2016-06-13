@@ -54,7 +54,11 @@
 
 *::[skillname]* - Tells skill level and xp in chat
 
+*::next_[skillname]* - Tells how much xp needed until next level in chat
+
 *::total* - Shows total level and total xp in chat
+
+*::fatigue* - Shows the fatigue percentage accurately in chat
 
 *::screenshot* - Take screenshot (Saved in the screenshots directory)
 
@@ -65,6 +69,8 @@
 *::togglefatigue* - Toggle fatigue alert at 100%
 
 *::debug* - Toggle debug mode
+
+*::togglelogindetails* - Toggle IP/Dns login details shown at welcome screen
 
 *::toggletwitch* - Toggle twitch chat hidden/shown
 
@@ -159,6 +165,10 @@
   <dd>Range: <i>true or false</i><br>
   Sets whether player display names appear over players; does not affect players on your friends list</dd>
     
+  <dt>show_logindetails</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets whether login details such as IP or DNS will appear at the login screen</dd>
+  
   <dt>twitch_hide</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether Twitch chat is shown in game chat</dd>

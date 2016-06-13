@@ -101,8 +101,8 @@ public class Renderer {
 			image_consumer.setDimensions(width, height);
 
 		if (Client.strings != null)
-			Client.strings[262] = fixLengthString(
-					"~" + (Renderer.width - (512 - 439)) + "~@whi@Remove         WWWWWWWWWW");
+			Client.strings[262] = fixLengthString("~" + (Renderer.width - (512 - 439))
+					+ "~@whi@Remove         WWWWWWWWWW");
 
 		if (Renderer.instance != null && Reflection.setGameBounds != null) {
 			try {
@@ -244,14 +244,16 @@ public class Renderer {
 				Client.updateCurrentFatigue();
 			}
 
+			if (!Client.isWelcomeScreen() && null == Client.player_name) {
+				Client.getPlayerName();
+			}
+
 			Client.npc_list.clear();
 			Client.item_list.clear();
 
-			// TODO: Inventory max is hardcoded here, I think there's a variable
-			// somewhere
-			// in client.class that contains the max inventory slots
 			if (!Client.show_sleeping)
-				drawShadowText(g2, Client.inventory_count + "/" + 30, width - 19, 17, color_text, true);
+				drawShadowText(g2, Client.inventory_count + "/" + Client.max_inventory, width - 19, 17, color_text,
+						true);
 
 			int percentHP = 0;
 			int percentPrayer = 0;
@@ -288,9 +290,8 @@ public class Renderer {
 			if (width < 800) {
 				if (!Client.isInterfaceOpen()) {
 					setAlpha(g2, alphaHP);
-					drawShadowText(g2,
-							"Hits: " + Client.current_level[Client.SKILL_HP] + "/" + Client.base_level[Client.SKILL_HP],
-							x, y, colorHP, false);
+					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
+							+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
 					y += 16;
 					setAlpha(g2, alphaPrayer);
 					drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/"
@@ -366,8 +367,7 @@ public class Renderer {
 
 				// Draw Mouse Info
 				y += 16;
-				drawShadowText(g2, "Mouse Position: " + MouseHandler.x + ", " + MouseHandler.y, x, y, color_text,
-						false);
+				drawShadowText(g2, "Mouse Position: " + MouseHandler.x + ", " + MouseHandler.y, x, y, color_text, false);
 				y += 16;
 
 				// Draw camera info
@@ -401,6 +401,14 @@ public class Renderer {
 
 				y += 16;
 				drawShadowText(g2, "Menu: " + Client.show_menu, x, y, color_text, false);
+				y += 16;
+
+				x = 380;
+				y = 32;
+				if (Client.player_name != null)
+					drawShadowText(g2, Client.player_name, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
 			}
 
@@ -488,8 +496,7 @@ public class Renderer {
 			handle_resize();
 	}
 
-	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value,
-			int total) {
+	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {
 		// Prevent divide by zero
 		if (total == 0)
 			return;

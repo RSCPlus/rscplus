@@ -39,6 +39,13 @@ public class Menu
 				y[chat_type2] = Renderer.height_client - (334 - 269);
 				y[chat_type3] = Renderer.height_client - (334 - 269);
 				Reflection.menuY.set(chat_menu, y);
+				
+				int[] w = (int[])Reflection.menuWidth.get(chat_menu);
+				w[chat_input] = Renderer.width - 10;
+				w[chat_type1] = Renderer.width - 10;
+				w[chat_type2] = Renderer.width - 10;
+				w[chat_type3] = Renderer.width - 10;
+				Reflection.menuWidth.set(chat_menu, w);
 
 				int[] x = (int[])Reflection.menuX.get(quest_menu);
 				x[quest_handle] = Renderer.width - 199;
