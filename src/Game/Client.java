@@ -28,6 +28,7 @@ import java.applet.Applet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +109,7 @@ public class Client {
 
 		setLoginMessage("Please enter your username and password", "");
 		adaptStrings();
+		player_name = null;
 	}
 
 	public static void init_game() {
@@ -117,6 +119,33 @@ public class Client {
 
 		if (TwitchIRC.isUsing())
 			twitch.connect();
+	}
+
+	public static void getPlayerName() {
+
+		try {
+			player_name = (String) Reflection.characterName.get(player_object);
+		} catch (IllegalArgumentException | IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
+
+	public static void getCoords() {
+		try {
+			//int coordX = Reflection.characterPosX.getInt(player_object) / 128;
+			//int coordY = Reflection.characterPosY.getInt(player_object) / 128;
+			// System.out.println("("+coordX+","+coordY+")");
+
+			System.out.println("Region x: "+regionX);
+			System.out.println("Region y: "+regionY);
+
+
+		} catch (IllegalArgumentException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	public static String processChatCommand(String line) {
@@ -330,6 +359,10 @@ public class Client {
 		return show_sleeping;
 	}
 
+	public static boolean isWelcomeScreen() {
+		return show_welcome;
+	}
+
 	private static void dumpStrings() {
 		BufferedWriter writer = null;
 
@@ -394,6 +427,7 @@ public class Client {
 
 	public static int state = STATE_LOGIN;
 
+	public static int max_inventory;
 	public static int inventory_count;
 	public static long magic_timer = 0L;
 
@@ -430,6 +464,14 @@ public class Client {
 
 	public static int login_screen;
 	public static String username_login;
+
+	public static Object player_object;
+	public static String player_name = null;
+	public static int player_posX = -1;
+	public static int player_posY = -1;
+
+	public static int regionX = -1;
+	public static int regionY = -1;
 
 	public static String strings[];
 

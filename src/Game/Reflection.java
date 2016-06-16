@@ -27,38 +27,37 @@ import Client.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class Reflection
-{
-	public static void Load()
-	{
-		try
-		{
+public class Reflection {
+	public static void Load() {
+		try {
 			JClassLoader classLoader = Launcher.getInstance().getClassLoader();
 
 			// Client
 			Class<?> c = classLoader.loadClass("client");
 			Method[] methods = c.getDeclaredMethods();
-			for(Method method : methods)
-			{
-				if(method.toGenericString().equals(DISPLAYMESSAGE))
-				{
+			for (Method method : methods) {
+				if (method.toGenericString().equals(DISPLAYMESSAGE)) {
 					displayMessage = method;
 					Logger.Info("Found displayMessage");
-				}
-				else if(method.toGenericString().equals(SETLOGINTEXT))
-				{
+				} else if (method.toGenericString().equals(SETLOGINTEXT)) {
 					setLoginText = method;
 					Logger.Info("Found setLoginText");
 				}
 			}
 
+			// Region X and Region Y
+			c.getDeclaredField("Qg").setAccessible(true);
+			c.getDeclaredField("zg").setAccessible(true);
+			// Maximum inventory (30)
+			maxInventory = c.getDeclaredField("cl");
+			if (maxInventory != null)
+				maxInventory.setAccessible(true);
+
 			// Camera
 			c = classLoader.loadClass("lb");
 			methods = c.getDeclaredMethods();
-			for(Method method : methods)
-			{
-				if(method.toGenericString().equals(SETCAMERASIZE))
-				{
+			for (Method method : methods) {
+				if (method.toGenericString().equals(SETCAMERASIZE)) {
 					setCameraSize = method;
 					Logger.Info("Found setCameraSize");
 				}
@@ -67,46 +66,74 @@ public class Reflection
 			// Renderer
 			c = classLoader.loadClass("ua");
 			methods = c.getDeclaredMethods();
-			for(Method method : methods)
-			{
-				if(method.toGenericString().equals(SETGAMEBOUNDS))
-				{
+			for (Method method : methods) {
+				if (method.toGenericString().equals(SETGAMEBOUNDS)) {
 					setGameBounds = method;
 					Logger.Info("Found setGameBounds");
 				}
 			}
+
+			// Character
+			c = classLoader.loadClass("ta");
+			characterName = c.getDeclaredField("C");
+			characterWaypointX = c.getDeclaredField("i");
+			characterWaypointY = c.getDeclaredField("K");
+			if (characterName != null)
+				characterName.setAccessible(true);
+			if (characterWaypointX != null)
+				characterWaypointX.setAccessible(true);
+			if (characterWaypointY != null)
+				characterWaypointY.setAccessible(true);
 
 			// Menu
 			c = classLoader.loadClass("qa");
 			menuX = c.getDeclaredField("kb");
 			menuY = c.getDeclaredField("B");
 			menuScroll = c.getDeclaredField("j");
+			menuWidth = c.getDeclaredField("ob");
+			// this menu height for chats I believe
+			menuHeight = c.getDeclaredField("O");
+			// this menu array I'm not sure whats for
+			menuUknown = c.getDeclaredField("sb");
 
 			// Set all accessible
-			if(menuX != null)
+			if (menuX != null)
 				menuX.setAccessible(true);
-			if(menuY != null)
+			if (menuY != null)
 				menuY.setAccessible(true);
-			if(menuScroll != null)
+			if (menuScroll != null)
 				menuScroll.setAccessible(true);
-			if(displayMessage != null)
+			if (menuWidth != null)
+				menuWidth.setAccessible(true);
+			if (menuHeight != null)
+				menuHeight.setAccessible(true);
+			if (menuUknown != null)
+				menuUknown.setAccessible(true);
+			if (displayMessage != null)
 				displayMessage.setAccessible(true);
-			if(setCameraSize != null)
+			if (setCameraSize != null)
 				setCameraSize.setAccessible(true);
-			if(setGameBounds != null)
+			if (setGameBounds != null)
 				setGameBounds.setAccessible(true);
-			if(setLoginText != null)
+			if (setLoginText != null)
 				setLoginText.setAccessible(true);
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	public static Field characterName = null;
+	public static Field characterWaypointX = null;
+	public static Field characterWaypointY = null;
+
+	public static Field maxInventory = null;
+
 	public static Field menuX = null;
 	public static Field menuY = null;
 	public static Field menuScroll = null;
+	public static Field menuWidth = null;
+	public static Field menuHeight = null;
+	public static Field menuUknown = null;
 
 	public static Method displayMessage = null;
 	public static Method setCameraSize = null;
