@@ -67,7 +67,6 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		}
 
 		// Set window properties
-		setTitle("World " + (Settings.WORLD));
 		setResizable(true);
 		addWindowListener(this);
 
@@ -97,6 +96,13 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	public JConfig getJConfig()
 	{
 		return m_config;
+	}
+
+	public void launchGame()
+	{
+		m_config.changeWorld(Settings.WORLD);
+		m_applet.init();
+		m_applet.start();
 	}
 
 	@Override
@@ -197,11 +203,12 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		if(m_applet == null)
 			return;
 
+		// Handle minimum size and launch game
+		// TODO: This is probably a bad spot and should be moved
 		if(getMinimumSize().width == 1)
 		{
 			setMinimumSize(getSize());
-			m_applet.init();
-			m_applet.start();
+			launchGame();
 		}
 
 		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());

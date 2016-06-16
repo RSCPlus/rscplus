@@ -446,7 +446,6 @@ public class Renderer {
 						&& MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height
 						&& MouseHandler.mouseClicked) {
 					Game.getInstance().getJConfig().changeWorld(i + 1);
-					Game.getInstance().setTitle("World " + (i + 1));
 				}
 			}
 
