@@ -56,6 +56,7 @@ public class Launcher extends JFrame implements Runnable
 		// Set size
 		getContentPane().setPreferredSize(new Dimension(280, 32));
 		setTitle("rscplus Launcher");
+		setResizable(false);
 		pack();
 		setLocationRelativeTo(null);
 
