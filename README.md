@@ -191,5 +191,10 @@ The result should be in the *bin* folder.
 
 There is also an Eclipse project in the source root you can import.
 
+## Contributors
+Check [here](https://github.com/OrN/rscplus/graphs/contributors)
+
+Thanks to Warriorccc0 (Brinner) for testing various things on Windows.
+
 ## Download
 The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.jar).

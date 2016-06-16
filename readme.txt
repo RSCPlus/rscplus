@@ -6,6 +6,12 @@ The code is licensed under GPLv3 in hopes of protecting people from malicious mo
 
 Code can be found here: https://github.com/OrN/rscplus
 
+~ How do I use this/play with this?
+
+Install Java from here (http://www.oracle.com/technetwork/java/javase/downloads/index.html) and select JRE.
+Open the file you downloaded (rscplus.jar) with Java. By default, it will associate itself with .jar files
+but if it's set to Winrar, etc. just right click and use open with and find Java.
+
 ~ Controls
 
 [Command Key] can be either Alt or Ctrl.
