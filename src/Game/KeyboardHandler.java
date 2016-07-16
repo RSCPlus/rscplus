@@ -68,6 +68,12 @@ public class KeyboardHandler implements KeyListener
 
 			if(command_key == KeyEvent.VK_P)
 				Settings.toggleShowPlayerInfo();
+			
+			if(command_key == KeyEvent.VK_OPEN_BRACKET)
+				Settings.toggleXpDrops();
+			
+			if(command_key == KeyEvent.VK_CLOSE_BRACKET)
+				Settings.toggleFatigueDrops();
 
 			if(Client.state == Client.STATE_LOGIN)
 			{

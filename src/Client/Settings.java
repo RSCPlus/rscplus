@@ -71,6 +71,8 @@ public class Settings
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
+			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", true);
+			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", true);
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
@@ -82,6 +84,7 @@ public class Settings
 			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
 			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 3);
 			SAVE_LOGININFO = getBoolean(props, "save_logininfo", true);
+			FATIGUE_FIGURES = getInt(props, "fatigue_figures", 2);
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -114,6 +117,11 @@ public class Settings
 				NAME_PATCH_TYPE = 0;
 			else if(NAME_PATCH_TYPE > 3)
 				NAME_PATCH_TYPE = 3;
+			
+			if(FATIGUE_FIGURES < 1)
+				FATIGUE_FIGURES = 1;
+			else if(FATIGUE_FIGURES > 7)
+				FATIGUE_FIGURES = 7;
 		}
 		catch(Exception e) {}
 
@@ -137,6 +145,8 @@ public class Settings
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
 			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
+			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
+			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
@@ -148,6 +158,7 @@ public class Settings
 			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
 			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
+			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -304,6 +315,26 @@ public class Settings
 			Client.displayMessage("@cya@Twitch chat is now shown", Client.CHAT_NONE);
 		Save();
 	}
+	
+	public static void toggleXpDrops()
+	{
+		SHOW_XPDROPS = !SHOW_XPDROPS;
+		if(SHOW_XPDROPS)
+			Client.displayMessage("@cya@XP drops are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@XP drops are now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleFatigueDrops()
+	{
+		SHOW_FATIGUEDROPS = !SHOW_FATIGUEDROPS;
+		if(SHOW_FATIGUEDROPS)
+			Client.displayMessage("@cya@Fatigue drops are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Fatigue drops are now hidden", Client.CHAT_NONE);
+		Save();
+	}
 
 	private static String getString(Properties props, String key, String def)
 	{
@@ -376,6 +407,8 @@ public class Settings
 	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean SHOW_LOGINDETAILS = false;
+	public static boolean SHOW_XPDROPS = true;
+	public static boolean SHOW_FATIGUEDROPS = true;
 	public static boolean SOFTWARE_CURSOR = false;
 	public static boolean DEBUG = false;
 	public static boolean TWITCH_HIDE = false;
@@ -384,4 +417,5 @@ public class Settings
 	public static String TWITCH_CHANNEL = "";
 	public static int NAME_PATCH_TYPE = 3;
 	public static boolean SAVE_LOGININFO = true;
+	public static int FATIGUE_FIGURES = 2;
 }

@@ -21,16 +21,15 @@
 
 package Game;
 
-import Client.Logger;
-import Client.Settings;
-import Client.TwitchIRC;
 import java.applet.Applet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import Client.Settings;
+import Client.TwitchIRC;
 
 public class Client {
 
@@ -80,7 +79,8 @@ public class Client {
 				xpdrop_state[i] += xpGain;
 
 				if (xpGain > 0.0f && dropXP) {
-					xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
+					if (Settings.SHOW_XPDROPS)
+						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
 
 					if (i == SKILL_HP && xpbar.currentSkill != -1)
 						continue;
@@ -89,11 +89,13 @@ public class Client {
 				}
 			}
 			// + Fatigue drops
-			final float actualFatigue = (float) (fatigue * 100.0 / 750);
-			final float fatigueGain = actualFatigue - currentFatigue;
-			if (fatigueGain > 0.0f) {
-				xpdrop_handler.add("+" + fatigueGain + "% (Fatigue)");
-				currentFatigue = actualFatigue;
+			if(Settings.SHOW_FATIGUEDROPS) {
+				final float actualFatigue = (float) (fatigue * 100.0 / 750);
+				final float fatigueGain = actualFatigue - currentFatigue;
+				if (fatigueGain > 0.0f) {
+					xpdrop_handler.add("+" + trimNumber(fatigueGain,Settings.FATIGUE_FIGURES) + "% (Fatigue)");
+					currentFatigue = actualFatigue;
+				}
 			}
 		}
 	}
@@ -202,6 +204,10 @@ public class Client {
 				Renderer.takeScreenshot();
 			else if (command.equals("debug"))
 				Settings.toggleDebug();
+			else if (command.equals("togglexpdrops"))
+				Settings.toggleXpDrops();
+			else if (command.equals("togglefatiguedrops"))
+				Settings.toggleFatigueDrops();
 			else if (command.equals("fov") && commandArray.length > 1)
 				Camera.setFoV(Integer.parseInt(commandArray[1]));
 
@@ -332,6 +338,10 @@ public class Client {
 
 	public static int getFatigue() {
 		return (fatigue * 100 / 750);
+	}
+	
+	public static Double trimNumber(double num, int figures) {
+		return Math.round(num*Math.pow(10,figures))/Math.pow(10,figures);
 	}
 
 	public static void updateCurrentFatigue() {
