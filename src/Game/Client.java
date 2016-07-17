@@ -90,13 +90,16 @@ public class Client {
 			}
 			// + Fatigue drops
 			if(Settings.SHOW_FATIGUEDROPS) {
-				final float actualFatigue = (float) (fatigue * 100.0 / 750);
+				final float actualFatigue = getActualFatigue();
 				final float fatigueGain = actualFatigue - currentFatigue;
-				if (fatigueGain > 0.0f) {
+				if (fatigueGain > 0.0f && !isWelcomeScreen()) {
 					xpdrop_handler.add("+" + trimNumber(fatigueGain,Settings.FATIGUE_FIGURES) + "% (Fatigue)");
 					currentFatigue = actualFatigue;
 				}
 			}
+			// Prevents a fatigue drop upon first login during a session
+			if(isWelcomeScreen() && currentFatigue != getActualFatigue())
+				currentFatigue = getActualFatigue();
 		}
 	}
 
@@ -339,13 +342,17 @@ public class Client {
 	public static int getFatigue() {
 		return (fatigue * 100 / 750);
 	}
+
+	public static float getActualFatigue() {
+		return (float) (fatigue * 100.0 / 750);
+	}
 	
 	public static Double trimNumber(double num, int figures) {
 		return Math.round(num*Math.pow(10,figures))/Math.pow(10,figures);
 	}
 
 	public static void updateCurrentFatigue() {
-		final float nextFatigue = (float) (fatigue * 100.0 / 750);
+		final float nextFatigue = getActualFatigue();
 		if (currentFatigue != nextFatigue) {
 			currentFatigue = nextFatigue;
 		}
