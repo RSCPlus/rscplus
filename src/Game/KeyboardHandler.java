@@ -92,23 +92,23 @@ public class KeyboardHandler implements KeyListener
 
 		if(Client.show_questionmenu && !e.isConsumed())
 		{
-			if(e.getKeyCode() == KeyEvent.VK_1)
+			if(e.getKeyCode() == KeyEvent.VK_1 || e.getKeyCode() == KeyEvent.VK_NUMPAD1)
 				dialogue_option = 0;
-			else if(e.getKeyCode() == KeyEvent.VK_2)
+			else if(e.getKeyCode() == KeyEvent.VK_2 || e.getKeyCode() == KeyEvent.VK_NUMPAD2)
 				dialogue_option = 1;
-			else if(e.getKeyCode() == KeyEvent.VK_3)
+			else if(e.getKeyCode() == KeyEvent.VK_3 || e.getKeyCode() == KeyEvent.VK_NUMPAD3)
 				dialogue_option = 2;
-			else if(e.getKeyCode() == KeyEvent.VK_4)
+			else if(e.getKeyCode() == KeyEvent.VK_4 || e.getKeyCode() == KeyEvent.VK_NUMPAD4)
 				dialogue_option = 3;
-			else if(e.getKeyCode() == KeyEvent.VK_5)
+			else if(e.getKeyCode() == KeyEvent.VK_5 || e.getKeyCode() == KeyEvent.VK_NUMPAD5)
 				dialogue_option = 4;
-			else if(e.getKeyCode() == KeyEvent.VK_6)
+			else if(e.getKeyCode() == KeyEvent.VK_6 || e.getKeyCode() == KeyEvent.VK_NUMPAD6)
 				dialogue_option = 5;
-			else if(e.getKeyCode() == KeyEvent.VK_7)
+			else if(e.getKeyCode() == KeyEvent.VK_7 || e.getKeyCode() == KeyEvent.VK_NUMPAD7)
 				dialogue_option = 6;
-			else if(e.getKeyCode() == KeyEvent.VK_8)
+			else if(e.getKeyCode() == KeyEvent.VK_8 || e.getKeyCode() == KeyEvent.VK_NUMPAD8)
 				dialogue_option = 7;
-			else if(e.getKeyCode() == KeyEvent.VK_9)
+			else if(e.getKeyCode() == KeyEvent.VK_9 || e.getKeyCode() == KeyEvent.VK_NUMPAD9)
 				dialogue_option = 8;
 
 			if(dialogue_option >= 0)
