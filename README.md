@@ -178,6 +178,14 @@
   <dt>show_logindetails</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether login details such as IP or DNS will appear at the login screen</dd>
+
+  <dt>show_xpdrops</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets whether XP drops appear on screen</dd>
+  
+  <dt>show_fatiguedrops</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets whether fatigue drops appear on screen</dd>
   
   <dt>twitch_hide</dt>
   <dd>Range: <i>true or false</i><br>
