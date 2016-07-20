@@ -85,14 +85,20 @@ public class XPBar
 			y = MouseHandler.y + 16;
 			g.setColor(Renderer.color_gray);
 			Renderer.setAlpha(g, 0.5f);
-			g.fillRect(x - 100, y, 200, 60);
+			if(Client.showXpPerHour[currentSkill])
+				g.fillRect(x - 100, y, 200, 72);
+			else
+				g.fillRect(x - 100, y, 200, 60);
 			Renderer.setAlpha(g, 1.0f);
 
+			// TODO: Format numbers with commas and round as appropriate
 			y += 8;
 			Renderer.drawShadowText(g, Client.skill_name[currentSkill], x, y, Renderer.color_text, true); y += 12;
 			Renderer.drawShadowText(g, "Level: " + Client.current_level[currentSkill] + "/" + Client.base_level[currentSkill], x, y, Renderer.color_text, true); y += 12;
 			Renderer.drawShadowText(g, "XP: " + Client.getXP(currentSkill), x, y, Renderer.color_text, true); y += 12;
 			Renderer.drawShadowText(g, "XP until Level: " + Client.getXPUntilLevel(currentSkill), x, y, Renderer.color_text, true); y += 12;
+			if(Client.showXpPerHour[currentSkill])
+				Renderer.drawShadowText(g, "XP/Hr: " + Math.round(Client.XpPerHour[currentSkill]), x, y, Renderer.color_text, true); y += 12;
 		}
 
 		Renderer.setAlpha(g, 1.0f);

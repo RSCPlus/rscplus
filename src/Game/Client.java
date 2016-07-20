@@ -82,6 +82,22 @@ public class Client {
 					if (Settings.SHOW_XPDROPS)
 						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
 
+					// XP/hr calculations
+					// TODO: After 5-10 minutes of tracking XP, make it display a rolling average instead of a session average
+					if((System.currentTimeMillis() - lastXpGain[i][1]) <= 180000) {
+					// < 3 minutes since last XP drop
+						lastXpGain[i][0] = xpGain + lastXpGain[i][0];
+						XpPerHour[i] = 3600 * (lastXpGain[i][0]) / ((System.currentTimeMillis() - lastXpGain[i][2]) / 1000);
+						lastXpGain[i][3]++;
+						showXpPerHour[i] = true;
+						lastXpGain[i][1] = System.currentTimeMillis();
+					} else {
+						lastXpGain[i][0] = xpGain;
+						lastXpGain[i][1] = lastXpGain[i][2] = System.currentTimeMillis();
+						lastXpGain[i][3] = 0;
+						showXpPerHour[i] = false;
+					}
+					
 					if (i == SKILL_HP && xpbar.currentSkill != -1)
 						continue;
 
@@ -502,4 +518,11 @@ public class Client {
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
 	private static float xpdrop_state[] = new float[18];
+	
+	public static boolean showXpPerHour[] = new boolean[18];
+	public static double XpPerHour[] = new double[18];
+	
+	// [[skill1, skill2, skill3, ...], [totalXpGainInSample, mostRecentXpDropTime, initialTimeInSample, sampleSize]]
+	// sampleSize is unnecessary until estimating XP drops until level, etc.
+	public static double lastXpGain[][] = new double[18][4];
 }
