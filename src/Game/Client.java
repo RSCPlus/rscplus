@@ -523,6 +523,6 @@ public class Client {
 	public static double XpPerHour[] = new double[18];
 	
 	// [[skill1, skill2, skill3, ...], [totalXpGainInSample, mostRecentXpDropTime, initialTimeInSample, sampleSize]]
-	// sampleSize is unnecessary until estimating XP drops until level, etc.
+	// sampleSize + 1 is the actual sample size
 	public static double lastXpGain[][] = new double[18][4];
 }

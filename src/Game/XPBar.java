@@ -87,16 +87,18 @@ public class XPBar
 			g.setColor(Renderer.color_gray);
 			Renderer.setAlpha(g, 0.5f);
 			if(Client.showXpPerHour[currentSkill])
-				g.fillRect(x - 100, y, 200, 48);
+				g.fillRect(x - 100, y, 200, 60);
 			else
 				g.fillRect(x - 100, y, 200, 36);
 			Renderer.setAlpha(g, 1.0f);
 
 			y += 8;
 			Renderer.drawShadowText(g, "XP: " + formatXP(Client.getXP(currentSkill)), x, y, Renderer.color_text, true); y += 12;
-			Renderer.drawShadowText(g, "XP to Level: " + formatXP(Client.getXPUntilLevel(currentSkill)), x, y, Renderer.color_text, true); y += 12;
-			if(Client.showXpPerHour[currentSkill])
+			Renderer.drawShadowText(g, "XP until Level: " + formatXP(Client.getXPUntilLevel(currentSkill)), x, y, Renderer.color_text, true); y += 12;
+			if(Client.showXpPerHour[currentSkill]) {
 				Renderer.drawShadowText(g, "XP/Hr: " + formatXP(Client.XpPerHour[currentSkill]), x, y, Renderer.color_text, true); y += 12;
+				Renderer.drawShadowText(g, "Actions until Level: " + formatXP( Client.getXPUntilLevel(currentSkill) / (Client.lastXpGain[currentSkill][0]/(Client.lastXpGain[currentSkill][3] + 1)) ), x, y, Renderer.color_text, true); y += 12;
+			}
 		}
 
 		Renderer.setAlpha(g, 1.0f);
