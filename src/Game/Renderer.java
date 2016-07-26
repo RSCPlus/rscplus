@@ -410,6 +410,8 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
+				drawShadowText(g2, "In combat: " + Client.isInCombat(), x, y, color_text, false);
+				y += 16;
 			}
 
 			// drawShadowText(g2, "Test: " + Client.test, 100, 100, color_text,

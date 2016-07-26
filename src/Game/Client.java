@@ -383,6 +383,11 @@ public class Client {
 		return false;
 	}
 
+	public static boolean isInCombat()
+	{
+		return (combat_timer > 450);
+	}
+
 	public static boolean isInterfaceOpen() {
 		return (show_bank || show_shop || show_welcome || show_trade || show_tradeconfirm || show_duel
 				|| show_duelconfirm || show_report != 0 || show_friends != 0 || show_sleeping);
@@ -464,6 +469,7 @@ public class Client {
 	public static int inventory_count;
 	public static long magic_timer = 0L;
 
+	public static int combat_timer;
 	public static boolean show_bank;
 	public static boolean show_duel;
 	public static boolean show_duelconfirm;
