@@ -56,6 +56,9 @@ public class KeyboardHandler implements KeyListener
 
 			if(command_key == KeyEvent.VK_F)
 				Settings.toggleFatigueAlert();
+			
+			if(command_key == KeyEvent.VK_G)
+				Settings.toggleShowFriendInfo();
 
 			if(command_key == KeyEvent.VK_T)
 				Settings.toggleTwitchHide();

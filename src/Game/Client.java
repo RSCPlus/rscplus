@@ -213,6 +213,8 @@ public class Client {
 				Settings.toggleTwitchHide();
 			else if (command.equals("toggleplayerinfo"))
 				Settings.toggleShowPlayerInfo();
+			else if (command.equals("togglefriendinfo"))
+				Settings.toggleShowFriendInfo();
 			else if (command.equals("togglenpcinfo"))
 				Settings.toggleShowNPCInfo();
 			else if (command.equals("toggleiteminfo"))

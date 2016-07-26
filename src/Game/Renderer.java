@@ -146,7 +146,7 @@ public class Renderer {
 					if (npc.type == NPC.TYPE_PLAYER) {
 						color = color_fatigue;
 
-						if (Client.isFriend(npc.name)) {
+						if (Client.isFriend(npc.name) && (Settings.SHOW_FRIENDINFO || Settings.SHOW_PLAYERINFO)) {
 							color = color_hp;
 							show = true;
 						} else if (Settings.SHOW_PLAYERINFO) {
@@ -288,7 +288,7 @@ public class Renderer {
 			int x = 24;
 			int y = 138;
 			if (width < 800) {
-				if (!Client.isInterfaceOpen()) {
+				if (!Client.isInterfaceOpen() && Client.isInCombat()) {
 					setAlpha(g2, alphaHP);
 					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
 							+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);

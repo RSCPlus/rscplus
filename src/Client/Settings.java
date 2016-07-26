@@ -69,6 +69,7 @@ public class Settings
 			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", false);
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
+			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", false);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
 			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", true);
@@ -143,6 +144,7 @@ public class Settings
 			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
+			props.setProperty("show_friendinfo", "" + SHOW_FRIENDINFO);
 			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
 			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
@@ -263,6 +265,16 @@ public class Settings
 			Client.displayMessage("@cya@NPC info is now shown", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@NPC info is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleShowFriendInfo()
+	{
+		SHOW_FRIENDINFO = !SHOW_FRIENDINFO;
+		if(Settings.SHOW_FRIENDINFO)
+			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
 		Save();
 	}
 
@@ -404,6 +416,7 @@ public class Settings
 	public static int WORLD = 2;
 	public static boolean SHOW_NPCINFO = false;
 	public static boolean SHOW_PLAYERINFO = false;
+	public static boolean SHOW_FRIENDINFO = false;
 	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean SHOW_LOGINDETAILS = false;
