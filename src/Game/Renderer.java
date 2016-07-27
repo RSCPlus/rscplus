@@ -286,9 +286,15 @@ public class Renderer {
 
 			// Draw HP, Prayer, Fatigue overlay
 			int x = 24;
-			int y = 138;
+			int y = 32;
+			
+			if (Client.isInCombat() || Settings.COMBAT_MENU) //combat menu is showing, so move everything down
+			{
+				y = 138;
+			}
+			
 			if (width < 800) {
-				if (!Client.isInterfaceOpen() && Client.isInCombat()) {
+				if (!Client.isInterfaceOpen()) {
 					setAlpha(g2, alphaHP);
 					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
 							+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
@@ -410,7 +416,7 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "In combat: " + Client.isInCombat(), x, y, color_text, false);
+				drawShadowText(g2, "Combat_timer: " + Client.combat_timer, x, y, color_text, false);
 				y += 16;
 			}
 
@@ -425,7 +431,7 @@ public class Renderer {
 			}
 		} else if (Client.state == Client.STATE_LOGIN) {
 			if (Settings.DEBUG)
-				drawShadowText(g2, "DEBUG MODE", width / 2, 8, color_text, true);
+				drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
 
 			// Draw world list
 			drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
