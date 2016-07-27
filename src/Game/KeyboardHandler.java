@@ -93,6 +93,12 @@ public class KeyboardHandler implements KeyListener
 					Game.getInstance().getJConfig().changeWorld(worldSwitch);
 			}
 
+			if(Client.state != Client.STATE_LOGIN)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_L)
+					Client.logout();
+			}
+
 			e.consume();
 		}
 

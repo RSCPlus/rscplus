@@ -229,9 +229,10 @@ public class Client {
 				Settings.toggleFatigueDrops();
 			else if (command.equals("fov") && commandArray.length > 1)
 				Camera.setFoV(Integer.parseInt(commandArray[1]));
+			else if (command.equals("logout"))
+				Client.logout();
 
 			if (commandArray[0] != null)
-
 				return "::";
 		}
 
@@ -284,6 +285,16 @@ public class Client {
 
 		try {
 			Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
+		} catch (Exception e) {
+		}
+	}
+
+	public static void logout() {
+		if (Reflection.logout == null)
+			return;
+
+		try {
+			Reflection.logout.invoke(Client.instance, 0);
 		} catch (Exception e) {
 		}
 	}

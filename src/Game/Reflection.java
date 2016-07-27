@@ -42,6 +42,9 @@ public class Reflection {
 				} else if (method.toGenericString().equals(SETLOGINTEXT)) {
 					setLoginText = method;
 					Logger.Info("Found setLoginText");
+				} else if (method.toGenericString().equals(LOGOUT)) {
+					logout = method;
+					Logger.Info("Found logout");
 				}
 			}
 
@@ -117,6 +120,8 @@ public class Reflection {
 				setGameBounds.setAccessible(true);
 			if (setLoginText != null)
 				setLoginText.setAccessible(true);
+			if (logout != null)
+				logout.setAccessible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -139,10 +144,12 @@ public class Reflection {
 	public static Method setCameraSize = null;
 	public static Method setGameBounds = null;
 	public static Method setLoginText = null;
+	public static Method logout = null;
 
 	// Method descriptions
 	private static final String DISPLAYMESSAGE = "private final void client.a(boolean,java.lang.String,int,java.lang.String,int,int,java.lang.String,java.lang.String)";
 	private static final String SETCAMERASIZE = "final void lb.a(int,boolean,int,int,int,int,int)";
 	private static final String SETGAMEBOUNDS = "final void ua.a(int,int,int,int,byte)";
 	private static final String SETLOGINTEXT = "private final void client.b(byte,java.lang.String,java.lang.String)";
+	private static final String LOGOUT = "private final void client.B(int)";
 }

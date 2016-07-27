@@ -50,6 +50,7 @@
 - *[Command Key]* + h - Toggle hitboxes for NPC info
 - *[Command Key]* + [ - Toggle XP drops
 - *[Command Key]* + ] - Toggle fatigue drops
+- *[Command Key]* + l - Logout
 - *[Command Key]* + 1-5 - World switch on login screen
 
 ## Chat Commands
@@ -89,6 +90,8 @@
 *::togglefatiguedrops* - Toggle fatigue drops
 
 *::fov* - Change FoV from 8-9
+
+*::logout* - Logout
 
 ## Config Options
 

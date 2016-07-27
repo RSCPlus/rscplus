@@ -30,6 +30,7 @@ Mouse wheel scroll - Zoom camera
 [Command Key] + h - Toggle hitboxes for NPC info
 [Command Key] + [ - Toggle XP drops
 [Command Key] + ] - Toggle fatigue drops
+[Command Key] + l - Logout
 [Command Key] + 1-5 - World switch on login screen
 
 ~ Chat Commands
@@ -49,3 +50,4 @@ Mouse wheel scroll - Zoom camera
 ::togglexpdrops - Toggle XP drops
 ::togglefatiguedrops - Toggle fatigue drops
 ::fov - Change FoV from 8-9
+::logout - Logout
