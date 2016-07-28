@@ -251,7 +251,7 @@ public class Renderer {
 			Client.npc_list.clear();
 			Client.item_list.clear();
 
-			if (!Client.show_sleeping)
+			if (!Client.show_sleeping && Settings.SHOW_INVCOUNT)
 				drawShadowText(g2, Client.inventory_count + "/" + Client.max_inventory, width - 19, 17, color_text,
 						true);
 
@@ -288,43 +288,42 @@ public class Renderer {
 			int x = 24;
 			int y = 32;
 			
-			if (Client.isInCombat() || Settings.COMBAT_MENU) //combat menu is showing, so move everything down
-			{
+			if (Client.isInCombat() || Settings.COMBAT_MENU) { //combat menu is showing, so move everything down
 				y = 138;
 			}
-			
-			if (width < 800) {
-				if (!Client.isInterfaceOpen()) {
-					setAlpha(g2, alphaHP);
-					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
-							+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
-					y += 16;
-					setAlpha(g2, alphaPrayer);
-					drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/"
-							+ Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false);
-					y += 16;
-					setAlpha(g2, alphaFatigue);
-					drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
-					y += 16;
-					setAlpha(g2, 1.0f);
+			if (Settings.SHOW_STATUSDISPLAY) {
+				if (width < 800) {
+					if (!Client.isInterfaceOpen()) {
+						setAlpha(g2, alphaHP);
+						drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
+								+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
+						y += 16;
+						setAlpha(g2, alphaPrayer);
+						drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/"
+								+ Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false);
+						y += 16;
+						setAlpha(g2, alphaFatigue);
+						drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
+						y += 16;
+						setAlpha(g2, 1.0f);
+					}
+				} else {
+					int barSize = 4 + image_bar_frame.getWidth(null);
+					int x2 = width - (4 + barSize);
+					int y2 = height - image_bar_frame.getHeight(null);
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
+					x2 -= barSize;
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer,
+							Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
+					x2 -= barSize;
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorHP, alphaHP, Client.current_level[Client.SKILL_HP],
+							Client.base_level[Client.SKILL_HP]);
+					x2 -= barSize;
 				}
-			} else {
-				int barSize = 4 + image_bar_frame.getWidth(null);
-				int x2 = width - (4 + barSize);
-				int y2 = height - image_bar_frame.getHeight(null);
-
-				drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
-				x2 -= barSize;
-
-				drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer,
-						Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
-				x2 -= barSize;
-
-				drawBar(g2, image_bar_frame, x2, y2, colorHP, alphaHP, Client.current_level[Client.SKILL_HP],
-						Client.base_level[Client.SKILL_HP]);
-				x2 -= barSize;
 			}
-
 			// Draw under combat style info
 			if (!Client.isInterfaceOpen()) {
 				if (time <= Client.magic_timer) {
@@ -416,7 +415,7 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "Combat_timer: " + Client.combat_timer, x, y, color_text, false);
+				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
 				y += 16;
 			}
 

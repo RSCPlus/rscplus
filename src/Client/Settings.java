@@ -73,6 +73,8 @@ public class Settings
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
 			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
 			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", true);
+			SHOW_INVCOUNT = getBoolean(props, "show_invcount", true);
+			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", true);
 			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", true);
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
@@ -141,6 +143,7 @@ public class Settings
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
+			props.setProperty("show_invcount", "" + SHOW_INVCOUNT);
 			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
 			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
@@ -149,6 +152,7 @@ public class Settings
 			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
+			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
@@ -238,6 +242,36 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleShowFriendInfo()
+	{
+		SHOW_FRIENDINFO = !SHOW_FRIENDINFO;
+		if(Settings.SHOW_FRIENDINFO)
+			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleInvCount()
+	{
+		SHOW_INVCOUNT = !SHOW_INVCOUNT;
+		if(Settings.SHOW_INVCOUNT)
+			Client.displayMessage("@cya@Inventory count is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Inventory count is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleStatusDisplay()
+	{
+		SHOW_STATUSDISPLAY= !SHOW_STATUSDISPLAY;
+		if(Settings.SHOW_STATUSDISPLAY)
+			Client.displayMessage("@cya@Status display is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Status display is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+
 	public static void toggleShowHitbox()
 	{
 		SHOW_HITBOX = !SHOW_HITBOX;
@@ -268,16 +302,6 @@ public class Settings
 		Save();
 	}
 	
-	public static void toggleShowFriendInfo()
-	{
-		SHOW_FRIENDINFO = !SHOW_FRIENDINFO;
-		if(Settings.SHOW_FRIENDINFO)
-			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
-		else
-			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
-		Save();
-	}
-
 	public static void toggleShowPlayerInfo()
 	{
 		SHOW_PLAYERINFO = !SHOW_PLAYERINFO;
@@ -417,9 +441,11 @@ public class Settings
 	public static boolean SHOW_NPCINFO = false;
 	public static boolean SHOW_PLAYERINFO = false;
 	public static boolean SHOW_FRIENDINFO = false;
+	public static boolean SHOW_INVCOUNT = true;
 	public static boolean SHOW_ITEMINFO = false;
 	public static boolean SHOW_HITBOX = false;
 	public static boolean SHOW_LOGINDETAILS = false;
+	public static boolean SHOW_STATUSDISPLAY = true;
 	public static boolean SHOW_XPDROPS = true;
 	public static boolean SHOW_FATIGUEDROPS = true;
 	public static boolean SOFTWARE_CURSOR = false;

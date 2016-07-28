@@ -42,6 +42,9 @@
 - *[Command Key]* + r - Toggle roof hiding
 - *[Command Key]* + c - Toggle combat experience menu
 - *[Command Key]* + f - Toggle fatigue alert at 100%
+- *[Command Key]* + e - Toggle inventory count overlay
+- *[Command Key]* + u - Toggle Hits/Prayer/Fatigue display
+- *[Command Key]* + g - Toggle Friend info
 - *[Command Key]* + d - Toggle debug mode
 - *[Command Key]* + t - Toggle twitch chat hidden/shown
 - *[Command Key]* + i - Toggle Item info
@@ -92,6 +95,12 @@
 *::fov* - Change FoV from 8-9
 
 *::logout* - Logout
+
+*::togglefriendinfo* - Toggle Player info for Friends only
+
+*::toggleinvcount* - Toggle the overlay of current inventory used
+
+*::togglestatusdisplay* - Toggle Hits/Prayer/Fatigue display
 
 ## Config Options
 

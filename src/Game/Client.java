@@ -233,6 +233,10 @@ public class Client {
 				Camera.setFoV(Integer.parseInt(commandArray[1]));
 			else if (command.equals("logout"))
 				Client.logout();
+			else if (command.equals("toggleinvcount"))
+				Settings.toggleInvCount();
+			else if (command.equals("togglestatusdisplay"))
+				Settings.toggleStatusDisplay();
 
 			if (commandArray[0] != null)
 				return "::";
