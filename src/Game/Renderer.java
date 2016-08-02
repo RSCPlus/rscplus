@@ -293,7 +293,7 @@ public class Renderer {
 			}
 			if (Settings.SHOW_STATUSDISPLAY) {
 				if (width < 800) {
-					if (!Client.isInterfaceOpen()) {
+					if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
 						setAlpha(g2, alphaHP);
 						drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
 								+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);

@@ -22,11 +22,16 @@
 package Game;
 
 import java.applet.Applet;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.fusesource.jansi.AnsiConsole;
+import static org.fusesource.jansi.Ansi.*;
+import static org.fusesource.jansi.Ansi.Color.*;
 
 import Client.Settings;
 import Client.TwitchIRC;
@@ -317,10 +322,31 @@ public class Client {
 			if (username != null)
 				lastpm_username = username;
 		}
-
-		System.out.println(username + ": " + message + " (" + type + ")");
+		
+		if (Settings.COLOURIZE) { //no nonsense for those who don't want it
+			AnsiConsole.systemInstall();	
+			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colourizeMessage(username, type, true)  + (type == CHAT_QUEST ? "@|white : |@" : "")) + colourizeMessage(message, type, false)));
+			AnsiConsole.systemUninstall();
+		} else {
+			System.out.println("(" + type + ") " + ((username == null) ? "" : username + ": ") + message);
+		}
 	}
-
+	
+	public static String colourizeMessage(String colorMessage, int type, boolean bold) {
+		
+		boolean whiteMessage = (colorMessage.contains("Welcome to RuneScape!")); //Welcome to RuneScape not necessary but keeping in case need other exception
+		boolean blueMessage = (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
+				
+		if ((type == CHAT_PRIVATE || type == CHAT_PRIVATE_OUTGOING || type == CHAT_PRIVATE_LOGINOUT || blueMessage) && !whiteMessage) {
+			colorMessage = "@|cyan," + (bold ? "intensity_bold " : "intensity_faint ") + (type == CHAT_PRIVATE_OUTGOING && bold ? "You tell " : "") + colorMessage + (type == CHAT_PRIVATE && bold ? " tells you" : "") + (bold ? ": " : "") + "|@";	
+		} else if ((type == CHAT_CHAT || (type == CHAT_QUEST && colorMessage.contains(":"))) && !whiteMessage) {
+			colorMessage = "@|yellow," + (bold ? "intensity_bold " : "intensity_faint ") + colorMessage + (bold ? ": " : "") + "|@";
+		} else { //CHAT_NONE, etc
+			colorMessage = "@|white " + colorMessage + "|@";
+		}
+		return colorMessage;
+	}
+	
 	public static void drawNPC(int x, int y, int width, int height, String name) {
 		// ILOAD 6 is index
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB));
@@ -475,6 +501,9 @@ public class Client {
 	public static final int CHAT_PRIVATE_OUTGOING = 2;
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
+	public static final int CHAT_PRIVATE_LOGINOUT = 5;
+	public static final int CHAT_TRADE_REQUEST_IN = 6;  //not sure that this is the only use for 6
+	public static final int CHAT_TRADE_REQUEST_OUT = 7; //not sure that this is the only use for 7; also used for following. maybe a "you interract with another player" type
 
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;

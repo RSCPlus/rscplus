@@ -434,6 +434,7 @@ public class Settings
 
 	public static int VIEW_DISTANCE = 10000;
 	public static boolean FATIGUE_ALERT = true;
+	public static boolean COLOURIZE = true;
 	public static boolean COMBAT_MENU = false;
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
