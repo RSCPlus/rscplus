@@ -54,6 +54,7 @@
 - *[Command Key]* + [ - Toggle XP drops
 - *[Command Key]* + ] - Toggle fatigue drops
 - *[Command Key]* + l - Logout
+- *[Command Key]* + z - Toggle colored chat text in terminal
 - *[Command Key]* + 1-5 - World switch on login screen
 
 ## Chat Commands
@@ -69,6 +70,8 @@
 *::screenshot* - Take screenshot (Saved in the screenshots directory)
 
 *::toggleroofs* - Toggle roof hiding
+
+*::togglecolor* - Toggle colored text in terminal
 
 *::togglecombat* - Toggle combat experience menu
 
@@ -101,6 +104,10 @@
 *::toggleinvcount* - Toggle the overlay of current inventory used
 
 *::togglestatusdisplay* - Toggle Hits/Prayer/Fatigue display
+
+*::cmb* - WARNING! Because of color codes, this command will breaks the character limit and *may be bannable*. Don't send this command across PM to RS2/RS3 because they'll see a bunch of RS1 color codes and you may get banned if you're reported. Mimic's osbuddy's !cmb; outputs combat level (with decimal), Att, Str, Def, Hits, Ranged, Magic, and Prayer levels.
+
+*::cmbnocolor* - Mimic's osbuddy's !cmb; doesn't use color codes and is within character limits
 
 ## Config Options
 

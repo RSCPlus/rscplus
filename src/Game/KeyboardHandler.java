@@ -78,6 +78,9 @@ public class KeyboardHandler implements KeyListener
 			if(command_key == KeyEvent.VK_E)
 				Settings.toggleInvCount();
 			
+			if(command_key == KeyEvent.VK_Z)
+				Settings.toggleColorTerminal();
+			
 			if(command_key == KeyEvent.VK_OPEN_BRACKET)
 				Settings.toggleXpDrops();
 			

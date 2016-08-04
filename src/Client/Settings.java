@@ -66,6 +66,7 @@ public class Settings
 			WORLD = getInt(props, "world", 2);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
+			COLORIZE = getBoolean(props, "color_terminal", true);
 			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", false);
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
@@ -143,6 +144,7 @@ public class Settings
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
+			props.setProperty("color_terminal", "" + COLORIZE);
 			props.setProperty("show_invcount", "" + SHOW_INVCOUNT);
 			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
 			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
@@ -372,6 +374,16 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleColorTerminal()
+	{
+		COLORIZE = !COLORIZE;
+		if(COLORIZE)
+			Client.displayMessage("@cya@Colors are now shown in terminal", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Colors are now ignored in terminal", Client.CHAT_NONE);
+		Save();
+	}
+	
 	private static String getString(Properties props, String key, String def)
 	{
 		String value = props.getProperty(key);
@@ -434,7 +446,7 @@ public class Settings
 
 	public static int VIEW_DISTANCE = 10000;
 	public static boolean FATIGUE_ALERT = true;
-	public static boolean COLOURIZE = true;
+	public static boolean COLORIZE = true;
 	public static boolean COMBAT_MENU = false;
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;

@@ -210,6 +210,8 @@ public class Client {
 				Settings.toggleHideRoofs();
 			else if (command.equals("togglecombat"))
 				Settings.toggleCombatMenu();
+			else if (command.equals("togglecolor"))
+				Settings.toggleColorTerminal();
 			else if (command.equals("togglehitbox"))
 				Settings.toggleShowHitbox();
 			else if (command.equals("togglefatigue"))
@@ -256,11 +258,46 @@ public class Client {
 
 			if (command.equals("total"))
 				return "My Total Level is " + getTotalLevel() + " (" + getTotalXP() + " xp).";
-
+			else
 			if (command.equals("fatigue")) {
 				return "My Fatigue is at " + currentFatigue + "%.";
 			}
-
+			else
+			
+			if (command.equals("cmb")) { //this command breaks character limits and might be bannable... would not recommend sending this command over PM to rs2/rs3
+				return "@whi@My Combat is Level " 
+					    + "@gre@" +
+					    		(
+								(base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH] + base_level[SKILL_DEFENSE] + base_level[SKILL_HP])*0.25 //basic melee stats
+								+ ((base_level[SKILL_ATTACK]+base_level[SKILL_STRENGTH]) < base_level[SKILL_RANGED]*1.5 ? base_level[SKILL_RANGED]*0.25 : 0) //add ranged levels if ranger
+								+ (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC])*0.125 //prayer and mage
+								)
+					    + " @lre@A:@whi@ " + base_level[SKILL_ATTACK]
+					    + " @lre@S:@whi@ " + base_level[SKILL_STRENGTH]
+					    + " @lre@D:@whi@ " + base_level[SKILL_DEFENSE]
+					    + " @lre@H:@whi@ " + base_level[SKILL_HP]
+					    + " @lre@R:@whi@ " + base_level[SKILL_RANGED]
+					    + " @lre@P:@whi@ " + base_level[SKILL_PRAYER]
+					    + " @lre@M:@whi@ " + base_level[SKILL_MAGIC];
+			}
+			
+			else
+			if (command.equals("cmbnocolor")) { //this command stays within character limits and is safe.
+				return "My Combat is Level "
+						+  (
+							(base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH] + base_level[SKILL_DEFENSE] + base_level[SKILL_HP])*0.25 //basic melee stats
+							+ ((base_level[SKILL_ATTACK]+base_level[SKILL_STRENGTH]) < base_level[SKILL_RANGED]*1.5 ? base_level[SKILL_RANGED]*0.25 : 0) //add ranged levels if ranger
+							+ (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC])*0.125 //prayer and mage
+							)
+						+ " A:" + base_level[SKILL_ATTACK]
+						+ " S:" + base_level[SKILL_STRENGTH]
+						+ " D:" + base_level[SKILL_DEFENSE]
+						+ " H:" + base_level[SKILL_HP]
+						+ " R:" + base_level[SKILL_RANGED]
+						+ " P:" + base_level[SKILL_PRAYER]
+						+ " M:" + base_level[SKILL_MAGIC];
+			}
+			else
 			if (command.startsWith("next_")) {
 				for (int i = 0; i < 18; i++) {
 					if (command.equals("next_" + skill_name[i].toLowerCase())) {
@@ -312,38 +349,131 @@ public class Client {
 
 	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type) {
-		if (type == 0) {
+		if (type == CHAT_NONE) {
 			if (username == null && message != null
 					&& message.contains("The spell fails! You may try again in 20 seconds"))
 				magic_timer = Renderer.time + 21000L;
 		}
-
+		else
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
 			if (username != null)
 				lastpm_username = username;
 		}
 		
-		if (Settings.COLOURIZE) { //no nonsense for those who don't want it
+		if (Settings.COLORIZE) { //no nonsense for those who don't want it
 			AnsiConsole.systemInstall();	
-			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colourizeMessage(username, type, true)  + (type == CHAT_QUEST ? "@|white : |@" : "")) + colourizeMessage(message, type, false)));
+			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(username, type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
 			System.out.println("(" + type + ") " + ((username == null) ? "" : username + ": ") + message);
 		}
 	}
 	
-	public static String colourizeMessage(String colorMessage, int type, boolean bold) {
-		
-		boolean whiteMessage = (colorMessage.contains("Welcome to RuneScape!")); //Welcome to RuneScape not necessary but keeping in case need other exception
-		boolean blueMessage = (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
+	public static String colorizeUsername(String colorMessage, int type) {
+		switch (type) {
+			case CHAT_PRIVATE:
+				colorMessage = "@|cyan,intensity_bold "  + colorMessage + " tells you: |@"; //Username tells you:
+				break;
+			case CHAT_PRIVATE_OUTGOING:
+				colorMessage = "@|cyan,intensity_bold You tell " + colorMessage + ": |@"; //You tell Username:
+				break;
+			case CHAT_QUEST:
+				colorMessage = "@|white,intensity_faint " + colorMessage + ": |@"; //If username != null during CHAT_QUEST, then this is your player name, which is usually white
+				break;
+			case CHAT_CHAT:
+				colorMessage = "@|yellow,intensity_bold " + colorMessage + ": |@"; //just bold username for chat
+				break;
 				
-		if ((type == CHAT_PRIVATE || type == CHAT_PRIVATE_OUTGOING || type == CHAT_PRIVATE_LOGINOUT || blueMessage) && !whiteMessage) {
-			colorMessage = "@|cyan," + (bold ? "intensity_bold " : "intensity_faint ") + (type == CHAT_PRIVATE_OUTGOING && bold ? "You tell " : "") + colorMessage + (type == CHAT_PRIVATE && bold ? " tells you" : "") + (bold ? ": " : "") + "|@";	
-		} else if ((type == CHAT_CHAT || (type == CHAT_QUEST && colorMessage.contains(":"))) && !whiteMessage) {
-			colorMessage = "@|yellow," + (bold ? "intensity_bold " : "intensity_faint ") + colorMessage + (bold ? ": " : "") + "|@";
-		} else { //CHAT_NONE, etc
-			colorMessage = "@|white " + colorMessage + "|@";
+			/*// username will not appear in these chat types, but just to cover it I'm leaving code commented out here
+			case CHAT_NONE:
+			case CHAT_PRIVATE_LOG_IN_OUT:
+			case CHAT_PLAYER_INTERRACT_IN:
+			case CHAT_PLAYER_INTERRACT_OUT:
+			*/
+				
+			default:
+				System.out.println("Username specified for unhandled chat type, please report this:" + type);
+				colorMessage = "@|white,intensity_bold " + colorMessage + ": |@";
 		}
+		return colorMessage;
+	}
+	public static String colorizeMessage(String colorMessage, int type) {
+		
+		boolean whiteMessage = (colorMessage.contains("Welcome to RuneScape!")); //want this to be bold
+		boolean blueMessage = (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
+		//boolean yellowMessage = false;
+		boolean greenMessage = (colorMessage.contains("You just advanced "));
+		
+		if (blueMessage) { //this is one of the messages which we must overwrite expected color for
+			return "@|cyan,intensity_faint " + colorMessage + "|@";
+		} else if (greenMessage) {
+			return "@|green,intensity_bold " + colorMessage + "|@";
+		} else if (whiteMessage) {
+			return "@|white,intensity_bold " + colorMessage + "|@";
+		}
+		
+		switch (type) {
+			case CHAT_NONE:
+				colorMessage = "@|white " + colorReplace(colorMessage) + "|@"; //have to replace b/c @cya@Screenshot saved...
+				break;
+			case CHAT_PRIVATE:
+			case CHAT_PRIVATE_OUTGOING:
+				colorMessage = "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@"; //message to/from PMs
+				break;
+			case CHAT_QUEST:
+				if (colorMessage.contains(":")) {
+					colorMessage = "@|yellow,intensity_faint " + colorMessage + "|@"; //this will be like "banker: would you like to access your bank account?" which should be yellow
+				} else {
+					colorMessage = "@|white,intensity_faint " + colorMessage + "|@"; //this is usually skilling
+				}
+				break;
+			case CHAT_CHAT:
+				colorMessage = "@|yellow,intensity_faint " + colorReplace(colorMessage) + "|@";
+				break;
+			case CHAT_PRIVATE_LOG_IN_OUT:
+				colorMessage = "@|cyan,intensity_faint " + colorMessage + "|@"; //don't need to colorReplace, this is just "username has logged in/out"
+				break;
+			case CHAT_PLAYER_INTERRACT_IN:
+			case CHAT_PLAYER_INTERRACT_OUT:
+				colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@";
+				break;
+			default: //this should never happen, only 8 Chat Types
+				System.out.println("Unhandled chat type in colourizeMessage, please report this:" + type);
+				colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@";
+		}
+		return colorMessage;
+	}
+	public static String colorReplace(String colorMessage) {
+		String[] colorDict = {"(?i)@cya@","|@@|cyan ", //less common colors should go at the bottom b/c we can break search loop early
+							  "(?i)@whi@","|@@|white ",
+		                      "(?i)@red@","|@@|red ",
+		                      "(?i)@gre@","|@@|green ",
+		                      "(?i)@lre@","|@@|red,intensity_faint ",
+		                      "(?i)@dre@","|@@|red,intensity_bold ",
+		                      "(?i)@ran@","|@@|red,blink_fast ", //consider handling this specially
+		                      "(?i)@yel@","|@@|yellow ",
+		                      "(?i)@mag@","|@@|magenta,intensity_bold ",
+		                      "(?i)@gr1@","|@@|green ",
+		                      "(?i)@gr2@","|@@|green ",
+		                      "(?i)@ora@","|@@|red,intensity_faint ",
+		                      "(?i)@or1@","|@@|red,intensity_faint ",
+		                      "(?i)@or2@","|@@|red,intensity_faint ", //these are all basically the same color, even in game
+		                      "(?i)@blu@","|@@|blue ",
+		                      "(?i)@bla@","|@@|black "
+		                      };
+		for (int i=0; i+1 < colorDict.length; i+=2)
+		{
+			if (!colorMessage.matches(".*@.{3}@.*")){ //if doesn't contain any color codes: break;
+				break;
+			}
+			colorMessage = colorMessage.replaceAll(colorDict[i], colorDict[i+1]);
+		}
+		
+		//we could replace @.{3}@ with "" to remove "@@@@@" or "@dne@" (i.e. color code which does not exist) just like in chat box,
+		//but I think it's more interesting to leave the misspelled stuff in terminal 
+		
+		//could also respect ~xxx~ but not really useful.
+		
 		return colorMessage;
 	}
 	
@@ -501,9 +631,9 @@ public class Client {
 	public static final int CHAT_PRIVATE_OUTGOING = 2;
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
-	public static final int CHAT_PRIVATE_LOGINOUT = 5;
-	public static final int CHAT_TRADE_REQUEST_IN = 6;  //not sure that this is the only use for 6
-	public static final int CHAT_TRADE_REQUEST_OUT = 7; //not sure that this is the only use for 7; also used for following. maybe a "you interract with another player" type
+	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
+	public static final int CHAT_PLAYER_INTERRACT_IN = 6;  //used for when player sends you a duel or trade request
+	public static final int CHAT_PLAYER_INTERRACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
 
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
