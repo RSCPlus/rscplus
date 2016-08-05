@@ -383,16 +383,17 @@ public class Client {
 			case CHAT_CHAT:
 				colorMessage = "@|yellow,intensity_bold " + colorMessage + ": |@"; //just bold username for chat
 				break;
-				
+			case CHAT_PLAYER_INTERRACT_IN: //happens when player trades you
+				colorMessage = "@|white " + colorMessage + " wishes to trade with you.|@";
+				break;
 			/*// username will not appear in these chat types, but just to cover it I'm leaving code commented out here
 			case CHAT_NONE:
 			case CHAT_PRIVATE_LOG_IN_OUT:
-			case CHAT_PLAYER_INTERRACT_IN:
 			case CHAT_PLAYER_INTERRACT_OUT:
 			*/
 				
 			default:
-				System.out.println("Username specified for unhandled chat type, please report this:" + type);
+				System.out.println("Username specified for unhandled chat type, please report this: " + type);
 				colorMessage = "@|white,intensity_bold " + colorMessage + ": |@";
 		}
 		return colorMessage;
@@ -435,7 +436,7 @@ public class Client {
 				break;
 			case CHAT_PLAYER_INTERRACT_IN:
 			case CHAT_PLAYER_INTERRACT_OUT:
-				colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@";
+				colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
 				break;
 			default: //this should never happen, only 8 Chat Types
 				System.out.println("Unhandled chat type in colourizeMessage, please report this:" + type);
@@ -632,7 +633,7 @@ public class Client {
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
 	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
-	public static final int CHAT_PLAYER_INTERRACT_IN = 6;  //used for when player sends you a duel or trade request
+	public static final int CHAT_PLAYER_INTERRACT_IN = 6;  //used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
 	public static final int CHAT_PLAYER_INTERRACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
 
 	public static final int COMBAT_CONTROLLED = 0;
