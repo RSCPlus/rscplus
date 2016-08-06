@@ -105,7 +105,7 @@ public class XPBar
 	}
 	
 	public static String formatXP(double number) {
-		return NumberFormat.getIntegerInstance().format(Math.round(number));
+		return NumberFormat.getIntegerInstance().format(Math.ceil(number));
 	}
 
 	public int currentSkill;
