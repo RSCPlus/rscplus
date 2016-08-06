@@ -298,6 +298,10 @@ public class Client {
 						+ " M:" + base_level[SKILL_MAGIC];
 			}
 			else
+			if (command.equals("bank")) { 
+				return "Hey, everyone, I just tried to do something very silly!";
+			}
+			else
 			if (command.startsWith("next_")) {
 				for (int i = 0; i < 18; i++) {
 					if (command.equals("next_" + skill_name[i].toLowerCase())) {
