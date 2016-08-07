@@ -53,9 +53,10 @@ public class Camera
 
 	public static void setFoV(int fov)
 	{
-		if(fov < 8)
-			fov = 8;
-
+		if(fov < 7) //lower than 7 crashes (fov 4, 5, 6 all crash)
+			fov = 7;
+		if(fov > 16) //higher than 16 doesn't crash, but above 16 isn't impressive (screen just turns 1 color) and does crash eventually (e.g. fov 100)
+			fov = 16;
 		Camera.fov = fov;
 		resize();
 	}
@@ -76,7 +77,7 @@ public class Camera
 		else if(zoom < 262)
 			zoom = 262;
 
-		// Crash fix for camera zoom, camera zoom cant be zero after (((zoom - 500) / 15) + 16
+		// Crash fix for camera zoom, camera zoom can't be zero after (((zoom - 500) / 15) + 16
 		//
 		// GETSTATIC Game/Camera.zoom : I
 		// SIPUSH -500
@@ -84,7 +85,7 @@ public class Camera
 		// BIPUSH 15
 		// IDIV
 		// BIPUSH 16
-		// IADD			<-- If zoom is -16 here, it's a gauranteed crash
+		// IADD			<-- If zoom is -16 here, it's a guaranteed crash
 		// IDIV			<-- Divide by zero if zoom is (-16 + 16)
 		while(((zoom - 500) / 15) + 16 == 0)
 			zoom -= 1;
