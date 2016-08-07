@@ -40,9 +40,11 @@ public class Client {
 
 	public static void adaptStrings() {
 		for (int i = 0; i < strings.length; i++) {
+			/*
 			if (strings[i].contains("Oh dear! You are dead...")) {
 				strings[i] = "YOU DIED";
 			}
+			*/
 			if (strings[i].startsWith("from:") && !Settings.SHOW_LOGINDETAILS) {
 				strings[i] = "@bla@from:";
 			}
@@ -244,6 +246,13 @@ public class Client {
 				Settings.toggleInvCount();
 			else if (command.equals("togglestatusdisplay"))
 				Settings.toggleStatusDisplay();
+			else if (command.equals("help")) {
+				try {
+					Help.help(Integer.parseInt(commandArray[2]), commandArray[1]);
+				} catch (Exception e) {
+					Help.help(0, "help");
+				}
+			}
 
 			if (commandArray[0] != null)
 				return "::";
@@ -427,9 +436,9 @@ public class Client {
 				break;
 			case CHAT_QUEST:
 				if (colorMessage.contains(":")) {
-					colorMessage = "@|yellow,intensity_faint " + colorMessage + "|@"; //this will be like "banker: would you like to access your bank account?" which should be yellow
+					colorMessage = "@|yellow,intensity_faint " + colorReplace(colorMessage) + "|@"; //this will be like "banker: would you like to access your bank account?" which should be yellow
 				} else {
-					colorMessage = "@|white,intensity_faint " + colorMessage + "|@"; //this is usually skilling
+					colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@"; //this is usually skilling
 				}
 				break;
 			case CHAT_CHAT:
