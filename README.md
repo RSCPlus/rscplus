@@ -59,6 +59,8 @@
 
 ## Chat Commands
 
+*::help* - displays all keyboard commands and chat commands in game
+
 *::[skillname]* - Tells skill level and xp in chat
 
 *::next_[skillname]* - Tells how much xp needed until next level in chat

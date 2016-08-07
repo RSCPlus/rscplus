@@ -423,6 +423,13 @@ public class Client {
 		} else if (greenMessage) {
 			return "@|green,intensity_bold " + colorMessage + "|@";
 		} else if (whiteMessage) {
+			//if (colorMessage.contains("Welcome to RuneScape!")) { // this would be necessary if whiteMessage had more than one .contains()
+			if (Settings.FIRST_TIME) {
+				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands and shortcuts", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+				Settings.FIRST_TIME = false;
+				Settings.Save();
+			}
+			//}
 			return "@|white,intensity_bold " + colorMessage + "|@";
 		}
 		
@@ -464,7 +471,7 @@ public class Client {
 		                      "(?i)@gre@","|@@|green ",
 		                      "(?i)@lre@","|@@|red,intensity_faint ",
 		                      "(?i)@dre@","|@@|red,intensity_bold ",
-		                      "(?i)@ran@","|@@|red,blink_fast ", //consider handling this specially
+		                      "(?i)@ran@","|@@|red,blink_fast ", //TODO: consider handling this specially
 		                      "(?i)@yel@","|@@|yellow ",
 		                      "(?i)@mag@","|@@|magenta,intensity_bold ",
 		                      "(?i)@gr1@","|@@|green ",

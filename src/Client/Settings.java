@@ -64,6 +64,7 @@ public class Settings
 			in.close();
 
 			WORLD = getInt(props, "world", 2);
+			FIRST_TIME = getBoolean(props, "first_time", true);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
 			COMBAT_MENU = getBoolean(props, "combat_menu", false);
 			COLORIZE = getBoolean(props, "color_terminal", true);
@@ -167,6 +168,7 @@ public class Settings
 			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
 			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
+			props.setProperty("first_time", "" + FIRST_TIME);
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -451,6 +453,7 @@ public class Settings
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static boolean HIDE_ROOFS = false;
 	public static int WORLD = 2;
+	public static boolean FIRST_TIME = true;
 	public static boolean SHOW_NPCINFO = false;
 	public static boolean SHOW_PLAYERINFO = false;
 	public static boolean SHOW_FRIENDINFO = false;
