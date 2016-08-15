@@ -21,11 +21,11 @@
 
 package Game;
 
-import Client.Logger;
-import Client.Settings;
-import Game.Game;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import Client.Launcher;
+import Client.Settings;
 
 public class KeyboardHandler implements KeyListener
 {
@@ -78,6 +78,9 @@ public class KeyboardHandler implements KeyListener
 			if(command_key == KeyEvent.VK_CLOSE_BRACKET)
 				Settings.toggleFatigueDrops();
 
+			if(command_key == KeyEvent.VK_O)
+				Launcher.getConfigWindow().showConfigWindow();
+			
 			if(Client.state == Client.STATE_LOGIN)
 			{
 				int worldSwitch = 0;
