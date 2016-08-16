@@ -233,7 +233,7 @@ public class Renderer {
 						int y = item.y - 20;
 						int freq = Collections.frequency(Client.item_list, item);
 						
-						if (freq == 1 || !item.equals(last_item)) { //We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's the first time we've tried to for this itemid at that location by just using last_item. freq == 1 necessary in case only one item on screen is being rendered, but maybe slight speed increase too if compiler can stop early in conditional.
+						if (freq == 1 || !item.equals(last_item) || last_item == null) { //We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's the first time we've tried to for this itemid at that location by just using last_item. last_item == null necessary in case only one item on screen is being rendered. slight speed increase from freq == 1 if compiler can stop early in conditional.
 							for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
 								Point loc = locIterator.next();
 								if (loc.x == x && loc.y == y) {
@@ -258,6 +258,7 @@ public class Renderer {
 
 			Client.npc_list.clear();
 			Client.item_list.clear();
+			last_item = null;
 
 			if (!Client.show_sleeping && Settings.SHOW_INVCOUNT)
 				drawShadowText(g2, Client.inventory_count + "/" + Client.max_inventory, width - 19, 17, color_text,
