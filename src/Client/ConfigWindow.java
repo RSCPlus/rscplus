@@ -38,40 +38,75 @@ public class ConfigWindow {
 
 	private JFrame frame;
 	
-	private JLabel generalPanelPatchDesc;
-	private JSlider generalPanelPatchSlider;
+	private JLabel generalPanelNamePatchModeDesc;
 	
+	/*
+	 * JComponent variables which hold configuration data
+	 */
+
+	//General tab
+	private JCheckBox generalPanelClientSizeCheckbox;
+		private JSpinner generalPanelClientSizeXSpinner;
+		private JSpinner generalPanelClientSizeYSpinner;
+	private JCheckBox generalPanelChatHistoryCheckbox;
+	private JCheckBox generalPanelCombatXPMenuCheckbox;
+	private JCheckBox generalPanelXPDropsCheckbox;
+	private JCheckBox generalPanelFatigueDropsCheckbox;
+	private JSpinner generalPanelFatigueFigSpinner;
+	private JCheckBox generalPanelFatigueAlertCheckbox;
+	private JSlider generalPanelNamePatchModeSlider;
+	private JCheckBox generalPanelRoofHidingCheckbox;
+	private JCheckBox generalPanelColoredTextCheckbox;
+	private JCheckBox generalPanelIncreaseFoVCheckbox;
+	private JCheckBox generalPanelCustomCursorCheckbox;
+	private JSlider generalPanelViewDistanceSlider;
+	
+	//Overlays tab	
+	private JCheckBox overlayPanelStatusDisplayCheckbox;
+	private JCheckBox overlayPanelInvCountCheckbox;
+	private JCheckBox overlayPanelItemNamesCheckbox;
+	private JCheckBox overlayPanelPlayerNamesCheckbox;
+	private JCheckBox overlayPanelFriendNamesCheckbox;
+	private JCheckBox overlayPanelNPCNamesCheckbox;
+	private JCheckBox overlayPanelNPCHitboxCheckbox;
+	private JCheckBox overlayPanelFoodHealingCheckbox;
+	private JCheckBox overlayPanelHPRegenTimerCheckbox;
+	private JCheckBox overlayPanelDebugModeCheckbox;
+	
+	//Notifications tab
+	private JCheckBox notificationPanelPMNotifsCheckbox;
+	private JCheckBox notificationPanelTradeNotifsCheckbox;
+	private JCheckBox notificationPanelDuelNotifsCheckbox;
+	private JCheckBox notificationPanelLogoutNotifsCheckbox;
+	private JCheckBox notificationPanelLowHPNotifsCheckbox;
+		private JSpinner notificationPanelLowHPNotifsSpinner;
+	private JCheckBox notificationPanelNotifSoundsCheckbox;	
 	private JCheckBox notificationPanelTrayPopupCheckbox;
 	private JRadioButton notificationPanelClientFocusButton;
 	private JRadioButton notificationPanelAnyFocusButton;
 	
-	/**
-	 * Launch the application.
-	 */
-
-
-	/**
-	 * Create the application.
-	 */
+	//Streaming & Privacy tab
+	private JCheckBox streamingPanelTwitchChatCheckbox;
+	private JTextField streamingPanelTwitchInGameNameTextField;
+	private JTextField streamingPanelTwitchOAuthTextField;
+	private JTextField streamingPanelTwitchUserTextField;
+	private JCheckBox streamingPanelIPAtLoginCheckbox;
+	private JCheckBox streamingPanelSaveLoginCheckbox;
+	
 	public ConfigWindow() {
 		
-	    try {
-            // Set System L&F
-    		UIManager.setLookAndFeel(
-			UIManager.getSystemLookAndFeelClassName());
-	    	} 
-	    	catch (UnsupportedLookAndFeelException e) {
-	    		// handle exception
-	    	}
-	    	catch (ClassNotFoundException e) {
-    			// handle exception
-	    	}
-	    	catch (InstantiationException e) {
-	    		// handle exception
-	    	}
-	    	catch (IllegalAccessException e) {
-	    		// handle exception
-	    	}
+		try {
+			// Set System L&F
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	    
 		initialize();
 	}
@@ -189,113 +224,121 @@ public class ConfigWindow {
 		
 		generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
 		
-		JPanel generalPanelRes = new JPanel();
-		generalPanel.add(generalPanelRes);
-		generalPanelRes.setLayout(new BoxLayout(generalPanelRes, BoxLayout.X_AXIS));
-		generalPanelRes.setPreferredSize(new Dimension(0,37));
-		generalPanelRes.setAlignmentX(Component.LEFT_ALIGNMENT);
-			addCheckbox("Default client size:", generalPanelRes);
-			JSpinner generalPanelResX = new JSpinner();
-			generalPanelRes.add(generalPanelResX);
-			generalPanelResX.setMaximumSize(new Dimension(48,20));
-			generalPanelResX.setMinimumSize(new Dimension(48,20));
-			generalPanelResX.setAlignmentY((float) 0.75);
-			JLabel generalPanelResBy = new JLabel("x");
-			generalPanelRes.add(generalPanelResBy);
-			generalPanelResBy.setAlignmentY((float) 0.9);
-			generalPanelResBy.setBorder(new EmptyBorder(0,2,0,2));
-			JSpinner generalPanelResY = new JSpinner();
-			generalPanelRes.add(generalPanelResY);
-			generalPanelResY.setMaximumSize(new Dimension(48,20));
-			generalPanelResY.setMinimumSize(new Dimension(48,20));
-			generalPanelResY.setAlignmentY((float) 0.75);
+		JPanel generalPanelClientSizePanel = new JPanel();
+		generalPanel.add(generalPanelClientSizePanel);
+		generalPanelClientSizePanel.setLayout(new BoxLayout(generalPanelClientSizePanel, BoxLayout.X_AXIS));
+		generalPanelClientSizePanel.setPreferredSize(new Dimension(0,37));
+		generalPanelClientSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+			generalPanelClientSizeCheckbox = addCheckbox("Default client size:", generalPanelClientSizePanel);
+			
+			generalPanelClientSizeXSpinner = new JSpinner();
+			generalPanelClientSizePanel.add(generalPanelClientSizeXSpinner);
+			generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(48,20));
+			generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(48,20));
+			generalPanelClientSizeXSpinner.setAlignmentY((float) 0.75);
+			
+			JLabel generalPanelClientSizeByLabel = new JLabel("x");
+			generalPanelClientSizePanel.add(generalPanelClientSizeByLabel);
+			generalPanelClientSizeByLabel.setAlignmentY((float) 0.9);
+			generalPanelClientSizeByLabel.setBorder(new EmptyBorder(0,2,0,2));
+			
+			generalPanelClientSizeYSpinner = new JSpinner();
+			generalPanelClientSizePanel.add(generalPanelClientSizeYSpinner);
+			generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(48,20));
+			generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(48,20));
+			generalPanelClientSizeYSpinner.setAlignmentY((float) 0.75);
+			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerWinXModel = new SpinnerNumberModel();
 			spinnerWinXModel.setMinimum(512);
 			spinnerWinXModel.setValue(512);
 			spinnerWinXModel.setStepSize(10);
-			generalPanelResX.setModel(spinnerWinXModel);
+			generalPanelClientSizeXSpinner.setModel(spinnerWinXModel);
 			SpinnerNumberModel spinnerWinYModel = new SpinnerNumberModel();
 			spinnerWinYModel.setMinimum(346);
 			spinnerWinYModel.setValue(346);
 			spinnerWinYModel.setStepSize(10);
-			generalPanelResY.setModel(spinnerWinYModel);
+			generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
 		
-		addCheckbox("Load chat history after relogging", generalPanel);
-		addCheckbox("Combat XP menu always on", generalPanel);
-		addCheckbox("XP drops", generalPanel);
-		addCheckbox("Fatigue drops", generalPanel);
+		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging", generalPanel);
+		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat XP menu always on", generalPanel);
+		generalPanelXPDropsCheckbox = addCheckbox("XP drops", generalPanel);
+		generalPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", generalPanel);
 		
-		JPanel generalPanelFatFigs = new JPanel();
-		generalPanel.add(generalPanelFatFigs);
-		generalPanelFatFigs.setLayout(new BoxLayout(generalPanelFatFigs, BoxLayout.X_AXIS));
-		generalPanelFatFigs.setPreferredSize(new Dimension(0,37));
-		generalPanelFatFigs.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelFatFigs.setLayout(new BoxLayout(generalPanelFatFigs, BoxLayout.X_AXIS));
-			JLabel generalPanelFatFigsLabel = new JLabel("Fatigue figures:");
-			generalPanelFatFigs.add(generalPanelFatFigsLabel);
-			generalPanelFatFigsLabel.setAlignmentY((float) 0.9);
-			JSpinner generalPanelFatFigsSpinner = new JSpinner();
-			generalPanelFatFigs.add(generalPanelFatFigsSpinner);
-			generalPanelFatFigsSpinner.setMaximumSize(new Dimension(35,20));
-			generalPanelFatFigsSpinner.setAlignmentY((float) 0.7);
-			generalPanelFatFigs.setBorder(new EmptyBorder(0,0,7,0));
+		JPanel generalPanelFatigueFigsPanel = new JPanel();
+		generalPanel.add(generalPanelFatigueFigsPanel);
+		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
+		generalPanelFatigueFigsPanel.setPreferredSize(new Dimension(0,37));
+		generalPanelFatigueFigsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
+		
+			JLabel generalPanelFatigueFigsLabel = new JLabel("Fatigue figures:");
+			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigsLabel);
+			generalPanelFatigueFigsLabel.setAlignmentY((float) 0.9);
+			
+			JSpinner generalPanelFatigueFigSpinner = new JSpinner();
+			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigSpinner);
+			generalPanelFatigueFigSpinner.setMaximumSize(new Dimension(35,20));
+			generalPanelFatigueFigSpinner.setAlignmentY((float) 0.7);
+			generalPanelFatigueFigsPanel.setBorder(new EmptyBorder(0,0,7,0));
+			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerNumModel = new SpinnerNumberModel();
 			spinnerNumModel.setMinimum(1);
 			spinnerNumModel.setMaximum(7);
 			spinnerNumModel.setValue(2);
-			generalPanelFatFigsSpinner.setModel(spinnerNumModel);
+			generalPanelFatigueFigSpinner.setModel(spinnerNumModel);
 			
-		addCheckbox("Fatigue alert", generalPanel);
+		generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
 		
-		JPanel generalPanelPatch = new JPanel();
-		generalPanelPatch.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelPatch.setMaximumSize(new Dimension(300,60));
-		generalPanelPatch.setLayout(new BoxLayout(generalPanelPatch, BoxLayout.X_AXIS));
-		generalPanel.add(generalPanelPatch);
+		JPanel generalPanelNamePatchModePanel = new JPanel();
+		generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelNamePatchModePanel.setMaximumSize(new Dimension(300,60));
+		generalPanelNamePatchModePanel.setLayout(new BoxLayout(generalPanelNamePatchModePanel, BoxLayout.X_AXIS));
+		generalPanel.add(generalPanelNamePatchModePanel);
 		
-		generalPanelPatchSlider = new JSlider();
-		generalPanelPatchSlider.setMajorTickSpacing(1);
-		generalPanelPatchSlider.setPaintLabels(true);
-		generalPanelPatchSlider.setPaintTicks(true);
-		generalPanelPatchSlider.setSnapToTicks(true);
-		generalPanelPatchSlider.setMinimum(0);
-		generalPanelPatchSlider.setMaximum(3);
-		generalPanelPatchSlider.setPreferredSize(new Dimension(33,0));
-		generalPanelPatchSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelPatchSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-		generalPanelPatchSlider.setOrientation(SwingConstants.VERTICAL);
-		generalPanelPatch.add(generalPanelPatchSlider);
+		generalPanelNamePatchModeSlider = new JSlider();
+		generalPanelNamePatchModeSlider.setMajorTickSpacing(1);
+		generalPanelNamePatchModeSlider.setPaintLabels(true);
+		generalPanelNamePatchModeSlider.setPaintTicks(true);
+		generalPanelNamePatchModeSlider.setSnapToTicks(true);
+		generalPanelNamePatchModeSlider.setMinimum(0);
+		generalPanelNamePatchModeSlider.setMaximum(3);
+		generalPanelNamePatchModeSlider.setPreferredSize(new Dimension(33,0));
+		generalPanelNamePatchModeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelNamePatchModeSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+		generalPanelNamePatchModeSlider.setOrientation(SwingConstants.VERTICAL);
+		generalPanelNamePatchModePanel.add(generalPanelNamePatchModeSlider);
 		
-		JPanel generalPanelPatchTextPanel = new JPanel();
-		generalPanelPatchTextPanel.setPreferredSize(new Dimension(255,55));
-		generalPanelPatchTextPanel.setLayout(new BorderLayout());
-		generalPanelPatchTextPanel.setBorder(new EmptyBorder(0,10,0,0));
-		generalPanelPatch.add(generalPanelPatchTextPanel);
+		JPanel generalPanelNamePatchModeTextPanel = new JPanel();
+		generalPanelNamePatchModeTextPanel.setPreferredSize(new Dimension(255,55));
+		generalPanelNamePatchModeTextPanel.setLayout(new BorderLayout());
+		generalPanelNamePatchModeTextPanel.setBorder(new EmptyBorder(0,10,0,0));
+		generalPanelNamePatchModePanel.add(generalPanelNamePatchModeTextPanel);
 		
-		JLabel generalPanelPatchTitle = new JLabel("<html><b>Name patch mode</b> (Requires restart)</html>");
-		generalPanelPatchTextPanel.add(generalPanelPatchTitle, BorderLayout.PAGE_START);
+		JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Name patch mode</b> (Requires restart)</html>");
+		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
 		//TODO: Remove hard-coded generalPanelPatchDesc text from JLabel
-		generalPanelPatchDesc = new JLabel("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
-		generalPanelPatchTextPanel.add(generalPanelPatchDesc, BorderLayout.CENTER);
+		generalPanelNamePatchModeDesc = new JLabel("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 		
-		generalPanelPatchSlider.addChangeListener(new ChangeListener() {
+		generalPanelNamePatchModeSlider.addChangeListener(new ChangeListener() {
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				switch (generalPanelPatchSlider.getValue()) {
+				switch (generalPanelNamePatchModeSlider.getValue()) {
 				case 3:
-					generalPanelPatchDesc.setText("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+					generalPanelNamePatchModeDesc.setText("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
 					break;
 				case 2:
-					generalPanelPatchDesc.setText("<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+					generalPanelNamePatchModeDesc.setText("<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
 					break;
 				case 1:
-					generalPanelPatchDesc.setText("<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
+					generalPanelNamePatchModeDesc.setText("<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
 					break;
 				case 0:
-					generalPanelPatchDesc.setText("<html>No item name patching</html>");
+					generalPanelNamePatchModeDesc.setText("<html>No item name patching</html>");
 					break;
 				default:
 					System.err.println("Invalid name patch mode value");
@@ -304,15 +347,16 @@ public class ConfigWindow {
 			}
 		});
 		
-		addCheckbox("Roof hiding", generalPanel);
-		addCheckbox("Color coded text", generalPanel);
-		addCheckbox("Increase FoV", generalPanel);
-		addCheckbox("Use custom cursor (Requires restart)", generalPanel);
+		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
+		generalPanelColoredTextCheckbox = addCheckbox("Color coded text", generalPanel);
+		generalPanelIncreaseFoVCheckbox = addCheckbox("Increase FoV", generalPanel);
+		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor (Requires restart)", generalPanel);
         
 		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
 		generalPanel.add(generalPanelViewDistanceLabel);
 		generalPanelViewDistanceLabel.setAlignmentY((float) 0.9);
-		JSlider generalPanelViewDistanceSlider = new JSlider();
+		
+		generalPanelViewDistanceSlider = new JSlider();
 		
 		generalPanel.add(generalPanelViewDistanceSlider);
 		generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -325,55 +369,61 @@ public class ConfigWindow {
 		generalPanelViewDistanceSlider.setPaintTicks(true);
 		
 		/*
-		 * Overlay tab
+		 * Overlays tab
 		 */
+		
 		overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
 		
-		addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
-		addCheckbox("Display inventory count", overlayPanel);
-		addCheckbox("Display item name overlay", overlayPanel);
-		addCheckbox("Show player name overlay", overlayPanel);
-		addCheckbox("Show nearby friend name overlay", overlayPanel);
-		addCheckbox("Display NPC name overlay", overlayPanel);
-		addCheckbox("Show NPC hitboxes", overlayPanel);
-		addCheckbox("Show food healing overlay", overlayPanel);
-		addCheckbox("Display time until next HP regeneration", overlayPanel);
-		addCheckbox("Enable debug mode", overlayPanel);
+		overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
+		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
+		overlayPanelItemNamesCheckbox = addCheckbox("Display item name overlay", overlayPanel);
+		overlayPanelPlayerNamesCheckbox = addCheckbox("Show player name overlay", overlayPanel);
+		overlayPanelFriendNamesCheckbox = addCheckbox("Show nearby friend name overlay", overlayPanel);
+		overlayPanelNPCNamesCheckbox = addCheckbox("Display NPC name overlay", overlayPanel);
+		overlayPanelNPCHitboxCheckbox = addCheckbox("Show NPC hitboxes", overlayPanel);
+		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay", overlayPanel);
+		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration", overlayPanel);
+		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
 		
 		/*
-		 * Notification tab
+		 * Notifications tab
 		 */
 		
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
-		addCheckbox("Enable PM notifications", notificationPanel);
-		addCheckbox("Enable trade notifications", notificationPanel);
-		addCheckbox("Enable duel notifications", notificationPanel);
-		addCheckbox("Enable logout notification", notificationPanel);
+		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
+		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications", notificationPanel);
+		notificationPanelDuelNotifsCheckbox = addCheckbox("Enable duel notifications", notificationPanel);
+		notificationPanelLogoutNotifsCheckbox = addCheckbox("Enable logout notification", notificationPanel);
 		
-		JPanel notificationPanelLowHP = new JPanel();
-		notificationPanel.add(notificationPanelLowHP);
-		notificationPanelLowHP.setLayout(new BoxLayout(notificationPanelLowHP, BoxLayout.X_AXIS));
-		notificationPanelLowHP.setPreferredSize(new Dimension(0,37));
-		notificationPanelLowHP.setAlignmentX(Component.LEFT_ALIGNMENT);
-		addCheckbox("Enable low HP notification at", notificationPanelLowHP);
-			JSpinner lowHP = new JSpinner();
-			lowHP.setMaximumSize(new Dimension(35,20));
-			lowHP.setMinimumSize(new Dimension(35,20));
-			lowHP.setAlignmentY((float) 0.75);
-			notificationPanelLowHP.add(lowHP);
+		JPanel notificationPanelLowHPNotifsPanel = new JPanel();
+		notificationPanel.add(notificationPanelLowHPNotifsPanel);
+		notificationPanelLowHPNotifsPanel.setLayout(new BoxLayout(notificationPanelLowHPNotifsPanel, BoxLayout.X_AXIS));
+		notificationPanelLowHPNotifsPanel.setPreferredSize(new Dimension(0,37));
+		notificationPanelLowHPNotifsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		notificationPanelLowHPNotifsCheckbox = addCheckbox("Enable low HP notification at", notificationPanelLowHPNotifsPanel);
+		
+			notificationPanelLowHPNotifsSpinner = new JSpinner();
+			notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(35,20));
+			notificationPanelLowHPNotifsSpinner.setMinimumSize(new Dimension(35,20));
+			notificationPanelLowHPNotifsSpinner.setAlignmentY((float) 0.75);
+			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsSpinner);
+			
+			JLabel notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
+			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsEndLabel);
+			notificationPanelLowHPNotifsEndLabel.setAlignmentY((float) 0.9);
+			notificationPanelLowHPNotifsEndLabel.setBorder(new EmptyBorder(0,2,0,0));
+			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerHPNumModel = new SpinnerNumberModel();
 			spinnerHPNumModel.setMinimum(1);
 			spinnerHPNumModel.setMaximum(99);
 			spinnerHPNumModel.setValue(25);
-			lowHP.setModel(spinnerHPNumModel);
-			JLabel lowHPEnd = new JLabel("% HP");
-			notificationPanelLowHP.add(lowHPEnd);
-			lowHPEnd.setAlignmentY((float) 0.9);
-			lowHPEnd.setBorder(new EmptyBorder(0,2,0,0));
+			notificationPanelLowHPNotifsSpinner.setModel(spinnerHPNumModel);
+			
+		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
 		
-		addCheckbox("Enable notification sounds", notificationPanel);
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
 		
@@ -404,55 +454,61 @@ public class ConfigWindow {
 		
 		streamingPanel.setLayout(new BoxLayout(streamingPanel, BoxLayout.Y_AXIS));
 		
-		addCheckbox("Enable Twitch chat", streamingPanel);
+		streamingPanelTwitchChatCheckbox = addCheckbox("Enable Twitch chat", streamingPanel);
 		
-		JPanel twitchInGameName = new JPanel();
-		streamingPanel.add(twitchInGameName);
-		twitchInGameName.setLayout(new BoxLayout(twitchInGameName, BoxLayout.X_AXIS));
-		twitchInGameName.setPreferredSize(new Dimension(0,37));
-		twitchInGameName.setAlignmentX(Component.LEFT_ALIGNMENT);
-		twitchInGameName.setBorder(new EmptyBorder(0,0,9,0));
-			JLabel twitchInGameNameLabel = new JLabel("Twitch name to display in game: ");
-			twitchInGameName.add(twitchInGameNameLabel);
-			twitchInGameNameLabel.setAlignmentY((float) 0.9);
-			JTextField twitchInGameNameTextField = new JTextField("");
-			twitchInGameName.add(twitchInGameNameTextField);
-			twitchInGameNameTextField.setMinimumSize(new Dimension(100,20));
-			twitchInGameNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-			twitchInGameNameTextField.setAlignmentY((float) 0.75);
-			
-		JPanel twitchOAuth = new JPanel();
-		streamingPanel.add(twitchOAuth);
-		twitchOAuth.setLayout(new BoxLayout(twitchOAuth, BoxLayout.X_AXIS));
-		twitchOAuth.setPreferredSize(new Dimension(0,37));
-		twitchOAuth.setAlignmentX(Component.LEFT_ALIGNMENT);
-		twitchOAuth.setBorder(new EmptyBorder(0,0,9,0));
-			JLabel twitchOAuthLabel = new JLabel("Twitch OAuth token: ");
-			twitchOAuth.add(twitchOAuthLabel);
-			twitchOAuthLabel.setAlignmentY((float) 0.9);
-			JPasswordField twitchOAuthTextField = new JPasswordField("");
-			twitchOAuth.add(twitchOAuthTextField);
-			twitchOAuthTextField.setMinimumSize(new Dimension(100,20));
-			twitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-			twitchOAuthTextField.setAlignmentY((float) 0.75);
-			
-		JPanel twitchUser = new JPanel();
-		streamingPanel.add(twitchUser);
-		twitchUser.setLayout(new BoxLayout(twitchUser, BoxLayout.X_AXIS));
-		twitchUser.setPreferredSize(new Dimension(0,37));
-		twitchUser.setAlignmentX(Component.LEFT_ALIGNMENT);
-		twitchUser.setBorder(new EmptyBorder(0,0,9,0));
-			JLabel twitchUserLabel = new JLabel("Twitch username: ");
-			twitchUser.add(twitchUserLabel);
-			twitchUserLabel.setAlignmentY((float) 0.9);
-			JTextField twitchUserTextField = new JTextField("");
-			twitchUser.add(twitchUserTextField);
-			twitchUserTextField.setMinimumSize(new Dimension(100,20));
-			twitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-			twitchUserTextField.setAlignmentY((float) 0.75);
+		JPanel streamingPanelTwitchInGameNamePanel = new JPanel();
+		streamingPanel.add(streamingPanelTwitchInGameNamePanel);
+		streamingPanelTwitchInGameNamePanel.setLayout(new BoxLayout(streamingPanelTwitchInGameNamePanel, BoxLayout.X_AXIS));
+		streamingPanelTwitchInGameNamePanel.setPreferredSize(new Dimension(0,37));
+		streamingPanelTwitchInGameNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		streamingPanelTwitchInGameNamePanel.setBorder(new EmptyBorder(0,0,9,0));
 		
-		addCheckbox("Enable IP/DNS details at login screen", streamingPanel);
-		addCheckbox("Save login information between logins", streamingPanel);
+			JLabel streamingPanelTwitchInGameLabel = new JLabel("Twitch name to display in game: ");
+			streamingPanelTwitchInGameNamePanel.add(streamingPanelTwitchInGameLabel);
+			streamingPanelTwitchInGameLabel.setAlignmentY((float) 0.9);
+			
+			streamingPanelTwitchInGameNameTextField = new JTextField();
+			streamingPanelTwitchInGameNamePanel.add(streamingPanelTwitchInGameNameTextField);
+			streamingPanelTwitchInGameNameTextField.setMinimumSize(new Dimension(100,20));
+			streamingPanelTwitchInGameNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchInGameNameTextField.setAlignmentY((float) 0.75);
+			
+		JPanel streamingPanelTwitchOAuthPanel = new JPanel();
+		streamingPanel.add(streamingPanelTwitchOAuthPanel);
+		streamingPanelTwitchOAuthPanel.setLayout(new BoxLayout(streamingPanelTwitchOAuthPanel, BoxLayout.X_AXIS));
+		streamingPanelTwitchOAuthPanel.setPreferredSize(new Dimension(0,37));
+		streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0,0,9,0));
+		
+			JLabel streamingPanelTwitchOAuthLabel = new JLabel("Twitch OAuth token: ");
+			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthLabel);
+			streamingPanelTwitchOAuthLabel.setAlignmentY((float) 0.9);
+			
+			streamingPanelTwitchOAuthTextField = new JPasswordField();
+			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthTextField);
+			streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100,20));
+			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
+			
+		JPanel streamingPanelTwitchUserPanel = new JPanel();
+		streamingPanel.add(streamingPanelTwitchUserPanel);
+		streamingPanelTwitchUserPanel.setLayout(new BoxLayout(streamingPanelTwitchUserPanel, BoxLayout.X_AXIS));
+		streamingPanelTwitchUserPanel.setPreferredSize(new Dimension(0,37));
+		streamingPanelTwitchUserPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		streamingPanelTwitchUserPanel.setBorder(new EmptyBorder(0,0,9,0));
+		
+			JLabel streamingPanelTwitchUserLabel = new JLabel("Twitch username: ");
+			streamingPanelTwitchUserPanel.add(streamingPanelTwitchUserLabel);
+			streamingPanelTwitchUserLabel.setAlignmentY((float) 0.9);
+			
+			streamingPanelTwitchUserTextField = new JTextField();
+			streamingPanelTwitchUserPanel.add(streamingPanelTwitchUserTextField);
+			streamingPanelTwitchUserTextField.setMinimumSize(new Dimension(100,20));
+			streamingPanelTwitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchUserTextField.setAlignmentY((float) 0.75);
+		
+		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login screen", streamingPanel);
+		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins", streamingPanel);
 		
 		/*
 		 * Keybind tab
