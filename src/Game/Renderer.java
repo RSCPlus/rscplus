@@ -40,6 +40,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -199,6 +201,8 @@ public class Renderer {
 				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
 				List<Point> item_text_loc = new ArrayList<Point>();
 
+				Collections.sort(Client.item_list, new ItemComparator()); //keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly changing places each frame
+				
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next();
 
@@ -227,15 +231,19 @@ public class Renderer {
 					if (Settings.SHOW_ITEMINFO) {
 						int x = item.x + (item.width / 2);
 						int y = item.y - 20;
-
-						for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
-							Point loc = locIterator.next();
-							if (loc.x == x && loc.y == y)
-								y -= 12;
+						int freq = Collections.frequency(Client.item_list, item);
+						
+						if (freq == 1 || !item.equals(last_item)) { //We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's the first time we've tried to for this itemid at that location by just using last_item. freq == 1 necessary in case only one item on screen is being rendered, but maybe slight speed increase too if compiler can stop early in conditional.
+							for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
+								Point loc = locIterator.next();
+								if (loc.x == x && loc.y == y) {
+									y -= 12;
+								}
+							}
+							item_text_loc.add(new Point(x, y));
+							drawShadowText(g2, item.getName() + ((freq == 1) ? "" : " (" + freq + ")"), x, y, color_prayer, true); //TODO: it would be nice if for items like Coins or Runes, we showed how many of the item were on the ground instead of how many times you have to click to pick them all up. Currently will just show "Coins (2)" if there are two stacks of coins on the ground.
 						}
-
-						drawShadowText(g2, item.getName(), x, y, color_prayer, true);
-						item_text_loc.add(new Point(x, y));
+						last_item = item; //done with item this loop, can save it as last_item
 					}
 				}
 			}
@@ -601,4 +609,22 @@ public class Renderer {
 	public static Image image_bar_frame;
 	public static Image image_cursor;
 	private static BufferedImage game_image;
+	
+	private static Item last_item;
+}
+
+class ItemComparator implements Comparator<Item> {
+	public int compare(Item a, Item b) {
+		int location_offset; //we would like to group items that are on the same tile as well, not just having the same name, so that we can use "last_item" in a useful way
+		if (a.x == b.x && a.y == b.y) {
+			location_offset = 0;
+		} else {
+			if (a.x < b.x) {
+				location_offset = -5;
+			} else {
+				location_offset = 5;
+			}
+		}
+		return (a.getName().compareToIgnoreCase(b.getName()) * -1) + location_offset; //this is reverse alphabetical order b/c we display them in reverse order (y-=12 ea item). compareToIgnore case is either 10, 0, or -10, so location_offset won't override it unless it's 0 (equal).
+	}
 }
