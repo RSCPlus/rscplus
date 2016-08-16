@@ -242,10 +242,10 @@ public class Client {
 				try {
 					Camera.setFoV(Integer.parseInt(commandArray[1]));
 					if (Camera.fov > 10 || Camera.fov < 8) { //if stupid fov, warn user how to get back
-						displayMessage("This is fun, but if you want to go back to normal, use @yel@::fov 9", CHAT_QUEST);
+						displayMessage("@whi@This is fun, but if you want to go back to normal, use @yel@::fov 9", CHAT_QUEST);
 					}
 				} catch (Exception e) {
-					displayMessage("@whi@please use an @lre@integer@whi@ between 7 and 16 (default = 9)", CHAT_QUEST); //more sane limitation would be 8 to 10, but it's fun to play with
+					displayMessage("@whi@Please use an @lre@integer@whi@ between 7 and 16 (default = 9)", CHAT_QUEST); //more sane limitation would be 8 to 10, but it's fun to play with
 				}
 			}
 			else if (command.equals("logout"))
