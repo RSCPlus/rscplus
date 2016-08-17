@@ -77,7 +77,7 @@ public class Util
 		}
 		catch(IOException ioe)
 		{
-			System.err.println("Network connection issues");
+			Logger.Error("Network connection issues");
 			ioe.printStackTrace();
 			try
 			{

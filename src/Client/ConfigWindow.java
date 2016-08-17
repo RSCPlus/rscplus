@@ -112,13 +112,13 @@ public class ConfigWindow {
 			// Set System L&F
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			Logger.Error("Unable to set L&F: Unsupported look and feel");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			Logger.Error("Unable to set L&F: Class not found");
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			Logger.Error("Unable to set L&F: Class object cannot be instantiated");
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Logger.Error("Unable to set L&F: Illegal acess exception");
 		}
 	    
 		initialize();
@@ -354,7 +354,7 @@ public class ConfigWindow {
 					generalPanelNamePatchModeDesc.setText("<html>No item name patching</html>");
 					break;
 				default:
-					System.err.println("Invalid name patch mode value");
+					Logger.Error("Invalid name patch mode value");
 					break;
 				}
 			}
