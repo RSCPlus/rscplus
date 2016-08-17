@@ -62,30 +62,66 @@ public class Settings
 			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
 			props.load(in);
 			in.close();
+			
+			//General options
+			CUSTOM_CLIENT_SIZE = getBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE);
+			CUSTOM_CLIENT_SIZE_X = getInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X);
+			CUSTOM_CLIENT_SIZE_Y = getInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y);
+			LOAD_CHAT_HISTORY = getBoolean(props, "custom_client_size", LOAD_CHAT_HISTORY);
+			COMBAT_MENU = getBoolean(props, "combat_menu", COMBAT_MENU);
+			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", SHOW_XPDROPS); //HERE
+			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", SHOW_FATIGUEDROPS);
+			FATIGUE_FIGURES = getInt(props, "fatigue_figures", FATIGUE_FIGURES);
+			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", FATIGUE_ALERT);
+			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
+			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
+			COLORIZE = getBoolean(props, "colorize", COLORIZE);
+			INCREASE_FOV = getBoolean(props, "increase_fov", INCREASE_FOV);
+			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", SOFTWARE_CURSOR);
+			VIEW_DISTANCE = getInt(props, "view_distance", VIEW_DISTANCE);
 
+			//Overlays options
+			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
+			SHOW_INVCOUNT = getBoolean(props, "show_invcount", SHOW_INVCOUNT);
+			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", SHOW_ITEMINFO);
+			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", SHOW_PLAYERINFO);
+			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", SHOW_FRIENDINFO);
+			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", SHOW_NPCINFO);
+			SHOW_HITBOX = getBoolean(props, "show_hitbox", SHOW_HITBOX);
+			SHOW_FOOD_HEAL_OVERLAY = getBoolean(props, "show_food_heal_overlay", SHOW_FOOD_HEAL_OVERLAY);
+			SHOW_TIME_UNTIL_HP_REGEN = getBoolean(props, "show_time_until_hp_regen", SHOW_TIME_UNTIL_HP_REGEN);
+			DEBUG = getBoolean(props, "debug", DEBUG);
+
+			//Notifications options
+			PM_NOTIFICATIONS = getBoolean(props, "pm_notifications", PM_NOTIFICATIONS);
+			TRADE_NOTIFICATIONS = getBoolean(props, "trade_notifications", TRADE_NOTIFICATIONS);
+			DUEL_NOTIFICATIONS = getBoolean(props, "duel_notifications", DUEL_NOTIFICATIONS);
+			LOGOUT_NOTIFICATIONS = getBoolean(props, "logout_notifications", LOGOUT_NOTIFICATIONS);
+			LOW_HP_NOTIFICATIONS = getBoolean(props, "low_hp_notifications", LOW_HP_NOTIFICATIONS);
+			LOW_HP_NOTIF_VALUE = getInt(props, "low_hp_notif_value", LOW_HP_NOTIF_VALUE);
+			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
+			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
+			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
+
+			//Streaming & Privacy
+			TWITCH_HIDE = getBoolean(props, "twitch_hide", TWITCH_HIDE);
+			TWITCH_CHANNEL = getString(props, "twitch_channel", TWITCH_CHANNEL);
+			TWITCH_OAUTH = getString(props, "twitch_oauth", TWITCH_OAUTH);
+			TWITCH_USERNAME = getString(props, "twitch_username", TWITCH_USERNAME);
+			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", SHOW_LOGINDETAILS);
+			SAVE_LOGININFO = getBoolean(props, "save_logininfo", SAVE_LOGININFO);
+
+			//Miscellaneous settings (No GUI)
 			WORLD = getInt(props, "world", 2);
-			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
-			COMBAT_MENU = getBoolean(props, "combat_menu", false);
-			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", false);
-			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
-			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
-			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", false);
-			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
-			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
-			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", true);
-			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", true);
-			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
-			DEBUG = getBoolean(props, "debug", false);
-			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
-			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", true);
-			TWITCH_HIDE = getBoolean(props, "twitch_hide", false);
-			TWITCH_USERNAME = getString(props, "twitch_username", "");
-			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
-			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
-			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 3);
-			SAVE_LOGININFO = getBoolean(props, "save_logininfo", true);
-			FATIGUE_FIGURES = getInt(props, "fatigue_figures", 2);
+			FIRST_TIME = getBoolean(props, "first_time", FIRST_TIME);
+			
+			if (CUSTOM_CLIENT_SIZE_X < 512) {
+				CUSTOM_CLIENT_SIZE_X = 512;
+			}
+			if (CUSTOM_CLIENT_SIZE_Y < 346) {
+				CUSTOM_CLIENT_SIZE_Y = 346;
+			}
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -139,29 +175,59 @@ public class Settings
 		try
 		{
 			Properties props = new Properties();
-			props.setProperty("world", "" + WORLD);
-			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+
+			//General
+			props.setProperty("custom_client_size", "" + CUSTOM_CLIENT_SIZE);
+			props.setProperty("custom_client_size_x", "" + CUSTOM_CLIENT_SIZE_X);
+			props.setProperty("custom_client_size_y", "" + CUSTOM_CLIENT_SIZE_Y);
+			props.setProperty("custom_client_size", "" + LOAD_CHAT_HISTORY);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
-			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
-			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
-			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
-			props.setProperty("show_friendinfo", "" + SHOW_FRIENDINFO);
-			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
-			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
-			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
-			props.setProperty("debug", "" + DEBUG);
-			props.setProperty("view_distance", "" + VIEW_DISTANCE);
-			props.setProperty("combat_style", "" + COMBAT_STYLE);
-			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
-			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
-			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
-			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
-			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
-			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
-			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
 			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
+			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
+			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
+			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+			props.setProperty("colorize", "" + COLORIZE);
+			props.setProperty("increase_fov", "" + INCREASE_FOV);
+			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
+			props.setProperty("view_distance", "" + VIEW_DISTANCE);
+
+			//Overlays
+			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
+			props.setProperty("show_invcount", "" + SHOW_INVCOUNT);
+			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
+			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
+			props.setProperty("show_friendinfo", "" + SHOW_FRIENDINFO);
+			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
+			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
+			props.setProperty("show_food_heal_overlay", "" + SHOW_FOOD_HEAL_OVERLAY);
+			props.setProperty("show_time_until_hp_regen", "" + SHOW_TIME_UNTIL_HP_REGEN);
+			props.setProperty("debug", "" + DEBUG);
+
+			//Notifications
+			props.setProperty("pm_notifications", "" + PM_NOTIFICATIONS);
+			props.setProperty("trade_notifications", "" + TRADE_NOTIFICATIONS);
+			props.setProperty("duel_notifications", "" + DUEL_NOTIFICATIONS);
+			props.setProperty("logout_notifications", "" + LOGOUT_NOTIFICATIONS);
+			props.setProperty("low_hp_notifications", "" + LOW_HP_NOTIFICATIONS);
+			props.setProperty("low_hp_notif_value", "" + LOW_HP_NOTIF_VALUE);
+			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
+			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
+			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
+
+			//Streaming & Privacy
+			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
+			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
+			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
+			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
+			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
+			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
+
+			//Miscellaneous settings (No GUI);
+			props.setProperty("world", "" + WORLD);
+			props.setProperty("combat_style", "" + COMBAT_STYLE);
+			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
 
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
@@ -409,11 +475,14 @@ public class Settings
 		"5"
 	};
 	
-	//Settings Variables
+	/*
+	 * Settings Variables
+	 * Note that the settings defaults are those values listed here, as the Load method now references these values as defaults.
+	 */
 	//General options
 	public static boolean CUSTOM_CLIENT_SIZE = false;
-		public static int CUSTOM_CLIENT_SIZE_X = 0;
-		public static int CUSTOM_CLIENT_SIZE_Y = 0;
+		public static int CUSTOM_CLIENT_SIZE_X = 512;
+		public static int CUSTOM_CLIENT_SIZE_Y = 346;
 	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
 	public static boolean SHOW_XPDROPS = true;

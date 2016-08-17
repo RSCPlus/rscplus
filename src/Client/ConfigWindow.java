@@ -35,17 +35,21 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * 
+ * TODO: Update this with modifications in the future if necessary
  * GUI designed for the RSCPlus client that manages 
  * configuration options and keybind values from within an interface.<br>
  * 
  * To add a new configuration option, 
  * 1.) Declare an instance variable to hold the gui element (eg checkbox) 
- * 2.) If there is a helper method such as addCheckbox, use that method to create and store the element.
+ * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the initialize method. See existing code for examples.
  * 3.) Add an appropriate variable to the Settings.java class
  * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.
+ * 4.) Add an entry in the saveSettings method in ConfigWindow referencing the variable, as per the already-existing examples.
+ * 5.) Add an entry in the Settings class save method to save the option to file.
+ * 6.) Add an entry in the Settings class load method to load the option from file.
  *
  * To add a new keybind,
+ * TODO
  */
 public class ConfigWindow {
 
@@ -125,6 +129,7 @@ public class ConfigWindow {
 	}
 	
 	public void showConfigWindow() {
+		this.synchronizeGuiValues();
 		frame.setVisible(true);
 	}
 	
@@ -198,7 +203,8 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("OK");
+				Launcher.getConfigWindow().saveSettings();
+				Launcher.getConfigWindow().hideConfigWindow();
 				
 			}
 		});
@@ -207,8 +213,8 @@ public class ConfigWindow {
         	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Cancel");
-				
+				Launcher.getConfigWindow().hideConfigWindow();
+
 			}
 		});
         
@@ -216,8 +222,7 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Apply");
-				
+				Launcher.getConfigWindow().saveSettings();
 			}
 		});
         
@@ -226,7 +231,7 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Restore Defaults");
+				System.out.println("Restore Defaults"); //TODO: Restore defaults
 				
 			}
 		});
@@ -333,7 +338,7 @@ public class ConfigWindow {
 		JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Name patch mode</b> (Requires restart)</html>");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
 		//TODO: Remove hard-coded generalPanelPatchDesc text from JLabel
-		generalPanelNamePatchModeDesc = new JLabel("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+		generalPanelNamePatchModeDesc = new JLabel("");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 		
 		generalPanelNamePatchModeSlider.addChangeListener(new ChangeListener() {
@@ -556,7 +561,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "Ctrl + T");
 		addKeybindSet(keybindPanel, "Toggle XP drops", "Ctrl + [");
 		
-		this.synchronizeGuiValues();
+		//this.synchronizeGuiValues();
 	}
 	
 	//TODO: Event registration.
@@ -688,6 +693,24 @@ public class ConfigWindow {
 		generalPanelIncreaseFoVCheckbox.setSelected(Settings.INCREASE_FOV);
 		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR);
 		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE);
+		//Sets the text associated with the name patch slider.
+		switch (generalPanelNamePatchModeSlider.getValue()) {
+		case 3:
+			generalPanelNamePatchModeDesc.setText("<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+			break;
+		case 2:
+			generalPanelNamePatchModeDesc.setText("<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+			break;
+		case 1:
+			generalPanelNamePatchModeDesc.setText("<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
+			break;
+		case 0:
+			generalPanelNamePatchModeDesc.setText("<html>No item name patching</html>");
+			break;
+		default:
+			System.err.println("Invalid name patch mode value");
+			break;
+		}
 
 		//Overlays tab	
 		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_STATUSDISPLAY);
@@ -722,6 +745,61 @@ public class ConfigWindow {
 		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME);
 		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGINDETAILS);
 		streamingPanelSaveLoginCheckbox.setSelected(Settings.SAVE_LOGININFO);
+	}
+	
+	/**
+	 * Saves the settings from the gui values to the settings class variables
+	 */
+	public void saveSettings() {
+		//General options
+		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected(); //TODO
+		Settings.CUSTOM_CLIENT_SIZE_X = ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue();
+		Settings.CUSTOM_CLIENT_SIZE_Y = ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue();
+		Settings.LOAD_CHAT_HISTORY = generalPanelChatHistoryCheckbox.isSelected();
+		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
+		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();
+		Settings.SHOW_FATIGUEDROPS = generalPanelFatigueDropsCheckbox.isSelected();
+		Settings.FATIGUE_FIGURES = ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue();
+		Settings.FATIGUE_ALERT = generalPanelFatigueAlertCheckbox.isSelected();
+		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
+		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
+		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
+		Settings.INCREASE_FOV = generalPanelIncreaseFoVCheckbox.isSelected();
+		Settings.SOFTWARE_CURSOR = generalPanelCustomCursorCheckbox.isSelected();
+		Settings.VIEW_DISTANCE = generalPanelViewDistanceSlider.getValue();
+
+		//Overlays options
+		Settings.SHOW_STATUSDISPLAY = overlayPanelStatusDisplayCheckbox.isSelected();
+		Settings.SHOW_INVCOUNT = overlayPanelInvCountCheckbox.isSelected();
+		Settings.SHOW_ITEMINFO = overlayPanelItemNamesCheckbox.isSelected();
+		Settings.SHOW_PLAYERINFO = overlayPanelPlayerNamesCheckbox.isSelected();
+		Settings.SHOW_FRIENDINFO = overlayPanelFriendNamesCheckbox.isSelected();
+		Settings.SHOW_NPCINFO = overlayPanelNPCNamesCheckbox.isSelected();
+		Settings.SHOW_HITBOX = overlayPanelNPCHitboxCheckbox.isSelected();
+		Settings.SHOW_FOOD_HEAL_OVERLAY = overlayPanelFoodHealingCheckbox.isSelected();
+		Settings.SHOW_TIME_UNTIL_HP_REGEN = overlayPanelHPRegenTimerCheckbox.isSelected();
+		Settings.DEBUG = overlayPanelDebugModeCheckbox.isSelected();
+
+		//Notifications options
+		Settings.PM_NOTIFICATIONS = notificationPanelPMNotifsCheckbox.isSelected();
+		Settings.TRADE_NOTIFICATIONS = notificationPanelTradeNotifsCheckbox.isSelected();
+		Settings.DUEL_NOTIFICATIONS = notificationPanelDuelNotifsCheckbox.isSelected();
+		Settings.LOGOUT_NOTIFICATIONS = notificationPanelLogoutNotifsCheckbox.isSelected();
+		Settings.LOW_HP_NOTIFICATIONS = notificationPanelLowHPNotifsCheckbox.isSelected();
+		Settings.LOW_HP_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelLowHPNotifsSpinner.getModel())).getNumber().intValue();
+		Settings.NOTIFICATION_SOUNDS = notificationPanelNotifSoundsCheckbox.isSelected();
+		Settings.TRAY_NOTIFS = notificationPanelTrayPopupCheckbox.isSelected();
+		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelAnyFocusButton.isSelected();
+
+		//Streaming & Privacy
+		Settings.TWITCH_HIDE = streamingPanelTwitchChatCheckbox.isSelected();
+		Settings.TWITCH_CHANNEL = streamingPanelTwitchInGameNameTextField.getText();
+		Settings.TWITCH_OAUTH = streamingPanelTwitchOAuthTextField.getText();
+		Settings.TWITCH_USERNAME = streamingPanelTwitchUserTextField.getText();
+		Settings.SHOW_LOGINDETAILS = streamingPanelIPAtLoginCheckbox.isSelected();
+		Settings.SAVE_LOGININFO = streamingPanelSaveLoginCheckbox.isSelected();
+		
+		Settings.Save();
 	}
 
 	public void disposeJFrame() {
