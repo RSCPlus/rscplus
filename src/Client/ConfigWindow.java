@@ -34,6 +34,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+/**
+ * 
+ * GUI designed for the RSCPlus client that manages 
+ * configuration options and keybind values from within an interface.<br>
+ * 
+ * To add a new configuration option, 
+ * 1.) Declare an instance variable to hold the gui element (eg checkbox) 
+ * 2.) If there is a helper method such as addCheckbox, use that method to create and store the element.
+ * 3.) Add an appropriate variable to the Settings.java class
+ * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.
+ *
+ * To add a new keybind,
+ */
 public class ConfigWindow {
 
 	private JFrame frame;
@@ -277,7 +290,7 @@ public class ConfigWindow {
 			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigsLabel);
 			generalPanelFatigueFigsLabel.setAlignmentY((float) 0.9);
 			
-			JSpinner generalPanelFatigueFigSpinner = new JSpinner();
+			generalPanelFatigueFigSpinner = new JSpinner();
 			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigSpinner);
 			generalPanelFatigueFigSpinner.setMaximumSize(new Dimension(35,20));
 			generalPanelFatigueFigSpinner.setAlignmentY((float) 0.7);
@@ -542,6 +555,8 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle time until health regen", "None");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "Ctrl + T");
 		addKeybindSet(keybindPanel, "Toggle XP drops", "Ctrl + [");
+		
+		this.synchronizeGuiValues();
 	}
 	
 	//TODO: Event registration.
@@ -651,6 +666,67 @@ public class ConfigWindow {
 	private void setScrollSpeed(JScrollPane scrollPane, int horizontalInc, int verticalInc) {
 		scrollPane.getVerticalScrollBar().setUnitIncrement(verticalInc);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(horizontalInc);
+	}
+	
+	/**
+	 * Synchronizes all relevant values in the gui's elements to match those in Settings.java
+	 */
+	public void synchronizeGuiValues() {
+		//General tab
+		generalPanelClientSizeCheckbox.setSelected(Settings.CUSTOM_CLIENT_SIZE);
+		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X);
+		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y);
+		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY);
+		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU);
+		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS);
+		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS);
+		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES));
+		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT);
+		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
+		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
+		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
+		generalPanelIncreaseFoVCheckbox.setSelected(Settings.INCREASE_FOV);
+		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR);
+		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE);
+
+		//Overlays tab	
+		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_STATUSDISPLAY);
+		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT);
+		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEMINFO);
+		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYERINFO);
+		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIENDINFO);
+		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPCINFO);
+		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_HITBOX);
+		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY);
+		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN);
+		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
+
+		//Notifications tab
+		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS );
+		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS);
+		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
+		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
+		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS);
+		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE);
+		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	
+		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
+		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS);
+		notificationPanelAnyFocusButton.setEnabled(Settings.TRAY_NOTIFS);
+		
+		//Streaming & Privacy tab
+		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE);
+		streamingPanelTwitchInGameNameTextField.setText(Settings.TWITCH_CHANNEL);
+		streamingPanelTwitchOAuthTextField.setText(Settings.TWITCH_OAUTH);
+		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME);
+		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGINDETAILS);
+		streamingPanelSaveLoginCheckbox.setSelected(Settings.SAVE_LOGININFO);
+	}
+
+	public void disposeJFrame() {
+		frame.dispose();
+		
 	}
 	
 }

@@ -131,6 +131,7 @@ public class Settings
 			Dir.DUMP = Dir.JAR + "/dump";
 			Util.MakeDirectory(Dir.DUMP);
 		}
+		
 	}
 
 	public static void Save()
@@ -407,28 +408,60 @@ public class Settings
 		"4",
 		"5"
 	};
-
-	public static int VIEW_DISTANCE = 10000;
-	public static boolean FATIGUE_ALERT = true;
+	
+	//Settings Variables
+	//General options
+	public static boolean CUSTOM_CLIENT_SIZE = false;
+		public static int CUSTOM_CLIENT_SIZE_X = 0;
+		public static int CUSTOM_CLIENT_SIZE_Y = 0;
+	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
-	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
-	public static boolean HIDE_ROOFS = false;
-	public static int WORLD = 2;
-	public static boolean SHOW_NPCINFO = false;
-	public static boolean SHOW_PLAYERINFO = false;
-	public static boolean SHOW_FRIENDINFO = false;
-	public static boolean SHOW_ITEMINFO = false;
-	public static boolean SHOW_HITBOX = false;
-	public static boolean SHOW_LOGINDETAILS = false;
 	public static boolean SHOW_XPDROPS = true;
 	public static boolean SHOW_FATIGUEDROPS = true;
-	public static boolean SOFTWARE_CURSOR = false;
-	public static boolean DEBUG = false;
-	public static boolean TWITCH_HIDE = false;
-	public static String TWITCH_USERNAME = "";
-	public static String TWITCH_OAUTH = "";
-	public static String TWITCH_CHANNEL = "";
-	public static int NAME_PATCH_TYPE = 3;
-	public static boolean SAVE_LOGININFO = true;
 	public static int FATIGUE_FIGURES = 2;
+	public static boolean FATIGUE_ALERT = true;
+	public static int NAME_PATCH_TYPE = 3;
+	public static boolean HIDE_ROOFS = false;
+    public static boolean COLORIZE = true; //TODO: Vague, consider refactoring for clarity
+	public static boolean INCREASE_FOV = true;
+	public static boolean SOFTWARE_CURSOR = false;
+	public static int VIEW_DISTANCE = 10000;
+	
+	//Overlays options
+	public static boolean SHOW_STATUSDISPLAY = true; //TODO: PLEASE refactor to a name that isn't uselessly vague. This is apparently the HP/Prayer/Fatique display.
+	public static boolean SHOW_INVCOUNT = true;
+	public static boolean SHOW_ITEMINFO = false; //TODO: Refactor to add the word 'overlay' for clarity
+	public static boolean SHOW_PLAYERINFO = false; //TODO: See above
+	public static boolean SHOW_FRIENDINFO = false; //TODO ^
+	public static boolean SHOW_NPCINFO = false; //TODO ^
+	public static boolean SHOW_HITBOX = false; //TODO: Consider refactoring for clarity that this only affects NPCs
+	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
+	public static boolean SHOW_TIME_UNTIL_HP_REGEN = false;
+	public static boolean DEBUG = false;
+	
+	//Notifications options
+	public static boolean PM_NOTIFICATIONS = false; 
+	public static boolean TRADE_NOTIFICATIONS = false;
+	public static boolean DUEL_NOTIFICATIONS = false;
+	public static boolean LOGOUT_NOTIFICATIONS = false;
+	public static boolean LOW_HP_NOTIFICATIONS = false;
+	public static int LOW_HP_NOTIF_VALUE = 25;
+	public static boolean NOTIFICATION_SOUNDS = false;
+	public static boolean TRAY_NOTIFS = false;
+	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
+	
+	//Streaming & Privacy
+	public static boolean TWITCH_HIDE = false; //TODO: Refactor? Vague, if it manages chat visibility
+	public static String TWITCH_CHANNEL = "";
+	public static String TWITCH_OAUTH = "";
+	public static String TWITCH_USERNAME = "";
+	public static boolean SHOW_LOGINDETAILS = false; //TODO: Consider refactoring for clarity. This determines if IP/DNS details are shown at login screen
+	public static boolean SAVE_LOGININFO = true;
+	
+	
+	//Miscellaneous settings (No GUI)
+	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
+	public static int WORLD = 2;
+	public static boolean FIRST_TIME = true;
+
 }

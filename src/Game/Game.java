@@ -154,12 +154,15 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 
 		m_applet.stop();
 		m_applet.destroy();
+		
 	}
 
 	@Override
 	public final void windowClosing(WindowEvent e)
 	{
 		dispose();
+		Launcher.getConfigWindow().disposeJFrame();
+
 	}
 
 	@Override
