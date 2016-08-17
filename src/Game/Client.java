@@ -105,7 +105,7 @@ public class Client {
 						showXpPerHour[i] = false;
 					}
 					
-					if (i == SKILL_HP && xpbar.currentSkill != -1)
+					if (i == SKILL_HP && xpbar.current_skill != -1)
 						continue;
 
 					xpbar.setSkill(i);
