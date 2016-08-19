@@ -34,6 +34,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import Game.Game;
+import Game.Renderer;
+
 /**
  * TODO: Update this with modifications in the future if necessary
  * GUI designed for the RSCPlus client that manages 
@@ -51,6 +54,9 @@ import javax.swing.event.ChangeListener;
  * To add a new keybind,
  * TODO
  */
+
+//TODO: Check that all configurations entered through the GUI is properly sanitized and saved/loaded
+
 public class ConfigWindow {
 
 	private JFrame frame;
@@ -248,6 +254,8 @@ public class ConfigWindow {
 		generalPanelClientSizePanel.setPreferredSize(new Dimension(0,37));
 		generalPanelClientSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
+			//TODO: Make the client size change after applying this setting
+			//TODO: Gray out the JSpinners if checkbox is unchecked?
 			generalPanelClientSizeCheckbox = addCheckbox("Default client size:", generalPanelClientSizePanel);
 			
 			generalPanelClientSizeXSpinner = new JSpinner();
@@ -369,8 +377,9 @@ public class ConfigWindow {
 		generalPanelColoredTextCheckbox = addCheckbox("Color coded text", generalPanel);
 		generalPanelIncreaseFoVCheckbox = addCheckbox("Increase FoV", generalPanel);
 		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor (Requires restart)", generalPanel);
+		//TODO: Make the system cursor hidden when enabled before restart, vice versa
         
-		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
+		JLabel generalPanelViewDistanceLabel = new JLabel("View distance (Requires restart)");
 		generalPanel.add(generalPanelViewDistanceLabel);
 		generalPanelViewDistanceLabel.setAlignmentY((float) 0.9);
 		
@@ -398,7 +407,7 @@ public class ConfigWindow {
 		overlayPanelPlayerNamesCheckbox = addCheckbox("Show player name overlay", overlayPanel);
 		overlayPanelFriendNamesCheckbox = addCheckbox("Show nearby friend name overlay", overlayPanel);
 		overlayPanelNPCNamesCheckbox = addCheckbox("Display NPC name overlay", overlayPanel);
-		overlayPanelNPCHitboxCheckbox = addCheckbox("Show NPC hitboxes", overlayPanel);
+		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
 		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay", overlayPanel);
 		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration", overlayPanel);
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
@@ -526,7 +535,7 @@ public class ConfigWindow {
 			streamingPanelTwitchUserTextField.setAlignmentY((float) 0.75);
 		
 		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login screen", streamingPanel);
-		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins", streamingPanel);
+		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
 		
 		/*
 		 * Keybind tab
@@ -560,6 +569,11 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle time until health regen", "None");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "Ctrl + T");
 		addKeybindSet(keybindPanel, "Toggle XP drops", "Ctrl + [");
+		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "Ctrl + 1");
+		addKeybindSet(keybindPanel, "Switch to world 2 at login screen", "Ctrl + 2");
+		addKeybindSet(keybindPanel, "Switch to world 3 at login screen", "Ctrl + 3");
+		addKeybindSet(keybindPanel, "Switch to world 4 at login screen", "Ctrl + 4");
+		addKeybindSet(keybindPanel, "Switch to world 5 at login screen", "Ctrl + 5");
 		
 		//this.synchronizeGuiValues();
 	}
@@ -752,9 +766,12 @@ public class ConfigWindow {
 	 */
 	public void saveSettings() {
 		//General options
-		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected(); //TODO
+		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected();
 		Settings.CUSTOM_CLIENT_SIZE_X = ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue();
 		Settings.CUSTOM_CLIENT_SIZE_Y = ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue();
+			//TODO: Resize client according to configuration preferences
+//			Game.getInstance().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
+//			Renderer.resize(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y);
 		Settings.LOAD_CHAT_HISTORY = generalPanelChatHistoryCheckbox.isSelected();
 		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
 		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();

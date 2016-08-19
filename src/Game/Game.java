@@ -21,24 +21,26 @@
 
 package Game;
 
-import Client.JConfig;
-import Client.Launcher;
-import Client.Settings;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.awt.Insets;
-import java.awt.Point;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+
+import Client.JConfig;
+import Client.Launcher;
+import Client.Logger;
+import Client.Settings;
 
 public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
 {
@@ -81,6 +83,12 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		{
 			setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
 		}
+		
+		// TODO: Size client according to configuration preferences
+//		if(Settings.CUSTOM_CLIENT_SIZE) {
+//			Game.getInstance().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
+//			getContentPane().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
+//		}
 
 		// Position window and make it visible
 		setLocationRelativeTo(null);

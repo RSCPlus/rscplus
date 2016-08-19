@@ -46,6 +46,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import Client.Logger;
 import Client.Settings;
 import Client.Util;
 
@@ -451,6 +452,7 @@ public class Renderer {
 				}
 			}
 
+			//TODO: Render the population overlays over the default client size instead of the windows size
 			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
 
 			int worldPopArray[];

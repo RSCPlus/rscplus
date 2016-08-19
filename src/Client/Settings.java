@@ -67,9 +67,9 @@ public class Settings
 			CUSTOM_CLIENT_SIZE = getBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE);
 			CUSTOM_CLIENT_SIZE_X = getInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X);
 			CUSTOM_CLIENT_SIZE_Y = getInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y);
-			LOAD_CHAT_HISTORY = getBoolean(props, "custom_client_size", LOAD_CHAT_HISTORY);
+			LOAD_CHAT_HISTORY = getBoolean(props, "load_chat_history", LOAD_CHAT_HISTORY);
 			COMBAT_MENU = getBoolean(props, "combat_menu", COMBAT_MENU);
-			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", SHOW_XPDROPS); //HERE
+			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", SHOW_XPDROPS);
 			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", SHOW_FATIGUEDROPS);
 			FATIGUE_FIGURES = getInt(props, "fatigue_figures", FATIGUE_FIGURES);
 			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", FATIGUE_ALERT);
@@ -180,7 +180,7 @@ public class Settings
 			props.setProperty("custom_client_size", "" + CUSTOM_CLIENT_SIZE);
 			props.setProperty("custom_client_size_x", "" + CUSTOM_CLIENT_SIZE_X);
 			props.setProperty("custom_client_size_y", "" + CUSTOM_CLIENT_SIZE_Y);
-			props.setProperty("custom_client_size", "" + LOAD_CHAT_HISTORY);
+			props.setProperty("load_chat_history", "" + LOAD_CHAT_HISTORY);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
@@ -479,6 +479,7 @@ public class Settings
 	 * Settings Variables
 	 * Note that the settings defaults are those values listed here, as the Load method now references these values as defaults.
 	 */
+	
 	//General options
 	public static boolean CUSTOM_CLIENT_SIZE = false;
 		public static int CUSTOM_CLIENT_SIZE_X = 512;
