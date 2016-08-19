@@ -871,3 +871,8 @@ slide.show {
   position: static;
   transition: 1s opacity;
 }
+
+p.footer {
+  font-size: 11px;
+  text-align: center;
+}
