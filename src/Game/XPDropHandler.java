@@ -58,7 +58,7 @@ public class XPDropHandler
 		{
 			if(!active)
 			{
-				if(Renderer.time > m_timer)
+				if(Renderer.time > m_timer && y > XPBar.xp_bar_y + 5)
 				{
 					m_timer = Renderer.time + 400;
 					active = true;
@@ -69,8 +69,14 @@ public class XPDropHandler
 				}
 			}
 
-			Renderer.drawShadowText(g, text, Renderer.width / 2, (int)y, Renderer.color_text, true);
+			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, Renderer.color_text, true);
 			y -= (float)Renderer.height / 12.0f * Renderer.delta_time;
+			
+			if (y <= XPBar.xp_bar_y + 5)
+			{
+				active = false;
+			}
+			
 		}
 
 		private String text;

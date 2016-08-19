@@ -40,6 +40,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -200,6 +202,8 @@ public class Renderer {
 				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
 				List<Point> item_text_loc = new ArrayList<Point>();
 
+				Collections.sort(Client.item_list, new ItemComparator()); //keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly changing places each frame
+				
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next();
 
@@ -228,15 +232,19 @@ public class Renderer {
 					if (Settings.SHOW_ITEMINFO) {
 						int x = item.x + (item.width / 2);
 						int y = item.y - 20;
-
-						for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
-							Point loc = locIterator.next();
-							if (loc.x == x && loc.y == y)
-								y -= 12;
+						int freq = Collections.frequency(Client.item_list, item);
+						
+						if (freq == 1 || !item.equals(last_item) || last_item == null) { //We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's the first time we've tried to for this itemid at that location by just using last_item. last_item == null necessary in case only one item on screen is being rendered. slight speed increase from freq == 1 if compiler can stop early in conditional.
+							for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
+								Point loc = locIterator.next();
+								if (loc.x == x && loc.y == y) {
+									y -= 12;
+								}
+							}
+							item_text_loc.add(new Point(x, y));
+							drawShadowText(g2, item.getName() + ((freq == 1) ? "" : " (" + freq + ")"), x, y, color_prayer, true); //TODO: it would be nice if for items like Coins or Runes, we showed how many of the item were on the ground instead of how many times you have to click to pick them all up. Currently will just show "Coins (2)" if there are two stacks of coins on the ground.
 						}
-
-						drawShadowText(g2, item.getName(), x, y, color_prayer, true);
-						item_text_loc.add(new Point(x, y));
+						last_item = item; //done with item this loop, can save it as last_item
 					}
 				}
 			}
@@ -251,8 +259,9 @@ public class Renderer {
 
 			Client.npc_list.clear();
 			Client.item_list.clear();
+			last_item = null;
 
-			if (!Client.show_sleeping)
+			if (!Client.show_sleeping && Settings.SHOW_INVCOUNT)
 				drawShadowText(g2, Client.inventory_count + "/" + Client.max_inventory, width - 19, 17, color_text,
 						true);
 
@@ -287,39 +296,44 @@ public class Renderer {
 
 			// Draw HP, Prayer, Fatigue overlay
 			int x = 24;
-			int y = 138;
-			if (width < 800) {
-				if (!Client.isInterfaceOpen() && Client.isInCombat()) {
-					setAlpha(g2, alphaHP);
-					drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
-							+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
-					y += 16;
-					setAlpha(g2, alphaPrayer);
-					drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/"
-							+ Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false);
-					y += 16;
-					setAlpha(g2, alphaFatigue);
-					drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
-					y += 16;
-					setAlpha(g2, 1.0f);
-				}
-			} else {
-				int barSize = 4 + image_bar_frame.getWidth(null);
-				int x2 = width - (4 + barSize);
-				int y2 = height - image_bar_frame.getHeight(null);
-
-				drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
-				x2 -= barSize;
-
-				drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer,
-						Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
-				x2 -= barSize;
-
-				drawBar(g2, image_bar_frame, x2, y2, colorHP, alphaHP, Client.current_level[Client.SKILL_HP],
-						Client.base_level[Client.SKILL_HP]);
-				x2 -= barSize;
+			int y = 32;
+			
+			if (Client.isInCombat() || Settings.COMBAT_MENU) { //combat menu is showing, so move everything down
+				y = 138;
 			}
-
+			if (Settings.SHOW_STATUSDISPLAY) {
+				if (width < 800) {
+					if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
+						setAlpha(g2, alphaHP);
+						drawShadowText(g2, "Hits: " + Client.current_level[Client.SKILL_HP] + "/"
+								+ Client.base_level[Client.SKILL_HP], x, y, colorHP, false);
+						y += 16;
+						setAlpha(g2, alphaPrayer);
+						drawShadowText(g2, "Prayer: " + Client.current_level[Client.SKILL_PRAYER] + "/"
+								+ Client.base_level[Client.SKILL_PRAYER], x, y, colorPrayer, false);
+						y += 16;
+						setAlpha(g2, alphaFatigue);
+						drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
+						y += 16;
+						setAlpha(g2, 1.0f);
+					}
+				} else {
+					int barSize = 4 + image_bar_frame.getWidth(null);
+					int x2 = width - (4 + barSize);
+					int y2 = height - image_bar_frame.getHeight(null);
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
+					x2 -= barSize;
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer,
+							Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
+					x2 -= barSize;
+	
+					drawBar(g2, image_bar_frame, x2, y2, colorHP, alphaHP, Client.current_level[Client.SKILL_HP],
+							Client.base_level[Client.SKILL_HP]);
+					x2 -= barSize;
+				}
+			}
 			// Draw under combat style info
 			if (!Client.isInterfaceOpen()) {
 				if (time <= Client.magic_timer) {
@@ -411,7 +425,7 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "In combat: " + Client.isInCombat(), x, y, color_text, false);
+				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
 				y += 16;
 			}
 
@@ -426,7 +440,7 @@ public class Renderer {
 			}
 		} else if (Client.state == Client.STATE_LOGIN) {
 			if (Settings.DEBUG)
-				drawShadowText(g2, "DEBUG MODE", width / 2, 8, color_text, true);
+				drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
 
 			// Draw world list
 			drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
@@ -598,4 +612,22 @@ public class Renderer {
 	public static Image image_bar_frame;
 	public static Image image_cursor;
 	private static BufferedImage game_image;
+	
+	private static Item last_item;
+}
+
+class ItemComparator implements Comparator<Item> {
+	public int compare(Item a, Item b) {
+		int location_offset; //we would like to group items that are on the same tile as well, not just having the same name, so that we can use "last_item" in a useful way
+		if (a.x == b.x && a.y == b.y) {
+			location_offset = 0;
+		} else {
+			if (a.x < b.x) {
+				location_offset = -5;
+			} else {
+				location_offset = 5;
+			}
+		}
+		return (a.getName().compareToIgnoreCase(b.getName()) * -1) + location_offset; //this is reverse alphabetical order b/c we display them in reverse order (y-=12 ea item). compareToIgnore case is either 10, 0, or -10, so location_offset won't override it unless it's 0 (equal).
+	}
 }

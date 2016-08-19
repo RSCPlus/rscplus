@@ -42,6 +42,9 @@
 - *[Command Key]* + r - Toggle roof hiding
 - *[Command Key]* + c - Toggle combat experience menu
 - *[Command Key]* + f - Toggle fatigue alert at 100%
+- *[Command Key]* + e - Toggle inventory count overlay
+- *[Command Key]* + u - Toggle Hits/Prayer/Fatigue display
+- *[Command Key]* + g - Toggle Friend info
 - *[Command Key]* + d - Toggle debug mode
 - *[Command Key]* + t - Toggle twitch chat hidden/shown
 - *[Command Key]* + i - Toggle Item info
@@ -51,9 +54,12 @@
 - *[Command Key]* + [ - Toggle XP drops
 - *[Command Key]* + ] - Toggle fatigue drops
 - *[Command Key]* + l - Logout
+- *[Command Key]* + z - Toggle colored chat text in terminal
 - *[Command Key]* + 1-5 - World switch on login screen
 
 ## Chat Commands
+
+*::help* - displays all keyboard commands and chat commands in game
 
 *::[skillname]* - Tells skill level and xp in chat
 
@@ -66,6 +72,8 @@
 *::screenshot* - Take screenshot (Saved in the screenshots directory)
 
 *::toggleroofs* - Toggle roof hiding
+
+*::togglecolor* - Toggle colored text in terminal
 
 *::togglecombat* - Toggle combat experience menu
 
@@ -92,6 +100,16 @@
 *::fov* - Change FoV from 8-9
 
 *::logout* - Logout
+
+*::togglefriendinfo* - Toggle Player info for Friends only
+
+*::toggleinvcount* - Toggle the overlay of current inventory used
+
+*::togglestatusdisplay* - Toggle Hits/Prayer/Fatigue display
+
+*::cmb* - WARNING! Because of color codes, this command will breaks the character limit and *may be bannable*. Don't send this command across PM to RS2/RS3 because they'll see a bunch of RS1 color codes and you may get banned if you're reported. Mimic's osbuddy's !cmb; outputs combat level (with decimal), Att, Str, Def, Hits, Ranged, Magic, and Prayer levels.
+
+*::cmbnocolor* - Mimic's osbuddy's !cmb; doesn't use color codes and is within character limits
 
 ## Config Options
 

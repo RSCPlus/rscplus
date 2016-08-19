@@ -569,6 +569,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle time until health regen", "None");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "Ctrl + T");
 		addKeybindSet(keybindPanel, "Toggle XP drops", "Ctrl + [");
+		//TODO: Add a horizontal line here?
 		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "Ctrl + 1");
 		addKeybindSet(keybindPanel, "Switch to world 2 at login screen", "Ctrl + 2");
 		addKeybindSet(keybindPanel, "Switch to world 3 at login screen", "Ctrl + 3");

@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
+import java.util.Collections;
 
 import Client.Logger;
 import Client.Settings;
@@ -126,6 +127,26 @@ public class Item
 	public String getName()
 	{
 		return item_name[id];
+	}
+	
+	@Override
+	public boolean equals(Object b) //need to override this for Collections.frequency over in Renderer.java -> SHOW_ITEMINFO to count duplicate-looking items on ground correctly. without this, I believe it checks if location in memory is the same for both objects.
+	{
+		if (b != null) {
+			if (b.getClass() == this.getClass()) {
+				Item bItem = (Item) b;
+				return this.x == bItem.x && this.y == bItem.y && this.id == bItem.id;
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.x + this.y + this.width + this.height + this.id; //this is an acceptable hash since it's fine if two unequal objects have the same hash according to docs
 	}
 
 	public int x;

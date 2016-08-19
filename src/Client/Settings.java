@@ -305,6 +305,36 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleShowFriendInfo()
+	{
+		SHOW_FRIENDINFO = !SHOW_FRIENDINFO;
+		if(Settings.SHOW_FRIENDINFO)
+			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleInvCount()
+	{
+		SHOW_INVCOUNT = !SHOW_INVCOUNT;
+		if(Settings.SHOW_INVCOUNT)
+			Client.displayMessage("@cya@Inventory count is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Inventory count is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+	
+	public static void toggleStatusDisplay()
+	{
+		SHOW_STATUSDISPLAY= !SHOW_STATUSDISPLAY;
+		if(Settings.SHOW_STATUSDISPLAY)
+			Client.displayMessage("@cya@Status display is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Status display is now hidden", Client.CHAT_NONE);
+		Save();
+	}
+
 	public static void toggleShowHitbox()
 	{
 		SHOW_HITBOX = !SHOW_HITBOX;
@@ -335,16 +365,6 @@ public class Settings
 		Save();
 	}
 	
-	public static void toggleShowFriendInfo()
-	{
-		SHOW_FRIENDINFO = !SHOW_FRIENDINFO;
-		if(Settings.SHOW_FRIENDINFO)
-			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
-		else
-			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
-		Save();
-	}
-
 	public static void toggleShowPlayerInfo()
 	{
 		SHOW_PLAYERINFO = !SHOW_PLAYERINFO;
@@ -415,6 +435,16 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleColorTerminal()
+	{
+		COLORIZE = !COLORIZE;
+		if(COLORIZE)
+			Client.displayMessage("@cya@Colors are now shown in terminal", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Colors are now ignored in terminal", Client.CHAT_NONE);
+		Save();
+	}
+	
 	private static String getString(Properties props, String key, String def)
 	{
 		String value = props.getProperty(key);
@@ -527,7 +557,6 @@ public class Settings
 	public static String TWITCH_USERNAME = "";
 	public static boolean SHOW_LOGINDETAILS = false; //TODO: Consider refactoring for clarity. This determines if IP/DNS details are shown at login screen
 	public static boolean SAVE_LOGININFO = true;
-	
 	
 	//Miscellaneous settings (No GUI)
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
