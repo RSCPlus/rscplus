@@ -605,7 +605,7 @@ strong {
 }
 
 .wrapper {
-  max-width: 650px;
+  max-width: 800px;
   margin: 0 auto;
   position: relative;
   padding: 0 20px;
@@ -709,7 +709,7 @@ dt {
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
 }
 #header nav {
-  max-width: 650px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 0 10px;
   background: blue;
@@ -770,6 +770,10 @@ dt {
   float: left;
   margin-left: 0px;
 }
+#header nav li.issue {
+  float: left;
+  margin-left: 6px;
+}
 #header nav li.downloads {
   float: right;
   margin-left: 6px;
@@ -777,11 +781,11 @@ dt {
 #header nav li.title {
   float: right;
   margin-right: 10px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 section {
-  max-width: 650px;
+  max-width: 800px;
   padding: 30px 0px 50px 0px;
   margin: 20px 0;
   margin-top: 70px;
@@ -848,4 +852,22 @@ section #title .credits.right {
   nav {
     display: none;
   }
+}
+
+.slideshow {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+slide {
+  opacity: 0;
+  position: absolute;
+  transition: 1s opacity;
+}
+
+slide.show {
+  opacity: 1;
+  position: static;
+  transition: 1s opacity;
 }
