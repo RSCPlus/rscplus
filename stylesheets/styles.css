@@ -861,15 +861,11 @@ section #title .credits.right {
 }
 
 slide {
-  opacity: 0;
   position: absolute;
-  transition: 1s opacity;
 }
 
 slide.show {
-  opacity: 1;
   position: static;
-  transition: 1s opacity;
 }
 
 #footer {

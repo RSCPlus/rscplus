@@ -1,9 +1,6 @@
 var slide_index = 0;
 var slides = $("slide.show");
 
-slides.removeClass("show");
-slides.eq(slide_index).addClass("show");
-
 function nextSlide()
 {
 	var index = Math.abs(slide_index % slides.length);
@@ -14,4 +11,5 @@ function nextSlide()
 	slide_index++;
 }
 
+nextSlide();
 setInterval("nextSlide();", 5000);
