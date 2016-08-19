@@ -793,7 +793,7 @@ section {
 section #title {
   border: 0;
   outline: none;
-  margin: 0 0 50px 0;
+  margin: 0 0 30px 0;
   padding: 0 0 5px 0;
 }
 section #title h1 {
@@ -854,8 +854,8 @@ section #title .credits.right {
   }
 }
 
-.slideshow {
-  position: relative;
+#slideshow {
+  position: absolute;
   display: block;
   overflow: hidden;
 }
@@ -872,7 +872,22 @@ slide.show {
   transition: 1s opacity;
 }
 
-p.footer {
+#footer {
+  z-index: 100;
+  left: 0;
+  bottom: 0px;
+  height: 40px;
+  width: 100%;
+  position: fixed;
+  background: url(../images/nav-bg.gif) #353535;
+  border-top: 4px solid #434343;
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
+  -o-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+#footer p.info {
   font-size: 11px;
   text-align: center;
 }
