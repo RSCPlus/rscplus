@@ -884,6 +884,7 @@ slide.show {
 }
 
 #footer p.info {
+  font-style: italic;
   font-size: 11px;
   text-align: center;
 }
