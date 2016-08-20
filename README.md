@@ -107,7 +107,7 @@
 
 *::togglestatusdisplay* - Toggle Hits/Prayer/Fatigue display
 
-*::cmb* - WARNING! Because of color codes, this command will breaks the character limit and *may be bannable*. Don't send this command across PM to RS2/RS3 because they'll see a bunch of RS1 color codes and you may get banned if you're reported. Mimic's osbuddy's !cmb; outputs combat level (with decimal), Att, Str, Def, Hits, Ranged, Magic, and Prayer levels.
+*::cmb* - WARNING! Because of color codes, this command will break the character limit and *may be bannable*. Don't send this command across PM to RS2/RS3 because they'll see a bunch of RS1 color codes and you may get banned if you're reported. Mimic's osbuddy's !cmb; outputs combat level (with decimal), Att, Str, Def, Hits, Ranged, Magic, and Prayer levels.
 
 *::cmbnocolor* - Mimic's osbuddy's !cmb; doesn't use color codes and is within character limits
 
