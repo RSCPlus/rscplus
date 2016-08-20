@@ -81,6 +81,7 @@ public class Settings
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
 			DISASSEMBLE = getBoolean(props, "disassemble", false);
+			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
 			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
 			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", true);
@@ -133,7 +134,7 @@ public class Settings
 
 		if(DISASSEMBLE)
 		{
-			Dir.DUMP = Dir.JAR + "/dump";
+			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY;
 			Util.MakeDirectory(Dir.DUMP);
 		}
 	}
@@ -160,6 +161,7 @@ public class Settings
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("disassemble", "" + DISASSEMBLE);
+			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
 			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
@@ -469,6 +471,7 @@ public class Settings
 	public static boolean SOFTWARE_CURSOR = false;
 	public static boolean DEBUG = false;
 	public static boolean DISASSEMBLE = false;
+	public static String DISASSEMBLE_DIRECTORY = "dump";
 	public static boolean TWITCH_HIDE = false;
 	public static String TWITCH_USERNAME = "";
 	public static String TWITCH_OAUTH = "";
