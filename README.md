@@ -9,9 +9,7 @@
 ## Contributing
 
 - Fork the project
-- Create a branch in your fork
 - Work on it
-- Make sure the branch is up-to-date with master
 - Pull request the branch
 
 *I will not accept any game automation features (macroing, etc.)*
