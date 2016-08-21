@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import Game.Camera;
 import Game.Client;
 import Game.Game;
 
@@ -196,6 +197,7 @@ public class Settings
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 				checkSoftwareCursor();
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
+				Camera.setDistance(Settings.VIEW_DISTANCE);
 
 			//Overlays
 			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
@@ -542,7 +544,7 @@ public class Settings
 	public static int VIEW_DISTANCE = 10000;
 	
 	//Overlays options
-	public static boolean SHOW_STATUSDISPLAY = true; //TODO: PLEASE refactor to a name that isn't uselessly vague. This is apparently the HP/Prayer/Fatique display.
+	public static boolean SHOW_STATUSDISPLAY = true; //TODO: PLEASE refactor to a name that isn't uselessly vague. This is apparently the HP/Prayer/Fatigue display.
 	public static boolean SHOW_INVCOUNT = true;
 	public static boolean SHOW_ITEMINFO = false; //TODO: Refactor to add the word 'overlay' for clarity
 	public static boolean SHOW_PLAYERINFO = false; //TODO: See above

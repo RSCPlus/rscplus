@@ -377,9 +377,8 @@ public class ConfigWindow {
 		generalPanelColoredTextCheckbox = addCheckbox("Color coded text", generalPanel);
 		generalPanelIncreaseFoVCheckbox = addCheckbox("Increase FoV", generalPanel);
 		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor", generalPanel);
-		//TODO: Make the system cursor hidden when enabled before restart, vice versa
         
-		JLabel generalPanelViewDistanceLabel = new JLabel("View distance (Requires restart)");
+		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
 		generalPanel.add(generalPanelViewDistanceLabel);
 		generalPanelViewDistanceLabel.setAlignmentY((float) 0.9);
 		
@@ -579,7 +578,6 @@ public class ConfigWindow {
 		//this.synchronizeGuiValues();
 	}
 	
-	//TODO: Event registration.
 	/**
 	 * Adds a new label and button to the keybinds list. 
 	 * @param labelText - The text of the label.
