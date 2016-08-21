@@ -21,6 +21,9 @@
 
 package Client;
 
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -191,6 +194,7 @@ public class Settings
 			props.setProperty("colorize", "" + COLORIZE);
 			props.setProperty("increase_fov", "" + INCREASE_FOV);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
+				checkSoftwareCursor();
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
 
 			//Overlays
@@ -443,6 +447,16 @@ public class Settings
 		else
 			Client.displayMessage("@cya@Colors are now ignored in terminal", Client.CHAT_NONE);
 		Save();
+	}
+	
+	public static void checkSoftwareCursor() {
+		if(Settings.SOFTWARE_CURSOR)
+		{
+			Game.getInstance().setCursor(Game.getInstance().getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
+		} else {
+			Game.getInstance().setCursor(Cursor.getDefaultCursor());
+		}
+		
 	}
 	
 	private static String getString(Properties props, String key, String def)

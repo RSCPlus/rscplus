@@ -376,7 +376,7 @@ public class ConfigWindow {
 		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
 		generalPanelColoredTextCheckbox = addCheckbox("Color coded text", generalPanel);
 		generalPanelIncreaseFoVCheckbox = addCheckbox("Increase FoV", generalPanel);
-		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor (Requires restart)", generalPanel);
+		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor", generalPanel);
 		//TODO: Make the system cursor hidden when enabled before restart, vice versa
         
 		JLabel generalPanelViewDistanceLabel = new JLabel("View distance (Requires restart)");
