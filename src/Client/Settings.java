@@ -740,6 +740,73 @@ public class Settings
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
 	
-
+	public static void restoreDefaultGeneral() {
+		CUSTOM_CLIENT_SIZE = false;
+		CUSTOM_CLIENT_SIZE_X = 512;
+		CUSTOM_CLIENT_SIZE_Y = 346;
+		LOAD_CHAT_HISTORY = false;
+		COMBAT_MENU = false;
+		SHOW_XPDROPS = true;
+		SHOW_FATIGUEDROPS = true;
+		FATIGUE_FIGURES = 2;
+		FATIGUE_ALERT = true;
+		NAME_PATCH_TYPE = 3;
+		HIDE_ROOFS = false;
+		COLORIZE = true;
+		INCREASE_FOV = true;
+		SOFTWARE_CURSOR = false;
+		VIEW_DISTANCE = 10000;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultOverlays() {
+		SHOW_STATUSDISPLAY = true;
+		SHOW_INVCOUNT = true;
+		SHOW_ITEMINFO = false;
+		SHOW_PLAYERINFO = false;
+		SHOW_FRIENDINFO = false;
+		SHOW_NPCINFO = false;
+		SHOW_HITBOX = false;
+		SHOW_FOOD_HEAL_OVERLAY = false;
+		SHOW_TIME_UNTIL_HP_REGEN = false;
+		DEBUG = false;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultNotifications() {
+		PM_NOTIFICATIONS = false; 
+		TRADE_NOTIFICATIONS = false;
+		DUEL_NOTIFICATIONS = false;
+		LOGOUT_NOTIFICATIONS = false;
+		LOW_HP_NOTIFICATIONS = false;
+		LOW_HP_NOTIF_VALUE = 25;
+		NOTIFICATION_SOUNDS = false;
+		TRAY_NOTIFS = false;
+		TRAY_NOTIFS_ALWAYS = false;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultPrivacy() {
+		TWITCH_HIDE = false;
+		TWITCH_CHANNEL = "";
+		TWITCH_OAUTH = "";
+		TWITCH_USERNAME = "";
+		SHOW_LOGINDETAILS = false;
+		SAVE_LOGININFO = true;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultKeybinds() {
+		try {
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				KeybindSet defaultKBS = KeyboardHandler.defaultKeybindSetList.get(kbs.commandName);
+				kbs.key = defaultKBS.key;
+				kbs.modifier = defaultKBS.modifier;
+			}
+		} catch (NullPointerException npe) {
+			Logger.Error("Null Pointer while attempting to restore default keybind values!");
+		}
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
 
 }

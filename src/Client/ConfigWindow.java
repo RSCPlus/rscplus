@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -49,7 +48,7 @@ import Game.KeyboardHandler;
  * <b>To add a new configuration option,</b> <br>
  * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI <br>
  * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the initialize method. See existing code for examples.<br>
- * 2.) Add an appropriate variable to the Settings.java class.<br>
+ * 2.) Add an appropriate variable to the Settings.java class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
  * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.<br>
  * 4.) Add an entry in the saveSettings method in ConfigWindow referencing the variable, as per the already-existing examples.<br>
  * 5.) Add an entry in the Settings class save method to save the option to file.<br>
@@ -73,7 +72,7 @@ public class ConfigWindow {
 	RebindListener rebindListener = new RebindListener();
 	
 	ButtonFocusListener focusListener = new ButtonFocusListener();
-	
+	JTabbedPane tabbedPane;
 	
 	/*
 	 * JComponent variables which hold configuration data
@@ -167,7 +166,7 @@ public class ConfigWindow {
 		
 		//Container declarations
 		/** The tabbed pane holding the five configuration tabs*/
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		/**The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of the window*/
 		JPanel navigationPanel = new JPanel();
 
@@ -250,6 +249,29 @@ public class ConfigWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//TODO: Restore defaults
+				switch(tabbedPane.getSelectedIndex()) {
+				case 0:
+					Settings.restoreDefaultGeneral();
+					break;
+				case 1:
+					Settings.restoreDefaultOverlays();
+					break;
+					
+				case 2:
+					Settings.restoreDefaultNotifications();
+					break;
+					
+				case 3:
+					Settings.restoreDefaultPrivacy();
+					break;
+					
+				case 4:
+					Settings.restoreDefaultKeybinds();
+					break;
+					
+				default:
+					Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
+				}
 				
 			}
 		});
@@ -608,10 +630,14 @@ public class ConfigWindow {
 		JButton b = addKeybindButton(panel, buttonText);
 		KeybindSet kbs = new KeybindSet(b, commandID, defaultModifier, defaultKeyValue);
 		KeyboardHandler.keybindSetList.add(kbs);
+		setKeybindButtonText(kbs); //Set the text of the keybind button now that it has been intialized properly
 		b.addActionListener(this.clickListener);
 		b.addKeyListener(this.rebindListener);
 		b.addFocusListener(focusListener);
 		b.setFocusable(false);
+		
+		//Default KeybindSet
+		KeyboardHandler.defaultKeybindSetList.put(commandID, new KeybindSet(null, commandID, defaultModifier, defaultKeyValue));
 	}
 	
 	/**
@@ -929,7 +955,7 @@ class RebindListener implements KeyListener {
 					kbs.modifier = KeyModifier.NONE;
 					kbs.key = -1;
 					ConfigWindow.setKeybindButtonText(kbs);
-					KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
+					kbs.button.setFocusable(false);
 				}
 			}
 			return;
@@ -967,7 +993,6 @@ class RebindListener implements KeyListener {
 				kbs.modifier = modifier;
 				kbs.key = key;
 				ConfigWindow.setKeybindButtonText(kbs);
-				KeyboardFocusManager.getCurrentKeyboardFocusManager().clearFocusOwner();
 				kbs.button.setFocusable(false);
 			}
 		}

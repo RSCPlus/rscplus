@@ -24,6 +24,7 @@ package Game;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import Client.KeybindSet;
 import Client.KeybindSet.KeyModifier;
@@ -166,4 +167,6 @@ public class KeyboardHandler implements KeyListener
 	
 	//ArrayList containing all registered KeybindSet values
 	public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
+	//Hashmap containing all default KeybindSet values. This is used in the ConfigWindow restore default keybinds method.
+	public static HashMap<String, KeybindSet> defaultKeybindSetList = new HashMap<String, KeybindSet>();
 }
