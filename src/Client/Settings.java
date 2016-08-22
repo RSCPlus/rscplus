@@ -27,8 +27,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import Client.KeybindSet.KeyModifier;
 import Game.Client;
 import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
 
 public class Settings
 {
@@ -159,6 +162,14 @@ public class Settings
 				FATIGUE_FIGURES = 1;
 			else if(FATIGUE_FIGURES > 7)
 				FATIGUE_FIGURES = 7;
+			
+			
+			//Keybinds
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				String keybindCombo = getString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+				kbs.modifier = getKeyModifierFromString(keybindCombo);
+				kbs.key = Integer.parseInt(keybindCombo.substring(2));
+			}
 		}
 		catch(Exception e) {}
 
@@ -168,6 +179,22 @@ public class Settings
 			Util.MakeDirectory(Dir.DUMP);
 		}
 		
+	}
+	
+	private static KeyModifier getKeyModifierFromString(String savedKeybindSet) {
+		switch(Integer.parseInt(savedKeybindSet.substring(0,1))) {
+		case 0:
+			return KeyModifier.NONE;
+		case 1:
+			return KeyModifier.CTRL;
+		case 2:
+			return KeyModifier.ALT;
+		case 3:
+			return KeyModifier.SHIFT;
+		default:
+			Logger.Error("Unrecognized KeyModifier code");
+			return KeyModifier.NONE;
+		}
 	}
 
 	public static void Save()
@@ -229,6 +256,12 @@ public class Settings
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
 			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
 
+			//Keybinds
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				
+				props.setProperty("key_" + kbs.commandName, "" + getIntForKeyModifier(kbs) + "*" + kbs.key);
+			}
+			
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
 			out.close();
@@ -236,6 +269,22 @@ public class Settings
 		catch(Exception e)
 		{
 			Logger.Error("Unable to save settings");
+		}
+	}
+	
+	private static int getIntForKeyModifier(KeybindSet kbs) {
+		switch (kbs.modifier) {
+		case NONE:
+			return 0;
+		case CTRL:
+			return 1;
+		case ALT:
+			return 2;
+		case SHIFT:
+			return 3;
+		default: 
+			Logger.Error("Tried to save a keybind with an invalid modifier!");
+			return 0;
 		}
 	}
 
@@ -445,12 +494,43 @@ public class Settings
 		Save();
 	}
 	
+	private static void toggleFoodOverlay() {
+		//TODO: this toggles the variable but does nothing yet
+		SHOW_FOOD_HEAL_OVERLAY = !SHOW_FOOD_HEAL_OVERLAY;
+		if(SHOW_FOOD_HEAL_OVERLAY)
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		Save();
+	}
+	
+	private static void toggleSaveLoginInfo() {
+		//TODO: Don't believe this does anything yet.
+		SAVE_LOGININFO = !SAVE_LOGININFO;
+		if(SAVE_LOGININFO)
+			Client.displayMessage("@cya@Saving login info enabled.", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Saving login info disabled.", Client.CHAT_NONE);
+		Save();
+	}
+	
+	private static void toggleHealthRegenTimer() {
+		//TODO: this toggles the variable but does nothing yet
+		SHOW_TIME_UNTIL_HP_REGEN = !SHOW_TIME_UNTIL_HP_REGEN;
+		if(SHOW_TIME_UNTIL_HP_REGEN)
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		Save();
+	}
+	
 	private static String getString(Properties props, String key, String def)
 	{
 		String value = props.getProperty(key);
-		if(value == null)
-			return def;
-
+		if(value == null){
+				return def;
+			}
+		
 		return value;
 	}
 
@@ -505,6 +585,103 @@ public class Settings
 		"5"
 	};
 	
+	public static void processKeybindCommand(String commandName) {
+		switch (commandName) { 
+		case "logout":
+			if(Client.state != Client.STATE_LOGIN)
+				Client.logout();
+			break;
+		case "screenshot":
+			Renderer.takeScreenshot();
+			break;
+		case "toggle_colorize":
+			Settings.toggleColorTerminal();
+			break;
+		case "toggle_combat_xp_menu":
+			Settings.toggleCombatMenu();
+			break;
+		case "toggle_debug":
+			Settings.toggleDebug();
+			break;
+		case "toggle_fatigue_alert":
+			Settings.toggleFatigueAlert();
+			break;
+		case "toggle_fatigue_drops":
+			Settings.toggleFatigueDrops();
+			break;
+		case "toggle_food_heal_overlay":
+			Settings.toggleFoodOverlay();
+			break;
+		case "toggle_friend_name_overlay":
+			Settings.toggleShowFriendInfo();
+			break;
+		case "toggle_hpprayerfatigue_display":
+			Settings.toggleStatusDisplay();
+			break;
+		case "toggle_inven_count_overlay":
+			Settings.toggleInvCount();
+			break;
+		case "toggle_ipdns":
+			Settings.toggleShowLoginDetails();
+			break;
+		case "toggle_item_overlay":
+			Settings.toggleShowItemInfo();
+			break;
+		case "toggle_hitboxes":
+			Settings.toggleShowHitbox();
+			break;
+		case "toggle_npc_name_overlay":
+			Settings.toggleShowNPCInfo();
+			break;
+		case "toggle_player_name_overlay":
+			Settings.toggleShowPlayerInfo();
+			break;
+		case "toggle_roof_hiding":
+			Settings.toggleHideRoofs();
+			break;
+		case "toggle_save_login_info":
+			Settings.toggleSaveLoginInfo();
+			break;
+		case "toggle_health_regen_timer":
+			Settings.toggleHealthRegenTimer();
+			break;
+		case "toggle_twitch_chat":
+			Settings.toggleTwitchHide();
+			break;
+		case "toggle_xp_drops":
+			Settings.toggleXpDrops();
+			break;
+		case "show_config_window":
+			Launcher.getConfigWindow().showConfigWindow();
+			break;
+		case "world_1":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(1);
+			break;
+		case "world_2":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(2);
+			break;
+		case "world_3":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(3);
+			break;
+		case "world_4":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(4);
+			break;
+		case "world_5":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(5);
+			break;
+		
+		default:
+			Logger.Error("An unrecognized command was sent to processCommand: " + commandName);
+			break;
+		}
+	}
+	
+
 	/*
 	 * Settings Variables
 	 * Note that the settings defaults are those values listed here, as the Load method now references these values as defaults.
@@ -562,5 +739,7 @@ public class Settings
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
+	
+
 
 }

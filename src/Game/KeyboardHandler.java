@@ -23,8 +23,10 @@ package Game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
-import Client.Launcher;
+import Client.KeybindSet;
+import Client.KeybindSet.KeyModifier;
 import Client.Settings;
 
 public class KeyboardHandler implements KeyListener
@@ -34,89 +36,40 @@ public class KeyboardHandler implements KeyListener
 	{
 		if(listener_key == null)
 			return;
-
-		if(e.isControlDown() || e.isAltDown())
-		{
-			command_key = e.getKeyCode();
-
-			if(command_key == KeyEvent.VK_S)
-				Renderer.takeScreenshot();
-
-			if(command_key == KeyEvent.VK_R)
-				Settings.toggleHideRoofs();
-
-			if(command_key == KeyEvent.VK_H)
-				Settings.toggleShowHitbox();
-
-			if(command_key == KeyEvent.VK_C)
-				Settings.toggleCombatMenu();
-
-			if(command_key == KeyEvent.VK_D)
-				Settings.toggleDebug();
-
-			if(command_key == KeyEvent.VK_F)
-				Settings.toggleFatigueAlert();
-			
-			if(command_key == KeyEvent.VK_G)
-				Settings.toggleShowFriendInfo();
-
-			if(command_key == KeyEvent.VK_T)
-				Settings.toggleTwitchHide();
-
-			if(command_key == KeyEvent.VK_I)
-				Settings.toggleShowItemInfo();
-
-			if(command_key == KeyEvent.VK_N)
-				Settings.toggleShowNPCInfo();
-
-			if(command_key == KeyEvent.VK_P)
-				Settings.toggleShowPlayerInfo();
-			
-			if(command_key == KeyEvent.VK_U)
-				Settings.toggleStatusDisplay();
-			
-			if(command_key == KeyEvent.VK_E)
-				Settings.toggleInvCount();
-			
-			if(command_key == KeyEvent.VK_Z)
-				Settings.toggleColorTerminal();
-			
-			if(command_key == KeyEvent.VK_OPEN_BRACKET)
-				Settings.toggleXpDrops();
-			
-			if(command_key == KeyEvent.VK_CLOSE_BRACKET)
-				Settings.toggleFatigueDrops();
-
-			if(command_key == KeyEvent.VK_O)
-				Launcher.getConfigWindow().showConfigWindow();
-			
-			if(Client.state == Client.STATE_LOGIN)
-			{
-				int worldSwitch = 0;
-				if(e.getKeyCode() == KeyEvent.VK_1)
-					worldSwitch = 1;
-				else if(e.getKeyCode() == KeyEvent.VK_2)
-					worldSwitch = 2;
-				else if(e.getKeyCode() == KeyEvent.VK_3)
-					worldSwitch = 3;
-				else if(e.getKeyCode() == KeyEvent.VK_4)
-					worldSwitch = 4;
-				else if(e.getKeyCode() == KeyEvent.VK_5)
-					worldSwitch = 5;
-
-				if(worldSwitch != 0)
-					Game.getInstance().getJConfig().changeWorld(worldSwitch);
+		
+		if (e.isControlDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.CTRL && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
 			}
-
-			if(Client.state != Client.STATE_LOGIN)
-			{
-				if(e.getKeyCode() == KeyEvent.VK_L)
-					Client.logout();
+			
+		} else if (e.isShiftDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.SHIFT && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
 			}
-
-			e.consume();
+			
+		} else if (e.isAltDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.ALT && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
+			}
+			
+		} else {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.NONE && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
+			}
 		}
-
+		
 		if(Client.show_questionmenu && !e.isConsumed())
 		{
 			if(e.getKeyCode() == KeyEvent.VK_1 || e.getKeyCode() == KeyEvent.VK_NUMPAD1)
@@ -210,4 +163,7 @@ public class KeyboardHandler implements KeyListener
 
 	public static int dialogue_option = -1;
 	public static KeyListener listener_key;
+	
+	//ArrayList containing all registered KeybindSet values
+	public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
 }

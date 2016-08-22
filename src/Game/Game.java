@@ -39,7 +39,6 @@ import javax.swing.JFrame;
 
 import Client.JConfig;
 import Client.Launcher;
-import Client.Logger;
 import Client.Settings;
 
 public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
