@@ -9,6 +9,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -34,34 +38,41 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import Game.Game;
-import Game.Renderer;
+import Client.KeybindSet.KeyModifier;
+import Game.KeyboardHandler;
 
 /**
- * TODO: Update this with modifications in the future if necessary
  * GUI designed for the RSCPlus client that manages 
  * configuration options and keybind values from within an interface.<br>
- * 
- * To add a new configuration option, 
- * 1.) Declare an instance variable to hold the gui element (eg checkbox) 
- * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the initialize method. See existing code for examples.
- * 3.) Add an appropriate variable to the Settings.java class
- * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.
- * 4.) Add an entry in the saveSettings method in ConfigWindow referencing the variable, as per the already-existing examples.
- * 5.) Add an entry in the Settings class save method to save the option to file.
- * 6.) Add an entry in the Settings class load method to load the option from file.
- *
- * To add a new keybind,
- * TODO
+ * <br>
+ * <b>To add a new configuration option,</b> <br>
+ * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI <br>
+ * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the initialize method. See existing code for examples.<br>
+ * 2.) Add an appropriate variable to the Settings.java class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
+ * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.<br>
+ * 4.) Add an entry in the saveSettings method in ConfigWindow referencing the variable, as per the already-existing examples.<br>
+ * 5.) Add an entry in the Settings class save method to save the option to file.<br>
+ * 6.) Add an entry in the Settings class load method to load the option from file.<br>
+ * <br>
+ * <b>To add a new keybind,</b><br>
+ * 1.) Add a call in the initialize method to addKeybind with appropriate parameters.<br>
+ * 2.) Add an entry to the command switch statement in Settings to process the command when its keybind is pressed.<br>
+ * 3.) Optional, recommended: Separate the command from its functionality by making a toggleBlah method and calling it from the switch statement.<br>
  */
 
-//TODO: Check that all configurations entered through the GUI is properly sanitized and saved/loaded
+//TODO: Check that all configurations entered through the GUI are properly sanitized and saved/loaded
 
 public class ConfigWindow {
 
 	private JFrame frame;
 	
 	private JLabel generalPanelNamePatchModeDesc;
+	
+	ClickListener clickListener = new ClickListener();
+	RebindListener rebindListener = new RebindListener();
+	
+	ButtonFocusListener focusListener = new ButtonFocusListener();
+	JTabbedPane tabbedPane;
 	
 	/*
 	 * JComponent variables which hold configuration data
@@ -155,7 +166,7 @@ public class ConfigWindow {
 		
 		//Container declarations
 		/** The tabbed pane holding the five configuration tabs*/
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		/**The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of the window*/
 		JPanel navigationPanel = new JPanel();
 
@@ -237,7 +248,30 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Restore Defaults"); //TODO: Restore defaults
+				//TODO: Restore defaults
+				switch(tabbedPane.getSelectedIndex()) {
+				case 0:
+					Settings.restoreDefaultGeneral();
+					break;
+				case 1:
+					Settings.restoreDefaultOverlays();
+					break;
+					
+				case 2:
+					Settings.restoreDefaultNotifications();
+					break;
+					
+				case 3:
+					Settings.restoreDefaultPrivacy();
+					break;
+					
+				case 4:
+					Settings.restoreDefaultKeybinds();
+					break;
+					
+				default:
+					Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
+				}
 				
 			}
 		});
@@ -547,45 +581,62 @@ public class ConfigWindow {
 		
 		keybindPanel.setLayout(gbl_panel);
 
-		addKeybindSet(keybindPanel, "Logout", "Ctrl + L");
-		addKeybindSet(keybindPanel, "Take screenshot", "Ctrl + S");
-		addKeybindSet(keybindPanel, "Toggle color coded text", "None");
-		addKeybindSet(keybindPanel, "Toggle combat XP menu persistence", "Ctrl + C");
-		addKeybindSet(keybindPanel, "Toggle debug mode", "Ctrl + D");
-		addKeybindSet(keybindPanel, "Toggle fatigue alert", "Ctrl + F");
-		addKeybindSet(keybindPanel, "Toggle fatigue drops", "Ctrl + ]");
-		addKeybindSet(keybindPanel, "Toggle food heal overlay", "None");
-		addKeybindSet(keybindPanel, "Toggle friend name overlay", "Ctrl + F");
-		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "None");
-		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "None");
-		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "None");
-		addKeybindSet(keybindPanel, "Toggle item name overlay", "Ctrl + I");
-		addKeybindSet(keybindPanel, "Toggle NPC hitboxes", "Ctrl + H");
-		addKeybindSet(keybindPanel, "Toggle NPC name overlay", "Ctrl + N");
-		addKeybindSet(keybindPanel, "Toggle player name overlay", "Ctrl + P");
-		addKeybindSet(keybindPanel, "Toggle roof hiding", "Ctrl + R");
-		addKeybindSet(keybindPanel, "Toggle save login information", "None");
-		addKeybindSet(keybindPanel, "Toggle time until health regen", "None");
-		addKeybindSet(keybindPanel, "Toggle Twitch chat", "Ctrl + T");
-		addKeybindSet(keybindPanel, "Toggle XP drops", "Ctrl + [");
+		addKeybindSet(keybindPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
+		addKeybindSet(keybindPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
+		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
+		addKeybindSet(keybindPanel, "Toggle combat XP menu persistence", "toggle_combat_xp_menu", KeyModifier.CTRL, KeyEvent.VK_C);
+		addKeybindSet(keybindPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
+		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
+		addKeybindSet(keybindPanel, "Toggle fatigue drops", "toggle_fatigue_drops", KeyModifier.CTRL, KeyEvent.VK_CLOSE_BRACKET);
+		addKeybindSet(keybindPanel, "Toggle food heal overlay", "toggle_food_heal_overlay", KeyModifier.CTRL, KeyEvent.VK_G);
+		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
+		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
+		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
+		addKeybindSet(keybindPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
+		addKeybindSet(keybindPanel, "Toggle NPC name overlay", "toggle_npc_name_overlay", KeyModifier.CTRL, KeyEvent.VK_N);
+		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
+		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
+		addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle time until health regen", "toggle_health_regen_timer", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
+		addKeybindSet(keybindPanel, "Toggle XP drops", "toggle_xp_drops", KeyModifier.CTRL, KeyEvent.VK_OPEN_BRACKET);
+		addKeybindSet(keybindPanel, "Show settings window", "show_config_window", KeyModifier.CTRL, KeyEvent.VK_O);
 		//TODO: Add a horizontal line here?
-		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "Ctrl + 1");
-		addKeybindSet(keybindPanel, "Switch to world 2 at login screen", "Ctrl + 2");
-		addKeybindSet(keybindPanel, "Switch to world 3 at login screen", "Ctrl + 3");
-		addKeybindSet(keybindPanel, "Switch to world 4 at login screen", "Ctrl + 4");
-		addKeybindSet(keybindPanel, "Switch to world 5 at login screen", "Ctrl + 5");
+		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "world_1", KeyModifier.CTRL, KeyEvent.VK_1);
+		addKeybindSet(keybindPanel, "Switch to world 2 at login screen", "world_2", KeyModifier.CTRL, KeyEvent.VK_2);
+		addKeybindSet(keybindPanel, "Switch to world 3 at login screen", "world_3", KeyModifier.CTRL, KeyEvent.VK_3);
+		addKeybindSet(keybindPanel, "Switch to world 4 at login screen", "world_4", KeyModifier.CTRL, KeyEvent.VK_4);
+		addKeybindSet(keybindPanel, "Switch to world 5 at login screen", "world_5", KeyModifier.CTRL, KeyEvent.VK_5);
 		
 		//this.synchronizeGuiValues();
 	}
 	
 	/**
-	 * Adds a new label and button to the keybinds list. 
-	 * @param labelText - The text of the label.
-	 * @param buttonText - The text of the button.
+	 * Adds a new keybind to the GUI and settings and registers it to be checked when keypresses are sent to the applet.
+	 * @param panel - Panel to add the keybind label and button to
+	 * @param labelText - Text describing the keybind's function as shown to the user on the config window.
+	 * @param commandID - Unique String matching an entry in the processKeybindCommand switch statement.
+	 * @param defaultModifier - Default modifier value. This can be one of the enum values of KeybindSet.KeyModifier, eg KeyModifier.CTRL
+	 * @param defaultKeyValue - Default key value. This should match up with a KeyEvent.VK_ value. Set to -1 to set the default as NONE
 	 */
-	private void addKeybindSet(JPanel panel, String labelText, String buttonText) {
+	private void addKeybindSet(JPanel panel, String labelText, String commandID, KeyModifier defaultModifier, int defaultKeyValue) {
 		addKeybindLabel(panel, labelText);
-		addKeybindButton(panel, buttonText);
+		String buttonText = defaultModifier.toString() + " + " + KeyEvent.getKeyText(defaultKeyValue);
+		if (defaultKeyValue == -1)
+			buttonText = "NONE";
+		JButton b = addKeybindButton(panel, buttonText);
+		KeybindSet kbs = new KeybindSet(b, commandID, defaultModifier, defaultKeyValue);
+		KeyboardHandler.keybindSetList.add(kbs);
+		setKeybindButtonText(kbs); //Set the text of the keybind button now that it has been intialized properly
+		b.addActionListener(this.clickListener);
+		b.addKeyListener(this.rebindListener);
+		b.addFocusListener(focusListener);
+		b.setFocusable(false);
+		
+		//Default KeybindSet
+		KeyboardHandler.defaultKeybindSetList.put(commandID, new KeybindSet(null, commandID, defaultModifier, defaultKeyValue));
 	}
 	
 	/**
@@ -659,7 +710,6 @@ public class ConfigWindow {
 		return button;
     }
     
-    //TODO: Determine if this method should provide grouping for the radio buttons, or if it should be done in main code.
     /**
      * Adds a preconfigured radio button to the specified container. Does not currently assign the radio button to a group.
      * @param text - The text of the radio button
@@ -758,6 +808,10 @@ public class ConfigWindow {
 		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME);
 		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGINDETAILS);
 		streamingPanelSaveLoginCheckbox.setSelected(Settings.SAVE_LOGININFO);
+		
+		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+			setKeybindButtonText(kbs);
+		}
 	}
 	
 	/**
@@ -823,18 +877,133 @@ public class ConfigWindow {
 		
 	}
 	
+	/**
+	 * Sets the text of the button to its keybind.
+	 * @param kbs - The KeybindSet object to set the button text of.
+	 */
+	public static void setKeybindButtonText(KeybindSet kbs) {
+		String modifierText = kbs.modifier.toString() + " + ";
+		String keyText = KeyEvent.getKeyText(kbs.key);
+		
+		if (kbs.key == -1) 
+			keyText = "NONE";
+		
+		if (kbs.modifier == KeyModifier.NONE)
+			modifierText = "";
+		
+		if (keyText.equals("Open Bracket")) {
+			keyText = "[";
+		}
+		if (keyText.equals("Close Bracket")) {
+			keyText = "]";
+		}
+		if (keyText.equals("Unknown keyCode: 0x0")) {
+			keyText = "???";
+		}
+		
+		kbs.button.setText(modifierText + keyText);
+	}
+	
 }
 
 /**
  * Implements ActionListener; to be used for the buttons in the keybinds tab.
  *
  */
-class KeybindListener implements ActionListener {
+class ClickListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("I'm a little keybind short and stout.");
+		JButton button = (JButton) e.getSource();
+		button.setText("...");
+		button.setFocusable(true);
+		button.requestFocusInWindow();		
+	}
+	
+}
+
+class ButtonFocusListener implements FocusListener {
+
+	@Override
+	public void focusGained(FocusEvent arg0) {}
+
+	@Override
+	public void focusLost(FocusEvent arg0) {
+		JButton button = (JButton)arg0.getSource();
+		
+		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+			if (button == kbs.button) {
+				ConfigWindow.setKeybindButtonText(kbs);
+				kbs.button.setFocusable(false);
+			}
+		}
 		
 	}
+	
+}
+
+class RebindListener implements KeyListener {
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		KeyModifier modifier = KeyModifier.NONE;
+		
+		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				if (arg0.getSource() == kbs.button) {
+					kbs.modifier = KeyModifier.NONE;
+					kbs.key = -1;
+					ConfigWindow.setKeybindButtonText(kbs);
+					kbs.button.setFocusable(false);
+				}
+			}
+			return;
+		}
+		
+		if (arg0.getKeyCode() == KeyEvent.VK_CONTROL || arg0.getKeyCode() == KeyEvent.VK_SHIFT || arg0.getKeyCode() == KeyEvent.VK_ALT) {
+			return;
+		}
+		if (arg0.isControlDown()) {
+			modifier = KeyModifier.CTRL;
+			
+		} else if (arg0.isShiftDown()) {
+			modifier = KeyModifier.SHIFT;
+			
+		} else if (arg0.isAltDown()) {
+			modifier = KeyModifier.ALT;
+			
+		}
+		
+		int key = arg0.getKeyCode();
+		JButton jbtn = (JButton)arg0.getSource();
+		
+		if (key != -1)
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				if (jbtn != kbs.button) {
+					if (kbs.isDuplicateKeybindSet(modifier, key)) {
+						jbtn.setText("DUPLICATE!");
+						return;
+					}
+				}
+			}
+		
+		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+			if (jbtn == kbs.button) {
+				kbs.modifier = modifier;
+				kbs.key = key;
+				ConfigWindow.setKeybindButtonText(kbs);
+				kbs.button.setFocusable(false);
+			}
+		}
+		
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {}
+	
 	
 }
