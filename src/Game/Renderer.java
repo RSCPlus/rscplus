@@ -464,8 +464,7 @@ public class Renderer {
 					Game.getInstance().getJConfig().changeWorld(i + 1);
 				}
 			}
-
-			//TODO: Render the population overlays over the default client size instead of the windows size
+			
 			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
 
 			int worldPopArray[];

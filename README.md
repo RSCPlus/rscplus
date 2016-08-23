@@ -135,7 +135,7 @@
   Sets whether a custom cursor overrides the default cursor</dd>
   
   <dt>twitch_channel</dt>
-  <dd>Your Twitch name as you want it to appear in game chat</dd>
+  <dd>Your Twitch channel name</dd>
 
   <dt>twitch_oauth</dt>
   <dd>Your Twitch OAuth token (not your Stream Key)</dd>

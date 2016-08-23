@@ -13,6 +13,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -93,7 +94,7 @@ public class ConfigWindow {
 	private JSlider generalPanelNamePatchModeSlider;
 	private JCheckBox generalPanelRoofHidingCheckbox;
 	private JCheckBox generalPanelColoredTextCheckbox;
-	private JCheckBox generalPanelIncreaseFoVCheckbox;
+	private JSlider generalPanelFoVSlider;
 	private JCheckBox generalPanelCustomCursorCheckbox;
 	private JSlider generalPanelViewDistanceSlider;
 	
@@ -123,7 +124,7 @@ public class ConfigWindow {
 	
 	//Streaming & Privacy tab
 	private JCheckBox streamingPanelTwitchChatCheckbox;
-	private JTextField streamingPanelTwitchInGameNameTextField;
+	private JTextField streamingPanelTwitchChannelNameTextField;
 	private JTextField streamingPanelTwitchOAuthTextField;
 	private JTextField streamingPanelTwitchUserTextField;
 	private JCheckBox streamingPanelIPAtLoginCheckbox;
@@ -162,7 +163,7 @@ public class ConfigWindow {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Settings");
-		frame.setBounds(100, 100, 410, 540);
+		frame.setBounds(100, 100, 410, 590);
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -284,7 +285,7 @@ public class ConfigWindow {
 		/*
 		 * General tab
 		 */
-		
+        
 		generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
 		
 		JPanel generalPanelClientSizePanel = new JPanel();
@@ -293,14 +294,15 @@ public class ConfigWindow {
 		generalPanelClientSizePanel.setPreferredSize(new Dimension(0,37));
 		generalPanelClientSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
-			//TODO: Make the client size change after applying this setting
 			generalPanelClientSizeCheckbox = addCheckbox("Default client size:", generalPanelClientSizePanel);
+			generalPanelClientSizeCheckbox.setToolTipText("Start the client with the supplied window size");
 			
 			generalPanelClientSizeXSpinner = new JSpinner();
 			generalPanelClientSizePanel.add(generalPanelClientSizeXSpinner);
 			generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(48,20));
 			generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(48,20));
 			generalPanelClientSizeXSpinner.setAlignmentY((float) 0.75);
+			generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum)");
 			
 			JLabel generalPanelClientSizeByLabel = new JLabel("x");
 			generalPanelClientSizePanel.add(generalPanelClientSizeByLabel);
@@ -312,6 +314,7 @@ public class ConfigWindow {
 			generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(48,20));
 			generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(48,20));
 			generalPanelClientSizeYSpinner.setAlignmentY((float) 0.75);
+			generalPanelClientSizeYSpinner.setToolTipText("Default client height (346 minimum)");
 			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerWinXModel = new SpinnerNumberModel();
@@ -326,9 +329,16 @@ public class ConfigWindow {
 			generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
 		
 		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging", generalPanel);
+		generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+		
 		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat XP menu always on", generalPanel);
+		generalPanelCombatXPMenuCheckbox.setToolTipText("Always show the combat XP menu, even when out of combat");
+		
 		generalPanelXPDropsCheckbox = addCheckbox("XP drops", generalPanel);
+		generalPanelXPDropsCheckbox.setToolTipText("Show the XP gained as an overlay each time XP is received");
+		
 		generalPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", generalPanel);
+		generalPanelFatigueDropsCheckbox.setToolTipText("Show the fatigue gained as an overlay each time fatigue is received");
 		
 		JPanel generalPanelFatigueFigsPanel = new JPanel();
 		generalPanel.add(generalPanelFatigueFigsPanel);
@@ -340,6 +350,7 @@ public class ConfigWindow {
 			JLabel generalPanelFatigueFigsLabel = new JLabel("Fatigue figures:");
 			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigsLabel);
 			generalPanelFatigueFigsLabel.setAlignmentY((float) 0.9);
+			generalPanelFatigueFigsLabel.setToolTipText("Number of significant figures past the decimal point to display on fatigue drops");
 			
 			generalPanelFatigueFigSpinner = new JSpinner();
 			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigSpinner);
@@ -355,6 +366,7 @@ public class ConfigWindow {
 			generalPanelFatigueFigSpinner.setModel(spinnerNumModel);
 			
 		generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
+		generalPanelFatigueAlertCheckbox.setToolTipText("Displays a large notice when fatigue approaches 100%");
 		
 		JPanel generalPanelNamePatchModePanel = new JPanel();
 		generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -381,7 +393,8 @@ public class ConfigWindow {
 		generalPanelNamePatchModeTextPanel.setBorder(new EmptyBorder(0,10,0,0));
 		generalPanelNamePatchModePanel.add(generalPanelNamePatchModeTextPanel);
 		
-		JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Name patch mode</b> (Requires restart)</html>");
+		JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Item name patch mode</b> (Requires restart)</html>");
+		generalPanelNamePatchModeTitle.setToolTipText("Replace certain item names with improved versions");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
 		generalPanelNamePatchModeDesc = new JLabel("");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
@@ -411,11 +424,33 @@ public class ConfigWindow {
 		});
 		
 		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
-		generalPanelColoredTextCheckbox = addCheckbox("Color coded text", generalPanel);
-		generalPanelIncreaseFoVCheckbox = addCheckbox("Increase FoV", generalPanel);
-		generalPanelCustomCursorCheckbox = addCheckbox("Use custom cursor", generalPanel);
-        
+		generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+		
+		generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+		generalPanelColoredTextCheckbox.setToolTipText("When running the client from a console, chat messages in the console will reflect the colors they are in game");
+		
+		generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
+		generalPanelCustomCursorCheckbox.setToolTipText("Switch to using a custom mouse cursor instead of the system default");
+		
+		JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
+		generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
+		generalPanel.add(generalPanelFoVLabel);
+		generalPanelFoVLabel.setAlignmentY((float) 0.9);
+		
+		generalPanelFoVSlider = new JSlider();
+		
+		generalPanel.add(generalPanelFoVSlider);
+		generalPanelFoVSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelFoVSlider.setMaximumSize(new Dimension(200,55));
+		generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+		generalPanelFoVSlider.setMinimum(7);
+		generalPanelFoVSlider.setMaximum(16);
+		generalPanelFoVSlider.setMajorTickSpacing(1);
+		generalPanelFoVSlider.setPaintTicks(true);
+		generalPanelFoVSlider.setPaintLabels(true);
+		
 		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
+		generalPanelViewDistanceLabel.setToolTipText("Sets the max render distance of structures and landscape");
 		generalPanel.add(generalPanelViewDistanceLabel);
 		generalPanelViewDistanceLabel.setAlignmentY((float) 0.9);
 		
@@ -423,13 +458,19 @@ public class ConfigWindow {
 		
 		generalPanel.add(generalPanelViewDistanceSlider);
 		generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200,30));
-		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(10, 0, 0, 0));
+		generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200,55));
+		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 0, 0));
 		generalPanelViewDistanceSlider.setMinorTickSpacing(500);
 		generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
 		generalPanelViewDistanceSlider.setMinimum(2300);
 		generalPanelViewDistanceSlider.setMaximum(10000);
 		generalPanelViewDistanceSlider.setPaintTicks(true);
+		
+		Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable = new Hashtable<Integer, JLabel>();
+		generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
+		generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
+		generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
+		generalPanelViewDistanceSlider.setPaintLabels(true);
 		
 		/*
 		 * Overlays tab
@@ -438,15 +479,34 @@ public class ConfigWindow {
 		overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
 		
 		overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
+		overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
+		
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
+		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
+		
 		overlayPanelItemNamesCheckbox = addCheckbox("Display item name overlay", overlayPanel);
+		overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
+		
 		overlayPanelPlayerNamesCheckbox = addCheckbox("Show player name overlay", overlayPanel);
+		overlayPanelPlayerNamesCheckbox.setToolTipText("Shows players' display names over their character");
+		
 		overlayPanelFriendNamesCheckbox = addCheckbox("Show nearby friend name overlay", overlayPanel);
+		overlayPanelFriendNamesCheckbox.setToolTipText("Shows your friends' display names over their character");
+		
 		overlayPanelNPCNamesCheckbox = addCheckbox("Display NPC name overlay", overlayPanel);
+		overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
+		
 		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
+		overlayPanelNPCHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs and players");
+		
 		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay", overlayPanel);
+		overlayPanelFoodHealingCheckbox.setToolTipText("When hovering on food, shows the HP a consumable recovers");
+		
 		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration", overlayPanel);
+		overlayPanelHPRegenTimerCheckbox.setToolTipText("Shows the seconds until your HP will naturally regenerate");
+		
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
+		overlayPanelDebugModeCheckbox.setToolTipText("Shows debug overlays and enables debug text in the console");
 		
 		/*
 		 * Notifications tab
@@ -455,9 +515,16 @@ public class ConfigWindow {
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
+		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
+		
 		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications", notificationPanel);
+		notificationPanelTradeNotifsCheckbox.setToolTipText("Shows a system notification when a trade request is received");
+		
 		notificationPanelDuelNotifsCheckbox = addCheckbox("Enable duel notifications", notificationPanel);
+		notificationPanelDuelNotifsCheckbox.setToolTipText("Shows a system notification when a duel request is received");
+		
 		notificationPanelLogoutNotifsCheckbox = addCheckbox("Enable logout notification", notificationPanel);
+		notificationPanelLogoutNotifsCheckbox.setToolTipText("Shows a system notification when about to idle out");
 		
 		JPanel notificationPanelLowHPNotifsPanel = new JPanel();
 		notificationPanel.add(notificationPanelLowHPNotifsPanel);
@@ -466,6 +533,7 @@ public class ConfigWindow {
 		notificationPanelLowHPNotifsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
 		notificationPanelLowHPNotifsCheckbox = addCheckbox("Enable low HP notification at", notificationPanelLowHPNotifsPanel);
+		notificationPanelLowHPNotifsCheckbox.setToolTipText("Shows a system notification when your HP drops below the specified value");
 		
 			notificationPanelLowHPNotifsSpinner = new JSpinner();
 			notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(35,20));
@@ -486,9 +554,11 @@ public class ConfigWindow {
 			notificationPanelLowHPNotifsSpinner.setModel(spinnerHPNumModel);
 			
 		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
+		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
 		
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
+		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
 		
 		ButtonGroup trayPopupButtonGroup = new ButtonGroup();
 		notificationPanelClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
@@ -516,41 +586,26 @@ public class ConfigWindow {
 		
 		streamingPanel.setLayout(new BoxLayout(streamingPanel, BoxLayout.Y_AXIS));
 		
-		streamingPanelTwitchChatCheckbox = addCheckbox("Enable Twitch chat", streamingPanel);
+		streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
+		streamingPanelTwitchChatCheckbox.setToolTipText("Don't show chat from other Twitch users, but still be able to send Twitch chat");
 		
-		JPanel streamingPanelTwitchInGameNamePanel = new JPanel();
-		streamingPanel.add(streamingPanelTwitchInGameNamePanel);
-		streamingPanelTwitchInGameNamePanel.setLayout(new BoxLayout(streamingPanelTwitchInGameNamePanel, BoxLayout.X_AXIS));
-		streamingPanelTwitchInGameNamePanel.setPreferredSize(new Dimension(0,37));
-		streamingPanelTwitchInGameNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		streamingPanelTwitchInGameNamePanel.setBorder(new EmptyBorder(0,0,9,0));
+		JPanel streamingPanelTwitchChannelNamePanel = new JPanel();
+		streamingPanel.add(streamingPanelTwitchChannelNamePanel);
+		streamingPanelTwitchChannelNamePanel.setLayout(new BoxLayout(streamingPanelTwitchChannelNamePanel, BoxLayout.X_AXIS));
+		streamingPanelTwitchChannelNamePanel.setPreferredSize(new Dimension(0,37));
+		streamingPanelTwitchChannelNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		streamingPanelTwitchChannelNamePanel.setBorder(new EmptyBorder(0,0,9,0));
 		
-			JLabel streamingPanelTwitchInGameLabel = new JLabel("Twitch name to display in game: ");
-			streamingPanelTwitchInGameNamePanel.add(streamingPanelTwitchInGameLabel);
-			streamingPanelTwitchInGameLabel.setAlignmentY((float) 0.9);
+			JLabel streamingPanelTwitchChannelNameLabel = new JLabel("Twitch channel name: ");
+			streamingPanelTwitchChannelNameLabel.setToolTipText("The Twitch channel you want to chat in (leave empty to stop trying to connect to Twitch)");
+			streamingPanelTwitchChannelNamePanel.add(streamingPanelTwitchChannelNameLabel);
+			streamingPanelTwitchChannelNameLabel.setAlignmentY((float) 0.9);
 			
-			streamingPanelTwitchInGameNameTextField = new JTextField();
-			streamingPanelTwitchInGameNamePanel.add(streamingPanelTwitchInGameNameTextField);
-			streamingPanelTwitchInGameNameTextField.setMinimumSize(new Dimension(100,20));
-			streamingPanelTwitchInGameNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-			streamingPanelTwitchInGameNameTextField.setAlignmentY((float) 0.75);
-			
-		JPanel streamingPanelTwitchOAuthPanel = new JPanel();
-		streamingPanel.add(streamingPanelTwitchOAuthPanel);
-		streamingPanelTwitchOAuthPanel.setLayout(new BoxLayout(streamingPanelTwitchOAuthPanel, BoxLayout.X_AXIS));
-		streamingPanelTwitchOAuthPanel.setPreferredSize(new Dimension(0,37));
-		streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0,0,9,0));
-		
-			JLabel streamingPanelTwitchOAuthLabel = new JLabel("Twitch OAuth token: ");
-			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthLabel);
-			streamingPanelTwitchOAuthLabel.setAlignmentY((float) 0.9);
-			
-			streamingPanelTwitchOAuthTextField = new JPasswordField();
-			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthTextField);
-			streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100,20));
-			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-			streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
+			streamingPanelTwitchChannelNameTextField = new JTextField();
+			streamingPanelTwitchChannelNamePanel.add(streamingPanelTwitchChannelNameTextField);
+			streamingPanelTwitchChannelNameTextField.setMinimumSize(new Dimension(100,20));
+			streamingPanelTwitchChannelNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchChannelNameTextField.setAlignmentY((float) 0.75);
 			
 		JPanel streamingPanelTwitchUserPanel = new JPanel();
 		streamingPanel.add(streamingPanelTwitchUserPanel);
@@ -560,6 +615,7 @@ public class ConfigWindow {
 		streamingPanelTwitchUserPanel.setBorder(new EmptyBorder(0,0,9,0));
 		
 			JLabel streamingPanelTwitchUserLabel = new JLabel("Twitch username: ");
+			streamingPanelTwitchUserLabel.setToolTipText("The Twitch username you log into Twitch with");
 			streamingPanelTwitchUserPanel.add(streamingPanelTwitchUserLabel);
 			streamingPanelTwitchUserLabel.setAlignmentY((float) 0.9);
 			
@@ -569,8 +625,29 @@ public class ConfigWindow {
 			streamingPanelTwitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
 			streamingPanelTwitchUserTextField.setAlignmentY((float) 0.75);
 		
+		JPanel streamingPanelTwitchOAuthPanel = new JPanel();
+		streamingPanel.add(streamingPanelTwitchOAuthPanel);
+		streamingPanelTwitchOAuthPanel.setLayout(new BoxLayout(streamingPanelTwitchOAuthPanel, BoxLayout.X_AXIS));
+		streamingPanelTwitchOAuthPanel.setPreferredSize(new Dimension(0,37));
+		streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0,0,9,0));
+		
+			JLabel streamingPanelTwitchOAuthLabel = new JLabel("Twitch OAuth token: ");
+			streamingPanelTwitchOAuthLabel.setToolTipText("Your Twitch OAuth token (not your Stream Key)");
+			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthLabel);
+			streamingPanelTwitchOAuthLabel.setAlignmentY((float) 0.9);
+			
+			streamingPanelTwitchOAuthTextField = new JPasswordField();
+			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthTextField);
+			streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100,20));
+			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
+		
 		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login screen", streamingPanel);
+		streamingPanelIPAtLoginCheckbox.setToolTipText("Shows the last IP/DNS you last logged in from when you log in (Disable this if you're streaming)");
+		
 		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
+		streamingPanelSaveLoginCheckbox.setToolTipText("Preserves login details between logins (Disable this if you're streaming)");
 		
 		/*
 		 * Keybind tab
@@ -593,7 +670,6 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
-		//TODO: Add Increase FoV keybind
 		
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
@@ -817,7 +893,7 @@ public class ConfigWindow {
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
-		generalPanelIncreaseFoVCheckbox.setSelected(Settings.INCREASE_FOV);
+		generalPanelFoVSlider.setValue(Settings.FOV);
 		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR);
 		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE);
 		//Sets the text associated with the name patch slider.
@@ -867,7 +943,7 @@ public class ConfigWindow {
 		
 		//Streaming & Privacy tab
 		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE);
-		streamingPanelTwitchInGameNameTextField.setText(Settings.TWITCH_CHANNEL);
+		streamingPanelTwitchChannelNameTextField.setText(Settings.TWITCH_CHANNEL);
 		streamingPanelTwitchOAuthTextField.setText(Settings.TWITCH_OAUTH);
 		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME);
 		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGINDETAILS);
@@ -895,7 +971,7 @@ public class ConfigWindow {
 		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
 		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
 		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
-		Settings.INCREASE_FOV = generalPanelIncreaseFoVCheckbox.isSelected();
+		Settings.FOV = generalPanelFoVSlider.getValue();
 		Settings.SOFTWARE_CURSOR = generalPanelCustomCursorCheckbox.isSelected();
 		Settings.VIEW_DISTANCE = generalPanelViewDistanceSlider.getValue();
 
@@ -924,7 +1000,7 @@ public class ConfigWindow {
 
 		//Streaming & Privacy
 		Settings.TWITCH_HIDE = streamingPanelTwitchChatCheckbox.isSelected();
-		Settings.TWITCH_CHANNEL = streamingPanelTwitchInGameNameTextField.getText();
+		Settings.TWITCH_CHANNEL = streamingPanelTwitchChannelNameTextField.getText();
 		Settings.TWITCH_OAUTH = streamingPanelTwitchOAuthTextField.getText();
 		Settings.TWITCH_USERNAME = streamingPanelTwitchUserTextField.getText();
 		Settings.SHOW_LOGINDETAILS = streamingPanelIPAtLoginCheckbox.isSelected();

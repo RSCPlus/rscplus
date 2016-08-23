@@ -83,7 +83,7 @@ public class Settings
 			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
 			COLORIZE = getBoolean(props, "colorize", COLORIZE);
-			INCREASE_FOV = getBoolean(props, "increase_fov", INCREASE_FOV);
+			FOV = getInt(props, "fov", FOV);
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", SOFTWARE_CURSOR);
 			VIEW_DISTANCE = getInt(props, "view_distance", VIEW_DISTANCE);
 
@@ -220,7 +220,8 @@ public class Settings
 			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("colorize", "" + COLORIZE);
-			props.setProperty("increase_fov", "" + INCREASE_FOV);
+			props.setProperty("fov", "" + FOV);
+				Camera.setFoV(FOV);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 				checkSoftwareCursor();
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
@@ -520,7 +521,6 @@ public class Settings
 	}
 	
 	private static void toggleSaveLoginInfo() {
-		//TODO: Don't believe this does anything yet.
 		SAVE_LOGININFO = !SAVE_LOGININFO;
 		if(SAVE_LOGININFO)
 			Client.displayMessage("@cya@Saving login info enabled.", Client.CHAT_NONE);
@@ -536,6 +536,18 @@ public class Settings
 			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		Save();
+	}
+
+	public static void setClientFoV(String fovValue) {
+		try {
+			FOV = Integer.parseInt(fovValue);
+			if (FOV > 10 || FOV < 8) { //if stupid fov, warn user how to get back
+				Client.displayMessage("@whi@This is fun, but if you want to go back to normal, use @yel@::fov 9", Client.CHAT_QUEST);
+			}
+		} catch (Exception e) {
+			Client.displayMessage("@whi@Please use an @lre@integer@whi@ between 7 and 16 (default = 9)", Client.CHAT_QUEST); //more sane limitation would be 8 to 10, but it's fun to play with
+		}
 		Save();
 	}
 	
@@ -715,7 +727,7 @@ public class Settings
 	public static int NAME_PATCH_TYPE = 3;
 	public static boolean HIDE_ROOFS = false;
     public static boolean COLORIZE = true; //TODO: Vague, consider refactoring for clarity
-	public static boolean INCREASE_FOV = true;
+	public static int FOV = 9;
 	public static boolean SOFTWARE_CURSOR = false;
 	public static int VIEW_DISTANCE = 10000;
 	
@@ -768,7 +780,7 @@ public class Settings
 		NAME_PATCH_TYPE = 3;
 		HIDE_ROOFS = false;
 		COLORIZE = true;
-		INCREASE_FOV = true;
+		FOV = 9;
 		SOFTWARE_CURSOR = false;
 		VIEW_DISTANCE = 10000;
 		Launcher.getConfigWindow().synchronizeGuiValues();
@@ -823,5 +835,4 @@ public class Settings
 		}
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}
-
 }
