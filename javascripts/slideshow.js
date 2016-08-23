@@ -1,5 +1,5 @@
-var slide_index = 0;
 var slides = $("slide.show");
+var slide_index = Math.floor(Math.random() * slides.length);
 
 function nextSlide()
 {
