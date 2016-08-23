@@ -15,7 +15,7 @@ public class KeybindSet {
 	int key; //A reference to the actual key associated with this keybind, eg 'a'
 	
 	/**
-	 * Creates a new KeybindSet object to store associated keybindgs and their command values.
+	 * Creates a new KeybindSet object to store associated keybindings and their command values.
 	 * @param button - The button associated with the keybind
 	 * @param commandName - The command associated with the keybind. This should be a unique string with no spaces.
 	 * @param modifier - The modifier key, a KeyModifier with a possible value of NONE, CTRL, ALT, or SHIFT

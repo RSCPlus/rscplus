@@ -48,7 +48,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import Client.Logger;
 import Client.Settings;
 import Client.Util;
 

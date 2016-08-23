@@ -39,6 +39,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Game;
 import Game.KeyboardHandler;
 
 /**
@@ -222,7 +223,8 @@ public class ConfigWindow {
 			public void actionPerformed(ActionEvent e) {
 				Launcher.getConfigWindow().saveSettings();
 				Launcher.getConfigWindow().hideConfigWindow();
-				
+				if (Settings.CUSTOM_CLIENT_SIZE)
+					Game.getInstance().resizeFrameWithContents();
 			}
 		});
         
@@ -240,6 +242,8 @@ public class ConfigWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Launcher.getConfigWindow().saveSettings();
+				if (Settings.CUSTOM_CLIENT_SIZE)
+					Game.getInstance().resizeFrameWithContents();
 			}
 		});
         
@@ -252,6 +256,7 @@ public class ConfigWindow {
 				switch(tabbedPane.getSelectedIndex()) {
 				case 0:
 					Settings.restoreDefaultGeneral();
+					Game.getInstance().resizeFrameWithContents();
 					break;
 				case 1:
 					Settings.restoreDefaultOverlays();
@@ -657,7 +662,7 @@ public class ConfigWindow {
 		gbc.weightx = 20;
 		JLabel jlbl = new JLabel(labelText);
 		panel.add(jlbl, gbc);
-		panel.setPreferredSize(new Dimension(200, 15+(28*keybindLabelGridYCounter)));
+		//panel.setPreferredSize(new Dimension(200, 15+(28*keybindLabelGridYCounter)));
 		return jlbl;
 	}
 	
@@ -822,9 +827,6 @@ public class ConfigWindow {
 		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected();
 		Settings.CUSTOM_CLIENT_SIZE_X = ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue();
 		Settings.CUSTOM_CLIENT_SIZE_Y = ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue();
-			//TODO: Resize client according to configuration preferences
-//			Game.getInstance().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
-//			Renderer.resize(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y);
 		Settings.LOAD_CHAT_HISTORY = generalPanelChatHistoryCheckbox.isSelected();
 		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
 		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();

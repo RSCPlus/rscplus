@@ -79,12 +79,6 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 
 		// Hide cursor if software cursor
 		Settings.checkSoftwareCursor();
-		
-		// TODO: Size client according to configuration preferences
-//		if(Settings.CUSTOM_CLIENT_SIZE) {
-//			Game.getInstance().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
-//			getContentPane().setSize(new Dimension(Settings.CUSTOM_CLIENT_SIZE_X, Settings.CUSTOM_CLIENT_SIZE_Y));
-//		}
 
 		// Position window and make it visible
 		setLocationRelativeTo(null);
@@ -95,6 +89,10 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 
 		Reflection.Load();
 		Renderer.init();
+		// TODO: Size client according to configuration preferences
+		if(Settings.CUSTOM_CLIENT_SIZE) {
+			Game.getInstance().resizeFrameWithContents();
+		}
 	}
 
 	public JConfig getJConfig()
@@ -229,6 +227,17 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	public static Game getInstance()
 	{
 		return (instance == null)?(instance = new Game()):instance;
+	}
+	
+	/**
+	 * Resizes the Applet to match the X and Y values stored in Settings, then resizes the Frame based on its system-dependent padding sizes.
+	 */
+	public void resizeFrameWithContents() {
+		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X + getInsets().left + getInsets().right;
+		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y + getInsets().top + getInsets().bottom;
+		setSize(new Dimension(windowWidth, windowHeight));
+		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
+		Renderer.handle_resize();
 	}
 
 	private JConfig m_config = new JConfig();
