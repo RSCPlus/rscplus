@@ -860,11 +860,23 @@ section #title .credits.right {
   overflow: hidden;
 }
 
-slide {
+#slideshow p {
+  position: absolute;
+  bottom: 0px;
+  right: 16px;
+
+  font-size: 12px;
+  font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  color: #DDDDDD;
+  text-shadow: 0px 1px 0px #000;
+}
+
+#slideshow slide {
   display: none;
 }
 
-slide.show {
+#slideshow slide.show {
   display: block;
 }
 
