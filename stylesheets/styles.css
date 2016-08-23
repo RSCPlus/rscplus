@@ -855,17 +855,17 @@ section #title .credits.right {
 }
 
 #slideshow {
-  position: absolute;
+  position: relative;
   display: block;
   overflow: hidden;
 }
 
 slide {
-  position: absolute;
+  display: none;
 }
 
 slide.show {
-  position: static;
+  display: block;
 }
 
 #footer {

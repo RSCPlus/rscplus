@@ -1,4 +1,4 @@
-var slides = $("slide.show");
+var slides = $("slide");
 var slide_index = Math.floor(Math.random() * slides.length);
 
 function nextSlide()
