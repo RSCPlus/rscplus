@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -140,7 +141,7 @@ public class ConfigWindow {
 		} catch (InstantiationException e) {
 			Logger.Error("Unable to set L&F: Class object cannot be instantiated");
 		} catch (IllegalAccessException e) {
-			Logger.Error("Unable to set L&F: Illegal acess exception");
+			Logger.Error("Unable to set L&F: Illegal access exception");
 		}
 	    
 		initialize();
@@ -252,7 +253,7 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: Restore defaults
+				//Restore defaults
 				switch(tabbedPane.getSelectedIndex()) {
 				case 0:
 					Settings.restoreDefaultGeneral();
@@ -277,7 +278,6 @@ public class ConfigWindow {
 				default:
 					Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
 				}
-				
 			}
 		});
 		
@@ -294,7 +294,6 @@ public class ConfigWindow {
 		generalPanelClientSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
 			//TODO: Make the client size change after applying this setting
-			//TODO: Gray out the JSpinners if checkbox is unchecked?
 			generalPanelClientSizeCheckbox = addCheckbox("Default client size:", generalPanelClientSizePanel);
 			
 			generalPanelClientSizeXSpinner = new JSpinner();
@@ -384,7 +383,6 @@ public class ConfigWindow {
 		
 		JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Name patch mode</b> (Requires restart)</html>");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
-		//TODO: Remove hard-coded generalPanelPatchDesc text from JLabel
 		generalPanelNamePatchModeDesc = new JLabel("");
 		generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 		
@@ -509,7 +507,6 @@ public class ConfigWindow {
 					notificationPanelClientFocusButton.setEnabled(false);
 					notificationPanelAnyFocusButton.setEnabled(false);
 				}
-				
 			}
 		});
 		
@@ -586,36 +583,41 @@ public class ConfigWindow {
 		
 		keybindPanel.setLayout(gbl_panel);
 
+		addKeybindCategory(keybindPanel, "General");
 		addKeybindSet(keybindPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
 		addKeybindSet(keybindPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
-		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
+		addKeybindSet(keybindPanel, "Show settings window", "show_config_window", KeyModifier.CTRL, KeyEvent.VK_O);
 		addKeybindSet(keybindPanel, "Toggle combat XP menu persistence", "toggle_combat_xp_menu", KeyModifier.CTRL, KeyEvent.VK_C);
-		addKeybindSet(keybindPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
-		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
+		addKeybindSet(keybindPanel, "Toggle XP drops", "toggle_xp_drops", KeyModifier.CTRL, KeyEvent.VK_OPEN_BRACKET);
 		addKeybindSet(keybindPanel, "Toggle fatigue drops", "toggle_fatigue_drops", KeyModifier.CTRL, KeyEvent.VK_CLOSE_BRACKET);
-		addKeybindSet(keybindPanel, "Toggle food heal overlay", "toggle_food_heal_overlay", KeyModifier.CTRL, KeyEvent.VK_G);
-		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
+		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
+		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
+		//TODO: Add Increase FoV keybind
+		
+		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
 		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
-		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.NONE, -1);
 		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
-		addKeybindSet(keybindPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
-		addKeybindSet(keybindPanel, "Toggle NPC name overlay", "toggle_npc_name_overlay", KeyModifier.CTRL, KeyEvent.VK_N);
 		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
-		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
-		addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle NPC name overlay", "toggle_npc_name_overlay", KeyModifier.CTRL, KeyEvent.VK_N);
+		addKeybindSet(keybindPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
+		addKeybindSet(keybindPanel, "Toggle food heal overlay", "toggle_food_heal_overlay", KeyModifier.CTRL, KeyEvent.VK_G);
 		addKeybindSet(keybindPanel, "Toggle time until health regen", "toggle_health_regen_timer", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
+		
+		addKeybindCategory(keybindPanel, "Streaming & Privacy");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
-		addKeybindSet(keybindPanel, "Toggle XP drops", "toggle_xp_drops", KeyModifier.CTRL, KeyEvent.VK_OPEN_BRACKET);
-		addKeybindSet(keybindPanel, "Show settings window", "show_config_window", KeyModifier.CTRL, KeyEvent.VK_O);
-		//TODO: Add a horizontal line here?
+		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.NONE, -1);
+		//addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
+
+		addKeybindCategory(keybindPanel, "Miscellaneous");
 		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "world_1", KeyModifier.CTRL, KeyEvent.VK_1);
 		addKeybindSet(keybindPanel, "Switch to world 2 at login screen", "world_2", KeyModifier.CTRL, KeyEvent.VK_2);
 		addKeybindSet(keybindPanel, "Switch to world 3 at login screen", "world_3", KeyModifier.CTRL, KeyEvent.VK_3);
 		addKeybindSet(keybindPanel, "Switch to world 4 at login screen", "world_4", KeyModifier.CTRL, KeyEvent.VK_4);
 		addKeybindSet(keybindPanel, "Switch to world 5 at login screen", "world_5", KeyModifier.CTRL, KeyEvent.VK_5);
-		
-		//this.synchronizeGuiValues();
 	}
 	
 	/**
@@ -634,7 +636,7 @@ public class ConfigWindow {
 		JButton b = addKeybindButton(panel, buttonText);
 		KeybindSet kbs = new KeybindSet(b, commandID, defaultModifier, defaultKeyValue);
 		KeyboardHandler.keybindSetList.add(kbs);
-		setKeybindButtonText(kbs); //Set the text of the keybind button now that it has been intialized properly
+		setKeybindButtonText(kbs); //Set the text of the keybind button now that it has been initialized properly
 		b.addActionListener(this.clickListener);
 		b.addKeyListener(this.rebindListener);
 		b.addFocusListener(focusListener);
@@ -650,6 +652,7 @@ public class ConfigWindow {
 	private int keybindLabelGridYCounter = 0;
 	/**
 	 * Adds a new label to the keybinds list. This should be used in conjunction with adding a button in a 1:1 ratio. The new label will be added below the existing ones.
+	 * @param panel - Panel to add the label to.
 	 * @param labelText - Text of the label to add.
 	 * @return - The label that was added.
 	 */
@@ -662,7 +665,6 @@ public class ConfigWindow {
 		gbc.weightx = 20;
 		JLabel jlbl = new JLabel(labelText);
 		panel.add(jlbl, gbc);
-		//panel.setPreferredSize(new Dimension(200, 15+(28*keybindLabelGridYCounter)));
 		return jlbl;
 	}
 	
@@ -672,7 +674,8 @@ public class ConfigWindow {
 	private int keybindButtonGridYCounter = 0;
 	/**
 	 * Adds a new button to the keybinds list. This should be used in conjunction with adding a label in a 1:1 ratio. The new button will be added below the existing ones.
-	 * @param labelText - Text of the label to add.
+	 * @param panel - Panel to add the button to.
+	 * @param buttonText - Text of the label to add.
 	 * @return - The label that was added.
 	 */
 	private JButton addKeybindButton(JPanel panel, String buttonText) {
@@ -685,6 +688,62 @@ public class ConfigWindow {
 		JButton jbtn = new JButton(buttonText);
 		panel.add(jbtn, gbc);
 		return jbtn;
+	}
+	
+	/**
+	 * Adds a new category title to the keybinds list.
+	 * @param panel - Panel to add the title to.
+	 * @param categoryName - Name of the category to add.
+	 */
+	private void addKeybindCategory(JPanel panel, String categoryName) {
+		addKeybindCategoryLabel(panel, "<html><b>" + categoryName + "</b></html>");
+		addKeybindCategorySeparator(panel);
+		keybindButtonGridYCounter++;
+		keybindLabelGridYCounter++;
+	}
+	
+	/**
+	 * Adds a new horizontal separator to the keybinds list. The JSeparator spans 2 columns.
+	 * @param panel - Panel to add the button to.
+	 */
+	private void addKeybindCategorySeparator(JPanel panel) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0, 0, 0, 0);
+		gbc.gridx = 0;
+		gbc.gridy = keybindButtonGridYCounter++;
+		keybindLabelGridYCounter++;
+		gbc.gridwidth = 2;
+		
+		panel.add(Box.createVerticalStrut(7), gbc);
+		JSeparator jsep = new JSeparator(SwingConstants.HORIZONTAL);
+		panel.add(jsep, gbc);
+		panel.add(Box.createVerticalStrut(7), gbc);
+	}
+	
+	/**
+	 * Adds a new category label to the keybinds list. The JLabel spans 2 columns.
+	 * @param panel - Panel to add the label to.
+	 * @param categoryName - Name of the category to add.
+	 * @return - The label that was added.
+	 */
+	private JLabel addKeybindCategoryLabel(JPanel panel, String categoryName) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridx = 0;
+		if(keybindLabelGridYCounter == 0)
+			gbc.insets = new Insets(0, 0, 0, 0);
+		else
+			gbc.insets = new Insets(7, 0, 0, 0);
+		gbc.gridy = keybindLabelGridYCounter++;
+		keybindButtonGridYCounter++;
+		gbc.weightx = 20;
+		gbc.gridwidth = 2;
+		
+		JLabel jlbl = new JLabel(categoryName);
+		panel.add(jlbl, gbc);
+		return jlbl;
 	}
 	
 	/**
@@ -876,7 +935,6 @@ public class ConfigWindow {
 
 	public void disposeJFrame() {
 		frame.dispose();
-		
 	}
 	
 	/**
@@ -905,7 +963,6 @@ public class ConfigWindow {
 		
 		kbs.button.setText(modifierText + keyText);
 	}
-	
 }
 
 /**
@@ -921,7 +978,6 @@ class ClickListener implements ActionListener {
 		button.setFocusable(true);
 		button.requestFocusInWindow();		
 	}
-	
 }
 
 class ButtonFocusListener implements FocusListener {
@@ -939,9 +995,7 @@ class ButtonFocusListener implements FocusListener {
 				kbs.button.setFocusable(false);
 			}
 		}
-		
 	}
-	
 }
 
 class RebindListener implements KeyListener {
@@ -973,7 +1027,6 @@ class RebindListener implements KeyListener {
 			
 		} else if (arg0.isAltDown()) {
 			modifier = KeyModifier.ALT;
-			
 		}
 		
 		int key = arg0.getKeyCode();
@@ -997,8 +1050,6 @@ class RebindListener implements KeyListener {
 				kbs.button.setFocusable(false);
 			}
 		}
-		
-		
 	}
 
 	@Override
@@ -1006,6 +1057,5 @@ class RebindListener implements KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {}
-	
 	
 }
