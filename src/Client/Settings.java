@@ -31,7 +31,6 @@ import java.net.URL;
 import java.util.Properties;
 
 import Client.KeybindSet.KeyModifier;
-import Game.Camera;
 import Game.Client;
 import Game.Game;
 import Game.KeyboardHandler;

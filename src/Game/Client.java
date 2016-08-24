@@ -21,8 +21,9 @@
 
 package Game;
 
-import java.applet.Applet;
+import static org.fusesource.jansi.Ansi.ansi;
 
+import java.applet.Applet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,10 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fusesource.jansi.AnsiConsole;
-import static org.fusesource.jansi.Ansi.*;
-import static org.fusesource.jansi.Ansi.Color.*;
 
+import Client.Logger;
 import Client.Settings;
+import Client.TrayHandler;
 import Client.TwitchIRC;
 
 public class Client {
@@ -191,7 +192,7 @@ public class Client {
 			}
 			return "::";
 		}
-
+		
 		line = processClientChatCommand(line);
 		line = processClientCommand(line);
 
@@ -360,17 +361,33 @@ public class Client {
 		}
 	}
 
+	// TODO: Add notifications
+	
 	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type) {
 		if (type == CHAT_NONE) {
-			if (username == null && message != null
-					&& message.contains("The spell fails! You may try again in 20 seconds"))
-				magic_timer = Renderer.time + 21000L;
+			if (username == null && message != null) {
+				if(message.contains("The spell fails! You may try again in 20 seconds"))
+					magic_timer = Renderer.time + 21000L;
+				else if(Settings.TRAY_NOTIFS) {
+					if(Settings.LOGOUT_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("You have been standing here for 5 mins! Please move to a new area"))
+						TrayHandler.makePopupNotification("Logout Notification", "You're about to log out");
+					else if(Settings.TRADE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("wishes to trade with you")) // TODO
+						TrayHandler.makePopupNotification("Trade Request", "TODO" + " wishes to trade with you"); //Might need to do outside of the "username == null" statement
+					else if(Settings.DUEL_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("wishes to duel you")) // TODO
+						TrayHandler.makePopupNotification("Duel Request", "TODO" + " wishes to duel you"); //Might need to do outside of the "username == null" statement
+				}
+			}
 		}
-		else
-		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
+		else if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
 			if (username != null)
 				lastpm_username = username;
+		}
+		if (type == CHAT_PRIVATE) {
+			if(Settings.TRAY_NOTIFS) {
+				if(Settings.PM_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS))
+					TrayHandler.makePopupNotification("PM Notification from " + username, message);
+			}
 		}
 		
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it

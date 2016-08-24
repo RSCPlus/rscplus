@@ -170,9 +170,9 @@ public class ConfigWindow {
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		//Container declarations
-		/** The tabbed pane holding the five configuration tabs*/
+		/** The tabbed pane holding the five configuration tabs */
 		tabbedPane = new JTabbedPane();
-		/**The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of the window*/
+		/** The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of the window */
 		JPanel navigationPanel = new JPanel();
 
 		JScrollPane generalScrollPane = new JScrollPane();
@@ -558,6 +558,7 @@ public class ConfigWindow {
 		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
 		
+		// TODO: Move this part to the top and gray out everything else in the tab if it's false
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
 		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
@@ -930,10 +931,10 @@ public class ConfigWindow {
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
 
 		//Notifications tab
-		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS ); 			// TODO: Implement this feature
+		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS );
 		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS); 	// TODO: Implement this feature
 		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS); 		// TODO: Implement this feature
-		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);	// TODO: Implement this feature
+		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
 		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS); 	// TODO: Implement this feature
 		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE); 			// TODO: Implement this feature
 		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	 	// TODO: Implement this feature

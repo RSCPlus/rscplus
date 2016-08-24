@@ -26,12 +26,10 @@ import java.applet.AppletContext;
 import java.applet.AppletStub;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -40,6 +38,7 @@ import javax.swing.JFrame;
 import Client.JConfig;
 import Client.Launcher;
 import Client.Settings;
+import Client.TrayHandler;
 
 public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
 {
@@ -164,7 +163,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	{
 		dispose();
 		Launcher.getConfigWindow().disposeJFrame();
-
+		TrayHandler.removeTrayIcon();
 	}
 
 	@Override
