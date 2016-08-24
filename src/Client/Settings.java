@@ -221,11 +221,8 @@ public class Settings
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("colorize", "" + COLORIZE);
 			props.setProperty("fov", "" + FOV);
-				Camera.setFoV(FOV);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
-				checkSoftwareCursor();
 			props.setProperty("view_distance", "" + VIEW_DISTANCE);
-				Camera.setDistance(Settings.VIEW_DISTANCE);
 
 			//Overlays
 			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
@@ -265,7 +262,6 @@ public class Settings
 
 			//Keybinds
 			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-				
 				props.setProperty("key_" + kbs.commandName, "" + getIntForKeyModifier(kbs) + "*" + kbs.key);
 			}
 			

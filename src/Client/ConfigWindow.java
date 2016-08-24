@@ -41,6 +41,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Camera;
 import Game.Game;
 import Game.KeyboardHandler;
 
@@ -49,13 +50,14 @@ import Game.KeyboardHandler;
  * configuration options and keybind values from within an interface.<br>
  * <br>
  * <b>To add a new configuration option,</b> <br>
- * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI <br>
- * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the initialize method. See existing code for examples.<br>
- * 2.) Add an appropriate variable to the Settings.java class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
- * 3.) Add an entry in the synchronizeGuiValues method that references the variable, as per the already-existing examples.<br>
- * 4.) Add an entry in the saveSettings method in ConfigWindow referencing the variable, as per the already-existing examples.<br>
- * 5.) Add an entry in the Settings class save method to save the option to file.<br>
- * 6.) Add an entry in the Settings class load method to load the option from file.<br>
+ * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI from ConfigWindow.initialize() (see existing examples) <br>
+ * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the ConfigWindow.initialize() method. See existing code for examples.<br>
+ * 2.) Add an appropriate variable to the Settings class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
+ * 3.) Add an entry in the ConfigWindow.synchronizeGuiValues() method that references the variable, as per the already-existing examples.<br>
+ * 4.) Add an entry in the ConfigWindow.saveSettings() method referencing the variable, as per the already-existing examples.<br>
+ * 5.) Add an entry in the Settings.Save() class save method to save the option to file.<br>
+ * 6.) Add an entry in the Settings.Load() class load method to load the option from file.<br>
+ * 7.) (Optional) If a method needs to be called to adjust settings other than the setting value itself, add it to the ConfigWindow.applySettings() method below.
  * <br>
  * <b>To add a new keybind,</b><br>
  * 1.) Add a call in the initialize method to addKeybind with appropriate parameters.<br>
@@ -225,8 +227,6 @@ public class ConfigWindow {
 			public void actionPerformed(ActionEvent e) {
 				Launcher.getConfigWindow().saveSettings();
 				Launcher.getConfigWindow().hideConfigWindow();
-				if (Settings.CUSTOM_CLIENT_SIZE)
-					Game.getInstance().resizeFrameWithContents();
 			}
 		});
         
@@ -234,6 +234,7 @@ public class ConfigWindow {
         	
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Launcher.getConfigWindow().applySettings();
 				Launcher.getConfigWindow().hideConfigWindow();
 
 			}
@@ -243,9 +244,7 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Launcher.getConfigWindow().saveSettings();
-				if (Settings.CUSTOM_CLIENT_SIZE)
-					Game.getInstance().resizeFrameWithContents();
+				Launcher.getConfigWindow().applySettings();
 			}
 		});
         
@@ -1041,6 +1040,21 @@ public class ConfigWindow {
 		}
 		
 		kbs.button.setText(modifierText + keyText);
+	}
+	
+	/**
+	 * Applies the settings in the Config GUI to the Settings class variables.<br>
+	 * Note that this method should be used to apply any additional settings that are not applied automatically, 
+	 * such as those already present.
+	 */
+	public void applySettings() {
+		saveSettings();
+		if (Settings.CUSTOM_CLIENT_SIZE)
+			Game.getInstance().resizeFrameWithContents();
+		Camera.setFoV(Settings.FOV);
+		Settings.checkSoftwareCursor();
+		Camera.setDistance(Settings.VIEW_DISTANCE);
+		
 	}
 }
 
