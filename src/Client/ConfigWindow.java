@@ -328,8 +328,9 @@ public class ConfigWindow {
 			spinnerWinYModel.setStepSize(10);
 			generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
 		
-		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging", generalPanel);
+		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not implemented yet)", generalPanel);
 		generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+		generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
 		
 		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat XP menu always on", generalPanel);
 		generalPanelCombatXPMenuCheckbox.setToolTipText("Always show the combat XP menu, even when out of combat");
@@ -499,11 +500,13 @@ public class ConfigWindow {
 		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
 		overlayPanelNPCHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs and players");
 		
-		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay", overlayPanel);
+		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
 		overlayPanelFoodHealingCheckbox.setToolTipText("When hovering on food, shows the HP a consumable recovers");
+		overlayPanelFoodHealingCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
 		
-		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration", overlayPanel);
+		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
 		overlayPanelHPRegenTimerCheckbox.setToolTipText("Shows the seconds until your HP will naturally regenerate");
+		overlayPanelHPRegenTimerCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
 		
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
 		overlayPanelDebugModeCheckbox.setToolTipText("Shows debug overlays and enables debug text in the console");
@@ -884,7 +887,7 @@ public class ConfigWindow {
 		generalPanelClientSizeCheckbox.setSelected(Settings.CUSTOM_CLIENT_SIZE);
 		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X);
 		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y);
-		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY);
+		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY); 			// TODO: Implement this feature
 		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU);
 		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS);
 		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS);
@@ -923,22 +926,22 @@ public class ConfigWindow {
 		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIENDINFO);
 		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPCINFO);
 		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_HITBOX);
-		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY);
-		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN);
+		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY);		// TODO: Implement this feature
+		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN); 	// TODO: Implement this feature
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
 
 		//Notifications tab
-		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS );
-		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS);
-		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
-		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
-		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS);
-		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE);
-		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	
-		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
-		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS);
+		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS ); 			// TODO: Implement this feature
+		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS); 	// TODO: Implement this feature
+		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS); 		// TODO: Implement this feature
+		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);	// TODO: Implement this feature
+		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS); 	// TODO: Implement this feature
+		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE); 			// TODO: Implement this feature
+		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	 	// TODO: Implement this feature
+		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS); 				// TODO: Implement this feature
+		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS); 		// TODO: Implement this feature
+		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS); 			// TODO: Implement this feature
+		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS); 				// TODO: Implement this feature
 		notificationPanelAnyFocusButton.setEnabled(Settings.TRAY_NOTIFS);
 		
 		//Streaming & Privacy tab
