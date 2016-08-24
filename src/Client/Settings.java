@@ -720,7 +720,7 @@ public class Settings
 	public static int FATIGUE_FIGURES = 2;
 	public static boolean FATIGUE_ALERT = true;
 	public static int NAME_PATCH_TYPE = 3;
-	public static boolean HIDE_ROOFS = false;
+	public static boolean HIDE_ROOFS = true;
     public static boolean COLORIZE = true; //TODO: Vague, consider refactoring for clarity
 	public static int FOV = 9;
 	public static boolean SOFTWARE_CURSOR = false;
@@ -739,14 +739,14 @@ public class Settings
 	public static boolean DEBUG = false;
 	
 	//Notifications options
-	public static boolean PM_NOTIFICATIONS = false; 
-	public static boolean TRADE_NOTIFICATIONS = false;
-	public static boolean DUEL_NOTIFICATIONS = false;
-	public static boolean LOGOUT_NOTIFICATIONS = false;
+	public static boolean PM_NOTIFICATIONS = true; 
+	public static boolean TRADE_NOTIFICATIONS = true;
+	public static boolean DUEL_NOTIFICATIONS = true;
+	public static boolean LOGOUT_NOTIFICATIONS = true;
 	public static boolean LOW_HP_NOTIFICATIONS = false;
 	public static int LOW_HP_NOTIF_VALUE = 25;
 	public static boolean NOTIFICATION_SOUNDS = false;
-	public static boolean TRAY_NOTIFS = false;
+	public static boolean TRAY_NOTIFS = true;
 	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
 	
 	//Streaming & Privacy
@@ -754,7 +754,7 @@ public class Settings
 	public static String TWITCH_CHANNEL = "";
 	public static String TWITCH_OAUTH = "";
 	public static String TWITCH_USERNAME = "";
-	public static boolean SHOW_LOGINDETAILS = false; //TODO: Consider refactoring for clarity. This determines if IP/DNS details are shown at login screen
+	public static boolean SHOW_LOGINDETAILS = true; //TODO: Consider refactoring for clarity. This determines if IP/DNS details are shown at login welcome screen
 	public static boolean SAVE_LOGININFO = true;
 	
 	//Miscellaneous settings (No GUI)
@@ -773,7 +773,7 @@ public class Settings
 		FATIGUE_FIGURES = 2;
 		FATIGUE_ALERT = true;
 		NAME_PATCH_TYPE = 3;
-		HIDE_ROOFS = false;
+		HIDE_ROOFS = true;
 		COLORIZE = true;
 		FOV = 9;
 		SOFTWARE_CURSOR = false;
@@ -796,14 +796,14 @@ public class Settings
 	}
 	
 	public static void restoreDefaultNotifications() {
-		PM_NOTIFICATIONS = false; 
-		TRADE_NOTIFICATIONS = false;
-		DUEL_NOTIFICATIONS = false;
-		LOGOUT_NOTIFICATIONS = false;
+		PM_NOTIFICATIONS = true; 
+		TRADE_NOTIFICATIONS = true;
+		DUEL_NOTIFICATIONS = true;
+		LOGOUT_NOTIFICATIONS = true;
 		LOW_HP_NOTIFICATIONS = false;
 		LOW_HP_NOTIF_VALUE = 25;
 		NOTIFICATION_SOUNDS = false;
-		TRAY_NOTIFS = false;
+		TRAY_NOTIFS = true;
 		TRAY_NOTIFS_ALWAYS = false;
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}
@@ -813,7 +813,7 @@ public class Settings
 		TWITCH_CHANNEL = "";
 		TWITCH_OAUTH = "";
 		TWITCH_USERNAME = "";
-		SHOW_LOGINDETAILS = false;
+		SHOW_LOGINDETAILS = true;
 		SAVE_LOGININFO = true;
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}

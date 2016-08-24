@@ -72,6 +72,7 @@ public class ConfigWindow {
 	private JFrame frame;
 	
 	private JLabel generalPanelNamePatchModeDesc;
+	private JLabel notificationPanelLowHPNotifsEndLabel;
 	
 	ClickListener clickListener = new ClickListener();
 	RebindListener rebindListener = new RebindListener();
@@ -516,6 +517,22 @@ public class ConfigWindow {
 		
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
+		// TODO: Gray out everything else in the tab if it's false
+		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
+		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
+		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
+		
+		ButtonGroup trayPopupButtonGroup = new ButtonGroup();
+		notificationPanelClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
+		notificationPanelAnyFocusButton = addRadioButton("Regardless of client focus", notificationPanel, 20);
+		trayPopupButtonGroup.add(notificationPanelClientFocusButton);
+		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
+		
+		// TODO: Add more space here
+		// TODO: Figure out if notification sounds should only play on systems that don't support system notifications
+		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
+		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
+		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
 		
@@ -543,7 +560,7 @@ public class ConfigWindow {
 			notificationPanelLowHPNotifsSpinner.setAlignmentY((float) 0.75);
 			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsSpinner);
 			
-			JLabel notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
+			notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
 			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsEndLabel);
 			notificationPanelLowHPNotifsEndLabel.setAlignmentY((float) 0.9);
 			notificationPanelLowHPNotifsEndLabel.setBorder(new EmptyBorder(0,2,0,0));
@@ -555,20 +572,6 @@ public class ConfigWindow {
 			spinnerHPNumModel.setValue(25);
 			notificationPanelLowHPNotifsSpinner.setModel(spinnerHPNumModel);
 			
-		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
-		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
-		
-		// TODO: Move this part to the top and gray out everything else in the tab if it's false
-		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
-		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
-		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
-		
-		ButtonGroup trayPopupButtonGroup = new ButtonGroup();
-		notificationPanelClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
-		notificationPanelAnyFocusButton = addRadioButton("Regardless of client focus", notificationPanel, 20);
-		trayPopupButtonGroup.add(notificationPanelClientFocusButton);
-		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
-
 		notificationPanelTrayPopupCheckbox.addActionListener(new ActionListener() {
 			
 			@Override
@@ -576,9 +579,25 @@ public class ConfigWindow {
 				if(notificationPanelTrayPopupCheckbox.isSelected()) {
 					notificationPanelClientFocusButton.setEnabled(true);
 					notificationPanelAnyFocusButton.setEnabled(true);
+					notificationPanelNotifSoundsCheckbox.setEnabled(true);
+					notificationPanelPMNotifsCheckbox.setEnabled(true);
+					notificationPanelTradeNotifsCheckbox.setEnabled(true);
+					notificationPanelDuelNotifsCheckbox.setEnabled(true);
+					notificationPanelLogoutNotifsCheckbox.setEnabled(true);
+					notificationPanelLowHPNotifsCheckbox.setEnabled(true);
+					notificationPanelLowHPNotifsSpinner.setEnabled(true);
+					notificationPanelLowHPNotifsEndLabel.setEnabled(true);
 				} else {
 					notificationPanelClientFocusButton.setEnabled(false);
 					notificationPanelAnyFocusButton.setEnabled(false);
+					notificationPanelNotifSoundsCheckbox.setEnabled(false);
+					notificationPanelPMNotifsCheckbox.setEnabled(false);
+					notificationPanelTradeNotifsCheckbox.setEnabled(false);
+					notificationPanelDuelNotifsCheckbox.setEnabled(false);
+					notificationPanelLogoutNotifsCheckbox.setEnabled(false);
+					notificationPanelLowHPNotifsCheckbox.setEnabled(false);
+					notificationPanelLowHPNotifsSpinner.setEnabled(false);
+					notificationPanelLowHPNotifsEndLabel.setEnabled(false);
 				}
 			}
 		});
@@ -646,7 +665,7 @@ public class ConfigWindow {
 			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
 			streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
 		
-		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login screen", streamingPanel);
+		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login welcome screen", streamingPanel);
 		streamingPanelIPAtLoginCheckbox.setToolTipText("Shows the last IP/DNS you last logged in from when you log in (Disable this if you're streaming)");
 		
 		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
