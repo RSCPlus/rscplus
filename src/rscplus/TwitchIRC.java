@@ -19,7 +19,7 @@
  *	Authors: see <https://github.com/OrN/rscplus>
  */
 
-package Client;
+package rscplus;
 
 import Game.Client;
 import java.io.BufferedReader;

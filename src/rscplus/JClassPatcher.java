@@ -19,7 +19,7 @@
  *	Authors: see <https://github.com/OrN/rscplus>
  */
 
-package Client;
+package rscplus;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -82,6 +82,8 @@ public class JClassPatcher {
 	}
 
 	private void patchGeneric(ClassNode node) {
+		Logger.Info("Patching general (" + node.name + ".class)");
+
 		Iterator<MethodNode> methodNodeList = node.methods.iterator();
 		while (methodNodeList.hasNext()) {
 			MethodNode methodNode = methodNodeList.next();
@@ -862,7 +864,6 @@ public class JClassPatcher {
 			MethodNode methodNode = methodNodeList.next();
 
 			if (methodNode.name.equals("a")) {
-				// System.out.println(methodNode.desc);
 				if (methodNode.desc.equals("(ILtb;)V")) {
 					Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 					while (insnNodeList.hasNext()) {
@@ -874,7 +875,6 @@ public class JClassPatcher {
 
 						if (insnNode.getOpcode() == Opcodes.ALOAD && nextNode.getOpcode() == Opcodes.ICONST_0) {
 							VarInsnNode call = (VarInsnNode) insnNode;
-							System.out.println("Patching validation...");
 
 							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL,
 									"java/util/Random", "nextBytes", "([B)V"));

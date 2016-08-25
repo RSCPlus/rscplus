@@ -30,8 +30,8 @@ import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.Collections;
 
-import Client.Logger;
-import Client.Settings;
+import rscplus.Logger;
+import rscplus.Settings;
 
 public class Item
 {

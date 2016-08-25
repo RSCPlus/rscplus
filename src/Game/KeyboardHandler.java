@@ -21,9 +21,9 @@
 
 package Game;
 
-import Client.Logger;
-import Client.Settings;
-import Game.Game;
+import rscplus.Logger;
+import rscplus.rscplus;
+import rscplus.Settings;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -102,7 +102,7 @@ public class KeyboardHandler implements KeyListener
 					worldSwitch = 5;
 
 				if(worldSwitch != 0)
-					Game.getInstance().getJConfig().changeWorld(worldSwitch);
+					rscplus.getInstance().getJConfig().changeWorld(worldSwitch);
 			}
 
 			if(Client.state != Client.STATE_LOGIN)

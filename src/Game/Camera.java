@@ -21,7 +21,7 @@
 
 package Game;
 
-import Client.Settings;
+import rscplus.Settings;
 
 public class Camera
 {

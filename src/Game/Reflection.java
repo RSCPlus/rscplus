@@ -21,16 +21,16 @@
 
 package Game;
 
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import rscplus.JClassLoader;
+import rscplus.rscplus;
+import rscplus.Logger;
 
 public class Reflection {
 	public static void Load() {
 		try {
-			JClassLoader classLoader = Launcher.getInstance().getClassLoader();
+			JClassLoader classLoader = rscplus.getInstance().getJClassLoader();
 
 			// Client
 			Class<?> c = classLoader.loadClass("client");

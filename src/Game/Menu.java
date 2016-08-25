@@ -21,7 +21,7 @@
 
 package Game;
 
-import Client.Logger;
+import rscplus.Logger;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 

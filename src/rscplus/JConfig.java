@@ -19,7 +19,7 @@
  *	Authors: see <https://github.com/OrN/rscplus>
  */
 
-package Client;
+package rscplus;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,7 +27,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.HashMap;
-import Game.Game;
 
 public class JConfig
 {
@@ -115,10 +114,6 @@ public class JConfig
 		// Update settings
 		Settings.WORLD = world;
 		Settings.Save();
-
-		// TODO: This may not be the best way to handle this, but for now this works
-		// If we start setting other title info, it will be broken by this
-		Game.getInstance().setTitle("World " + (Settings.WORLD));
 	}
 
 	public String getString(String key)

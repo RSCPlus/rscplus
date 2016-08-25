@@ -19,7 +19,7 @@
  *	Authors: see <https://github.com/OrN/rscplus>
  */
 
-package Client;
+package rscplus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -86,7 +86,6 @@ public class JClassLoader extends ClassLoader
 						if(name.endsWith(".class"))
 						{
 							Logger.Info("Found cached file: " + name);
-							Launcher.getInstance().setStatus("Loading " + name + "...");
 							name = name.substring(0, name.indexOf(".class"));
 							classData = patchClass(classData);
 							m_classData.put(name, classData);
@@ -104,7 +103,6 @@ public class JClassLoader extends ClassLoader
 				}
 
 				totalNeeded += 1;
-				Launcher.getInstance().setProgress(totalLoaded, totalNeeded);
 			}
 
 			JarEntry entry;
@@ -130,7 +128,6 @@ public class JClassLoader extends ClassLoader
 				fOut.close();
 
 				Logger.Info("Retrieved file: " + name);
-				Launcher.getInstance().setStatus("Downloading " + name + "...");
 
 				if(name.endsWith(".class"))
 				{
@@ -141,7 +138,6 @@ public class JClassLoader extends ClassLoader
 				}
 
 				totalLoaded += 1;
-				Launcher.getInstance().setProgress(totalLoaded, totalNeeded);
 			}
 
 			in.close();

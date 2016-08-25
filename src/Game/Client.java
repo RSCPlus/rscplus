@@ -33,8 +33,9 @@ import org.fusesource.jansi.AnsiConsole;
 import static org.fusesource.jansi.Ansi.*;
 import static org.fusesource.jansi.Ansi.Color.*;
 
-import Client.Settings;
-import Client.TwitchIRC;
+import rscplus.Settings;
+import rscplus.rscplus;
+import rscplus.TwitchIRC;
 
 public class Client {
 
@@ -60,7 +61,7 @@ public class Client {
 		handler_mouse = new MouseHandler();
 		handler_keyboard = new KeyboardHandler();
 
-		Applet applet = Game.getInstance().getApplet();
+		Applet applet = rscplus.getInstance().getApplet();
 		applet.addMouseListener(handler_mouse);
 		applet.addMouseMotionListener(handler_mouse);
 		applet.addMouseWheelListener(handler_mouse);

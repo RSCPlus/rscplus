@@ -19,7 +19,7 @@
  *	Authors: see <https://github.com/OrN/rscplus>
  */
 
-package Client;
+package rscplus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,32 +28,44 @@ import java.net.URL;
 import java.util.Properties;
 
 import Game.Client;
-import Game.Game;
 
 public class Settings
 {
 	public static void Load()
 	{
 		// Find JAR directory
-		Dir.JAR = ".";
-		try
+		if(rscplus.getInstance().isApplet())
 		{
-			Dir.JAR = Settings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-			int indexFileSep1 = Dir.JAR.lastIndexOf("/");
-			int indexFileSep2 = Dir.JAR.lastIndexOf("\\");
-			int index = (indexFileSep1>indexFileSep2)?indexFileSep1:indexFileSep2;
-			if(index != -1)
-				Dir.JAR = Dir.JAR.substring(0, index);
+			Dir.JAR = System.getProperty("user.home") + "/.rscplus";
+			Util.MakeDirectory(Dir.JAR);
 		}
-		catch(Exception e) {}
-
-		Logger.Info("Jar Location: " + Dir.JAR);
+		else
+		{
+			Dir.JAR = ".";
+			try
+			{
+				Dir.JAR = Settings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+				int indexFileSep1 = Dir.JAR.lastIndexOf("/");
+				int indexFileSep2 = Dir.JAR.lastIndexOf("\\");
+				int index = (indexFileSep1>indexFileSep2)?indexFileSep1:indexFileSep2;
+				if(index != -1)
+					Dir.JAR = Dir.JAR.substring(0, index);
+			}
+			catch(Exception e)
+			{
+				Logger.Error("Unable to determine rscplus JAR location");
+			}
+		}
 
 		// Load other directories
 		Dir.CACHE = Dir.JAR + "/cache";
 		Util.MakeDirectory(Dir.CACHE);
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.MakeDirectory(Dir.SCREENSHOT);
+
+		Logger.Info("rscplus config directory: " + Dir.JAR);
+		Logger.Info("rscplus cache directory: " + Dir.CACHE);
+		Logger.Info("rscplus screenshot directory: " + Dir.SCREENSHOT);
 
 		// Load settings
 		try
@@ -78,7 +90,6 @@ public class Settings
 			SHOW_INVCOUNT = getBoolean(props, "show_invcount", true);
 			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", true);
 			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", true);
-			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
 			DEBUG = getBoolean(props, "debug", false);
 			DISASSEMBLE = getBoolean(props, "disassemble", false);
 			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
@@ -136,7 +147,12 @@ public class Settings
 		{
 			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY;
 			Util.MakeDirectory(Dir.DUMP);
+
+			Logger.Info("rscplus class dump directory: " + Dir.DUMP);
 		}
+
+		// Force a config save incase we just generated it for the first time
+		Save();
 	}
 
 	public static void Save()
@@ -158,7 +174,6 @@ public class Settings
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
 			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
-			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
 			props.setProperty("debug", "" + DEBUG);
 			props.setProperty("disassemble", "" + DISASSEMBLE);
 			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
@@ -189,7 +204,7 @@ public class Settings
 		URL url = null;
 		try
 		{
-			url = Game.getInstance().getClass().getResource(fname);
+			url = rscplus.getInstance().getClass().getResource(fname);
 		}
 		catch(Exception e) {}
 
@@ -212,7 +227,7 @@ public class Settings
 		InputStream stream = null;
 		try
 		{
-			stream = Game.getInstance().getClass().getResourceAsStream(fname);
+			stream = rscplus.getInstance().getClass().getResourceAsStream(fname);
 		}
 		catch(Exception e) {}
 
@@ -468,7 +483,6 @@ public class Settings
 	public static boolean SHOW_STATUSDISPLAY = true;
 	public static boolean SHOW_XPDROPS = true;
 	public static boolean SHOW_FATIGUEDROPS = true;
-	public static boolean SOFTWARE_CURSOR = false;
 	public static boolean DEBUG = false;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";

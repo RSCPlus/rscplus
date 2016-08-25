@@ -48,14 +48,15 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import Client.Settings;
-import Client.Util;
+import rscplus.Settings;
+import rscplus.rscplus;
+import rscplus.Util;
 
 public class Renderer {
 	public static void init() {
 		// Resize game window
-		new_size.width = 512;
-		new_size.height = 346;
+		new_size.width = rscplus.getInstance().getApplet().getWidth();
+		new_size.height = rscplus.getInstance().getApplet().getHeight();
 		handle_resize();
 
 		// Load fonts
@@ -77,7 +78,6 @@ public class Renderer {
 		try {
 			image_border = ImageIO.read(Settings.getResource("/assets/border.png"));
 			image_bar_frame = ImageIO.read(Settings.getResource("/assets/bar.png"));
-			image_cursor = ImageIO.read(Settings.getResource("/assets/cursor.png"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -461,7 +461,7 @@ public class Renderer {
 				if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width
 						&& MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height
 						&& MouseHandler.mouseClicked) {
-					Game.getInstance().getJConfig().changeWorld(i + 1);
+					rscplus.getInstance().getJConfig().changeWorld(i + 1);
 				}
 			}
 
@@ -476,12 +476,6 @@ public class Renderer {
 			}
 
 			drawShadowText(g2, "There are currently " + totalPop + " players online.", width / 2, 8, color_text, true);
-		}
-
-		// Draw software cursor
-		if (Settings.SOFTWARE_CURSOR) {
-			setAlpha(g2, 1.0f);
-			g2.drawImage(image_cursor, MouseHandler.x, MouseHandler.y, null);
 		}
 
 		g2.dispose();
@@ -608,7 +602,6 @@ public class Renderer {
 
 	public static Image image_border;
 	public static Image image_bar_frame;
-	public static Image image_cursor;
 	private static BufferedImage game_image;
 	
 	private static Item last_item;
