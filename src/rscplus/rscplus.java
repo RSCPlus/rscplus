@@ -46,7 +46,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
-		getContentPane().setMinimumSize(new Dimension(512, 346));
 		addComponentListener(this);
 
 		m_isApplet = applet;
