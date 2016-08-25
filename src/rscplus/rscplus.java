@@ -35,6 +35,8 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 public class rscplus extends JApplet implements ComponentListener, WindowListener
 {
@@ -47,6 +49,19 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
 		addComponentListener(this);
+
+		m_jprogressbar = new JProgressBar();
+		m_jprogressbar.setStringPainted(true);
+		m_jprogressbar.setBorderPainted(true);
+		m_jprogressbar.setForeground(Color.GRAY.brighter());
+		m_jprogressbar.setBackground(Color.BLACK);
+		m_jprogressbar.setString("initializing");
+		m_jprogressbar.setVisible(true);
+
+		// TODO: Center progress bar in window at a certain size
+
+		getContentPane().add(m_jprogressbar);
+		getContentPane().revalidate();
 
 		m_isApplet = applet;
 	}
@@ -118,9 +133,10 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		Logger.Info("Setting rsc client applet stub...");
 		m_applet.setStub(m_appletstub);
 
-		Logger.Info("Adding applet to JApplet...");
-		add(m_applet);
-		revalidate();
+		Logger.Info("Adding rsc applet to JApplet...");
+		getContentPane().remove(m_jprogressbar);
+		getContentPane().add(m_applet);
+		getContentPane().revalidate();
 
 		Logger.Info("Client loaded successfully");
 
@@ -141,6 +157,34 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		Logger.Info("Running rsc code, have fun :)");
 		m_applet.init();
 		m_applet.start();
+	}
+
+	public void setStatus(final String text)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				m_jprogressbar.setString(text);
+			}
+		});
+	}
+
+	public void setProgress(final int value, final int total)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				if(total == 0)
+				{
+					m_jprogressbar.setValue(0);
+					return;
+				}
+
+				m_jprogressbar.setValue(value * 100 / total);
+			}
+		});
 	}
 
 	/*
@@ -289,9 +333,10 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	private RSC_AppletStub m_appletstub;
 	private Applet m_applet = null;
 	private boolean m_isApplet;
+	private static JProgressBar m_jprogressbar;
 
 	// This is only used in application mode
-	private static JFrame m_jframe;
+	private static JFrame m_jframe = null;
 
 	// Singleton
 	private static rscplus m_instance = null;

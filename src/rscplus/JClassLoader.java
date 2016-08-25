@@ -86,6 +86,7 @@ public class JClassLoader extends ClassLoader
 						if(name.endsWith(".class"))
 						{
 							Logger.Info("Found cached file: " + name);
+							rscplus.getInstance().setStatus("loading cached file " + name + "...");
 							name = name.substring(0, name.indexOf(".class"));
 							classData = patchClass(classData);
 							m_classData.put(name, classData);
@@ -103,6 +104,7 @@ public class JClassLoader extends ClassLoader
 				}
 
 				totalNeeded += 1;
+				rscplus.getInstance().setProgress(totalLoaded, totalNeeded);
 			}
 
 			JarEntry entry;
@@ -128,6 +130,7 @@ public class JClassLoader extends ClassLoader
 				fOut.close();
 
 				Logger.Info("Retrieved file: " + name);
+				rscplus.getInstance().setStatus("downloading " + name + "...");
 
 				if(name.endsWith(".class"))
 				{
@@ -138,6 +141,7 @@ public class JClassLoader extends ClassLoader
 				}
 
 				totalLoaded += 1;
+				rscplus.getInstance().setProgress(totalLoaded, totalNeeded);
 			}
 
 			in.close();
@@ -147,6 +151,8 @@ public class JClassLoader extends ClassLoader
 			e.printStackTrace();
 			return false;
 		}
+
+		rscplus.getInstance().setStatus("launching game");
 
 		return true;
 	}
