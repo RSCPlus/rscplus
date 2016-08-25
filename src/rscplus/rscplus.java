@@ -225,11 +225,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	@Override
 	public final void windowClosed(WindowEvent e)
 	{
-		if(m_applet == null)
-			return;
-
-		m_applet.stop();
-		m_applet.destroy();
+		stop();
 	}
 
 	@Override
