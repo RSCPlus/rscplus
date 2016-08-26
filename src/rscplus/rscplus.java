@@ -134,11 +134,12 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		Logger.Info("Setting rsc client applet stub...");
 		m_applet.setStub(m_appletstub);
+		m_applet.setBackground(Color.BLACK);
 
 		Logger.Info("Adding rsc applet to JApplet...");
 		getContentPane().remove(m_jprogressbar);
-		getContentPane().add(m_applet);
-		getContentPane().revalidate();
+		setContentPane(m_applet);
+		revalidate();
 
 		// Handle progress bar
 		// TODO: Do we need to dispose of this somehow?
