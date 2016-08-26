@@ -46,6 +46,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		m_jclassloader = new JClassLoader();
 		m_appletstub = new RSC_AppletStub();
 
+		getContentPane().setLayout(null);
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
 		addComponentListener(this);
@@ -56,6 +57,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		m_jprogressbar.setForeground(Color.GRAY.brighter());
 		m_jprogressbar.setBackground(Color.BLACK);
 		m_jprogressbar.setString("initializing");
+		m_jprogressbar.setSize(300, 40);
 		m_jprogressbar.setVisible(true);
 
 		// TODO: Center progress bar in window at a certain size
@@ -137,6 +139,10 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		getContentPane().remove(m_jprogressbar);
 		getContentPane().add(m_applet);
 		getContentPane().revalidate();
+
+		// Handle progress bar
+		// TODO: Do we need to dispose of this somehow?
+		m_jprogressbar = null;
 
 		Logger.Info("Client loaded successfully");
 
@@ -319,6 +325,9 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		Logger.Debug("Resized to " + size.width + "x" + size.height);
 
+		if(m_jprogressbar != null)
+			m_jprogressbar.setLocation((size.width / 2) - (m_jprogressbar.getWidth() / 2), (size.height / 2) - (m_jprogressbar.getHeight() / 2));
+
 		if(m_applet != null)
 			Renderer.resize(size.width, size.height);
 	}
@@ -333,7 +342,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	private RSC_AppletStub m_appletstub;
 	private Applet m_applet = null;
 	private boolean m_isApplet;
-	private static JProgressBar m_jprogressbar;
+	private static JProgressBar m_jprogressbar = null;
 
 	// This is only used in application mode
 	private static JFrame m_jframe = null;
