@@ -1046,13 +1046,14 @@ public class ConfigWindow {
 	/**
 	 * Applies the settings in the Config GUI to the Settings class variables.<br>
 	 * Note that this method should be used to apply any additional settings that are not applied automatically, 
-	 * such as those already present.
+	 * such as those already present. Also note that thread-unsafe operations affecting the applet should not
+	 * be done in this method, as this method is invoked by the AWT event queue.
 	 */
 	public void applySettings() {
 		saveSettings();
 		if (Settings.CUSTOM_CLIENT_SIZE)
 			Game.getInstance().resizeFrameWithContents();
-		Camera.setFoV(Settings.FOV);
+		Settings.fovUpdateRequired = true; //Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
 		Settings.checkSoftwareCursor();
 		Camera.setDistance(Settings.VIEW_DISTANCE);
 		

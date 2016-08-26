@@ -509,6 +509,10 @@ public class Renderer {
 
 		if (width != new_size.width || height != new_size.height)
 			handle_resize();
+		if (Settings.fovUpdateRequired) {
+			Camera.setFoV(Settings.FOV);
+			Settings.fovUpdateRequired = false;
+		}
 	}
 
 	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {

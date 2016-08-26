@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.Properties;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Camera;
 import Game.Client;
 import Game.Game;
 import Game.KeyboardHandler;
@@ -537,6 +538,7 @@ public class Settings
 	public static void setClientFoV(String fovValue) {
 		try {
 			FOV = Integer.parseInt(fovValue);
+			Camera.setFoV(FOV);
 			if (FOV > 10 || FOV < 8) { //if stupid fov, warn user how to get back
 				Client.displayMessage("@whi@This is fun, but if you want to go back to normal, use @yel@::fov 9", Client.CHAT_QUEST);
 			}
@@ -761,6 +763,11 @@ public class Settings
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
+	
+	
+	
+	//Internally used variables
+	public static boolean fovUpdateRequired;
 	
 	public static void restoreDefaultGeneral() {
 		CUSTOM_CLIENT_SIZE = false;
