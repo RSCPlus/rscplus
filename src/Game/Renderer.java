@@ -55,8 +55,7 @@ import rscplus.Util;
 public class Renderer {
 	public static void init() {
 		// Resize game window
-		new_size.width = rscplus.getInstance().getApplet().getWidth();
-		new_size.height = rscplus.getInstance().getApplet().getHeight();
+		resize(rscplus.getInstance().getWidth(), rscplus.getInstance().getHeight());
 		handle_resize();
 
 		// Load fonts
