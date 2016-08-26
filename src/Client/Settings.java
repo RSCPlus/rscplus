@@ -764,6 +764,11 @@ public class Settings
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
 	
+	
+	
+	//Internally used variables
+	public static boolean fovUpdateRequired;
+	
 	public static void restoreDefaultGeneral() {
 		CUSTOM_CLIENT_SIZE = false;
 		CUSTOM_CLIENT_SIZE_X = 512;
