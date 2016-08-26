@@ -106,6 +106,8 @@ public class Settings
 			LOGOUT_NOTIFICATIONS = getBoolean(props, "logout_notifications", LOGOUT_NOTIFICATIONS);
 			LOW_HP_NOTIFICATIONS = getBoolean(props, "low_hp_notifications", LOW_HP_NOTIFICATIONS);
 			LOW_HP_NOTIF_VALUE = getInt(props, "low_hp_notif_value", LOW_HP_NOTIF_VALUE);
+			FATIGUE_NOTIFICATIONS = getBoolean(props, "fatigue_notifications", FATIGUE_NOTIFICATIONS);
+			FATIGUE_NOTIF_VALUE = getInt(props, "fatigue_notifications", FATIGUE_NOTIF_VALUE);
 			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
 			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
 			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
@@ -243,6 +245,8 @@ public class Settings
 			props.setProperty("logout_notifications", "" + LOGOUT_NOTIFICATIONS);
 			props.setProperty("low_hp_notifications", "" + LOW_HP_NOTIFICATIONS);
 			props.setProperty("low_hp_notif_value", "" + LOW_HP_NOTIF_VALUE);
+			props.setProperty("fatigue_notifications", "" + FATIGUE_NOTIFICATIONS);
+			props.setProperty("fatigue_notif_value", "" + FATIGUE_NOTIF_VALUE);
 			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
 			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
 			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
@@ -747,6 +751,8 @@ public class Settings
 	public static boolean LOGOUT_NOTIFICATIONS = true;
 	public static boolean LOW_HP_NOTIFICATIONS = false;
 	public static int LOW_HP_NOTIF_VALUE = 25;
+	public static boolean FATIGUE_NOTIFICATIONS = true;
+	public static int FATIGUE_NOTIF_VALUE = 98;
 	public static boolean NOTIFICATION_SOUNDS = false;
 	public static boolean TRAY_NOTIFS = true;
 	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
@@ -809,6 +815,8 @@ public class Settings
 		LOGOUT_NOTIFICATIONS = true;
 		LOW_HP_NOTIFICATIONS = false;
 		LOW_HP_NOTIF_VALUE = 25;
+		FATIGUE_NOTIFICATIONS = true;
+		FATIGUE_NOTIF_VALUE = 98;
 		NOTIFICATION_SOUNDS = false;
 		TRAY_NOTIFS = true;
 		TRAY_NOTIFS_ALWAYS = false;

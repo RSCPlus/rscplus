@@ -32,6 +32,7 @@ import Client.Settings;
 
 public class KeyboardHandler implements KeyListener
 {
+	// TODO: Make spacebar clear the login message screen
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
@@ -127,7 +128,7 @@ public class KeyboardHandler implements KeyListener
 			e.consume();
 		}
 
-		if(isCommandKey(e) || e.getKeyCode() == KeyEvent.VK_TAB)
+		if(e.getKeyCode() == KeyEvent.VK_TAB)
 			e.consume();
 
 		if(!e.isConsumed())
@@ -142,9 +143,6 @@ public class KeyboardHandler implements KeyListener
 		if(listener_key == null)
 			return;
 
-		if(isCommandKey(e))
-			e.consume();
-
 		if(dialogue_option >= 0)
 			e.consume();
 
@@ -153,15 +151,7 @@ public class KeyboardHandler implements KeyListener
 			listener_key.keyTyped(e);
 		}
 	}
-
-	private static boolean isCommandKey(KeyEvent e)
-	{
-		return (e.isControlDown() || e.isAltDown() || e.getKeyCode() == KeyEvent.VK_ALT ||
-			e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == command_key);
-	}
-
-	private static int command_key = -1;
-
+	
 	public static int dialogue_option = -1;
 	public static KeyListener listener_key;
 	

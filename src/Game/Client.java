@@ -375,13 +375,9 @@ public class Client {
 				}
 			}
 		}
-		else if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
-			if (username != null)
-				lastpm_username = username;
-		}
 		else if (type == CHAT_PRIVATE) {
 			if(Settings.TRAY_NOTIFS && Settings.PM_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS))
-				TrayHandler.makePopupNotification("PM Notification from " + username, message);
+				TrayHandler.makePopupNotification("PM from " + username, message);
 		}
 		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat message. Something else needs to be detected to see if it's a trade request.
 		//else if(type == CHAT_PLAYER_INTERACT_IN) {
@@ -391,6 +387,11 @@ public class Client {
 		else if(type == CHAT_PLAYER_INTERACT_OUT) {
 			if(Settings.TRAY_NOTIFS && Settings.DUEL_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains(" wishes to duel with you"))
 				TrayHandler.makePopupNotification("Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
+		}
+		
+		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
+			if (username != null)
+				lastpm_username = username;
 		}
 		
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it

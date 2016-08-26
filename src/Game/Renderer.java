@@ -49,6 +49,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import Client.Settings;
+import Client.TrayHandler;
 import Client.Util;
 
 public class Renderer {
@@ -114,6 +115,9 @@ public class Renderer {
 			}
 		}
 	}
+
+	private static int lastPercentHP = 100;
+	private static int lastFatigue = 0;
 
 	public static void present(Graphics g, Image image) {
 		// Update timing
@@ -292,6 +296,18 @@ public class Renderer {
 				colorFatigue = color_low;
 				alphaFatigue = alpha_time;
 			}
+			
+			// Low HP notification
+			
+			if (Settings.TRAY_NOTIFS && Settings.LOW_HP_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && percentHP <= Settings.LOW_HP_NOTIF_VALUE && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE)
+				TrayHandler.makePopupNotification("Low HP Notification", "Your HP is at " + percentHP + "%");
+			lastPercentHP = percentHP;
+			
+			// High fatigue notification
+			
+			if (Settings.TRAY_NOTIFS && Settings.FATIGUE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE)
+				TrayHandler.makePopupNotification("High Fatigue Notification", "Your fatigue is at " + Client.getFatigue() + "%");
+			lastFatigue = Client.getFatigue();
 
 			// Draw HP, Prayer, Fatigue overlay
 			int x = 24;

@@ -75,6 +75,7 @@ public class ConfigWindow {
 	
 	private JLabel generalPanelNamePatchModeDesc;
 	private JLabel notificationPanelLowHPNotifsEndLabel;
+	private JLabel notificationPanelFatigueNotifsEndLabel;
 	
 	ClickListener clickListener = new ClickListener();
 	RebindListener rebindListener = new RebindListener();
@@ -122,6 +123,8 @@ public class ConfigWindow {
 	private JCheckBox notificationPanelLogoutNotifsCheckbox;
 	private JCheckBox notificationPanelLowHPNotifsCheckbox;
 		private JSpinner notificationPanelLowHPNotifsSpinner;
+	private JCheckBox notificationPanelFatigueNotifsCheckbox;
+		private JSpinner notificationPanelFatigueNotifsSpinner;
 	private JCheckBox notificationPanelNotifSoundsCheckbox;	
 	private JCheckBox notificationPanelTrayPopupCheckbox;
 	private JRadioButton notificationPanelClientFocusButton;
@@ -296,6 +299,7 @@ public class ConfigWindow {
 		generalPanelClientSizePanel.setPreferredSize(new Dimension(0,37));
 		generalPanelClientSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
+			// TODO: Perhaps change to "Save client size on close"?
 			generalPanelClientSizeCheckbox = addCheckbox("Default client size:", generalPanelClientSizePanel);
 			generalPanelClientSizeCheckbox.setToolTipText("Start the client with the supplied window size");
 			
@@ -530,8 +534,9 @@ public class ConfigWindow {
 		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
 		
 		// TODO: Add more space here
-		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
+		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds (Not implemented yet)", notificationPanel);
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
+		notificationPanelNotifSoundsCheckbox.setEnabled(false); // TODO: Remove this line after trade notifications are implemented
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
@@ -572,6 +577,33 @@ public class ConfigWindow {
 			spinnerHPNumModel.setMaximum(99);
 			spinnerHPNumModel.setValue(25);
 			notificationPanelLowHPNotifsSpinner.setModel(spinnerHPNumModel);
+		
+		JPanel notificationPanelFatigueNotifsPanel = new JPanel();
+		notificationPanel.add(notificationPanelFatigueNotifsPanel);
+		notificationPanelFatigueNotifsPanel.setLayout(new BoxLayout(notificationPanelFatigueNotifsPanel, BoxLayout.X_AXIS));
+		notificationPanelFatigueNotifsPanel.setPreferredSize(new Dimension(0,37));
+		notificationPanelFatigueNotifsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		notificationPanelFatigueNotifsCheckbox = addCheckbox("Enable high fatigue notifications at", notificationPanelFatigueNotifsPanel);
+		notificationPanelFatigueNotifsCheckbox.setToolTipText("Shows a system notification when your fatigue gets past the specified value");
+		
+			notificationPanelFatigueNotifsSpinner = new JSpinner();
+			notificationPanelFatigueNotifsSpinner.setMaximumSize(new Dimension(35,20));
+			notificationPanelFatigueNotifsSpinner.setMinimumSize(new Dimension(35,20));
+			notificationPanelFatigueNotifsSpinner.setAlignmentY((float) 0.75);
+			notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsSpinner);
+			
+			notificationPanelFatigueNotifsEndLabel = new JLabel("% fatigue");
+			notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsEndLabel);
+			notificationPanelFatigueNotifsEndLabel.setAlignmentY((float) 0.9);
+			notificationPanelFatigueNotifsEndLabel.setBorder(new EmptyBorder(0,2,0,0));
+			
+			//Sanitize JSpinner values
+			SpinnerNumberModel spinnerFatigueNumModel = new SpinnerNumberModel();
+			spinnerFatigueNumModel.setMinimum(1);
+			spinnerFatigueNumModel.setMaximum(100);
+			spinnerFatigueNumModel.setValue(98);
+			notificationPanelFatigueNotifsSpinner.setModel(spinnerFatigueNumModel);
 			
 		notificationPanelTrayPopupCheckbox.addActionListener(new ActionListener() {
 			
@@ -580,7 +612,7 @@ public class ConfigWindow {
 				if(notificationPanelTrayPopupCheckbox.isSelected()) {
 					notificationPanelClientFocusButton.setEnabled(true);
 					notificationPanelAnyFocusButton.setEnabled(true);
-					notificationPanelNotifSoundsCheckbox.setEnabled(true);
+					//notificationPanelNotifSoundsCheckbox.setEnabled(true); // TODO: Uncomment this line when notification sounds are implemented
 					notificationPanelPMNotifsCheckbox.setEnabled(true);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(true); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(true);
@@ -588,10 +620,13 @@ public class ConfigWindow {
 					notificationPanelLowHPNotifsCheckbox.setEnabled(true);
 					notificationPanelLowHPNotifsSpinner.setEnabled(true);
 					notificationPanelLowHPNotifsEndLabel.setEnabled(true);
+					notificationPanelFatigueNotifsCheckbox.setEnabled(true);
+					notificationPanelFatigueNotifsSpinner.setEnabled(true);
+					notificationPanelFatigueNotifsEndLabel.setEnabled(true);
 				} else {
 					notificationPanelClientFocusButton.setEnabled(false);
 					notificationPanelAnyFocusButton.setEnabled(false);
-					notificationPanelNotifSoundsCheckbox.setEnabled(false);
+					//notificationPanelNotifSoundsCheckbox.setEnabled(false); // TODO: Uncomment this line when notification sounds are implemented
 					notificationPanelPMNotifsCheckbox.setEnabled(false);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(false);
@@ -599,6 +634,9 @@ public class ConfigWindow {
 					notificationPanelLowHPNotifsCheckbox.setEnabled(false);
 					notificationPanelLowHPNotifsSpinner.setEnabled(false);
 					notificationPanelLowHPNotifsEndLabel.setEnabled(false);
+					notificationPanelFatigueNotifsCheckbox.setEnabled(false);
+					notificationPanelFatigueNotifsSpinner.setEnabled(false);
+					notificationPanelFatigueNotifsEndLabel.setEnabled(false);
 				}
 			}
 		});
@@ -955,8 +993,10 @@ public class ConfigWindow {
 		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS); 	// TODO: Implement this feature
 		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
 		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
-		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS); 	// TODO: Implement this feature
-		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE); 			// TODO: Implement this feature
+		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS);
+		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE);
+		notificationPanelFatigueNotifsCheckbox.setSelected(Settings.FATIGUE_NOTIFICATIONS);
+		notificationPanelFatigueNotifsSpinner.setValue(Settings.FATIGUE_NOTIF_VALUE);
 		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	 	// TODO: Implement this feature
 		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
 		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
@@ -1017,6 +1057,8 @@ public class ConfigWindow {
 		Settings.LOGOUT_NOTIFICATIONS = notificationPanelLogoutNotifsCheckbox.isSelected();
 		Settings.LOW_HP_NOTIFICATIONS = notificationPanelLowHPNotifsCheckbox.isSelected();
 		Settings.LOW_HP_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelLowHPNotifsSpinner.getModel())).getNumber().intValue();
+		Settings.FATIGUE_NOTIFICATIONS = notificationPanelFatigueNotifsCheckbox.isSelected();
+		Settings.FATIGUE_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelFatigueNotifsSpinner.getModel())).getNumber().intValue();
 		Settings.NOTIFICATION_SOUNDS = notificationPanelNotifSoundsCheckbox.isSelected();
 		Settings.TRAY_NOTIFS = notificationPanelTrayPopupCheckbox.isSelected();
 		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelAnyFocusButton.isSelected();

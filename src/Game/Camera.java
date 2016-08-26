@@ -27,7 +27,7 @@ public class Camera
 {
 	public static void init()
 	{
-		zoom = 750;
+		zoom = 750; // TODO: Preserve zoom on relog, but not necessarily between sessions
 		rotation = 126;
 		setDistance(Settings.VIEW_DISTANCE);
 	}
