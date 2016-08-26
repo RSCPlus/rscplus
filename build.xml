@@ -38,8 +38,9 @@
 
         <jar destfile="${jar.file}" basedir="${build.dir}">
             <manifest>
-                <attribute name="Main-Class" value="${jar.main-class}"/>
-		<attribute name="Permissions" value="all-permissions"/>
+                <attribute name="Main-Class" value="${jar.main-class}" />
+		<attribute name="Permissions" value="all-permissions" />
+		<attribute name="Application-Name" value="rscplus" />
             </manifest>
 			<fileset dir=".">
 				<include name="${assets.dir}/**" />

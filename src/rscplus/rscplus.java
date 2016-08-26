@@ -38,7 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
-public class rscplus extends JApplet implements ComponentListener, WindowListener
+public class rscplus extends JApplet implements ComponentListener, WindowListener, Runnable
 {
 	public void initializeInstance(boolean applet)
 	{
@@ -59,8 +59,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		m_jprogressbar.setString("initializing");
 		m_jprogressbar.setSize(300, 40);
 		m_jprogressbar.setVisible(true);
-
-		// TODO: Center progress bar in window at a certain size
 
 		getContentPane().add(m_jprogressbar);
 		getContentPane().revalidate();
@@ -150,7 +148,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		return true;
 	}
 
-	public void run()
+	public void runRSC()
 	{
 		if(m_applet == null)
 			return;
@@ -194,6 +192,20 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		});
 	}
 
+	public void run()
+	{
+		// Load rsc client
+		if(!m_instance.load())
+		{
+			// TODO: Is this safe to call in an applet?
+			System.exit(0);
+			return;
+		}
+
+		// Run the client
+		m_instance.runRSC();
+	}
+
 	/*
 	 *	Applet entry points
 	 */
@@ -206,16 +218,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		m_instance = this;
 		m_instance.initializeInstance(true);
 
-		// Load rsc client
-		if(!m_instance.load())
-		{
-			// TODO: Is this safe to call in an applet?
-			System.exit(0);
-			return;
-		}
-
-		// Run the client
-		m_instance.run();
+		new Thread(m_instance).start();
 	}
 
 	/*
@@ -261,15 +264,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		m_jframe.setVisible(true);
 
-		// Load rsc client
-		if(!m_instance.load())
-		{
-			System.exit(0);
-			return;
-		}
-
-		// Run the client
-		m_instance.run();
+		new Thread(m_instance).start();
 	}
 
 	@Override

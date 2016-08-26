@@ -37,6 +37,11 @@ import javax.xml.bind.DatatypeConverter;
 
 public class JClassLoader extends ClassLoader
 {
+	public JClassLoader()
+	{
+		super(rscplus.class.getClassLoader());
+	}
+
 	public boolean fetch(URL jarURL)
 	{
 		Logger.Info("Fetching Jar: " + jarURL);
@@ -165,6 +170,8 @@ public class JClassLoader extends ClassLoader
 	@Override
 	public final Class findClass(String name)
 	{
+		Logger.Debug("ClassLoader findClass: " + name);
+
 		byte data[] = m_classData.get(name);
 		if(data == null)
 			return null;
