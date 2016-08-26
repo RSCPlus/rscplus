@@ -372,10 +372,6 @@ public class Client {
 				else if(Settings.TRAY_NOTIFS) {
 					if(Settings.LOGOUT_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("You have been standing here for 5 mins! Please move to a new area"))
 						TrayHandler.makePopupNotification("Logout Notification", "You're about to log out");
-					else if(Settings.TRADE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("wishes to trade with you")) // TODO
-						TrayHandler.makePopupNotification("Trade Request", "TODO" + " wishes to trade with you"); //Might need to do outside of the "username == null" statement
-					else if(Settings.DUEL_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("wishes to duel you")) // TODO
-						TrayHandler.makePopupNotification("Duel Request", "TODO" + " wishes to duel you"); //Might need to do outside of the "username == null" statement
 				}
 			}
 		}
@@ -383,15 +379,22 @@ public class Client {
 			if (username != null)
 				lastpm_username = username;
 		}
-		if (type == CHAT_PRIVATE) {
-			if(Settings.TRAY_NOTIFS) {
-				if(Settings.PM_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS))
-					TrayHandler.makePopupNotification("PM Notification from " + username, message);
-			}
+		else if (type == CHAT_PRIVATE) {
+			if(Settings.TRAY_NOTIFS && Settings.PM_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS))
+				TrayHandler.makePopupNotification("PM Notification from " + username, message);
+		}
+		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat message. Something else needs to be detected to see if it's a trade request.
+		//else if(type == CHAT_PLAYER_INTERACT_IN) {
+		//	if(Settings.TRAY_NOTIFS && Settings.TRADE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains(" wishes to trade with you")) // TODO
+		//		TrayHandler.makePopupNotification("Trade Request", username + " wishes to trade with you");
+		//}
+		else if(type == CHAT_PLAYER_INTERACT_OUT) {
+			if(Settings.TRAY_NOTIFS && Settings.DUEL_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains(" wishes to duel with you"))
+				TrayHandler.makePopupNotification("Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
 		}
 		
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it
-			AnsiConsole.systemInstall();	
+			AnsiConsole.systemInstall();
 			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(username, type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
@@ -413,7 +416,7 @@ public class Client {
 			case CHAT_CHAT:
 				colorMessage = "@|yellow,intensity_bold " + colorMessage + ": |@"; //just bold username for chat
 				break;
-			case CHAT_PLAYER_INTERRACT_IN: //happens when player trades you
+			case CHAT_PLAYER_INTERACT_IN: //happens when player trades you
 				colorMessage = "@|white " + colorMessage + " wishes to trade with you.|@";
 				break;
 			/*// username will not appear in these chat types, but just to cover it I'm leaving code commented out here
@@ -471,8 +474,8 @@ public class Client {
 			case CHAT_PRIVATE_LOG_IN_OUT:
 				colorMessage = "@|cyan,intensity_faint " + colorMessage + "|@"; //don't need to colorReplace, this is just "username has logged in/out"
 				break;
-			case CHAT_PLAYER_INTERRACT_IN:
-			case CHAT_PLAYER_INTERRACT_OUT:
+			case CHAT_PLAYER_INTERACT_IN:
+			case CHAT_PLAYER_INTERACT_OUT:
 				colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
 				break;
 			default: //this should never happen, only 8 Chat Types
@@ -670,8 +673,8 @@ public class Client {
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
 	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
-	public static final int CHAT_PLAYER_INTERRACT_IN = 6;  //used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
-	public static final int CHAT_PLAYER_INTERRACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
+	public static final int CHAT_PLAYER_INTERACT_IN = 6;  //used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
+	public static final int CHAT_PLAYER_INTERACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
 
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;

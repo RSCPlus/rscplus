@@ -11,13 +11,22 @@ import java.awt.event.ActionListener;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Handles the creation of system tray icons and notifications
+ */
 public class TrayHandler {
 
+	/* TODO: Implement custom notifications that work on Windows, OS X, and Linux, but keep using system notifications on Windows 10 maybe? Might be too complicated to add a special case.
+	 * TODO: When the notification is clicked on Windows 10, it should bring up the game client
+	 * TODO: When the tray icon is clicked, it should bring up the game client
+	 * TODO: Let the user disable the tray icon without disabling notifications (not sure it's possible with Windows 10 if using system notifications) 
+	 * TODO: If using a custom notification, add a sound effect when a notification is triggered (toggled using Settings.NOTIFICATION_SOUNDS)
+	 * TODO: Figure out if notification sounds should only play on systems that don't support system notifications
+	 */
+	
 	private static TrayIcon trayIcon;
 	private static SystemTray tray;
 	
-	// TODO: Make double clicking the tray icon pull up the game
-	// TODO: Make clicking the tray notification pull up the game
 	public static void initTrayIcon() {
 
 		// Load images
@@ -72,10 +81,18 @@ public class TrayHandler {
 		}
 	}
 	
+	/**
+	 * Remove the system tray icon
+	 */
 	public static void removeTrayIcon() {
 		tray.remove(trayIcon);
 	}
 
+	/**
+	 * Makes a system notification popup
+	 * @param title - The title of the notification
+	 * @param msg - The main content of the notification
+	 */
 	public static void makePopupNotification(String title, String msg) {
 		trayIcon.displayMessage(title, msg, TrayIcon.MessageType.NONE);
 	}

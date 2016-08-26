@@ -65,10 +65,12 @@ import Game.KeyboardHandler;
  * 3.) Optional, recommended: Separate the command from its functionality by making a toggleBlah method and calling it from the switch statement.<br>
  */
 
-//TODO: Check that all configurations entered through the GUI are properly sanitized and saved/loaded
-
 public class ConfigWindow {
 
+	/* TODO: Check that all configurations entered through the GUI are properly sanitized and saved/loaded
+	 * TODO: Make the GUI look good for non-Windows OS's (maybe use a custom L&F?)
+	 */
+	
 	private JFrame frame;
 	
 	private JLabel generalPanelNamePatchModeDesc;
@@ -330,7 +332,7 @@ public class ConfigWindow {
 		
 		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not implemented yet)", generalPanel);
 		generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-		generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
+		generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat history is implemented
 		
 		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat XP menu always on", generalPanel);
 		generalPanelCombatXPMenuCheckbox.setToolTipText("Always show the combat XP menu, even when out of combat");
@@ -502,11 +504,11 @@ public class ConfigWindow {
 		
 		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
 		overlayPanelFoodHealingCheckbox.setToolTipText("When hovering on food, shows the HP a consumable recovers");
-		overlayPanelFoodHealingCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
+		overlayPanelFoodHealingCheckbox.setEnabled(false); // TODO: Remove this line when food healing overlay is implemented
 		
 		overlayPanelHPRegenTimerCheckbox = addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
 		overlayPanelHPRegenTimerCheckbox.setToolTipText("Shows the seconds until your HP will naturally regenerate");
-		overlayPanelHPRegenTimerCheckbox.setEnabled(false); // TODO: Remove when feature is implemented
+		overlayPanelHPRegenTimerCheckbox.setEnabled(false); // TODO: Remove this line when the HP regen timer is implemented
 		
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
 		overlayPanelDebugModeCheckbox.setToolTipText("Shows debug overlays and enables debug text in the console");
@@ -517,7 +519,6 @@ public class ConfigWindow {
 		
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
-		// TODO: Gray out everything else in the tab if it's false
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
 		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
@@ -529,15 +530,15 @@ public class ConfigWindow {
 		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
 		
 		// TODO: Add more space here
-		// TODO: Figure out if notification sounds should only play on systems that don't support system notifications
 		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
 		
-		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications", notificationPanel);
+		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications (Not implemented yet)", notificationPanel);
 		notificationPanelTradeNotifsCheckbox.setToolTipText("Shows a system notification when a trade request is received");
+		notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Remove this line after trade notifications are implemented
 		
 		notificationPanelDuelNotifsCheckbox = addCheckbox("Enable duel notifications", notificationPanel);
 		notificationPanelDuelNotifsCheckbox.setToolTipText("Shows a system notification when a duel request is received");
@@ -581,7 +582,7 @@ public class ConfigWindow {
 					notificationPanelAnyFocusButton.setEnabled(true);
 					notificationPanelNotifSoundsCheckbox.setEnabled(true);
 					notificationPanelPMNotifsCheckbox.setEnabled(true);
-					notificationPanelTradeNotifsCheckbox.setEnabled(true);
+					//notificationPanelTradeNotifsCheckbox.setEnabled(true); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(true);
 					notificationPanelLogoutNotifsCheckbox.setEnabled(true);
 					notificationPanelLowHPNotifsCheckbox.setEnabled(true);
@@ -592,7 +593,7 @@ public class ConfigWindow {
 					notificationPanelAnyFocusButton.setEnabled(false);
 					notificationPanelNotifSoundsCheckbox.setEnabled(false);
 					notificationPanelPMNotifsCheckbox.setEnabled(false);
-					notificationPanelTradeNotifsCheckbox.setEnabled(false);
+					//notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(false);
 					notificationPanelLogoutNotifsCheckbox.setEnabled(false);
 					notificationPanelLowHPNotifsCheckbox.setEnabled(false);
@@ -708,7 +709,7 @@ public class ConfigWindow {
 		addKeybindCategory(keybindPanel, "Streaming & Privacy");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
 		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.NONE, -1);
-		//addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
+		//addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1); // TODO: Uncomment line if this feature no longer requires a restart
 
 		addKeybindCategory(keybindPanel, "Miscellaneous");
 		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "world_1", KeyModifier.CTRL, KeyEvent.VK_1);
@@ -952,15 +953,15 @@ public class ConfigWindow {
 		//Notifications tab
 		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS );
 		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS); 	// TODO: Implement this feature
-		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS); 		// TODO: Implement this feature
+		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
 		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
 		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS); 	// TODO: Implement this feature
 		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE); 			// TODO: Implement this feature
 		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	 	// TODO: Implement this feature
-		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS); 				// TODO: Implement this feature
-		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS); 		// TODO: Implement this feature
-		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS); 			// TODO: Implement this feature
-		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS); 				// TODO: Implement this feature
+		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
+		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS);
 		notificationPanelAnyFocusButton.setEnabled(Settings.TRAY_NOTIFS);
 		
 		//Streaming & Privacy tab
