@@ -248,7 +248,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		// Create rscplus window
 		m_jframe = new JFrame();
 		m_jframe.addWindowListener(m_instance);
-		m_jframe.setResizable(true);
+		m_jframe.setResizable(false);
 		m_jframe.setTitle("rscplus");
 		m_jframe.setContentPane(m_instance);
 		m_jframe.pack();
@@ -282,6 +282,9 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	@Override
 	public final void windowOpened(WindowEvent e)
 	{
+		m_jframe.setResizable(true);
+		m_jframe.pack();
+		m_jframe.setMinimumSize(m_jframe.getSize());
 	}
 
 	@Override
