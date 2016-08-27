@@ -550,9 +550,8 @@ public class ConfigWindow {
 		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
 		
 		// TODO: Add more space here
-		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds (Not implemented yet)", notificationPanel);
+		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
-		notificationPanelNotifSoundsCheckbox.setEnabled(false); // TODO: Remove this line after trade notifications are implemented
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
@@ -631,7 +630,7 @@ public class ConfigWindow {
 				if(notificationPanelTrayPopupCheckbox.isSelected()) {
 					notificationPanelClientFocusButton.setEnabled(true);
 					notificationPanelAnyFocusButton.setEnabled(true);
-					//notificationPanelNotifSoundsCheckbox.setEnabled(true); // TODO: Uncomment this line when notification sounds are implemented
+					notificationPanelNotifSoundsCheckbox.setEnabled(true);
 					notificationPanelPMNotifsCheckbox.setEnabled(true);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(true); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(true);
@@ -645,7 +644,7 @@ public class ConfigWindow {
 				} else {
 					notificationPanelClientFocusButton.setEnabled(false);
 					notificationPanelAnyFocusButton.setEnabled(false);
-					//notificationPanelNotifSoundsCheckbox.setEnabled(false); // TODO: Uncomment this line when notification sounds are implemented
+					notificationPanelNotifSoundsCheckbox.setEnabled(false);
 					notificationPanelPMNotifsCheckbox.setEnabled(false);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(false);

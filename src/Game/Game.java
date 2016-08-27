@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 
 import Client.JConfig;
 import Client.Launcher;
+import Client.NotificationsHandler;
 import Client.Settings;
 import Client.TrayHandler;
 
@@ -164,7 +165,8 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		dispose();
 		Launcher.getConfigWindow().disposeJFrame();
 		TrayHandler.removeTrayIcon();
-		TrayHandler.closeNotificationSoundClip();
+		NotificationsHandler.closeNotificationSoundClip();
+		NotificationsHandler.disposeNotificationHandler();
 	}
 
 	@Override

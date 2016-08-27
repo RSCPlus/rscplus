@@ -77,7 +77,7 @@ public class TrayHandler implements MouseListener {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Close everything, making sure to trigger windowClosing() to clean up
 				tray.remove(trayIcon);
-				closeNotificationSoundClip();
+				NotificationsHandler.closeNotificationSoundClip();
 				System.exit(0);
 			}
 		});
@@ -109,36 +109,11 @@ public class TrayHandler implements MouseListener {
 	 * @param title - The title of the notification
 	 * @param msg - The main content of the notification
 	 */
-	public static void makePopupNotification(String title, String msg) {
-		trayIcon.displayMessage(title, msg, TrayIcon.MessageType.NONE);
-	}
-	
-	private static URL urlToNotificationSound;
-	private static AudioInputStream notificationAudioIn;
-	private static Clip notificationSoundClip;
-	
-	public static void loadNotificationSound() {
-		try {
-			urlToNotificationSound = new File("assets/notification.wav").toURI().toURL();
-			notificationAudioIn = AudioSystem.getAudioInputStream(urlToNotificationSound);
-			notificationSoundClip = AudioSystem.getClip();
-			notificationSoundClip.open(notificationAudioIn);
-		} catch (UnsupportedAudioFileException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (LineUnavailableException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void playNotificationSound() {
-		notificationSoundClip.start();
-	}
-	
-	public static void closeNotificationSoundClip() {
-		notificationSoundClip.close();
-	}
+//	public static void makePopupNotification(String title, String msg) {
+//		NotificationsPanel.displayNotification(title, msg);
+//	}
+//	
+
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
