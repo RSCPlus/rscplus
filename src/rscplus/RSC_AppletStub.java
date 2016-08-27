@@ -59,9 +59,6 @@ public class RSC_AppletStub implements AppletStub
 	@Override
 	public boolean isActive()
 	{
-		if(rscplus.getInstance().isApplet())
-			return rscplus.getInstance().isActive();
-		else
-			return true;
+		return true;
 	}
 }

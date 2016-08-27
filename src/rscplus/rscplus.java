@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
 
 public class rscplus extends JApplet implements ComponentListener, WindowListener, Runnable
 {
-	public void initializeInstance(boolean applet)
+	public rscplus()
 	{
 		m_jconfig = new JConfig();
 		m_jclassloader = new JClassLoader();
@@ -62,8 +62,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		getContentPane().add(m_jprogressbar);
 		getContentPane().revalidate();
-
-		m_isApplet = applet;
 	}
 
 	public static rscplus getInstance()
@@ -86,12 +84,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		return m_applet;
 	}
 
-	public boolean isApplet()
-	{
-		return m_isApplet;
-	}
-
-	public boolean load()
+	public boolean loadRSC()
 	{
 		Logger.Info("Loading rscplus config...");
 		Settings.Load();
@@ -195,7 +188,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	public void run()
 	{
 		// Load rsc client
-		if(!m_instance.load())
+		if(!loadRSC())
 		{
 			// TODO: This is not safe to call in an applet
 			System.exit(0);
@@ -203,7 +196,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		}
 
 		// Run the client
-		m_instance.runRSC();
+		runRSC();
 	}
 
 	/*
@@ -216,7 +209,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		// Create rscplus instance
 		m_instance = this;
-		m_instance.initializeInstance(true);
 
 		new Thread(m_instance).start();
 	}
@@ -243,7 +235,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 
 		// Create rscplus instance
 		m_instance = new rscplus();
-		m_instance.initializeInstance(false);
 
 		// Create rscplus window
 		m_jframe = new JFrame();
@@ -340,7 +331,6 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 	private JClassLoader m_jclassloader;
 	private RSC_AppletStub m_appletstub;
 	private Applet m_applet = null;
-	private boolean m_isApplet;
 	private static JProgressBar m_jprogressbar = null;
 
 	// This is only used in application mode
