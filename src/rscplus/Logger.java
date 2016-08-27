@@ -29,7 +29,8 @@ public class Logger
 	{
 		DEBUG(0),
 		INFO(1),
-		ERROR(2);
+		WARNING(2),
+		ERROR(3);
 
 		Type(int id)
 		{
@@ -41,15 +42,16 @@ public class Logger
 
 	public static void Log(Type type, String message)
 	{
+		// Don't print debug messages if debug mode is disabled
 		if(!Settings.DEBUG && type == Type.DEBUG)
 			return;
 
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;
 
-		if(type != Type.ERROR)
-			System.out.println(msg);
-		else
+		if(type == Type.ERROR)
 			System.err.println(msg);
+		else
+			System.out.println(msg);
 	}
 
 	public static void Debug(String message)
@@ -62,6 +64,11 @@ public class Logger
 		Log(Type.INFO, message);
 	}
 
+	public static void Warning(String message)
+	{
+		Log(Type.WARNING, message);
+	}
+
 	public static void Error(String message)
 	{
 		Log(Type.ERROR, message);
@@ -69,8 +76,9 @@ public class Logger
 
 	private static final String m_logTypeName[] =
 	{
-		"DEBUG",
-		" INFO",
-		"ERROR"
+		"  DEBUG",
+		"   INFO",
+		"WARNING",
+		"  ERROR"
 	};
 }
