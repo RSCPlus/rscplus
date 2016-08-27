@@ -51,9 +51,15 @@ public class Settings
 
 		// Find Config directory
 		if(Util.FileExists(Dir.JAR + "/config.ini"))
+		{
 			Dir.CONFIG = Dir.JAR;
+			Logger.Info("config.ini found in JAR directory, running in portable mode");
+		}
 		else
+		{
 			Dir.CONFIG = System.getProperty("user.home") + "/rscplus";
+			Logger.Info("config.ini not found in JAR directory, using directory '" + Dir.CONFIG + "' instead");
+		}
 		Util.MakeDirectory(Dir.CONFIG);
 
 		// Load other directories
