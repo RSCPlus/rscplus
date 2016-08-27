@@ -164,6 +164,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		dispose();
 		Launcher.getConfigWindow().disposeJFrame();
 		TrayHandler.removeTrayIcon();
+		TrayHandler.closeNotificationSoundClip();
 	}
 
 	@Override

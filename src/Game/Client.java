@@ -360,8 +360,6 @@ public class Client {
 		} catch (Exception e) {
 		}
 	}
-
-	// TODO: Add notifications
 	
 	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type) {

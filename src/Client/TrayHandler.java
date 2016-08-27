@@ -1,5 +1,7 @@
 package Client;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -8,20 +10,31 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import Game.Game;
 
 /**
  * Handles the creation of system tray icons and notifications
  */
-public class TrayHandler {
+public class TrayHandler implements MouseListener {
 
-	/* TODO: Implement custom notifications that work on Windows, OS X, and Linux, but keep using system notifications on Windows 10 maybe? Might be too complicated to add a special case.
-	 * TODO: When the notification is clicked on Windows 10, it should bring up the game client
-	 * TODO: When the tray icon is clicked, it should bring up the game client
-	 * TODO: Let the user disable the tray icon without disabling notifications (not sure it's possible with Windows 10 if using system notifications) 
-	 * TODO: If using a custom notification, add a sound effect when a notification is triggered (toggled using Settings.NOTIFICATION_SOUNDS)
-	 * TODO: Figure out if notification sounds should only play on systems that don't support system notifications
+	/* TODO: Implement custom notifications that work on Windows, OS X, and Linux
+	 * TODO: When the notification is clicked, it should bring up the game client
+	 * TODO: Let the user disable the tray icon without disabling notifications
+	 * TODO: Add a sound effect when a notification is triggered (toggled using Settings.NOTIFICATION_SOUNDS)
 	 */
 	
 	private static TrayIcon trayIcon;
@@ -43,6 +56,8 @@ public class TrayHandler {
 		}
 		
 		trayIcon = new TrayIcon(trayIconImage);
+		trayIcon.addMouseListener(new TrayHandler());
+		
 		tray = SystemTray.getSystemTray();
 
 		// Create popup menu
@@ -62,6 +77,7 @@ public class TrayHandler {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Close everything, making sure to trigger windowClosing() to clean up
 				tray.remove(trayIcon);
+				closeNotificationSoundClip();
 				System.exit(0);
 			}
 		});
@@ -95,5 +111,57 @@ public class TrayHandler {
 	 */
 	public static void makePopupNotification(String title, String msg) {
 		trayIcon.displayMessage(title, msg, TrayIcon.MessageType.NONE);
+	}
+	
+	private static URL urlToNotificationSound;
+	private static AudioInputStream notificationAudioIn;
+	private static Clip notificationSoundClip;
+	
+	public static void loadNotificationSound() {
+		try {
+			urlToNotificationSound = new File("assets/notification.wav").toURI().toURL();
+			notificationAudioIn = AudioSystem.getAudioInputStream(urlToNotificationSound);
+			notificationSoundClip = AudioSystem.getClip();
+			notificationSoundClip.open(notificationAudioIn);
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void playNotificationSound() {
+		notificationSoundClip.start();
+	}
+	
+	public static void closeNotificationSoundClip() {
+		notificationSoundClip.close();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Game.getInstance().toFront();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+
 	}
 }

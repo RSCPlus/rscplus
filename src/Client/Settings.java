@@ -749,7 +749,7 @@ public class Settings
 	public static boolean TRADE_NOTIFICATIONS = true;
 	public static boolean DUEL_NOTIFICATIONS = true;
 	public static boolean LOGOUT_NOTIFICATIONS = true;
-	public static boolean LOW_HP_NOTIFICATIONS = false;
+	public static boolean LOW_HP_NOTIFICATIONS = true;
 	public static int LOW_HP_NOTIF_VALUE = 25;
 	public static boolean FATIGUE_NOTIFICATIONS = true;
 	public static int FATIGUE_NOTIF_VALUE = 98;
@@ -813,7 +813,7 @@ public class Settings
 		TRADE_NOTIFICATIONS = true;
 		DUEL_NOTIFICATIONS = true;
 		LOGOUT_NOTIFICATIONS = true;
-		LOW_HP_NOTIFICATIONS = false;
+		LOW_HP_NOTIFICATIONS = true;
 		LOW_HP_NOTIF_VALUE = 25;
 		FATIGUE_NOTIFICATIONS = true;
 		FATIGUE_NOTIF_VALUE = 98;

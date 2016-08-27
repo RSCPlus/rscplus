@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -140,9 +141,26 @@ public class ConfigWindow {
 	
 	public ConfigWindow() {
 		
+//		try {
+//			// Set System L&F
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//		} catch (UnsupportedLookAndFeelException e) {
+//			Logger.Error("Unable to set L&F: Unsupported look and feel");
+//		} catch (ClassNotFoundException e) {
+//			Logger.Error("Unable to set L&F: Class not found");
+//		} catch (InstantiationException e) {
+//			Logger.Error("Unable to set L&F: Class object cannot be instantiated");
+//		} catch (IllegalAccessException e) {
+//			Logger.Error("Unable to set L&F: Illegal access exception");
+//		}
+		
 		try {
-			// Set System L&F
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if ("Nimbus".equals(info.getName())) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
 		} catch (UnsupportedLookAndFeelException e) {
 			Logger.Error("Unable to set L&F: Unsupported look and feel");
 		} catch (ClassNotFoundException e) {
