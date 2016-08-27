@@ -41,6 +41,7 @@
                 <attribute name="Main-Class" value="${jar.main-class}" />
 		<attribute name="Permissions" value="all-permissions" />
 		<attribute name="Application-Name" value="rscplus" />
+		<attribute name="Codebase" value="*" />
             </manifest>
 			<fileset dir=".">
 				<include name="${assets.dir}/**" />
