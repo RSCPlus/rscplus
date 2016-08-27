@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,6 +41,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import Client.KeybindSet.KeyModifier;
 import Game.Camera;
@@ -50,16 +52,17 @@ import Game.KeyboardHandler;
  * GUI designed for the RSCPlus client that manages 
  * configuration options and keybind values from within an interface.<br>
  * <br>
- * <b>To add a new configuration option,</b> <br>
+ * <b>To add a new configuration option to the GUI,</b> <br>
  * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI from ConfigWindow.initialize() (see existing examples) <br>
  * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the element that is returned in the ConfigWindow.initialize() method. See existing code for examples.<br>
- * 2.) Add an appropriate variable to the Settings class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
+ * 2.) ^Add an appropriate variable to the Settings class as a class variable, <i>and</i> as an assignment in the appropriate restore default method below.<br>
  * 3.) Add an entry in the ConfigWindow.synchronizeGuiValues() method that references the variable, as per the already-existing examples.<br>
  * 4.) Add an entry in the ConfigWindow.saveSettings() method referencing the variable, as per the already-existing examples.<br>
- * 5.) Add an entry in the Settings.Save() class save method to save the option to file.<br>
- * 6.) Add an entry in the Settings.Load() class load method to load the option from file.<br>
- * 7.) (Optional) If a method needs to be called to adjust settings other than the setting value itself, add it to the ConfigWindow.applySettings() method below.
- * <br>
+ * 5.) ^Add an entry in the Settings.Save() class save method to save the option to file.<br>
+ * 6.) ^Add an entry in the Settings.Load() class load method to load the option from file.<br>
+ * 7.) (Optional) If a method needs to be called to adjust settings other than the setting value itself, add it to the ConfigWindow.applySettings() method below.<br><br>
+ * <i>Entries marked with a ^ are steps used to add settings that are not included in the GUI.</i>
+ * <br><br>
  * <b>To add a new keybind,</b><br>
  * 1.) Add a call in the initialize method to addKeybind with appropriate parameters.<br>
  * 2.) Add an entry to the command switch statement in Settings to process the command when its keybind is pressed.<br>
@@ -69,7 +72,6 @@ import Game.KeyboardHandler;
 public class ConfigWindow {
 
 	/* TODO: Check that all configurations entered through the GUI are properly sanitized and saved/loaded
-	 * TODO: Make the GUI look good for non-Windows OS's (maybe use a custom L&F?)
 	 */
 	
 	private JFrame frame;
@@ -141,23 +143,14 @@ public class ConfigWindow {
 	
 	public ConfigWindow() {
 		
-//		try {
-//			// Set System L&F
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//		} catch (UnsupportedLookAndFeelException e) {
-//			Logger.Error("Unable to set L&F: Unsupported look and feel");
-//		} catch (ClassNotFoundException e) {
-//			Logger.Error("Unable to set L&F: Class not found");
-//		} catch (InstantiationException e) {
-//			Logger.Error("Unable to set L&F: Class object cannot be instantiated");
-//		} catch (IllegalAccessException e) {
-//			Logger.Error("Unable to set L&F: Illegal access exception");
-//		}
-		
 		try {
+			// Set System L&F as a fall-back option.
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
 		            UIManager.setLookAndFeel(info.getClassName());
+		    	    NimbusLookAndFeel laf = (NimbusLookAndFeel)UIManager.getLookAndFeel();
+		    	    laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
 		            break;
 		        }
 		    }
@@ -170,7 +163,6 @@ public class ConfigWindow {
 		} catch (IllegalAccessException e) {
 			Logger.Error("Unable to set L&F: Illegal access exception");
 		}
-	    
 		initialize();
 	}
 	
@@ -189,7 +181,7 @@ public class ConfigWindow {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Settings");
-		frame.setBounds(100, 100, 410, 590);
+		frame.setBounds(100, 100, 410, 630);
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -323,10 +315,12 @@ public class ConfigWindow {
 			
 			generalPanelClientSizeXSpinner = new JSpinner();
 			generalPanelClientSizePanel.add(generalPanelClientSizeXSpinner);
-			generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(48,20));
-			generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(48,20));
+			generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(58,22));
+			generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(58,22));
 			generalPanelClientSizeXSpinner.setAlignmentY((float) 0.75);
 			generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum)");
+			generalPanelClientSizeXSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
 			
 			JLabel generalPanelClientSizeByLabel = new JLabel("x");
 			generalPanelClientSizePanel.add(generalPanelClientSizeByLabel);
@@ -335,10 +329,12 @@ public class ConfigWindow {
 			
 			generalPanelClientSizeYSpinner = new JSpinner();
 			generalPanelClientSizePanel.add(generalPanelClientSizeYSpinner);
-			generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(48,20));
-			generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(48,20));
+			generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(58,22));
+			generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(58,22));
 			generalPanelClientSizeYSpinner.setAlignmentY((float) 0.75);
 			generalPanelClientSizeYSpinner.setToolTipText("Default client height (346 minimum)");
+			generalPanelClientSizeYSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
 			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerWinXModel = new SpinnerNumberModel();
@@ -379,9 +375,11 @@ public class ConfigWindow {
 			
 			generalPanelFatigueFigSpinner = new JSpinner();
 			generalPanelFatigueFigsPanel.add(generalPanelFatigueFigSpinner);
-			generalPanelFatigueFigSpinner.setMaximumSize(new Dimension(35,20));
+			generalPanelFatigueFigSpinner.setMaximumSize(new Dimension(40,22));
 			generalPanelFatigueFigSpinner.setAlignmentY((float) 0.7);
 			generalPanelFatigueFigsPanel.setBorder(new EmptyBorder(0,0,7,0));
+			generalPanelFatigueFigSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
 			
 			//Sanitize JSpinner values
 			SpinnerNumberModel spinnerNumModel = new SpinnerNumberModel();
@@ -579,10 +577,11 @@ public class ConfigWindow {
 		notificationPanelLowHPNotifsCheckbox.setToolTipText("Shows a system notification when your HP drops below the specified value");
 		
 			notificationPanelLowHPNotifsSpinner = new JSpinner();
-			notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(35,20));
-			notificationPanelLowHPNotifsSpinner.setMinimumSize(new Dimension(35,20));
+			notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(45,22));
+			notificationPanelLowHPNotifsSpinner.setMinimumSize(new Dimension(45,22));
 			notificationPanelLowHPNotifsSpinner.setAlignmentY((float) 0.75);
 			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsSpinner);
+			notificationPanelLowHPNotifsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 			
 			notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
 			notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsEndLabel);
@@ -606,10 +605,12 @@ public class ConfigWindow {
 		notificationPanelFatigueNotifsCheckbox.setToolTipText("Shows a system notification when your fatigue gets past the specified value");
 		
 			notificationPanelFatigueNotifsSpinner = new JSpinner();
-			notificationPanelFatigueNotifsSpinner.setMaximumSize(new Dimension(35,20));
-			notificationPanelFatigueNotifsSpinner.setMinimumSize(new Dimension(35,20));
+			notificationPanelFatigueNotifsSpinner.setMaximumSize(new Dimension(45,22));
+			notificationPanelFatigueNotifsSpinner.setMinimumSize(new Dimension(45,22));
 			notificationPanelFatigueNotifsSpinner.setAlignmentY((float) 0.75);
 			notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsSpinner);
+			notificationPanelFatigueNotifsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
 			
 			notificationPanelFatigueNotifsEndLabel = new JLabel("% fatigue");
 			notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsEndLabel);
@@ -682,8 +683,8 @@ public class ConfigWindow {
 			
 			streamingPanelTwitchChannelNameTextField = new JTextField();
 			streamingPanelTwitchChannelNamePanel.add(streamingPanelTwitchChannelNameTextField);
-			streamingPanelTwitchChannelNameTextField.setMinimumSize(new Dimension(100,20));
-			streamingPanelTwitchChannelNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchChannelNameTextField.setMinimumSize(new Dimension(100,28));
+			streamingPanelTwitchChannelNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,28));
 			streamingPanelTwitchChannelNameTextField.setAlignmentY((float) 0.75);
 			
 		JPanel streamingPanelTwitchUserPanel = new JPanel();
@@ -700,8 +701,8 @@ public class ConfigWindow {
 			
 			streamingPanelTwitchUserTextField = new JTextField();
 			streamingPanelTwitchUserPanel.add(streamingPanelTwitchUserTextField);
-			streamingPanelTwitchUserTextField.setMinimumSize(new Dimension(100,20));
-			streamingPanelTwitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchUserTextField.setMinimumSize(new Dimension(100,28));
+			streamingPanelTwitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,28));
 			streamingPanelTwitchUserTextField.setAlignmentY((float) 0.75);
 		
 		JPanel streamingPanelTwitchOAuthPanel = new JPanel();
@@ -718,8 +719,8 @@ public class ConfigWindow {
 			
 			streamingPanelTwitchOAuthTextField = new JPasswordField();
 			streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthTextField);
-			streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100,20));
-			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+			streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100,28));
+			streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,28));
 			streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
 		
 		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login welcome screen", streamingPanel);
