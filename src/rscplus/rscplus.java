@@ -197,7 +197,7 @@ public class rscplus extends JApplet implements ComponentListener, WindowListene
 		// Load rsc client
 		if(!m_instance.load())
 		{
-			// TODO: Is this safe to call in an applet?
+			// TODO: This is not safe to call in an applet
 			System.exit(0);
 			return;
 		}
