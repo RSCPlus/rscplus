@@ -45,6 +45,12 @@ public class Util
 			dir.mkdir();
 	}
 
+	public static boolean FileExists(String name)
+	{
+		File file = new File(name);
+		return (file.isFile() && file.exists());
+	}
+
 	public static String byteHexString(byte[] data)
 	{
 		String ret = "";

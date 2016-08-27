@@ -34,36 +34,36 @@ public class Settings
 	public static void Load()
 	{
 		// Find JAR directory
-		if(rscplus.getInstance().isApplet())
+		Dir.JAR = ".";
+		try
 		{
-			Dir.JAR = System.getProperty("user.home") + "/.rscplus";
-			Util.MakeDirectory(Dir.JAR);
+			Dir.JAR = Settings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			int indexFileSep1 = Dir.JAR.lastIndexOf("/");
+			int indexFileSep2 = Dir.JAR.lastIndexOf("\\");
+			int index = (indexFileSep1>indexFileSep2)?indexFileSep1:indexFileSep2;
+			if(index != -1)
+				Dir.JAR = Dir.JAR.substring(0, index);
 		}
+		catch(Exception e)
+		{
+			Logger.Info("Unable to determine rscplus JAR location, using '.'");
+		}
+
+		// Find Config directory
+		if(Util.FileExists(Dir.JAR + "/config.ini"))
+			Dir.CONFIG = Dir.JAR;
 		else
-		{
-			Dir.JAR = ".";
-			try
-			{
-				Dir.JAR = Settings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-				int indexFileSep1 = Dir.JAR.lastIndexOf("/");
-				int indexFileSep2 = Dir.JAR.lastIndexOf("\\");
-				int index = (indexFileSep1>indexFileSep2)?indexFileSep1:indexFileSep2;
-				if(index != -1)
-					Dir.JAR = Dir.JAR.substring(0, index);
-			}
-			catch(Exception e)
-			{
-				Logger.Error("Unable to determine rscplus JAR location");
-			}
-		}
+			Dir.CONFIG = System.getProperty("user.home") + "/rscplus";
+		Util.MakeDirectory(Dir.CONFIG);
 
 		// Load other directories
-		Dir.CACHE = Dir.JAR + "/cache";
+		Dir.CACHE = Dir.CONFIG + "/cache";
 		Util.MakeDirectory(Dir.CACHE);
-		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
+		Dir.SCREENSHOT = Dir.CONFIG + "/screenshots";
 		Util.MakeDirectory(Dir.SCREENSHOT);
 
-		Logger.Info("rscplus config directory: " + Dir.JAR);
+		Logger.Info("rscplus jar directory: " + Dir.JAR);
+		Logger.Info("rscplus config directory: " + Dir.CONFIG);
 		Logger.Info("rscplus cache directory: " + Dir.CACHE);
 		Logger.Info("rscplus screenshot directory: " + Dir.SCREENSHOT);
 
@@ -71,7 +71,7 @@ public class Settings
 		try
 		{
 			Properties props = new Properties();
-			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
+			FileInputStream in = new FileInputStream(Dir.CONFIG + "/config.ini");
 			props.load(in);
 			in.close();
 
@@ -145,7 +145,7 @@ public class Settings
 
 		if(DISASSEMBLE)
 		{
-			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY;
+			Dir.DUMP = Dir.CONFIG + "/" + DISASSEMBLE_DIRECTORY;
 			Util.MakeDirectory(Dir.DUMP);
 
 			Logger.Info("rscplus class dump directory: " + Dir.DUMP);
@@ -189,7 +189,7 @@ public class Settings
 			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
 			props.setProperty("first_time", "" + FIRST_TIME);
 
-			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
+			FileOutputStream out = new FileOutputStream(Dir.CONFIG + "/config.ini");
 			props.store(out, "---rscplus config---");
 			out.close();
 		}
@@ -451,6 +451,7 @@ public class Settings
 	public static class Dir
 	{
 		public static String JAR;
+		public static String CONFIG;
 		public static String CACHE;
 		public static String DUMP;
 		public static String SCREENSHOT;
