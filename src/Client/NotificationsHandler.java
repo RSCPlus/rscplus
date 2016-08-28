@@ -32,13 +32,15 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import Game.Game;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
 
 public class NotificationsHandler {
 		
 	static JFrame notificationFrame;
 	static JLabel iconLabel;
 	static JLabel notificationTitle;
-	static JLabel notificationLabel;
+	static JTextArea notificationTextArea;
 	static JPanel mainContentPanel;
 	
 	/**
@@ -90,12 +92,20 @@ public class NotificationsHandler {
 					
 		notificationTitle = new JLabel();
 		notificationTitle.setBounds(91, 3, 326, 26);
-		notificationTitle.setForeground(Color.BLACK);
+		notificationTitle.setForeground(new Color(0x1d, 0x1d, 0x1d));
 		mainContentPanel.add(notificationTitle);
 		
-		notificationLabel = new JLabel();
-		notificationLabel.setBounds(91, 30, 326, 43);
-		mainContentPanel.add(notificationLabel);
+		notificationTextArea = new JTextArea();
+		notificationTextArea.setDisabledTextColor(new Color(0x3f, 0x3f, 0x3f));
+		notificationTextArea.setFocusable(false);
+		notificationTextArea.setEnabled(false);
+		notificationTextArea.setEditable(false);
+		notificationTextArea.setBorder(null);
+		notificationTextArea.setBackground(new Color(0,0,0,0));
+		notificationTextArea.setLineWrap(true);
+		notificationTextArea.setBounds(91, 30, 326, 43);
+		notificationTextArea.addMouseListener(mouseManager);
+		mainContentPanel.add(notificationTextArea);
 		
 		JButton closeButton = new JButton("");
 		closeButton.addActionListener(new ActionListener() {
@@ -124,7 +134,7 @@ public class NotificationsHandler {
 			Font boldFont = Font.createFont(Font.TRUETYPE_FONT, Settings.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
 			
 			notificationTitle.setFont(boldFont.deriveFont(Font.BOLD, 18f));
-			notificationLabel.setFont(font.deriveFont(Font.PLAIN, 16f));
+			notificationTextArea.setFont(font.deriveFont(Font.PLAIN, 16f));
 		} catch (FontFormatException | IOException e) {
 			Logger.Error("Error while setting up notifications font:" + e.getMessage());
 			e.printStackTrace();
@@ -150,7 +160,7 @@ public class NotificationsHandler {
 		} else {
 			setNotificationWindowVisible(true);
 			notificationTitle.setText(title);
-			notificationLabel.setText("<html>" + text + "</html>");
+			notificationTextArea.setText(text);
 			notificationFrame.repaint();
 		}
 		if (Settings.NOTIFICATION_SOUNDS) {
