@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.SystemTray;
+import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -138,10 +140,19 @@ public class NotificationsHandler {
 	 * @param text - Text message of the notification
 	 */
 	public static void displayNotification(String title, String text) {
-		setNotificationWindowVisible(true);
-		notificationTitle.setText(title);
-		notificationLabel.setText("<html>" + text + "</html>");
-		notificationFrame.repaint();
+		// TODO: Add a timer to make the notification disappear after about 5 seconds
+		// TODO: Add fade-in and fade-out or slide-in and slide-out animations
+		// TODO: Make text wrapping not bunch up after 2 lines (maybe use a JTextArea?)
+		
+		if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
+			// TODO: When you click the system notification, it should focus the game client
+			TrayHandler.getTrayIcon().displayMessage(title, text, MessageType.NONE);
+		} else {
+			setNotificationWindowVisible(true);
+			notificationTitle.setText(title);
+			notificationLabel.setText("<html>" + text + "</html>");
+			notificationFrame.repaint();
+		}
 		if (Settings.NOTIFICATION_SOUNDS) {
 			playNotificationSound();
 		}

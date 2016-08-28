@@ -109,6 +109,7 @@ public class Settings
 			FATIGUE_NOTIFICATIONS = getBoolean(props, "fatigue_notifications", FATIGUE_NOTIFICATIONS);
 			FATIGUE_NOTIF_VALUE = getInt(props, "fatigue_notifications", FATIGUE_NOTIF_VALUE);
 			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
+			USE_SYSTEM_NOTIFICATIONS = getBoolean(props, "use_system_notifications", USE_SYSTEM_NOTIFICATIONS);
 			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
 			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
 
@@ -248,6 +249,7 @@ public class Settings
 			props.setProperty("fatigue_notifications", "" + FATIGUE_NOTIFICATIONS);
 			props.setProperty("fatigue_notif_value", "" + FATIGUE_NOTIF_VALUE);
 			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
+			props.setProperty("use_system_notifications", "" + USE_SYSTEM_NOTIFICATIONS);
 			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
 			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
 
@@ -753,7 +755,8 @@ public class Settings
 	public static int LOW_HP_NOTIF_VALUE = 25;
 	public static boolean FATIGUE_NOTIFICATIONS = true;
 	public static int FATIGUE_NOTIF_VALUE = 98;
-	public static boolean NOTIFICATION_SOUNDS = false;
+	public static boolean NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
+	public static boolean USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
 	public static boolean TRAY_NOTIFS = true;
 	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
 	
@@ -818,6 +821,7 @@ public class Settings
 		FATIGUE_NOTIFICATIONS = true;
 		FATIGUE_NOTIF_VALUE = 98;
 		NOTIFICATION_SOUNDS = false;
+		USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
 		TRAY_NOTIFS = true;
 		TRAY_NOTIFS_ALWAYS = false;
 		Launcher.getConfigWindow().synchronizeGuiValues();
@@ -844,5 +848,10 @@ public class Settings
 			Logger.Error("Null Pointer while attempting to restore default keybind values!");
 		}
 		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static boolean isRecommendedToUseSystemNotifs() {
+		// Users on Windows 8.1 or 10 are recommend to set USE_SYSTEM_NOTIFICATIONS = true
+		return (System.getProperty("os.name").equals("Windows 10") || System.getProperty("os.name").equals("Windows 8.1"));
 	}
 }

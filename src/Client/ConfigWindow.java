@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.SystemTray;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -70,9 +71,6 @@ import Game.KeyboardHandler;
  */
 
 public class ConfigWindow {
-
-	/* TODO: Check that all configurations entered through the GUI are properly sanitized and saved/loaded
-	 */
 	
 	private JFrame frame;
 	
@@ -129,6 +127,7 @@ public class ConfigWindow {
 	private JCheckBox notificationPanelFatigueNotifsCheckbox;
 		private JSpinner notificationPanelFatigueNotifsSpinner;
 	private JCheckBox notificationPanelNotifSoundsCheckbox;	
+	private JCheckBox notificationPanelUseSystemNotifsCheckbox;
 	private JCheckBox notificationPanelTrayPopupCheckbox;
 	private JRadioButton notificationPanelClientFocusButton;
 	private JRadioButton notificationPanelAnyFocusButton;
@@ -553,6 +552,14 @@ public class ConfigWindow {
 		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
 		
+		if(SystemTray.isSupported())
+			notificationPanelUseSystemNotifsCheckbox = addCheckbox("Use system notifications if available", notificationPanel);
+		else {
+			notificationPanelUseSystemNotifsCheckbox = addCheckbox("Use system notifications if available (INCOMPATIBLE OS)", notificationPanel);
+			notificationPanelUseSystemNotifsCheckbox.setEnabled(false);
+		}
+		notificationPanelUseSystemNotifsCheckbox.setToolTipText("Uses built-in system notifications. Enable this to attempt to use your operating system's notification system instead of the built-in pop-up");
+		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
 		
@@ -631,6 +638,8 @@ public class ConfigWindow {
 					notificationPanelClientFocusButton.setEnabled(true);
 					notificationPanelAnyFocusButton.setEnabled(true);
 					notificationPanelNotifSoundsCheckbox.setEnabled(true);
+					if(SystemTray.isSupported())
+						notificationPanelUseSystemNotifsCheckbox.setEnabled(true);
 					notificationPanelPMNotifsCheckbox.setEnabled(true);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(true); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(true);
@@ -645,6 +654,8 @@ public class ConfigWindow {
 					notificationPanelClientFocusButton.setEnabled(false);
 					notificationPanelAnyFocusButton.setEnabled(false);
 					notificationPanelNotifSoundsCheckbox.setEnabled(false);
+					if(SystemTray.isSupported())
+						notificationPanelUseSystemNotifsCheckbox.setEnabled(false);
 					notificationPanelPMNotifsCheckbox.setEnabled(false);
 					//notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Uncomment this line when trade notifications are implemented
 					notificationPanelDuelNotifsCheckbox.setEnabled(false);
@@ -1015,7 +1026,8 @@ public class ConfigWindow {
 		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE);
 		notificationPanelFatigueNotifsCheckbox.setSelected(Settings.FATIGUE_NOTIFICATIONS);
 		notificationPanelFatigueNotifsSpinner.setValue(Settings.FATIGUE_NOTIF_VALUE);
-		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);	 	// TODO: Implement this feature
+		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);
+		notificationPanelUseSystemNotifsCheckbox.setSelected(Settings.USE_SYSTEM_NOTIFICATIONS);
 		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
 		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
 		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
@@ -1078,6 +1090,7 @@ public class ConfigWindow {
 		Settings.FATIGUE_NOTIFICATIONS = notificationPanelFatigueNotifsCheckbox.isSelected();
 		Settings.FATIGUE_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelFatigueNotifsSpinner.getModel())).getNumber().intValue();
 		Settings.NOTIFICATION_SOUNDS = notificationPanelNotifSoundsCheckbox.isSelected();
+		Settings.USE_SYSTEM_NOTIFICATIONS = notificationPanelUseSystemNotifsCheckbox.isSelected();
 		Settings.TRAY_NOTIFS = notificationPanelTrayPopupCheckbox.isSelected();
 		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelAnyFocusButton.isSelected();
 

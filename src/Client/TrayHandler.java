@@ -1,7 +1,5 @@
 package Client;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -12,17 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.awt.event.WindowEvent;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import Game.Game;
 
@@ -75,10 +65,8 @@ public class TrayHandler implements MouseListener {
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Close everything, making sure to trigger windowClosing() to clean up
-				tray.remove(trayIcon);
-				NotificationsHandler.closeNotificationSoundClip();
-				System.exit(0);
+				//TODO: Perhaps find a way to close the client from the tray icon and call both WindowClosing() and WindowClosed(), though nothing seems broken from doing it this way
+				Game.getInstance().dispatchEvent(new WindowEvent(Game.getInstance(), WindowEvent.WINDOW_CLOSING));
 			}
 		});
 
@@ -138,5 +126,12 @@ public class TrayHandler implements MouseListener {
 	@Override
 	public void mouseExited(MouseEvent e) {
 
+	}
+	
+	/**
+	 * @return the trayIcon
+	 */
+	public static TrayIcon getTrayIcon() {
+		return trayIcon;
 	}
 }
