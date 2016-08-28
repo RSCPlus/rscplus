@@ -70,8 +70,11 @@ public class JClassPatcher {
 		// Patch applied to all classes
 		patchGeneric(node);
 
-		if (Settings.DEBUG)
+		if (Settings.DISASSEMBLE)
+		{
+			Logger.Info("Disassembling file: " + node.name + ".class");
 			dumpClass(node);
+		}
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		node.accept(writer);

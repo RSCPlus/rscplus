@@ -125,6 +125,8 @@ public class Settings
 			WORLD = getInt(props, "world", 2);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
 			FIRST_TIME = getBoolean(props, "first_time", FIRST_TIME);
+			DISASSEMBLE = getBoolean(props, "disassemble", false);
+			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
 			
 			if (CUSTOM_CLIENT_SIZE_X < 512) {
 				CUSTOM_CLIENT_SIZE_X = 512;
@@ -180,9 +182,9 @@ public class Settings
 		}
 		catch(Exception e) {}
 
-		if(DEBUG)
+		if(DISASSEMBLE)
 		{
-			Dir.DUMP = Dir.JAR + "/dump";
+			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY;
 			Util.MakeDirectory(Dir.DUMP);
 		}
 		
@@ -265,6 +267,8 @@ public class Settings
 			props.setProperty("world", "" + WORLD);
 			props.setProperty("combat_style", "" + COMBAT_STYLE);
 			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
+			props.setProperty("disassemble", "" + DISASSEMBLE);
+			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
 
 			//Keybinds
 			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
@@ -772,6 +776,8 @@ public class Settings
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
+	public static boolean DISASSEMBLE = false;
+	public static String DISASSEMBLE_DIRECTORY = "dump";
 	
 	
 	

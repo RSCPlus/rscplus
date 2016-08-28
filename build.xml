@@ -43,7 +43,6 @@
 			<fileset dir=".">
 				<include name="${assets.dir}/**" />
 				<include name="LICENSE" />
-				<include name="readme.txt" />
 			</fileset>
 			<zipgroupfileset dir="lib" includes="*.jar" />
         </jar>
