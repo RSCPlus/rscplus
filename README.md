@@ -15,7 +15,7 @@
 *I will not accept any game automation features (macroing, etc.)*
 
 ## Features
-- Game resolution changing (about 80% complete)
+- Game resolution changing
 - NPC Dialogue options with 1-9 on keyboard
 - Roof hiding
 - Option to always show combat style menu, and persistent combat style setting
@@ -28,32 +28,34 @@
 - Integrated Twitch chat into in-game chat
 - Inventory free space counter
 - Highlight friends and show their names when they're near you
+- Notifications for PMs, trades, duel requests, low HP, and high fatigue
 - Configurable item name patching
 - And more...
 
 ## Controls
-*[Command Key]* can be either Alt or Ctrl.
+Most keybinds are configurable via the Settings GUI
 
 - Middle mouse click - Rotate camera
 - Mouse wheel scroll - Zoom camera
-- *[Command Key]* + s - Take screenshot (Saved in the screenshots directory)
-- *[Command Key]* + r - Toggle roof hiding
-- *[Command Key]* + c - Toggle combat experience menu
-- *[Command Key]* + f - Toggle fatigue alert at 100%
-- *[Command Key]* + e - Toggle inventory count overlay
-- *[Command Key]* + u - Toggle Hits/Prayer/Fatigue display
-- *[Command Key]* + g - Toggle Friend info
-- *[Command Key]* + d - Toggle debug mode
-- *[Command Key]* + t - Toggle twitch chat hidden/shown
-- *[Command Key]* + i - Toggle Item info
-- *[Command Key]* + n - Toggle NPC info
-- *[Command Key]* + p - Toggle Player info
-- *[Command Key]* + h - Toggle hitboxes for NPC info
-- *[Command Key]* + [ - Toggle XP drops
-- *[Command Key]* + ] - Toggle fatigue drops
-- *[Command Key]* + l - Logout
-- *[Command Key]* + z - Toggle colored chat text in terminal
-- *[Command Key]* + 1-5 - World switch on login screen
+- Ctrl + o - Open the options/settings window
+- Ctrl + s - Take screenshot (Saved in the screenshots directory)
+- Ctrl + r - Toggle roof hiding
+- Ctrl + c - Toggle combat experience menu
+- Ctrl + f - Toggle fatigue alert at 100%
+- Ctrl + e - Toggle inventory count overlay
+- Ctrl + u - Toggle Hits/Prayer/Fatigue display
+- Ctrl + g - Toggle Friend info
+- Ctrl + d - Toggle debug mode
+- Ctrl + t - Toggle twitch chat hidden/shown
+- Ctrl + i - Toggle Item info
+- Ctrl + n - Toggle NPC info
+- Ctrl + p - Toggle Player info
+- Ctrl + h - Toggle hitboxes for NPC info
+- Ctrl + [ - Toggle XP drops
+- Ctrl + ] - Toggle fatigue drops
+- Ctrl + l - Logout
+- Ctrl + z - Toggle colored chat text in terminal
+- Ctrl + 1-5 - World switch on login screen
 
 ## Chat Commands
 
@@ -95,7 +97,7 @@
 
 *::togglefatiguedrops* - Toggle fatigue drops
 
-*::fov* - Change FoV from 8-9
+*::fov \<value\>* - Change FoV to specified value (range of 7 to 16)
 
 *::logout* - Logout
 
@@ -111,7 +113,7 @@
 
 ## Config Options
 
-### User configured via config.ini only
+### User configured via the settings GUI or config.ini only
 <dl>
   <dt>name_patch_type</dt>
   <dd>Range: <i>0 to 3</i><br>
@@ -150,7 +152,7 @@
   Sets max number of digits to display after the decimal point on fatigue drops</dd>
 </dl>
   
-### Automatically configured via user input in game
+### Automatically configured via user input in game or the settings GUI
 <dl>
   <dt>combat_menu</dt>
   <dd>Range: <i>true or false</i><br>
@@ -166,17 +168,64 @@
     <li>Defensive</li>
   </ol></dd>
   
+  <dt>custom_client_size</dt>
+  <dd>Range: <i>true or false</i><br>
+  Enables resizing the client on startup to the specified size. When set with the settings GUI, it will resize the game immediately.
+  </dd>
+  
+  <dt>custom_client_size_x</dt>
+  <dd>Min: <i>512</i><br>
+  Default width of client at startup
+  </dd>
+  
+  <dt>custom_client_size_y</dt>
+  <dd>Min: <i>346</i><br>
+  Default height of client at startup
+  </dd>
+  
   <dt>debug</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether debug mode is enabled</dd>
+  
+  <dt>duel_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when receiving a duel request</dd>
   
   <dt>fatigue_alert</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether a large notice is displayed when fatigue approaches 100%</dd>
   
+  <dt>fatigue_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when fatigue gets over a specified value</dd>
+  
+  <dt>fatigue_notif_value</dt>
+  <dd>Range: <i>1-99</i><br>
+  Sets fatigue value when a high fatigue notification is triggered</dd>
+  
   <dt>hide_roofs</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether rooftops are hidden</dd>
+  
+  <dt>logout_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when about to log out from not moving</dd>
+  
+  <dt>low_hp_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when players HP is below a specified percent</dd>
+  
+  <dt>low_hp_notif_value</dt>
+  <dd>Range: <i>1-99</i><br>
+  Sets HP percent value when a low HP notification is triggered</dd>
+  
+  <dt>notification_sounds</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if a sound is played when a notification is triggered</dd>
+  
+  <dt>pm_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when receiving a PM</dd>
   
   <dt>show_hitbox</dt>
   <dd>Range: <i>true or false</i><br>
@@ -206,9 +255,25 @@
   <dd>Range: <i>true or false</i><br>
   Sets whether fatigue drops appear on screen</dd>
   
+  <dt>trade_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if notification is shown when receiving a trade request</dd>
+  
+  <dt>tray_notifs</dt>
+  <dd>Range: <i>true or false</i><br>
+  Enables or disables <i>all</i> notifications</dd>
+  
+  <dt>tray_notifs_always</dt>
+  <dd>Range: <i>true or false</i><br>
+  If false, notifications will only trigger when the client window is focused. If true, notifications will always trigger, regardless of client window focus.</dd>
+  
   <dt>twitch_hide</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether Twitch chat is shown in game chat</dd>
+  
+  <dt>use_system_notifications</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets if system notifications are used instead of custom notifications. Set to false if your system doesn't support notifications or if you don't like the appearance of your system's notifications</dd>
   
   <dt>world</dt>
   <dd>Range: <i>1 to 5</i><br>
