@@ -1,3 +1,24 @@
+/**
+ *	rscplus
+ *
+ *	This file is part of rscplus.
+ *
+ *	rscplus is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	rscplus is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with rscplus.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *	Authors: see <https://github.com/OrN/rscplus>
+ */
+
 package Client;
 
 import java.awt.BorderLayout;
@@ -14,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -176,32 +198,33 @@ public class NotificationsHandler {
 		notificationFrame.setVisible(isVisible);
 	}
 	
-	private static URL urlToNotificationSound;
-	private static AudioInputStream notificationAudioIn;
-	private static Clip notificationSoundClip;
-	
-	public static void loadNotificationSound() {
-		try {
-			urlToNotificationSound = new File("assets/notification.wav").toURI().toURL();
-			notificationAudioIn = AudioSystem.getAudioInputStream(urlToNotificationSound);
-			notificationSoundClip = AudioSystem.getClip();
-			notificationSoundClip.open(notificationAudioIn);
-		} catch (UnsupportedAudioFileException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (LineUnavailableException e) {
-			e.printStackTrace();
-		}
-	}
+    private static AudioInputStream notificationAudioIn;
+    private static Clip notificationSoundClip;
+    
+    public static void loadNotificationSound() {
+        try {
+            notificationAudioIn = AudioSystem.getAudioInputStream(new BufferedInputStream(Settings.getResourceAsStream("/assets/notification.wav")));
+            notificationSoundClip = AudioSystem.getClip();
+            notificationSoundClip.open(notificationAudioIn);
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public static void playNotificationSound() {
+		if (notificationSoundClip == null)
+			return;
 		notificationSoundClip.setMicrosecondPosition(0);
 		notificationSoundClip.start();
 	}
 	
 	public static void closeNotificationSoundClip() {
-		notificationSoundClip.close();
+		if (notificationSoundClip != null)
+			notificationSoundClip.close();
 	}
 	
 	public static void disposeNotificationHandler() {

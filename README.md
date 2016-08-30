@@ -15,7 +15,7 @@
 *I will not accept any game automation features (macroing, etc.)*
 
 ## Features
-- Game resolution changing
+- Game resolution changing (about 80% complete)
 - NPC Dialogue options with 1-9 on keyboard
 - Roof hiding
 - Option to always show combat style menu, and persistent combat style setting
