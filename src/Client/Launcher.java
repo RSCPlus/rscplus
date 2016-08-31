@@ -155,6 +155,7 @@ public class Launcher extends JFrame implements Runnable
 
 	public static void main(String args[])
 	{
+		Settings.initDir();
 		setConfigWindow(new ConfigWindow());
 		Settings.Load();
 		TrayHandler.initTrayIcon();

@@ -39,8 +39,8 @@ import Game.Renderer;
 
 public class Settings
 {
-	public static void Load()
-	{
+	
+	public static void initDir() {
 		// Find JAR directory
 		Dir.JAR = ".";
 		try
@@ -61,7 +61,10 @@ public class Settings
 		Util.MakeDirectory(Dir.CACHE);
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.MakeDirectory(Dir.SCREENSHOT);
-
+	}
+	
+	public static void Load()
+	{
 		// Load settings
 		try
 		{
