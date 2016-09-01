@@ -103,6 +103,10 @@ public class Settings
 			DEBUG = getBoolean(props, "debug", DEBUG);
 
 			//Notifications options
+			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
+			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
+			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
+			USE_SYSTEM_NOTIFICATIONS = getBoolean(props, "use_system_notifications", USE_SYSTEM_NOTIFICATIONS);
 			PM_NOTIFICATIONS = getBoolean(props, "pm_notifications", PM_NOTIFICATIONS);
 			TRADE_NOTIFICATIONS = getBoolean(props, "trade_notifications", TRADE_NOTIFICATIONS);
 			DUEL_NOTIFICATIONS = getBoolean(props, "duel_notifications", DUEL_NOTIFICATIONS);
@@ -110,11 +114,7 @@ public class Settings
 			LOW_HP_NOTIFICATIONS = getBoolean(props, "low_hp_notifications", LOW_HP_NOTIFICATIONS);
 			LOW_HP_NOTIF_VALUE = getInt(props, "low_hp_notif_value", LOW_HP_NOTIF_VALUE);
 			FATIGUE_NOTIFICATIONS = getBoolean(props, "fatigue_notifications", FATIGUE_NOTIFICATIONS);
-			FATIGUE_NOTIF_VALUE = getInt(props, "fatigue_notifications", FATIGUE_NOTIF_VALUE);
-			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
-			USE_SYSTEM_NOTIFICATIONS = getBoolean(props, "use_system_notifications", USE_SYSTEM_NOTIFICATIONS);
-			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
-			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
+			FATIGUE_NOTIF_VALUE = getInt(props, "fatigue_notif_value", FATIGUE_NOTIF_VALUE);
 
 			//Streaming & Privacy
 			TWITCH_HIDE = getBoolean(props, "twitch_hide", TWITCH_HIDE);
@@ -245,6 +245,10 @@ public class Settings
 			props.setProperty("debug", "" + DEBUG);
 
 			//Notifications
+			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
+			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
+			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
+			props.setProperty("use_system_notifications", "" + USE_SYSTEM_NOTIFICATIONS);
 			props.setProperty("pm_notifications", "" + PM_NOTIFICATIONS);
 			props.setProperty("trade_notifications", "" + TRADE_NOTIFICATIONS);
 			props.setProperty("duel_notifications", "" + DUEL_NOTIFICATIONS);
@@ -253,10 +257,6 @@ public class Settings
 			props.setProperty("low_hp_notif_value", "" + LOW_HP_NOTIF_VALUE);
 			props.setProperty("fatigue_notifications", "" + FATIGUE_NOTIFICATIONS);
 			props.setProperty("fatigue_notif_value", "" + FATIGUE_NOTIF_VALUE);
-			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
-			props.setProperty("use_system_notifications", "" + USE_SYSTEM_NOTIFICATIONS);
-			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
-			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
 
 			//Streaming & Privacy
 			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
@@ -722,6 +722,7 @@ public class Settings
 	/*
 	 * Settings Variables
 	 * Note that the settings defaults are those values listed here, as the Load method now references these values as defaults.
+	 * These have been ordered according to their order on the GUI, for convenience.
 	 */
 	
 	//General options
@@ -754,6 +755,10 @@ public class Settings
 	public static boolean DEBUG = false;
 	
 	//Notifications options
+	public static boolean TRAY_NOTIFS = true;
+	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
+	public static boolean NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
+	public static boolean USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
 	public static boolean PM_NOTIFICATIONS = true; 
 	public static boolean TRADE_NOTIFICATIONS = true;
 	public static boolean DUEL_NOTIFICATIONS = true;
@@ -762,10 +767,6 @@ public class Settings
 	public static int LOW_HP_NOTIF_VALUE = 25;
 	public static boolean FATIGUE_NOTIFICATIONS = true;
 	public static int FATIGUE_NOTIF_VALUE = 98;
-	public static boolean NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
-	public static boolean USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
-	public static boolean TRAY_NOTIFS = true;
-	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
 	
 	//Streaming & Privacy
 	public static boolean TWITCH_HIDE = false; //TODO: Refactor? Vague, if it manages chat visibility
