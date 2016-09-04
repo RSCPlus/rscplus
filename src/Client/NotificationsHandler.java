@@ -172,15 +172,14 @@ public class NotificationsHandler {
 	public static void displayNotification(String title, String text) {
 		// TODO: Add a timer to make the notification disappear after about 5 seconds
 		// TODO: Add fade-in and fade-out or slide-in and slide-out animations
-		// TODO: Make text wrapping not bunch up after 2 lines (maybe use a JTextArea?)
-		
+		String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", ""); // Remove color/formatting codes
 		if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
 			// TODO: When you click the system notification, it should focus the game client
-			TrayHandler.getTrayIcon().displayMessage(title, text, MessageType.NONE);
+			TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
 		} else {
 			setNotificationWindowVisible(true);
 			notificationTitle.setText(title);
-			notificationTextArea.setText(text);
+			notificationTextArea.setText(sanitizedText);
 			notificationFrame.repaint();
 		}
 		if (Settings.NOTIFICATION_SOUNDS) {
