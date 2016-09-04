@@ -1138,32 +1138,13 @@ public class ConfigWindow {
 		frame.dispose();
 	}
 	
-	/**
-	 * Sets the text of the button to its keybind.
-	 * @param kbs - The KeybindSet object to set the button text of.
-	 */
-	public static void setKeybindButtonText(KeybindSet kbs) {
-		String modifierText = kbs.modifier.toString() + " + ";
-		String keyText = KeyEvent.getKeyText(kbs.key);
-		
-		if (kbs.key == -1) 
-			keyText = "NONE";
-		
-		if (kbs.modifier == KeyModifier.NONE)
-			modifierText = "";
-		
-		if (keyText.equals("Open Bracket")) {
-			keyText = "[";
-		}
-		if (keyText.equals("Close Bracket")) {
-			keyText = "]";
-		}
-		if (keyText.equals("Unknown keyCode: 0x0")) {
-			keyText = "???";
-		}
-		
-		kbs.button.setText(modifierText + keyText);
-	}
+    /**
+     * Sets the text of the button to its keybind.
+     * @param kbs - The KeybindSet object to set the button text of.
+     */
+    public static void setKeybindButtonText(KeybindSet kbs) {
+        kbs.button.setText(kbs.getFormattedKeybindText());
+    }
 	
 	/**
 	 * Applies the settings in the Config GUI to the Settings class variables.<br>

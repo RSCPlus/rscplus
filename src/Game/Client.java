@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.fusesource.jansi.AnsiConsole;
 
+import Client.KeybindSet;
+import Client.Logger;
 import Client.NotificationsHandler;
 import Client.Settings;
 import Client.TrayHandler;
@@ -444,7 +446,22 @@ public class Client {
 		} else if (whiteMessage) {
 			//if (colorMessage.contains("Welcome to RuneScape!")) { // this would be necessary if whiteMessage had more than one .contains()
 			if (Settings.FIRST_TIME) {
-				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands and shortcuts", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+				
+				// Get keybind to open the config window
+				String configWindowShortcut = "";
+				for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+					if (kbs.getCommandName().equals("show_config_window")) {
+						configWindowShortcut = kbs.getFormattedKeybindText();
+						break;
+					} 
+				}
+				if (configWindowShortcut.equals("")) {
+					Logger.Error("Could not find the keybind for the config window!");
+					configWindowShortcut = "<Keybind error>";
+				}
+				
+				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+				displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
 				Settings.FIRST_TIME = false;
 				Settings.Save();
 			}

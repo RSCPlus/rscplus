@@ -21,6 +21,8 @@
 
 package Client;
 
+import java.awt.event.KeyEvent;
+
 import javax.swing.JButton;
 
 public class KeybindSet {
@@ -76,5 +78,31 @@ public class KeybindSet {
 	public boolean isDuplicateKeybindSet(KeybindSet.KeyModifier modifier, int key) {
 		return (this.modifier == modifier && this.key == key);
 	}
+	
+    /**
+     * Returns a human-friendly format of this KeybindSet's keybind, for use in buttons and printing.
+     * @return - A string representing the keybind.
+     */
+    public String getFormattedKeybindText() {
+        String modifierText = modifier.toString() + " + ";
+        String keyText = KeyEvent.getKeyText(key);
+        
+        if (key == -1) 
+            keyText = "NONE";
+        
+        if (modifier == KeyModifier.NONE)
+            modifierText = "";
+        
+        if (keyText.equals("Open Bracket")) {
+            keyText = "[";
+        }
+        if (keyText.equals("Close Bracket")) {
+            keyText = "]";
+        }
+        if (keyText.equals("Unknown keyCode: 0x0")) {
+            keyText = "???";
+        }
+        return modifierText + keyText;
+    }
 
 }
