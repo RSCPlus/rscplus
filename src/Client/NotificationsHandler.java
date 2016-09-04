@@ -36,13 +36,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
@@ -51,11 +50,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import Game.Game;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
 
 public class NotificationsHandler {
 		
@@ -204,7 +202,7 @@ public class NotificationsHandler {
     public static void loadNotificationSound() {
         try {
             notificationAudioIn = AudioSystem.getAudioInputStream(new BufferedInputStream(Settings.getResourceAsStream("/assets/notification.wav")));
-            notificationSoundClip = AudioSystem.getClip();
+            notificationSoundClip = (Clip)AudioSystem.getLine(new DataLine.Info(Clip.class, notificationAudioIn.getFormat()));
             notificationSoundClip.open(notificationAudioIn);
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
