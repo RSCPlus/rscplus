@@ -48,6 +48,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
@@ -297,6 +298,19 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				int choice = JOptionPane.showConfirmDialog(
+						Launcher.getConfigWindow().frame,
+						"Are you sure you want to restore this tab's settings to their defaults?",
+					    "Confirm",
+					    JOptionPane.YES_NO_OPTION,
+					    JOptionPane.QUESTION_MESSAGE);
+				
+				if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+				
+				
 				//Restore defaults
 				switch(tabbedPane.getSelectedIndex()) {
 				case 0:

@@ -143,8 +143,18 @@ public class NotificationsHandler {
 		
 		
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(Settings.getResource("/assets/notification_background.png")));
-		lblNewLabel.setBounds(0, 0, 442, 104);
+		ImageIcon img = null;
+		if (System.getProperty("os.name").contains("Windows")) {
+			img = new ImageIcon(Settings.getResource("/assets/notification_background.png"));
+			lblNewLabel.setBounds(0, 0, 442, 104);
+		} else {
+			img = new ImageIcon(Settings.getResource("/assets/notification_background_compat.png"));
+			lblNewLabel.setBounds(0, 0, 422, 78);
+			mainContentPanel.setBounds(0, 0, 422, 78);
+			notificationFrame.setBounds(width-446, height-154, 422, 78);
+			
+		}
+		lblNewLabel.setIcon(img);
 		lblNewLabel.setBackground(new Color(0,0,0,0));
 		lblNewLabel.setForeground(new Color(0,0,0,0));
 		lblNewLabel.setOpaque(false);
