@@ -108,6 +108,7 @@ public class NotificationsHandler {
 		iconLabel = new JLabel();
 		iconLabel.setIcon(new ImageIcon(Settings.getResource("/assets/icon.png")));
 		iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		iconLabel.setVerticalAlignment(SwingConstants.CENTER);
 		panel.add(iconLabel, BorderLayout.CENTER);
 					
 		notificationTitle = new JLabel();
@@ -215,7 +216,9 @@ public class NotificationsHandler {
 	public static void playNotificationSound() {
 		if (notificationSoundClip == null)
 			return;
-		notificationSoundClip.setMicrosecondPosition(0);
+		notificationSoundClip.stop();
+		notificationSoundClip.flush();
+		notificationSoundClip.setFramePosition(0);
 		notificationSoundClip.start();
 	}
 	
