@@ -110,6 +110,7 @@ public class TrayHandler implements MouseListener {
 	 * Remove the system tray icon
 	 */
 	public static void removeTrayIcon() {
+		if (tray != null && trayIcon != null)
 		tray.remove(trayIcon);
 	}
 
