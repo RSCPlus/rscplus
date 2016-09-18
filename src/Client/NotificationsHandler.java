@@ -37,6 +37,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -69,69 +70,82 @@ public class NotificationsHandler {
 	/**
 	 * @wbp.parser.entryPoint
 	 * Initializes the Notification JFrame and prepares it to receive notifications
-	 * TODO: Strongly consider moving all of this to the dispatch thread
 	 */
 	public static void initialize() {
+		Logger.Info("Creating notification window");
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					runInit();
+				}
+			});
+		} catch (InvocationTargetException e) {
+			Logger.Error("There was a thread-related error while setting up the notifications window!");
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			Logger.Error("There was a thread-related error while setting up the notifications window! The window may not be initialized properly!");
+			e.printStackTrace();
+		}
+	}
+	
+	private static void runInit() {
 		
 		NotifsShowGameMouseListener mouseManager = new NotifsShowGameMouseListener();
 		
-		notificationFrame = new JFrame();
-		JPanel contentPanel = new JPanel();
-		notificationFrame.setContentPane(contentPanel);
-		
+		//Get Monitor size for GUI.
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		int width = gd.getDisplayMode().getWidth();
 		int height = gd.getDisplayMode().getHeight();
 		
-		notificationFrame.setBounds(width-446, height-154, 449, 104);
+		//1
+		notificationFrame = new JFrame();
+		JPanel contentPanel = new JPanel();
+		notificationFrame.setContentPane(contentPanel);
+		
 		notificationFrame.setUndecorated(true);
-		notificationFrame.setShape(new RoundRectangle2D.Double(0, 0, notificationFrame.getWidth(), notificationFrame.getHeight(), 16, 16));
-		notificationFrame.setBackground(new Color(0,0,0,0));
 		notificationFrame.setAutoRequestFocus(false);
 		notificationFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		notificationFrame.setType(Window.Type.UTILITY);
+		notificationFrame.setType(Window.Type.UTILITY); //TODO: Will changing this for linux affect whether it has a "taskbar" icon?
 		notificationFrame.setAlwaysOnTop(true);	
-		
 		contentPanel.setLayout(null);
-		contentPanel.setBackground(new Color(0,0,0,0));
 		
+		//2
 		mainContentPanel = new JPanel();
-		mainContentPanel.setBounds(13, 13, 423, 79);
 		mainContentPanel.setLayout(null);
-		mainContentPanel.setBackground(new Color(249,249,247,0));
-		mainContentPanel.addMouseListener(mouseManager);
-		contentPanel.add(mainContentPanel);
-		
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(232,232,230,0));
-		panel.setBounds(0, 0, 79, 79);
-		panel.setLayout(new BorderLayout(0, 0));
-		mainContentPanel.add(panel);
 
+		mainContentPanel.addMouseListener(mouseManager);
 		
+		//3
+		JPanel iconPanel = new JPanel();
+		iconPanel.setBounds(0, 0, 79, 79);
+		iconPanel.setLayout(new BorderLayout(0, 0));
+		
+		//4
 		iconLabel = new JLabel();
 		iconLabel.setIcon(new ImageIcon(Settings.getResource("/assets/icon.png")));
 		iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		iconLabel.setVerticalAlignment(SwingConstants.CENTER);
-		panel.add(iconLabel, BorderLayout.CENTER);
-					
+		iconPanel.add(iconLabel, BorderLayout.CENTER);
+
+		//5
 		notificationTitle = new JLabel();
 		notificationTitle.setBounds(91, 3, 326, 26);
 		notificationTitle.setForeground(new Color(0x1d, 0x1d, 0x1d));
 		mainContentPanel.add(notificationTitle);
 		
+		//6
 		notificationTextArea = new JTextArea();
 		notificationTextArea.setDisabledTextColor(new Color(0x3f, 0x3f, 0x3f));
 		notificationTextArea.setFocusable(false);
 		notificationTextArea.setEnabled(false);
 		notificationTextArea.setEditable(false);
 		notificationTextArea.setBorder(null);
-		notificationTextArea.setBackground(new Color(0,0,0,0));
 		notificationTextArea.setLineWrap(true);
 		notificationTextArea.setBounds(91, 30, 326, 43);
 		notificationTextArea.addMouseListener(mouseManager);
-		mainContentPanel.add(notificationTextArea);
 		
+		//7
 		JButton closeButton = new JButton("");
 		closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -145,25 +159,89 @@ public class NotificationsHandler {
 		closeButton.setContentAreaFilled(false);
 		mainContentPanel.add(closeButton);
 		
+		//8 (add the background image to the jpanel if on windows)
 		
-		JLabel lblNewLabel = new JLabel("");
-		ImageIcon img = null;
+		
+		/* So basically, if we're running windows, everything renders normally and looks great. 
+		 * If we aren't, we assume everything breaks and revert to a simpler but compatible look
+		 */
 		if (System.getProperty("os.name").contains("Windows")) {
+			//1
+			notificationFrame.setShape(new RoundRectangle2D.Double(0, 0, notificationFrame.getWidth(), notificationFrame.getHeight(), 16, 16));	//Configure the frame to have rounded corners and to be transparent
+
+			notificationFrame.setBackground(new Color(0,0,0,0)); //Make the jframe itself transparent.
+			contentPanel.setBackground(new Color(0,0,0,0));
+			notificationFrame.setBounds(width-446, height-154, 449, 104);		
+			
+			//2
+			mainContentPanel.setBounds(13, 13, 423, 79);
+			mainContentPanel.setBackground(new Color(249,249,247,0));
+
+			contentPanel.add(mainContentPanel); //To make sure it's added at a reasonable time
+
+			//3
+			iconPanel.setBackground(new Color(232,232,230,0));
+			mainContentPanel.add(iconPanel);
+			
+			//4 (nothing to do)
+			
+			//5 (nothing to do)
+
+			//6
+			notificationTextArea.setBackground(new Color(0,0,0,0));
+			notificationTextArea.setOpaque(false);
+			mainContentPanel.add(notificationTextArea);
+			
+			//7 (button, nothing to do yet)
+			
+			//8 (Add the background image
+			JLabel backgroundImage = new JLabel("");
+			ImageIcon img = null;
+			
+
 			img = new ImageIcon(Settings.getResource("/assets/notification_background.png"));
-			lblNewLabel.setBounds(0, 0, 442, 104);
+			backgroundImage.setBounds(0, 0, 442, 104);
+
+			backgroundImage.setIcon(img);
+			backgroundImage.setBackground(new Color(0,0,0,0));
+			backgroundImage.setForeground(new Color(0,0,0,0));
+			backgroundImage.setOpaque(false);
+			contentPanel.add(backgroundImage);
+			
+
 		} else {
-			img = new ImageIcon(Settings.getResource("/assets/notification_background_compat.png"));
-			lblNewLabel.setBounds(0, 0, 422, 78);
-			mainContentPanel.setBounds(0, 0, 422, 78);
-			notificationFrame.setBounds(width-446, height-154, 422, 78);
+			//TODO: Consider OS-dependent locations for the notification window
+			//1
+			notificationFrame.setBounds(width-446, height-154, 425, 81);
+			contentPanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(172,172,172)));
+
+			//2
+			mainContentPanel.setBounds(1, 1, 423, 79);
+			mainContentPanel.setBackground(new Color(249,249,247));
+			
+
+			contentPanel.add(mainContentPanel); //To make sure it's added at a reasonable time
+
+			//3
+			iconPanel.setBackground(new Color(232,232,230));
+			iconPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(196,196,194)));
+			mainContentPanel.add(iconPanel);
+
+			//4 (nothing to do)
+			
+			//5 (nothing to do)
+			
+			//6
+			notificationTextArea.setBackground(new Color(249,249,247,0));
+			notificationTextArea.setOpaque(false);
+			mainContentPanel.add(notificationTextArea);
+			
+			//7 (button, nothing to do yet)
+			
+			//8 (Add background image if windows for the shadow effect)
 			
 		}
-		lblNewLabel.setIcon(img);
-		lblNewLabel.setBackground(new Color(0,0,0,0));
-		lblNewLabel.setForeground(new Color(0,0,0,0));
-		lblNewLabel.setOpaque(false);
-		contentPanel.add(lblNewLabel);
-		
+
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, Settings.getResourceAsStream("/assets/OpenSans-Regular.ttf"));
 			Font boldFont = Font.createFont(Font.TRUETYPE_FONT, Settings.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
@@ -178,6 +256,7 @@ public class NotificationsHandler {
 		loadNotificationSound();
 		notificationFrame.repaint();
 		createNotifTimerThread();
+		
 	}
 	
 	/**
@@ -187,6 +266,12 @@ public class NotificationsHandler {
 	private static void createNotifTimerThread() {
 		setLastNotifTime(0);
 		notifTimeoutThread = new Thread(new NotifTimeoutHandler());
+		try {
+			notifTimeoutThread.setName("Notifications Timeout");
+		} catch (SecurityException e) {
+			Logger.Error("Access denied attempting to set the name of the notifications thread. This is not fatal.");
+		}
+		notifTimeoutThread.setDaemon(true); //Make sure this thread doesn't keep the program alive if something breaks horribly
 		notifTimeoutThread.start();
 	}
 	
@@ -210,7 +295,7 @@ public class NotificationsHandler {
 					}
 				}
 			} catch (InterruptedException e) {
-				Logger.Error("The notifications timeout thread was interrupted unexpectedly!");
+				Logger.Error("The notifications timeout thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
 				//End the thread
 			}
 			

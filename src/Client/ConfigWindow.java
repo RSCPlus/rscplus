@@ -36,6 +36,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Hashtable;
 
@@ -60,6 +61,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -202,6 +204,24 @@ public class ConfigWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		Logger.Info("Creating configuration window");
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					runInit();
+				}
+			});
+		} catch (InvocationTargetException e) {
+			Logger.Error("There was a thread-related error while setting up the config window!");
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			Logger.Error("There was a thread-related error while setting up the config window! The window may not be initialized properly!");
+			e.printStackTrace();
+		}
+	}
+	
+	private void runInit() {
 		frame = new JFrame();
 		frame.setTitle("Settings");
 		frame.setBounds(100, 100, 410, 630);
