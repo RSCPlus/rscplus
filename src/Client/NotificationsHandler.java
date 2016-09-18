@@ -52,6 +52,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import Game.Game;
 
@@ -62,10 +63,13 @@ public class NotificationsHandler {
 	static JLabel notificationTitle;
 	static JTextArea notificationTextArea;
 	static JPanel mainContentPanel;
+	static Thread notifTimeoutThread;
+	static long notifLastShownTime;
 	
 	/**
 	 * @wbp.parser.entryPoint
 	 * Initializes the Notification JFrame and prepares it to receive notifications
+	 * TODO: Strongly consider moving all of this to the dispatch thread
 	 */
 	public static void initialize() {
 		
@@ -94,12 +98,12 @@ public class NotificationsHandler {
 		mainContentPanel = new JPanel();
 		mainContentPanel.setBounds(13, 13, 423, 79);
 		mainContentPanel.setLayout(null);
-		mainContentPanel.setBackground(new Color(0,0,0,0));
+		mainContentPanel.setBackground(new Color(249,249,247,0));
 		mainContentPanel.addMouseListener(mouseManager);
 		contentPanel.add(mainContentPanel);
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0,0,0,0));
+		panel.setBackground(new Color(232,232,230,0));
 		panel.setBounds(0, 0, 79, 79);
 		panel.setLayout(new BorderLayout(0, 0));
 		mainContentPanel.add(panel);
@@ -173,6 +177,61 @@ public class NotificationsHandler {
 		
 		loadNotificationSound();
 		notificationFrame.repaint();
+		createNotifTimerThread();
+	}
+	
+	/**
+	 * Creates the notification timeout thread for closing the non-native notification after a few seconds
+	 * @return
+	 */
+	private static void createNotifTimerThread() {
+		setLastNotifTime(0);
+		notifTimeoutThread = new Thread(new NotifTimeoutHandler());
+		notifTimeoutThread.start();
+	}
+	
+	/**
+	 * Thread for the notification timeout thread
+	 *
+	 */
+	static class NotifTimeoutHandler implements Runnable {
+		@Override
+		public void run() {
+			try {
+				while (true) {
+					Thread.sleep(500);
+					if (getLastNotifTime() == -1) {
+						break;
+					}
+					if (notificationFrame.isVisible()) {
+						if (System.currentTimeMillis() > (getLastNotifTime() + 8000L)) {
+							NotificationsHandler.setNotificationWindowVisible(false);
+						}
+					}
+				}
+			} catch (InterruptedException e) {
+				Logger.Error("The notifications timeout thread was interrupted unexpectedly!");
+				//End the thread
+			}
+			
+		}
+	}
+	
+	/**
+	 * 
+	 * @param time - Current system time, or -1 to terminate the timeout thread. If this has been set to -1, it cannot be reset; this should only be done on close.
+	 */
+	public static synchronized void setLastNotifTime(long time) {
+		if (notifLastShownTime != -1)
+		notifLastShownTime = time;
+	}
+	
+	/**
+	 * 
+	 * @return - The last millis system time of a notification being shown.
+	 */
+	public static synchronized long getLastNotifTime() {
+		return notifLastShownTime;
 	}
 	
 	/**
@@ -180,10 +239,37 @@ public class NotificationsHandler {
 	 * @param title - The title of the notification
 	 * @param text - Text message of the notification
 	 */
-	public static void displayNotification(String title, String text) {
-		// TODO: Add a timer to make the notification disappear after about 5 seconds
+	public static void displayNotification(final String title, String text) {
 		// TODO: Add fade-in and fade-out or slide-in and slide-out animations
-		String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", ""); // Remove color/formatting codes
+		final String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", ""); // Remove color/formatting codes
+		
+		if (SwingUtilities.isEventDispatchThread()) {
+			if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
+				// TODO: When you click the system notification, it should focus the game client
+				TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
+			} else {
+				setNotificationWindowVisible(true);
+				notificationTitle.setText(title);
+				notificationTextArea.setText(sanitizedText);
+				notificationFrame.repaint();
+			}
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
+						// TODO: When you click the system notification, it should focus the game client
+						TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
+					} else {
+						setNotificationWindowVisible(true);
+						notificationTitle.setText(title);
+						notificationTextArea.setText(sanitizedText);
+						notificationFrame.repaint();
+					}
+				}
+			});
+		}
+		
 		if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
 			// TODO: When you click the system notification, it should focus the game client
 			TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
@@ -196,14 +282,27 @@ public class NotificationsHandler {
 		if (Settings.NOTIFICATION_SOUNDS) {
 			playNotificationSound();
 		}
+		setLastNotifTime(System.currentTimeMillis());
 	}
 	
 	/**
-	 * Sets visibility of the notification window
+	 * Sets visibility of the notification window. If this method is called from a thread other than the event dispatch thread, 
+	 * it will invokeLater() to hide the thread the next time the EDT is not busy.
 	 * @param isVisible - Whether the window should be visible
 	 */
-	public static void setNotificationWindowVisible(boolean isVisible) {
-		notificationFrame.setVisible(isVisible);
+	public static void setNotificationWindowVisible(final boolean isVisible) {
+		
+		if (SwingUtilities.isEventDispatchThread()) {
+			notificationFrame.setVisible(isVisible);
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					NotificationsHandler.notificationFrame.setVisible(isVisible);
+				}
+			});
+		}
+		
 	}
 	
     private static AudioInputStream notificationAudioIn;
@@ -239,6 +338,7 @@ public class NotificationsHandler {
 	
 	public static void disposeNotificationHandler() {
 		notificationFrame.dispose();
+		setLastNotifTime(-1);
 	}
 	
 }
