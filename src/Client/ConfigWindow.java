@@ -677,39 +677,7 @@ public class ConfigWindow {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(notificationPanelTrayPopupCheckbox.isSelected()) {
-					notificationPanelClientFocusButton.setEnabled(true);
-					notificationPanelAnyFocusButton.setEnabled(true);
-					notificationPanelNotifSoundsCheckbox.setEnabled(true);
-					if(SystemTray.isSupported())
-						notificationPanelUseSystemNotifsCheckbox.setEnabled(true);
-					notificationPanelPMNotifsCheckbox.setEnabled(true);
-					//notificationPanelTradeNotifsCheckbox.setEnabled(true); // TODO: Uncomment this line when trade notifications are implemented
-					notificationPanelDuelNotifsCheckbox.setEnabled(true);
-					notificationPanelLogoutNotifsCheckbox.setEnabled(true);
-					notificationPanelLowHPNotifsCheckbox.setEnabled(true);
-					notificationPanelLowHPNotifsSpinner.setEnabled(true);
-					notificationPanelLowHPNotifsEndLabel.setEnabled(true);
-					notificationPanelFatigueNotifsCheckbox.setEnabled(true);
-					notificationPanelFatigueNotifsSpinner.setEnabled(true);
-					notificationPanelFatigueNotifsEndLabel.setEnabled(true);
-				} else {
-					notificationPanelClientFocusButton.setEnabled(false);
-					notificationPanelAnyFocusButton.setEnabled(false);
-					notificationPanelNotifSoundsCheckbox.setEnabled(false);
-					if(SystemTray.isSupported())
-						notificationPanelUseSystemNotifsCheckbox.setEnabled(false);
-					notificationPanelPMNotifsCheckbox.setEnabled(false);
-					//notificationPanelTradeNotifsCheckbox.setEnabled(false); // TODO: Uncomment this line when trade notifications are implemented
-					notificationPanelDuelNotifsCheckbox.setEnabled(false);
-					notificationPanelLogoutNotifsCheckbox.setEnabled(false);
-					notificationPanelLowHPNotifsCheckbox.setEnabled(false);
-					notificationPanelLowHPNotifsSpinner.setEnabled(false);
-					notificationPanelLowHPNotifsEndLabel.setEnabled(false);
-					notificationPanelFatigueNotifsCheckbox.setEnabled(false);
-					notificationPanelFatigueNotifsSpinner.setEnabled(false);
-					notificationPanelFatigueNotifsEndLabel.setEnabled(false);
-				}
+				checkNotificationCheckboxesStatus();
 			}
 		});
 		
@@ -1061,7 +1029,7 @@ public class ConfigWindow {
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
 
 		//Notifications tab
-		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS );
+		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS);
 		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS); 	// TODO: Implement this feature
 		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
 		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
@@ -1076,6 +1044,8 @@ public class ConfigWindow {
 		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
 		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS);
 		notificationPanelAnyFocusButton.setEnabled(Settings.TRAY_NOTIFS);
+		
+		checkNotificationCheckboxesStatus();
 		
 		//Streaming & Privacy tab
 		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE);
@@ -1148,6 +1118,26 @@ public class ConfigWindow {
 		Settings.Save();
 	}
 
+	public void checkNotificationCheckboxesStatus() {
+		boolean isTrayPopupCheckboxEnabled = notificationPanelTrayPopupCheckbox.isSelected();
+		
+		notificationPanelClientFocusButton.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelAnyFocusButton.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelNotifSoundsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		if(SystemTray.isSupported())
+			notificationPanelUseSystemNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelPMNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		//notificationPanelTradeNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled); // TODO: Uncomment this line when trade notifications are implemented
+		notificationPanelDuelNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelLogoutNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelLowHPNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelLowHPNotifsSpinner.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelLowHPNotifsEndLabel.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelFatigueNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelFatigueNotifsSpinner.setEnabled(isTrayPopupCheckboxEnabled);
+		notificationPanelFatigueNotifsEndLabel.setEnabled(isTrayPopupCheckboxEnabled);
+	}
+	
 	public void disposeJFrame() {
 		frame.dispose();
 	}
