@@ -23,10 +23,12 @@ package Client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
@@ -171,7 +173,9 @@ public class NotificationsHandler {
 
 			notificationFrame.setBackground(new Color(0,0,0,0)); //Make the jframe itself transparent.
 			contentPanel.setBackground(new Color(0,0,0,0));
-			notificationFrame.setBounds(width-446, height-154, 449, 104);		
+			notificationFrame.setBounds(width-446, height-154, 449, 104);	
+			notificationFrame.setMaximumSize(new Dimension(449,104));
+			notificationFrame.setMaximizedBounds(new Rectangle(width-446, height-154, 449, 104));
 			
 			//2
 			mainContentPanel.setBounds(13, 13, 423, 79);
@@ -213,6 +217,8 @@ public class NotificationsHandler {
 			//TODO: Consider OS-dependent locations for the notification window
 			//1
 			notificationFrame.setBounds(width-446, height-154, 425, 81);
+			notificationFrame.setMaximumSize(new Dimension(425,81));
+			notificationFrame.setMaximizedBounds(new Rectangle(width-446, height-154, 425, 81));
 			contentPanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(172,172,172)));
 
 			//2
