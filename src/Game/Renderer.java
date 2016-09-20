@@ -51,6 +51,7 @@ import javax.imageio.ImageIO;
 import Client.NotificationsHandler;
 import Client.Settings;
 import Client.Util;
+import Client.NotificationsHandler.NotifType;
 
 public class Renderer {
 	public static void init() {
@@ -299,14 +300,14 @@ public class Renderer {
 			
 			// Low HP notification
 			
-			if (Settings.TRAY_NOTIFS && Settings.LOW_HP_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && percentHP <= Settings.LOW_HP_NOTIF_VALUE && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE)
-				NotificationsHandler.displayNotification("Low HP Notification", "Your HP is at " + percentHP + "%");
+			if (percentHP <= Settings.LOW_HP_NOTIF_VALUE && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE)
+				NotificationsHandler.notify(NotifType.LOWHP, "Low HP Notification", "Your HP is at " + percentHP + "%");
 			lastPercentHP = percentHP;
 			
 			// High fatigue notification
 			
-			if (Settings.TRAY_NOTIFS && Settings.FATIGUE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE)
-				NotificationsHandler.displayNotification("High Fatigue Notification", "Your fatigue is at " + Client.getFatigue() + "%");
+			if (Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE)
+				NotificationsHandler.notify(NotifType.FATIGUE, "High Fatigue Notification", "Your fatigue is at " + Client.getFatigue() + "%");
 			lastFatigue = Client.getFatigue();
 
 			// Draw HP, Prayer, Fatigue overlay

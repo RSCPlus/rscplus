@@ -106,6 +106,7 @@ public class Settings
 			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
 			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
 			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
+			SOUND_NOTIFS_ALWAYS = getBoolean(props, "sound_notifs_always", SOUND_NOTIFS_ALWAYS);
 			USE_SYSTEM_NOTIFICATIONS = getBoolean(props, "use_system_notifications", USE_SYSTEM_NOTIFICATIONS);
 			PM_NOTIFICATIONS = getBoolean(props, "pm_notifications", PM_NOTIFICATIONS);
 			TRADE_NOTIFICATIONS = getBoolean(props, "trade_notifications", TRADE_NOTIFICATIONS);
@@ -248,6 +249,7 @@ public class Settings
 			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
 			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
 			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
+			props.setProperty("sound_notifs_always", "" + SOUND_NOTIFS_ALWAYS);
 			props.setProperty("use_system_notifications", "" + USE_SYSTEM_NOTIFICATIONS);
 			props.setProperty("pm_notifications", "" + PM_NOTIFICATIONS);
 			props.setProperty("trade_notifications", "" + TRADE_NOTIFICATIONS);
@@ -758,6 +760,7 @@ public class Settings
 	public static boolean TRAY_NOTIFS = true;
 	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
 	public static boolean NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
+	public static boolean SOUND_NOTIFS_ALWAYS = false; //If false, only when client focused. Also based on radio button. TODO
 	public static boolean USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
 	public static boolean PM_NOTIFICATIONS = true; 
 	public static boolean TRADE_NOTIFICATIONS = true;

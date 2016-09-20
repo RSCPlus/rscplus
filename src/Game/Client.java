@@ -35,8 +35,8 @@ import org.fusesource.jansi.AnsiConsole;
 import Client.KeybindSet;
 import Client.Logger;
 import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
 import Client.Settings;
-import Client.TrayHandler;
 import Client.TwitchIRC;
 
 public class Client {
@@ -370,23 +370,22 @@ public class Client {
 				if(message.contains("The spell fails! You may try again in 20 seconds"))
 					magic_timer = Renderer.time + 21000L;
 				else if(Settings.TRAY_NOTIFS) {
-					if(Settings.LOGOUT_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains("You have been standing here for 5 mins! Please move to a new area"))
-						NotificationsHandler.displayNotification("Logout Notification", "You're about to log out");
+					if(message.contains("You have been standing here for 5 mins! Please move to a new area"))
+						NotificationsHandler.notify(NotifType.LOGOUT, "Logout Notification", "You're about to log out");
 				}
 			}
 		}
-		else if (type == CHAT_PRIVATE) {
-			if(Settings.TRAY_NOTIFS && Settings.PM_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS))
-				NotificationsHandler.displayNotification("PM from " + username, message);
+		else if (type == CHAT_PRIVATE) {		
+			NotificationsHandler.notify(NotifType.PM, "PM from " + username, message);
 		}
 		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat message. Something else needs to be detected to see if it's a trade request.
 		//else if(type == CHAT_PLAYER_INTERACT_IN) {
-		//	if(Settings.TRAY_NOTIFS && Settings.TRADE_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains(" wishes to trade with you")) // TODO
+		//	if(message.contains(" wishes to trade with you")) // TODO
 		//		TrayHandler.makePopupNotification("Trade Request", username + " wishes to trade with you");
 		//}
 		else if(type == CHAT_PLAYER_INTERACT_OUT) {
-			if(Settings.TRAY_NOTIFS && Settings.DUEL_NOTIFICATIONS && (!Game.getInstance().getContentPane().hasFocus() || Settings.TRAY_NOTIFS_ALWAYS) && message.contains(" wishes to duel with you"))
-				NotificationsHandler.displayNotification("Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
+			if(message.contains(" wishes to duel with you"))
+				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
 		}
 		
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {

@@ -69,6 +69,10 @@ public class NotificationsHandler {
 	static Thread notifTimeoutThread;
 	static long notifLastShownTime;
 	
+	public enum NotifType {
+		PM, TRADE, DUEL, LOGOUT, LOWHP, FATIGUE
+	}
+	
 	/**
 	 * @wbp.parser.entryPoint
 	 * Initializes the Notification JFrame and prepares it to receive notifications
@@ -326,6 +330,162 @@ public class NotificationsHandler {
 	}
 	
 	/**
+	 * Displays/plays a notification popup or sound. This method checks whether each of the respective settings for that specific notification type.<br>
+	 * This method does <i>not</i> check for values such as low hp or fatigue amounts, as the code that does so is local to the Render method.
+	 * @param type - The NotifType to display. This can be one of SYSTEM, PM, TRADE, DUEL LOGOUT, LOWHP, or FATIGUE as of the writing of this documentation.
+	 * @param title - The title to use for the notification.
+	 * @param text - Text message of the notification.
+	 * @return - True if at least one type of notification (audio/popup) was attempted; false otherwise
+	 */
+	public static boolean notify(NotifType type, String title, String text) {
+		boolean didNotify = false;
+		
+		switch (type) {
+		case PM: {
+			if (Settings.PM_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		case TRADE: {
+			if (Settings.TRADE_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		case DUEL: {
+			if (Settings.DUEL_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		case LOGOUT: {
+			if (Settings.LOGOUT_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		case LOWHP: {
+			if (Settings.LOW_HP_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		case FATIGUE: {
+			if (Settings.FATIGUE_NOTIFICATIONS) {
+				if (Settings.NOTIFICATION_SOUNDS) { //If notif sounds, play audio
+					if (Settings.SOUND_NOTIFS_ALWAYS) { //If always notif sounds, play audio
+						playNotificationSound();
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and sound notifs enabled
+						playNotificationSound();
+						didNotify = true;
+					}
+				} 
+				if (Settings.TRAY_NOTIFS) { //If tray popups enabled
+					if (Settings.TRAY_NOTIFS_ALWAYS) { //If tray popups regardless enabled
+						displayNotification(title, text);
+						didNotify = true;
+					} else if (!Game.getInstance().getContentPane().hasFocus()) { //If game isn't focused and notifs enabled
+						displayNotification(title, text);
+						didNotify = true;
+					}
+				}
+			}
+			break;
+		}
+		
+		}
+		return didNotify;
+		
+	}
+	
+	/**
 	 * Displays a notification, playing sound if it is enabled
 	 * @param title - The title of the notification
 	 * @param text - Text message of the notification
@@ -359,19 +519,6 @@ public class NotificationsHandler {
 					}
 				}
 			});
-		}
-		
-		if(Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
-			// TODO: When you click the system notification, it should focus the game client
-			TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
-		} else {
-			setNotificationWindowVisible(true);
-			notificationTitle.setText(title);
-			notificationTextArea.setText(sanitizedText);
-			notificationFrame.repaint();
-		}
-		if (Settings.NOTIFICATION_SOUNDS) {
-			playNotificationSound();
 		}
 		setLastNotifTime(System.currentTimeMillis());
 	}
