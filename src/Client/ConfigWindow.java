@@ -155,8 +155,10 @@ public class ConfigWindow {
 	private JCheckBox notificationPanelNotifSoundsCheckbox;	
 	private JCheckBox notificationPanelUseSystemNotifsCheckbox;
 	private JCheckBox notificationPanelTrayPopupCheckbox;
-	private JRadioButton notificationPanelClientFocusButton;
-	private JRadioButton notificationPanelAnyFocusButton;
+	private JRadioButton notificationPanelTrayPopupClientFocusButton;
+	private JRadioButton notificationPanelNotifSoundClientFocusButton;
+	private JRadioButton notificationPanelTrayPopupAnyFocusButton;
+	private JRadioButton notificationPanelNotifSoundAnyFocusButton;
 	
 	//Streaming & Privacy tab
 	private JCheckBox streamingPanelTwitchChatCheckbox;
@@ -224,7 +226,7 @@ public class ConfigWindow {
 	private void runInit() {
 		frame = new JFrame();
 		frame.setTitle("Settings");
-		frame.setBounds(100, 100, 410, 630);
+		frame.setBounds(100, 100, 444, 630);
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		URL iconURL = Settings.getResource("/assets/icon.png");
@@ -601,19 +603,27 @@ public class ConfigWindow {
 		
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
+		addNotificationCategory(notificationPanel, "Notification Settings");
+		
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
 		notificationPanelTrayPopupCheckbox.setToolTipText("Shows a system notification when a notification is triggered");
 		
-		ButtonGroup trayPopupButtonGroup = new ButtonGroup();
-		notificationPanelClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
-		notificationPanelAnyFocusButton = addRadioButton("Regardless of client focus", notificationPanel, 20);
-		trayPopupButtonGroup.add(notificationPanelClientFocusButton);
-		trayPopupButtonGroup.add(notificationPanelAnyFocusButton);
+			ButtonGroup trayPopupButtonGroup = new ButtonGroup();
+			notificationPanelTrayPopupClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
+			notificationPanelTrayPopupAnyFocusButton = addRadioButton("Regardless of client focus", notificationPanel, 20);
+			trayPopupButtonGroup.add(notificationPanelTrayPopupClientFocusButton);
+			trayPopupButtonGroup.add(notificationPanelTrayPopupAnyFocusButton);
 		
-		// TODO: Add more space here
 		notificationPanelNotifSoundsCheckbox = addCheckbox("Enable notification sounds", notificationPanel);
+		notificationPanelNotifSoundsCheckbox.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
 		notificationPanelNotifSoundsCheckbox.setToolTipText("Plays a sound when a notification is triggered");
+		
+			ButtonGroup notifSoundButtonGroup = new ButtonGroup();
+			notificationPanelNotifSoundClientFocusButton = addRadioButton("Only when client is not focused", notificationPanel, 20);
+			notificationPanelNotifSoundAnyFocusButton = addRadioButton("Regardless of client focus", notificationPanel, 20);
+			notifSoundButtonGroup.add(notificationPanelNotifSoundClientFocusButton);
+			notifSoundButtonGroup.add(notificationPanelNotifSoundAnyFocusButton);
 		
 		if(SystemTray.isSupported())
 			notificationPanelUseSystemNotifsCheckbox = addCheckbox("Use system notifications if available", notificationPanel);
@@ -622,6 +632,8 @@ public class ConfigWindow {
 			notificationPanelUseSystemNotifsCheckbox.setEnabled(false);
 		}
 		notificationPanelUseSystemNotifsCheckbox.setToolTipText("Uses built-in system notifications. Enable this to attempt to use your operating system's notification system instead of the built-in pop-up");
+		
+		addNotificationCategory(notificationPanel, "Notifications");
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
@@ -693,14 +705,6 @@ public class ConfigWindow {
 			spinnerFatigueNumModel.setValue(98);
 			notificationPanelFatigueNotifsSpinner.setModel(spinnerFatigueNumModel);
 			
-		notificationPanelTrayPopupCheckbox.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				checkNotificationCheckboxesStatus();
-			}
-		});
-		
 		/* 
 		 * Streaming & Privacy tab
 		 */
@@ -901,7 +905,7 @@ public class ConfigWindow {
 	
 	/**
 	 * Adds a new horizontal separator to the keybinds list. The JSeparator spans 2 columns.
-	 * @param panel - Panel to add the button to.
+	 * @param panel - Panel to add the separator to.
 	 */
 	private void addKeybindCategorySeparator(JPanel panel) {
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -940,6 +944,38 @@ public class ConfigWindow {
 		
 		JLabel jlbl = new JLabel(categoryName);
 		panel.add(jlbl, gbc);
+		return jlbl;
+	}
+	
+	/**
+	 * Adds a new category title to the notifications list.
+	 * @param panel - Panel to add the title to.
+	 * @param categoryName - Name of the category to add.
+	 */
+	private void addNotificationCategory(JPanel panel, String categoryName) {
+		addNotificationCategoryLabel(panel, "<html><b>" + categoryName + "</b></html>");
+		addNotificationCategorySeparator(panel);
+	}
+	
+	/**
+	 * Adds a new horizontal separator to the notifications list.
+	 * @param panel - Panel to add the separator to.
+	 */
+	private void addNotificationCategorySeparator(JPanel panel) {
+		JSeparator jsep = new JSeparator(SwingConstants.HORIZONTAL);
+		jsep.setMaximumSize(new Dimension(Short.MAX_VALUE, 7));
+		panel.add(jsep);
+	}
+	
+	/**
+	 * Adds a new category label to the notifications list.
+	 * @param panel - Panel to add the label to.
+	 * @param categoryName - Name of the category to add.
+	 * @return - The label that was added.
+	 */
+	private JLabel addNotificationCategoryLabel(JPanel panel, String categoryName) {
+		JLabel jlbl = new JLabel(categoryName);
+		panel.add(jlbl);
 		return jlbl;
 	}
 	
@@ -1060,12 +1096,10 @@ public class ConfigWindow {
 		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);
 		notificationPanelUseSystemNotifsCheckbox.setSelected(Settings.USE_SYSTEM_NOTIFICATIONS);
 		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
-		notificationPanelClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelClientFocusButton.setEnabled(Settings.TRAY_NOTIFS);
-		notificationPanelAnyFocusButton.setEnabled(Settings.TRAY_NOTIFS);
-		
-		checkNotificationCheckboxesStatus();
+		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
+		notificationPanelNotifSoundClientFocusButton.setSelected(!Settings.SOUND_NOTIFS_ALWAYS);
+		notificationPanelNotifSoundAnyFocusButton.setSelected(Settings.SOUND_NOTIFS_ALWAYS);
 		
 		//Streaming & Privacy tab
 		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE);
@@ -1125,7 +1159,8 @@ public class ConfigWindow {
 		Settings.NOTIFICATION_SOUNDS = notificationPanelNotifSoundsCheckbox.isSelected();
 		Settings.USE_SYSTEM_NOTIFICATIONS = notificationPanelUseSystemNotifsCheckbox.isSelected();
 		Settings.TRAY_NOTIFS = notificationPanelTrayPopupCheckbox.isSelected();
-		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelAnyFocusButton.isSelected();
+		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelTrayPopupAnyFocusButton.isSelected();
+		Settings.SOUND_NOTIFS_ALWAYS = notificationPanelNotifSoundAnyFocusButton.isSelected();
 
 		//Streaming & Privacy
 		Settings.TWITCH_HIDE = streamingPanelTwitchChatCheckbox.isSelected();
@@ -1138,26 +1173,6 @@ public class ConfigWindow {
 		Settings.Save();
 	}
 
-	public void checkNotificationCheckboxesStatus() {
-		boolean isTrayPopupCheckboxEnabled = notificationPanelTrayPopupCheckbox.isSelected();
-		
-		notificationPanelClientFocusButton.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelAnyFocusButton.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelNotifSoundsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		if(SystemTray.isSupported())
-			notificationPanelUseSystemNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelPMNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		//notificationPanelTradeNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled); // TODO: Uncomment this line when trade notifications are implemented
-		notificationPanelDuelNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelLogoutNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelLowHPNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelLowHPNotifsSpinner.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelLowHPNotifsEndLabel.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelFatigueNotifsCheckbox.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelFatigueNotifsSpinner.setEnabled(isTrayPopupCheckboxEnabled);
-		notificationPanelFatigueNotifsEndLabel.setEnabled(isTrayPopupCheckboxEnabled);
-	}
-	
 	public void disposeJFrame() {
 		frame.dispose();
 	}

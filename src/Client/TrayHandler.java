@@ -45,7 +45,6 @@ public class TrayHandler implements MouseListener {
 	/* TODO: Implement custom notifications that work on Windows, OS X, and Linux
 	 * TODO: When the notification is clicked, it should bring up the game client
 	 * TODO: Let the user disable the tray icon without disabling notifications
-	 * TODO: Add a sound effect when a notification is triggered (toggled using Settings.NOTIFICATION_SOUNDS)
 	 */
 	
 	private static TrayIcon trayIcon;
@@ -113,17 +112,6 @@ public class TrayHandler implements MouseListener {
 		if (tray != null && trayIcon != null)
 		tray.remove(trayIcon);
 	}
-
-	/**
-	 * Makes a system notification popup
-	 * @param title - The title of the notification
-	 * @param msg - The main content of the notification
-	 */
-//	public static void makePopupNotification(String title, String msg) {
-//		NotificationsPanel.displayNotification(title, msg);
-//	}
-//	
-
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
