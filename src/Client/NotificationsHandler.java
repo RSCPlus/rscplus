@@ -112,7 +112,7 @@ public class NotificationsHandler {
 		notificationFrame.setUndecorated(true);
 		notificationFrame.setAutoRequestFocus(false);
 		notificationFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		notificationFrame.setType(Window.Type.UTILITY); //TODO: Will changing this for linux affect whether it has a "taskbar" icon?
+		notificationFrame.setType(Window.Type.POPUP); //TODO: Will changing this for linux affect whether it has a "taskbar" icon?
 		notificationFrame.setAlwaysOnTop(true);	
 		contentPanel.setLayout(null);
 		
