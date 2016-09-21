@@ -474,7 +474,7 @@ public class Client {
 	}
 	public static String colorReplace(String colorMessage) {
 		String[] colorDict = {"(?i)@cya@","|@@|cyan ", //less common colors should go at the bottom b/c we can break search loop early
-							  "(?i)@whi@","|@@|white ",
+		                      "(?i)@whi@","|@@|white ",
 		                      "(?i)@red@","|@@|red ",
 		                      "(?i)@gre@","|@@|green ",
 		                      "(?i)@lre@","|@@|red,intensity_faint ",
@@ -484,9 +484,11 @@ public class Client {
 		                      "(?i)@mag@","|@@|magenta,intensity_bold ",
 		                      "(?i)@gr1@","|@@|green ",
 		                      "(?i)@gr2@","|@@|green ",
+		                      "(?i)@gr3@","|@@|green ",
 		                      "(?i)@ora@","|@@|red,intensity_faint ",
 		                      "(?i)@or1@","|@@|red,intensity_faint ",
 		                      "(?i)@or2@","|@@|red,intensity_faint ", //these are all basically the same color, even in game
+		                      "(?i)@or3@","|@@|red ",
 		                      "(?i)@blu@","|@@|blue ",
 		                      "(?i)@bla@","|@@|black "
 		                      };

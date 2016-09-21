@@ -202,7 +202,7 @@ public class Renderer {
 				List<Point> item_text_loc = new ArrayList<Point>();
 
 				Collections.sort(Client.item_list, new ItemComparator()); //keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly changing places each frame
-				
+
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next();
 
@@ -232,7 +232,7 @@ public class Renderer {
 						int x = item.x + (item.width / 2);
 						int y = item.y - 20;
 						int freq = Collections.frequency(Client.item_list, item);
-						
+
 						if (freq == 1 || !item.equals(last_item) || last_item == null) { //We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's the first time we've tried to for this itemid at that location by just using last_item. last_item == null necessary in case only one item on screen is being rendered. slight speed increase from freq == 1 if compiler can stop early in conditional.
 							for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
 								Point loc = locIterator.next();
@@ -296,7 +296,7 @@ public class Renderer {
 			// Draw HP, Prayer, Fatigue overlay
 			int x = 24;
 			int y = 32;
-			
+
 			if (Client.isInCombat() || Settings.COMBAT_MENU) { //combat menu is showing, so move everything down
 				y = 138;
 			}
@@ -320,10 +320,10 @@ public class Renderer {
 					int barSize = 4 + image_bar_frame.getWidth(null);
 					int x2 = width - (4 + barSize);
 					int y2 = height - image_bar_frame.getHeight(null);
-	
+
 					drawBar(g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
 					x2 -= barSize;
-	
+
 					drawBar(g2, image_bar_frame, x2, y2, colorPrayer, alphaPrayer,
 							Client.current_level[Client.SKILL_PRAYER], Client.base_level[Client.SKILL_PRAYER]);
 					x2 -= barSize;
@@ -610,22 +610,29 @@ public class Renderer {
 	public static Image image_bar_frame;
 	public static Image image_cursor;
 	private static BufferedImage game_image;
-	
+
 	private static Item last_item;
 }
 
 class ItemComparator implements Comparator<Item> {
 	public int compare(Item a, Item b) {
-		int location_offset; //we would like to group items that are on the same tile as well, not just having the same name, so that we can use "last_item" in a useful way
-		if (a.x == b.x && a.y == b.y) {
-			location_offset = 0;
-		} else {
-			if (a.x < b.x) {
-				location_offset = -5;
+		int offset = (a.getName().compareToIgnoreCase(b.getName()) * -1); //this is reverse alphabetical order b/c we display them/in reverse order (y-=12 ea item) 
+		if (offset > 0) { //item a is alphabetically before item b
+			offset = 10;
+		} else if (offset < 0) { //item b is alphabetically before item a
+			offset = -10;
+		} else { //items have the same name
+			//we would like to group items that are on the same tile as well, not just having the same name, so that we can use "last_item" in a useful way
+			if (a.x == b.x && a.y == b.y) {
+				offset = 0; //name is the same and so is location, items are considered equal
 			} else {
-				location_offset = 5;
+				if (a.x < b.x) {
+					offset = -5;
+				} else {
+					offset = 5;
+				}
 			}
 		}
-		return (a.getName().compareToIgnoreCase(b.getName()) * -1) + location_offset; //this is reverse alphabetical order b/c we display them in reverse order (y-=12 ea item). compareToIgnore case is either 10, 0, or -10, so location_offset won't override it unless it's 0 (equal).
+		return offset;
 	}
 }
