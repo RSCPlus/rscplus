@@ -378,8 +378,8 @@ public class Client {
 	public static Double fetchLatestVersionNumber() { //returns current version number
 		try {
 			Double currentVersion = 0.0;
-			URL updateURL = new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/updater/src/Client/Settings.java");
-			//URL updateURL = new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/Settings.java");
+			//URL updateURL = new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/updater/src/Client/Settings.java");
+			URL updateURL = new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/Settings.java");
 
 			// Open connection
 			URLConnection connection = updateURL.openConnection();
