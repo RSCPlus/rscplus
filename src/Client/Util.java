@@ -53,6 +53,19 @@ public class Util
 		return ret;
 	}
 
+	public static byte[] hexStringByte(String data)
+	{
+		byte [] bytes = new byte[(data.length() / 2)];
+		int j = 0;
+		for ( int i=0; i<bytes.length; i++ ) {
+			j = i * 2;
+			String hex_pair = data.substring(j,j+2);
+			byte b = (byte) (Integer.parseInt(hex_pair, 16) & 0xFF);
+			bytes [i] = b;
+		}
+		return bytes;
+	}
+
 	public static int[] getPop()
 	{
 		if(worldPopArray == null)

@@ -140,7 +140,20 @@ public class JConfig
 
 	public URL getJarURL()
 	{
-		String codebase = m_data.get("codebase");
+		// Fixme: This is a hack, as the latest client isn't compatible with rscplus
+		// A JMod response regarding the client update states:
+		//	"It was a maintenance update to ensure the client continues to be trusted by
+		//	your browser and Java's security settings (something we have to refresh
+		//	every so often)."
+		// These changes they made should have no effect on the client itself.
+		// This isn't a proper fix for rscplus, and needs to be fixed for real.
+		try
+		{
+			return new URL("https://dl.dropboxusercontent.com/u/61045381/rsc_hackfix.jar");
+		} catch(Exception e) { return null; }
+
+
+		/*String codebase = m_data.get("codebase");
 		if(codebase == null)
 			return null;
 
@@ -155,7 +168,7 @@ public class JConfig
 		catch(Exception e)
 		{
 			return null;
-		}
+		}*/
 	}
 
 	public String getJarClass()

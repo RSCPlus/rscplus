@@ -200,6 +200,9 @@ public class JClassPatcher {
 					true, false);
 			hookClassVariable(methodNode, "client", "Qg", "I", "Game/Client", "regionX", "I", true, false);
 			hookClassVariable(methodNode, "client", "zg", "I", "Game/Client", "regionY", "I", true, false);
+
+			// Client version
+			hookStaticVariable(methodNode, "fa", "d", "I", "Game/Client", "version", "I");
 		}
 	}
 

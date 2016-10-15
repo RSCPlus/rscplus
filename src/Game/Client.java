@@ -70,7 +70,7 @@ public class Client {
 		applet.addKeyListener(handler_keyboard);
 		applet.setFocusTraversalKeysEnabled(false);
 
-		if (Settings.DEBUG)
+		if (Settings.DISASSEMBLE)
 			dumpStrings();
 
 		// Initialize login
@@ -81,6 +81,10 @@ public class Client {
 	}
 
 	public static void update() {
+		// FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
+		version = 235;
+
+
 		if (state == STATE_GAME) {
 			// Process XP drops
 			boolean dropXP = (xpdrop_state[SKILL_HP] > 0.0f);
@@ -762,6 +766,9 @@ public class Client {
 	
 	public static boolean showXpPerHour[] = new boolean[18];
 	public static double XpPerHour[] = new double[18];
+
+	// Client version
+	public static int version;
 	
 	// [[skill1, skill2, skill3, ...], [totalXpGainInSample, mostRecentXpDropTime, initialTimeInSample, sampleSize]]
 	// sampleSize + 1 is the actual sample size
