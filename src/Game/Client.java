@@ -411,10 +411,10 @@ public class Client {
 		double latestVersion = fetchLatestVersionNumber();
 		if (latestVersion > Settings.VERSION_NUMBER) {
 			displayMessage("@gre@A new version of RSC+ is available!",CHAT_QUEST);
-			displayMessage("Your version is @lre@" + String.format("%8.2f",Settings.VERSION_NUMBER),CHAT_QUEST); //TODO: before Y10K update this to %9.2f
-			displayMessage("The latest version is @gre@" + String.format("%8.2f",latestVersion),CHAT_QUEST);
+			displayMessage("~034~ Your version is @red@" + String.format("%8.6f",Settings.VERSION_NUMBER),CHAT_QUEST); //TODO: before Y10K update this to %9.6f
+			displayMessage("The latest version is @gre@" + String.format("%8.6f",latestVersion),CHAT_QUEST);
 		} else if (loudAndProud) {
-			displayMessage("You're up to date: @gre@" + String.format("%8.2f",latestVersion),CHAT_QUEST);
+			displayMessage("You're up to date: @gre@" + String.format("%8.6f",latestVersion),CHAT_QUEST);
 		}
 	}
 	
