@@ -14,8 +14,6 @@
 			pattern="yyyyMMdd.HHmmss"
 			timezone="GMT" />
 	</tstamp>
-	<script language="javascript">
-	</script>
 	<property name="calculatedVersion" value="${current.time}" />
 
 	<path id="build.classpath">
