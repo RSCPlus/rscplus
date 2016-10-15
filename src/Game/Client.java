@@ -389,12 +389,6 @@ public class Client {
 			String line;
 			while((line = in.readLine()) != null)
 			{
-				// Skip short lines, the license header, and import statements
-				if(line.length() <= 3 || line.substring(1,2).contains("*") || line.startsWith("import"))
-				{
-					continue;
-				}
-				
 				if (line.contains("VERSION_NUMBER"))
 				{
 					currentVersion = Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";")));
