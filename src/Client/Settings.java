@@ -42,9 +42,10 @@ public class Settings
 	//Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static double VERSION_NUMBER = 20161015.01;
-		//This version number ^^^^ follows ISO 8601 with a 2 digit subversion for how many commits have been pushed to master today. YYYYMMDD.CC.
-		//the version number will actually be read from this source file, so please don't change the name of this variable and keep the assignment near the top for scanning.
+	public static double VERSION_NUMBER = 20161015.211441;
+		//The version number ^^^^ follows ISO 8601 yyyyMMdd.HHmmss
+		//The version number will actually be read from this source file, so please don't change the name of this variable and keep the assignment near the top for scanning.
+		//This variable is set automatically by ant (see build.xml) so there's no need to update it manually (and in fact, doing so is pointless)
 	
 	public static void initDir() {
 		// Find JAR directory
