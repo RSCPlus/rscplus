@@ -27,7 +27,7 @@ public class Camera
 {
 	public static void init()
 	{
-		zoom = 750;
+		zoom = 750; // TODO: Preserve zoom on relog, but not necessarily between sessions
 		rotation = 126;
 		setDistance(Settings.VIEW_DISTANCE);
 	}
@@ -43,7 +43,11 @@ public class Camera
 		} catch(Exception e) {}
 	}
 
-	public static void setDistance(int distance)
+	/**
+	 * Sets the view distance, to be updated on the next tick by the Renderer. Synchronization added to hopefully prevent thread-safety concerns.
+	 * @param distance
+	 */
+	public static synchronized void setDistance(int distance)
 	{
 		distance1 = distance + 100;
 		distance2 = distance + 100;

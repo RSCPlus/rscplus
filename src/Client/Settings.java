@@ -21,19 +21,26 @@
 
 package Client;
 
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
 import Game.Client;
 import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
 
 public class Settings
 {
-	public static void Load()
-	{
+	
+	public static void initDir() {
 		// Find JAR directory
 		Dir.JAR = ".";
 		try
@@ -54,7 +61,10 @@ public class Settings
 		Util.MakeDirectory(Dir.CACHE);
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.MakeDirectory(Dir.SCREENSHOT);
-
+	}
+	
+	public static void Load()
+	{
 		// Load settings
 		try
 		{
@@ -62,36 +72,72 @@ public class Settings
 			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
 			props.load(in);
 			in.close();
+			
+			//General options
+			CUSTOM_CLIENT_SIZE = getBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE);
+			CUSTOM_CLIENT_SIZE_X = getInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X);
+			CUSTOM_CLIENT_SIZE_Y = getInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y);
+			LOAD_CHAT_HISTORY = getBoolean(props, "load_chat_history", LOAD_CHAT_HISTORY);
+			COMBAT_MENU = getBoolean(props, "combat_menu", COMBAT_MENU);
+			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", SHOW_XPDROPS);
+			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", SHOW_FATIGUEDROPS);
+			FATIGUE_FIGURES = getInt(props, "fatigue_figures", FATIGUE_FIGURES);
+			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", FATIGUE_ALERT);
+			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
+			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
+			COLORIZE = getBoolean(props, "colorize", COLORIZE);
+			FOV = getInt(props, "fov", FOV);
+			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", SOFTWARE_CURSOR);
+			VIEW_DISTANCE = getInt(props, "view_distance", VIEW_DISTANCE);
 
+			//Overlays options
+			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
+			SHOW_INVCOUNT = getBoolean(props, "show_invcount", SHOW_INVCOUNT);
+			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", SHOW_ITEMINFO);
+			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", SHOW_PLAYERINFO);
+			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", SHOW_FRIENDINFO);
+			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", SHOW_NPCINFO);
+			SHOW_HITBOX = getBoolean(props, "show_hitbox", SHOW_HITBOX);
+			SHOW_FOOD_HEAL_OVERLAY = getBoolean(props, "show_food_heal_overlay", SHOW_FOOD_HEAL_OVERLAY);
+			SHOW_TIME_UNTIL_HP_REGEN = getBoolean(props, "show_time_until_hp_regen", SHOW_TIME_UNTIL_HP_REGEN);
+			DEBUG = getBoolean(props, "debug", DEBUG);
+
+			//Notifications options
+			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
+			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
+			NOTIFICATION_SOUNDS = getBoolean(props, "notification_sounds", NOTIFICATION_SOUNDS);
+			SOUND_NOTIFS_ALWAYS = getBoolean(props, "sound_notifs_always", SOUND_NOTIFS_ALWAYS);
+			USE_SYSTEM_NOTIFICATIONS = getBoolean(props, "use_system_notifications", USE_SYSTEM_NOTIFICATIONS);
+			PM_NOTIFICATIONS = getBoolean(props, "pm_notifications", PM_NOTIFICATIONS);
+			TRADE_NOTIFICATIONS = getBoolean(props, "trade_notifications", TRADE_NOTIFICATIONS);
+			DUEL_NOTIFICATIONS = getBoolean(props, "duel_notifications", DUEL_NOTIFICATIONS);
+			LOGOUT_NOTIFICATIONS = getBoolean(props, "logout_notifications", LOGOUT_NOTIFICATIONS);
+			LOW_HP_NOTIFICATIONS = getBoolean(props, "low_hp_notifications", LOW_HP_NOTIFICATIONS);
+			LOW_HP_NOTIF_VALUE = getInt(props, "low_hp_notif_value", LOW_HP_NOTIF_VALUE);
+			FATIGUE_NOTIFICATIONS = getBoolean(props, "fatigue_notifications", FATIGUE_NOTIFICATIONS);
+			FATIGUE_NOTIF_VALUE = getInt(props, "fatigue_notif_value", FATIGUE_NOTIF_VALUE);
+
+			//Streaming & Privacy
+			TWITCH_HIDE = getBoolean(props, "twitch_hide", TWITCH_HIDE);
+			TWITCH_CHANNEL = getString(props, "twitch_channel", TWITCH_CHANNEL);
+			TWITCH_OAUTH = getString(props, "twitch_oauth", TWITCH_OAUTH);
+			TWITCH_USERNAME = getString(props, "twitch_username", TWITCH_USERNAME);
+			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", SHOW_LOGINDETAILS);
+			SAVE_LOGININFO = getBoolean(props, "save_logininfo", SAVE_LOGININFO);
+
+			//Miscellaneous settings (No GUI)
 			WORLD = getInt(props, "world", 2);
-			FIRST_TIME = getBoolean(props, "first_time", true);
-			HIDE_ROOFS = getBoolean(props, "hide_roofs", false);
-			COMBAT_MENU = getBoolean(props, "combat_menu", false);
-			COLORIZE = getBoolean(props, "color_terminal", true);
-			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", false);
-			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", false);
-			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", false);
-			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", false);
-			SHOW_HITBOX = getBoolean(props, "show_hitbox", false);
-			SHOW_LOGINDETAILS = getBoolean(props, "show_logindetails", false);
-			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", true);
-			SHOW_INVCOUNT = getBoolean(props, "show_invcount", true);
-			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", true);
-			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", true);
-			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", false);
-			DEBUG = getBoolean(props, "debug", false);
+			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
+			FIRST_TIME = getBoolean(props, "first_time", FIRST_TIME);
 			DISASSEMBLE = getBoolean(props, "disassemble", false);
 			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
-			VIEW_DISTANCE = getInt(props, "view_distance", 10000);
-			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
-			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", true);
-			TWITCH_HIDE = getBoolean(props, "twitch_hide", false);
-			TWITCH_USERNAME = getString(props, "twitch_username", "");
-			TWITCH_OAUTH = getString(props, "twitch_oauth", "");
-			TWITCH_CHANNEL = getString(props, "twitch_channel", "");
-			NAME_PATCH_TYPE = getInt(props, "name_patch_type", 3);
-			SAVE_LOGININFO = getBoolean(props, "save_logininfo", true);
-			FATIGUE_FIGURES = getInt(props, "fatigue_figures", 2);
+			
+			if (CUSTOM_CLIENT_SIZE_X < 512) {
+				CUSTOM_CLIENT_SIZE_X = 512;
+			}
+			if (CUSTOM_CLIENT_SIZE_Y < 346) {
+				CUSTOM_CLIENT_SIZE_Y = 346;
+			}
 
 			if(WORLD < 1)
 				WORLD = 1;
@@ -129,6 +175,14 @@ public class Settings
 				FATIGUE_FIGURES = 1;
 			else if(FATIGUE_FIGURES > 7)
 				FATIGUE_FIGURES = 7;
+			
+			
+			//Keybinds
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				String keybindCombo = getString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+				kbs.modifier = getKeyModifierFromString(keybindCombo);
+				kbs.key = Integer.parseInt(keybindCombo.substring(2));
+			}
 		}
 		catch(Exception e) {}
 
@@ -137,6 +191,23 @@ public class Settings
 			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY;
 			Util.MakeDirectory(Dir.DUMP);
 		}
+		
+	}
+	
+	private static KeyModifier getKeyModifierFromString(String savedKeybindSet) {
+		switch(Integer.parseInt(savedKeybindSet.substring(0,1))) {
+		case 0:
+			return KeyModifier.NONE;
+		case 1:
+			return KeyModifier.CTRL;
+		case 2:
+			return KeyModifier.ALT;
+		case 3:
+			return KeyModifier.SHIFT;
+		default:
+			Logger.Error("Unrecognized KeyModifier code");
+			return KeyModifier.NONE;
+		}
 	}
 
 	public static void Save()
@@ -144,36 +215,71 @@ public class Settings
 		try
 		{
 			Properties props = new Properties();
-			props.setProperty("world", "" + WORLD);
-			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+
+			//General
+			props.setProperty("custom_client_size", "" + CUSTOM_CLIENT_SIZE);
+			props.setProperty("custom_client_size_x", "" + CUSTOM_CLIENT_SIZE_X);
+			props.setProperty("custom_client_size_y", "" + CUSTOM_CLIENT_SIZE_Y);
+			props.setProperty("load_chat_history", "" + LOAD_CHAT_HISTORY);
 			props.setProperty("combat_menu", "" + COMBAT_MENU);
-			props.setProperty("color_terminal", "" + COLORIZE);
-			props.setProperty("show_invcount", "" + SHOW_INVCOUNT);
-			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
-			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
-			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
-			props.setProperty("show_friendinfo", "" + SHOW_FRIENDINFO);
-			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
-			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
 			props.setProperty("show_xpdrops", "" + SHOW_XPDROPS);
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
-			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
+			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
+			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
+			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
+			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
+			props.setProperty("colorize", "" + COLORIZE);
+			props.setProperty("fov", "" + FOV);
 			props.setProperty("software_cursor", "" + SOFTWARE_CURSOR);
+			props.setProperty("view_distance", "" + VIEW_DISTANCE);
+
+			//Overlays
+			props.setProperty("show_statusdisplay", "" + SHOW_STATUSDISPLAY);
+			props.setProperty("show_invcount", "" + SHOW_INVCOUNT);
+			props.setProperty("show_iteminfo", "" + SHOW_ITEMINFO);
+			props.setProperty("show_playerinfo", "" + SHOW_PLAYERINFO);
+			props.setProperty("show_friendinfo", "" + SHOW_FRIENDINFO);
+			props.setProperty("show_npcinfo", "" + SHOW_NPCINFO);
+			props.setProperty("show_hitbox", "" + SHOW_HITBOX);
+			props.setProperty("show_food_heal_overlay", "" + SHOW_FOOD_HEAL_OVERLAY);
+			props.setProperty("show_time_until_hp_regen", "" + SHOW_TIME_UNTIL_HP_REGEN);
 			props.setProperty("debug", "" + DEBUG);
+
+			//Notifications
+			props.setProperty("tray_notifs", "" + TRAY_NOTIFS);
+			props.setProperty("tray_notifs_always", "" + TRAY_NOTIFS_ALWAYS);
+			props.setProperty("notification_sounds", "" + NOTIFICATION_SOUNDS);
+			props.setProperty("sound_notifs_always", "" + SOUND_NOTIFS_ALWAYS);
+			props.setProperty("use_system_notifications", "" + USE_SYSTEM_NOTIFICATIONS);
+			props.setProperty("pm_notifications", "" + PM_NOTIFICATIONS);
+			props.setProperty("trade_notifications", "" + TRADE_NOTIFICATIONS);
+			props.setProperty("duel_notifications", "" + DUEL_NOTIFICATIONS);
+			props.setProperty("logout_notifications", "" + LOGOUT_NOTIFICATIONS);
+			props.setProperty("low_hp_notifications", "" + LOW_HP_NOTIFICATIONS);
+			props.setProperty("low_hp_notif_value", "" + LOW_HP_NOTIF_VALUE);
+			props.setProperty("fatigue_notifications", "" + FATIGUE_NOTIFICATIONS);
+			props.setProperty("fatigue_notif_value", "" + FATIGUE_NOTIF_VALUE);
+
+			//Streaming & Privacy
+			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
+			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
+			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
+			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
+			props.setProperty("show_logindetails", "" + SHOW_LOGINDETAILS);
+			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
+
+			//Miscellaneous settings (No GUI);
+			props.setProperty("world", "" + WORLD);
+			props.setProperty("combat_style", "" + COMBAT_STYLE);
+			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
 			props.setProperty("disassemble", "" + DISASSEMBLE);
 			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
-			props.setProperty("view_distance", "" + VIEW_DISTANCE);
-			props.setProperty("combat_style", "" + COMBAT_STYLE);
-			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
-			props.setProperty("twitch_hide", "" + TWITCH_HIDE);
-			props.setProperty("twitch_username", "" + TWITCH_USERNAME);
-			props.setProperty("twitch_oauth", "" + TWITCH_OAUTH);
-			props.setProperty("twitch_channel", "" + TWITCH_CHANNEL);
-			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
-			props.setProperty("save_logininfo", "" + SAVE_LOGININFO);
-			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
-			props.setProperty("first_time", "" + FIRST_TIME);
 
+			//Keybinds
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				props.setProperty("key_" + kbs.commandName, "" + getIntForKeyModifier(kbs) + "*" + kbs.key);
+			}
+			
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
 			out.close();
@@ -181,6 +287,22 @@ public class Settings
 		catch(Exception e)
 		{
 			Logger.Error("Unable to save settings");
+		}
+	}
+	
+	private static int getIntForKeyModifier(KeybindSet kbs) {
+		switch (kbs.modifier) {
+		case NONE:
+			return 0;
+		case CTRL:
+			return 1;
+		case ALT:
+			return 2;
+		case SHIFT:
+			return 3;
+		default: 
+			Logger.Error("Tried to save a keybind with an invalid modifier!");
+			return 0;
 		}
 	}
 
@@ -390,12 +512,64 @@ public class Settings
 		Save();
 	}
 	
+	public static void checkSoftwareCursor() {
+		if(Settings.SOFTWARE_CURSOR)
+		{
+			Game.getInstance().setCursor(Game.getInstance().getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
+		} else {
+			Game.getInstance().setCursor(Cursor.getDefaultCursor());
+		}
+	}
+		
+	private static void toggleFoodOverlay() {
+		//TODO: this toggles the variable but does nothing yet
+		SHOW_FOOD_HEAL_OVERLAY = !SHOW_FOOD_HEAL_OVERLAY;
+		if(SHOW_FOOD_HEAL_OVERLAY)
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		Save();
+	}
+	
+	private static void toggleSaveLoginInfo() {
+		SAVE_LOGININFO = !SAVE_LOGININFO;
+		if(SAVE_LOGININFO)
+			Client.displayMessage("@cya@Saving login info enabled.", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Saving login info disabled.", Client.CHAT_NONE);
+		Save();
+	}
+	
+	private static void toggleHealthRegenTimer() {
+		//TODO: this toggles the variable but does nothing yet
+		SHOW_TIME_UNTIL_HP_REGEN = !SHOW_TIME_UNTIL_HP_REGEN;
+		if(SHOW_TIME_UNTIL_HP_REGEN)
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+		Save();
+	}
+
+	public static void setClientFoV(String fovValue) {
+		try {
+			FOV = Integer.parseInt(fovValue);
+			Camera.setFoV(FOV);
+			if (FOV > 10 || FOV < 8) { //if stupid fov, warn user how to get back
+				Client.displayMessage("@whi@This is fun, but if you want to go back to normal, use @yel@::fov 9", Client.CHAT_QUEST);
+			}
+		} catch (Exception e) {
+			Client.displayMessage("@whi@Please use an @lre@integer@whi@ between 7 and 16 (default = 9)", Client.CHAT_QUEST); //more sane limitation would be 8 to 10, but it's fun to play with
+		}
+		Save();
+	}
+	
 	private static String getString(Properties props, String key, String def)
 	{
 		String value = props.getProperty(key);
-		if(value == null)
-			return def;
-
+		if(value == null){
+				return def;
+			}
+		
 		return value;
 	}
 
@@ -449,34 +623,248 @@ public class Settings
 		"4",
 		"5"
 	};
+	
+	public static void processKeybindCommand(String commandName) {
+		switch (commandName) { 
+		case "logout":
+			if(Client.state != Client.STATE_LOGIN)
+				Client.logout();
+			break;
+		case "screenshot":
+			Renderer.takeScreenshot();
+			break;
+		case "toggle_colorize":
+			Settings.toggleColorTerminal();
+			break;
+		case "toggle_combat_xp_menu":
+			Settings.toggleCombatMenu();
+			break;
+		case "toggle_debug":
+			Settings.toggleDebug();
+			break;
+		case "toggle_fatigue_alert":
+			Settings.toggleFatigueAlert();
+			break;
+		case "toggle_fatigue_drops":
+			Settings.toggleFatigueDrops();
+			break;
+		case "toggle_food_heal_overlay":
+			Settings.toggleFoodOverlay();
+			break;
+		case "toggle_friend_name_overlay":
+			Settings.toggleShowFriendInfo();
+			break;
+		case "toggle_hpprayerfatigue_display":
+			Settings.toggleStatusDisplay();
+			break;
+		case "toggle_inven_count_overlay":
+			Settings.toggleInvCount();
+			break;
+		case "toggle_ipdns":
+			Settings.toggleShowLoginDetails();
+			break;
+		case "toggle_item_overlay":
+			Settings.toggleShowItemInfo();
+			break;
+		case "toggle_hitboxes":
+			Settings.toggleShowHitbox();
+			break;
+		case "toggle_npc_name_overlay":
+			Settings.toggleShowNPCInfo();
+			break;
+		case "toggle_player_name_overlay":
+			Settings.toggleShowPlayerInfo();
+			break;
+		case "toggle_roof_hiding":
+			Settings.toggleHideRoofs();
+			break;
+		case "toggle_save_login_info":
+			Settings.toggleSaveLoginInfo();
+			break;
+		case "toggle_health_regen_timer":
+			Settings.toggleHealthRegenTimer();
+			break;
+		case "toggle_twitch_chat":
+			Settings.toggleTwitchHide();
+			break;
+		case "toggle_xp_drops":
+			Settings.toggleXpDrops();
+			break;
+		case "show_config_window":
+			Launcher.getConfigWindow().showConfigWindow();
+			break;
+		case "world_1":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(1);
+			break;
+		case "world_2":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(2);
+			break;
+		case "world_3":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(3);
+			break;
+		case "world_4":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(4);
+			break;
+		case "world_5":
+			if(Client.state == Client.STATE_LOGIN)
+				Game.getInstance().getJConfig().changeWorld(5);
+			break;
+		
+		default:
+			Logger.Error("An unrecognized command was sent to processCommand: " + commandName);
+			break;
+		}
+	}
+	
 
-	public static int VIEW_DISTANCE = 10000;
-	public static boolean FATIGUE_ALERT = true;
-	public static boolean COLORIZE = true;
+	/*
+	 * Settings Variables
+	 * Note that the settings defaults are those values listed here, as the Load method now references these values as defaults.
+	 * These have been ordered according to their order on the GUI, for convenience.
+	 */
+	
+	//General options
+	public static boolean CUSTOM_CLIENT_SIZE = false;
+		public static int CUSTOM_CLIENT_SIZE_X = 512;
+		public static int CUSTOM_CLIENT_SIZE_Y = 346;
+	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
-	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
-	public static boolean HIDE_ROOFS = false;
-	public static int WORLD = 2;
-	public static boolean FIRST_TIME = true;
-	public static boolean SHOW_NPCINFO = false;
-	public static boolean SHOW_PLAYERINFO = false;
-	public static boolean SHOW_FRIENDINFO = false;
-	public static boolean SHOW_INVCOUNT = true;
-	public static boolean SHOW_ITEMINFO = false;
-	public static boolean SHOW_HITBOX = false;
-	public static boolean SHOW_LOGINDETAILS = false;
-	public static boolean SHOW_STATUSDISPLAY = true;
 	public static boolean SHOW_XPDROPS = true;
 	public static boolean SHOW_FATIGUEDROPS = true;
+	public static int FATIGUE_FIGURES = 2;
+	public static boolean FATIGUE_ALERT = true;
+	public static int NAME_PATCH_TYPE = 3;
+	public static boolean HIDE_ROOFS = true;
+    public static boolean COLORIZE = true; //TODO: Vague, consider refactoring for clarity
+	public static int FOV = 9;
 	public static boolean SOFTWARE_CURSOR = false;
+	public static int VIEW_DISTANCE = 10000;
+	
+	//Overlays options
+	public static boolean SHOW_STATUSDISPLAY = true; //TODO: PLEASE refactor to a name that isn't uselessly vague. This is apparently the HP/Prayer/Fatigue display.
+	public static boolean SHOW_INVCOUNT = true;
+	public static boolean SHOW_ITEMINFO = false; //TODO: Refactor to add the word 'overlay' for clarity
+	public static boolean SHOW_PLAYERINFO = false; //TODO: See above
+	public static boolean SHOW_FRIENDINFO = false; //TODO ^
+	public static boolean SHOW_NPCINFO = false; //TODO ^
+	public static boolean SHOW_HITBOX = false; //TODO: Consider refactoring for clarity that this only affects NPCs
+	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
+	public static boolean SHOW_TIME_UNTIL_HP_REGEN = false;
 	public static boolean DEBUG = false;
+	
+	//Notifications options
+	public static boolean TRAY_NOTIFS = true;
+	public static boolean TRAY_NOTIFS_ALWAYS = false; //If false, only when client is not focused. Based on radio button.
+	public static boolean NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
+	public static boolean SOUND_NOTIFS_ALWAYS = false; //If false, only when client focused. Also based on radio button. TODO
+	public static boolean USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
+	public static boolean PM_NOTIFICATIONS = true; 
+	public static boolean TRADE_NOTIFICATIONS = true;
+	public static boolean DUEL_NOTIFICATIONS = true;
+	public static boolean LOGOUT_NOTIFICATIONS = true;
+	public static boolean LOW_HP_NOTIFICATIONS = true;
+	public static int LOW_HP_NOTIF_VALUE = 25;
+	public static boolean FATIGUE_NOTIFICATIONS = true;
+	public static int FATIGUE_NOTIF_VALUE = 98;
+	
+	//Streaming & Privacy
+	public static boolean TWITCH_HIDE = false; //TODO: Refactor? Vague, if it manages chat visibility
+	public static String TWITCH_CHANNEL = "";
+	public static String TWITCH_OAUTH = "";
+	public static String TWITCH_USERNAME = "";
+	public static boolean SHOW_LOGINDETAILS = true; //TODO: Consider refactoring for clarity. This determines if IP/DNS details are shown at login welcome screen
+	public static boolean SAVE_LOGININFO = true;
+	
+	//Miscellaneous settings (No GUI)
+	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
+	public static int WORLD = 2;
+	public static boolean FIRST_TIME = true;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";
-	public static boolean TWITCH_HIDE = false;
-	public static String TWITCH_USERNAME = "";
-	public static String TWITCH_OAUTH = "";
-	public static String TWITCH_CHANNEL = "";
-	public static int NAME_PATCH_TYPE = 3;
-	public static boolean SAVE_LOGININFO = true;
-	public static int FATIGUE_FIGURES = 2;
+	
+	
+	
+	//Internally used variables
+	public static boolean fovUpdateRequired;
+	
+	public static void restoreDefaultGeneral() {
+		CUSTOM_CLIENT_SIZE = false;
+		CUSTOM_CLIENT_SIZE_X = 512;
+		CUSTOM_CLIENT_SIZE_Y = 346;
+		LOAD_CHAT_HISTORY = false;
+		COMBAT_MENU = false;
+		SHOW_XPDROPS = true;
+		SHOW_FATIGUEDROPS = true;
+		FATIGUE_FIGURES = 2;
+		FATIGUE_ALERT = true;
+		NAME_PATCH_TYPE = 3;
+		HIDE_ROOFS = true;
+		COLORIZE = true;
+		FOV = 9;
+		SOFTWARE_CURSOR = false;
+		VIEW_DISTANCE = 10000;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultOverlays() {
+		SHOW_STATUSDISPLAY = true;
+		SHOW_INVCOUNT = true;
+		SHOW_ITEMINFO = false;
+		SHOW_PLAYERINFO = false;
+		SHOW_FRIENDINFO = false;
+		SHOW_NPCINFO = false;
+		SHOW_HITBOX = false;
+		SHOW_FOOD_HEAL_OVERLAY = false;
+		SHOW_TIME_UNTIL_HP_REGEN = false;
+		DEBUG = false;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultNotifications() {
+		PM_NOTIFICATIONS = true; 
+		TRADE_NOTIFICATIONS = true;
+		DUEL_NOTIFICATIONS = true;
+		LOGOUT_NOTIFICATIONS = true;
+		LOW_HP_NOTIFICATIONS = true;
+		LOW_HP_NOTIF_VALUE = 25;
+		FATIGUE_NOTIFICATIONS = true;
+		FATIGUE_NOTIF_VALUE = 98;
+		NOTIFICATION_SOUNDS = false;
+		USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
+		TRAY_NOTIFS = true;
+		TRAY_NOTIFS_ALWAYS = false;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultPrivacy() {
+		TWITCH_HIDE = false;
+		TWITCH_CHANNEL = "";
+		TWITCH_OAUTH = "";
+		TWITCH_USERNAME = "";
+		SHOW_LOGINDETAILS = true;
+		SAVE_LOGININFO = true;
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static void restoreDefaultKeybinds() {
+		try {
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				KeybindSet defaultKBS = KeyboardHandler.defaultKeybindSetList.get(kbs.commandName);
+				kbs.key = defaultKBS.key;
+				kbs.modifier = defaultKBS.modifier;
+			}
+		} catch (NullPointerException npe) {
+			Logger.Error("Null Pointer while attempting to restore default keybind values!");
+		}
+		Launcher.getConfigWindow().synchronizeGuiValues();
+	}
+	
+	public static boolean isRecommendedToUseSystemNotifs() {
+		// Users on Windows 8.1 or 10 are recommend to set USE_SYSTEM_NOTIFICATIONS = true
+		return (System.getProperty("os.name").equals("Windows 10") || System.getProperty("os.name").equals("Windows 8.1"));
+	}
 }

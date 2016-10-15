@@ -21,23 +21,22 @@
 
 package Client;
 
-import Game.Game;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
+import Game.Game;
+
 public class Launcher extends JFrame implements Runnable
 {
+	public Launcher() {
+	}
 	public void init()
 	{
 		Logger.Info("Starting rscplus");
@@ -156,7 +155,11 @@ public class Launcher extends JFrame implements Runnable
 
 	public static void main(String args[])
 	{
+		Settings.initDir();
+		setConfigWindow(new ConfigWindow());
 		Settings.Load();
+		TrayHandler.initTrayIcon();
+		NotificationsHandler.initialize();
 		Launcher.getInstance().init();
 	}
 
@@ -165,8 +168,23 @@ public class Launcher extends JFrame implements Runnable
 		return (instance == null)?(instance = new Launcher()):instance;
 	}
 
+	/**
+	 * @return the window
+	 */
+	public static ConfigWindow getConfigWindow() {
+		return window;
+	}
+	/**
+	 * @param window the window to set
+	 */
+	public static void setConfigWindow(ConfigWindow window) {
+		Launcher.window = window;
+	}
+
 	private JProgressBar m_progressBar;
 	private JClassLoader m_classLoader;
+	
+	private static ConfigWindow window;
 
 	// Singleton
 	private static Launcher instance;

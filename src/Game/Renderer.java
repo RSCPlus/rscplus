@@ -48,8 +48,10 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import Client.NotificationsHandler;
 import Client.Settings;
 import Client.Util;
+import Client.NotificationsHandler.NotifType;
 
 public class Renderer {
 	public static void init() {
@@ -114,6 +116,9 @@ public class Renderer {
 			}
 		}
 	}
+
+	private static int lastPercentHP = 100;
+	private static int lastFatigue = 0;
 
 	public static void present(Graphics g, Image image) {
 		// Update timing
@@ -292,6 +297,18 @@ public class Renderer {
 				colorFatigue = color_low;
 				alphaFatigue = alpha_time;
 			}
+			
+			// Low HP notification
+			
+			if (percentHP <= Settings.LOW_HP_NOTIF_VALUE && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE)
+				NotificationsHandler.notify(NotifType.LOWHP, "Low HP Notification", "Your HP is at " + percentHP + "%");
+			lastPercentHP = percentHP;
+			
+			// High fatigue notification
+			
+			if (Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE)
+				NotificationsHandler.notify(NotifType.FATIGUE, "High Fatigue Notification", "Your fatigue is at " + Client.getFatigue() + "%");
+			lastFatigue = Client.getFatigue();
 
 			// Draw HP, Prayer, Fatigue overlay
 			int x = 24;
@@ -464,7 +481,7 @@ public class Renderer {
 					Game.getInstance().getJConfig().changeWorld(i + 1);
 				}
 			}
-
+			
 			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
 
 			int worldPopArray[];
@@ -509,6 +526,10 @@ public class Renderer {
 
 		if (width != new_size.width || height != new_size.height)
 			handle_resize();
+		if (Settings.fovUpdateRequired) {
+			Camera.setFoV(Settings.FOV);
+			Settings.fovUpdateRequired = false;
+		}
 	}
 
 	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {
