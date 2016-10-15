@@ -1,1 +1,8 @@
 20161015.01
+
+# This version number follows ISO 8601 with a 2 digit subversion for how many commits 
+# have been pushed to master today. YYYYMMDD.CC.
+
+# This file contains the version number that will be checked against by the client
+# to determine if it is up to date. If the first line of this file is changed, you must
+# update VERSION_NUMBER in src/Client/Settings.java
