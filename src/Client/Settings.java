@@ -39,6 +39,12 @@ import Game.Renderer;
 
 public class Settings
 {
+	//Internally used variables
+	public static boolean fovUpdateRequired;
+	public static boolean versionCheckRequired = true;
+	public static double VERSION_NUMBER = 20161015.01;
+		//This version number ^^^^ follows ISO 8601 with a 2 digit subversion for how many commits have been pushed to master today. YYYYMMDD.CC.
+		//the version number will actually be read from this source file, so please don't change the name of this variable.
 	
 	public static void initDir() {
 		// Find JAR directory
@@ -787,11 +793,6 @@ public class Settings
 	public static String DISASSEMBLE_DIRECTORY = "dump";
 	
 	
-	
-	//Internally used variables
-	public static boolean fovUpdateRequired;
-	public static boolean versionCheckRequired = true;
-	public static double VERSION_NUMBER = 20161015.01; //This version number follows ISO 8601 with a 2 digit subversion for how many commits have been pushed to master today. YYYYMMDD.CC. If this number is updated, then src/Client/version.txt must also be updated.
 	
 	public static void restoreDefaultGeneral() {
 		CUSTOM_CLIENT_SIZE = false;

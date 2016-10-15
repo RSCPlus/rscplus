@@ -377,19 +377,41 @@ public class Client {
 	
 	public static Double fetchLatestVersionNumber() { //returns current version number
 		try {
-			//URL updateURL = new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/updater/src/Client/version.txt");
-			URL updateURL = new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/version.txt");
+			Double currentVersion = 0.0;
+			URL updateURL = new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/updater/src/Client/Settings.java");
+			//URL updateURL = new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/Settings.java");
 
 			// Open connection
 			URLConnection connection = updateURL.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-	
-			//there should only be one line in the version number file, and it should be parseable by Double.parseDouble.
-			return Double.parseDouble(in.readLine());
+			//in our current client version, we are looking at the source file of Settings.java in the main repository
+			//in order to parse what the current version number is.
+			String line;
+			while((line = in.readLine()) != null)
+			{
+				// Skip empty lines, the license header, and import statements
+				if(line.length() <= 0 || line.substring(1,2).contains("*") || line.startsWith("import"))
+				{
+					System.out.println("skipping: "+line);
+					continue;
+				}
+				
+				if (line.contains("VERSION_NUMBER"))
+				{
+					System.out.println("!!!" + line.substring(line.indexOf("="),line.indexOf(";")));
+					currentVersion = Double.parseDouble(line.substring(line.indexOf("="),line.indexOf(";")));
+					break;
+				}	
+			}
+
+			// Close connection
+			in.close();
+			return currentVersion;
 		}
 		catch(Exception e)
 		{
 			displayMessage("@dre@error checking for update",0);
+			System.err.print(e);
 			return Settings.VERSION_NUMBER;
 		}
 	}
