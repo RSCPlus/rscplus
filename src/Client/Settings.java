@@ -274,6 +274,7 @@ public class Settings
 			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
 			props.setProperty("disassemble", "" + DISASSEMBLE);
 			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
+			props.setProperty("version", "" + VERSION_NUMBER);
 
 			//Keybinds
 			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
@@ -729,8 +730,8 @@ public class Settings
 	
 	//General options
 	public static boolean CUSTOM_CLIENT_SIZE = false;
-		public static int CUSTOM_CLIENT_SIZE_X = 512;
-		public static int CUSTOM_CLIENT_SIZE_Y = 346;
+	public static int CUSTOM_CLIENT_SIZE_X = 512;
+	public static int CUSTOM_CLIENT_SIZE_Y = 346;
 	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
 	public static boolean SHOW_XPDROPS = true;
@@ -785,6 +786,7 @@ public class Settings
 	public static boolean FIRST_TIME = true;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";
+	public static double VERSION_NUMBER = 20161015.01;
 	
 	
 	
