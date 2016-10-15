@@ -389,17 +389,15 @@ public class Client {
 			String line;
 			while((line = in.readLine()) != null)
 			{
-				// Skip empty lines, the license header, and import statements
-				if(line.length() <= 0 || line.substring(1,2).contains("*") || line.startsWith("import"))
+				// Skip short lines, the license header, and import statements
+				if(line.length() <= 3 || line.substring(1,2).contains("*") || line.startsWith("import"))
 				{
-					System.out.println("skipping: "+line);
 					continue;
 				}
 				
 				if (line.contains("VERSION_NUMBER"))
 				{
-					System.out.println("!!!" + line.substring(line.indexOf("="),line.indexOf(";")));
-					currentVersion = Double.parseDouble(line.substring(line.indexOf("="),line.indexOf(";")));
+					currentVersion = Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";")));
 					break;
 				}	
 			}
@@ -411,7 +409,7 @@ public class Client {
 		catch(Exception e)
 		{
 			displayMessage("@dre@error checking for update",0);
-			System.err.print(e);
+			//System.out.println(e);
 			return Settings.VERSION_NUMBER;
 		}
 	}
