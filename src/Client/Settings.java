@@ -274,7 +274,6 @@ public class Settings
 			props.setProperty("first_time", "" + false); //This is set to false, as logically, saving the config would imply this is not a first-run.
 			props.setProperty("disassemble", "" + DISASSEMBLE);
 			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
-			props.setProperty("version", "" + VERSION_NUMBER);
 
 			//Keybinds
 			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
@@ -786,12 +785,13 @@ public class Settings
 	public static boolean FIRST_TIME = true;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";
-	public static double VERSION_NUMBER = 20161015.01;
 	
 	
 	
 	//Internally used variables
 	public static boolean fovUpdateRequired;
+	public static boolean versionCheckRequired = true;
+	public static double VERSION_NUMBER = 20161015.01;
 	
 	public static void restoreDefaultGeneral() {
 		CUSTOM_CLIENT_SIZE = false;

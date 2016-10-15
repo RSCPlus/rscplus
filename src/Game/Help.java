@@ -85,6 +85,7 @@ public class Help
 					Client.displayMessage("@whi@Page 1 of 1", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::logout - Logout", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::screenshot - Take screenshot (Saved in the screenshots directory)", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::update - manually check if RSC+ has updated", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@Middle mouse click - Rotate camera", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@Mouse wheel scroll - Zoom camera", Client.CHAT_QUEST);
 					break;
