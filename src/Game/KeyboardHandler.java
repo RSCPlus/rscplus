@@ -21,99 +21,57 @@
 
 package Game;
 
-import Client.Logger;
-import Client.Settings;
-import Game.Game;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import Client.KeybindSet;
+import Client.KeybindSet.KeyModifier;
+import Client.Settings;
 
 public class KeyboardHandler implements KeyListener
 {
+	// TODO: Make spacebar clear the login message screen
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
 		if(listener_key == null)
 			return;
-
-		if(e.isControlDown() || e.isAltDown())
-		{
-			command_key = e.getKeyCode();
-
-			if(command_key == KeyEvent.VK_S)
-				Renderer.takeScreenshot();
-
-			if(command_key == KeyEvent.VK_R)
-				Settings.toggleHideRoofs();
-
-			if(command_key == KeyEvent.VK_H)
-				Settings.toggleShowHitbox();
-
-			if(command_key == KeyEvent.VK_C)
-				Settings.toggleCombatMenu();
-
-			if(command_key == KeyEvent.VK_D)
-				Settings.toggleDebug();
-
-			if(command_key == KeyEvent.VK_F)
-				Settings.toggleFatigueAlert();
-			
-			if(command_key == KeyEvent.VK_G)
-				Settings.toggleShowFriendInfo();
-
-			if(command_key == KeyEvent.VK_T)
-				Settings.toggleTwitchHide();
-
-			if(command_key == KeyEvent.VK_I)
-				Settings.toggleShowItemInfo();
-
-			if(command_key == KeyEvent.VK_N)
-				Settings.toggleShowNPCInfo();
-
-			if(command_key == KeyEvent.VK_P)
-				Settings.toggleShowPlayerInfo();
-			
-			if(command_key == KeyEvent.VK_U)
-				Settings.toggleStatusDisplay();
-			
-			if(command_key == KeyEvent.VK_E)
-				Settings.toggleInvCount();
-			
-			if(command_key == KeyEvent.VK_Z)
-				Settings.toggleColorTerminal();
-			
-			if(command_key == KeyEvent.VK_OPEN_BRACKET)
-				Settings.toggleXpDrops();
-			
-			if(command_key == KeyEvent.VK_CLOSE_BRACKET)
-				Settings.toggleFatigueDrops();
-
-			if(Client.state == Client.STATE_LOGIN)
-			{
-				int worldSwitch = 0;
-				if(e.getKeyCode() == KeyEvent.VK_1)
-					worldSwitch = 1;
-				else if(e.getKeyCode() == KeyEvent.VK_2)
-					worldSwitch = 2;
-				else if(e.getKeyCode() == KeyEvent.VK_3)
-					worldSwitch = 3;
-				else if(e.getKeyCode() == KeyEvent.VK_4)
-					worldSwitch = 4;
-				else if(e.getKeyCode() == KeyEvent.VK_5)
-					worldSwitch = 5;
-
-				if(worldSwitch != 0)
-					Game.getInstance().getJConfig().changeWorld(worldSwitch);
+		
+		if (e.isControlDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.CTRL && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
 			}
-
-			if(Client.state != Client.STATE_LOGIN)
-			{
-				if(e.getKeyCode() == KeyEvent.VK_L)
-					Client.logout();
+			
+		} else if (e.isShiftDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.SHIFT && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
 			}
-
-			e.consume();
+			
+		} else if (e.isAltDown()) {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.ALT && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
+			}
+			
+		} else {
+			for (KeybindSet kbs : keybindSetList) {
+				if (kbs.getModifier() == KeyModifier.NONE && e.getKeyCode() == kbs.getKey()) {
+					Settings.processKeybindCommand(kbs.getCommandName());
+					e.consume();
+				}
+			}
 		}
-
+		
 		if(Client.show_questionmenu && !e.isConsumed())
 		{
 			if(e.getKeyCode() == KeyEvent.VK_1 || e.getKeyCode() == KeyEvent.VK_NUMPAD1)
@@ -170,7 +128,7 @@ public class KeyboardHandler implements KeyListener
 			e.consume();
 		}
 
-		if(isCommandKey(e) || e.getKeyCode() == KeyEvent.VK_TAB)
+		if(e.getKeyCode() == KeyEvent.VK_TAB)
 			e.consume();
 
 		if(!e.isConsumed())
@@ -185,9 +143,6 @@ public class KeyboardHandler implements KeyListener
 		if(listener_key == null)
 			return;
 
-		if(isCommandKey(e))
-			e.consume();
-
 		if(dialogue_option >= 0)
 			e.consume();
 
@@ -196,15 +151,12 @@ public class KeyboardHandler implements KeyListener
 			listener_key.keyTyped(e);
 		}
 	}
-
-	private static boolean isCommandKey(KeyEvent e)
-	{
-		return (e.isControlDown() || e.isAltDown() || e.getKeyCode() == KeyEvent.VK_ALT ||
-			e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == command_key);
-	}
-
-	private static int command_key = -1;
-
+	
 	public static int dialogue_option = -1;
 	public static KeyListener listener_key;
+	
+	//ArrayList containing all registered KeybindSet values
+	public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
+	//Hashmap containing all default KeybindSet values. This is used in the ConfigWindow restore default keybinds method.
+	public static HashMap<String, KeybindSet> defaultKeybindSetList = new HashMap<String, KeybindSet>();
 }

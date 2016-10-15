@@ -21,9 +21,6 @@
 
 package Game;
 
-import Client.JConfig;
-import Client.Launcher;
-import Client.Settings;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
@@ -33,12 +30,16 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.awt.Insets;
-import java.awt.Point;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+
+import Client.JConfig;
+import Client.Launcher;
+import Client.NotificationsHandler;
+import Client.Settings;
+import Client.TrayHandler;
 
 public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
 {
@@ -77,10 +78,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		pack();
 
 		// Hide cursor if software cursor
-		if(Settings.SOFTWARE_CURSOR)
-		{
-			setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
-		}
+		Settings.checkSoftwareCursor();
 
 		// Position window and make it visible
 		setLocationRelativeTo(null);
@@ -91,6 +89,10 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 
 		Reflection.Load();
 		Renderer.init();
+		
+		if(Settings.CUSTOM_CLIENT_SIZE) {
+			Game.getInstance().resizeFrameWithContents();
+		}
 	}
 
 	public JConfig getJConfig()
@@ -154,12 +156,17 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 
 		m_applet.stop();
 		m_applet.destroy();
+		
 	}
 
 	@Override
 	public final void windowClosing(WindowEvent e)
 	{
 		dispose();
+		Launcher.getConfigWindow().disposeJFrame();
+		TrayHandler.removeTrayIcon();
+		NotificationsHandler.closeNotificationSoundClip();
+		NotificationsHandler.disposeNotificationHandler();
 	}
 
 	@Override
@@ -222,6 +229,15 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	public static Game getInstance()
 	{
 		return (instance == null)?(instance = new Game()):instance;
+	}
+	
+	/**
+	 * Resizes the Game window to match the X and Y values stored in Settings. The applet's size will be recalculated on the next rendering tick.
+	 */
+	public void resizeFrameWithContents() {
+		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X + getInsets().left + getInsets().right;
+		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y + getInsets().top + getInsets().bottom;
+		setSize(windowWidth, windowHeight);
 	}
 
 	private JConfig m_config = new JConfig();

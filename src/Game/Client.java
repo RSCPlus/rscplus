@@ -21,8 +21,9 @@
 
 package Game;
 
-import java.applet.Applet;
+import static org.fusesource.jansi.Ansi.ansi;
 
+import java.applet.Applet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,9 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fusesource.jansi.AnsiConsole;
-import static org.fusesource.jansi.Ansi.*;
-import static org.fusesource.jansi.Ansi.Color.*;
 
+import Client.KeybindSet;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.TwitchIRC;
 
@@ -191,7 +194,7 @@ public class Client {
 			}
 			return "::";
 		}
-
+		
 		line = processClientChatCommand(line);
 		line = processClientCommand(line);
 
@@ -238,16 +241,8 @@ public class Client {
 				Settings.toggleXpDrops();
 			else if (command.equals("togglefatiguedrops"))
 				Settings.toggleFatigueDrops();
-			else if (command.equals("fov") && commandArray.length > 1) {
-				try {
-					Camera.setFoV(Integer.parseInt(commandArray[1]));
-					if (Camera.fov > 10 || Camera.fov < 8) { //if stupid fov, warn user how to get back
-						displayMessage("@whi@This is fun, but if you want to go back to normal, use @yel@::fov 9", CHAT_QUEST);
-					}
-				} catch (Exception e) {
-					displayMessage("@whi@Please use an @lre@integer@whi@ between 7 and 16 (default = 9)", CHAT_QUEST); //more sane limitation would be 8 to 10, but it's fun to play with
-				}
-			}
+			else if (command.equals("fov") && commandArray.length > 1)
+				Settings.setClientFoV(commandArray[1]);
 			else if (command.equals("logout"))
 				Client.logout();
 			else if (command.equals("toggleinvcount"))
@@ -367,22 +362,39 @@ public class Client {
 		} catch (Exception e) {
 		}
 	}
-
+	
 	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type) {
 		if (type == CHAT_NONE) {
-			if (username == null && message != null
-					&& message.contains("The spell fails! You may try again in 20 seconds"))
-				magic_timer = Renderer.time + 21000L;
+			if (username == null && message != null) {
+				if(message.contains("The spell fails! You may try again in 20 seconds"))
+					magic_timer = Renderer.time + 21000L;
+				else if(Settings.TRAY_NOTIFS) {
+					if(message.contains("You have been standing here for 5 mins! Please move to a new area"))
+						NotificationsHandler.notify(NotifType.LOGOUT, "Logout Notification", "You're about to log out");
+				}
+			}
 		}
-		else
+		else if (type == CHAT_PRIVATE) {		
+			NotificationsHandler.notify(NotifType.PM, "PM from " + username, message);
+		}
+		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat message. Something else needs to be detected to see if it's a trade request.
+		//else if(type == CHAT_PLAYER_INTERACT_IN) {
+		//	if(message.contains(" wishes to trade with you")) // TODO
+		//		TrayHandler.makePopupNotification("Trade Request", username + " wishes to trade with you");
+		//}
+		else if(type == CHAT_PLAYER_INTERACT_OUT) {
+			if(message.contains(" wishes to duel with you"))
+				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
+		}
+		
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
 			if (username != null)
 				lastpm_username = username;
 		}
 		
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it
-			AnsiConsole.systemInstall();	
+			AnsiConsole.systemInstall();
 			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(username, type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
@@ -404,7 +416,7 @@ public class Client {
 			case CHAT_CHAT:
 				colorMessage = "@|yellow,intensity_bold " + colorMessage + ": |@"; //just bold username for chat
 				break;
-			case CHAT_PLAYER_INTERRACT_IN: //happens when player trades you
+			case CHAT_PLAYER_INTERACT_IN: //happens when player trades you
 				colorMessage = "@|white " + colorMessage + " wishes to trade with you.|@";
 				break;
 			/*// username will not appear in these chat types, but just to cover it I'm leaving code commented out here
@@ -433,7 +445,22 @@ public class Client {
 		} else if (whiteMessage) {
 			//if (colorMessage.contains("Welcome to RuneScape!")) { // this would be necessary if whiteMessage had more than one .contains()
 			if (Settings.FIRST_TIME) {
-				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands and shortcuts", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+				
+				// Get keybind to open the config window
+				String configWindowShortcut = "";
+				for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+					if (kbs.getCommandName().equals("show_config_window")) {
+						configWindowShortcut = kbs.getFormattedKeybindText();
+						break;
+					} 
+				}
+				if (configWindowShortcut.equals("")) {
+					Logger.Error("Could not find the keybind for the config window!");
+					configWindowShortcut = "<Keybind error>";
+				}
+				
+				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+				displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
 				Settings.FIRST_TIME = false;
 				Settings.Save();
 			}
@@ -462,8 +489,8 @@ public class Client {
 			case CHAT_PRIVATE_LOG_IN_OUT:
 				colorMessage = "@|cyan,intensity_faint " + colorMessage + "|@"; //don't need to colorReplace, this is just "username has logged in/out"
 				break;
-			case CHAT_PLAYER_INTERRACT_IN:
-			case CHAT_PLAYER_INTERRACT_OUT:
+			case CHAT_PLAYER_INTERACT_IN:
+			case CHAT_PLAYER_INTERACT_OUT:
 				colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
 				break;
 			default: //this should never happen, only 8 Chat Types
@@ -663,8 +690,8 @@ public class Client {
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
 	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
-	public static final int CHAT_PLAYER_INTERRACT_IN = 6;  //used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
-	public static final int CHAT_PLAYER_INTERRACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
+	public static final int CHAT_PLAYER_INTERACT_IN = 6;  //used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
+	public static final int CHAT_PLAYER_INTERACT_OUT = 7; //used for when you send a player a duel, trade request, or follow
 
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
