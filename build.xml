@@ -31,9 +31,8 @@
 				</chainedmapper>
 			</mapper>
 	</pathconvert>
-
-	<target name="compile">
-		<mkdir dir="${build.dir}" />
+	
+	<target name="setversion">
 		<replaceregexp
 			file="${src.dir}/Client/Settings.java"
 			match="VERSION_NUMBER = (.*)"
@@ -41,6 +40,10 @@
 			byline="true"
 		/>
 		<echo message="Replaced version number in Settings.java with ${calculatedVersion}" />
+		<echo message="Run ant dist now to compile." />
+	</target>
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
 		<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
 			<classpath refid="build.classpath" />
 		</javac>
