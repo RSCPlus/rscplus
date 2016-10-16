@@ -10,11 +10,10 @@
 	<property name="jar.file" value="${bin.dir}/${jar.name}" />
 	
 	<tstamp>
-		<format property="current.time"
+		<format property="calculatedVersion"
 			pattern="yyyyMMdd.HHmmss"
 			timezone="GMT" />
 	</tstamp>
-	<property name="calculatedVersion" value="${current.time}" />
 
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
