@@ -8,6 +8,12 @@
 	<property name="jar.main-class" value="Client.Launcher" />
 	<property name="jar.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${bin.dir}/${jar.name}" />
+	
+	<tstamp>
+		<format property="calculatedVersion"
+			pattern="yyyyMMdd.HHmmss"
+			timezone="GMT" />
+	</tstamp>
 
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
@@ -24,10 +30,20 @@
 				</chainedmapper>
 			</mapper>
 	</pathconvert>
-
+	
+	<target name="setversion">
+		<replaceregexp
+			file="${src.dir}/Client/Settings.java"
+			match="VERSION_NUMBER = (.*)"
+			replace="VERSION_NUMBER = ${calculatedVersion};"
+			byline="true"
+		/>
+		<echo message="Replaced version number in Settings.java with ${calculatedVersion}" />
+		<echo message="Run ant dist now to compile." />
+	</target>
 	<target name="compile">
 		<mkdir dir="${build.dir}" />
-		<javac srcdir="${src.dir}" destdir="${build.dir}">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
@@ -55,7 +71,7 @@
 
 	<target name="clean">
 		<delete dir="${build.dir}" />
-		<delete dir="${bin.dir}" />
+		<delete dir="bin" />
 		<delete dir="${dist.dir}" />
 	</target>
 </project>

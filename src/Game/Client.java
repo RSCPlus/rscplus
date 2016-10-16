@@ -24,9 +24,13 @@ package Game;
 import static org.fusesource.jansi.Ansi.ansi;
 
 import java.applet.Applet;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -318,6 +322,10 @@ public class Client {
 				return "Hey, everyone, I just tried to do something very silly!";
 			}
 			else
+			if (command.equals("update")) {
+				updateRSCP(true);
+			}
+			else
 			if (command.startsWith("next_")) {
 				for (int i = 0; i < 18; i++) {
 					if (command.equals("next_" + skill_name[i].toLowerCase())) {
@@ -364,6 +372,49 @@ public class Client {
 		try {
 			Reflection.logout.invoke(Client.instance, 0);
 		} catch (Exception e) {
+		}
+	}
+	
+	public static Double fetchLatestVersionNumber() { //returns current version number
+		try {
+			Double currentVersion = 0.0;
+			//URL updateURL = new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/updater/src/Client/Settings.java");
+			URL updateURL = new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/Settings.java");
+
+			// Open connection
+			URLConnection connection = updateURL.openConnection();
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			//in our current client version, we are looking at the source file of Settings.java in the main repository
+			//in order to parse what the current version number is.
+			String line;
+			while((line = in.readLine()) != null)
+			{
+				if (line.contains("VERSION_NUMBER"))
+				{
+					currentVersion = Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+					break;
+				}	
+			}
+
+			// Close connection
+			in.close();
+			return currentVersion;
+		}
+		catch(Exception e)
+		{
+			displayMessage("@dre@error checking for update",0);
+			//System.out.println(e);
+			return Settings.VERSION_NUMBER;
+		}
+	}
+	public static void updateRSCP(boolean loudAndProud) {
+		double latestVersion = fetchLatestVersionNumber();
+		if (latestVersion > Settings.VERSION_NUMBER) {
+			displayMessage("@gre@A new version of RSC+ is available!",CHAT_QUEST);
+			displayMessage("~034~ Your version is @red@" + String.format("%8.6f",Settings.VERSION_NUMBER),CHAT_QUEST); //TODO: before Y10K update this to %9.6f
+			displayMessage("The latest version is @gre@" + String.format("%8.6f",latestVersion),CHAT_QUEST);
+		} else if (loudAndProud) {
+			displayMessage("You're up to date: @gre@" + String.format("%8.6f",latestVersion),CHAT_QUEST);
 		}
 	}
 	
@@ -448,6 +499,10 @@ public class Client {
 			return "@|green,intensity_bold " + colorMessage + "|@";
 		} else if (whiteMessage) {
 			//if (colorMessage.contains("Welcome to RuneScape!")) { // this would be necessary if whiteMessage had more than one .contains()
+			// }
+			
+			//because this section of code is triggered when the "Welcome to RuneScape!" message first appears,
+			//we can use it to do some first time set up
 			if (Settings.FIRST_TIME) {
 				
 				// Get keybind to open the config window
@@ -468,7 +523,13 @@ public class Client {
 				Settings.FIRST_TIME = false;
 				Settings.Save();
 			}
-			//}
+			
+			//check to see if RSC+ is up to date
+			if (Settings.versionCheckRequired) {
+				Settings.versionCheckRequired = false;
+				updateRSCP(false);
+			}
+
 			return "@|white,intensity_bold " + colorMessage + "|@";
 		}
 		

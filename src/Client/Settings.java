@@ -39,6 +39,14 @@ import Game.Renderer;
 
 public class Settings
 {
+	//Internally used variables
+	public static boolean fovUpdateRequired;
+	public static boolean versionCheckRequired = true;
+	public static double VERSION_NUMBER = 20161015.221034;
+		//The version number ^^^^ follows ISO 8601 yyyyMMdd.HHmmss
+		//The version number will actually be read from this source file, so please don't change the name of this variable and keep the assignment near the top for scanning.
+		//This variable can be set automatically by ant by issuing `ant setversion`
+		//	before you push your changes, so there's no need to update it manually.
 	
 	public static void initDir() {
 		// Find JAR directory
@@ -729,8 +737,8 @@ public class Settings
 	
 	//General options
 	public static boolean CUSTOM_CLIENT_SIZE = false;
-		public static int CUSTOM_CLIENT_SIZE_X = 512;
-		public static int CUSTOM_CLIENT_SIZE_Y = 346;
+	public static int CUSTOM_CLIENT_SIZE_X = 512;
+	public static int CUSTOM_CLIENT_SIZE_Y = 346;
 	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
 	public static boolean SHOW_XPDROPS = true;
@@ -787,9 +795,6 @@ public class Settings
 	public static String DISASSEMBLE_DIRECTORY = "dump";
 	
 	
-	
-	//Internally used variables
-	public static boolean fovUpdateRequired;
 	
 	public static void restoreDefaultGeneral() {
 		CUSTOM_CLIENT_SIZE = false;

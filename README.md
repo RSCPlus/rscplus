@@ -111,6 +111,8 @@ Most keybinds are configurable via the Settings GUI
 
 *::cmbnocolor* - Mimic's osbuddy's !cmb; doesn't use color codes and is within character limits
 
+*::update* - Manually check if RSC+ is up to date
+
 ## Config Options
 
 ### User configured via the settings GUI or config.ini only
