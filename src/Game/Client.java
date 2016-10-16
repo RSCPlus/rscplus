@@ -407,7 +407,7 @@ public class Client {
 			return Settings.VERSION_NUMBER;
 		}
 	}
-	public static void 	updateRSCP(boolean loudAndProud) {
+	public static void updateRSCP(boolean loudAndProud) {
 		double latestVersion = fetchLatestVersionNumber();
 		if (latestVersion > Settings.VERSION_NUMBER) {
 			displayMessage("@gre@A new version of RSC+ is available!",CHAT_QUEST);
