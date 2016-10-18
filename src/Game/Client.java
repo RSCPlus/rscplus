@@ -158,6 +158,8 @@ public class Client {
 
 		if (TwitchIRC.isUsing())
 			twitch.connect();
+
+		
 	}
 
 	public static void getPlayerName() {
@@ -447,6 +449,37 @@ public class Client {
 			if (username != null)
 				lastpm_username = username;
 		}
+
+		if (message.startsWith("Welcome to RuneScape!")) {
+			//because this section of code is triggered when the "Welcome to RuneScape!" message first appears,
+			//we can use it to do some first time set up
+			if (Settings.FIRST_TIME) {
+				Settings.FIRST_TIME = false;
+				Settings.Save();
+			}
+
+			// Get keybind to open the config window
+			String configWindowShortcut = "";
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				if (kbs.getCommandName().equals("show_config_window")) {
+					configWindowShortcut = kbs.getFormattedKeybindText();
+					break;
+				} 
+			}
+			if (configWindowShortcut.equals("")) {
+				Logger.Error("Could not find the keybind for the config window!");
+				configWindowShortcut = "<Keybind error>";
+			}
+
+			displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
+			displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
+			
+			//check to see if RSC+ is up to date
+			if (Settings.versionCheckRequired) {
+				Settings.versionCheckRequired = false;
+				updateRSCP(false);
+			}
+		}
 		
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it
 			AnsiConsole.systemInstall();
@@ -500,35 +533,6 @@ public class Client {
 		} else if (whiteMessage) {
 			//if (colorMessage.contains("Welcome to RuneScape!")) { // this would be necessary if whiteMessage had more than one .contains()
 			// }
-			
-			//because this section of code is triggered when the "Welcome to RuneScape!" message first appears,
-			//we can use it to do some first time set up
-			if (Settings.FIRST_TIME) {
-				
-				// Get keybind to open the config window
-				String configWindowShortcut = "";
-				for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-					if (kbs.getCommandName().equals("show_config_window")) {
-						configWindowShortcut = kbs.getFormattedKeybindText();
-						break;
-					} 
-				}
-				if (configWindowShortcut.equals("")) {
-					Logger.Error("Could not find the keybind for the config window!");
-					configWindowShortcut = "<Keybind error>";
-				}
-				
-				displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
-				displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
-				Settings.FIRST_TIME = false;
-				Settings.Save();
-			}
-			
-			//check to see if RSC+ is up to date
-			if (Settings.versionCheckRequired) {
-				Settings.versionCheckRequired = false;
-				updateRSCP(false);
-			}
 
 			return "@|white,intensity_bold " + colorMessage + "|@";
 		}
