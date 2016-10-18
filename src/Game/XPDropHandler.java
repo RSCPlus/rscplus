@@ -21,6 +21,7 @@
 
 package Game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,9 +29,9 @@ import java.util.List;
 
 public class XPDropHandler
 {
-	public void add(String text)
+	public void add(String text, Color color)
 	{
-		XPDrop xpdrop = new XPDrop(text);
+		XPDrop xpdrop = new XPDrop(text, color);
 		m_list.add(xpdrop);
 	}
 
@@ -47,9 +48,10 @@ public class XPDropHandler
 
 	class XPDrop
 	{
-		XPDrop(String text)
+		XPDrop(String text, Color color)
 		{
 			this.text = text;
+			this.color = color;
 			y = (float)Renderer.height / 4.0f;
 			active = false;
 		}
@@ -69,7 +71,7 @@ public class XPDropHandler
 				}
 			}
 
-			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, Renderer.color_text, true);
+			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, this.color, true);
 			y -= (float)Renderer.height / 12.0f * Renderer.delta_time;
 			
 			if (y <= XPBar.xp_bar_y + 5)
@@ -80,6 +82,7 @@ public class XPDropHandler
 		}
 
 		private String text;
+		private Color color;
 		private boolean active;
 		public float y;
 	}

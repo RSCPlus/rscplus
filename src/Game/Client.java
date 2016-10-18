@@ -98,7 +98,7 @@ public class Client {
 
 				if (xpGain > 0.0f && dropXP) {
 					if (Settings.SHOW_XPDROPS)
-						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")");
+						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")", Renderer.color_text);
 
 					// XP/hr calculations
 					// TODO: After 5-10 minutes of tracking XP, make it display a rolling average instead of a session average
@@ -127,7 +127,7 @@ public class Client {
 				final float actualFatigue = getActualFatigue();
 				final float fatigueGain = actualFatigue - currentFatigue;
 				if (fatigueGain > 0.0f && !isWelcomeScreen()) {
-					xpdrop_handler.add("+" + trimNumber(fatigueGain,Settings.FATIGUE_FIGURES) + "% (Fatigue)");
+					xpdrop_handler.add("+" + trimNumber(fatigueGain,Settings.FATIGUE_FIGURES) + "% (Fatigue)", Renderer.color_fatigue);
 					currentFatigue = actualFatigue;
 				}
 			}
