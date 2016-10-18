@@ -14,6 +14,10 @@
 
 *I will not accept any game automation features (macroing, etc.)*
 
+## IRC
+
+Join #rscplus on Freenode ([Web Chat](http://webchat.freenode.net/?channels=%23rscplus))
+
 ## Features
 - Game resolution changing (about 80% complete)
 - NPC Dialogue options with 1-9 on keyboard
