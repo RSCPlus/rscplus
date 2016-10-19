@@ -36,6 +36,7 @@ import java.util.List;
 
 import org.fusesource.jansi.AnsiConsole;
 
+import Client.GlobalIRC;
 import Client.KeybindSet;
 import Client.Logger;
 import Client.NotificationsHandler;
@@ -90,6 +91,18 @@ public class Client {
 
 
 		if (state == STATE_GAME) {
+			if(player_name == null)
+			{
+				getPlayerName();
+
+				// Run when player name is set
+				if(player_name != null)
+				{
+					global.connect(player_name);
+					global.displayStatus();
+				}
+			}
+
 			// Process XP drops
 			boolean dropXP = (xpdrop_state[SKILL_HP] > 0.0f);
 			for (int i = 0; i < xpdrop_state.length; i++) {
@@ -145,6 +158,7 @@ public class Client {
 		state = STATE_LOGIN;
 
 		twitch.disconnect();
+		global.disconnect(true);
 
 		setLoginMessage("Please enter your username and password", "");
 		adaptStrings();
@@ -158,8 +172,6 @@ public class Client {
 
 		if (TwitchIRC.isUsing())
 			twitch.connect();
-
-		
 	}
 
 	public static void getPlayerName() {
@@ -190,18 +202,17 @@ public class Client {
 	}
 
 	public static String processChatCommand(String line) {
-		if (TwitchIRC.isUsing() && line.startsWith("/")) {
-			String message = line.substring(1, line.length());
-			String messageArray[] = message.split(" ");
-
+		if(line.startsWith("/")) {
+			String message = line.substring(1);
 			message = processClientChatCommand(message);
-
-			if (messageArray[0] != null && messageArray[0].equals("me") && messageArray.length > 1) {
-				message = message.substring(3, message.length());
-				twitch.sendEmote(message, true);
-			} else {
-				twitch.sendMessage(message, true);
-			}
+			global.sendMessage(message);
+			return "::";
+		}
+		else
+		if (TwitchIRC.isUsing() && line.startsWith("//")) {
+			String message = line.substring(2);
+			message = processClientChatCommand(message);
+			twitch.sendMessage(message, true);
 			return "::";
 		}
 		
@@ -825,6 +836,8 @@ public class Client {
 	public static Object instance;
 
 	private static TwitchIRC twitch = new TwitchIRC();
+	private static GlobalIRC global = new GlobalIRC();
+
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
 	private static float xpdrop_state[] = new float[18];

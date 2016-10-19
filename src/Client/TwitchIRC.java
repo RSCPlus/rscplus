@@ -83,8 +83,7 @@ public class TwitchIRC implements Runnable
 					m_writer.write("CAP REQ :twitch.tv/commands\r\n");
 					m_writer.write("JOIN #" + Settings.TWITCH_CHANNEL.toLowerCase() + "\r\n");
 					m_writer.flush();
-					Client.displayMessage("@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL + "]@yel@ Twitch chat", Client.CHAT_CHAT);
-					Client.displayMessage("@lre@Messages starting with @whi@/@lre@ are sent to Twitch.", Client.CHAT_CHAT);
+					Client.displayMessage("@lre@Messages starting with @whi@//@lre@ are sent to Twitch.", Client.CHAT_CHAT);
 					break;
 				}
 				else if(line.contains("NOTICE"))
