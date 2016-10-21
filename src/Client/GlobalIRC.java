@@ -137,9 +137,34 @@ public class GlobalIRC implements Runnable
 		}
 	}
 
-	public boolean userIgnored(String user)
+	private boolean userIgnored(String user)
 	{
 		return (user.equals("ChanServ"));
+	}
+
+	private boolean charIgnored(String message, int index)
+	{
+		char value = ' ';
+		try
+		{
+			value = message.charAt(index);
+		}
+		catch(Exception e) {}
+
+		return (value == ' ' || value == ':' || value == ',' || value == '.' || value == '!' || value == '?' ||
+			value == ';' || value == '/' || value == '\\' || value == '\'' || value == '"' || value == '@' || value == '~');
+	}
+
+	private String formatMessage(String message)
+	{
+		int mention = message.indexOf(m_username);
+		if(mention != -1)
+		{
+			if(charIgnored(message, mention - 1) && charIgnored(message, mention + m_username.length()))
+				message = "@gre@" + message;
+		}
+
+		return message;
 	}
 
 	public void run()
@@ -272,6 +297,8 @@ public class GlobalIRC implements Runnable
 							if(user.rscplus_mod)
 								user_from = "@gre@@@yel@" + user_from;
 						}
+
+						message = formatMessage(message);
 
 						if(chan.equals(CHANNEL))
 							Client.displayMessage("@lre@[" + RSC_CHANNEL + "]@yel@ " + user_from + ": @whi@" + message, Client.CHAT_CHAT);
