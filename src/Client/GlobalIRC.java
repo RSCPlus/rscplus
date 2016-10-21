@@ -45,10 +45,10 @@ public class GlobalIRC implements Runnable
 		public boolean rscplus_mod;
 	}
 
-	public static final String SERVER = "irc.darkmyst.org";
+	public static final String SERVER = "irc.snoonet.org";
 	public static final int PORT = 6667;
 	public static final String CHANNEL = "#rscplus";
-	public static final String RSC_CHANNEL = "Global";
+	public static final String RSC_CHANNEL = "rsc+";
 
 	public void connect(String username)
 	{
@@ -175,7 +175,7 @@ public class GlobalIRC implements Runnable
 
 						if(user_from.equals(m_username))
 						{
-							Client.displayMessage("@lre@[" + RSC_CHANNEL + "]@whi@ You are now known as @whi@" + user_to, Client.CHAT_CHAT);
+							Client.displayMessage("@lre@[" + RSC_CHANNEL + "]@whi@ You are now known as @yel@" + user_to, Client.CHAT_CHAT);
 							m_username = user_to;
 						}
 					}
@@ -278,9 +278,9 @@ public class GlobalIRC implements Runnable
 					}
 					else if(command.equals("433"))
 					{
+						// Add a '_' to the end of username everytime it's not available
 						m_username = m_username + "_";
 						m_writer.write("NICK " + m_username + "\r\n");
-						Client.displayMessage("@lre@[" + RSC_CHANNEL + "]@whi@ You are now known as @whi@" + m_username, Client.CHAT_CHAT);
 						m_writer.flush();
 					}
 					else if(command.equals("376") && !connected)
@@ -288,6 +288,7 @@ public class GlobalIRC implements Runnable
 						m_writer.write("JOIN " + CHANNEL + "\r\n");
 						m_writer.flush();
 						connected = true;
+						Client.displayMessage("@lre@[" + RSC_CHANNEL + "]@whi@ You are known as @yel@" + m_username, Client.CHAT_CHAT);
 					}
 
 					Logger.Debug("[Global] " + line);
