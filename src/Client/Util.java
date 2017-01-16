@@ -98,7 +98,7 @@ public class Util
 					is.close();
 			}
 			catch(IOException e) {}
-			return null;
+			return worldPopArray;
 		}
 
 		String line = null;
