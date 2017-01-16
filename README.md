@@ -297,6 +297,11 @@ ant dist
 
 The result should be in the *bin* folder.
 
+Before submitting a pull request, please update the version number using ant:
+```
+ant setversion
+```
+
 There is also an Eclipse project in the source root you can import.
 
 ## Contributors
