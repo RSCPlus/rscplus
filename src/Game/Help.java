@@ -21,7 +21,6 @@
 
 package Game;
 
-
 public class Help
 {
 	public static void help(int page, String commandType) //this is for users who want to read the readme in game
@@ -67,7 +66,7 @@ public class Help
 			} else if (commandType.contentEquals("chats")) { // list commands which type chat messages e.g. ::cmb
 				switch (page) {
 				case 1:
-					Client.displayMessage("@whi@Page 1 of 1", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@Page 1 of 2", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::[skillname] - Tells skill level and xp in chat", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::next_[skillname] - Tells how much xp needed until next level in chat", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::total - Shows total level and total xp in chat", Client.CHAT_QUEST);
@@ -75,6 +74,12 @@ public class Help
 					Client.displayMessage("@whi@::cmb - Breaks the character limit and @lre@may be bannable@whi@ especially if sent over PM to RS2/RS3. Displays combat stats like osbuddy's !cmb", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::cmbnocolor - Mimics osbuddy's !cmb; doesn't use color codes, within character limits", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::bank - brings up the bank interface anywhere", Client.CHAT_QUEST);
+					break;
+				case 2:
+					Client.displayMessage("@whi@Page 2 of 2", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::xmas - Formats your message in festive Red Green and White colors", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::rainbow - Formats your message in all colors of the rainbow (or at least 6)", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::system - Hides your username in chat and then outputs your message", Client.CHAT_QUEST);
 					break;
 				default:
 					Client.displayMessage("@whi@page does not exist", Client.CHAT_QUEST);
@@ -96,6 +101,6 @@ public class Help
 				Client.displayMessage("@whi@Misspelled command", Client.CHAT_QUEST);
 				help(0,"help");
 			}
-		}				
+		}
 	}
 }

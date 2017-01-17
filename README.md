@@ -115,6 +115,12 @@ Most keybinds are configurable via the Settings GUI
 
 *::cmbnocolor* - Mimic's osbuddy's !cmb; doesn't use color codes and is within character limits
 
+*::xmas* - Formats your message in festive Red Green and White colours
+
+*::rainbow* - Formats your message in all the colours of the rainbow (or at least 6)
+
+*::system* - Hides your username and outputs your message
+
 *::update* - Manually check if RSC+ is up to date
 
 ## Config Options

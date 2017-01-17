@@ -115,7 +115,7 @@ public class Client {
 						lastXpGain[i][3] = 0;
 						showXpPerHour[i] = false;
 					}
-					
+
 					if (i == SKILL_HP && xpbar.current_skill != -1)
 						continue;
 
@@ -159,7 +159,7 @@ public class Client {
 		if (TwitchIRC.isUsing())
 			twitch.connect();
 
-		
+
 	}
 
 	public static void getPlayerName() {
@@ -170,7 +170,7 @@ public class Client {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 	}
 
 	public static void getCoords() {
@@ -204,7 +204,7 @@ public class Client {
 			}
 			return "::";
 		}
-		
+
 		line = processClientChatCommand(line);
 		line = processClientCommand(line);
 
@@ -285,9 +285,9 @@ public class Client {
 				return "My Fatigue is at " + currentFatigue + "%.";
 			}
 			else
-			
+
 			if (command.equals("cmb")) { //this command breaks character limits and might be bannable... would not recommend sending this command over PM to rs2/rs3
-				return "@whi@My Combat is Level " 
+				return "@whi@My Combat is Level "
 					    + "@gre@" +
 					    		(
 								(base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH] + base_level[SKILL_DEFENSE] + base_level[SKILL_HP])*0.25 //basic melee stats
@@ -302,7 +302,7 @@ public class Client {
 					    + " @lre@P:@whi@ " + base_level[SKILL_PRAYER]
 					    + " @lre@M:@whi@ " + base_level[SKILL_MAGIC];
 			}
-			
+
 			else
 			if (command.equals("cmbnocolor")) { //this command stays within character limits and is safe.
 				return "My Combat is Level "
@@ -320,12 +320,57 @@ public class Client {
 						+ " M:" + base_level[SKILL_MAGIC];
 			}
 			else
-			if (command.equals("bank")) { 
+			if (command.equals("bank")) {
 				return "Hey, everyone, I just tried to do something very silly!";
 			}
 			else
 			if (command.equals("update")) {
 				updateRSCP(true);
+			}
+			else
+			if (command.startsWith("xmas ")) {
+                                int randomStart = (int)System.currentTimeMillis();
+				if (randomStart < 0) {
+					randomStart *= -1; //casting to long to int sometimes results in a negative number
+				}
+                                String subline = "";
+                                String[] colours = {"@red@","@whi@","@gre@","@whi@"};
+                                int spaceCounter = 0;
+                                for (int i=0; i < line.length() - 7; i++) {
+                                        if (line.substring(7 + i, 8 + i).equals(" ")) {
+                                                spaceCounter+=1;
+                                        }
+                                        subline += colours[(i-spaceCounter+randomStart)%4];
+                                        subline += line.substring(7 + i, 8 + i);
+                                }
+                                return subline;
+                        }
+			else
+			if (command.startsWith("rainbow ")) { //@red@A@ora@B@yel@C etc
+                                int randomStart = (int)System.currentTimeMillis();
+				if (randomStart < 0) {
+					randomStart *= -1; //casting to long to int sometimes results in a negative number
+				}
+                                String subline = "";
+                                String[] colours = {"@red@","@ora@","@yel@","@gre@","@cya@","@mag@"};
+                                int spaceCounter = 0;
+                                for (int i=0; i < line.length() - 10; i++) {
+                                        if (line.substring(10 + i, 11 + i).equals(" ")) {
+                                                spaceCounter+=1;
+                                        }
+                                        subline += colours[(i-spaceCounter+randomStart)%6];
+                                        subline += line.substring(10 + i, 11 + i);
+                                }
+                                return subline;
+
+			}
+			else
+			if (command.startsWith("system ")) {//~007~@bla@Username~007~ Msg
+				if (Client.player_name != null) {
+					return "~007~@bla@"+Client.player_name+":~007~@yel@"+line.substring(9,line.length());
+				} else {
+					return line.substring(9,line.length()); //send the message anyway
+				}
 			}
 			else
 			if (command.startsWith("next_")) {
@@ -376,7 +421,7 @@ public class Client {
 		} catch (Exception e) {
 		}
 	}
-	
+
 	public static Double fetchLatestVersionNumber() { //returns current version number
 		try {
 			Double currentVersion = 0.0;
@@ -395,7 +440,7 @@ public class Client {
 				{
 					currentVersion = Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";")));
 					break;
-				}	
+				}
 			}
 
 			// Close connection
@@ -419,7 +464,7 @@ public class Client {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f",latestVersion),CHAT_QUEST);
 		}
 	}
-	
+
 	// All messages added to chat are routed here
 	public static void messageHook(String username, String message, int type) {
 		if (type == CHAT_NONE) {
@@ -432,7 +477,7 @@ public class Client {
 				}
 			}
 		}
-		else if (type == CHAT_PRIVATE) {		
+		else if (type == CHAT_PRIVATE) {
 			NotificationsHandler.notify(NotifType.PM, "PM from " + username, message);
 		}
 		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat message. Something else needs to be detected to see if it's a trade request.
@@ -444,7 +489,7 @@ public class Client {
 			if(message.contains(" wishes to duel with you"))
 				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
 		}
-		
+
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
 			if (username != null)
 				lastpm_username = username;
@@ -473,14 +518,14 @@ public class Client {
 
 			displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST); //TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
 			displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
-			
+
 			//check to see if RSC+ is up to date
 			if (Settings.versionCheckRequired) {
 				Settings.versionCheckRequired = false;
 				updateRSCP(false);
 			}
 		}
-		
+
 		if (Settings.COLORIZE) { //no nonsense for those who don't want it
 			AnsiConsole.systemInstall();
 			System.out.println(ansi().render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(username, type)) + colorizeMessage(message, type)));
@@ -489,7 +534,7 @@ public class Client {
 			System.out.println("(" + type + ") " + ((username == null) ? "" : username + ": ") + message);
 		}
 	}
-	
+
 	public static String colorizeUsername(String colorMessage, int type) {
 		switch (type) {
 			case CHAT_PRIVATE:
@@ -512,7 +557,7 @@ public class Client {
 			case CHAT_PRIVATE_LOG_IN_OUT:
 			case CHAT_PLAYER_INTERRACT_OUT:
 			*/
-				
+
 			default:
 				System.out.println("Username specified for unhandled chat type, please report this: " + type);
 				colorMessage = "@|white,intensity_bold " + colorMessage + ": |@";
@@ -520,12 +565,12 @@ public class Client {
 		return colorMessage;
 	}
 	public static String colorizeMessage(String colorMessage, int type) {
-		
+
 		boolean whiteMessage = (colorMessage.contains("Welcome to RuneScape!")); //want this to be bold
 		boolean blueMessage = (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
 		//boolean yellowMessage = false;
 		boolean greenMessage = (colorMessage.contains("You just advanced "));
-		
+
 		if (blueMessage) { //this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";
 		} else if (greenMessage) {
@@ -536,7 +581,7 @@ public class Client {
 
 			return "@|white,intensity_bold " + colorMessage + "|@";
 		}
-		
+
 		switch (type) {
 			case CHAT_NONE:
 				colorMessage = "@|white " + colorReplace(colorMessage) + "|@"; //have to replace b/c @cya@Screenshot saved...
@@ -595,15 +640,15 @@ public class Client {
 			}
 			colorMessage = colorMessage.replaceAll(colorDict[i], colorDict[i+1]);
 		}
-		
+
 		//we could replace @.{3}@ with "" to remove "@@@@@" or "@dne@" (i.e. color code which does not exist) just like in chat box,
 		//but I think it's more interesting to leave the misspelled stuff in terminal 
-		
+
 		//could also respect ~xxx~ but not really useful.
-		
+
 		return colorMessage;
 	}
-	
+
 	public static void drawNPC(int x, int y, int width, int height, String name) {
 		// ILOAD 6 is index
 		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB));
@@ -662,7 +707,7 @@ public class Client {
 	public static float getActualFatigue() {
 		return (float) (fatigue * 100.0 / 750);
 	}
-	
+
 	public static Double trimNumber(double num, int figures) {
 		return Math.round(num*Math.pow(10,figures))/Math.pow(10,figures);
 	}
@@ -828,13 +873,13 @@ public class Client {
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
 	private static float xpdrop_state[] = new float[18];
-	
+
 	public static boolean showXpPerHour[] = new boolean[18];
 	public static double XpPerHour[] = new double[18];
 
 	// Client version
 	public static int version;
-	
+
 	// [[skill1, skill2, skill3, ...], [totalXpGainInSample, mostRecentXpDropTime, initialTimeInSample, sampleSize]]
 	// sampleSize + 1 is the actual sample size
 	public static double lastXpGain[][] = new double[18][4];
