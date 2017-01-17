@@ -206,7 +206,13 @@ public class Renderer {
 				List<Rectangle> item_hitbox = new ArrayList<Rectangle>();
 				List<Point> item_text_loc = new ArrayList<Point>();
 
-				Collections.sort(Client.item_list, new ItemComparator()); //keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly changing places each frame
+				if (Settings.SHOW_ITEMINFO) { //don't sort if we aren't displaying any item names anyway
+					try {
+						Collections.sort(Client.item_list, new ItemComparator()); //keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly changing places each frame
+					} catch (Exception e) { //Sometimes Java helpfully complains that the sorting method violates its general contract.
+						e.printStackTrace();
+					}
+				}
 
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next();
