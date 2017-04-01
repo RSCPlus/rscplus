@@ -149,7 +149,7 @@ public class JConfig
 		// This isn't a proper fix for rscplus, and needs to be fixed for real.
 		try
 		{
-			return new URL("https://dl.dropboxusercontent.com/u/61045381/rscplus/rsc_234.jar");
+			return new URL("https://github.com/OrN/rscplus/raw/master/assets/rsc.jar");
 		} catch(Exception e) { return null; }
 
 
