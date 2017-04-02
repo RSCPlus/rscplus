@@ -46,6 +46,7 @@ Most keybinds are configurable via the Settings GUI
 - Ctrl + r - Toggle roof hiding
 - Ctrl + c - Toggle combat experience menu
 - Ctrl + f - Toggle fatigue alert at 100%
+- Ctrl + v - Toggle inventory full alert
 - Ctrl + e - Toggle inventory count overlay
 - Ctrl + u - Toggle Hits/Prayer/Fatigue display
 - Ctrl + g - Toggle Friend info
@@ -218,6 +219,10 @@ Most keybinds are configurable via the Settings GUI
   <dt>hide_roofs</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether rooftops are hidden</dd>
+  
+  <dt>inventory_full_alert</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets whether a large notice is displayed when the inventory is full</dd>
   
   <dt>logout_notifications</dt>
   <dd>Range: <i>true or false</i><br>

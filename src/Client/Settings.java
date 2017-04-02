@@ -91,6 +91,7 @@ public class Settings
 			SHOW_FATIGUEDROPS = getBoolean(props, "show_fatiguedrops", SHOW_FATIGUEDROPS);
 			FATIGUE_FIGURES = getInt(props, "fatigue_figures", FATIGUE_FIGURES);
 			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", FATIGUE_ALERT);
+			INVENTORY_FULL_ALERT = getBoolean(props, "inventory_full_alert", INVENTORY_FULL_ALERT);
 			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
 			COLORIZE = getBoolean(props, "colorize", COLORIZE);
@@ -234,6 +235,7 @@ public class Settings
 			props.setProperty("show_fatiguedrops", "" + SHOW_FATIGUEDROPS);
 			props.setProperty("fatigue_figures", "" + FATIGUE_FIGURES);
 			props.setProperty("fatigue_alert", "" + FATIGUE_ALERT);
+			props.setProperty("inventory_full_alert", "" + INVENTORY_FULL_ALERT);
 			props.setProperty("name_patch_type", "" + NAME_PATCH_TYPE);
 			props.setProperty("hide_roofs", "" + HIDE_ROOFS);
 			props.setProperty("colorize", "" + COLORIZE);
@@ -480,6 +482,16 @@ public class Settings
 		Save();
 	}
 
+	public static void toggleInventoryFullAlert()
+	{
+		INVENTORY_FULL_ALERT = !INVENTORY_FULL_ALERT;
+		if(INVENTORY_FULL_ALERT)
+			Client.displayMessage("@cya@Inventory full alert is now on", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Inventory full alert is now off", Client.CHAT_NONE);
+		Save();
+	}
+	
 	public static void toggleTwitchHide()
 	{
 		TWITCH_HIDE = !TWITCH_HIDE;
@@ -653,6 +665,9 @@ public class Settings
 		case "toggle_fatigue_alert":
 			Settings.toggleFatigueAlert();
 			break;
+		case "toggle_inventory_full_alert":
+			Settings.toggleInventoryFullAlert();
+			break;
 		case "toggle_fatigue_drops":
 			Settings.toggleFatigueDrops();
 			break;
@@ -745,6 +760,7 @@ public class Settings
 	public static boolean SHOW_FATIGUEDROPS = true;
 	public static int FATIGUE_FIGURES = 2;
 	public static boolean FATIGUE_ALERT = true;
+	public static boolean INVENTORY_FULL_ALERT = false;
 	public static int NAME_PATCH_TYPE = 3;
 	public static boolean HIDE_ROOFS = true;
     public static boolean COLORIZE = true; //TODO: Vague, consider refactoring for clarity
@@ -806,6 +822,7 @@ public class Settings
 		SHOW_FATIGUEDROPS = true;
 		FATIGUE_FIGURES = 2;
 		FATIGUE_ALERT = true;
+		INVENTORY_FULL_ALERT = false;
 		NAME_PATCH_TYPE = 3;
 		HIDE_ROOFS = true;
 		COLORIZE = true;

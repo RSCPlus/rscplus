@@ -460,6 +460,11 @@ public class Renderer {
 				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
+			if (Settings.INVENTORY_FULL_ALERT && Client.inventory_count >= 30 && !Client.isInterfaceOpen()) {
+				setAlpha(g2, alpha_time);
+				drawShadowText(g2, "INVENTORY FULL", width / 2, height / 2, color_low, true);
+				setAlpha(g2, 1.0f);
+			}
 		} else if (Client.state == Client.STATE_LOGIN) {
 			if (Settings.DEBUG)
 				drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);

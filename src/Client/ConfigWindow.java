@@ -124,6 +124,7 @@ public class ConfigWindow {
 	private JCheckBox generalPanelFatigueDropsCheckbox;
 	private JSpinner generalPanelFatigueFigSpinner;
 	private JCheckBox generalPanelFatigueAlertCheckbox;
+	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
 	private JCheckBox generalPanelRoofHidingCheckbox;
 	private JCheckBox generalPanelColoredTextCheckbox;
@@ -226,7 +227,7 @@ public class ConfigWindow {
 	private void runInit() {
 		frame = new JFrame();
 		frame.setTitle("Settings");
-		frame.setBounds(100, 100, 444, 630);
+		frame.setBounds(100, 100, 444, 650);
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		URL iconURL = Settings.getResource("/assets/icon.png");
@@ -454,6 +455,9 @@ public class ConfigWindow {
 			
 		generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
 		generalPanelFatigueAlertCheckbox.setToolTipText("Displays a large notice when fatigue approaches 100%");
+		
+		generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
+		generalPanelInventoryFullAlertCheckbox.setToolTipText("Displays a large notice when the inventory is full");
 		
 		JPanel generalPanelNamePatchModePanel = new JPanel();
 		generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -793,6 +797,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle XP drops", "toggle_xp_drops", KeyModifier.CTRL, KeyEvent.VK_OPEN_BRACKET);
 		addKeybindSet(keybindPanel, "Toggle fatigue drops", "toggle_fatigue_drops", KeyModifier.CTRL, KeyEvent.VK_CLOSE_BRACKET);
 		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
+		addKeybindSet(keybindPanel, "Toggle inventory full alert", "toggle_inventory_full_alert", KeyModifier.CTRL, KeyEvent.VK_V);
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
 		
@@ -1047,6 +1052,7 @@ public class ConfigWindow {
 		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS);
 		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES));
 		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT);
+		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT);
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
@@ -1128,6 +1134,7 @@ public class ConfigWindow {
 		Settings.SHOW_FATIGUEDROPS = generalPanelFatigueDropsCheckbox.isSelected();
 		Settings.FATIGUE_FIGURES = ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue();
 		Settings.FATIGUE_ALERT = generalPanelFatigueAlertCheckbox.isSelected();
+		Settings.INVENTORY_FULL_ALERT = generalPanelInventoryFullAlertCheckbox.isSelected();
 		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
 		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
 		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
