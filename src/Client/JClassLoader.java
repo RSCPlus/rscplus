@@ -37,111 +37,39 @@ import javax.xml.bind.DatatypeConverter;
 
 public class JClassLoader extends ClassLoader
 {
-	public boolean fetch(URL jarURL)
+	public boolean fetch(String jarURL)
 	{
 		Logger.Info("Fetching Jar: " + jarURL);
 
 		try
 		{
-			JarInputStream in = new JarInputStream(jarURL.openConnection().getInputStream());
-			int totalNeeded = 0;
-			int totalLoaded = 0;
-
-			// Grab class info
-			Map<String, String> filesNeeded = new HashMap<String, String>();
-			Manifest manifest = in.getManifest();
-			for(Map.Entry<String, Attributes> entry : manifest.getEntries().entrySet())
-			{
-				String name = entry.getKey();
-				String hash = entry.getValue().getValue("SHA1-Digest");
-
-				// Decode Base64
-				byte[] hashDecoded = DatatypeConverter.parseBase64Binary(hash);
-				hash = Util.byteHexString(hashDecoded);
-				String fname = Settings.Dir.CACHE + "/" + hash;
-
-				File cacheFile = new File(fname);
-				if(cacheFile.exists())
-				{
-					FileInputStream fIn = new FileInputStream(cacheFile);
-
-					MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-
-					ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-					byte data[] = new byte[1024];
-					int readSize;
-					while((readSize = fIn.read(data, 0, data.length)) > 0)
-					{
-						sha1.update(data, 0, readSize);
-						bOut.write(data, 0, readSize);
-					}
-					fIn.close();
-
-					byte classData[] = bOut.toByteArray();
-					bOut.close();
-
-					String newHash = Util.byteHexString(sha1.digest());
-					if(newHash.equals(hash))
-					{
-						if(name.endsWith(".class"))
-						{
-							Logger.Info("Found cached file: " + name);
-							Launcher.getInstance().setStatus("Loading " + name + "...");
-							name = name.substring(0, name.indexOf(".class"));
-							classData = patchClass(classData);
-							m_classData.put(name, classData);
-						}
-						totalLoaded += 1;
-					}
-					else
-					{
-						filesNeeded.put(name, fname);
-					}
-				}
-				else
-				{
-					filesNeeded.put(name, fname);
-				}
-
-				totalNeeded += 1;
-				Launcher.getInstance().setProgress(totalLoaded, totalNeeded);
-			}
+			JarInputStream in = new JarInputStream(Settings.getResourceAsStream(jarURL));
+			Launcher.getInstance().setProgress(1, 1);
 
 			JarEntry entry;
-			while(filesNeeded.size() > 0 && (entry = in.getNextJarEntry()) != null)
+			while((entry = in.getNextJarEntry()) != null)
 			{
 				// Check if file is needed
 				String name = entry.getName();
-				String fname = filesNeeded.get(name);
-				if(fname == null)
-					continue;
 
+				// Read class to byte array
 				ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 				byte data[] = new byte[1024];
 				int readSize;
 				while((readSize = in.read(data, 0, data.length)) != -1)
 					bOut.write(data, 0, readSize);
-
 				byte classData[] = bOut.toByteArray();
 				bOut.close();
 
-				FileOutputStream fOut = new FileOutputStream(fname);
-				fOut.write(classData, 0, classData.length);
-				fOut.close();
-
-				Logger.Info("Retrieved file: " + name);
-				Launcher.getInstance().setStatus("Downloading " + name + "...");
+				Logger.Info("Loading file: " + name);
+				Launcher.getInstance().setStatus("Loading " + name + "...");
 
 				if(name.endsWith(".class"))
 				{
-					filesNeeded.remove(name);
 					name = name.substring(0, name.indexOf(".class"));
 					classData = patchClass(classData);
 					m_classData.put(name, classData);
 				}
-
-				totalLoaded += 1;
-				Launcher.getInstance().setProgress(totalLoaded, totalNeeded);
 			}
 
 			in.close();

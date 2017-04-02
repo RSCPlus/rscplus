@@ -91,7 +91,7 @@ public class Launcher extends JFrame implements Runnable
 		}
 
 		m_classLoader = new JClassLoader();
-		if(!m_classLoader.fetch(config.getJarURL()))
+		if(!m_classLoader.fetch("/assets/rsc.jar"))
 		{
 			error("Unable to fetch Jar");
 		}
