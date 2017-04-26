@@ -757,6 +757,7 @@ public class Settings
 	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
 	public static boolean SHOW_XPDROPS = true;
+	public static boolean CENTER_XPDROPS = false;
 	public static boolean SHOW_FATIGUEDROPS = true;
 	public static int FATIGUE_FIGURES = 2;
 	public static boolean FATIGUE_ALERT = true;

@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.text.NumberFormat;
 
+import Client.Settings;
+
 public class XPBar
 {
 	public XPBar()
@@ -64,7 +66,12 @@ public class XPBar
 
 		// Draw bar
 
-		xp_bar_x = Renderer.width - 210 - bounds.width; //position to the left of the Settings wrench
+		// Check and set the appropriate display position
+		if (Settings.CENTER_XPDROPS)
+			xp_bar_x = (Renderer.width - bounds.width) / 2 ; // position in the center
+		else
+			xp_bar_x = Renderer.width - 210 - bounds.width; //position to the left of the Settings wrench
+
 		int percent = xp * (bounds.width - 2) / xp_needed;
 		
 		int x = xp_bar_x;
