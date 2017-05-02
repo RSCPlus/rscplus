@@ -14,9 +14,9 @@
 
 *I will not accept any game automation features (macroing, etc.)*
 
-## IRC
+## Discord
 
-Join #rscplus on Freenode ([Web Chat](http://webchat.freenode.net/?channels=%23rscplus))
+Join our Discord server ([Invite link](https://discord.gg/92gG87h))
 
 ## Features
 - Game resolution changing (about 80% complete)
