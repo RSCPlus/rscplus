@@ -21,56 +21,45 @@
 
 package Client;
 
-import Game.Client;
-
-public class Logger
-{
-	public enum Type
-	{
-		DEBUG(0),
-		INFO(1),
-		ERROR(2);
-
-		Type(int id)
-		{
+/**
+ * A simple logger
+ */
+public class Logger {
+	
+	private static final String[] m_logTypeName = { "DEBUG", " INFO", "ERROR" };
+	
+	public enum Type {
+		DEBUG(0), INFO(1), ERROR(2);
+		
+		Type(int id) {
 			this.id = id;
 		}
-
+		
 		public int id;
-	};
-
-	public static void Log(Type type, String message)
-	{
-		if(!Settings.DEBUG && type == Type.DEBUG)
+	}
+	
+	public static void Log(Type type, String message) {
+		if (!Settings.DEBUG && type == Type.DEBUG)
 			return;
-
+		
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;
-
-		if(type != Type.ERROR)
+		
+		if (type != Type.ERROR)
 			System.out.println(msg);
 		else
 			System.err.println(msg);
 	}
-
-	public static void Debug(String message)
-	{
+	
+	public static void Debug(String message) {
 		Log(Type.DEBUG, message);
 	}
-
-	public static void Info(String message)
-	{
+	
+	public static void Info(String message) {
 		Log(Type.INFO, message);
 	}
-
-	public static void Error(String message)
-	{
+	
+	public static void Error(String message) {
 		Log(Type.ERROR, message);
 	}
-
-	private static final String m_logTypeName[] =
-	{
-		"DEBUG",
-		" INFO",
-		"ERROR"
-	};
+	
 }

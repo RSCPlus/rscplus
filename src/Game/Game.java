@@ -31,218 +31,226 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-
 import Client.JConfig;
 import Client.Launcher;
 import Client.NotificationsHandler;
 import Client.Settings;
 import Client.TrayHandler;
 
-public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener
-{
-	public void setApplet(Applet applet)
-	{
+/**
+ * Singleton class that handles packaging the client into a JFrame and starting the applet.
+ */
+public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener {
+	
+	// Singleton
+	private static Game instance = null;
+	
+	private JConfig m_config = new JConfig();
+	private Applet m_applet = null;
+	
+	private Game() {
+		// Empty private constructor to prevent extra instances from being created.
+	}
+	
+	public void setApplet(Applet applet) {
 		m_applet = applet;
 		m_applet.setStub(this);
 	}
-
-	public Applet getApplet()
-	{
+	
+	public Applet getApplet() {
 		return m_applet;
 	}
-
-	public void start()
-	{
-		if(m_applet == null)
+	
+	/**
+	 * Builds the main game client window and adds the applet to it.
+	 */
+	public void start() {
+		if (m_applet == null)
 			return;
-
+		
 		// Set window icon
 		URL iconURL = Settings.getResource("/assets/icon.png");
-		if(iconURL != null)
-		{
+		if (iconURL != null) {
 			ImageIcon icon = new ImageIcon(iconURL);
 			setIconImage(icon.getImage());
 		}
-
+		
 		// Set window properties
 		setResizable(true);
 		addWindowListener(this);
-
+		
 		// Add applet to window
 		setContentPane(m_applet);
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
 		pack();
-
+		
 		// Hide cursor if software cursor
 		Settings.checkSoftwareCursor();
-
+		
 		// Position window and make it visible
 		setLocationRelativeTo(null);
 		setVisible(true);
-
+		
 		setMinimumSize(new Dimension(1, 1));
 		addComponentListener(this);
-
+		
 		Reflection.Load();
 		Renderer.init();
 		
-		if(Settings.CUSTOM_CLIENT_SIZE) {
+		if (Settings.CUSTOM_CLIENT_SIZE) {
 			Game.getInstance().resizeFrameWithContents();
 		}
 	}
-
-	public JConfig getJConfig()
-	{
+	
+	public JConfig getJConfig() {
 		return m_config;
 	}
-
-	public void launchGame()
-	{
+	
+	/**
+	 * Starts the game applet.
+	 */
+	public void launchGame() {
 		m_config.changeWorld(Settings.WORLD);
 		m_applet.init();
 		m_applet.start();
 	}
-
+	
 	@Override
-	public void setTitle(String title)
-	{
+	public void setTitle(String title) {
 		String t = "rscplus";
-
-		if(title != null)
+		
+		if (title != null)
 			t = t + " (" + title + ")";
-
+		
 		super.setTitle(t);
 	}
-
+	
+	/*
+	 * AppletStub methods
+	 */
+	
 	@Override
-	public final URL getCodeBase()
-	{
+	public final URL getCodeBase() {
 		return m_config.getURL("codebase");
 	}
-
-
+	
 	@Override
-	public final URL getDocumentBase()
-	{
+	public final URL getDocumentBase() {
 		return getCodeBase();
 	}
-
+	
 	@Override
-	public final String getParameter(String key)
-	{
+	public final String getParameter(String key) {
 		return m_config.parameters.get(key);
 	}
-
+	
 	@Override
-	public final AppletContext getAppletContext()
-	{
+	public final AppletContext getAppletContext() {
 		return null;
 	}
-
+	
 	@Override
-	public final void appletResize(int width, int height)
-	{
+	public final void appletResize(int width, int height) {
 	}
-
+	
+	/*
+	 * WindowListener methods
+	 */
+	
 	@Override
-	public final void windowClosed(WindowEvent e)
-	{
-		if(m_applet == null)
+	public final void windowClosed(WindowEvent e) {
+		if (m_applet == null)
 			return;
-
+		
 		m_applet.stop();
 		m_applet.destroy();
-		
 	}
-
+	
 	@Override
-	public final void windowClosing(WindowEvent e)
-	{
+	public final void windowClosing(WindowEvent e) {
 		dispose();
 		Launcher.getConfigWindow().disposeJFrame();
 		TrayHandler.removeTrayIcon();
 		NotificationsHandler.closeNotificationSoundClip();
 		NotificationsHandler.disposeNotificationHandler();
 	}
-
+	
 	@Override
-	public final void windowOpened(WindowEvent e)
-	{
+	public final void windowOpened(WindowEvent e) {
 	}
-
+	
 	@Override
-	public final void windowDeactivated(WindowEvent e)
-	{
+	public final void windowDeactivated(WindowEvent e) {
 	}
-
+	
 	@Override
-	public final void windowActivated(WindowEvent e)
-	{
+	public final void windowActivated(WindowEvent e) {
 	}
-
+	
 	@Override
-	public final void windowDeiconified(WindowEvent e)
-	{
+	public final void windowDeiconified(WindowEvent e) {
 	}
-
+	
 	@Override
-	public final void windowIconified(WindowEvent e)
-	{
+	public final void windowIconified(WindowEvent e) {
 	}
-
+	
+	/*
+	 * ComponentListener methods
+	 */
+	
 	@Override
-	public final void componentHidden(ComponentEvent e)
-	{
+	public final void componentHidden(ComponentEvent e) {
 	}
-
+	
 	@Override
-	public final void componentMoved(ComponentEvent e)
-	{
+	public final void componentMoved(ComponentEvent e) {
 	}
-
+	
 	@Override
-	public final void componentResized(ComponentEvent e)
-	{
-		if(m_applet == null)
+	public final void componentResized(ComponentEvent e) {
+		if (m_applet == null)
 			return;
-
+		
 		// Handle minimum size and launch game
 		// TODO: This is probably a bad spot and should be moved
-		if(getMinimumSize().width == 1)
-		{
+		if (getMinimumSize().width == 1) {
 			setMinimumSize(getSize());
 			launchGame();
 		}
-
+		
 		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
 	}
-
+	
 	@Override
-	public final void componentShown(ComponentEvent e)
-	{
-	}
-
-	public static Game getInstance()
-	{
-		return (instance == null)?(instance = new Game()):instance;
+	public final void componentShown(ComponentEvent e) {
 	}
 	
 	/**
-	 * Resizes the Game window to match the X and Y values stored in Settings. The applet's size will be recalculated on the next rendering tick.
+	 * Gets the game client instance. It makes one if one doesn't exist.
+	 * 
+	 * @return The game client instance
+	 */
+	public static Game getInstance() {
+		if (instance == null) {
+			synchronized (Game.class) {
+				instance = new Game();
+			}
+		}
+		return instance;
+	}
+	
+	/**
+	 * Resizes the Game window to match the X and Y values stored in Settings. The applet's size will be recalculated on
+	 * the next rendering tick.
 	 */
 	public void resizeFrameWithContents() {
 		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X + getInsets().left + getInsets().right;
 		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y + getInsets().top + getInsets().bottom;
 		setSize(windowWidth, windowHeight);
 	}
-
-	private JConfig m_config = new JConfig();
-	private Applet m_applet = null;
-
-	// Singleton
-	private static Game instance = null;
+	
 }

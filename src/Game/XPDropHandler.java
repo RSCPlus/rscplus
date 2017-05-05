@@ -27,66 +27,59 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class XPDropHandler
-{
-	public void add(String text, Color color)
-	{
+/**
+ * Handles the rendering and behavior of XP drops
+ */
+public class XPDropHandler {
+	
+	private long m_timer;
+	private List<XPDrop> m_list = new ArrayList<>();
+	
+	public void add(String text, Color color) {
 		XPDrop xpdrop = new XPDrop(text, color);
 		m_list.add(xpdrop);
 	}
-
-	public void draw(Graphics2D g)
-	{
-		for (Iterator<XPDrop> iterator = m_list.iterator(); iterator.hasNext();)
-		{
+	
+	public void draw(Graphics2D g) {
+		for (Iterator<XPDrop> iterator = m_list.iterator(); iterator.hasNext();) {
 			XPDrop xpdrop = iterator.next();
 			xpdrop.process(g);
-			if(xpdrop.y < 0 || xpdrop.y > Renderer.height)
+			if (xpdrop.y < 0 || xpdrop.y > Renderer.height)
 				iterator.remove();
 		}
 	}
-
-	class XPDrop
-	{
-		XPDrop(String text, Color color)
-		{
+	
+	class XPDrop {
+		
+		XPDrop(String text, Color color) {
 			this.text = text;
 			this.color = color;
 			y = (float)Renderer.height / 4.0f;
 			active = false;
 		}
-
-		public void process(Graphics2D g)
-		{
-			if(!active)
-			{
-				if(Renderer.time > m_timer && y > XPBar.xp_bar_y + 5)
-				{
+		
+		public void process(Graphics2D g) {
+			if (!active) {
+				if (Renderer.time > m_timer && y > XPBar.xp_bar_y + 5) {
 					m_timer = Renderer.time + 400;
 					active = true;
-				}
-				else
-				{
+				} else {
 					return;
 				}
 			}
-
+			
 			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, this.color, true);
 			y -= (float)Renderer.height / 12.0f * Renderer.delta_time;
 			
-			if (y <= XPBar.xp_bar_y + 5)
-			{
+			if (y <= XPBar.xp_bar_y + 5) {
 				active = false;
 			}
-			
 		}
-
+		
 		private String text;
 		private Color color;
 		private boolean active;
 		public float y;
 	}
-
-	private long m_timer;
-	private List<XPDrop> m_list = new ArrayList<XPDrop>();
+	
 }

@@ -4,6 +4,7 @@
 	<property name="dist.dir" value="dist" />
 	<property name="bin.dir" value="bin/rscplus" />
 	<property name="assets.dir" value="assets" />
+	<property name="doc.dir" value="doc" />
 
 	<property name="jar.main-class" value="Client.Launcher" />
 	<property name="jar.name" value="${ant.project.name}.jar" />
@@ -21,7 +22,7 @@
 		</fileset>
 	</path>
 
-	<pathconvert property="jar.classpath" pathsep=" ">
+	<pathconvert property="jar.classpath" pathsep=";">
 		<path refid="build.classpath"/>
 			<mapper>
 				<chainedmapper>
@@ -41,6 +42,7 @@
 		<echo message="Replaced version number in Settings.java with ${calculatedVersion}" />
 		<echo message="Run ant dist now to compile." />
 	</target>
+	
 	<target name="compile">
 		<mkdir dir="${build.dir}" />
 		<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false">
@@ -74,4 +76,9 @@
 		<delete dir="bin" />
 		<delete dir="${dist.dir}" />
 	</target>
+	
+	<target name="doc" description="Generate JavaDocs">
+		<javadoc access="public" classpath="${jar.classpath}" sourcepath="${src.dir}" destdir="${doc.dir}" source="1.7" use="true" />
+	</target>
+	
 </project>

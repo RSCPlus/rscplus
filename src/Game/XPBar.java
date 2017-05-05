@@ -24,54 +24,77 @@ package Game;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.text.NumberFormat;
-
 import Client.Settings;
 
-public class XPBar
-{
-	public XPBar()
-	{
+/**
+ * Handles rendering the XP bar and hover information
+ */
+public class XPBar {
+	
+	public static Dimension bounds = new Dimension(110, 16);
+	public static int xp_bar_x;
+	// Don't need to set this more than once; we are always positioning the xp_bar to be vertically center aligned with
+	// the Settings wrench.
+	public static final int xp_bar_y = 20 - (bounds.height / 2);
+	
+	public static final int TIMER_LENGTH = 5000;
+	public static final long TIMER_FADEOUT = 2000;
+	
+	public int current_skill;
+	
+	/**
+	 * Keeps track of whether the XP bar from the last XP drop is still showing.
+	 */
+	private boolean last_timer_finished = false;
+	private long m_timer;
+	
+	public XPBar() {
 		current_skill = -1;
 	}
-
-	void setSkill(int skill)
-	{
+	
+	void setSkill(int skill) {
 		current_skill = skill;
 		last_timer_finished = m_timer - Renderer.time <= 0;
-		m_timer = Renderer.time + timer_length;
+		m_timer = Renderer.time + TIMER_LENGTH;
 	}
-
-	void draw(Graphics2D g)
-	{
-		if(Renderer.time > m_timer)
+	
+	/**
+	 * Handles rendering the XP bar and hover information
+	 * 
+	 * @param g the Graphics2D object
+	 */
+	void draw(Graphics2D g) {
+		if (Renderer.time > m_timer) {
 			current_skill = -1;
+			return;
+		}
 		
-		if(current_skill == -1)
+		if (current_skill == -1)
 			return;
 		
 		long delta = m_timer - Renderer.time;
-
+		
 		float alpha = 1.0f;
-		if(delta >= timer_length - 250 && last_timer_finished)
-			alpha = (float)(timer_length - delta) / 250.0f; //fade in over 1/4th second
-		else if(delta < timer_fadeout) //less than timer_fadeout milliseconds left to display the xpbar
-			alpha = (float)delta / timer_fadeout;
-
+		if (delta >= TIMER_LENGTH - 250 && last_timer_finished) // Don't fade in if XP bar is already displayed
+			alpha = (float)(TIMER_LENGTH - delta) / 250.0f; // Fade in over 1/4th second
+		else if (delta < TIMER_FADEOUT) // Less than TIMER_FADEOUT milliseconds left to display the XP bar
+			alpha = (float)delta / TIMER_FADEOUT;
+		
 		int skill_current_xp = (int)Client.getXPforLevel(Client.getBaseLevel(current_skill));
 		int skill_next_xp = (int)Client.getXPforLevel(Client.getBaseLevel(current_skill) + 1);
-		int xp_until_level = (int)Client.getXPUntilLevel(current_skill);
-
+		int xp_until_level = (int)Client.getXPUntilLevel(current_skill); // TODO: Use this variable or remove it
+		
 		int xp = (int)Client.getXP(current_skill) - skill_current_xp;
 		int xp_needed = skill_next_xp - skill_current_xp;
-
+		
 		// Draw bar
-
+		
 		// Check and set the appropriate display position
 		if (Settings.CENTER_XPDROPS)
-			xp_bar_x = (Renderer.width - bounds.width) / 2 ; // position in the center
+			xp_bar_x = (Renderer.width - bounds.width) / 2; // Position in the center
 		else
-			xp_bar_x = Renderer.width - 210 - bounds.width; //position to the left of the Settings wrench
-
+			xp_bar_x = Renderer.width - 210 - bounds.width; // Position to the left of the Settings wrench
+			
 		int percent = xp * (bounds.width - 2) / xp_needed;
 		
 		int x = xp_bar_x;
@@ -79,59 +102,61 @@ public class XPBar
 		Renderer.setAlpha(g, alpha);
 		g.setColor(Renderer.color_gray);
 		g.fillRect(x - 1, y - 1, bounds.width + 2, bounds.height + 2);
-
+		
 		g.setColor(Renderer.color_shadow);
 		g.fillRect(x, y, bounds.width, bounds.height);
-
+		
 		g.setColor(Renderer.color_hp);
 		g.fillRect(x + 1, y + 1, percent, bounds.height - 2);
-
+		
 		Renderer.drawShadowText(g, Client.skill_name[current_skill] + " (" + Client.base_level[current_skill] + ")", x + (bounds.width / 2), y + (bounds.height / 2) - 2,
-					Renderer.color_text, true);
-
-		// Draw info box 
-		if(MouseHandler.x >= x && MouseHandler.x <= x + bounds.width &&
-		   MouseHandler.y > y && MouseHandler.y < y + bounds.height)
-		{
+				Renderer.color_text, true);
+		
+		// Draw info box
+		if (MouseHandler.x >= x && MouseHandler.x <= x + bounds.width && MouseHandler.y > y && MouseHandler.y < y + bounds.height) {
 			x = MouseHandler.x;
 			y = MouseHandler.y + 16;
 			g.setColor(Renderer.color_gray);
 			Renderer.setAlpha(g, 0.5f);
-			if(Client.showXpPerHour[current_skill])
+			if (Client.getShowXpPerHour()[current_skill])
 				g.fillRect(x - 100, y, 200, 60);
 			else
 				g.fillRect(x - 100, y, 200, 36);
 			Renderer.setAlpha(g, 1.0f);
-
+			
 			y += 8;
-			Renderer.drawShadowText(g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true); y += 12;
-			Renderer.drawShadowText(g, "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)), x, y, Renderer.color_text, true); y += 12;
-			if(Client.showXpPerHour[current_skill]) {
-				Renderer.drawShadowText(g, "XP/Hr: " + formatXP(Client.XpPerHour[current_skill]), x, y, Renderer.color_text, true); y += 12;
-				Renderer.drawShadowText(g, "Actions until Level: " + formatXP( Client.getXPUntilLevel(current_skill) / (Client.lastXpGain[current_skill][0]/(Client.lastXpGain[current_skill][3] + 1)) ), x, y, Renderer.color_text, true); y += 12;
+			Renderer.drawShadowText(g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+			y += 12;
+			Renderer.drawShadowText(g, "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)), x, y, Renderer.color_text, true);
+			y += 12;
+			if (Client.getShowXpPerHour()[current_skill]) {
+				Renderer.drawShadowText(g, "XP/Hr: " + formatXP(Client.getXpPerHour()[current_skill]), x, y, Renderer.color_text, true);
+				y += 12;
+				Renderer.drawShadowText(g,
+						"Actions until Level: "
+								+ formatXP(Client.getXPUntilLevel(current_skill) / (Client.getLastXpGain()[current_skill][0] / (Client.getLastXpGain()[current_skill][3] + 1))),
+						x, y, Renderer.color_text, true);
+				y += 12;
 			}
 			
-			if(delta < timer_fadeout + 100) { //don't allow xpbar to disappear while user is still interacting with it.
-				m_timer += timer_fadeout + 1500;
+			// Don't allow XP bar to disappear while user is still interacting with it.
+			if (delta < TIMER_FADEOUT + 100) {
+				m_timer += TIMER_FADEOUT + 1500;
 				last_timer_finished = false;
 			}
 		}
-
+		
 		Renderer.setAlpha(g, 1.0f);
 	}
 	
+	/**
+	 * Rounds up a double to to the nearest integer and adds commas, periods, etc. according to the local of the user
+	 * 
+	 * @param number the number to round
+	 * @return a formatted version of the double as a String
+	 */
 	public static String formatXP(double number) {
 		return NumberFormat.getIntegerInstance().format(Math.ceil(number));
 	}
 	
-	public static Dimension bounds = new Dimension(110, 16);
-	public static int xp_bar_x;
-	public static int xp_bar_y = 20 - (bounds.height / 2); //don't need to set this more than once; we are always positioning the xp_bar to be vertically center aligned with the Settings wrench.
-
-	public int current_skill;
-	public int timer_length = 5000;
-	public long timer_fadeout = 2000;
-	
-	private boolean last_timer_finished = false; //don't fade in if xp bar is already displayed
-	private long m_timer;
 }
