@@ -677,7 +677,7 @@ public class JClassPatcher {
 						FieldInsnNode field = (FieldInsnNode)insnNode;
 						
 						if (field.owner.equals("client") && field.name.equals("Fg")) {
-							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "Save", "()V", false));
+							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "save", "()V", false));
 							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
 							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Fg", "I"));
 							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
