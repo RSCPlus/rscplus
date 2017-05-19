@@ -1,12 +1,12 @@
 language: java
 sudo: false
 jdk: openjdk7
-script: ant dist
+script: ant test dist
 deploy:
   provider: releases
   api_key:
     secure: aoWr6gAwcRLvIrPx2z7YKHk2LAYOvABbyoM7A0Tzwa/SlqQ9HMOpVi6UHB60QkN9/P1NkOzGHrxK0eFm8y22pUzWnAKpmuVxp6o0m2bfjixYl2c2Wa6mxM/5tFkVAB95Cp6Y4x+TVtiiwE3yfcDa3JomvuRugtLk5TkN1LekA2f4vRf0J7ZpCwUCBLAP3KSth5JS/kbCvNb41N5LAH6wkuIuTCNk5A0JBbvSNJLKguMRWLtaN8uJpihIEOxLeDu7xxhJ7rnyTJazo6823/WcusjUMWccJQTWYAPTwJcumhG9CU2Axh2lkTnFegNtLYS+X56pT9TnbLP2pPH43uxeVkSbVUhOBhh/nTBfzeW99EtYvcS2/fkhimx+43nh8tlEYozLjlSdMuy0Lemdka0OuUIL23xCoRNGmgj6mVSSJXwzu+UlukgKyKTVRG3tpnPNh613YZwm9q3hePtM3ja7DeymSW55N2Oev0mrRhnefPdE5zdQQolDPJlpSnx3N0fc4CX3ERTJhr6iWmuYLGjn/y0zEEpsRtQy/25cDb+hPRUrBeZW1e/KZzIVyWERoPhJHuzujG+w1duxC7kodBWT3IBuXyk3m27hEH0Jke6EBZlyBYJoqZ05SNV1R+4f3IG7kzz0s+oWIrJu4A9sAnfhiJxlYbPf9BSMLxQYxs8GEAI=
-  file: bin/rscplus/rscplus.jar
+  file: dist/rscplus.jar
   skip_cleanup: true
   on:
     tags: true

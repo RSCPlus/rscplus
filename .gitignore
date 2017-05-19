@@ -11,3 +11,8 @@ Thumbs.db
 *~
 # Ignore vim swapfiles
 *.swp
+# Ignore user specific SonarQube files
+sonar-project.properties
+.sonar/
+.scannerwork/
+org.sonarlint.eclipse.core.prefs
