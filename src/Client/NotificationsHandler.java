@@ -56,6 +56,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import Game.Game;
+import Game.Client;
 
 /**
  * Handles system and pseudo-system notifications
@@ -69,6 +70,7 @@ public class NotificationsHandler {
 	static JPanel mainContentPanel;
 	static Thread notifTimeoutThread;
 	static long notifLastShownTime;
+	static boolean hasNotifySend = false;
 
 	public enum NotifType {
 		PM, TRADE, DUEL, LOGOUT, LOWHP, FATIGUE
@@ -221,8 +223,23 @@ public class NotificationsHandler {
 			backgroundImage.setForeground(new Color(0, 0, 0, 0));
 			backgroundImage.setOpaque(false);
 			contentPanel.add(backgroundImage);
+		} else if (Settings.USE_SYSTEM_NOTIFICATIONS && System.getProperty("os.name").contains("Linux")) {
+			//detect if notify-send is installed, if not, warn user that it won't work.
+			try {
+				String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
 
-		} else {
+				if (whereis.length() <= "notify-send:    ".length()) {
+					Logger.Error("!!! Please install notify-send for native notifications to work on Linux !!!");
+					hasNotifySend = false;
+				} else {
+					Logger.Info(whereis);
+					hasNotifySend = true;
+				}
+			} catch (IOException e) {
+				Logger.Error("Error while detecting notify-send binary: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else { //macOS, possibly others (BSD?)
 			// TODO: Consider OS-dependent locations for the notification window
 			// 1
 			notificationFrame.setBounds(width - 446, height - 154, 425, 81);
@@ -358,7 +375,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "normal");
 						didNotify = true;
 					}
 				}
@@ -377,7 +394,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "normal");
 						didNotify = true;
 					}
 				}
@@ -396,7 +413,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "normal");
 						didNotify = true;
 					}
 				}
@@ -415,7 +432,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "critical");
 						didNotify = true;
 					}
 				}
@@ -434,7 +451,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "critical");
 						didNotify = true;
 					}
 				}
@@ -453,7 +470,7 @@ public class NotificationsHandler {
 				if (Settings.TRAY_NOTIFS) {
 					// If always tray notifications or if game isn't focused, display tray notification
 					if (Settings.TRAY_NOTIFS_ALWAYS || (!Game.getInstance().getContentPane().hasFocus())) {
-						displayNotification(title, text);
+						displayNotification(title, text, "critical");
 						didNotify = true;
 					}
 				}
@@ -472,11 +489,23 @@ public class NotificationsHandler {
 	 * @param title The title of the notification
 	 * @param text Text message of the notification
 	 */
-	public static void displayNotification(final String title, String text) {
+	public static void displayNotification(final String title, String text, String urgency) {
 		// Remove color/formatting codes
 		final String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", "");
 
-		if (SwingUtilities.isEventDispatchThread()) {
+		if (Settings.USE_SYSTEM_NOTIFICATIONS && System.getProperty("os.name").contains("Linux")) {
+			if (!hasNotifySend) {
+				Client.displayMessage("@red@You have to install notify-send for native Linux notifications!", Client.CHAT_QUEST);
+				Client.displayMessage("@red@(restart rsc+ if you have installed notify-send)", Client.CHAT_QUEST);
+			} else {
+				try {
+					String output = execCmd(new String[] {"notify-send", "-u", urgency, "-i","assets/notification_background.png", title, sanitizedText});
+				} catch (IOException e) {
+					Logger.Error("Error while running notify-send binary: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		} else if (SwingUtilities.isEventDispatchThread()) {
 			if (Settings.USE_SYSTEM_NOTIFICATIONS && SystemTray.isSupported()) {
 				// TODO: When you click the system notification, it should focus the game client
 				TrayHandler.getTrayIcon().displayMessage(title, sanitizedText, MessageType.NONE);
@@ -563,6 +592,12 @@ public class NotificationsHandler {
 	public static void disposeNotificationHandler() {
 		notificationFrame.dispose();
 		setLastNotifTime(-1);
+	}
+
+
+	public static String execCmd(String[] cmdArray) throws java.io.IOException {
+		java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmdArray).getInputStream()).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
 	}
 }
 
