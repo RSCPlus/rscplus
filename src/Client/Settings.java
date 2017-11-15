@@ -56,7 +56,7 @@ public class Settings {
 	 * there's no need to update it manually.
 	 * </p>
 	 */
-	public static final double VERSION_NUMBER = 20170402.075627; // TODO: Separate the "version" into its own file
+	public static final double VERSION_NUMBER = 20171115.164007;
 	
 	/*
 	 * Settings Variables
