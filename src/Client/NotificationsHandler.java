@@ -223,24 +223,23 @@ public class NotificationsHandler {
 			backgroundImage.setForeground(new Color(0, 0, 0, 0));
 			backgroundImage.setOpaque(false);
 			contentPanel.add(backgroundImage);
-		} else if (Settings.USE_SYSTEM_NOTIFICATIONS && System.getProperty("os.name").contains("Linux")) {
-			//detect if notify-send is installed, if not, warn user that it won't work.
-			try {
-				String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
+		} else { //Linux, macOS, possibly others (BSD?)
 
-				if (whereis.length() <= "notify-send:    ".length()) {
-					Logger.Error("!!! Please install notify-send for native notifications to work on Linux !!!");
+			try {
+				final String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n","").replace("notify-send: ",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
+
+				if (whereis.length() < "/notify-send".length()) {
+					Logger.Error("!!! Please install notify-send for native notifications to work on Linux (or other systems with compatible binary) !!!");
 					hasNotifySend = false;
 				} else {
-					Logger.Info(whereis);
+					Logger.Info("notify-send: "+whereis);
 					hasNotifySend = true;
 				}
 			} catch (IOException e) {
 				Logger.Error("Error while detecting notify-send binary: " + e.getMessage());
 				e.printStackTrace();
 			}
-		} else { //macOS, possibly others (BSD?)
-			// TODO: Consider OS-dependent locations for the notification window
+
 			// 1
 			notificationFrame.setBounds(width - 446, height - 154, 425, 81);
 			notificationFrame.setMaximumSize(new Dimension(425, 81));
@@ -493,13 +492,13 @@ public class NotificationsHandler {
 		// Remove color/formatting codes
 		final String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", "");
 
-		if (Settings.USE_SYSTEM_NOTIFICATIONS && System.getProperty("os.name").contains("Linux")) {
+		if (Settings.USE_SYSTEM_NOTIFICATIONS && !System.getProperty("os.name").contains("Windows")) {
 			if (!hasNotifySend) {
-				Client.displayMessage("@red@You have to install notify-send for native Linux notifications!", Client.CHAT_QUEST);
+				Client.displayMessage("@red@You have to install notify-send for native system notifications!", Client.CHAT_QUEST);
 				Client.displayMessage("@red@(restart rsc+ if you have installed notify-send)", Client.CHAT_QUEST);
 			} else {
 				try {
-					String output = execCmd(new String[] {"notify-send", "-u", urgency, "-i","assets/notification_background.png", title, sanitizedText});
+					String output = execCmd(new String[] {"notify-send", "-u", urgency, "-i", "assets/notification_background.png", title, sanitizedText});
 				} catch (IOException e) {
 					Logger.Error("Error while running notify-send binary: " + e.getMessage());
 					e.printStackTrace();
