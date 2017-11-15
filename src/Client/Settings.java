@@ -40,24 +40,23 @@ import Game.Renderer;
  * Manages storing, loading, and changing settings.
  */
 public class Settings {
-	
+
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	
+	public static final double VERSION_NUMBER = 20171115.164007;
 	/**
-	 * A time stamp corresponding to the current version of this source code. Used as a crude versioning system.
-	 * <p>
+	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
+	 *
 	 * This variable follows ISO 8601 yyyyMMdd.HHmmss format. The version number will actually be read from this source
 	 * file, so please don't change the name of this variable and
-	 * keep the assignment near the top for scanning.<br>
-	 * <br>
+	 * keep the assignment near the top for scanning.
+	 *
 	 * This variable can be set automatically by ant by issuing `ant setversion` before you push your changes, so
 	 * there's no need to update it manually.
-	 * </p>
+	 *
 	 */
-	public static final double VERSION_NUMBER = 20171115.164007;
-	
+
 	/*
 	 * Settings Variables
 	 * 
