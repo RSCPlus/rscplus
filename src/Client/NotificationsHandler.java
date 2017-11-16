@@ -70,7 +70,7 @@ public class NotificationsHandler {
 	static JPanel mainContentPanel;
 	static Thread notifTimeoutThread;
 	static long notifLastShownTime;
-	static boolean hasNotifySend = false;
+	static boolean hasNotifySend = detectNotifySend();
 
 	public enum NotifType {
 		PM, TRADE, DUEL, LOGOUT, LOWHP, FATIGUE
@@ -224,21 +224,6 @@ public class NotificationsHandler {
 			backgroundImage.setOpaque(false);
 			contentPanel.add(backgroundImage);
 		} else { //Linux, macOS, possibly others (BSD?)
-
-			try {
-				final String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n","").replace("notify-send: ",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
-
-				if (whereis.length() < "/notify-send".length()) {
-					Logger.Error("!!! Please install notify-send for native notifications to work on Linux (or other systems with compatible binary) !!!");
-					hasNotifySend = false;
-				} else {
-					Logger.Info("notify-send: "+whereis);
-					hasNotifySend = true;
-				}
-			} catch (IOException e) {
-				Logger.Error("Error while detecting notify-send binary: " + e.getMessage());
-				e.printStackTrace();
-			}
 
 			// 1
 			notificationFrame.setBounds(width - 446, height - 154, 425, 81);
@@ -597,6 +582,23 @@ public class NotificationsHandler {
 	public static String execCmd(String[] cmdArray) throws java.io.IOException {
 		java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmdArray).getInputStream()).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
+	}
+
+	public static boolean detectNotifySend() {
+		try {
+			final String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n","").replace("notify-send: ",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
+			if (whereis.length() < "/notify-send".length()) {
+				Logger.Error("!!! Please install notify-send for native notifications to work on Linux (or other systems with compatible binary) !!!");
+				return false;
+			} else {
+				Logger.Info("notify-send: "+whereis);
+				return true;
+			}
+		} catch (IOException e) {
+			Logger.Error("Error while detecting notify-send binary: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
 

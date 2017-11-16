@@ -41,7 +41,6 @@ import Game.Game;
 public class TrayHandler implements MouseListener {
 	
 	/*
-	 * TODO: Implement custom notifications that work on Windows, OS X, and Linux
 	 * TODO: When the notification is clicked, it should bring up the game client
 	 * TODO: Let the user disable the tray icon without disabling notifications
 	 */

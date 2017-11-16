@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
+import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -912,7 +913,7 @@ public class Settings {
 		LOW_HP_NOTIF_VALUE = 25;
 		FATIGUE_NOTIFICATIONS = true;
 		FATIGUE_NOTIF_VALUE = 98;
-		NOTIFICATION_SOUNDS = false;
+		NOTIFICATION_SOUNDS = !isRecommendedToUseSystemNotifs();
 		USE_SYSTEM_NOTIFICATIONS = isRecommendedToUseSystemNotifs();
 		TRAY_NOTIFS = true;
 		TRAY_NOTIFS_ALWAYS = false;
@@ -955,7 +956,11 @@ public class Settings {
 	 */
 	public static boolean isRecommendedToUseSystemNotifs() {
 		// Users on Windows 8.1 or 10 are recommend to set USE_SYSTEM_NOTIFICATIONS = true
-		return "Windows 10".equals(System.getProperty("os.name")) || "Windows 8.1".equals(System.getProperty("os.name"));
+		if (System.getProperty("os.name").contains("Windows")) {
+			return "Windows 10".equals(System.getProperty("os.name")) || "Windows 8.1".equals(System.getProperty("os.name"));
+		} else { //Linux, macOS, etc.
+			return NotificationsHandler.hasNotifySend;
+		}
 	}
 	
 }
