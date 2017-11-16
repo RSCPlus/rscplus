@@ -585,6 +585,10 @@ public class NotificationsHandler {
 	}
 
 	public static boolean detectNotifySend() {
+		if (System.getProperty("os.name").contains("Windows")) {
+			return false; //don't trust Windows to run the detection code
+		}
+
 		try {
 			final String whereis = execCmd(new String[] {"whereis","-b","notify-send"}).replace("\n","").replace("notify-send: ",""); //whereis is part of the util-linux package, which is included with pretty much all linux systems.
 			if (whereis.length() < "/notify-send".length()) {
