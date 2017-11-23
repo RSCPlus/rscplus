@@ -475,7 +475,7 @@ public class NotificationsHandler {
 	 */
 	public static void displayNotification(final String title, String text, String urgency) {
 		// Remove color/formatting codes
-		final String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", "");
+		final String sanitizedText = text.replaceAll("@...@", "").replaceAll("~...~", "").replaceAll("\\\\","\\\\\\\\");
 
 		if (Settings.USE_SYSTEM_NOTIFICATIONS && !System.getProperty("os.name").contains("Windows")) {
 			if (!hasNotifySend) {
