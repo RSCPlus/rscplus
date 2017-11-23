@@ -697,7 +697,7 @@ public class Client {
 			NotificationsHandler.notify(NotifType.TRADE, "Trade Request", username + " wishes to trade with you");
 		} else if (type == CHAT_OTHER) {
 			if (message.contains(" wishes to duel with you"))
-				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.replaceAll(".*@.{3}@.*",""));
+				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.replaceAll("@...@",""));
 		}
 		
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
