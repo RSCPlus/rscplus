@@ -86,10 +86,8 @@ public class Client {
 	public static final int CHAT_QUEST = 3;
 	public static final int CHAT_CHAT = 4;
 	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
-	// used for when player sends you a trade request. If player sends you a duel request it's type 7 for some reason...
-	public static final int CHAT_PLAYER_INTERACT_IN = 6;
-	// used for when you send a player a duel, trade request, or follow
-	public static final int CHAT_PLAYER_INTERACT_OUT = 7;
+	public static final int CHAT_TRADE_REQUEST_RECEIVED = 6; //only used when another player sends you a trade request. (hopefully!)
+	public static final int CHAT_OTHER = 7;	// used for when you send a player a duel/trade request, follow someone, or drop an item
 	
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
@@ -693,21 +691,13 @@ public class Client {
 			}
 		} else if (type == CHAT_PRIVATE) {
 			NotificationsHandler.notify(NotifType.PM, "PM from " + username, message);
-		}
-		
-		// TODO: For some reason, message = "" for trade notifications, unlike duel requests, which equals the game chat
-		// message.
-		// Something else needs to be detected to see if it's a trade request.
-		/*
-		else if (type == CHAT_PLAYER_INTERACT_IN) {
-			if (message.contains(" wishes to trade with you")) // TODO
-				TrayHandler.makePopupNotification("Trade Request", username + " wishes to trade with you");
-		}
-		*/
-		
-		else if (type == CHAT_PLAYER_INTERACT_OUT) {
+		} else if (type == CHAT_TRADE_REQUEST_RECEIVED) {
+			//as far as I know, this chat type is only used when receiving a trade request.
+			// (message == "") is true for trade notifications... could be used if CHAT_TRADE_REQUEST_RECEIVED is used for anything else
+			NotificationsHandler.notify(NotifType.TRADE, "Trade Request", username + " wishes to trade with you");
+		} else if (type == CHAT_OTHER) {
 			if (message.contains(" wishes to duel with you"))
-				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.split(" ", 2)[0] + " wishes to duel you");
+				NotificationsHandler.notify(NotifType.DUEL, "Duel Request", message.replaceAll(".*@.{3}@.*",""));
 		}
 		
 		if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
@@ -781,7 +771,7 @@ public class Client {
 		case CHAT_CHAT:
 			username = username + ": ";
 			break;
-		case CHAT_PLAYER_INTERACT_IN: // happens when player trades you
+		case CHAT_TRADE_REQUEST_RECEIVED: // happens when player trades you
 			username = username + " wishes to trade with you.";
 			break;
 		/* username will not appear in these chat types, but just to cover it I'm leaving code commented out here
@@ -822,7 +812,7 @@ public class Client {
 			// just bold username for chat
 			colorMessage = "@|yellow,intensity_bold " + colorMessage + "|@";
 			break;
-		case CHAT_PLAYER_INTERACT_IN: // happens when player trades you
+		case CHAT_TRADE_REQUEST_RECEIVED: // happens when player trades you
 			colorMessage = "@|white " + colorMessage + "|@";
 			break;
 		/* username will not appear in these chat types, but just to cover it I'm leaving code commented out here
@@ -848,8 +838,8 @@ public class Client {
 	public static String colorizeMessage(String colorMessage, int type) {
 		boolean whiteMessage = colorMessage.contains("Welcome to RuneScape!"); // want this to be bold
 		boolean blueMessage = (type == CHAT_NONE) && (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
-		// boolean yellowMessage = false;
-		boolean greenMessage = (type == CHAT_NONE) && (colorMessage.contains("You just advanced ") || colorMessage.contains("quest point"));
+		boolean yellowMessage = (type == CHAT_NONE) && (colorMessage.contains("Well Done")); //tourist trap completion
+		boolean greenMessage = (type == CHAT_NONE) && (colorMessage.contains("You just advanced ") || colorMessage.contains("quest point") || colorMessage.contains("***") || colorMessage.contains("ou have completed")); //"***" is for Tourist Trap completion
 		
 		if (blueMessage) { // this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";
@@ -861,6 +851,8 @@ public class Client {
 			// }
 			
 			return "@|white,intensity_bold " + colorMessage + "|@";
+		} else if (yellowMessage) {
+			return "@|yellow,intensity_bold " + colorMessage + "|@";
 		}
 		
 		switch (type) {
@@ -886,8 +878,8 @@ public class Client {
 			colorMessage = "@|cyan,intensity_faint " + colorMessage + "|@";
 			break;
 		case CHAT_NONE: // have to replace b/c @cya@Screenshot saved...
-		case CHAT_PLAYER_INTERACT_IN:
-		case CHAT_PLAYER_INTERACT_OUT:
+		case CHAT_TRADE_REQUEST_RECEIVED:
+		case CHAT_OTHER:
 			colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
 			break;
 		default: // this should never happen, only 8 Chat Types

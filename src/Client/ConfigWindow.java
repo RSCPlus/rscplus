@@ -648,10 +648,8 @@ public class ConfigWindow {
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
 		
-		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications (Not implemented yet)", notificationPanel);
+		notificationPanelTradeNotifsCheckbox = addCheckbox("Enable trade notifications", notificationPanel);
 		notificationPanelTradeNotifsCheckbox.setToolTipText("Shows a system notification when a trade request is received");
-		// TODO: Remove this line after trade notifications are implemented
-		notificationPanelTradeNotifsCheckbox.setEnabled(false);
 		
 		notificationPanelDuelNotifsCheckbox = addCheckbox("Enable duel notifications", notificationPanel);
 		notificationPanelDuelNotifsCheckbox.setToolTipText("Shows a system notification when a duel request is received");
