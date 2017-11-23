@@ -849,7 +849,7 @@ public class Client {
 		boolean whiteMessage = colorMessage.contains("Welcome to RuneScape!"); // want this to be bold
 		boolean blueMessage = colorMessage.contains("You have been standing here for 5 mins! Please move to a new area");
 		// boolean yellowMessage = false;
-		boolean greenMessage = colorMessage.contains("You just advanced ");
+		boolean greenMessage = colorMessage.contains("You just advanced ") || colorMessage.contains("quest points");
 		
 		if (blueMessage) { // this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";
