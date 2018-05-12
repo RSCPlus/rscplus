@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -94,7 +95,12 @@ public class Renderer {
 	private static long fps_timer = 0;
 	private static boolean screenshot = false;
 	
+	public static String[] shellStrings;
+	
 	public static void init() {
+		// patch copyright to match current year
+		shellStrings[23] = shellStrings[23].replaceAll("2015", Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
+		
 		// Resize game window
 		new_size.width = 512;
 		new_size.height = 346;
@@ -484,10 +490,15 @@ public class Renderer {
 				if (Client.player_name != null)
 					drawShadowText(g2, Client.player_name, x, y, color_text, false);
 				y += 16;
+				drawShadowText(g2, "LocalRegion: (" + Client.localRegionX + "," + Client.localRegionY + ")", x, y, color_text, false);
+				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
+				drawShadowText(g2, "WorldCoord: (" + (Client.localRegionX + Client.regionX) + "," + (Client.localRegionY + Client.regionY) + ")", x, y, color_text, false);
 				y += 16;
+				drawShadowText(g2, "Plane: (" + Client.planeWidth + "," + Client.planeHeight + "," + Client.planeIndex + ")", x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
 			}
 			
 			// drawShadowText(g2, "Test: " + Client.test, 100, 100, color_text, false);

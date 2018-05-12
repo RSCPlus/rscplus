@@ -79,6 +79,7 @@ public class JClassPatcher {
 			patchClient(node);
 		else if (node.name.equals("f"))
 			patchRandom(node);
+
 		
 		// Patch applied to all classes
 		patchGeneric(node);
@@ -192,11 +193,21 @@ public class JClassPatcher {
 			
 			// Player name
 			hookClassVariable(methodNode, "client", "wi", "Lta;", "Game/Client", "player_object", "Ljava/lang/Object;", true, false);
+			// coordinates related
 			hookClassVariable(methodNode, "client", "Qg", "I", "Game/Client", "regionX", "I", true, false);
 			hookClassVariable(methodNode, "client", "zg", "I", "Game/Client", "regionY", "I", true, false);
+			hookClassVariable(methodNode, "client", "Lf", "I", "Game/Client", "localRegionX", "I", true, false);
+			hookClassVariable(methodNode, "client", "sh", "I", "Game/Client", "localRegionY", "I", true, false);
+			hookClassVariable(methodNode, "client", "Ki", "I", "Game/Client", "planeWidth", "I", true, false);
+			hookClassVariable(methodNode, "client", "sk", "I", "Game/Client", "planeHeight", "I", true, false);
+			hookClassVariable(methodNode, "client", "bc", "I", "Game/Client", "planeIndex", "I", true, false);
+			hookClassVariable(methodNode, "client", "Ub", "Z", "Game/Client", "loadingArea", "Z", true, false);
 			
 			// Client version
 			hookStaticVariable(methodNode, "fa", "d", "I", "Game/Client", "version", "I");
+			
+			// Shell strings
+			hookStaticVariable(methodNode, "e", "Sb", "[Ljava/lang/String;", "Game/Renderer", "shellStrings", "[Ljava/lang/String;");
 		}
 	}
 	

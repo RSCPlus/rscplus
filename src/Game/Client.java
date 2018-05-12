@@ -142,6 +142,12 @@ public class Client {
 	
 	public static int regionX = -1;
 	public static int regionY = -1;
+	public static int localRegionX = -1;
+	public static int localRegionY = -1;
+	public static int planeWidth = -1;
+	public static int planeHeight = -1;
+	public static int planeIndex = -1;
+	public static boolean loadingArea = false;
 	
 	/**
 	 * An array of Strings that stores text used in the client
@@ -204,6 +210,7 @@ public class Client {
 	}
 	
 	public static void init() {
+		
 		adaptStrings();
 		
 		handler_mouse = new MouseHandler();

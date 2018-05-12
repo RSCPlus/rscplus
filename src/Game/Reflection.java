@@ -81,6 +81,14 @@ public class Reflection {
 			// Region X and Region Y
 			c.getDeclaredField("Qg").setAccessible(true);
 			c.getDeclaredField("zg").setAccessible(true);
+			// Local Region X and Local Region Y
+			c.getDeclaredField("Lf").setAccessible(true);
+			c.getDeclaredField("sh").setAccessible(true);
+			// Plane related info + loadingArea var (though this one changes way too fast)
+			c.getDeclaredField("Ki").setAccessible(true);
+			c.getDeclaredField("sk").setAccessible(true);
+			c.getDeclaredField("bc").setAccessible(true);
+			c.getDeclaredField("Ub").setAccessible(true);
 			// Maximum inventory (30)
 			maxInventory = c.getDeclaredField("cl");
 			if (maxInventory != null)
