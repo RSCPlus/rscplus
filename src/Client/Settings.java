@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
+import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
