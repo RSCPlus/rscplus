@@ -43,6 +43,7 @@ Most keybinds are configurable via the Settings GUI
 - Mouse wheel scroll - Zoom camera
 - Ctrl + o - Open the options/settings window
 - Ctrl + s - Take screenshot (Saved in the screenshots directory)
+- Ctrl + x - Sleep, provided you have a sleeping bag in inventory
 - Ctrl + r - Toggle roof hiding
 - Ctrl + c - Toggle combat experience menu
 - Ctrl + f - Toggle fatigue alert at 100%
@@ -75,6 +76,8 @@ Most keybinds are configurable via the Settings GUI
 *::fatigue* - Shows the fatigue percentage accurately in chat
 
 *::screenshot* - Take screenshot (Saved in the screenshots directory)
+
+*::sleep* - Sleep, provided you have a sleeping bag in inventory
 
 *::toggleroofs* - Toggle roof hiding
 
