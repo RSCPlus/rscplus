@@ -280,6 +280,21 @@ public class JClassPatcher {
 					}
 					findNode = findNode.getNext();
 				}
+				
+				// Throwable crash patch
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKESTATIC && nextNode.getOpcode() == Opcodes.ATHROW) {
+						MethodInsnNode call = (MethodInsnNode)insnNode;
+						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
+					}
+				}
 			}
 		}
 	}
@@ -703,6 +718,21 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
 				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "messageHook", "(Ljava/lang/String;Ljava/lang/String;I)V"));
+			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
+				// Throwable crash patch
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKESTATIC && nextNode.getOpcode() == Opcodes.ATHROW) {
+						MethodInsnNode call = (MethodInsnNode)insnNode;
+						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
+					}
+				}
 			}
 		}
 	}
