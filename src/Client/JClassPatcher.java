@@ -79,7 +79,6 @@ public class JClassPatcher {
 			patchClient(node);
 		else if (node.name.equals("f"))
 			patchRandom(node);
-
 		
 		// Patch applied to all classes
 		patchGeneric(node);
@@ -208,6 +207,9 @@ public class JClassPatcher {
 			
 			// Shell strings
 			hookStaticVariable(methodNode, "e", "Sb", "[Ljava/lang/String;", "Game/Renderer", "shellStrings", "[Ljava/lang/String;");
+			
+			hookClassVariable(methodNode, "client", "Jh", "Lda;", "Game/Client", "clientStream", "Ljava/lang/Object;",
+					true, false);
 		}
 	}
 	

@@ -28,6 +28,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -148,6 +149,10 @@ public class Client {
 	public static int planeHeight = -1;
 	public static int planeIndex = -1;
 	public static boolean loadingArea = false;
+	
+	public static Object clientStream;
+	public static Object writeBuffer;
+	public static Object menuCommon;
 	
 	/**
 	 * An array of Strings that stores text used in the client
@@ -422,6 +427,9 @@ public class Client {
 			case "togglelogindetails":
 				Settings.toggleShowLoginDetails();
 				break;
+			case "sleep":
+				Client.sleep();
+				break;
 			case "screenshot":
 				Renderer.takeScreenshot();
 				break;
@@ -603,6 +611,30 @@ public class Client {
 		try {
 			Reflection.setLoginText.invoke(Client.instance, (byte)-49, line2, line1);
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void sleep() {
+		int sleepingBagIdx = -1;
+		// inventory_items contains ids of items
+		for (int n = 0; n < max_inventory; n++) {
+			// id of sleeping bag
+			if (inventory_items[n] == 1263) {
+				sleepingBagIdx = n;
+				break;
+			}
+		}
+		if (sleepingBagIdx != -1 && !Client.isInterfaceOpen() && !Client.isInCombat()) {
+			// method to sleep here
+			try {
+				if (Client.writeBuffer == null)
+					Client.writeBuffer = Reflection.bufferField.get(Client.clientStream);
+				Reflection.newPacket.invoke(Client.clientStream, 90, 0);
+				Reflection.putShort.invoke(Client.writeBuffer, 393, sleepingBagIdx);
+				Reflection.sendPacket.invoke(Client.clientStream, 21294);
+			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+				// TODO Auto-generated catch block
+			}
 		}
 	}
 	

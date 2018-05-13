@@ -794,6 +794,7 @@ public class ConfigWindow {
 		keybindPanel.setLayout(gbl_panel);
 		
 		addKeybindCategory(keybindPanel, "General");
+		addKeybindSet(keybindPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
 		addKeybindSet(keybindPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
 		addKeybindSet(keybindPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
 		addKeybindSet(keybindPanel, "Show settings window", "show_config_window", KeyModifier.CTRL, KeyEvent.VK_O);

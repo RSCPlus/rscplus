@@ -51,6 +51,11 @@ public class Reflection {
 	public static Method setLoginText = null;
 	public static Method logout = null;
 	
+	public static Method newPacket = null;
+	public static Method putShort = null;
+	public static Method sendPacket = null;
+	public static Field bufferField = null;
+	
 	// Method descriptions
 	private static final String DISPLAYMESSAGE = "private final void client.a(boolean,java.lang.String,int,java.lang.String,int,int,java.lang.String,java.lang.String)";
 	private static final String SETCAMERASIZE = "final void lb.a(int,boolean,int,int,int,int,int)";
@@ -58,9 +63,15 @@ public class Reflection {
 	private static final String SETLOGINTEXT = "private final void client.b(byte,java.lang.String,java.lang.String)";
 	private static final String LOGOUT = "private final void client.B(int)";
 	
+	private static final String NEWPACKET = "final void b.b(int,int)";
+	private static final String PUTSHORT = "final void tb.e(int,int)";
+	private static final String SENDPACKET = "final void b.b(int)";
+	
 	public static void Load() {
 		try {
 			JClassLoader classLoader = Launcher.getInstance().getClassLoader();
+			boolean found = false;
+			boolean found2 = false;
 			
 			// Client
 			Class<?> c = classLoader.loadClass("client");
@@ -93,6 +104,55 @@ public class Reflection {
 			maxInventory = c.getDeclaredField("cl");
 			if (maxInventory != null)
 				maxInventory.setAccessible(true);
+			
+			// Client Stream
+			c = classLoader.loadClass("da");
+			found = false;
+			found2 = false;
+			while (c != null && !found && !found2) {
+				methods = c.getDeclaredMethods();
+				for (Method method : methods) {
+					if (method.toGenericString().equals(NEWPACKET)) {
+						newPacket = method;
+						Logger.Info("Found newPacket");
+						found = true;
+						continue;
+					}
+					if (method.toGenericString().equals(SENDPACKET)) {
+						sendPacket = method;
+						Logger.Info("Found sendPacket");
+						found2 = true;
+						continue;
+					}
+				}
+				c = c.getSuperclass();
+			}
+			
+			// Buffer field of clientStream
+			c = classLoader.loadClass("b");
+			Field[] fields = c.getDeclaredFields();
+			for (Field field : fields) {
+				if (field.getName().equals("f")) {
+					bufferField = field;
+					Logger.Info("Found bufferField");
+				}
+			}
+			
+			// Write buffer
+			c = classLoader.loadClass("ja");
+			found = false;
+			while (c != null && !found) {
+				methods = c.getDeclaredMethods();
+				for (Method method : methods) {
+					if (method.toGenericString().equals(PUTSHORT)) {
+						putShort = method;
+						Logger.Info("Found putShort");
+						found = true;
+						break;
+					}
+				}
+				c = c.getSuperclass();
+			}
 			
 			// Camera
 			c = classLoader.loadClass("lb");
@@ -160,6 +220,15 @@ public class Reflection {
 				setLoginText.setAccessible(true);
 			if (logout != null)
 				logout.setAccessible(true);
+			if (newPacket != null)
+				newPacket.setAccessible(true);
+			if (putShort != null)
+				putShort.setAccessible(true);
+			if (sendPacket != null)
+				sendPacket.setAccessible(true);
+			if (bufferField != null)
+				bufferField.setAccessible(true);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
