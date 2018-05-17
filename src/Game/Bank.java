@@ -186,11 +186,11 @@ public class Bank {
 		bankSearch(sb.toString(), help);
 	}
 	
-	//
 	/**
 	 * Filters out current bank state to match items with given keyword
 	 * 
 	 * @param search The complete clean search query to do the search
+         * @param help display help on command
 	 */
 	public static void bankSearch(String search, boolean help) {
 		if (search.trim().equals("") || help) {
@@ -240,14 +240,10 @@ public class Bank {
 	/**
 	 * Bank search without modifying positions, just lists out banked elements and where they are located
 	 * 
-	 * @param search
-	 * @param bankItems
-	 * @param bankItemsCount
+	 * @param search The complete clean search query to do the search
+	 * @param help display help on command
 	 */
-	public static void query(String search, boolean help) // this is for users who
-																								// want to read the
-																								// readme in game
-	{
+	public static void query(String search, boolean help) {
 		if (search.trim().equals("") || help) {
 			Client.displayMessage("@whi@::querybank is a top-10 based system.", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@Type \"::querybank [aString]\" to search banked items with query string aString", Client.CHAT_QUEST);
