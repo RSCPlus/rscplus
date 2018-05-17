@@ -190,7 +190,7 @@ public class Bank {
 	 * Filters out current bank state to match items with given keyword
 	 * 
 	 * @param search The complete clean search query to do the search
-         * @param help display help on command
+	 * @param help display help on command
 	 */
 	public static void bankSearch(String search, boolean help) {
 		if (search.trim().equals("") || help) {
