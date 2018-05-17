@@ -210,6 +210,16 @@ public class JClassPatcher {
 			
 			hookClassVariable(methodNode, "client", "Jh", "Lda;", "Game/Client", "clientStream", "Ljava/lang/Object;",
 					true, false);
+			
+			hookClassVariable(methodNode, "client", "ci", "[I", "Game/Client", "new_bank_items", "[I", true, true);
+			hookClassVariable(methodNode, "client", "Xe", "[I", "Game/Client", "new_bank_items_count", "[I", true, true);
+			hookClassVariable(methodNode, "client", "ae", "[I", "Game/Client", "bank_items", "[I", true, true);
+			hookClassVariable(methodNode, "client", "di", "[I", "Game/Client", "bank_items_count", "[I", true, true);
+			hookClassVariable(methodNode, "client", "fj", "I", "Game/Client", "new_count_items_bank", "I", true, true);
+			hookClassVariable(methodNode, "client", "vj", "I", "Game/Client", "count_items_bank", "I", true, true);
+			
+			hookClassVariable(methodNode, "client", "sj", "I", "Game/Client", "selectedItem", "I", true, false);
+			hookClassVariable(methodNode, "client", "Rd", "I", "Game/Client", "selectedItemSlot", "I", true, false);
 		}
 	}
 	
@@ -733,6 +743,54 @@ public class JClassPatcher {
 						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
 					}
 				}
+			} else if (methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
+				// Hook updateBankItems
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode prevNode = insnNode.getPrevious();
+					
+					if (prevNode == null)
+						continue;
+					
+					if (insnNode.getOpcode() == Opcodes.ISTORE && prevNode.getOpcode() == Opcodes.GETSTATIC) {
+						VarInsnNode call = (VarInsnNode)insnNode;
+						methodNode.instructions.insert(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Bank", "updateBankItemsHook", "()V"));
+						break;
+					}
+				}
+				// plus hook final bank items
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode prevNode = insnNode.getPrevious();
+					
+					if (prevNode == null)
+						continue;
+					
+					if (insnNode.getOpcode() == Opcodes.ISTORE && prevNode.getOpcode() == Opcodes.IDIV) {
+						VarInsnNode call = (VarInsnNode)insnNode;
+						methodNode.instructions.insert(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Bank", "finalBankItemsHook", "()V"));
+						break;
+					}
+				}
+				
+			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IBI)V")) {
+				// hook first time opened bank interface
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						continue;
+					if (insnNode.getOpcode() == Opcodes.ICONST_1 && nextNode.getOpcode() == Opcodes.PUTFIELD && ((FieldInsnNode)nextNode).name.equals("Fe")) {
+						InsnNode call = (InsnNode)insnNode;
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Bank", "openedBankInterfaceHook", "()V"));
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -845,7 +903,7 @@ public class JClassPatcher {
 						
 						if (insnNode.getOpcode() == Opcodes.ALOAD && nextNode.getOpcode() == Opcodes.ICONST_0) {
 							VarInsnNode call = (VarInsnNode)insnNode;
-							System.out.println("Patching validation...");
+							Logger.Info("Patching validation...");
 							
 							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/Random", "nextBytes", "([B)V"));
 							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 2));

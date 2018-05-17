@@ -79,6 +79,12 @@ Most keybinds are configurable via the Settings GUI
 
 *::sleep* - Sleep, provided you have a sleeping bag in inventory
 
+*::banksearch [aWord]* - Searches current bank state for banked items 
+containing "aWord". Note that withdrawing all of a certain item's type 
+will push it to the end of the bank and thus withdrawing all should not 
+be done if your bank is tidy. To exit the search mode, speak to the 
+banker again.
+
 *::toggleroofs* - Toggle roof hiding
 
 *::togglecolor* - Toggle colored text in terminal

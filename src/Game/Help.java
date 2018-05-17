@@ -99,6 +99,7 @@ public class Help {
 				switch (page) {
 				case 1:
 					Client.displayMessage("@whi@Page 1 of 1", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::banksearch [aWord] - Searches the bank for items containing aWord", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::sleep - Sleep, provided you have a sleeping bag", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::logout - Logout", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::screenshot - Take screenshot (Saved in the screenshots directory)", Client.CHAT_QUEST);

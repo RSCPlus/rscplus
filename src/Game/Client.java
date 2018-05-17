@@ -154,6 +154,21 @@ public class Client {
 	public static Object writeBuffer;
 	public static Object menuCommon;
 	
+	// bank items and their count for each type, new bank items are first to get updated and indicate bank
+	// excluding inventory types and bank items do include them (in regular mode), as bank operations are messy
+	// they get excluded also in searchable bank
+	public static int[] bank_items_count;
+	public static int[] bank_items;
+	public static int[] new_bank_items_count;
+	public static int[] new_bank_items;
+	
+	// these two variables, they indicate distinct bank items count
+	public static int new_count_items_bank;
+	public static int count_items_bank;
+	
+	public static int selectedItem;
+	public static int selectedItemSlot;
+	
 	/**
 	 * An array of Strings that stores text used in the client
 	 */
@@ -426,6 +441,14 @@ public class Client {
 				break;
 			case "togglelogindetails":
 				Settings.toggleShowLoginDetails();
+				break;
+			case "banksearch":
+				// enters searchable bank mode, to return normal mode player has to speak to the banker again
+				if (commandArray.length > 1) {
+					Bank.search(commandArray, false);
+				} else {
+					Bank.search(commandArray, true);
+				}
 				break;
 			case "sleep":
 				Client.sleep();
