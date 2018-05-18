@@ -1187,6 +1187,8 @@ public class ConfigWindow {
 		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY); // TODO: Implement this feature
 		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN); // TODO: Implement this feature
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
+		highlightedItemsTextField.setText(Settings.HIGHLIGHTED_ITEMS);
+		blockedItemsTextField.setText(Settings.BLOCKED_ITEMS);
 		
 		// Notifications tab
 		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS);
