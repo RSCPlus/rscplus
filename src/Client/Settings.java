@@ -28,6 +28,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
 import Client.NotificationsHandler;
@@ -105,8 +107,8 @@ public class Settings {
 	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
 	public static boolean SHOW_TIME_UNTIL_HP_REGEN = false;
 	public static boolean DEBUG = false;
-	public static String HIGHLIGHTED_ITEMS = "";
-	public static String BLOCKED_ITEMS = "";
+	public static ArrayList<String> HIGHLIGHTED_ITEMS = new ArrayList<String>();
+	public static ArrayList<String> BLOCKED_ITEMS = new ArrayList<String>();
 
 	// Notifications options
 	public static boolean TRAY_NOTIFS = true;
@@ -220,8 +222,8 @@ public class Settings {
 			SHOW_FOOD_HEAL_OVERLAY = getBoolean(props, "show_food_heal_overlay", SHOW_FOOD_HEAL_OVERLAY);
 			SHOW_TIME_UNTIL_HP_REGEN = getBoolean(props, "show_time_until_hp_regen", SHOW_TIME_UNTIL_HP_REGEN);
 			DEBUG = getBoolean(props, "debug", DEBUG);
-			HIGHLIGHTED_ITEMS = getString(props, "highlighted_items", HIGHLIGHTED_ITEMS);
-			BLOCKED_ITEMS = getString(props, "blocked_items", BLOCKED_ITEMS);
+			HIGHLIGHTED_ITEMS = getArrayListString(props, "highlighted_items", HIGHLIGHTED_ITEMS);
+			BLOCKED_ITEMS = getArrayListString(props, "blocked_items", BLOCKED_ITEMS);
 
 			// Notifications options
 			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
@@ -373,8 +375,8 @@ public class Settings {
 			props.setProperty("show_food_heal_overlay", Boolean.toString(SHOW_FOOD_HEAL_OVERLAY));
 			props.setProperty("show_time_until_hp_regen", Boolean.toString(SHOW_TIME_UNTIL_HP_REGEN));
 			props.setProperty("debug", Boolean.toString(DEBUG));
-			props.setProperty("highlighted_items", "" + HIGHLIGHTED_ITEMS);
-			props.setProperty("blocked_items", "" + BLOCKED_ITEMS);
+			props.setProperty("highlighted_items", "" + String.join(",", HIGHLIGHTED_ITEMS));
+			props.setProperty("blocked_items", "" + String.join(",", BLOCKED_ITEMS));
 
 			// Notifications
 			props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS));
@@ -736,6 +738,24 @@ public class Settings {
 		
 		return value;
 	}
+
+	/**
+	 * Gets the ArrayList<String> value of a Properties object for the specified key. If no value is defined for that key, it
+	 * returns the specified default value.
+	 *
+	 * @param props the Properties object to read
+	 * @param key the name of the property to lookup
+	 * @param defaultProp the default ArrayList<String> value of the specified property
+	 * @return an ArrayList<String> value corresponding to the specified property
+	 */
+	private static ArrayList<String> getArrayListString (Properties props, String key, ArrayList<String> defaultProp) {
+		String valueString = props.getProperty(key);
+		if (valueString == null) {
+			return defaultProp;
+		}
+
+		return new ArrayList<>(Arrays.asList(valueString.split(",")));
+	}
 	
 	/**
 	 * Gets the Integer value of a Properties object for the specified key. If no value is defined for that key, it
@@ -941,8 +961,8 @@ public class Settings {
 		SHOW_FOOD_HEAL_OVERLAY = false;
 		SHOW_TIME_UNTIL_HP_REGEN = false;
 		DEBUG = false;
-		HIGHLIGHTED_ITEMS = "";
-		BLOCKED_ITEMS = "";
+		HIGHLIGHTED_ITEMS = new ArrayList<String>();
+		BLOCKED_ITEMS = new ArrayList<String>();
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}
 	

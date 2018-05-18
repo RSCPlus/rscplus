@@ -38,6 +38,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -1187,8 +1189,8 @@ public class ConfigWindow {
 		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY); // TODO: Implement this feature
 		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN); // TODO: Implement this feature
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
-		highlightedItemsTextField.setText(Settings.HIGHLIGHTED_ITEMS);
-		blockedItemsTextField.setText(Settings.BLOCKED_ITEMS);
+		highlightedItemsTextField.setText(String.join(",", Settings.HIGHLIGHTED_ITEMS));
+		blockedItemsTextField.setText(String.join(",", Settings.BLOCKED_ITEMS));
 		
 		// Notifications tab
 		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS);
@@ -1256,8 +1258,8 @@ public class ConfigWindow {
 		Settings.SHOW_FOOD_HEAL_OVERLAY = overlayPanelFoodHealingCheckbox.isSelected();
 		Settings.SHOW_TIME_UNTIL_HP_REGEN = overlayPanelHPRegenTimerCheckbox.isSelected();
 		Settings.DEBUG = overlayPanelDebugModeCheckbox.isSelected();
-		Settings.BLOCKED_ITEMS = blockedItemsTextField.getText();
-		Settings.HIGHLIGHTED_ITEMS = highlightedItemsTextField.getText();
+		Settings.HIGHLIGHTED_ITEMS = new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(",")));
+		Settings.BLOCKED_ITEMS = new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(",")));
 
 		// Notifications options
 		Settings.PM_NOTIFICATIONS = notificationPanelPMNotifsCheckbox.isSelected();

@@ -631,13 +631,14 @@ public class Renderer {
 		g.setComposite(AlphaComposite.SrcOver.derive(alpha));
 	}
 
-	public static boolean stringIsWithinList (String input, String stringList) {
-		if (stringList.length() <= 0) {
+	public static boolean stringIsWithinList (String input, ArrayList<String> items) {
+		if (items.size() <= 0) {
 			return false;
 		}
-		String[] items = stringList.split(",");
-		for (String item : items) {
-			if (input.trim().toLowerCase().contains(item.trim().toLowerCase())) {
+		Iterator it = items.iterator();
+		while (it.hasNext()) {
+			String item = String.valueOf(it.next());
+			if (item.trim().length() > 0 && input.trim().toLowerCase().contains(item.trim().toLowerCase())) {
 				return true;
 			}
 		}
