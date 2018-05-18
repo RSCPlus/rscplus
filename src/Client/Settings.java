@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
 import Client.NotificationsHandler;
+import Client.Util;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -375,8 +376,8 @@ public class Settings {
 			props.setProperty("show_food_heal_overlay", Boolean.toString(SHOW_FOOD_HEAL_OVERLAY));
 			props.setProperty("show_time_until_hp_regen", Boolean.toString(SHOW_TIME_UNTIL_HP_REGEN));
 			props.setProperty("debug", Boolean.toString(DEBUG));
-			props.setProperty("highlighted_items", "" + String.join(",", HIGHLIGHTED_ITEMS));
-			props.setProperty("blocked_items", "" + String.join(",", BLOCKED_ITEMS));
+			props.setProperty("highlighted_items", "" + Util.joinAsString(",", HIGHLIGHTED_ITEMS));
+			props.setProperty("blocked_items", "" + Util.joinAsString(",", BLOCKED_ITEMS));
 
 			// Notifications
 			props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS));

@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 /**
  * A miscellaneous utility class
@@ -170,6 +171,25 @@ public class Util {
 		}
 		
 		return worldPopArray;
+	}
+
+	/**
+	 * Polyfill for Java 8 `String.join`
+	 *
+	 * Convert an arraylist of strings to a single string, where each element
+	 * is separated by some deliminator.
+	 *
+	 * @param delim The string to use when combining elements
+	 * @param list The list to combine
+	 * @return The string of the arraylist
+	 */
+	public static String joinAsString (String delim, ArrayList<String> list) {
+		StringBuilder sb = new StringBuilder();
+		for (String s : list) {
+			sb.append(s);
+			sb.append(delim);
+		}
+		return sb.toString();
 	}
 	
 }
