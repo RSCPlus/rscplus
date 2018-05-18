@@ -78,10 +78,13 @@ public class Renderer {
 	public static Color color_fatigue = new Color(210, 210, 0);
 	public static Color color_prayer = new Color(160, 160, 210);
 	public static Color color_low = new Color(255, 0, 0);
+	public static Color color_item = new Color(245, 245, 245);
+	public static Color color_item_highlighted = new Color(245, 196, 70);
 	
 	public static Image image_border;
 	public static Image image_bar_frame;
 	public static Image image_cursor;
+	public static Image image_highlighted_item;
 	private static BufferedImage game_image;
 	
 	private static Dimension new_size = new Dimension(0, 0);
@@ -126,6 +129,7 @@ public class Renderer {
 			image_border = ImageIO.read(Settings.getResource("/assets/border.png"));
 			image_bar_frame = ImageIO.read(Settings.getResource("/assets/bar.png"));
 			image_cursor = ImageIO.read(Settings.getResource("/assets/cursor.png"));
+			image_highlighted_item = ImageIO.read(Settings.getResource("/assets/highlighted_item.png"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -289,12 +293,15 @@ public class Renderer {
 						int x = item.x + (item.width / 2);
 						int y = item.y - 20;
 						int freq = Collections.frequency(Client.item_list, item);
+
+						// Check if item is in blocked list
+						boolean itemIsBlocked = stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS);
 						
 						// We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's
 						// the first time we've tried to for this itemid at that location by just using last_item.
 						// last_item == null necessary in case only one item on screen is being rendered. slight speed
 						// increase from freq == 1 if compiler can stop early in conditional.
-						if (freq == 1 || !item.equals(last_item) || last_item == null) {
+						if ((freq == 1 || !item.equals(last_item) || last_item == null) && !itemIsBlocked) {
 							for (Iterator<Point> locIterator = item_text_loc.iterator(); locIterator.hasNext();) {
 								Point loc = locIterator.next(); // TODO: Remove unnecessary allocations
 								if (loc.x == x && loc.y == y) {
@@ -302,10 +309,20 @@ public class Renderer {
 								}
 							}
 							item_text_loc.add(new Point(x, y));
+
+							Color itemColor = color_item;
+							String itemText = item.getName() + ((freq == 1) ? "" : " (" + freq + ")");
+
+							// Check if item is in highlighted list
+							if (stringIsWithinList(item.getName(), Settings.HIGHLIGHTED_ITEMS)) {
+								itemColor = color_item_highlighted;
+								drawHighlighImage(g2, itemText, x, y);
+							}
+
 							// TODO: it would be nice if for items like Coins or Runes, we showed how many of the item
 							// were on the ground instead of how many times you have to click to pick them all up.
 							// Currently will just show "Coins (2)" if there are two stacks of coins on the ground.
-							drawShadowText(g2, item.getName() + ((freq == 1) ? "" : " (" + freq + ")"), x, y, color_prayer, true);
+							drawShadowText(g2, itemText, x, y, itemColor, true);
 						}
 						last_item = item; // Done with item this loop, can save it as last_item
 					}
@@ -613,7 +630,30 @@ public class Renderer {
 	public static void setAlpha(Graphics2D g, float alpha) {
 		g.setComposite(AlphaComposite.SrcOver.derive(alpha));
 	}
-	
+
+	public static boolean stringIsWithinList (String input, String stringList) {
+		if (stringList.length() <= 0) {
+			return false;
+		}
+		String[] items = stringList.split(",");
+		for (String item : items) {
+			if (input.trim().toLowerCase().contains(item.trim().toLowerCase())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void drawHighlighImage(Graphics2D g, String text, int x, int y) {
+		int correctedX = x;
+		int correctedY = y;
+		// Adjust for centering
+		Dimension bounds = getStringBounds(g, text);
+		correctedX -= (bounds.width / 2);
+		correctedY += (bounds.height / 2);
+		g.drawImage(image_highlighted_item, correctedX - 15, correctedY - 10, null);
+	}
+
 	public static void drawShadowText(Graphics2D g, String text, int x, int y, Color textColor, boolean center) {
 		int textX = x;
 		int textY = y;

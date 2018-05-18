@@ -152,6 +152,8 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelFoodHealingCheckbox;
 	private JCheckBox overlayPanelHPRegenTimerCheckbox;
 	private JCheckBox overlayPanelDebugModeCheckbox;
+	private JTextField blockedItemsTextField;
+	private JTextField highlightedItemsTextField;
 	
 	// Notifications tab
 	private JCheckBox notificationPanelPMNotifsCheckbox;
@@ -570,14 +572,14 @@ public class ConfigWindow {
 		
 		generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
 		generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
-		
+
 		JPanel searchBankPanel = new JPanel();
 		generalPanel.add(searchBankPanel);
 		searchBankPanel.setLayout(new BoxLayout(searchBankPanel, BoxLayout.X_AXIS));
 		searchBankPanel.setPreferredSize(new Dimension(0, 37));
 		searchBankPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
-		
+
 		JLabel searchBankPanelLabel = new JLabel("Search term used on bank: ");
 		searchBankPanelLabel.setToolTipText("The search term that will be used on bank start");
 		searchBankPanel.add(searchBankPanelLabel);
@@ -628,6 +630,42 @@ public class ConfigWindow {
 		
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
 		overlayPanelDebugModeCheckbox.setToolTipText("Shows debug overlays and enables debug text in the console");
+
+		// Blocked Items
+		JPanel blockedItemsPanel = new JPanel();
+		overlayPanel.add(blockedItemsPanel);
+		blockedItemsPanel.setLayout(new BoxLayout(blockedItemsPanel, BoxLayout.X_AXIS));
+		blockedItemsPanel.setPreferredSize(new Dimension(0,37));
+		blockedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		blockedItemsPanel.setBorder(new EmptyBorder(0,0,9,0));
+
+		JLabel blockedItemsPanelNameLabel = new JLabel("Blocked items: ");
+		blockedItemsPanel.add(blockedItemsPanelNameLabel);
+		blockedItemsPanelNameLabel.setAlignmentY((float) 0.9);
+
+		blockedItemsTextField = new JTextField();
+		blockedItemsPanel.add(blockedItemsTextField);
+		blockedItemsTextField.setMinimumSize(new Dimension(100,28));
+		blockedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,28));
+		blockedItemsTextField.setAlignmentY((float) 0.75);
+
+		// Highlighted Items
+		JPanel highlightedItemsPanel = new JPanel();
+		overlayPanel.add(highlightedItemsPanel);
+		highlightedItemsPanel.setLayout(new BoxLayout(highlightedItemsPanel, BoxLayout.X_AXIS));
+		highlightedItemsPanel.setPreferredSize(new Dimension(0,37));
+		highlightedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		highlightedItemsPanel.setBorder(new EmptyBorder(0,0,9,0));
+
+		JLabel highlightedItemsPanelNameLabel = new JLabel("Highlighted items: ");
+		highlightedItemsPanel.add(highlightedItemsPanelNameLabel);
+		highlightedItemsPanelNameLabel.setAlignmentY((float) 0.9);
+
+		highlightedItemsTextField = new JTextField();
+		highlightedItemsPanel.add(highlightedItemsTextField);
+		highlightedItemsTextField.setMinimumSize(new Dimension(100,28));
+		highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE,28));
+		highlightedItemsTextField.setAlignmentY((float) 0.75);
 		
 		/*
 		 * Notifications tab
@@ -1216,7 +1254,9 @@ public class ConfigWindow {
 		Settings.SHOW_FOOD_HEAL_OVERLAY = overlayPanelFoodHealingCheckbox.isSelected();
 		Settings.SHOW_TIME_UNTIL_HP_REGEN = overlayPanelHPRegenTimerCheckbox.isSelected();
 		Settings.DEBUG = overlayPanelDebugModeCheckbox.isSelected();
-		
+		Settings.BLOCKED_ITEMS = blockedItemsTextField.getText();
+		Settings.HIGHLIGHTED_ITEMS = highlightedItemsTextField.getText();
+
 		// Notifications options
 		Settings.PM_NOTIFICATIONS = notificationPanelPMNotifsCheckbox.isSelected();
 		Settings.TRADE_NOTIFICATIONS = notificationPanelTradeNotifsCheckbox.isSelected();

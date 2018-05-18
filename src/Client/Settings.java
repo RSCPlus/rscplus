@@ -105,7 +105,9 @@ public class Settings {
 	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
 	public static boolean SHOW_TIME_UNTIL_HP_REGEN = false;
 	public static boolean DEBUG = false;
-	
+	public static String HIGHLIGHTED_ITEMS = "";
+	public static String BLOCKED_ITEMS = "";
+
 	// Notifications options
 	public static boolean TRAY_NOTIFS = true;
 	public static boolean TRAY_NOTIFS_ALWAYS = false; // If false, only when client is not focused. Based on radio
@@ -218,7 +220,9 @@ public class Settings {
 			SHOW_FOOD_HEAL_OVERLAY = getBoolean(props, "show_food_heal_overlay", SHOW_FOOD_HEAL_OVERLAY);
 			SHOW_TIME_UNTIL_HP_REGEN = getBoolean(props, "show_time_until_hp_regen", SHOW_TIME_UNTIL_HP_REGEN);
 			DEBUG = getBoolean(props, "debug", DEBUG);
-			
+			HIGHLIGHTED_ITEMS = getString(props, "highlighted_items", HIGHLIGHTED_ITEMS);
+			BLOCKED_ITEMS = getString(props, "blocked_items", BLOCKED_ITEMS);
+
 			// Notifications options
 			TRAY_NOTIFS = getBoolean(props, "tray_notifs", TRAY_NOTIFS);
 			TRAY_NOTIFS_ALWAYS = getBoolean(props, "tray_notifs_always", TRAY_NOTIFS_ALWAYS);
@@ -369,7 +373,9 @@ public class Settings {
 			props.setProperty("show_food_heal_overlay", Boolean.toString(SHOW_FOOD_HEAL_OVERLAY));
 			props.setProperty("show_time_until_hp_regen", Boolean.toString(SHOW_TIME_UNTIL_HP_REGEN));
 			props.setProperty("debug", Boolean.toString(DEBUG));
-			
+			props.setProperty("highlighted_items", "" + HIGHLIGHTED_ITEMS);
+			props.setProperty("blocked_items", "" + BLOCKED_ITEMS);
+
 			// Notifications
 			props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS));
 			props.setProperty("tray_notifs_always", Boolean.toString(TRAY_NOTIFS_ALWAYS));
@@ -935,6 +941,8 @@ public class Settings {
 		SHOW_FOOD_HEAL_OVERLAY = false;
 		SHOW_TIME_UNTIL_HP_REGEN = false;
 		DEBUG = false;
+		HIGHLIGHTED_ITEMS = "";
+		BLOCKED_ITEMS = "";
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}
 	
