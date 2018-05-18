@@ -132,6 +132,10 @@ public class Settings {
 													// details are shown at login welcome screen
 	public static boolean SAVE_LOGININFO = true;
 	
+	// Settings for searchable bank
+	public static boolean START_SEARCHEDBANK = false;
+	public static String SEARCH_BANK_WORD = "";
+	
 	// Miscellaneous settings (No GUI)
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static int WORLD = 2;
@@ -200,6 +204,8 @@ public class Settings {
 			FOV = getInt(props, "fov", FOV);
 			SOFTWARE_CURSOR = getBoolean(props, "software_cursor", SOFTWARE_CURSOR);
 			VIEW_DISTANCE = getInt(props, "view_distance", VIEW_DISTANCE);
+			START_SEARCHEDBANK = getBoolean(props, "start_searched_bank", START_SEARCHEDBANK);
+			SEARCH_BANK_WORD = getString(props, "search_bank_word", SEARCH_BANK_WORD);
 			
 			// Overlays options
 			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
@@ -349,6 +355,8 @@ public class Settings {
 			props.setProperty("fov", Integer.toString(FOV));
 			props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR));
 			props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE));
+			props.setProperty("start_searched_bank", Boolean.toString(START_SEARCHEDBANK));
+			props.setProperty("search_bank_word", "" + SEARCH_BANK_WORD);
 			
 			// Overlays
 			props.setProperty("show_statusdisplay", Boolean.toString(SHOW_STATUSDISPLAY));
@@ -567,6 +575,26 @@ public class Settings {
 			Client.displayMessage("@cya@Login details will appear next time", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@Login details will not appear next time", Client.CHAT_NONE);
+		save();
+	}
+	
+	public static void toggleStartSearchedBank(String searchWord, boolean replaceSavedWord) {
+		// Settings.SEARCH_BANK_WORD should be trimmed
+		if (Settings.SEARCH_BANK_WORD.trim().equals("") && searchWord.trim().equals("")) {
+			if (Settings.START_SEARCHEDBANK) {
+				START_SEARCHEDBANK = !START_SEARCHEDBANK;
+			}
+		} else {
+			START_SEARCHEDBANK = !START_SEARCHEDBANK;
+			// check if search word should be updated
+			if (replaceSavedWord && !searchWord.trim().equals("") && !searchWord.trim().toLowerCase().equals(Settings.SEARCH_BANK_WORD)) {
+				Settings.SEARCH_BANK_WORD = searchWord.trim().toLowerCase();
+			}
+			if (Settings.START_SEARCHEDBANK)
+				Client.displayMessage("@cya@Your bank will start searched with keyword '" + Settings.SEARCH_BANK_WORD + "' next time", Client.CHAT_NONE);
+			else
+				Client.displayMessage("@cya@Your bank will start as normal next time", Client.CHAT_NONE);
+		}
 		save();
 	}
 	
@@ -836,6 +864,9 @@ public class Settings {
 		case "toggle_xp_drops":
 			Settings.toggleXpDrops();
 			break;
+		case "toggle_start_searched_bank":
+			Settings.toggleStartSearchedBank("", false);
+			break;
 		case "show_config_window":
 			Launcher.getConfigWindow().showConfigWindow();
 			break;
@@ -885,6 +916,8 @@ public class Settings {
 		FOV = 9;
 		SOFTWARE_CURSOR = false;
 		VIEW_DISTANCE = 10000;
+		START_SEARCHEDBANK = false;
+		SEARCH_BANK_WORD = "";
 		Launcher.getConfigWindow().synchronizeGuiValues();
 	}
 	

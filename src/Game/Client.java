@@ -442,6 +442,22 @@ public class Client {
 			case "togglelogindetails":
 				Settings.toggleShowLoginDetails();
 				break;
+			case "togglestartsearchedbank":
+				if (commandArray.length > 1) {
+					StringBuilder sb = new StringBuilder();
+					for (int i = 1; i < commandArray.length; i++) {
+						if (commandArray[i].trim().equals(""))
+							continue;
+						sb.append(commandArray[i].trim().toLowerCase());
+						if (i < commandArray.length - 1)
+							sb.append(" ");
+					}
+					Settings.toggleStartSearchedBank(sb.toString(), true);
+				} else {
+					Settings.toggleStartSearchedBank("", false);
+				}
+				
+				break;
 			case "banksearch":
 				// enters searchable bank mode, to return normal mode player has to speak to the banker again
 				if (commandArray.length > 1) {

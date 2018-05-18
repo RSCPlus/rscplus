@@ -21,6 +21,8 @@
 
 package Game;
 
+import Client.Settings;
+
 public class Bank {
 	
 	/**
@@ -64,6 +66,40 @@ public class Bank {
 		if (Client.new_bank_items[254] == 1) {
 			// first time bank interface, unset the flag
 			Client.new_bank_items[254] = 0;
+			if (Settings.START_SEARCHEDBANK && !Settings.SEARCH_BANK_WORD.equals("")) {
+				int[] tmpBankItems = Client.bank_items.clone();
+				int[] tmpBankItemsCount = Client.bank_items_count.clone();
+				int[] tmpNewBankItems = Client.new_bank_items.clone();
+				int[] tmpNewBankItemsCount = Client.new_bank_items_count.clone();
+				// clear everything to avoid error
+				for (int i = 0; i < Client.bank_items.length; i++) {
+					Client.bank_items[i] = 0;
+					Client.bank_items_count[i] = 0;
+					Client.new_bank_items[i] = 0;
+					Client.new_bank_items_count[i] = 0;
+					Client.count_items_bank = 0;
+					Client.new_count_items_bank = 0;
+				}
+				int n = 0;
+				// place only those items matching the criteria
+				for (int i = 0; i < tmpNewBankItems.length; i++) {
+					if (tmpNewBankItemsCount[i] == 0)
+						break;
+					if (Item.item_name[tmpNewBankItems[i]].toLowerCase().contains(Settings.SEARCH_BANK_WORD.toLowerCase())) {
+						Client.bank_items[n] = tmpBankItems[i];
+						Client.bank_items_count[n] = tmpBankItemsCount[i];
+						Client.new_bank_items[n] = tmpNewBankItems[i];
+						Client.new_bank_items_count[n] = tmpNewBankItemsCount[i];
+						n++;
+					}
+				}
+				
+				Client.count_items_bank = n;
+				Client.new_count_items_bank = n;
+				// in searchable bank, setting this flag also to indicate to remove inventory only items
+				Client.new_bank_items[253] = 1;
+				Client.new_bank_items[255] = 1;
+			}
 		} else {
 			if (Client.new_bank_items[255] == 1) {
 				// this flag needs to be unset itself because it can cause noise when detecting changed item
@@ -173,13 +209,14 @@ public class Bank {
 	 * (validated before)
 	 * 
 	 * @param cmdArray the command array used on Client.processClientCommand
+	 * @param help display help on command
 	 */
 	public static void search(String[] cmdArray, boolean help) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 1; i < cmdArray.length; i++) {
 			if (cmdArray[i].trim().equals(""))
 				continue;
-			sb.append(cmdArray[i].trim());
+			sb.append(cmdArray[i].trim().toLowerCase());
 			if (i < cmdArray.length - 1)
 				sb.append(" ");
 		}
@@ -197,12 +234,16 @@ public class Bank {
 			Client.displayMessage("@whi@::banksearch is a searchable bank mode", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@Type \"::banksearch [aString]\" to search banked items with query string aString", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@Bank is updated to show only matched items.", Client.CHAT_QUEST);
+			Client.displayMessage("@whi@The command stores the query string used", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@To exit the mode, speak to the banker again.", Client.CHAT_QUEST);
 		} else {
 			// not in bank, display notice
 			if (!Client.show_bank) {
 				Client.displayMessage("@whi@::banksearch is only available when bank interface is open", Client.CHAT_QUEST);
 			} else {
+				// overwrite query string on local config
+				Settings.SEARCH_BANK_WORD = search;
+				Settings.save();
 				int[] tmpBankItems = Client.bank_items.clone();
 				int[] tmpBankItemsCount = Client.bank_items_count.clone();
 				int[] tmpNewBankItems = Client.new_bank_items.clone();
@@ -221,7 +262,7 @@ public class Bank {
 				for (int i = 0; i < tmpNewBankItems.length; i++) {
 					if (tmpBankItemsCount[i] == 0)
 						break;
-					if (Item.item_name[tmpBankItems[i]].toLowerCase().contains(search)) {
+					if (Item.item_name[tmpBankItems[i]].toLowerCase().contains(search.toLowerCase())) {
 						Client.bank_items[n] = tmpBankItems[i];
 						Client.bank_items_count[n] = tmpBankItemsCount[i];
 						Client.new_bank_items[n] = tmpNewBankItems[i];
@@ -247,23 +288,32 @@ public class Bank {
 		if (search.trim().equals("") || help) {
 			Client.displayMessage("@whi@::querybank is a top-10 based system.", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@Type \"::querybank [aString]\" to search banked items with query string aString", Client.CHAT_QUEST);
+			Client.displayMessage("@whi@The command stores the query string used", Client.CHAT_QUEST);
 			Client.displayMessage("@whi@You can go back in 'Quest history' to read pages that have disappeared.", Client.CHAT_QUEST);
 		} else {
-			int page, row, col, tmp;
-			Client.displayMessage("@whi@" + "Queried bank with '" + search + "'", Client.CHAT_QUEST);
-			for (int i = 0; i < Client.bank_items.length; i++) {
-				if (Client.bank_items_count[i] == 0)
-					break;
-				if (Item.item_name[Client.bank_items[i]].toLowerCase().contains(search)) {
-					page = i / 48;
-					tmp = i - 48 * page;
-					page++;
-					row = (tmp / 8) + 1;
-					col = (tmp % 8) + 1;
-					Client.displayMessage(
-							"@whi@" + " " + Item.item_name[Client.bank_items[i]] + " (" + pluralize(Client.bank_items_count[i]) + ")" + " at Page " + page + ", Row " + row
-									+ ", Column " + col,
-							Client.CHAT_QUEST);
+			// not in bank, display notice
+			if (!Client.show_bank) {
+				Client.displayMessage("@whi@::querybank is only available when bank interface is open", Client.CHAT_QUEST);
+			} else {
+				// overwrite query string on local config
+				Settings.SEARCH_BANK_WORD = search;
+				Settings.save();
+				int page, row, col, tmp;
+				Client.displayMessage("@whi@" + "Queried bank with '" + search + "'", Client.CHAT_QUEST);
+				for (int i = 0; i < Client.bank_items.length; i++) {
+					if (Client.bank_items_count[i] == 0)
+						break;
+					if (Item.item_name[Client.bank_items[i]].toLowerCase().contains(search.toLowerCase())) {
+						page = i / 48;
+						tmp = i - 48 * page;
+						page++;
+						row = (tmp / 8) + 1;
+						col = (tmp % 8) + 1;
+						Client.displayMessage(
+								"@whi@" + " " + Item.item_name[Client.bank_items[i]] + " (" + pluralize(Client.bank_items_count[i]) + ")" + " at Page " + page + ", Row " + row
+										+ ", Column " + col,
+								Client.CHAT_QUEST);
+					}
 				}
 			}
 		}

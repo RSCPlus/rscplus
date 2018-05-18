@@ -138,6 +138,8 @@ public class ConfigWindow {
 	private JSlider generalPanelFoVSlider;
 	private JCheckBox generalPanelCustomCursorCheckbox;
 	private JSlider generalPanelViewDistanceSlider;
+	private JCheckBox generalPanelStartSearchedBankCheckbox;
+	private JTextField generalPanelSearchBankWordTextfield;
 	
 	// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -566,6 +568,27 @@ public class ConfigWindow {
 		generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
 		generalPanelViewDistanceSlider.setPaintLabels(true);
 		
+		generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
+		generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
+		
+		JPanel searchBankPanel = new JPanel();
+		generalPanel.add(searchBankPanel);
+		searchBankPanel.setLayout(new BoxLayout(searchBankPanel, BoxLayout.X_AXIS));
+		searchBankPanel.setPreferredSize(new Dimension(0, 37));
+		searchBankPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+		
+		JLabel searchBankPanelLabel = new JLabel("Search term used on bank: ");
+		searchBankPanelLabel.setToolTipText("The search term that will be used on bank start");
+		searchBankPanel.add(searchBankPanelLabel);
+		searchBankPanelLabel.setAlignmentY((float)0.9);
+		
+		generalPanelSearchBankWordTextfield = new JTextField();
+		searchBankPanel.add(generalPanelSearchBankWordTextfield);
+		generalPanelSearchBankWordTextfield.setMinimumSize(new Dimension(100, 28));
+		generalPanelSearchBankWordTextfield.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+		generalPanelSearchBankWordTextfield.setAlignmentY((float)0.75);
+		
 		/*
 		 * Overlays tab
 		 */
@@ -805,6 +828,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle inventory full alert", "toggle_inventory_full_alert", KeyModifier.CTRL, KeyEvent.VK_V);
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
+		addKeybindSet(keybindPanel, "Toggle start with searched bank", "toggle_start_searched_bank", KeyModifier.CTRL, KeyEvent.VK_Q);
 		
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
@@ -1092,6 +1116,8 @@ public class ConfigWindow {
 		generalPanelFoVSlider.setValue(Settings.FOV);
 		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR);
 		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE);
+		generalPanelStartSearchedBankCheckbox.setSelected(Settings.START_SEARCHEDBANK);
+		generalPanelSearchBankWordTextfield.setText(Settings.SEARCH_BANK_WORD);
 		
 		// Sets the text associated with the name patch slider.
 		switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -1176,6 +1202,8 @@ public class ConfigWindow {
 		Settings.FOV = generalPanelFoVSlider.getValue();
 		Settings.SOFTWARE_CURSOR = generalPanelCustomCursorCheckbox.isSelected();
 		Settings.VIEW_DISTANCE = generalPanelViewDistanceSlider.getValue();
+		Settings.START_SEARCHEDBANK = generalPanelStartSearchedBankCheckbox.isSelected();
+		Settings.SEARCH_BANK_WORD = generalPanelSearchBankWordTextfield.getText().trim().toLowerCase();
 		
 		// Overlays options
 		Settings.SHOW_STATUSDISPLAY = overlayPanelStatusDisplayCheckbox.isSelected();

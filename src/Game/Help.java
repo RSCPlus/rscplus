@@ -68,6 +68,8 @@ public class Help {
 				case 3:
 					Client.displayMessage("@whi@Page 3 of 3", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglexpdrops - Toggle XP drops", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::togglestartsearchedbank <aWord> - Toggle between starting bank on search mode", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@ optionally specify the bank search word", Client.CHAT_QUEST);
 					break;
 				default:
 					Client.displayMessage("@whi@page does not exist", Client.CHAT_QUEST);

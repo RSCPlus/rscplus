@@ -57,6 +57,8 @@ Most keybinds are configurable via the Settings GUI
 - Ctrl + n - Toggle NPC info
 - Ctrl + p - Toggle Player info
 - Ctrl + h - Toggle hitboxes for NPC info
+- Ctrl + q - Toggle start on searchable bank mode (uses previously 
+stored keyword on searchable bank)
 - Ctrl + [ - Toggle XP drops
 - Ctrl + ] - Toggle fatigue drops
 - Ctrl + l - Logout
@@ -84,6 +86,10 @@ containing "aWord". Note that withdrawing all of a certain item's type
 will push it to the end of the bank and thus withdrawing all should not 
 be done if your bank is tidy. To exit the search mode, speak to the 
 banker again.
+
+*::togglestartsearchedbank <aWord>* - Toggle between searchable bank 
+mode and normal mode; specifying the parameter updates the search 
+keyword stored.
 
 *::toggleroofs* - Toggle roof hiding
 
@@ -280,6 +286,15 @@ banker again.
   <dt>show_fatiguedrops</dt>
   <dd>Range: <i>true or false</i><br>
   Sets whether fatigue drops appear on screen</dd>
+
+  <dt>start_searched_bank</dt>
+  <dd>Range: <i>true or false</i><br>
+  Sets whether bank should start on search mode</dd>
+
+  <dt>search_bank_word</dt>
+  <dd>Range: <i>Any non-empty string</i><br>
+  Sets the word that will be used when starting bank search 
+mode</dd>
   
   <dt>trade_notifications</dt>
   <dd>Range: <i>true or false</i><br>
