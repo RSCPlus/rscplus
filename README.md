@@ -295,6 +295,14 @@ keyword stored.
   <dd>Range: <i>Any non-empty string</i><br>
   Sets the word that will be used when starting bank search 
 mode</dd>
+
+  <dt>highlight_list</dt>
+  <dd>Range: <i>Any non-empty sequence of comma separated strings</i><br>
+  Sets the list of items that will be highlighted on the ground when `show_iteminfo` is enabled</dd>
+
+  <dt>block_list</dt>
+  <dd>Range: <i>Any non-empty sequence of comma separated strings</i><br>
+  Sets the list of items that will be not shown on the ground when `show_iteminfo` is enabled</dd>
   
   <dt>trade_notifications</dt>
   <dd>Range: <i>true or false</i><br>
