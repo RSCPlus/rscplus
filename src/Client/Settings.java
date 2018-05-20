@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
-import Client.NotificationsHandler;
-import Client.Util;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -48,7 +46,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180517.154814;
+	public static final double VERSION_NUMBER = 20180520.124505;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
