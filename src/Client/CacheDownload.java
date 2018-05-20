@@ -24,6 +24,7 @@ package Client;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.zip.CRC32;
@@ -69,7 +70,10 @@ public class CacheDownload {
 	public boolean fetch() {
 		try {
 			URL url = new URL("http://" + m_serverAddress + m_file);
-			int contentLength = url.openConnection().getContentLength();
+			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			int contentLength = connection.getContentLength();
 			InputStream input = url.openStream();
 			
 			m_data = ByteBuffer.allocate(contentLength);
