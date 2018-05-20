@@ -163,7 +163,10 @@ public class Launcher extends JFrame implements Runnable {
 		String contentcrcs_fname = "/contentcrcs" + Long.toHexString(System.currentTimeMillis());
 		CacheDownload download = new CacheDownload(contentcrcs_fname);
 		if (download.fetch()) {
-			download.dump(Settings.Dir.CACHE + "/contentcrcs");
+			if (!download.dump(Settings.Dir.CACHE + "/contentcrcs")) {
+				Logger.Error("Unable to write contentcrcs cache file to path");
+				success = false;
+			}
 			ByteBuffer data = download.getDataBuffer();
 			int cacheCount = (data.capacity() - 8) / 4;
 			for (int idx = 0; idx < cacheCount; idx++) {
@@ -188,7 +191,10 @@ public class Launcher extends JFrame implements Runnable {
 					download = new CacheDownload(idx_fname);
 					if (download.fetch()) {
 						if (download.getCRC() == idx_crc) {
-							download.dump(Settings.Dir.CACHE + idx_fname);
+							if (!download.dump(Settings.Dir.CACHE + idx_fname)) {
+								Logger.Error("Unable to write cache file '" + idx_fname + "' to path");
+								success = false;
+							}
 						} else {
 							Logger.Error("CRC mismatch while downloading cache file '" + idx_fname + "'");
 							success = false;

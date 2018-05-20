@@ -61,6 +61,7 @@ public class CacheDownload {
 			stream.close();
 		}
 		catch (Exception e) {
+			return false;
 		}
 		return true;
 	}
