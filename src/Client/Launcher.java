@@ -111,7 +111,9 @@ public class Launcher extends JFrame implements Runnable {
 		}
 		
 		setStatus("Updating game cache...");
-		updateCache();
+		if (!updateCache()) {
+			error("Unable to update game cache");
+		}
 		
 		setStatus("Launching game...");
 		Game game = Game.getInstance();
@@ -137,6 +139,7 @@ public class Launcher extends JFrame implements Runnable {
 		setStatus("Error: " + text);
 		try {
 			Thread.sleep(5000);
+			System.exit(0);
 		} catch (Exception e) {
 		}
 	}
@@ -155,7 +158,8 @@ public class Launcher extends JFrame implements Runnable {
 		});
 	}
 	
-	public void updateCache() {
+	public boolean updateCache() {
+		boolean success = true;
 		String contentcrcs_fname = "/contentcrcs" + Long.toHexString(System.currentTimeMillis());
 		CacheDownload download = new CacheDownload(contentcrcs_fname);
 		if (download.fetch()) {
@@ -174,7 +178,7 @@ public class Launcher extends JFrame implements Runnable {
 						setStatus("Cache file '" + idx_fname + "' is up-to-date");
 						downloadContent = false;
 					} else {
-						Logger.Error("Cache CRC mismatch (" + idx_crc + " != " + file_crc + "), redownloading file '" + idx_fname + "'");
+						Logger.Info("Cache CRC mismatch (" + idx_crc + " != " + file_crc + "), redownloading file '" + idx_fname + "'");
 					}
 				}
 				
@@ -186,12 +190,15 @@ public class Launcher extends JFrame implements Runnable {
 						download.dump(Settings.Dir.CACHE + idx_fname);
 					} else {
 						Logger.Error("Failed to download cache file '" + idx_fname + "'");
+						success = false;
 					}
 				}
 			}
 		} else {
 			Logger.Error("Failed to retrieve contentcrcs to update cache!");
+			success = false;
 		}
+		return success;
 	}
 	
 	/**
