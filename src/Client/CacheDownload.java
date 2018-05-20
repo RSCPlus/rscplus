@@ -26,11 +26,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.zip.CRC32;
 
 public class CacheDownload {
 	private String m_serverAddress;
 	private String m_file;
 	private ByteBuffer m_data;
+	private int m_crc;
 	
 	CacheDownload(String file) {
 		// Randomize the world we download from to reduce load among users/downloads
@@ -39,10 +41,15 @@ public class CacheDownload {
 		
 		m_file = file;
 		m_data = null;
+		m_crc = 0;
 	}
 	
 	public ByteBuffer getDataBuffer() {
 		return m_data;
+	}
+	
+	public int getCRC() {
+		return m_crc;
 	}
 	
 	public boolean dump(String fname) {
@@ -75,6 +82,10 @@ public class CacheDownload {
 			if (contentLength != offset) {
 				return false;
 			}
+			
+			CRC32 crc = new CRC32();
+			crc.update(m_data.array());
+			m_crc = (int)crc.getValue();
 			
 			return true;
 		} catch (Exception e) {

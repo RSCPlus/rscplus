@@ -187,7 +187,12 @@ public class Launcher extends JFrame implements Runnable {
 					setStatus("Updating cache file '" + idx_fname + "'...");
 					download = new CacheDownload(idx_fname);
 					if (download.fetch()) {
-						download.dump(Settings.Dir.CACHE + idx_fname);
+						if (download.getCRC() == idx_crc) {
+							download.dump(Settings.Dir.CACHE + idx_fname);
+						} else {
+							Logger.Error("CRC mismatch while downloading cache file '" + idx_fname + "'");
+							success = false;
+						}
 					} else {
 						Logger.Error("Failed to download cache file '" + idx_fname + "'");
 						success = false;
