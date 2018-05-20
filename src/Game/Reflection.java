@@ -50,6 +50,7 @@ public class Reflection {
 	public static Method setGameBounds = null;
 	public static Method setLoginText = null;
 	public static Method logout = null;
+	public static Method itemClick = null;
 	
 	public static Method newPacket = null;
 	public static Method putShort = null;
@@ -62,6 +63,7 @@ public class Reflection {
 	private static final String SETGAMEBOUNDS = "final void ua.a(int,int,int,int,byte)";
 	private static final String SETLOGINTEXT = "private final void client.b(byte,java.lang.String,java.lang.String)";
 	private static final String LOGOUT = "private final void client.B(int)";
+	private static final String ITEMCLICK = "private final void client.b(boolean,int)";
 	
 	private static final String NEWPACKET = "final void b.b(int,int)";
 	private static final String PUTSHORT = "final void tb.e(int,int)";
@@ -86,6 +88,9 @@ public class Reflection {
 				} else if (method.toGenericString().equals(LOGOUT)) {
 					logout = method;
 					Logger.Info("Found logout");
+				} else if (method.toGenericString().equals(ITEMCLICK)) {
+					itemClick = method;
+					Logger.Info("Found itemClick");
 				}
 			}
 			
@@ -220,6 +225,8 @@ public class Reflection {
 				setLoginText.setAccessible(true);
 			if (logout != null)
 				logout.setAccessible(true);
+			if (itemClick != null)
+				itemClick.setAccessible(true);
 			if (newPacket != null)
 				newPacket.setAccessible(true);
 			if (putShort != null)

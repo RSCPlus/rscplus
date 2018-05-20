@@ -745,6 +745,51 @@ public class JClassPatcher {
 						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
 					}
 				}
+				
+				// Fix on sleep, so packets are not managed directly
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode prevNode = insnNode.getPrevious();
+					
+					if (prevNode == null)
+						continue;
+					
+					// patch before the sequence of command checks
+					if (insnNode.getOpcode() == Opcodes.ASTORE && ((VarInsnNode)insnNode).var == 9 && prevNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+						VarInsnNode call = (VarInsnNode)insnNode;
+						LabelNode label = ((LabelNode)insnNode.getNext());
+						
+						methodNode.instructions.insert(call, new VarInsnNode(Opcodes.ISTORE, 4));
+						methodNode.instructions.insert(call, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client",
+								"sleepBagIdx", "I"));
+						methodNode.instructions.insert(call, new VarInsnNode(Opcodes.ISTORE, 3));
+						methodNode.instructions.insert(call, new IntInsnNode(Opcodes.SIPUSH, (short)640));
+						methodNode.instructions.insert(call, new JumpInsnNode(Opcodes.IF_ICMPNE, label));
+						methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_1));
+						methodNode.instructions.insert(call, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client",
+								"sleepCmdSent", "Z"));
+					}
+				}
+				
+				// Turn off sleep cmd flag
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					AbstractInsnNode twoNextNodes = nextNode.getNext();
+					
+					if (nextNode == null || twoNextNodes == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.ALOAD && nextNode.getOpcode() == Opcodes.GETFIELD && twoNextNodes.getOpcode() == Opcodes.BIPUSH
+							&& ((IntInsnNode)twoNextNodes).operand == 90) {
+						VarInsnNode call = (VarInsnNode)insnNode;
+						methodNode.instructions.insert(call, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client",
+								"sleepCmdSent", "Z"));
+						methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_0));
+					}
+				}
 			} else if (methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
 				// Hook updateBankItems
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();

@@ -28,7 +28,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -149,6 +148,9 @@ public class Client {
 	public static int planeHeight = -1;
 	public static int planeIndex = -1;
 	public static boolean loadingArea = false;
+	
+	public static boolean sleepCmdSent = false;
+	public static int sleepBagIdx = -1;
 	
 	public static Object clientStream;
 	public static Object writeBuffer;
@@ -654,26 +656,27 @@ public class Client {
 	}
 	
 	public static void sleep() {
-		int sleepingBagIdx = -1;
-		// inventory_items contains ids of items
-		for (int n = 0; n < max_inventory; n++) {
-			// id of sleeping bag
-			if (inventory_items[n] == 1263) {
-				sleepingBagIdx = n;
-				break;
+		if (Reflection.itemClick == null)
+			return;
+		
+		try {
+			int idx = -1;
+			// inventory_items contains ids of items
+			for (int n = 0; n < max_inventory; n++) {
+				// id of sleeping bag
+				if (inventory_items[n] == 1263) {
+					idx = n;
+					break;
+				}
 			}
-		}
-		if (sleepingBagIdx != -1 && !Client.isInterfaceOpen() && !Client.isInCombat()) {
-			// method to sleep here
-			try {
-				if (Client.writeBuffer == null)
-					Client.writeBuffer = Reflection.bufferField.get(Client.clientStream);
-				Reflection.newPacket.invoke(Client.clientStream, 90, 0);
-				Reflection.putShort.invoke(Client.writeBuffer, 393, sleepingBagIdx);
-				Reflection.sendPacket.invoke(Client.clientStream, 21294);
-			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-				// TODO Auto-generated catch block
+			if (idx != -1 && !Client.isInterfaceOpen() && !Client.isInCombat()) {
+				// method to sleep here
+				sleepCmdSent = true;
+				sleepBagIdx = idx;
+				Reflection.itemClick.invoke(Client.instance, false, 0);
 			}
+		} catch (Exception e) {
+			
 		}
 	}
 	
