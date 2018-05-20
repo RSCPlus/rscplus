@@ -79,6 +79,8 @@ public class JClassPatcher {
 			patchClient(node);
 		else if (node.name.equals("f"))
 			patchRandom(node);
+		else if (node.name.equals("da"))
+			patchGameApplet(node);
 		
 		// Patch applied to all classes
 		patchGeneric(node);
@@ -912,6 +914,25 @@ public class JClassPatcher {
 							methodNode.instructions.insert(insnNode, new TypeInsnNode(Opcodes.NEW, "java/util/Random"));
 						}
 					}
+				}
+			}
+		}
+	}
+	
+	private void patchGameApplet(ClassNode node) {
+		Logger.Info("Patching GameApplet (" + node.name + ".class)");
+		
+		Iterator<MethodNode> methodNodeList = node.methods.iterator();
+		while (methodNodeList.hasNext()) {
+			MethodNode methodNode = methodNodeList.next();
+			
+			if (methodNode.name.equals("a")) {
+				if (methodNode.desc.equals("(Ljava/net/URL;ZZ)[B")) {
+					Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+					AbstractInsnNode insnNode = insnNodeList.next();
+					methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+					methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/GameApplet", "cacheURLHook", "(Ljava/net/URL;)Ljava/net/URL;"));
+					methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 0));
 				}
 			}
 		}
