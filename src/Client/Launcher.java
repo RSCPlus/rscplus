@@ -112,7 +112,7 @@ public class Launcher extends JFrame implements Runnable {
 		
 		setStatus("Updating game cache...");
 		if (!updateCache()) {
-			error("Unable to update game cache");
+			Logger.Info("Some of the cache has failed to download, but we're going to try and continue anyway");
 		}
 		
 		setStatus("Launching game...");
@@ -206,8 +206,7 @@ public class Launcher extends JFrame implements Runnable {
 				}
 			}
 		} else {
-			Logger.Error("Failed to retrieve contentcrcs to update cache!");
-			success = false;
+			Logger.Error("Failed to retrieve contentcrcs, attempting run anyway!");
 		}
 		return success;
 	}

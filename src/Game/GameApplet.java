@@ -21,6 +21,7 @@
 
 package Game;
 
+import java.io.File;
 import java.net.URL;
 import Client.Settings;
 
@@ -30,10 +31,18 @@ public class GameApplet {
 		if (file.startsWith("/contentcrcs")) {
 			file = "/contentcrcs";
 		}
-		try {
-			return new URL("file://" + Settings.Dir.CACHE + file);
-		} catch (Exception e) {
-			return null;
+		
+		File cache_file = new File(Settings.Dir.CACHE + file);
+		
+		if (cache_file.exists()) {
+			try {
+				return new URL(cache_file.toURI().toString());
+			} catch (Exception e) {
+				return null;
+			}
+		} else {
+			// File doesn't exist in the cache, use the original method
+			return url;
 		}
 	}
 }
