@@ -38,7 +38,7 @@ public class GameApplet {
 			try {
 				return new URL(cache_file.toURI().toString());
 			} catch (Exception e) {
-				return null;
+				return url;
 			}
 		} else {
 			// File doesn't exist in the cache, use the original method
