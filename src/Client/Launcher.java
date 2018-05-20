@@ -24,7 +24,9 @@ package Client;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -108,6 +110,9 @@ public class Launcher extends JFrame implements Runnable {
 			error("Unable to fetch Jar");
 		}
 		
+		setStatus("Updating game cache...");
+		updateCache();
+		
 		setStatus("Launching game...");
 		Game game = Game.getInstance();
 		try {
@@ -148,6 +153,45 @@ public class Launcher extends JFrame implements Runnable {
 				m_progressBar.setString(text);
 			}
 		});
+	}
+	
+	public void updateCache() {
+		String contentcrcs_fname = "/contentcrcs" + Long.toHexString(System.currentTimeMillis());
+		CacheDownload download = new CacheDownload(contentcrcs_fname);
+		if (download.fetch()) {
+			download.dump(Settings.Dir.CACHE + "/contentcrcs");
+			ByteBuffer data = download.getDataBuffer();
+			int cacheCount = (data.capacity() - 8) / 4;
+			for (int idx = 0; idx < cacheCount; idx++) {
+				int idx_crc = data.getInt(idx * 4);
+				String idx_fname = "/content" + idx + "_" + Long.toHexString(idx_crc);
+				File file = new File(Settings.Dir.CACHE + idx_fname);
+				boolean downloadContent = true;
+				if (file.exists()) {
+					int file_crc = (int)Util.fileGetCRC32(Settings.Dir.CACHE + idx_fname);
+					if (file_crc == idx_crc) {
+						Logger.Info("Cache file '" + idx_fname + "' is up-to-date");
+						setStatus("Cache file '" + idx_fname + "' is up-to-date");
+						downloadContent = false;
+					} else {
+						Logger.Error("Cache CRC mismatch (" + idx_crc + " != " + file_crc + "), redownloading file '" + idx_fname + "'");
+					}
+				}
+				
+				if (downloadContent) {
+					Logger.Info("Downloading cache file: " + idx_fname);
+					setStatus("Updating cache file '" + idx_fname + "'...");
+					download = new CacheDownload(idx_fname);
+					if (download.fetch()) {
+						download.dump(Settings.Dir.CACHE + idx_fname);
+					} else {
+						Logger.Error("Failed to download cache file '" + idx_fname + "'");
+					}
+				}
+			}
+		} else {
+			Logger.Error("Failed to retrieve contentcrcs to update cache!");
+		}
 	}
 	
 	/**

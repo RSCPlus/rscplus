@@ -28,7 +28,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.zip.CRC32;
 
 /**
  * A miscellaneous utility class
@@ -47,6 +49,24 @@ public class Util {
 	
 	private Util() {
 		// Empty private constructor to prevent instantiation.
+	}
+	
+	/**
+	 * Gets the CRC32 of a given file name.
+	 * 
+	 * @param fname Path to the file
+	 * @return CRC32 of the file data
+	 */
+	public static long fileGetCRC32(String fname) {
+		try {
+			byte[] data = Files.readAllBytes(new File(fname).toPath());
+			CRC32 crc = new CRC32();
+			crc.update(data);
+			return crc.getValue();
+		} catch (Exception e) {
+		}
+		
+		return -1;
 	}
 	
 	/**
