@@ -403,8 +403,17 @@ public class Renderer {
 						drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
 						y += 16;
 						setAlpha(g2, 1.0f);
+						if (Client.isInCombat()) {
+							setAlpha(g2, 1.0f);
+							drawShadowText(g2, "Opponent's Hits: " + Client.opponentCurrHealth + "/" + Client.opponentMaxHealth, x, y, colorHP, false);
+							y += 16;
+							setAlpha(g2, 1.0f);
+						}
 					}
 				} else {
+					if (Client.isInCombat()) {
+						drawBar(g2, image_bar_frame, width / 2 - 30, height / 2 - 120, colorHP, alphaHP, Client.opponentCurrHealth, Client.opponentMaxHealth);
+					}
 					int barSize = 4 + image_bar_frame.getWidth(null);
 					int x2 = width - (4 + barSize);
 					int y2 = height - image_bar_frame.getHeight(null);

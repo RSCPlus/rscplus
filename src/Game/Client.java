@@ -152,6 +152,9 @@ public class Client {
 	public static boolean sleepCmdSent = false;
 	public static int sleepBagIdx = -1;
 	
+	public static int opponentCurrHealth = -1;
+	public static int opponentMaxHealth = -1;
+	
 	public static Object clientStream;
 	public static Object writeBuffer;
 	public static Object menuCommon;
@@ -745,6 +748,15 @@ public class Client {
 			displayMessage("The latest version is @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
+		}
+	}
+	
+	// combat
+	public static void inCombatHook(int damageTaken, int currentHealth, int maxHealth) {
+		// discard if info seems to be for local player
+		if (Client.current_level[Client.SKILL_HP] != currentHealth && Client.base_level[Client.SKILL_HP] != maxHealth) {
+			Client.opponentCurrHealth = currentHealth;
+			Client.opponentMaxHealth = maxHealth;
 		}
 	}
 	

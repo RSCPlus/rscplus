@@ -838,6 +838,28 @@ public class JClassPatcher {
 						break;
 					}
 				}
+				
+				// hook onto npc attack info
+				insnNodeList = methodNode.instructions.iterator();
+				// two times it gets found, first is one for player second for monster
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					AbstractInsnNode twoNextNode = nextNode.getNext();
+					
+					if (nextNode == null || twoNextNode == null)
+						break;
+					if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)insnNode).var == 7 && nextNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)nextNode).var == 9
+							&& twoNextNode.getOpcode() == Opcodes.PUTFIELD && ((FieldInsnNode)twoNextNode).owner.equals("ta") && ((FieldInsnNode)twoNextNode).name.equals("u")) {
+						Logger.Info("In combat hook");
+						methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Client", "inCombatHook", "(III)V"));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 11));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+						continue;
+					}
+				}
 			}
 		}
 	}
