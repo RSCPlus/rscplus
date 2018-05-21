@@ -6,6 +6,9 @@
 
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
+## Download
+The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.jar).
+
 ## Contributing
 
 - Fork the project
@@ -351,6 +354,3 @@ There is also an Eclipse project in the source root you can import.
 Check [here](https://github.com/OrN/rscplus/graphs/contributors)
 
 Thanks to Warriorccc0 (Brinner) for testing various things on Windows.
-
-## Download
-The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.jar).
