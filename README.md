@@ -7,7 +7,7 @@
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
 ## Download
-The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest) (rscplus.jar).
+The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest).
 
 ## Contributing
 
