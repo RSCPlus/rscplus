@@ -183,6 +183,7 @@ public class Client {
 	private static MouseHandler handler_mouse;
 	private static KeyboardHandler handler_keyboard;
 	private static float[] xpdrop_state = new float[18];
+	private static long updateTimer = 0;
 	
 	/**
 	 * A boolean array that stores if the XP per hour should be shown for a given skill when hovering on the XP bar.
@@ -747,7 +748,7 @@ public class Client {
 			displayMessage("The latest version is @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
 			displayMessage("~034~ Your version is @red@" + String.format("%8.6f", Settings.VERSION_NUMBER), CHAT_QUEST);
 			if (Settings.CHECK_UPDATES) {
-				displayMessage("~034~ You will recieve the update next time you restart rscplus", CHAT_QUEST);
+				displayMessage("~034~ You will receive the update next time you restart rscplus", CHAT_QUEST);
 			}
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
@@ -835,9 +836,10 @@ public class Client {
 			displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
 			
 			// Check for updates every login, so users are notified when an update is available
-			if (Settings.CHECK_UPDATES) {
-				// TODO: Maybe we should only check this 1 time per hour, or so.
+			long currentTime = System.currentTimeMillis();
+			if (Settings.CHECK_UPDATES && currentTime >= updateTimer) {
 				checkForUpdate(false);
+				updateTimer = currentTime + (60 * 60 * 1000);
 			}
 		}
 		
