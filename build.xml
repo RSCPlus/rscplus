@@ -97,6 +97,12 @@
 			</fileset>
 			<zipgroupfileset dir="lib" includes="*.jar" excludes="junit-*.jar,hamcrest-core-*.jar" />
 		</jar>
+
+		<copy file="build_assets/windows_wrapper.zip" tofile="${dist.dir}/rscplus.zip" />
+
+		<zip destfile="${dist.dir}/rscplus.zip" update="true">
+			<zipfileset dir="${dist.dir}" includes="rscplus.jar" />
+		</zip>
 	</target>
 
 	<target name="run" depends="dist">
