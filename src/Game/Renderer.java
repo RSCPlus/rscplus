@@ -97,7 +97,6 @@ public class Renderer {
 	private static int frames = 0;
 	private static long fps_timer = 0;
 	private static boolean screenshot = false;
-	private static int current_boost_count = 0;
 	
 	public static String[] shellStrings;
 	
@@ -261,9 +260,6 @@ public class Renderer {
 							Point loc = locIterator.next(); // TODO: Remove unnecessary allocations
 							if (loc.x == x && loc.y == y)
 								y -= 12;
-						}
-						if (isInCombatWithNPC(npc)) {
-							drawNPCBar(g2, npc);
 						}
 						if (show) {
 							drawShadowText(g2, npc.name, x, y, color, true);
@@ -444,7 +440,6 @@ public class Renderer {
 				}
 			}
 			
-			current_boost_count = 0;
 			// Draw under combat style info
 			if (!Client.isInterfaceOpen()) {
 				if (time <= Client.magic_timer) {
@@ -467,9 +462,15 @@ public class Renderer {
 						drawShadowText(g2, boost, x, y, color, false);
 						drawShadowText(g2, Client.skill_name[i], x + 32, y, color, false);
 						y += 14;
-						
-						current_boost_count++;
 					}
+				}
+			}
+			
+			// NPC Post-processing for ui
+			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
+				NPC npc = iterator.next();
+				if (npc != null && isInCombatWithNPC(npc)) {
+					drawNPCBar(g2, 7, y, npc);
 				}
 			}
 			
@@ -748,19 +749,9 @@ public class Renderer {
 				hitboxesIntersectOnXAxis;
 	}
 	
-	private static void drawNPCBar(Graphics2D g, NPC npc) {
+	private static void drawNPCBar(Graphics2D g, int x, int y, NPC npc) {
 		Dimension bounds = new Dimension(173, 40);
 		float hp_ratio = (float)(npc.currentHits) / (float)(npc.maxHits);
-		int x = 7;
-		int y = 137;
-		
-		if (width < 800) {
-			// +48 to shift below fatigue, HP, prayer when showing on the left side
-			y += 48;
-		}
-		
-		// Adjust position for any boosts drawn on screen
-		y += (current_boost_count * 14);
 		
 		// Container
 		setAlpha(g, 0.5f);
