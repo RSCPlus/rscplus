@@ -214,7 +214,8 @@ public class Launcher extends JFrame implements Runnable {
 		boolean success = true;
 		String contentcrcs_fname = "/contentcrcs" + Long.toHexString(System.currentTimeMillis());
 		CacheDownload download = new CacheDownload(contentcrcs_fname);
-		if (download.fetch()) {
+		setStatus("Checking for game cache updates...");
+		if (download.fetch(this)) {
 			if (!download.dump(Settings.Dir.CACHE + "/contentcrcs")) {
 				Logger.Error("Unable to write contentcrcs cache file to path");
 				success = false;
@@ -239,9 +240,9 @@ public class Launcher extends JFrame implements Runnable {
 				
 				if (downloadContent) {
 					Logger.Info("Downloading cache file: " + idx_fname);
-					setStatus("Updating cache file '" + idx_fname + "'...");
+					setStatus("Updating cache file '" + idx_fname + "' (" + (idx + 1) + "/" + cacheCount + ")");
 					download = new CacheDownload(idx_fname);
-					if (download.fetch()) {
+					if (download.fetch(this)) {
 						if (download.getCRC() == idx_crc) {
 							if (!download.dump(Settings.Dir.CACHE + idx_fname)) {
 								Logger.Error("Unable to write cache file '" + idx_fname + "' to path");

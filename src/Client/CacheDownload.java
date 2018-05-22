@@ -67,7 +67,9 @@ public class CacheDownload {
 		return true;
 	}
 	
-	public boolean fetch() {
+	public boolean fetch(Launcher launcher) {
+		launcher.setProgress(0, 1);
+		
 		try {
 			URL url = new URL("http://" + m_serverAddress + m_file);
 			URLConnection connection = url.openConnection();
@@ -81,6 +83,7 @@ public class CacheDownload {
 			int offset = 0;
 			while ((readSize = input.read(m_data.array(), offset, m_data.capacity() - offset)) >= 0) {
 				offset += readSize;
+				launcher.setProgress(offset, contentLength);
 			}
 			input.close();
 			
