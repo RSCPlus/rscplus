@@ -578,6 +578,9 @@ public class Renderer {
 			}
 			
 			drawShadowText(g2, "There are currently " + totalPop + " players online.", width / 2, 8, color_text, true);
+			
+			// Draw version information
+			drawShadowText(g2, "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER), width - 164, height - 2, color_text, false);
 		}
 		
 		// Draw software cursor
