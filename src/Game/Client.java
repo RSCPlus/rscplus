@@ -835,7 +835,7 @@ public class Client {
 			displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
 			displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
 			
-			// Check for updates every login, so users are notified when an update is available
+			// Check for updates every login in hour intervals, so users are notified when an update is available
 			long currentTime = System.currentTimeMillis();
 			if (Settings.CHECK_UPDATES && currentTime >= updateTimer) {
 				checkForUpdate(false);
