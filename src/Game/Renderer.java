@@ -453,7 +453,10 @@ public class Renderer {
 						int diff = Client.current_level[i] - Client.base_level[i];
 						Color color = color_low;
 						
-						String boost = "" + diff;
+						// Build our boost string
+						// If the difference is greater than 0 (positive boost), we need to add a "+" to the string
+						// Otherwise, it can be left alone because the integer will already have a "-" when converted to a string
+						String boost = Integer.toString(diff);
 						if (diff > 0) {
 							boost = "+" + boost;
 							color = color_hp;
