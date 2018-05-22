@@ -471,6 +471,8 @@ public class Renderer {
 				NPC npc = iterator.next();
 				if (npc != null && isInCombatWithNPC(npc)) {
 					drawNPCBar(g2, 7, y, npc);
+					// Increment y by npc bar height, so we can have multiple bars
+					y += 42;
 				}
 			}
 			
