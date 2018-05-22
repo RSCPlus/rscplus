@@ -472,7 +472,9 @@ public class Renderer {
 				if (npc != null && isInCombatWithNPC(npc)) {
 					drawNPCBar(g2, 7, y, npc);
 					// Increment y by npc bar height, so we can have multiple bars
-					y += 42;
+					// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
+					// that our combat detection isn't accurate
+					y += 50;
 				}
 			}
 			// Clear npc list for the next frame
