@@ -206,7 +206,7 @@ public class Renderer {
 					}
 					
 					// Update player coords
-					if (npc.name.equals(Client.player_name)) {
+					if (npc != null && Client.player_name.equals(npc.name)) {
 						Client.player_posX = npc.x;
 						Client.player_posY = npc.y;
 						Client.player_height = npc.height;
@@ -267,6 +267,9 @@ public class Renderer {
 						}
 						if (show) {
 							drawShadowText(g2, npc.name, x, y, color, true);
+							if (npc.currentHits != 0 && npc.maxHits != 0) {
+								drawShadowText(g2, npc.currentHits + "/" + npc.maxHits, x, y - 12, color, true);
+							}
 						}
 						entity_text_loc.add(new Point(x, y));
 					}
@@ -739,13 +742,14 @@ public class Renderer {
 		return Client.isInCombat() &&
 				npc.currentHits != 0 &&
 				npc.maxHits != 0 &&
-				!npc.name.equals(Client.player_name) &&
+				npc != null &&
+				!Client.player_name.equals(npc.name) &&
 				inCombatCandidate &&
 				hitboxesIntersectOnXAxis;
 	}
 	
 	private static void drawNPCBar(Graphics2D g, NPC npc) {
-		Dimension bounds = new Dimension(173, 46);
+		Dimension bounds = new Dimension(173, 40);
 		float hp_ratio = (float)(npc.currentHits) / (float)(npc.maxHits);
 		int x = 7;
 		int y = 137;
@@ -768,15 +772,15 @@ public class Renderer {
 		// HP bar
 		setAlpha(g, 1.0f);
 		g.setColor(new Color(99, 20, 19));
-		g.fillRect(x, y + 23, bounds.width, bounds.height / 2);
+		g.fillRect(x, y + 20, bounds.width, bounds.height / 2);
 		g.setColor(new Color(10, 134, 51));
-		g.fillRect(x, y + 23, (int)(bounds.width * hp_ratio), bounds.height / 2);
+		g.fillRect(x, y + 20, (int)(bounds.width * hp_ratio), bounds.height / 2);
 		
 		// HP text
-		drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 10, color_text, true);
+		drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
 		
 		// NPC name
-		drawShadowText(g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 14, color_text, true);
+		drawShadowText(g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 12, color_text, true);
 	}
 	
 }
