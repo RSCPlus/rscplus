@@ -97,6 +97,7 @@ public class Renderer {
 	private static int frames = 0;
 	private static long fps_timer = 0;
 	private static boolean screenshot = false;
+	private static int current_boost_count = 0;
 	
 	public static String[] shellStrings;
 	
@@ -439,6 +440,8 @@ public class Renderer {
 					x2 -= barSize;
 				}
 			}
+			
+			current_boost_count = 0;
 			// Draw under combat style info
 			if (!Client.isInterfaceOpen()) {
 				if (time <= Client.magic_timer) {
@@ -461,6 +464,8 @@ public class Renderer {
 						drawShadowText(g2, boost, x, y, color, false);
 						drawShadowText(g2, Client.skill_name[i], x + 32, y, color, false);
 						y += 14;
+						
+						current_boost_count++;
 					}
 				}
 			}
@@ -740,7 +745,7 @@ public class Renderer {
 	}
 	
 	private static void drawNPCBar(Graphics2D g, NPC npc) {
-		Dimension bounds = new Dimension(173, 45);
+		Dimension bounds = new Dimension(173, 46);
 		float hp_ratio = (float)(npc.currentHits) / (float)(npc.maxHits);
 		int x = 7;
 		int y = 137;
@@ -749,6 +754,9 @@ public class Renderer {
 			// +48 to shift below fatigue, HP, prayer when showing on the left side
 			y += 48;
 		}
+		
+		// Adjust position for any boosts drawn on screen
+		y += (current_boost_count * 14);
 		
 		// Container
 		setAlpha(g, 0.5f);
