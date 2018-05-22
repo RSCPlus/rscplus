@@ -33,8 +33,16 @@ import Client.Logger;
 public class Reflection {
 	
 	public static Field characterName = null;
+	public static Field characterDisplayName = null;
+	public static Field characterX = null;
+	public static Field characterY = null;
+	public static Field characterDamageTaken = null;
+	public static Field characterCurrentHits = null;
+	public static Field characterMaxHits = null;
 	public static Field characterWaypointX = null;
 	public static Field characterWaypointY = null;
+	public static Field attackingPlayerIdx = null;
+	public static Field attackingNpcIdx = null;
 	
 	public static Field maxInventory = null;
 	
@@ -182,14 +190,38 @@ public class Reflection {
 			// Character
 			c = classLoader.loadClass("ta");
 			characterName = c.getDeclaredField("C");
+			characterDisplayName = c.getDeclaredField("c");
+			characterX = c.getDeclaredField("i");
+			characterY = c.getDeclaredField("K");
+			characterDamageTaken = c.getDeclaredField("u");
+			characterCurrentHits = c.getDeclaredField("B");
+			characterMaxHits = c.getDeclaredField("G");
 			characterWaypointX = c.getDeclaredField("i");
 			characterWaypointY = c.getDeclaredField("K");
+			attackingPlayerIdx = c.getDeclaredField("z");
+			attackingNpcIdx = c.getDeclaredField("h");
 			if (characterName != null)
 				characterName.setAccessible(true);
+			if (characterDisplayName != null)
+				characterDisplayName.setAccessible(true);
+			if (characterX != null)
+				characterX.setAccessible(true);
+			if (characterY != null)
+				characterY.setAccessible(true);
+			if (characterDamageTaken != null)
+				characterDamageTaken.setAccessible(true);
+			if (characterCurrentHits != null)
+				characterCurrentHits.setAccessible(true);
+			if (characterMaxHits != null)
+				characterMaxHits.setAccessible(true);
 			if (characterWaypointX != null)
 				characterWaypointX.setAccessible(true);
 			if (characterWaypointY != null)
 				characterWaypointY.setAccessible(true);
+			if (attackingPlayerIdx != null)
+				attackingPlayerIdx.setAccessible(true);
+			if (attackingNpcIdx != null)
+				attackingNpcIdx.setAccessible(true);
 			
 			// Menu
 			c = classLoader.loadClass("qa");

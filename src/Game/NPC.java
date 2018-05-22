@@ -32,14 +32,18 @@ class NPC {
 	public int height;
 	public String name;
 	public int type;
+	public int currentHits;
+	public int maxHits;
 	
-	public NPC(int x, int y, int width, int height, String name, int type) {
+	public NPC(int x, int y, int width, int height, String name, int type, int currentHits, int maxHits) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.name = name;
 		this.type = type;
+		this.currentHits = currentHits;
+		this.maxHits = maxHits;
 	}
 	
 }

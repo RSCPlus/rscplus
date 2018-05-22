@@ -193,6 +193,9 @@ public class Renderer {
 				List<Rectangle> player_hitbox = new ArrayList<>();
 				List<Point> entity_text_loc = new ArrayList<>();
 				
+				float alphaHP = 1.0f;
+				Color colorHP = color_hp;
+				
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
 					Color color = color_low;
@@ -238,15 +241,22 @@ public class Renderer {
 						}
 					}
 					
-					if (show && npc.name != null) {
+					if (Settings.SHOW_STATUSDISPLAY && npc.name != null) {
 						int x = npc.x + (npc.width / 2);
 						int y = npc.y - 20;
+						if (Client.player_name == null)
+							Client.getPlayerName();
 						for (Iterator<Point> locIterator = entity_text_loc.iterator(); locIterator.hasNext();) {
 							Point loc = locIterator.next(); // TODO: Remove unnecessary allocations
 							if (loc.x == x && loc.y == y)
 								y -= 12;
 						}
-						drawShadowText(g2, npc.name, x, y, color, true);
+						if (Client.isInCombat() && npc.currentHits != 0 && npc.maxHits != 0 && !npc.name.equals(Client.player_name)) {
+							drawShadowText(g2, npc.currentHits + "/" + npc.maxHits, x, y + 10, color, true);
+						}
+						if (show) {
+							drawShadowText(g2, npc.name, x, y, color, true);
+						}
 						entity_text_loc.add(new Point(x, y));
 					}
 				}
@@ -403,17 +413,8 @@ public class Renderer {
 						drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
 						y += 16;
 						setAlpha(g2, 1.0f);
-						if (Client.isInCombat()) {
-							setAlpha(g2, 1.0f);
-							drawShadowText(g2, "Opponent's Hits: " + Client.opponentCurrHealth + "/" + Client.opponentMaxHealth, x, y, colorHP, false);
-							y += 16;
-							setAlpha(g2, 1.0f);
-						}
 					}
 				} else {
-					if (Client.isInCombat()) {
-						drawBar(g2, image_bar_frame, width / 2 - 30, height / 2 - 120, colorHP, alphaHP, Client.opponentCurrHealth, Client.opponentMaxHealth);
-					}
 					int barSize = 4 + image_bar_frame.getWidth(null);
 					int x2 = width - (4 + barSize);
 					int y2 = height - image_bar_frame.getHeight(null);

@@ -152,9 +152,6 @@ public class Client {
 	public static boolean sleepCmdSent = false;
 	public static int sleepBagIdx = -1;
 	
-	public static int opponentCurrHealth = -1;
-	public static int opponentMaxHealth = -1;
-	
 	public static Object clientStream;
 	public static Object writeBuffer;
 	public static Object menuCommon;
@@ -658,6 +655,9 @@ public class Client {
 		}
 	}
 	
+	/**
+	 * Send over the instruction of sleep, if player has sleeping bag with them
+	 */
 	public static void sleep() {
 		if (Reflection.itemClick == null)
 			return;
@@ -751,12 +751,20 @@ public class Client {
 		}
 	}
 	
-	// combat
-	public static void inCombatHook(int damageTaken, int currentHealth, int maxHealth) {
+	// combat packet received (testing only, the info is taken on function that draws hits)
+	public static void inCombatHook(int damageTaken, int currentHealth, int maxHealth, int index, int hooknum, Object obj) {
 		// discard if info seems to be for local player
-		if (Client.current_level[Client.SKILL_HP] != currentHealth && Client.base_level[Client.SKILL_HP] != maxHealth) {
-			Client.opponentCurrHealth = currentHealth;
-			Client.opponentMaxHealth = maxHealth;
+		int n1, n2;
+		String name;
+		// object was found
+		if (obj != null) {
+			try {
+				n1 = Reflection.attackingPlayerIdx.getInt(obj);
+				n2 = Reflection.attackingNpcIdx.getInt(obj);
+				name = (String)Reflection.characterDisplayName.get(obj);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				// TODO Auto-generated catch block
+			}
 		}
 	}
 	
@@ -1019,13 +1027,13 @@ public class Client {
 		return colorMessage;
 	}
 	
-	public static void drawNPC(int x, int y, int width, int height, String name) {
+	public static void drawNPC(int x, int y, int width, int height, String name, int currentHits, int maxHits) {
 		// ILOAD 6 is index
-		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB));
+		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB, currentHits, maxHits));
 	}
 	
-	public static void drawPlayer(int x, int y, int width, int height, String name) {
-		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER));
+	public static void drawPlayer(int x, int y, int width, int height, String name, int currentHits, int maxHits) {
+		npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER, currentHits, maxHits));
 	}
 	
 	public static void drawItem(int x, int y, int width, int height, int id) {

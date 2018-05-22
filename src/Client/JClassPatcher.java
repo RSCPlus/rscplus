@@ -213,6 +213,7 @@ public class JClassPatcher {
 			hookClassVariable(methodNode, "client", "Jh", "Lda;", "Game/Client", "clientStream", "Ljava/lang/Object;",
 					true, false);
 			
+			// Bank related vars
 			hookClassVariable(methodNode, "client", "ci", "[I", "Game/Client", "new_bank_items", "[I", true, true);
 			hookClassVariable(methodNode, "client", "Xe", "[I", "Game/Client", "new_bank_items_count", "[I", true, true);
 			hookClassVariable(methodNode, "client", "ae", "[I", "Game/Client", "bank_items", "[I", true, true);
@@ -400,7 +401,18 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "t", "I"));
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
-				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;)V"));
+				// extended npc hook to include current hits and max hits
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "B", "I"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;II)V"));
 			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V")) {
 				// Draw Player hook
 				AbstractInsnNode insnNode = methodNode.instructions.getLast();
@@ -413,7 +425,18 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "C", "Ljava/lang/String;"));
-				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;)V"));
+				// extended player hook to include current hits and max hits
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "B", "I"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;II)V"));
 			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V")) {
 				// Draw Item hook
 				// ILOAD 4 is item id
@@ -841,7 +864,8 @@ public class JClassPatcher {
 				
 				// hook onto npc attack info
 				insnNodeList = methodNode.instructions.iterator();
-				// two times it gets found, first is one for player second for monster
+				// two times it gets found, first is one for player second for npc
+				int pos = -1;
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
 					AbstractInsnNode nextNode = insnNode.getNext();
@@ -849,11 +873,28 @@ public class JClassPatcher {
 					
 					if (nextNode == null || twoNextNode == null)
 						break;
+					if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode)insnNode).operand == -235) {
+						pos = 0; // player combat hook
+						continue;
+					}
+					if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode)insnNode).operand == 104 && nextNode.getOpcode() == Opcodes.ILOAD) {
+						pos = 1; // npc combat hook
+						continue;
+					}
 					if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)insnNode).var == 7 && nextNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)nextNode).var == 9
 							&& twoNextNode.getOpcode() == Opcodes.PUTFIELD && ((FieldInsnNode)twoNextNode).owner.equals("ta") && ((FieldInsnNode)twoNextNode).name.equals("u")) {
-						Logger.Info("In combat hook");
 						methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
-								"Game/Client", "inCombatHook", "(III)V"));
+								"Game/Client", "inCombatHook", "(IIIIILjava/lang/Object;)V"));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 7));
+						// indicate packet was from player cmd
+						if (pos == 0) {
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ICONST_0));
+						}
+						// indicate packet was from npc cmd
+						else if (pos == 1) {
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ICONST_1));
+						}
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 11));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
@@ -948,6 +989,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, finishLabel));
 				
 				methodNode.instructions.insertBefore(start, failLabel);
+			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;IIII)V")) {
+				// method hook for drawstringCenter, reserved testing
 			}
 		}
 	}
