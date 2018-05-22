@@ -46,7 +46,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180522.034227;
+	public static final double VERSION_NUMBER = 20180522.014227;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -70,6 +70,7 @@ public class Settings {
 	public static boolean CUSTOM_CLIENT_SIZE = false;
 	public static int CUSTOM_CLIENT_SIZE_X = 512;
 	public static int CUSTOM_CLIENT_SIZE_Y = 346;
+	public static boolean CHECK_UPDATES = true;
 	public static boolean LOAD_CHAT_HISTORY = false;
 	public static boolean COMBAT_MENU = false;
 	public static boolean SHOW_XPDROPS = true;
@@ -143,6 +144,7 @@ public class Settings {
 	public static int COMBAT_STYLE = Client.COMBAT_AGGRESSIVE;
 	public static int WORLD = 2;
 	public static boolean FIRST_TIME = true;
+	public static boolean UPDATE_CONFIRMATION = false;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";
 	
@@ -194,6 +196,7 @@ public class Settings {
 			CUSTOM_CLIENT_SIZE = getBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE);
 			CUSTOM_CLIENT_SIZE_X = getInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X);
 			CUSTOM_CLIENT_SIZE_Y = getInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y);
+			CHECK_UPDATES = getBoolean(props, "check_updates", CHECK_UPDATES);
 			LOAD_CHAT_HISTORY = getBoolean(props, "load_chat_history", LOAD_CHAT_HISTORY);
 			COMBAT_MENU = getBoolean(props, "combat_menu", COMBAT_MENU);
 			SHOW_XPDROPS = getBoolean(props, "show_xpdrops", SHOW_XPDROPS);
@@ -251,6 +254,7 @@ public class Settings {
 			WORLD = getInt(props, "world", 2);
 			COMBAT_STYLE = getInt(props, "combat_style", Client.COMBAT_AGGRESSIVE);
 			FIRST_TIME = getBoolean(props, "first_time", FIRST_TIME);
+			UPDATE_CONFIRMATION = getBoolean(props, "update_confirmation", UPDATE_CONFIRMATION);
 			DISASSEMBLE = getBoolean(props, "disassemble", false);
 			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
 			
@@ -347,6 +351,7 @@ public class Settings {
 			props.setProperty("custom_client_size", Boolean.toString(CUSTOM_CLIENT_SIZE));
 			props.setProperty("custom_client_size_x", Integer.toString(CUSTOM_CLIENT_SIZE_X));
 			props.setProperty("custom_client_size_y", Integer.toString(CUSTOM_CLIENT_SIZE_Y));
+			props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES));
 			props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY));
 			props.setProperty("combat_menu", Boolean.toString(COMBAT_MENU));
 			props.setProperty("show_xpdrops", Boolean.toString(SHOW_XPDROPS));
@@ -405,6 +410,7 @@ public class Settings {
 			props.setProperty("combat_style", Integer.toString(COMBAT_STYLE));
 			// This is set to false, as logically, saving the config would imply this is not a first-run.
 			props.setProperty("first_time", Boolean.toString(false));
+			props.setProperty("update_confirmation", Boolean.toString(UPDATE_CONFIRMATION));
 			props.setProperty("disassemble", Boolean.toString(DISASSEMBLE));
 			props.setProperty("disassemble_directory", "" + DISASSEMBLE_DIRECTORY);
 			

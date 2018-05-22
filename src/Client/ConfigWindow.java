@@ -71,7 +71,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import Client.KeybindSet.KeyModifier;
-import Client.Util;
 import Game.Camera;
 import Game.Game;
 import Game.KeyboardHandler;
@@ -126,6 +125,7 @@ public class ConfigWindow {
 	private JCheckBox generalPanelClientSizeCheckbox;
 	private JSpinner generalPanelClientSizeXSpinner;
 	private JSpinner generalPanelClientSizeYSpinner;
+	private JCheckBox generalPanelCheckUpdates;
 	private JCheckBox generalPanelChatHistoryCheckbox;
 	private JCheckBox generalPanelCombatXPMenuCheckbox;
 	private JCheckBox generalPanelXPDropsCheckbox;
@@ -415,6 +415,9 @@ public class ConfigWindow {
 		spinnerWinYModel.setValue(346);
 		spinnerWinYModel.setStepSize(10);
 		generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
+		
+		generalPanelCheckUpdates = addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
+		generalPanelCheckUpdates.setToolTipText("When enabled, rscplus will check for client updates before launching the game and install them when prompted");
 		
 		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not implemented yet)", generalPanel);
 		generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
@@ -1140,6 +1143,7 @@ public class ConfigWindow {
 		generalPanelClientSizeCheckbox.setSelected(Settings.CUSTOM_CLIENT_SIZE);
 		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X);
 		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y);
+		generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES);
 		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY); // TODO: Implement this feature
 		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU);
 		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS);
@@ -1231,6 +1235,7 @@ public class ConfigWindow {
 		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected();
 		Settings.CUSTOM_CLIENT_SIZE_X = ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue();
 		Settings.CUSTOM_CLIENT_SIZE_Y = ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue();
+		Settings.CHECK_UPDATES = generalPanelCheckUpdates.isSelected();
 		Settings.LOAD_CHAT_HISTORY = generalPanelChatHistoryCheckbox.isSelected();
 		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
 		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();

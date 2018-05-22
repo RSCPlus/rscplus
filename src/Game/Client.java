@@ -831,9 +831,9 @@ public class Client {
 			displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
 			displayMessage("@mag@Open the settings with @yel@" + configWindowShortcut + "@mag@ or @yel@right-click the tray icon", CHAT_QUEST);
 			
-			// Check to see if RSC+ is up to date
-			if (Settings.versionCheckRequired) {
-				Settings.versionCheckRequired = false;
+			// Check for updates every login, so users are notified when an update is available
+			if (Settings.CHECK_UPDATES) {
+				// TODO: Maybe we should only check this 1 time per hour, or so.
 				checkForUpdate(false);
 			}
 		}

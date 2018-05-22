@@ -25,12 +25,17 @@ import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import Game.Client;
 import Game.Game;
 
 /**
@@ -92,6 +97,48 @@ public class Launcher extends JFrame implements Runnable {
 	public void run() {
 		// Generates a config file if needed
 		Settings.save();
+		
+		if (!Settings.UPDATE_CONFIRMATION) {
+			int response = JOptionPane.showConfirmDialog(this, "rscplus has an automatic update feature.\n" +
+					"\n" +
+					"When enabled, rscplus will prompt for and install updates when launching the client.\n" +
+					"The updates are obtained from our 'Latest' release on GitHub.\n" +
+					"\n" +
+					"Would you like to enable this feature?\n" +
+					"\n" +
+					"NOTE: This option can be toggled in the Settings interface under the General tab.", "rscplus", JOptionPane.YES_NO_OPTION);
+			if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
+				Settings.CHECK_UPDATES = true;
+				JOptionPane.showMessageDialog(this, "rscplus is set to check for updates on GitHub at every launch!", "rscplus", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else if (response == JOptionPane.NO_OPTION) {
+				Settings.CHECK_UPDATES = false;
+			}
+			Settings.UPDATE_CONFIRMATION = true;
+			Settings.save();
+		}
+			
+		if (Settings.CHECK_UPDATES) {
+			setStatus("Checking for rscplus update...");
+			double latestVersion = Client.fetchLatestVersionNumber();
+			if (Settings.VERSION_NUMBER < latestVersion) {
+				// TODO: before Y10K update this to %9.6f
+				int response = JOptionPane.showConfirmDialog(this, "An rscplus client update is available!\n" +
+						"\n" +
+						"Latest: " + String.format("%8.6f", latestVersion) + "\n" +
+						"Installed: " + String.format("%8.6f", Settings.VERSION_NUMBER) + "\n" +
+						"\n" +
+						"Would you like to update now?", "rscplus", JOptionPane.YES_NO_OPTION);
+				if (response == JOptionPane.YES_OPTION && updateJar()) {
+					setStatus("rscplus updated successfully, exiting...");
+					try {
+						Thread.sleep(5000);
+					} catch (Exception e) {
+					}
+					System.exit(0);
+				}
+			}
+		}
 		
 		setStatus("Loading JConfig...");
 		JConfig config = Game.getInstance().getJConfig();
@@ -208,6 +255,43 @@ public class Launcher extends JFrame implements Runnable {
 		} else {
 			Logger.Error("Failed to retrieve contentcrcs, attempting run anyway!");
 		}
+		return success;
+	}
+	
+	public boolean updateJar() {
+		boolean success = true;
+		
+		setStatus("downloading rscplus update...");
+		setProgress(0, 1);
+		
+		try {
+			URL url = new URL("https://github.com/OrN/rscplus/releases/download/Latest/rscplus.jar");
+			
+			// Open connection
+			URLConnection connection = url.openConnection();
+			
+			int size = connection.getContentLength();
+			int offset = 0;
+			byte[] data = new byte[size];
+
+			InputStream input = url.openStream();
+			
+			int readSize;
+			while ((readSize = input.read(data, offset, size - offset)) != -1) {
+				offset += readSize;
+				setProgress(offset, size);
+			}
+			
+			setStatus("updating rscplus...");
+			
+			File file = new File(Settings.Dir.JAR + "/rscplus.jar");
+			FileOutputStream output = new FileOutputStream(file);
+			output.write(data);
+			output.close();
+		} catch (Exception e) {
+			success = false;
+		}
+		
 		return success;
 	}
 	
