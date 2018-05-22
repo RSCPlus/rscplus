@@ -744,8 +744,11 @@ public class Client {
 		if (latestVersion > Settings.VERSION_NUMBER) {
 			displayMessage("@gre@A new version of RSC+ is available!", CHAT_QUEST);
 			// TODO: before Y10K update this to %9.6f
-			displayMessage("~034~ Your version is @red@" + String.format("%8.6f", Settings.VERSION_NUMBER), CHAT_QUEST);
 			displayMessage("The latest version is @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
+			displayMessage("~034~ Your version is @red@" + String.format("%8.6f", Settings.VERSION_NUMBER), CHAT_QUEST);
+			if (Settings.CHECK_UPDATES) {
+				displayMessage("~034~ You will recieve the update next time you restart rscplus", CHAT_QUEST);
+			}
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
 		}
