@@ -200,6 +200,18 @@ public class Renderer {
 					NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
 					Color color = color_low;
 					
+					if (Client.player_name == null) {
+						Client.getPlayerName();
+					}
+					
+					// Update player coords
+					if (npc.name.equals(Client.player_name)) {
+						Client.player_posX = npc.x;
+						Client.player_posY = npc.y;
+						Client.player_height = npc.height;
+						Client.player_width = npc.width;
+					}
+					
 					boolean show = false;
 					
 					if (npc.type == NPC.TYPE_PLAYER) {
@@ -244,15 +256,13 @@ public class Renderer {
 					if (Settings.SHOW_STATUSDISPLAY && npc.name != null) {
 						int x = npc.x + (npc.width / 2);
 						int y = npc.y - 20;
-						if (Client.player_name == null)
-							Client.getPlayerName();
 						for (Iterator<Point> locIterator = entity_text_loc.iterator(); locIterator.hasNext();) {
 							Point loc = locIterator.next(); // TODO: Remove unnecessary allocations
 							if (loc.x == x && loc.y == y)
 								y -= 12;
 						}
-						if (Client.isInCombat() && npc.currentHits != 0 && npc.maxHits != 0 && !npc.name.equals(Client.player_name)) {
-							drawShadowText(g2, npc.currentHits + "/" + npc.maxHits, x, y + 10, color, true);
+						if (isInCombatWithNPC(npc)) {
+							drawNPCBar(g2, npc);
 						}
 						if (show) {
 							drawShadowText(g2, npc.name, x, y, color, true);
@@ -705,6 +715,60 @@ public class Renderer {
 		FontRenderContext context = g.getFontRenderContext();
 		Rectangle2D bounds = g.getFont().getStringBounds(str, context);
 		return new Dimension((int)bounds.getWidth(), (int)bounds.getHeight());
+	}
+	
+	private static boolean isInCombatWithNPC(NPC npc) {
+		int bottom_posY_npc = npc.y + npc.height;
+		int bottom_posY_player = Client.player_posY + Client.player_height;
+		
+		// NPC's in combat with the player are always on the same bottom y coord, however
+		// when moving the screen around they can be slightly off for a moment. To prevent
+		// flickering, just give them a very small buffer of difference.
+		boolean inCombatCandidate = (Math.abs(bottom_posY_npc - bottom_posY_player) < 5);
+		
+		// Hitboxes will intersect on the X axis from what I've tested, giving this a small
+		// buffer as well just in case there are edge cases with very small monsters that
+		// don't follow this pattern exactly.
+		boolean hitboxesIntersectOnXAxis = (Client.player_posX - 10) < (npc.x + npc.width);
+		
+		return Client.isInCombat() &&
+				npc.currentHits != 0 &&
+				npc.maxHits != 0 &&
+				!npc.name.equals(Client.player_name) &&
+				inCombatCandidate &&
+				hitboxesIntersectOnXAxis;
+	}
+	
+	private static void drawNPCBar(Graphics2D g, NPC npc) {
+		Dimension bounds = new Dimension(173, 45);
+		float hp_ratio = (float)(npc.currentHits) / (float)(npc.maxHits);
+		int x = 7;
+		int y = 137;
+		
+		if (width < 800) {
+			// +48 to shift below fatigue, HP, prayer when showing on the left side
+			y += 48;
+		}
+		
+		// Container
+		setAlpha(g, 0.5f);
+		g.setColor(color_gray);
+		g.fillRect(x - 1, y - 1, bounds.width + 2, bounds.height + 2);
+		g.setColor(color_shadow);
+		g.fillRect(x, y, bounds.width, bounds.height);
+		
+		// HP bar
+		setAlpha(g, 1.0f);
+		g.setColor(new Color(99, 20, 19));
+		g.fillRect(x, y + 23, bounds.width, bounds.height / 2);
+		g.setColor(new Color(10, 134, 51));
+		g.fillRect(x, y + 23, (int)(bounds.width * hp_ratio), bounds.height / 2);
+		
+		// HP text
+		drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 10, color_text, true);
+		
+		// NPC name
+		drawShadowText(g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 14, color_text, true);
 	}
 	
 }

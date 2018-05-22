@@ -139,6 +139,8 @@ public class Client {
 	public static String player_name = null;
 	public static int player_posX = -1;
 	public static int player_posY = -1;
+	public static int player_height = -1;
+	public static int player_width = -1;
 	
 	public static int regionX = -1;
 	public static int regionY = -1;
