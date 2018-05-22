@@ -129,13 +129,18 @@ public class Launcher extends JFrame implements Runnable {
 						"Installed: " + String.format("%8.6f", Settings.VERSION_NUMBER) + "\n" +
 						"\n" +
 						"Would you like to update now?", "rscplus", JOptionPane.YES_NO_OPTION);
-				if (response == JOptionPane.YES_OPTION && updateJar()) {
-					setStatus("rscplus updated successfully, exiting...");
-					try {
-						Thread.sleep(5000);
-					} catch (Exception e) {
+				if (response == JOptionPane.YES_OPTION) {
+					if (updateJar()) {
+						setStatus("rscplus updated successfully, exiting...");
+						try {
+							Thread.sleep(5000);
+						} catch (Exception e) {
+						}
+						System.exit(0);
 					}
-					System.exit(0);
+					else {
+						error("Failed to update rscplus");
+					}
 				}
 			}
 		}
@@ -284,10 +289,14 @@ public class Launcher extends JFrame implements Runnable {
 			
 			setStatus("updating rscplus...");
 			
-			File file = new File(Settings.Dir.JAR + "/rscplus.jar");
-			FileOutputStream output = new FileOutputStream(file);
-			output.write(data);
-			output.close();
+			if (offset != size) {
+				success = false;
+			} else {
+				File file = new File(Settings.Dir.JAR + "/rscplus.jar");
+				FileOutputStream output = new FileOutputStream(file);
+				output.write(data);
+				output.close();
+			}
 		} catch (Exception e) {
 			success = false;
 		}
