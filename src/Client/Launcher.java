@@ -47,6 +47,9 @@ public class Launcher extends JFrame implements Runnable {
 	private static Launcher instance;
 	private static ConfigWindow window;
 	
+	public static ImageIcon icon = null;
+	public static ImageIcon icon_warn = null;
+	
 	private JProgressBar m_progressBar;
 	private JClassLoader m_classLoader;
 	
@@ -66,8 +69,12 @@ public class Launcher extends JFrame implements Runnable {
 		// Set window icon
 		URL iconURL = Settings.getResource("/assets/icon.png");
 		if (iconURL != null) {
-			ImageIcon icon = new ImageIcon(iconURL);
+			icon = new ImageIcon(iconURL);
 			setIconImage(icon.getImage());
+		}
+		iconURL = Settings.getResource("/assets/icon_warn.png");
+		if (iconURL != null) {
+			icon_warn = new ImageIcon(iconURL);
 		}
 		
 		// Set size
@@ -106,10 +113,10 @@ public class Launcher extends JFrame implements Runnable {
 					"\n" +
 					"Would you like to enable this feature?\n" +
 					"\n" +
-					"NOTE: This option can be toggled in the Settings interface under the General tab.", "rscplus", JOptionPane.YES_NO_OPTION);
+					"NOTE: This option can be toggled in the Settings interface under the General tab.", "rscplus", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
 			if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
 				Settings.CHECK_UPDATES = true;
-				JOptionPane.showMessageDialog(this, "rscplus is set to check for updates on GitHub at every launch!", "rscplus", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, "rscplus is set to check for updates on GitHub at every launch!", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon);
 			}
 			else if (response == JOptionPane.NO_OPTION) {
 				Settings.CHECK_UPDATES = false;
@@ -122,24 +129,28 @@ public class Launcher extends JFrame implements Runnable {
 			setStatus("Checking for rscplus update...");
 			double latestVersion = Client.fetchLatestVersionNumber();
 			if (Settings.VERSION_NUMBER < latestVersion) {
+				setStatus("rscplus update is available");
 				// TODO: before Y10K update this to %9.6f
 				int response = JOptionPane.showConfirmDialog(this, "An rscplus client update is available!\n" +
 						"\n" +
 						"Latest: " + String.format("%8.6f", latestVersion) + "\n" +
 						"Installed: " + String.format("%8.6f", Settings.VERSION_NUMBER) + "\n" +
 						"\n" +
-						"Would you like to update now?", "rscplus", JOptionPane.YES_NO_OPTION);
+						"Would you like to update now?", "rscplus", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
 				if (response == JOptionPane.YES_OPTION) {
 					if (updateJar()) {
-						setStatus("rscplus updated successfully, exiting...");
-						try {
-							Thread.sleep(5000);
-						} catch (Exception e) {
-						}
+						JOptionPane.showMessageDialog(this, "rscplus has been updated successfully!\n" +
+								"\n" +
+								"The client requires a restart, and will now exit.", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon);
 						System.exit(0);
 					}
 					else {
-						error("Failed to update rscplus");
+						response = JOptionPane.showConfirmDialog(this, "rscplus has failed to update, please try again later.\n" +
+								"\n" +
+								"Would you like to continue without updating?", "rscplus", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, icon_warn);
+						if (response == JOptionPane.NO_OPTION || response == JOptionPane.CLOSED_OPTION) {
+							System.exit(0);
+						}
 					}
 				}
 			}
@@ -240,7 +251,7 @@ public class Launcher extends JFrame implements Runnable {
 				
 				if (downloadContent) {
 					Logger.Info("Downloading cache file: " + idx_fname);
-					setStatus("Updating cache file '" + idx_fname + "' (" + (idx + 1) + "/" + cacheCount + ")");
+					setStatus("Updating cache file '" + idx_fname + "' (" + (idx + 1) + " / " + cacheCount + ")");
 					download = new CacheDownload(idx_fname);
 					if (download.fetch(this)) {
 						if (download.getCRC() == idx_crc) {
@@ -267,7 +278,7 @@ public class Launcher extends JFrame implements Runnable {
 	public boolean updateJar() {
 		boolean success = true;
 		
-		setStatus("downloading rscplus update...");
+		setStatus("Starting rscplus update...");
 		setProgress(0, 1);
 		
 		try {
@@ -285,10 +296,9 @@ public class Launcher extends JFrame implements Runnable {
 			int readSize;
 			while ((readSize = input.read(data, offset, size - offset)) != -1) {
 				offset += readSize;
+				setStatus("Updating rscplus (" + (offset / 1024) + "KiB / " + (size / 1024) + "KiB)");
 				setProgress(offset, size);
 			}
-			
-			setStatus("updating rscplus...");
 			
 			if (offset != size) {
 				success = false;
@@ -297,6 +307,8 @@ public class Launcher extends JFrame implements Runnable {
 				FileOutputStream output = new FileOutputStream(file);
 				output.write(data);
 				output.close();
+				
+				setStatus("rscplus update complete");
 			}
 		} catch (Exception e) {
 			success = false;

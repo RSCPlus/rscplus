@@ -31,7 +31,6 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import Client.JConfig;
 import Client.Launcher;
@@ -71,11 +70,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 			return;
 		
 		// Set window icon
-		URL iconURL = Settings.getResource("/assets/icon.png");
-		if (iconURL != null) {
-			ImageIcon icon = new ImageIcon(iconURL);
-			setIconImage(icon.getImage());
-		}
+		setIconImage(Launcher.icon.getImage());
 		
 		// Set window properties
 		setResizable(true);
