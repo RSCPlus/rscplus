@@ -357,7 +357,7 @@ public class Renderer {
 				Client.getPlayerName();
 			}
 			
-			Client.npc_list.clear();
+			// Clear item list for next frame
 			Client.item_list.clear();
 			last_item = null;
 			
@@ -475,6 +475,8 @@ public class Renderer {
 					y += 42;
 				}
 			}
+			// Clear npc list for the next frame
+			Client.npc_list.clear();
 			
 			Client.xpdrop_handler.draw(g2);
 			Client.xpbar.draw(g2);
