@@ -120,6 +120,11 @@ public class Launcher extends JFrame implements Runnable {
 			}
 			else if (response == JOptionPane.NO_OPTION) {
 				Settings.CHECK_UPDATES = false;
+				JOptionPane.showMessageDialog(this, "rscplus will not check for updates automatically.\n" +
+						"\n" +
+						"You will not get notified when new releases are available.\n" +
+						"To update your client, you will need to do it manually by\n" +
+						"replacing 'rscplus.jar' in your rscplus directory.", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon_warn);
 			}
 			Settings.UPDATE_CONFIRMATION = true;
 			Settings.save();
