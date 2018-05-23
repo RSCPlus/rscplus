@@ -122,9 +122,10 @@ public class Launcher extends JFrame implements Runnable {
 				Settings.CHECK_UPDATES = false;
 				JOptionPane.showMessageDialog(this, "rscplus will not check for updates automatically.\n" +
 						"\n" +
-						"You will not get notified when new releases are available.\n" +
-						"To update your client, you will need to do it manually by\n" +
-						"replacing 'rscplus.jar' in your rscplus directory.", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon_warn);
+						"You will not get notified when new releases are available. To update your client, you\n" +
+						"will need to do it manually by replacing 'rscplus.jar' in your rscplus directory.\n" +
+						"\n" +
+						"You can enable GitHub updates again in the Settings interface under the General tab.", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon_warn);
 			}
 			Settings.UPDATE_CONFIRMATION = true;
 			Settings.save();
