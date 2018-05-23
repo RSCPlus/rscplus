@@ -749,12 +749,16 @@ public class Renderer {
 		// don't follow this pattern exactly.
 		boolean hitboxesIntersectOnXAxis = (Client.player_posX - 10) < (npc.x + npc.width);
 		
+		// The NPC you're fighting is always on the left side of the player.
+		boolean isOnLeftOfPlayer = Client.player_posX > npc.x;
+		
 		return Client.isInCombat() &&
 				npc.currentHits != 0 &&
 				npc.maxHits != 0 &&
 				npc != null &&
 				!Client.player_name.equals(npc.name) &&
 				inCombatCandidate &&
+				isOnLeftOfPlayer &&
 				hitboxesIntersectOnXAxis;
 	}
 	
