@@ -309,6 +309,7 @@ public class Launcher extends JFrame implements Runnable {
 			if (offset != size) {
 				success = false;
 			} else {
+				// TODO: Get the jar filename in Settings.initDir
 				File file = new File(Settings.Dir.JAR + "/rscplus.jar");
 				FileOutputStream output = new FileOutputStream(file);
 				output.write(data);
