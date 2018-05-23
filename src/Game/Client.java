@@ -28,6 +28,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -755,6 +756,65 @@ public class Client {
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
 		}
+	}
+	
+	/**
+	 * Index fix after menu swap of redrawMenuHook
+	 * 
+	 * @param menuindex - the index of the menu
+	 * @return the fixed index
+	 */
+	public static int swapUseMenuHook(int menuindex) {
+		int newmenuindex = menuindex;
+		if (newmenuindex == 635) {
+			newmenuindex = 650;
+		} else {
+		}
+		return newmenuindex;
+	}
+	
+	/**
+	 * Redraw right click menu add item hook, only interested from the portion of items with special commands 640 or
+	 * none
+	 * 
+	 * @param instance - the instance of common menu
+	 * @param n - some index sent over
+	 * @param index - the item index
+	 * @param itemCommand - item command
+	 * @param itemName - item name
+	 */
+	public static void redrawMenuHook(Object instance, int n, int index, String itemCommand, String itemName) {
+		
+		if (instance != null) {
+			try {
+				// Client.strings[34] - @lre@
+				if (!itemCommand.equals("")) {
+					if (!Item.shouldPatch(index)) {
+						// Edible item command
+						Reflection.menuGen.invoke(instance, n, 640, false, itemCommand, Client.strings[34] + itemName);
+						// Use
+						Reflection.menuGen.invoke(instance, n, 650, false, Client.strings[71], Client.strings[34] + itemName);
+					} else {
+						// 635 is a synonym for 650 "Use", its lower than 640 since otherwise won't do the swap
+						// Use
+						Reflection.menuGen.invoke(instance, n, 635, false, Client.strings[71], Client.strings[34] + itemName);
+						// Edible item command
+						Reflection.menuGen.invoke(instance, n, 640, false, itemCommand, Client.strings[34] + itemName);
+					}
+				} else {
+					// Use
+					Reflection.menuGen.invoke(instance, n, 650, false, Client.strings[71], Client.strings[34] + itemName);
+				}
+				// Drop
+				Reflection.menuGen.invoke(instance, n, 660, false, Client.strings[67], Client.strings[34] + itemName);
+				// Examine
+				Reflection.menuGen.invoke(instance, index, 3600, false, Client.strings[51], Client.strings[34] + itemName);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	// combat packet received (testing only, the info is taken on function that draws hits)

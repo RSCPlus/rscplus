@@ -38,6 +38,7 @@ import Client.Settings;
 public class Item {
 	
 	public static String[] item_name;
+	public static String[] item_commands;
 	
 	public int x;
 	public int y;
@@ -129,6 +130,44 @@ public class Item {
 		} catch (SQLException e) {
 			Logger.Error("Error patching item names from database values.");
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Patches discontinued edible item commands specified by {@link Settings#COMMAND_PATCH_TYPE}.
+	 * Removes completely the option to eat/drink
+	 */
+	public static void patchItemCommands() {
+		int commandPatchType = Settings.COMMAND_PATCH_TYPE;
+		// ids of Half full wine jug, Disk of Returning, Pumpkin, Easter egg
+		int[] edible_rare_item_ids = { 246, 387, 422, 677 };
+		
+		if (commandPatchType == 1 || commandPatchType == 3) {
+			for (int i : edible_rare_item_ids) {
+				item_commands[i] = "";
+			}
+		}
+	}
+	
+	/**
+	 * Patches quest only edible item commands specified by {@link Settings#COMMANDS_PATCH_TYPE}.
+	 * Swaps around the option to eat/drink
+	 */
+	public static boolean shouldPatch(int index) {
+		int commandPatchType = Settings.COMMAND_PATCH_TYPE;
+		// ids of giant Carp, chocolaty milk, Rock cake, nightshade
+		int[] edible_quest_item_ids = { 718, 770, 1061, 1086 };
+		boolean found = false;
+		if (commandPatchType == 2 || commandPatchType == 3) {
+			for (int i : edible_quest_item_ids) {
+				if (index == i) {
+					found = true;
+					break;
+				}
+			}
+			return found;
+		} else {
+			return false;
 		}
 	}
 	

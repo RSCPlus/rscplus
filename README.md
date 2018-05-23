@@ -90,7 +90,7 @@ will push it to the end of the bank and thus withdrawing all should not
 be done if your bank is tidy. To exit the search mode, speak to the 
 banker again.
 
-*::togglestartsearchedbank <aWord>* - Toggle between searchable bank 
+*::togglestartsearchedbank [[aWord]]* - Toggle between searchable bank 
 mode and normal mode; specifying the parameter updates the search 
 keyword stored.
 
@@ -154,6 +154,17 @@ keyword stored.
     <li>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</li>
     <li>Capitalizations and fixed spellings on top of type 1 changes</li>
     <li>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</li>
+  </ol></dd>
+  </dd>
+
+  <dt>command_patch_type</dt>
+  <dd>Range: <i>0 to 3</i><br>
+  Sets how edible items are patched:<br>
+  <ol start=0>
+    <li>No item command patching</li>
+    <li>Remove eat/drink option from discontinued rares (pumpkin, easter egg, etc.)</li>
+    <li>Swap the eat/drink option with use for quest-only items (chocolaty milky, nightshade, etc.)</li>
+    <li>Apply both 1 & 2 changes</li>
   </ol></dd>
   </dd>
   

@@ -46,7 +46,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180523.022824;
+	public static final double VERSION_NUMBER = 20180523.063813;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -89,6 +89,16 @@ public class Settings {
 	 * </p>
 	 */
 	public static int NAME_PATCH_TYPE = 3;
+	/**
+	 * Defines to what extent fix the item commands should be patched.
+	 * <p>
+	 * 0 - No item command patching<br>
+	 * 1 - Disable item consumption on discontinued rares<br>
+	 * 2 - Swap item command, i.e. use instead of consuming on quest-only items<br>
+	 * 3 - Apply both fixes 1 and 2
+	 * </p>
+	 */
+	public static int COMMAND_PATCH_TYPE = 3;
 	public static boolean HIDE_ROOFS = true;
 	public static boolean COLORIZE = true; // TODO: Vague, consider refactoring for clarity
 	public static int FOV = 9;
@@ -205,6 +215,7 @@ public class Settings {
 			FATIGUE_ALERT = getBoolean(props, "fatigue_alert", FATIGUE_ALERT);
 			INVENTORY_FULL_ALERT = getBoolean(props, "inventory_full_alert", INVENTORY_FULL_ALERT);
 			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
+			COMMAND_PATCH_TYPE = getInt(props, "command_patch_type", COMMAND_PATCH_TYPE);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
 			COLORIZE = getBoolean(props, "colorize", COLORIZE);
 			FOV = getInt(props, "fov", FOV);
@@ -301,6 +312,14 @@ public class Settings {
 				save();
 			}
 			
+			if (COMMAND_PATCH_TYPE < 0) {
+				COMMAND_PATCH_TYPE = 0;
+				save();
+			} else if (COMMAND_PATCH_TYPE > 3) {
+				COMMAND_PATCH_TYPE = 3;
+				save();
+			}
+			
 			if (FATIGUE_FIGURES < 1) {
 				FATIGUE_FIGURES = 1;
 				save();
@@ -360,6 +379,7 @@ public class Settings {
 			props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT));
 			props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT));
 			props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE));
+			props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE));
 			props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS));
 			props.setProperty("colorize", Boolean.toString(COLORIZE));
 			props.setProperty("fov", Integer.toString(FOV));
@@ -942,6 +962,7 @@ public class Settings {
 		FATIGUE_ALERT = true;
 		INVENTORY_FULL_ALERT = false;
 		NAME_PATCH_TYPE = 3;
+		COMMAND_PATCH_TYPE = 3;
 		HIDE_ROOFS = true;
 		COLORIZE = true;
 		FOV = 9;

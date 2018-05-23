@@ -59,6 +59,7 @@ public class Reflection {
 	public static Method setLoginText = null;
 	public static Method logout = null;
 	public static Method itemClick = null;
+	public static Method menuGen = null;
 	
 	public static Method newPacket = null;
 	public static Method putShort = null;
@@ -72,6 +73,7 @@ public class Reflection {
 	private static final String SETLOGINTEXT = "private final void client.b(byte,java.lang.String,java.lang.String)";
 	private static final String LOGOUT = "private final void client.B(int)";
 	private static final String ITEMCLICK = "private final void client.b(boolean,int)";
+	private static final String MENUGEN = "final void wb.a(int,int,boolean,java.lang.String,java.lang.String)";
 	
 	private static final String NEWPACKET = "final void b.b(int,int)";
 	private static final String PUTSHORT = "final void tb.e(int,int)";
@@ -234,6 +236,15 @@ public class Reflection {
 			// this menu array I'm not sure whats for
 			menuUknown = c.getDeclaredField("sb");
 			
+			c = classLoader.loadClass("wb");
+			methods = c.getDeclaredMethods();
+			for (Method method : methods) {
+				if (method.toGenericString().equals(MENUGEN)) {
+					menuGen = method;
+					Logger.Info("Found menuGen");
+				}
+			}
+			
 			// Set all accessible
 			if (menuX != null)
 				menuX.setAccessible(true);
@@ -259,6 +270,8 @@ public class Reflection {
 				logout.setAccessible(true);
 			if (itemClick != null)
 				itemClick.setAccessible(true);
+			if (menuGen != null)
+				menuGen.setAccessible(true);
 			if (newPacket != null)
 				newPacket.setAccessible(true);
 			if (putShort != null)

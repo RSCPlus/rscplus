@@ -108,6 +108,7 @@ public class ConfigWindow {
 	private JFrame frame;
 	
 	private JLabel generalPanelNamePatchModeDesc;
+	private JLabel generalPanelCommandPatchModeDesc;
 	private JLabel notificationPanelLowHPNotifsEndLabel;
 	private JLabel notificationPanelFatigueNotifsEndLabel;
 	
@@ -136,6 +137,7 @@ public class ConfigWindow {
 	private JCheckBox generalPanelFatigueAlertCheckbox;
 	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
+	private JSlider generalPanelCommandPatchModeSlider;
 	private JCheckBox generalPanelRoofHidingCheckbox;
 	private JCheckBox generalPanelColoredTextCheckbox;
 	private JSlider generalPanelFoVSlider;
@@ -522,6 +524,61 @@ public class ConfigWindow {
 					break;
 				default:
 					Logger.Error("Invalid name patch mode value");
+					break;
+				}
+			}
+		});
+		
+		JPanel generalPanelCommandPatchModePanel = new JPanel();
+		generalPanelCommandPatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelCommandPatchModePanel.setMaximumSize(new Dimension(300, 60));
+		generalPanelCommandPatchModePanel.setLayout(new BoxLayout(generalPanelCommandPatchModePanel, BoxLayout.X_AXIS));
+		generalPanel.add(generalPanelCommandPatchModePanel);
+		
+		generalPanelCommandPatchModeSlider = new JSlider();
+		generalPanelCommandPatchModeSlider.setMajorTickSpacing(1);
+		generalPanelCommandPatchModeSlider.setPaintLabels(true);
+		generalPanelCommandPatchModeSlider.setPaintTicks(true);
+		generalPanelCommandPatchModeSlider.setSnapToTicks(true);
+		generalPanelCommandPatchModeSlider.setMinimum(0);
+		generalPanelCommandPatchModeSlider.setMaximum(3);
+		generalPanelCommandPatchModeSlider.setPreferredSize(new Dimension(33, 0));
+		generalPanelCommandPatchModeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelCommandPatchModeSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+		generalPanelCommandPatchModeSlider.setOrientation(SwingConstants.VERTICAL);
+		generalPanelCommandPatchModePanel.add(generalPanelCommandPatchModeSlider);
+		
+		JPanel generalPanelCommandPatchModeTextPanel = new JPanel();
+		generalPanelCommandPatchModeTextPanel.setPreferredSize(new Dimension(255, 55));
+		generalPanelCommandPatchModeTextPanel.setLayout(new BorderLayout());
+		generalPanelCommandPatchModeTextPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
+		generalPanelCommandPatchModePanel.add(generalPanelCommandPatchModeTextPanel);
+		
+		JLabel generalPanelCommandPatchModeTitle = new JLabel("<html><b>Item command patch mode</b> (Requires restart)</html>");
+		generalPanelCommandPatchModeTitle.setToolTipText("Reworks certain discontinued/quest-only item edible commands with improved versions");
+		generalPanelCommandPatchModeTextPanel.add(generalPanelCommandPatchModeTitle, BorderLayout.PAGE_START);
+		generalPanelCommandPatchModeDesc = new JLabel("");
+		generalPanelCommandPatchModeTextPanel.add(generalPanelCommandPatchModeDesc, BorderLayout.CENTER);
+		
+		generalPanelCommandPatchModeSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				switch (generalPanelCommandPatchModeSlider.getValue()) {
+				case 3:
+					generalPanelCommandPatchModeDesc.setText("<html>Apply both 1 & 2 changes</html>");
+					break;
+				case 2:
+					generalPanelCommandPatchModeDesc.setText("<html>Swap eat/drink option with use on quest-only items</html>");
+					break;
+				case 1:
+					generalPanelCommandPatchModeDesc.setText("<html>Remove eat/drink option on discontinued items</html>");
+					break;
+				case 0:
+					generalPanelCommandPatchModeDesc.setText("<html>No item command patching</html>");
+					break;
+				default:
+					Logger.Error("Invalid command patch mode value");
 					break;
 				}
 			}
@@ -1156,6 +1213,7 @@ public class ConfigWindow {
 		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT);
 		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT);
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
+		generalPanelCommandPatchModeSlider.setValue(Settings.COMMAND_PATCH_TYPE);
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
 		generalPanelFoVSlider.setValue(Settings.FOV);
@@ -1245,6 +1303,7 @@ public class ConfigWindow {
 		Settings.FATIGUE_ALERT = generalPanelFatigueAlertCheckbox.isSelected();
 		Settings.INVENTORY_FULL_ALERT = generalPanelInventoryFullAlertCheckbox.isSelected();
 		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
+		Settings.COMMAND_PATCH_TYPE = generalPanelCommandPatchModeSlider.getValue();
 		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
 		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
 		Settings.FOV = generalPanelFoVSlider.getValue();

@@ -39,6 +39,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -130,6 +131,7 @@ public class JClassPatcher {
 			hookStaticVariable(methodNode, "client", "il", "[Ljava/lang/String;", "Game/Client", "strings", "[Ljava/lang/String;");
 			
 			hookStaticVariable(methodNode, "ac", "x", "[Ljava/lang/String;", "Game/Item", "item_name", "[Ljava/lang/String;");
+			hookStaticVariable(methodNode, "lb", "ac", "[Ljava/lang/String;", "Game/Item", "item_commands", "[Ljava/lang/String;");
 			
 			hookClassVariable(methodNode, "lb", "Mb", "I", "Game/Camera", "distance1", "I", false, true);
 			hookClassVariable(methodNode, "lb", "X", "I", "Game/Camera", "distance2", "I", false, true);
@@ -258,6 +260,7 @@ public class JClassPatcher {
 				// Data hook patches
 				AbstractInsnNode lastNode = methodNode.instructions.getLast();
 				methodNode.instructions.insertBefore(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Item", "patchItemNames", "()V", false));
+				methodNode.instructions.insertBefore(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Item", "patchItemCommands", "()V", false));
 			}
 		}
 	}
@@ -754,8 +757,26 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
 				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "messageHook", "(Ljava/lang/String;Ljava/lang/String;I)V"));
 			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
-				// Throwable crash patch
+				// Fix on swap between command and use, if 635 is received make it 650 by hook
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.ISTORE && ((VarInsnNode)insnNode).var == 3) {
+						VarInsnNode call = (VarInsnNode)nextNode;
+						methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ILOAD, 3));
+						methodNode.instructions.insertBefore(nextNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "swapUseMenuHook", "(I)I"));
+						methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ISTORE, 3));
+						break;
+					}
+				}
+				
+				// Throwable crash patch
+				insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
 					AbstractInsnNode nextNode = insnNode.getNext();
@@ -898,6 +919,45 @@ public class JClassPatcher {
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 11));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+						continue;
+					}
+				}
+			}
+			// hook menu item
+			else if (methodNode.name.equals("a") && methodNode.desc.equals("(IZ)V")) {
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				LabelNode firstLabel = null;
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode prevNode = insnNode.getPrevious();
+					AbstractInsnNode twoPrevNodes = null;
+					if (prevNode != null)
+						twoPrevNodes = prevNode.getPrevious();
+					
+					if (insnNode.getNext() == null)
+						continue;
+					
+					if (prevNode == null || twoPrevNodes == null)
+						continue;
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL && prevNode.getOpcode() == Opcodes.LDC && prevNode instanceof LdcInsnNode
+							&& ((LdcInsnNode)prevNode).cst instanceof String && ((String)((LdcInsnNode)prevNode).cst).equals("")
+							&& twoPrevNodes.getOpcode() == Opcodes.AALOAD) {
+						methodNode.instructions.insert(prevNode, new InsnNode(Opcodes.RETURN));
+						methodNode.instructions.insert(prevNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Client", "redrawMenuHook", "(Ljava/lang/Object;IILjava/lang/String;Ljava/lang/String;)V"));
+						methodNode.instructions.insert(prevNode, new InsnNode(Opcodes.AALOAD));
+						methodNode.instructions.insert(prevNode, new VarInsnNode(Opcodes.ILOAD, 6));
+						methodNode.instructions.insert(prevNode, new FieldInsnNode(Opcodes.GETSTATIC, "ac",
+								"x", "[Ljava/lang/String;"));
+						methodNode.instructions.insert(prevNode, new InsnNode(Opcodes.AALOAD));
+						methodNode.instructions.insert(prevNode, new VarInsnNode(Opcodes.ILOAD, 6));
+						methodNode.instructions.insert(prevNode, new FieldInsnNode(Opcodes.GETSTATIC, "lb",
+								"ac", "[Ljava/lang/String;"));
+						methodNode.instructions.insert(prevNode, new VarInsnNode(Opcodes.ILOAD, 6));
+						methodNode.instructions.insert(prevNode, new VarInsnNode(Opcodes.ILOAD, 5));
+						methodNode.instructions.insert(prevNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "zh", "Lwb;"));
+						methodNode.instructions.insert(prevNode, new VarInsnNode(Opcodes.ALOAD, 0));
 						continue;
 					}
 				}
