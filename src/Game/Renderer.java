@@ -44,8 +44,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import javax.imageio.ImageIO;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
@@ -606,6 +608,24 @@ public class Renderer {
 			}
 			
 			drawShadowText(g2, "There are currently " + totalPop + " players online.", width / 2, 8, color_text, true);
+			
+			// The RuneScape Classic servers will be taken offline at 8:00am BST on the 6th of August 2018.
+			// https://services.runescape.com/m=news/runescape-classic-farewell?oldschool=1
+			Calendar closeDate = new GregorianCalendar();
+			closeDate.setTimeZone(TimeZone.getTimeZone("BST"));
+			closeDate.set(2018, 7, 6, 8, 0, 0);
+			Date currentDate = Calendar.getInstance().getTime();
+			long timeRemaining = (closeDate.getTime().getTime() - 1000) - currentDate.getTime();
+			long daysRemaining = timeRemaining / (1000 * 60 * 60 * 24);
+			String daysString;
+			if (timeRemaining < 0) {
+				daysString = "RuneScape Classic has been taken offline";
+			} else if (timeRemaining < (1000 * 60 * 60 * 24)) {
+				daysString = "RuneScape Classic will be taken offline today";
+			} else {
+				daysString = "RuneScape Classic will be taken offline in " + (daysRemaining == 1 ? "1 day" : (daysRemaining + " days"));
+			}
+			drawShadowText(g2, daysString, width / 2, 24, Renderer.color_fatigue, true);
 			
 			// Draw version information
 			drawShadowText(g2, "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER), width - 164, height - 2, color_text, false);
