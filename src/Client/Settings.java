@@ -46,7 +46,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180525.022340;
+	public static final double VERSION_NUMBER = 20180525.201802;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -113,6 +113,7 @@ public class Settings {
 	public static boolean SHOW_PLAYERINFO = false; // TODO: See above
 	public static boolean SHOW_FRIENDINFO = false; // TODO ^
 	public static boolean SHOW_NPCINFO = false; // TODO ^
+	public static boolean USE_PERCENTAGE = false;
 	public static boolean SHOW_HITBOX = false; // TODO: Consider refactoring for clarity that this only affects NPCs
 	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
 	public static boolean SHOW_TIME_UNTIL_HP_REGEN = false;
@@ -231,6 +232,7 @@ public class Settings {
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", SHOW_PLAYERINFO);
 			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", SHOW_FRIENDINFO);
 			SHOW_NPCINFO = getBoolean(props, "show_npcinfo", SHOW_NPCINFO);
+			USE_PERCENTAGE = getBoolean(props, "use_percentage", DEBUG);
 			SHOW_HITBOX = getBoolean(props, "show_hitbox", SHOW_HITBOX);
 			SHOW_FOOD_HEAL_OVERLAY = getBoolean(props, "show_food_heal_overlay", SHOW_FOOD_HEAL_OVERLAY);
 			SHOW_TIME_UNTIL_HP_REGEN = getBoolean(props, "show_time_until_hp_regen", SHOW_TIME_UNTIL_HP_REGEN);
@@ -395,6 +397,7 @@ public class Settings {
 			props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYERINFO));
 			props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIENDINFO));
 			props.setProperty("show_npcinfo", Boolean.toString(SHOW_NPCINFO));
+			props.setProperty("use_percentage", Boolean.toString(USE_PERCENTAGE));
 			props.setProperty("show_hitbox", Boolean.toString(SHOW_HITBOX));
 			props.setProperty("show_food_heal_overlay", Boolean.toString(SHOW_FOOD_HEAL_OVERLAY));
 			props.setProperty("show_time_until_hp_regen", Boolean.toString(SHOW_TIME_UNTIL_HP_REGEN));
@@ -983,6 +986,7 @@ public class Settings {
 		SHOW_PLAYERINFO = false;
 		SHOW_FRIENDINFO = false;
 		SHOW_NPCINFO = false;
+		USE_PERCENTAGE = false;
 		SHOW_HITBOX = false;
 		SHOW_FOOD_HEAL_OVERLAY = false;
 		SHOW_TIME_UNTIL_HP_REGEN = false;

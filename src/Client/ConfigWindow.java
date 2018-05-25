@@ -154,6 +154,7 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelFriendNamesCheckbox;
 	private JCheckBox overlayPanelNPCNamesCheckbox;
 	private JCheckBox overlayPanelNPCHitboxCheckbox;
+	private JCheckBox overlayPanelUsePercentageCheckbox;
 	private JCheckBox overlayPanelFoodHealingCheckbox;
 	private JCheckBox overlayPanelHPRegenTimerCheckbox;
 	private JCheckBox overlayPanelDebugModeCheckbox;
@@ -677,6 +678,9 @@ public class ConfigWindow {
 		
 		overlayPanelNPCNamesCheckbox = addCheckbox("Display NPC name overlay", overlayPanel);
 		overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
+		
+		overlayPanelUsePercentageCheckbox = addCheckbox("Use percentage for NPC HP info", overlayPanel);
+		overlayPanelUsePercentageCheckbox.setToolTipText("Uses percentage for NPC HP info instead of actual HP");
 		
 		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
 		overlayPanelNPCHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs and players");
@@ -1249,6 +1253,7 @@ public class ConfigWindow {
 		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIENDINFO);
 		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPCINFO);
 		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_HITBOX);
+		overlayPanelUsePercentageCheckbox.setSelected(Settings.USE_PERCENTAGE);
 		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY); // TODO: Implement this feature
 		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN); // TODO: Implement this feature
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
@@ -1320,6 +1325,7 @@ public class ConfigWindow {
 		Settings.SHOW_FRIENDINFO = overlayPanelFriendNamesCheckbox.isSelected();
 		Settings.SHOW_NPCINFO = overlayPanelNPCNamesCheckbox.isSelected();
 		Settings.SHOW_HITBOX = overlayPanelNPCHitboxCheckbox.isSelected();
+		Settings.USE_PERCENTAGE = overlayPanelUsePercentageCheckbox.isSelected();
 		Settings.SHOW_FOOD_HEAL_OVERLAY = overlayPanelFoodHealingCheckbox.isSelected();
 		Settings.SHOW_TIME_UNTIL_HP_REGEN = overlayPanelHPRegenTimerCheckbox.isSelected();
 		Settings.DEBUG = overlayPanelDebugModeCheckbox.isSelected();

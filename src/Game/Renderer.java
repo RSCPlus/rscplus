@@ -814,7 +814,10 @@ public class Renderer {
 		g.fillRect(x, y + 20, (int)(bounds.width * hp_ratio), bounds.height / 2);
 		
 		// HP text
-		drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
+		if (Settings.USE_PERCENTAGE)
+			drawShadowText(g, (int)(hp_ratio * 100) + "%", x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
+		else
+			drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
 		
 		// NPC name
 		drawShadowText(g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 12, color_text, true);
