@@ -37,6 +37,7 @@ import Client.Launcher;
 import Client.NotificationsHandler;
 import Client.Settings;
 import Client.TrayHandler;
+import Client.Util;
 
 /**
  * Singleton class that handles packaging the client into a JFrame and starting the applet.
@@ -75,11 +76,13 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		// Set window properties
 		setResizable(true);
 		addWindowListener(this);
+		setMinimumSize(new Dimension(1, 1));
 		
 		// Add applet to window
 		setContentPane(m_applet);
 		getContentPane().setBackground(Color.BLACK);
 		getContentPane().setPreferredSize(new Dimension(512, 346));
+		addComponentListener(this);
 		pack();
 		
 		// Hide cursor if software cursor
@@ -89,13 +92,10 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		setLocationRelativeTo(null);
 		setVisible(true);
 		
-		setMinimumSize(new Dimension(1, 1));
-		addComponentListener(this);
-		
 		Reflection.Load();
 		Renderer.init();
 		
-		if (Settings.CUSTOM_CLIENT_SIZE) {
+		if (!Util.isMacOS() && Settings.CUSTOM_CLIENT_SIZE) {
 			Game.getInstance().resizeFrameWithContents();
 		}
 	}
@@ -215,6 +215,13 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		if (getMinimumSize().width == 1) {
 			setMinimumSize(getSize());
 			launchGame();
+			
+			// This workaround appears to be for a bug in the macOS JVM
+			// Without it, mac users get very angry
+			if (Util.isMacOS()) {
+				setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+				setLocationRelativeTo(null);
+			}
 		}
 		
 		Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
@@ -246,6 +253,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X + getInsets().left + getInsets().right;
 		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y + getInsets().top + getInsets().bottom;
 		setSize(windowWidth, windowHeight);
+		setLocationRelativeTo(null);
 	}
 	
 }

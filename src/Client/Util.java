@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.zip.CRC32;
 
 /**
@@ -49,6 +50,11 @@ public class Util {
 	
 	private Util() {
 		// Empty private constructor to prevent instantiation.
+	}
+	
+	public static boolean isMacOS() {
+		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+		return (os.contains("mac") || os.contains("darwin"));
 	}
 	
 	/**
