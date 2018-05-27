@@ -485,7 +485,7 @@ public class Renderer {
 			}
 			
 			// NPC Post-processing for ui
-			if (Settings.SHOW_COMBAT_INFO) {
+			if (Settings.SHOW_COMBAT_INFO && !Client.isInterfaceOpen()) {
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next();
 					if (npc != null && isInCombatWithNPC(npc)) {
@@ -824,7 +824,7 @@ public class Renderer {
 		
 		// HP text
 		if (Settings.USE_PERCENTAGE)
-			drawShadowText(g, (int)(hp_ratio * 100) + "%", x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
+			drawShadowText(g, (int)Math.ceil(hp_ratio * 100) + "%", x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
 		else
 			drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
 		
