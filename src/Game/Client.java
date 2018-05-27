@@ -89,6 +89,7 @@ public class Client {
 	public static final int CHAT_PRIVATE_LOG_IN_OUT = 5;
 	public static final int CHAT_TRADE_REQUEST_RECEIVED = 6; //only used when another player sends you a trade request. (hopefully!)
 	public static final int CHAT_OTHER = 7;	// used for when you send a player a duel/trade request, follow someone, or drop an item
+	public static final int CHAT_INCOMING_OPTION = 8;
 	
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
@@ -835,6 +836,29 @@ public class Client {
 	}
 	
 	/**
+	 * This method hooks all options received and adds them to console
+	 * 
+	 * @param menuOptions The options received from server
+	 * @param count The count for the options
+	 */
+	public static void receivedOptionsHook(String[] menuOptions, int count) {
+		int type = CHAT_INCOMING_OPTION;
+		
+		String option = "";
+		for (int i = 0; i < count; i++) {
+			option = menuOptions[i];
+			if (Settings.COLORIZE) {
+				AnsiConsole.systemInstall();
+				System.out.println(ansi()
+						.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
+				AnsiConsole.systemUninstall();
+			} else {
+				System.out.println("(" + type + ") " + option);
+			}
+		}
+	}
+	
+	/**
 	 * This method hooks all chat messages.
 	 * 
 	 * @param username the username that the message originated from
@@ -1049,6 +1073,9 @@ public class Client {
 		case CHAT_TRADE_REQUEST_RECEIVED:
 		case CHAT_OTHER:
 			colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
+			break;
+		case CHAT_INCOMING_OPTION:
+			colorMessage = "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@";
 			break;
 		default: // this should never happen, only 8 Chat Types
 			System.out.println("Unhandled chat type in colourizeMessage, please report this:" + type);

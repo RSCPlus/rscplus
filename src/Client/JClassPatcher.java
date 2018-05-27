@@ -922,6 +922,38 @@ public class JClassPatcher {
 						continue;
 					}
 				}
+				
+				// hook onto received menu options
+				insnNodeList = methodNode.instructions.iterator();
+				LabelNode lblNode = null;
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					AbstractInsnNode twoNextNode = nextNode.getNext();
+					
+					if (nextNode == null || twoNextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)insnNode).var == 0 && nextNode.getOpcode() == Opcodes.GETFIELD
+							&& ((FieldInsnNode)nextNode).owner.equals("client") && ((FieldInsnNode)nextNode).name.equals("ah")
+							&& twoNextNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)twoNextNode).var == 5
+							&& insnNode.getPrevious().getOpcode() == Opcodes.IF_ICMPLE) {
+						// in here is part where menu options are received, is a loop
+						lblNode = ((JumpInsnNode)insnNode.getPrevious()).label;
+						continue;
+					}
+					
+					if (lblNode != null && insnNode instanceof LabelNode && ((LabelNode)insnNode).equals(lblNode) && twoNextNode.getOpcode() == Opcodes.RETURN) {
+						InsnNode call = (InsnNode)twoNextNode;
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+						methodNode.instructions.insertBefore(call, new FieldInsnNode(Opcodes.GETFIELD, "client", "ah", "[Ljava/lang/String;"));
+						// could also be client.Id but more lines would be needed
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Client", "receivedOptionsHook", "([Ljava/lang/String;I)V"));
+					}
+				}
+				
 			}
 			// hook menu item
 			else if (methodNode.name.equals("a") && methodNode.desc.equals("(IZ)V")) {
