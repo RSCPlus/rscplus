@@ -485,14 +485,16 @@ public class Renderer {
 			}
 			
 			// NPC Post-processing for ui
-			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
-				NPC npc = iterator.next();
-				if (npc != null && isInCombatWithNPC(npc)) {
-					drawNPCBar(g2, 7, y, npc);
-					// Increment y by npc bar height, so we can have multiple bars
-					// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
-					// that our combat detection isn't accurate
-					y += 50;
+			if (Settings.SHOW_COMBAT_INFO) {
+				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
+					NPC npc = iterator.next();
+					if (npc != null && isInCombatWithNPC(npc)) {
+						drawNPCBar(g2, 7, y, npc);
+						// Increment y by npc bar height, so we can have multiple bars
+						// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
+						// that our combat detection isn't accurate
+						y += 50;
+					}
 				}
 			}
 			// Clear npc list for the next frame
@@ -769,6 +771,14 @@ public class Renderer {
 	}
 	
 	private static boolean isInCombatWithNPC(NPC npc) {
+		if (npc == null) {
+			return false;
+		}
+		
+		if (Client.player_name == null) {
+			Client.getPlayerName();
+		}
+		
 		int bottom_posY_npc = npc.y + npc.height;
 		int bottom_posY_player = Client.player_posY + Client.player_height;
 		
@@ -788,7 +798,6 @@ public class Renderer {
 		return Client.isInCombat() &&
 				npc.currentHits != 0 &&
 				npc.maxHits != 0 &&
-				npc != null &&
 				!Client.player_name.equals(npc.name) &&
 				inCombatCandidate &&
 				isOnLeftOfPlayer &&
