@@ -27,7 +27,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-import Game.Game;
 
 /**
  * Parses, stores, and retrieves values from a jav_config.ws file
@@ -130,6 +129,12 @@ public class JConfig {
 	 * @param world The desired world to log into
 	 */
 	public void changeWorld(int world) {
+		if (world == 6) {
+			// Replay playback "world"
+			m_data.put("codebase", "http://127.0.0.1/");
+			return;
+		}
+		
 		// Clip world to 1 - 5
 		if (world > 5)
 			world = 5;
@@ -141,15 +146,12 @@ public class JConfig {
 			parameters.put("servertype", "" + 3);
 		else
 			parameters.put("servertype", "" + 1);
+		
 		m_data.put("codebase", "http://classic" + world + ".runescape.com/");
 		
 		// Update settings
 		Settings.WORLD = world;
 		Settings.save();
-		
-		// TODO: This may not be the best way to handle this, but for now this works
-		// If we start setting other title info, it will be broken by this
-		Game.getInstance().setTitle("World " + (Settings.WORLD));
 	}
 	
 	/**

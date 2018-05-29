@@ -49,6 +49,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import Client.Launcher;
+import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
@@ -100,9 +104,13 @@ public class Renderer {
 	private static long fps_timer = 0;
 	private static boolean screenshot = false;
 	
+	public static int replayOption = 0;
+	public static String replayName = "";
+	
 	public static String[] shellStrings;
 	
 	private static boolean macOS_resize_workaround = Util.isMacOS();
+    private static boolean showRecordAlwaysDialogueThisFrame = false;
 	
 	public static void init() {
 		// patch copyright to match current year
@@ -214,10 +222,6 @@ public class Renderer {
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
 					Color color = color_low;
-					
-					if (Client.player_name == null) {
-						Client.getPlayerName();
-					}
 					
 					// Update player coords
 					if (npc != null && Client.player_name.equals(npc.name)) {
@@ -366,10 +370,6 @@ public class Renderer {
 			
 			if (!Client.isSleeping()) {
 				Client.updateCurrentFatigue();
-			}
-			
-			if (!Client.isWelcomeScreen() && null == Client.player_name) {
-				Client.getPlayerName();
 			}
 			
 			// Clear item list for next frame
@@ -612,6 +612,78 @@ public class Renderer {
 				}
 			}
 			
+			Rectangle bounds = new Rectangle(width - 148, height - 36, 48, 16);
+			drawShadowText(g2, "-replay-", bounds.x + 48, bounds.y - 10, color_text, true);
+			
+			setAlpha(g2, 0.5f);
+			if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
+				g2.setColor(color_low);
+			} else {
+				g2.setColor(color_text);
+            }
+			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			
+			if (Settings.RECORD_AUTOMATICALLY) {
+				g2.setColor(color_text);
+				g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			}
+			
+			setAlpha(g2, 1.0f);
+			drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+			// Handle replay record selection click
+			if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height
+					&& MouseHandler.mouseClicked) {
+				Client.showRecordAlwaysDialogue = true;
+				
+				if (replayOption == 1) {
+					replayOption = 0;
+				} else {
+					replayOption = 1;
+				}
+			}
+			bounds = new Rectangle(bounds.x + bounds.width + 4, bounds.y, 48, bounds.height);
+			setAlpha(g2, 0.5f);
+			if (replayOption == 2)
+				g2.setColor(color_low);
+			else
+				g2.setColor(color_text);
+			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			setAlpha(g2, 1.0f);
+			drawShadowText(g2, "play", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+			// Handle replay play selection click
+			if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height
+					&& MouseHandler.mouseClicked) {
+				if (replayOption == 2) {
+					replayOption = 0;
+				} else {
+                    if (!Util.isMacOS()) {
+						JFileChooser j = new JFileChooser(Settings.Dir.REPLAY);
+						j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+						int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
+					
+						File selection = j.getSelectedFile();
+						if (selection != null && response != JFileChooser.CANCEL_OPTION) {
+							replayName = selection.getPath();
+							if (Replay.isValid(replayName)) {
+								replayOption = 2;
+								Logger.Info("Replay selected: " + replayName);
+								Client.login_hook();
+							} else {
+								JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you selected is not valid.\n" +
+									"\n" +
+									"You need to select a folder that contains the 'version.bin', 'in.bin.gz', and 'keys.bin' for your replay.\n" +
+									"They're usually in a folder with your login username.", "rscplus", JOptionPane.ERROR_MESSAGE,
+									Launcher.icon_warn);
+							}
+						} else {
+							replayOption = 0;
+						}
+                    } else {
+                        Client.showMacintoshReplayNotImplementedError = true;
+                    }
+				}
+			}
+			
 			drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
 			
 			int worldPopArray[];
@@ -681,6 +753,9 @@ public class Renderer {
 			Camera.setFoV(Settings.FOV);
 			Settings.fovUpdateRequired = false;
 		}
+		
+		// Reset the mouse click handler
+		MouseHandler.mouseClicked = false;
 	}
 	
 	public static void drawBar(Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {
@@ -773,10 +848,6 @@ public class Renderer {
 	private static boolean isInCombatWithNPC(NPC npc) {
 		if (npc == null) {
 			return false;
-		}
-		
-		if (Client.player_name == null) {
-			Client.getPlayerName();
 		}
 		
 		int bottom_posY_npc = npc.y + npc.height;

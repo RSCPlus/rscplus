@@ -53,38 +53,51 @@ public class KeyboardHandler implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		if (listener_key == null)
 			return;
+        boolean shouldConsume;
 		
 		if (e.isControlDown()) {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.CTRL && e.getKeyCode() == kbs.getKey()) {
-					Settings.processKeybindCommand(kbs.getCommandName());
-					e.consume();
+					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
+                    if (shouldConsume) {
+                        e.consume();
+                    }
 				}
 			}
 			
 		} else if (e.isShiftDown()) {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.SHIFT && e.getKeyCode() == kbs.getKey()) {
-					Settings.processKeybindCommand(kbs.getCommandName());
-					e.consume();
+					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
+                    if (shouldConsume) {
+                        e.consume();
+                    }
 				}
 			}
 			
 		} else if (e.isAltDown()) {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.ALT && e.getKeyCode() == kbs.getKey()) {
-					Settings.processKeybindCommand(kbs.getCommandName());
-					e.consume();
+					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
+                    if (shouldConsume) {
+                        e.consume();
+                    }
 				}
 			}
 			
 		} else {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.NONE && e.getKeyCode() == kbs.getKey()) {
-					Settings.processKeybindCommand(kbs.getCommandName());
-					e.consume();
+					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
+                    if (shouldConsume) {
+                        e.consume();
+                    }
 				}
 			}
+		}
+		
+		if (Replay.isRecording && !e.isConsumed()) {
+			Replay.dumpKeyboardInput(e.getKeyCode(), Replay.KEYBOARD_PRESSED, e.getKeyChar(), e.getModifiers());
 		}
 		
 		if (Client.show_questionmenu && !e.isConsumed()) {
@@ -112,7 +125,7 @@ public class KeyboardHandler implements KeyListener {
 		}
 		
 		if (Client.state == Client.STATE_GAME && e.getKeyCode() == KeyEvent.VK_TAB && !Client.isInterfaceOpen()) {
-			if (Client.lastpm_username != null) {
+			if (!Replay.isPlaying && Client.lastpm_username != null) {
 				Client.pm_text = "";
 				Client.pm_enteredText = "";
 				Client.pm_username = Client.lastpm_username;
@@ -120,7 +133,7 @@ public class KeyboardHandler implements KeyListener {
 			}
 			e.consume();
 		}
-		
+			
 		if (!e.isConsumed()) {
 			listener_key.keyPressed(e);
 		}
@@ -130,6 +143,10 @@ public class KeyboardHandler implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		if (listener_key == null)
 			return;
+		
+		if (Replay.isRecording) {
+			Replay.dumpKeyboardInput(e.getKeyCode(), Replay.KEYBOARD_RELEASED, e.getKeyChar(), e.getModifiers());
+		}
 		
 		// Reset dialogue option
 		if (dialogue_option >= 0) {
@@ -150,6 +167,10 @@ public class KeyboardHandler implements KeyListener {
 		if (listener_key == null)
 			return;
 		
+		if (Replay.isRecording) {
+			Replay.dumpKeyboardInput(e.getKeyCode(), Replay.KEYBOARD_TYPED, e.getKeyChar(), e.getModifiers());
+		}
+		
 		if (dialogue_option >= 0)
 			e.consume();
 		
@@ -157,5 +178,4 @@ public class KeyboardHandler implements KeyListener {
 			listener_key.keyTyped(e);
 		}
 	}
-	
 }

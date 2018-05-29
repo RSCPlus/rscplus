@@ -47,6 +47,17 @@ public class Menu {
 	private static int spell_swap_idx = 0;
 	private static int[] spell_swap_scroll = { 0, 0 };
 	
+	public static void init() {
+		spell_swap_idx = 0;
+		spell_swap_scroll[0] = 0;
+		spell_swap_scroll[1] = 0;
+		
+		try {
+			Reflection.menuScroll.set(spell_menu, spell_swap_scroll);
+		} catch (Exception e) {
+		}
+	}
+	
 	/**
 	 * Adjusts the in-game menu position based on the window size
 	 */

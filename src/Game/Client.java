@@ -33,8 +33,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.fusesource.jansi.AnsiConsole;
 import Client.KeybindSet;
+import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
@@ -128,6 +130,15 @@ public class Client {
 	
 	public static int friends_count;
 	public static String[] friends;
+	public static String[] friends_world;
+	public static String[] friends_formerly;
+	public static int[] friends_online;
+	
+	public static int ignores_count;
+	public static String[] ignores;
+	public static String[] ignores_formerly;
+	public static String[] ignores_copy;
+	public static String[] ignores_formerly_copy;
 	
 	public static String pm_username;
 	public static String pm_text;
@@ -136,6 +147,7 @@ public class Client {
 	
 	public static int login_screen;
 	public static String username_login;
+	public static int autologin_timeout;
 	
 	public static Object player_object;
 	public static String player_name = null;
@@ -167,6 +179,7 @@ public class Client {
 	public static int[] bank_items;
 	public static int[] new_bank_items_count;
 	public static int[] new_bank_items;
+	public static int bank_active_page;
 	
 	// these two variables, they indicate distinct bank items count
 	public static int new_count_items_bank;
@@ -184,10 +197,13 @@ public class Client {
 	public static XPBar xpbar = new XPBar();
 	
 	private static TwitchIRC twitch = new TwitchIRC();
-	private static MouseHandler handler_mouse;
-	private static KeyboardHandler handler_keyboard;
+	public static MouseHandler handler_mouse;
+	public static KeyboardHandler handler_keyboard;
 	private static float[] xpdrop_state = new float[18];
 	private static long updateTimer = 0;
+	
+	public static boolean showRecordAlwaysDialogue = false;
+    public static boolean showMacintoshReplayNotImplementedError = false;
 	
 	/**
 	 * A boolean array that stores if the XP per hour should be shown for a given skill when hovering on the XP bar.
@@ -270,7 +286,56 @@ public class Client {
 		// FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
 		version = 235;
 		
+		Replay.update();
+		
+    /*
+		if (Replay.isPlaying) {
+			Replay.playKeyboardInput();
+			Replay.playMouseInput();
+		}
+    */
+		
+		// Increment the replay timestamp
+		if (Replay.isRecording)
+			Replay.incrementTimestamp();
+		
+		if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME && showRecordAlwaysDialogue) {
+			int response = JOptionPane.showConfirmDialog(Game.getInstance().getApplet(), "If you'd like, you can record your session every time you play by default.\n" +
+					"\n" +
+					"These recordings do not leave your computer unless you manually do it on purpose.\n" +
+					"They also take up negligible space. You could fit about a 6 hour session on a floppy disk, depending on what you do.\n" +
+					"\n" +
+					"Recordings can be played back later, even offline, and capture the data the server sends and that you send the server.\n" +
+					"Your password is not in the capture.\n" +
+					"\n" +
+					"Would you like to record all your play sessions by default?\n" +
+					"\n" +
+					"NOTE: This option can be toggled in the Settings interface (ctrl-o by default) under the Replay tab.", "rscplus", JOptionPane.YES_NO_OPTION,
+					JOptionPane.INFORMATION_MESSAGE, Launcher.icon);
+			if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
+				Settings.RECORD_AUTOMATICALLY = true;
+			} else if (response == JOptionPane.NO_OPTION) {
+				Settings.RECORD_AUTOMATICALLY = false;
+			}
+			Settings.RECORD_AUTOMATICALLY_FIRST_TIME = false;
+			Settings.save();
+		}
+        
+        if (showMacintoshReplayNotImplementedError) {
+            JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "Sorry, but the ability to replay your recordings on Mac is not implemented yet.\n" +
+                    "\n" +
+                    "Recordings made on Mac are valid and good, but there's currently an error actually playing them back.\n" +
+                    "If you want to see your playback, unfortunately your options are to use rscplus on Windows, on Linux, or wait.\n"+
+                    "Hopefully a fix for this can be made soon, but in the meantime, feel free to keep making recordings.", "rscplus", JOptionPane.ERROR_MESSAGE,
+                    Launcher.icon_warn);
+            showMacintoshReplayNotImplementedError = false;
+        }
+		
 		if (state == STATE_GAME) {
+			if (Client.player_name == null) {
+				Client.getPlayerName();
+			}
+			
 			// Process XP drops
 			boolean dropXP = xpdrop_state[SKILL_HP] > 0.0f; // TODO: Declare dropXP outside of the update method
 			for (int i = 0; i < xpdrop_state.length; i++) {
@@ -317,6 +382,8 @@ public class Client {
 			if (isWelcomeScreen() && currentFatigue != getActualFatigue())
 				currentFatigue = getActualFatigue();
 		}
+		
+		Game.getInstance().updateTitle();
 	}
 	
 	public static void init_login() {
@@ -325,22 +392,46 @@ public class Client {
 		
 		Camera.init();
 		state = STATE_LOGIN;
+		Renderer.replayOption = 0;
 		
 		twitch.disconnect();
 		
-		// After logging out, the login screen shows "Please wait... Connecting to server", so we'll overwrite this
-		setLoginMessage("Please enter your username and password", "");
+		resetLoginMessage();
+		Replay.closeReplayPlayback();
 		adaptStrings();
 		player_name = null;
 	}
 	
 	public static void init_game() {
+		// Reset values to make the client more deterministic
+		// This helps out the replay mode to have matching output from the time it was recorded
 		Camera.init();
+		Menu.init();
 		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
+		bank_active_page = 0;
 		
 		if (TwitchIRC.isUsing())
 			twitch.connect();
+	}
+	
+	public static void login_hook() {
+		// Order of comparison matters here
+		if (Renderer.replayOption == 2) {
+			if (!Replay.initializeReplayPlayback(Renderer.replayName))
+				Renderer.replayOption = 0;
+		} else if (Renderer.replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
+			Replay.initializeReplayRecording();
+        }
+	}
+	
+	public static void disconnect_hook() {
+		// ::lostcon or closeConnection
+		Replay.closeReplayRecording();
+	}
+	
+	public static void resetLoginMessage() {
+		setLoginMessage("Please enter your username and password", "");
 	}
 	
 	/**
@@ -634,7 +725,7 @@ public class Client {
 	 * @param message a message to print
 	 * @param chat_type the type of message to send
 	 */
-	public static void displayMessage(String message, int chat_type) {
+	public static synchronized void displayMessage(String message, int chat_type) {
 		if (Client.state != Client.STATE_GAME || Reflection.displayMessage == null)
 			return;
 		
@@ -657,6 +748,24 @@ public class Client {
 		try {
 			Reflection.setLoginText.invoke(Client.instance, (byte)-49, line2, line1);
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void closeConnection(boolean close) {
+		if (Reflection.closeConnection == null)
+			return;
+		
+		try {
+			Reflection.closeConnection.invoke(Client.instance, close, 31);
+		} catch (Exception e) {
+		}
+	}
+	
+	public static void setInactivityTimer(int val) {
+		try {
+			Reflection.lastMouseAction.set(Client.instance, val);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -685,6 +794,24 @@ public class Client {
 			}
 		} catch (Exception e) {
 			
+		}
+	}
+	
+	/**
+	 * Logs the user in
+	 * 
+	 * @param reconnecting - is user reconnecting
+	 * @param user
+	 * @param pass
+	 */
+	public static void login(boolean reconnecting, String user, String pass) {
+		if (Reflection.login == null)
+			return;
+		
+		try {
+			Client.autologin_timeout = 2;
+			Reflection.login.invoke(Client.instance, -12, pass, user, reconnecting);
+		} catch (Exception e) {
 		}
 	}
 	

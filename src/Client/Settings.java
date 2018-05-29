@@ -37,6 +37,7 @@ import Game.Client;
 import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
+import Game.Replay;
 
 /**
  * Manages storing, loading, and changing settings.
@@ -46,7 +47,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180527.222023;
+	public static final double VERSION_NUMBER = 20180529.100203;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -159,6 +160,11 @@ public class Settings {
 	public static boolean UPDATE_CONFIRMATION = false;
 	public static boolean DISASSEMBLE = false;
 	public static String DISASSEMBLE_DIRECTORY = "dump";
+    
+    //rsc-replay settings
+    public static boolean RECORD_KB_MOUSE = false;
+    public static boolean RECORD_AUTOMATICALLY = false;
+    public static boolean RECORD_AUTOMATICALLY_FIRST_TIME = true;
 	
 	private Settings() {
 		// Empty private constructor to prevent instantiation.
@@ -191,6 +197,8 @@ public class Settings {
 		Util.makeDirectory(Dir.CACHE);
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.makeDirectory(Dir.SCREENSHOT);
+		Dir.REPLAY = Dir.JAR + "/replay";
+		Util.makeDirectory(Dir.REPLAY);
 	}
 	
 	/**
@@ -273,6 +281,20 @@ public class Settings {
 			DISASSEMBLE = getBoolean(props, "disassemble", false);
 			DISASSEMBLE_DIRECTORY = getString(props, "disassemble_directory", "dump");
 			
+            // Keybinds
+			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+				String keybindCombo = getString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+				kbs.modifier = getKeyModifierFromString(keybindCombo);
+				kbs.key = Integer.parseInt(keybindCombo.substring(2));
+			}
+            
+            // Replay
+            RECORD_AUTOMATICALLY = getBoolean(props, "record_automatically", RECORD_AUTOMATICALLY);
+            RECORD_AUTOMATICALLY_FIRST_TIME = getBoolean(props, "record_automatically_first_time", RECORD_AUTOMATICALLY_FIRST_TIME);
+            RECORD_KB_MOUSE = getBoolean(props, "record_kb_mouse", RECORD_KB_MOUSE);
+            
+            
+            
 			// Sanitize settings
 			
 			if (CUSTOM_CLIENT_SIZE_X < 512) {
@@ -330,13 +352,6 @@ public class Settings {
 			} else if (FATIGUE_FIGURES > 7) {
 				FATIGUE_FIGURES = 7;
 				save();
-			}
-			
-			// Keybinds
-			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-				String keybindCombo = getString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
-				kbs.modifier = getKeyModifierFromString(keybindCombo);
-				kbs.key = Integer.parseInt(keybindCombo.substring(2));
 			}
 		} catch (Exception e) {
 		}
@@ -444,7 +459,12 @@ public class Settings {
 			for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
 				props.setProperty("key_" + kbs.commandName, Integer.toString(getIntForKeyModifier(kbs)) + "*" + kbs.key);
 			}
-			
+
+            // Replay
+            props.setProperty("record_automatically",Boolean.toString(RECORD_AUTOMATICALLY));
+            props.setProperty("record_automatically_first_time",Boolean.toString(RECORD_AUTOMATICALLY_FIRST_TIME));
+            props.setProperty("record_kb_mouse",Boolean.toString(RECORD_KB_MOUSE));
+            
 			FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
 			props.store(out, "---rscplus config---");
 			out.close();
@@ -607,6 +627,7 @@ public class Settings {
 			Client.displayMessage("@cya@Player info is now hidden", Client.CHAT_NONE);
 		save();
 	}
+    
 	
 	public static void toggleShowLoginDetails() {
 		SHOW_LOGINDETAILS = !SHOW_LOGINDETAILS;
@@ -839,6 +860,7 @@ public class Settings {
 		public static String CACHE;
 		public static String DUMP;
 		public static String SCREENSHOT;
+		public static String REPLAY;
 	}
 	
 	public static String[] WORLD_LIST = { "1", "2", "3", "4", "5" };
@@ -848,109 +870,118 @@ public class Settings {
 	 * 
 	 * @param commandName the name of a keybind command as defined by {@link ConfigWindow#addKeybindSet}
 	 */
-	public static void processKeybindCommand(String commandName) {
+	public static boolean processKeybindCommand(String commandName) {
 		switch (commandName) {
 		case "sleep":
-			if (Client.state != Client.STATE_LOGIN)
+			if (Client.state != Client.STATE_LOGIN && !Replay.isPlaying)
 				Client.sleep();
-			break;
+			return true;
 		case "logout":
-			if (Client.state != Client.STATE_LOGIN)
+			if (Client.state != Client.STATE_LOGIN && !Replay.isPlaying)
 				Client.logout();
-			break;
+			return true;
 		case "screenshot":
-			Renderer.takeScreenshot();
-			break;
+            if (!Replay.isPlaying) {
+                Renderer.takeScreenshot();
+            }
+			return true;
 		case "toggle_colorize":
 			Settings.toggleColorTerminal();
-			break;
+			return true;
 		case "toggle_combat_xp_menu":
 			Settings.toggleCombatMenu();
-			break;
+			return true;
 		case "toggle_debug":
 			Settings.toggleDebug();
-			break;
+			return true;
 		case "toggle_fatigue_alert":
 			Settings.toggleFatigueAlert();
-			break;
+			return true;
 		case "toggle_inventory_full_alert":
 			Settings.toggleInventoryFullAlert();
-			break;
+			return true;
 		case "toggle_fatigue_drops":
 			Settings.toggleFatigueDrops();
-			break;
+			return true;
 		case "toggle_food_heal_overlay":
 			Settings.toggleFoodOverlay();
-			break;
+			return true;
 		case "toggle_friend_name_overlay":
 			Settings.toggleShowFriendInfo();
-			break;
+			return true;
 		case "toggle_hpprayerfatigue_display":
 			Settings.toggleStatusDisplay();
-			break;
+			return true;
 		case "toggle_inven_count_overlay":
 			Settings.toggleInvCount();
-			break;
+			return true;
 		case "toggle_ipdns":
 			Settings.toggleShowLoginDetails();
-			break;
+			return true;
 		case "toggle_item_overlay":
 			Settings.toggleShowItemInfo();
-			break;
+			return true;
 		case "toggle_hitboxes":
 			Settings.toggleShowHitbox();
-			break;
+			return true;
 		case "toggle_npc_name_overlay":
 			Settings.toggleShowNPCInfo();
-			break;
+			return true;
 		case "toggle_player_name_overlay":
 			Settings.toggleShowPlayerInfo();
-			break;
+			return true;
 		case "toggle_roof_hiding":
 			Settings.toggleHideRoofs();
-			break;
+			return true;
 		case "toggle_save_login_info":
 			Settings.toggleSaveLoginInfo();
-			break;
+			return true;
 		case "toggle_health_regen_timer":
 			Settings.toggleHealthRegenTimer();
-			break;
+			return true;
 		case "toggle_twitch_chat":
 			Settings.toggleTwitchHide();
-			break;
+			return true;
 		case "toggle_xp_drops":
 			Settings.toggleXpDrops();
-			break;
+			return true;
 		case "toggle_start_searched_bank":
 			Settings.toggleStartSearchedBank("", false);
-			break;
+			return true;
 		case "show_config_window":
 			Launcher.getConfigWindow().showConfigWindow();
-			break;
+			return true;
 		case "world_1":
 			if (Client.state == Client.STATE_LOGIN)
 				Game.getInstance().getJConfig().changeWorld(1);
-			break;
+			return true;
 		case "world_2":
 			if (Client.state == Client.STATE_LOGIN)
 				Game.getInstance().getJConfig().changeWorld(2);
-			break;
+			return true;
 		case "world_3":
 			if (Client.state == Client.STATE_LOGIN)
 				Game.getInstance().getJConfig().changeWorld(3);
-			break;
+			return true;
 		case "world_4":
 			if (Client.state == Client.STATE_LOGIN)
 				Game.getInstance().getJConfig().changeWorld(4);
-			break;
+			return true;
 		case "world_5":
 			if (Client.state == Client.STATE_LOGIN)
 				Game.getInstance().getJConfig().changeWorld(5);
-			break;
+			return true;
+		case "stop":
+		case "pause":
+        case "ff_plus":
+        case "ff_minus":
+        case "ff_reset":
+			return Replay.controlPlayback(commandName);
 		default:
 			Logger.Error("An unrecognized command was sent to processCommand: " + commandName);
 			break;
 		}
+        return false;
 	}
 	
 	/**

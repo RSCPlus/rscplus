@@ -31,6 +31,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
+import java.text.DecimalFormat;
 import javax.swing.JFrame;
 import Client.JConfig;
 import Client.Launcher;
@@ -49,6 +50,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	
 	private JConfig m_config = new JConfig();
 	private Applet m_applet = null;
+	private String m_title = "";
 	
 	private Game() {
 		// Empty private constructor to prevent extra instances from being created.
@@ -92,6 +94,8 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		setLocationRelativeTo(null);
 		setVisible(true);
 		
+		updateTitle();
+		
 		Reflection.Load();
 		Renderer.init();
 		
@@ -113,14 +117,26 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		m_applet.start();
 	}
 	
-	@Override
-	public void setTitle(String title) {
-		String t = "rscplus";
+	public void updateTitle() {
+		String title = "rscplus (World " + Settings.WORLD;
+		if (Client.player_name != null && Client.player_name.length() != 0) {
+			title += "; " + Client.player_name;
+		}
+		if (Replay.isPlaying) {
+			title += "; Progress: " + Replay.getPercentPlayed() + "%" + ", Speed: " + new DecimalFormat("##.##").format(Replay.fpsPlayMultiplier) + "x";
+			if (Replay.paused)
+				title += ", Paused";
+		}
+		if (Replay.isRecording) {
+			title += "; Recording";
+		}
+		title += ")";
 		
-		if (title != null)
-			t = t + " (" + title + ")";
-		
-		super.setTitle(t);
+		if (m_title.equals(title)) {
+			return;
+		}
+		m_title = title;
+		super.setTitle(m_title);
 	}
 	
 	/*
