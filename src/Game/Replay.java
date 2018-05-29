@@ -77,6 +77,9 @@ public class Replay {
 	public static boolean paused = false;
 	public static boolean closeDialogue = false;
 	
+	// Hack for player position
+	public static boolean ignoreFirstMovement = true;
+	
 	public static int fps = 50;
 	public static float fpsPlayMultiplier = 1.0f;
 	public static float prevFPSPlayMultiplier = fpsPlayMultiplier;
@@ -162,6 +165,7 @@ public class Replay {
 		replayServer = new ReplayServer(replayDirectory);
 		replayThread = new Thread(replayServer);
 		replayThread.start();
+		ignoreFirstMovement = true;
 		isPlaying = true;
 		Client.login(false, "Replay", "");
 		Logger.Info("Replay playback started; client v" + client_version + ", replay v" + replay_version);
@@ -287,26 +291,35 @@ public class Replay {
 			// Reset inactivity timer, we're not the ones playing the game
 			Client.setInactivityTimer(0);
 
-			int playerX = Client.localRegionX + Client.regionX;
-			int playerY = Client.localRegionY + Client.regionY;
+			int playerX = prevPlayerX;
+			int playerY = prevPlayerY;
 			
-			// Reset dialogue option after force pressed in replay
-			if (KeyboardHandler.dialogue_option != -1)
-				KeyboardHandler.dialogue_option = -1;
+			// Make sure we're loaded in
+			if (Client.isGameLoaded) {
+				playerX = Client.localRegionX + Client.regionX;
+				playerY = Client.localRegionY + Client.regionY;
+				
+				// Reset dialogue option after force pressed in replay
+				if (KeyboardHandler.dialogue_option != -1)
+					KeyboardHandler.dialogue_option = -1;
+			}
 			
 			// If the player moves, we're going to run some events
 			if (playerX != prevPlayerX || playerY != prevPlayerY) {
-				prevPlayerX = playerX;
-				prevPlayerY = playerY;
+				if(!ignoreFirstMovement) {
+					prevPlayerX = playerX;
+					prevPlayerY = playerY;
 				
-				// Make sure we're loaded in
-				if (Client.player_name != null) {
 					// Close welcome screen
-					if (Client.isWelcomeScreen() && Client.player_name != null)
+					if (Client.isWelcomeScreen())
 						Client.show_welcome = false;
 					
 					// Close dialogues
 					closeDialogue = true;
+				} else {
+					ignoreFirstMovement = false;
+					prevPlayerX = playerX;
+					prevPlayerY = playerY;
 				}
 			}
 			

@@ -211,28 +211,30 @@ public class Renderer {
 		
 		// In-game UI
 		if (Client.state == Client.STATE_GAME) {
+			
+			// Update player coords
+			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
+				NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
+				if (npc != null && Client.player_name != null && Client.player_name.equals(npc.name)) {
+					Client.player_posX = npc.x;
+					Client.player_posY = npc.y;
+					Client.player_height = npc.height;
+					Client.player_width = npc.width;
+					
+					Client.isGameLoaded = true;
+				}
+			}
+			
 			if (!Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE) {
 				List<Rectangle> npc_hitbox = new ArrayList<>();
 				List<Rectangle> player_hitbox = new ArrayList<>();
 				List<Point> entity_text_loc = new ArrayList<>();
 				
-				float alphaHP = 1.0f;
-				Color colorHP = color_hp;
-				
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
 					Color color = color_low;
 					
-					// Update player coords
-					if (npc != null && Client.player_name != null && Client.player_name.equals(npc.name)) {
-						Client.player_posX = npc.x;
-						Client.player_posY = npc.y;
-						Client.player_height = npc.height;
-						Client.player_width = npc.width;
-					}
-					
 					boolean show = false;
-					
 					if (npc.type == NPC.TYPE_PLAYER) {
 						color = color_fatigue;
 						

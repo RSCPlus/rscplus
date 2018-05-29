@@ -105,6 +105,7 @@ public class Client {
 	public static long magic_timer = 0L;
 	
 	public static int combat_timer;
+	public static boolean isGameLoaded;
 	public static boolean show_bank;
 	public static boolean show_duel;
 	public static boolean show_duelconfirm;
@@ -388,6 +389,7 @@ public class Client {
 		
 		Camera.init();
 		state = STATE_LOGIN;
+		isGameLoaded = false;
 		Renderer.replayOption = 0;
 		
 		twitch.disconnect();
