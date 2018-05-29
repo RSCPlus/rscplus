@@ -989,6 +989,13 @@ public class Client {
 	 * @param type the type of message being displayed
 	 */
 	public static void messageHook(String username, String message, int type) {
+		// Close dialogues when player says something in-game in quest chat
+		if (Replay.isPlaying) {
+			if (username != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
+				Replay.closeDialogue = true;
+			}
+		}
+		
 		if (username != null)
 			// Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
 			username = username.replace("\u00A0", " ");

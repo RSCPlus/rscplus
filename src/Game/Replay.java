@@ -75,6 +75,7 @@ public class Replay {
 	public static boolean isPlaying = false;
 	public static boolean isRecording = false;
 	public static boolean paused = false;
+	public static boolean closeDialogue = false;
 	
 	public static int fps = 50;
 	public static float fpsPlayMultiplier = 1.0f;
@@ -191,6 +192,7 @@ public class Replay {
 		resetPort();
 		fpsPlayMultiplier = 1.0f;
 		replayServer.isDone = true;
+		resetPatchClient();
 		isPlaying = false;
 		Logger.Info("Replay playback stopped");
 	}
@@ -288,7 +290,7 @@ public class Replay {
 			int playerX = Client.localRegionX + Client.regionX;
 			int playerY = Client.localRegionY + Client.regionY;
 			
-			// Close dialogues when the player moves
+			// Reset dialogue option after force pressed in replay
 			if (KeyboardHandler.dialogue_option != -1)
 				KeyboardHandler.dialogue_option = -1;
 			
@@ -296,7 +298,21 @@ public class Replay {
 			if (playerX != prevPlayerX || playerY != prevPlayerY) {
 				prevPlayerX = playerX;
 				prevPlayerY = playerY;
+				
+				// Make sure we're loaded in
+				if (Client.player_name != null) {
+					// Close welcome screen
+					if (Client.isWelcomeScreen() && Client.player_name != null)
+						Client.show_welcome = false;
+					
+					// Close dialogues
+					closeDialogue = true;
+				}
+			}
+			
+			if (closeDialogue) {
 				KeyboardHandler.dialogue_option = 1;
+				closeDialogue = false;
 			}
 
 			// Replay server is no longer running
@@ -642,5 +658,18 @@ public class Replay {
 			Client.ignores_formerly_copy = Arrays.copyOf(Client.ignores_formerly_copy, newLength);
 			Logger.Info("Replay.patchClient(): Applied ignores list length patch to fix playback; newLength: " + newLength);
 		}
+	}
+	
+	public static void resetPatchClient() {
+		// Resets all replay patching
+		Client.friends = new String[200];
+		Client.friends_world = new String[200];
+		Client.friends_formerly = new String[200];
+		Client.friends_online = new int[200];
+		
+		Client.ignores = new String[100];
+		Client.ignores_formerly = new String[100];
+		Client.ignores_copy = new String[100];
+		Client.ignores_formerly_copy = new String[100];
 	}
 }

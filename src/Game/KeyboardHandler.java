@@ -100,7 +100,7 @@ public class KeyboardHandler implements KeyListener {
 			Replay.dumpKeyboardInput(e.getKeyCode(), Replay.KEYBOARD_PRESSED, e.getKeyChar(), e.getModifiers());
 		}
 		
-		if (Client.show_questionmenu && !e.isConsumed()) {
+		if (Client.show_questionmenu && !e.isConsumed() && !Replay.isPlaying) {
 			if (e.getKeyCode() == KeyEvent.VK_1 || e.getKeyCode() == KeyEvent.VK_NUMPAD1)
 				dialogue_option = 0;
 			else if (e.getKeyCode() == KeyEvent.VK_2 || e.getKeyCode() == KeyEvent.VK_NUMPAD2)

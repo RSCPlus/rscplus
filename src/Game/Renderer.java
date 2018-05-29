@@ -224,7 +224,7 @@ public class Renderer {
 					Color color = color_low;
 					
 					// Update player coords
-					if (npc != null && Client.player_name.equals(npc.name)) {
+					if (npc != null && Client.player_name != null && Client.player_name.equals(npc.name)) {
 						Client.player_posX = npc.x;
 						Client.player_posY = npc.y;
 						Client.player_height = npc.height;
