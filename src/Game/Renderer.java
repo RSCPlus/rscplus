@@ -181,6 +181,9 @@ public class Renderer {
 	private static int lastPercentHP = 100;
 	private static int lastFatigue = 0;
 	
+	private static float lastBaseDrainRate = 0;
+	private static float lastAdjustedDrainRate = 0;
+	
 	public static void present(Graphics g, Image image) {
 		// Update timing
 		long new_time = System.currentTimeMillis();
@@ -484,6 +487,38 @@ public class Renderer {
 						y += 14;
 					}
 				}
+				
+				int base_drain_rate = 0;
+				float adjusted_drain_rate = 0;
+				// 14 selectable prayers
+				for (int i = 0; i < 14; i++) {
+					if (Client.prayers_on[i] == true)
+						base_drain_rate += Client.DRAIN_RATES[i];
+				}
+				lastBaseDrainRate = base_drain_rate;
+				if (base_drain_rate != 0) {
+					// with prayer equipment, combat rounds get increased about 3.1% per +1
+					float factor = 1.0f;
+					if (Client.current_equipment_stats[4] > 1) {
+						int boost = Client.current_equipment_stats[4] - 1;
+						float increase_rounds = boost * 0.031f;
+						// percentage of increase per round
+						factor = 1 + increase_rounds;
+					}
+					adjusted_drain_rate = base_drain_rate / factor;
+					lastAdjustedDrainRate = adjusted_drain_rate;
+					// a drain_rate of 60 drains 1 point in 3.33 secs
+					// 75 drains 1.25 points in 3.33 secs -> 3.33/(adjusted/60)
+					float points_psec = (3.33f * 60.0f) / adjusted_drain_rate;
+					
+					drawShadowText(g2, "-1", x, y, color_low, false);
+					drawShadowText(g2, "Prayer/" + Client.trimNumber(points_psec, 1) + "s", x + 32, y, color_low, false);
+					y += 14;
+				}
+				else {
+					// no prayer armour adjusting drain rate
+					lastAdjustedDrainRate = lastBaseDrainRate;
+				}
 			}
 			
 			// NPC Post-processing for ui
@@ -519,6 +554,13 @@ public class Renderer {
 				// Draw Fatigue
 				y += 16;
 				drawShadowText(g2, "Fatigue: " + ((float)Client.fatigue * 100.0f / 750.0f), x, y, color_text, false);
+				y += 16;
+				
+				// Draw Drain rates
+				y += 16;
+				drawShadowText(g2, "Base Drain Rate: " + lastBaseDrainRate, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "Adjusted Drain Rate: " + Client.trimNumber(lastAdjustedDrainRate, 1), x, y, color_text, false);
 				y += 16;
 				
 				// Draw Mouse Info

@@ -150,6 +150,8 @@ public class JClassPatcher {
 			hookClassVariable(methodNode, "lb", "G", "I", "Game/Camera", "distance4", "I", false, true);
 			
 			hookClassVariable(methodNode, "client", "cl", "I", "Game/Client", "max_inventory", "I", true, false);
+			hookClassVariable(methodNode, "client", "bk", "[Z", "Game/Client", "prayers_on", "[Z", true, false);
+			hookClassVariable(methodNode, "client", "Fc", "[I", "Game/Client", "current_equipment_stats", "[I", true, false);
 			hookClassVariable(methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
 			hookClassVariable(methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
 			hookClassVariable(methodNode, "client", "Vk", "[Ljava/lang/String;", "Game/Client", "skill_name", "[Ljava/lang/String;", true, false);

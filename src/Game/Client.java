@@ -73,6 +73,9 @@ public class Client {
 	public static final int SKILL_AGILITY = 16;
 	public static final int SKILL_THIEVING = 17;
 	
+	public static final int STAT_PRAYER = 4;
+	public static final int[] DRAIN_RATES = { 15, 15, 15, 30, 30, 30, 5, 10, 10, 60, 60, 60, 60, 60 };
+	
 	public static final int STATE_LOGIN = 1;
 	public static final int STATE_GAME = 2;
 	
@@ -123,6 +126,9 @@ public class Client {
 	
 	public static int fatigue;
 	private static float currentFatigue;
+	public static boolean[] prayers_on;
+	// equipment stats (array position 4 holds prayer bonus to determine change drain rate)
+	public static int[] current_equipment_stats;
 	public static int[] current_level;
 	public static int[] base_level;
 	public static int[] xp;
