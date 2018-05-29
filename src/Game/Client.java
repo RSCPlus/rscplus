@@ -295,10 +295,6 @@ public class Client {
 		}
     */
 		
-		// Increment the replay timestamp
-		if (Replay.isRecording)
-			Replay.incrementTimestamp();
-		
 		if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME && showRecordAlwaysDialogue) {
 			int response = JOptionPane.showConfirmDialog(Game.getInstance().getApplet(), "If you'd like, you can record your session every time you play by default.\n" +
 					"\n" +

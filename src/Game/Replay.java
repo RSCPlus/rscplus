@@ -87,6 +87,8 @@ public class Replay {
 	
 	public static int replay_version;
 	public static int client_version;
+	public static int prevPlayerX;
+	public static int prevPlayerY;
 	
 	public static int timestamp;
 	public static int timestamp_kb_input;
@@ -282,10 +284,29 @@ public class Replay {
 		if (isPlaying) {
 			// Reset inactivity timer, we're not the ones playing the game
 			Client.setInactivityTimer(0);
+
+			int playerX = Client.localRegionX + Client.regionX;
+			int playerY = Client.localRegionY + Client.regionY;
 			
+			// Close dialogues when the player moves
+			if (KeyboardHandler.dialogue_option != -1)
+				KeyboardHandler.dialogue_option = -1;
+			
+			// If the player moves, we're going to run some events
+			if (playerX != prevPlayerX || playerY != prevPlayerY) {
+				prevPlayerX = playerX;
+				prevPlayerY = playerY;
+				KeyboardHandler.dialogue_option = 1;
+			}
+
+			// Replay server is no longer running
 			if (replayServer.isDone)
 				closeReplayPlayback();
 		}
+		
+		// Increment the replay timestamp
+		if (Replay.isRecording)
+			Replay.incrementTimestamp();
 	}
 	
 	public static int getPercentPlayed() {
