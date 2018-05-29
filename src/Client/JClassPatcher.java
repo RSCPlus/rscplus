@@ -361,6 +361,12 @@ public class JClassPatcher {
 				AbstractInsnNode insnNode = insnNodeList.next();
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "patchClient", "()V", false));
 			}
+			// sendLogout
+			else if (methodNode.name.equals("B") && methodNode.desc.equals("(I)V")) {
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				AbstractInsnNode insnNode = insnNodeList.next();
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "closeReplayPlayback", "()V", false));
+			}
 			// I (I)V is where most of the interface is processed
 			else if (methodNode.name.equals("I") && methodNode.desc.equals("(I)V")) {
 				// Show combat menu
