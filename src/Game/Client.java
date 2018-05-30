@@ -402,6 +402,7 @@ public class Client {
 		
 		resetLoginMessage();
 		Replay.closeReplayPlayback();
+		Replay.closeReplayRecording();
 		adaptStrings();
 		player_name = null;
 	}
