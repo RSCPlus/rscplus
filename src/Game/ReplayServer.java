@@ -99,8 +99,6 @@ public class ReplayServer implements Runnable {
 			Logger.Info("ReplayServer: Starting playback");
 			
 			isDone = false;
-			
-			sock.configureBlocking(false);
 			while (!isDone) {
 				if (!Replay.paused) {
 					if (!doTick()) {
@@ -143,11 +141,17 @@ public class ReplayServer implements Runnable {
 			available = file_input.available();
 			
 			long frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
+			int diff = timestamp_input - Replay.timestamp;
 			
-			// About how long a disconnect is
-			if ((timestamp_input - Replay.timestamp) > 300) {
+			// If the timestamp is 300+ frames in the future, it's a client disconnection
+			// So we disconnect and reconnect the client
+			if (diff > 300) {
 				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp);
 				client.close();
+				client = sock.accept();
+				client.configureBlocking(false);
+				Replay.timestamp += 300;
+				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
 			}
 			
 			while (Replay.timestamp < timestamp_input) {
@@ -155,15 +159,6 @@ public class ReplayServer implements Runnable {
 				if (time >= frame_timer) {
 					frame_timer = time + Replay.getFrameTimeSlice();
 					Replay.incrementTimestamp();
-				}
-				
-				// Check if client is reconnecting to support reconnection in replays
-				SocketChannel client_new = sock.accept();
-				if (client_new != null) {
-					Logger.Info("ReplayServer: Client has reconnected; timestamp=" + Replay.timestamp);
-					client.close();
-					client = client_new;
-					client.configureBlocking(false);
 				}
 				
 				// Don't hammer the cpu
