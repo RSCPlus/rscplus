@@ -144,6 +144,12 @@ public class ReplayServer implements Runnable {
 			
 			long frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
 			
+			// About how long a disconnect is
+			if ((timestamp_input - Replay.timestamp) > 300) {
+				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp);
+				client.close();
+			}
+			
 			while (Replay.timestamp < timestamp_input) {
 				long time = System.currentTimeMillis();
 				if (time >= frame_timer) {
@@ -154,7 +160,7 @@ public class ReplayServer implements Runnable {
 				// Check if client is reconnecting to support reconnection in replays
 				SocketChannel client_new = sock.accept();
 				if (client_new != null) {
-					Logger.Info("ReplayServer: Client has reconnected");
+					Logger.Info("ReplayServer: Client has reconnected; timestamp=" + Replay.timestamp);
 					client.close();
 					client = client_new;
 					client.configureBlocking(false);
