@@ -309,10 +309,6 @@ public class Replay {
 				if(!ignoreFirstMovement) {
 					prevPlayerX = playerX;
 					prevPlayerY = playerY;
-				
-					// Close welcome screen
-					if (Client.isWelcomeScreen())
-						Client.show_welcome = false;
 					
 					// Close dialogues
 					closeDialogue = true;
@@ -324,6 +320,10 @@ public class Replay {
 			}
 			
 			if (closeDialogue) {
+				// Close welcome screen
+				if (Client.isWelcomeScreen())
+					Client.show_welcome = false;
+				
 				KeyboardHandler.dialogue_option = 1;
 				closeDialogue = false;
 			}
