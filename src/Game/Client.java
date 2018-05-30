@@ -1000,7 +1000,7 @@ public class Client {
 	public static void messageHook(String username, String message, int type) {
 		// Close dialogues when player says something in-game in quest chat
 		if (Replay.isPlaying) {
-			if (username != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
+			if (username != null && Client.player_name != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
 				Replay.closeDialogue = true;
 			}
 		}
