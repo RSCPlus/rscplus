@@ -124,6 +124,8 @@ public class Client {
 	
 	public static int[] inventory_items;
 	
+	public static long poison_timer = 0L;
+	public static boolean is_poisoned = false;
 	public static int fatigue;
 	private static float currentFatigue;
 	public static boolean[] prayers_on;
@@ -433,6 +435,15 @@ public class Client {
 	public static void disconnect_hook() {
 		// ::lostcon or closeConnection
 		Replay.closeReplayRecording();
+	}
+	
+	/**
+	 * Hooks the message that hovering over X thing gives in the client
+	 * 
+	 * @param tooltipMessage - the message in raw color format
+	 */
+	public static void mouse_action_hook(String tooltipMessage) {
+		// reserved
 	}
 	
 	public static void resetLoginMessage() {
@@ -1017,6 +1028,18 @@ public class Client {
 					magic_timer = Renderer.time + 21000L;
 				else if (Settings.TRAY_NOTIFS && message.contains("You have been standing here for 5 mins! Please move to a new area")) {
 					NotificationsHandler.notify(NotifType.LOGOUT, "Logout Notification", "You're about to log out");
+				}
+				// while the message is really You @gr2@are @gr1@poisioned! @gr2@You @gr3@lose @gr2@3 @gr1@health.
+				// it can be known looking for "poisioned!"
+				else if (message.contains("poisioned!")) {
+					is_poisoned = true;
+					poison_timer = Renderer.time + 21000L;
+				} else if (message.contains("You drink") && message.contains("poison")) {
+					is_poisoned = false;
+					poison_timer = Renderer.time;
+				} else if (message.contains("You retain your skills. Your objects land where you died") && is_poisoned) {
+					is_poisoned = false;
+					poison_timer = Renderer.time;
 				}
 			}
 		} else if (type == CHAT_PRIVATE) {

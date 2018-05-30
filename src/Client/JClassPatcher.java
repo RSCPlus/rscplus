@@ -434,6 +434,7 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(findNode, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(findNode, label);
+				
 			} else if (methodNode.name.equals("J") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -474,11 +475,14 @@ public class JClassPatcher {
 							&& ((FieldInsnNode)twoNextNode).name.equals("ug")) {
 						// entry point when its true to close it
 						// intercept first time camera rotation
-						AbstractInsnNode call = twoNextNode.getNext();
-						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+						// TODO: the setting constant at first may give bug in camera so im leaving it out for the
+						// moment
+						// AbstractInsnNode call = twoNextNode.getNext();
+						// methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
 						// this constant is from the one in Camera
-						methodNode.instructions.insertBefore(call, new IntInsnNode(Opcodes.BIPUSH, 126));
-						methodNode.instructions.insertBefore(call, new FieldInsnNode(Opcodes.PUTFIELD, "client", "ug", "I"));
+						// methodNode.instructions.insertBefore(call, new IntInsnNode(Opcodes.BIPUSH, 126));
+						// methodNode.instructions.insertBefore(call, new FieldInsnNode(Opcodes.PUTFIELD, "client",
+						// "ug", "I"));
 						break;
 					}
 				}
@@ -586,6 +590,26 @@ public class JClassPatcher {
 							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
 							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.INEG));
 							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
+						}
+					}
+				}
+				
+				// Hook that gives out the message on X action such as npcs, items and prints them top left corner
+				// TODO: use the hook
+				insnNodeList = methodNode.instructions.iterator();
+				
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					// getfield client.li:ba
+					if (insnNode.getOpcode() == Opcodes.GETFIELD) {
+						FieldInsnNode fieldNode = ((FieldInsnNode)insnNode);
+						if (fieldNode.owner.equals("client") && fieldNode.name.equals("li") && nextNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)nextNode).var == 5) {
+							methodNode.instructions.insert(fieldNode,
+									new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "mouse_action_hook", "(Ljava/lang/String;)V", false));
+							methodNode.instructions.insert(fieldNode, new VarInsnNode(Opcodes.ALOAD, 5));
+							break;
 						}
 					}
 				}
@@ -1116,14 +1140,16 @@ public class JClassPatcher {
 					AbstractInsnNode insnNode = insnNodeList.next();
 					if (insnNode.getOpcode() == Opcodes.PUTFIELD) {
 						FieldInsnNode field = (FieldInsnNode)insnNode;
-						if (count != 1 && field.owner.equals("client") && field.name.equals("wh") && field.desc.equals("Ljava/lang/String;")) {
+						if (count != 1 && field.owner.equals("client") && field.name.equals("wh") &&
+								field.desc.equals("Ljava/lang/String;")) {
 							findNode = insnNode.getNext();
 							count++;
 						}
 					}
 				}
 				
-				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "login_hook", "()V", false));
+				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
+						"Game/Client", "login_hook", "()V", false));
 			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
 				// Disconnect hook (::closecon)
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();

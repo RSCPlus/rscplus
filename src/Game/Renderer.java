@@ -84,6 +84,7 @@ public class Renderer {
 	public static Color color_fatigue = new Color(210, 210, 0);
 	public static Color color_prayer = new Color(160, 160, 210);
 	public static Color color_low = new Color(255, 0, 0);
+	public static Color color_poison = new Color(155, 205, 50);
 	public static Color color_item = new Color(245, 245, 245);
 	public static Color color_item_highlighted = new Color(245, 196, 70);
 	
@@ -518,6 +519,16 @@ public class Renderer {
 				else {
 					// no prayer armour adjusting drain rate
 					lastAdjustedDrainRate = lastBaseDrainRate;
+				}
+				if (time > Client.poison_timer && Client.is_poisoned) {
+					// more than 20 seconds passed and last status was poison, user probably is no longer
+					// poisoned
+					Client.is_poisoned = false;
+					Client.poison_timer = time;
+				}
+				if (Client.is_poisoned) {
+					drawShadowText(g2, "Poisoned!", x, y, color_poison, false);
+					y += 14;
 				}
 			}
 			
