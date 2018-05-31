@@ -148,6 +148,7 @@ public class ConfigWindow {
 	
 	// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
+	private JCheckBox overlayPanelBuffsCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
 	private JCheckBox overlayPanelItemNamesCheckbox;
 	private JCheckBox overlayPanelPlayerNamesCheckbox;
@@ -676,6 +677,9 @@ public class ConfigWindow {
 		overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
 		overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
 		
+		overlayPanelBuffsCheckbox = addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
+		overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
+		
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
 		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
 		
@@ -952,6 +956,7 @@ public class ConfigWindow {
 		
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
+		addKeybindSet(keybindPanel, "Toggle combat buffs and cooldowns display", "toggle_buffs_display", KeyModifier.CTRL, KeyEvent.VK_Y);
 		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
 		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
 		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
@@ -964,7 +969,7 @@ public class ConfigWindow {
 		
 		addKeybindCategory(keybindPanel, "Streaming & Privacy");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
-		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.CTRL, KeyEvent.VK_J);
 		// TODO: Uncomment the following line if this feature no longer requires a restart
 		// addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
 		
@@ -1282,6 +1287,7 @@ public class ConfigWindow {
 		
 		// Overlays tab
 		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_STATUSDISPLAY);
+		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS);
 		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT);
 		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEMINFO);
 		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYERINFO);
@@ -1359,6 +1365,7 @@ public class ConfigWindow {
 		
 		// Overlays options
 		Settings.SHOW_STATUSDISPLAY = overlayPanelStatusDisplayCheckbox.isSelected();
+		Settings.SHOW_BUFFS = overlayPanelBuffsCheckbox.isSelected();
 		Settings.SHOW_INVCOUNT = overlayPanelInvCountCheckbox.isSelected();
 		Settings.SHOW_ITEMINFO = overlayPanelItemNamesCheckbox.isSelected();
 		Settings.SHOW_PLAYERINFO = overlayPanelPlayerNamesCheckbox.isSelected();

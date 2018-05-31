@@ -47,7 +47,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180531.020926;
+	public static final double VERSION_NUMBER = 20180531.022553;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -109,6 +109,7 @@ public class Settings {
 	// Overlays options
 	public static boolean SHOW_STATUSDISPLAY = true; // TODO: PLEASE refactor to a name that isn't uselessly vague. This
 														// is apparently the HP/Prayer/Fatigue display.
+	public static boolean SHOW_BUFFS = true;
 	public static boolean SHOW_INVCOUNT = true;
 	public static boolean SHOW_ITEMINFO = false; // TODO: Refactor to add the word 'overlay' for clarity
 	public static boolean SHOW_PLAYERINFO = false; // TODO: See above
@@ -236,6 +237,7 @@ public class Settings {
 			
 			// Overlays options
 			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
+			SHOW_BUFFS = getBoolean(props, "show_buffs", SHOW_BUFFS);
 			SHOW_INVCOUNT = getBoolean(props, "show_invcount", SHOW_INVCOUNT);
 			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", SHOW_ITEMINFO);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", SHOW_PLAYERINFO);
@@ -409,6 +411,7 @@ public class Settings {
 			
 			// Overlays
 			props.setProperty("show_statusdisplay", Boolean.toString(SHOW_STATUSDISPLAY));
+			props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS));
 			props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT));
 			props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEMINFO));
 			props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYERINFO));
@@ -580,6 +583,15 @@ public class Settings {
 			Client.displayMessage("@cya@Inventory count is now shown", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@Inventory count is now hidden", Client.CHAT_NONE);
+		save();
+	}
+	
+	public static void toggleBuffs() {
+		SHOW_BUFFS = !SHOW_BUFFS;
+		if (Settings.SHOW_BUFFS)
+			Client.displayMessage("@cya@Combat (de)buffs and cooldowns are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Combat (de)buffs and cooldowns are now hidden", Client.CHAT_NONE);
 		save();
 	}
 	
@@ -909,6 +921,9 @@ public class Settings {
 		case "toggle_friend_name_overlay":
 			Settings.toggleShowFriendInfo();
 			return true;
+		case "toggle_buffs_display":
+			Settings.toggleBuffs();
+			return true;
 		case "toggle_hpprayerfatigue_display":
 			Settings.toggleStatusDisplay();
 			return true;
@@ -1015,6 +1030,7 @@ public class Settings {
 	 */
 	public static void restoreDefaultOverlays() {
 		SHOW_STATUSDISPLAY = true;
+		SHOW_BUFFS = true;
 		SHOW_INVCOUNT = true;
 		SHOW_ITEMINFO = false;
 		SHOW_PLAYERINFO = false;

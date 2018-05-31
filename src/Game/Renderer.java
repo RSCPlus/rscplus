@@ -462,7 +462,8 @@ public class Renderer {
 			}
 			
 			// Draw under combat style info
-			if (!Client.isInterfaceOpen()) {
+			// buffs, debuffs and cooldowns
+			if (!Client.isInterfaceOpen() && Settings.SHOW_BUFFS) {
 				if (time <= Client.magic_timer) {
 					float timer = (float)Math.ceil((Client.magic_timer - time) / 1000.0);
 					drawShadowText(g2, "Magic Timer: " + (int)timer, x, y, color_text, false);

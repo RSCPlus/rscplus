@@ -166,6 +166,9 @@ public class Replay {
 		replayThread = new Thread(replayServer);
 		replayThread.start();
 		ignoreFirstMovement = true;
+		if (Client.strings[662].startsWith("from:")) {
+			Client.strings[662] = "@bla@from:";
+		}
 		isPlaying = true;
 		Client.login(false, "Replay", "");
 		Logger.Info("Replay playback started; client v" + client_version + ", replay v" + replay_version);
@@ -685,4 +688,5 @@ public class Replay {
 		Client.ignores_copy = new String[100];
 		Client.ignores_formerly_copy = new String[100];
 	}
+	
 }

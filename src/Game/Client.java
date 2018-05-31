@@ -252,12 +252,15 @@ public class Client {
 	 * Iterates through {@link #strings} array and checks if various conditions are met. Used for patching client text.
 	 */
 	public static void adaptStrings() {
-		for (int i = 0; i < strings.length; i++) {
-			if (!Settings.SHOW_LOGINDETAILS && strings[i].startsWith("from:")) {
-				strings[i] = "@bla@from:";
-			} else if (Settings.SHOW_LOGINDETAILS && strings[i].startsWith("@bla@from:")) {
-				strings[i] = "from:";
-			}
+		
+	}
+	
+	// string 662 is the one in version 235 that contains the "from:" used in login welcome screen
+	public static void adaptLoginInfo() {
+		if (!Settings.SHOW_LOGINDETAILS && strings[662].startsWith("from:")) {
+			strings[662] = "@bla@from:";
+		} else if (Settings.SHOW_LOGINDETAILS && strings[662].startsWith("@bla@from:")) {
+			strings[662] = "from:";
 		}
 	}
 	
@@ -340,6 +343,8 @@ public class Client {
 			if (Client.player_name == null) {
 				Client.getPlayerName();
 			}
+			
+			Client.adaptLoginInfo();
 			
 			// Process XP drops
 			boolean dropXP = xpdrop_state[SKILL_HP] > 0.0f; // TODO: Declare dropXP outside of the update method
@@ -435,6 +440,15 @@ public class Client {
 	public static void disconnect_hook() {
 		// ::lostcon or closeConnection
 		Replay.closeReplayRecording();
+	}
+	
+	// check if login attempt is not a valid login or reconnect, send to disconnect hook
+	// response 1 i don't know exactly what's for might be trying to connect in combat or something
+	public static void login_attempt_hook(int response, boolean reconnecting, int[] xtea_keys) {
+		// at this stage just close it
+		if (response != 64 && response != 1) {
+			disconnect_hook();
+		}
 	}
 	
 	/**
@@ -605,6 +619,9 @@ public class Client {
 				break;
 			case "toggleinvcount":
 				Settings.toggleInvCount();
+				break;
+			case "togglebuffs":
+				Settings.toggleBuffs();
 				break;
 			case "togglestatusdisplay":
 				Settings.toggleStatusDisplay();
@@ -1194,6 +1211,7 @@ public class Client {
 		boolean blueMessage = (type == CHAT_NONE) && (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
 		boolean yellowMessage = (type == CHAT_NONE) && (colorMessage.contains("Well Done")); //tourist trap completion
 		boolean greenMessage = (type == CHAT_NONE) && (colorMessage.contains("You just advanced ") || colorMessage.contains("quest point") || colorMessage.contains("***") || colorMessage.contains("ou have completed")); //"***" is for Tourist Trap completion
+		greenMessage = greenMessage || (type == CHAT_NONE && colorMessage.contains("poisioned!"));
 		
 		if (blueMessage) { // this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";
