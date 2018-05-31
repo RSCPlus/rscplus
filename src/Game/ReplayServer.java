@@ -123,7 +123,6 @@ public class ReplayServer implements Runnable {
 			}
 			sock.bind(new InetSocketAddress(usePort));
 			client = sock.accept();
-			client.configureBlocking(false);
 			
 			Logger.Info("ReplayServer: Starting playback; port=" + usePort);
 			
@@ -180,7 +179,6 @@ public class ReplayServer implements Runnable {
 				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp);
 				client.close();
 				client = sock.accept();
-				client.configureBlocking(false);
 				timestamp_diff -= 300;
 				Replay.timestamp = timestamp_input - timestamp_diff;
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
@@ -198,11 +196,6 @@ public class ReplayServer implements Runnable {
 				long sleepTime = frame_timer - System.currentTimeMillis() - 1;
 				if (sleepTime > 0)
 					Thread.sleep(sleepTime);
-			}
-			
-			// Read from client, but don't do anything with the data
-			while (client.read(readBuffer) > 0) {
-				readBuffer.clear();
 			}
 			
 			// Write out replay data to the client
