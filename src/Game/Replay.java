@@ -451,6 +451,18 @@ public class Replay {
 		return frame_time_slice;
 	}
 	
+	// Returns video elapsed time in millis
+	public static int elapsedTimeMillis() {
+		int time_slice = 1000 / fps;
+		return timestamp * time_slice;
+	}
+	
+	// Returns video length in millis
+	public static int endTimeMillis() {
+		int time_slice = 1000 / fps;
+		return replayServer.timestamp_end * time_slice;
+	}
+	
 	public static void updateFrameTimeSlice() {
 		if (paused)
 			return;

@@ -123,12 +123,16 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 			title += "; " + Client.player_name;
 		}
 		if (Replay.isPlaying) {
-			title += "; Progress: " + Replay.getPercentPlayed() + "%" + ", Speed: " + new DecimalFormat("##.##").format(Replay.fpsPlayMultiplier) + "x";
+			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
+			String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
+			title += "; Elapsed: " + elapsed + " / " + end;
+			title += ", Speed: " + new DecimalFormat("##.##").format(Replay.fpsPlayMultiplier) + "x";
 			if (Replay.paused)
 				title += ", Paused";
 		}
 		if (Replay.isRecording) {
-			title += "; Recording";
+			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.elapsedTimeMillis());
+			title += "; Recording, Elapsed: " + elapsed;
 		}
 		title += ")";
 		

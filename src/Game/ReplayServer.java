@@ -45,6 +45,7 @@ public class ReplayServer implements Runnable {
 	public boolean isDone = false;
 	public long size = 0;
 	public long available = 0;
+	public int timestamp_end = 0;
 	
 	ReplayServer(String directory) {
 		playbackDirectory = directory;
@@ -57,6 +58,35 @@ public class ReplayServer implements Runnable {
 		} catch (Exception e) {
 		}
 		return 0;
+	}
+	
+	public int getReplayEnding(File file) {
+		int timestamp_ret = 0;
+		
+		try {
+			DataInputStream fileInput = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
+			for(;;) {
+				int timestamp_input = fileInput.readInt();
+				
+				// EOF
+				if (timestamp_input == -1)
+					break;
+				
+				// Skip data, we need to find the last timestamp
+				int length = fileInput.readInt();
+				int skipped = fileInput.skipBytes(length);
+				
+				if (skipped != length)
+					break;
+					
+				timestamp_ret = timestamp_input;
+			}
+			fileInput.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return timestamp_ret;
 	}
 	
 	@Override
@@ -81,9 +111,9 @@ public class ReplayServer implements Runnable {
 			size = file.length();
 			file_input = new FileInputStream(file);
 			input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
+			timestamp_end = getReplayEnding(file);
 			
-			Logger.Info("ReplayServer: Waiting for client...");
-			
+			Logger.Info("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
 			sock = ServerSocketChannel.open();
 			// last attempt 10 + default port
 			usePort = port == -1 ? Replay.DEFAULT_PORT + 10 : port;
@@ -121,6 +151,7 @@ public class ReplayServer implements Runnable {
 				}
 			}
 			
+			e.printStackTrace();
 			Logger.Error("ReplayServer: Failed to serve replay");
 		}
 	}
@@ -153,7 +184,7 @@ public class ReplayServer implements Runnable {
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
 			}
 			
-			while (Replay.timestamp < timestamp_input) {
+			while (Replay.timestamp != timestamp_input) {
 				long time = System.currentTimeMillis();
 				if (time >= frame_timer) {
 					frame_timer = time + Replay.getFrameTimeSlice();

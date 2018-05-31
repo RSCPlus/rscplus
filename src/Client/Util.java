@@ -57,6 +57,21 @@ public class Util {
 		return (os.contains("mac") || os.contains("darwin"));
 	}
 	
+	public static String formatTimeDuration(int millis, int endMillis) {
+		int seconds = (millis / 1000) % 60;
+		int minutes = (millis / 1000 / 60) % 60;
+		int hours = (millis / 1000 / 60 / 60);
+		
+		int endHours = (endMillis / 1000 / 60 / 60);
+		
+		String ret = "";
+		if (endHours != 0)
+			ret += ((hours < 10) ? "0" + Integer.toString(hours) : Integer.toString(hours)) + ":";
+		ret += ((minutes < 10) ? "0" + Integer.toString(minutes) : Integer.toString(minutes));
+		ret += ":" + ((seconds < 10) ? "0" + Integer.toString(seconds) : Integer.toString(seconds));
+		return ret;
+	}
+	
 	/**
 	 * Gets the CRC32 of a given file name.
 	 * 
