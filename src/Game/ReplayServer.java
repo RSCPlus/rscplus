@@ -84,8 +84,6 @@ public class ReplayServer implements Runnable {
 			
 			Logger.Info("ReplayServer: Waiting for client...");
 			
-			file_input.available();
-			
 			sock = ServerSocketChannel.open();
 			// last attempt 10 + default port
 			usePort = port == -1 ? Replay.DEFAULT_PORT + 10 : port;
