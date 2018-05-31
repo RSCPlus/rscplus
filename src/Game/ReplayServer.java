@@ -41,6 +41,7 @@ public class ReplayServer implements Runnable {
 	ServerSocketChannel sock = null;
 	SocketChannel client = null;
 	ByteBuffer readBuffer = null;
+	long frame_timer = 0;
 	
 	public boolean isDone = false;
 	public long size = 0;
@@ -124,17 +125,19 @@ public class ReplayServer implements Runnable {
 			client = sock.accept();
 			client.configureBlocking(false);
 			
-			Logger.Info("ReplayServer: Starting playback");
+			Logger.Info("ReplayServer: Starting playback; port=" + usePort);
 			
 			isDone = false;
+			frame_timer = System.currentTimeMillis();
 			while (!isDone) {
 				if (!Replay.paused) {
 					if (!doTick()) {
 						isDone = true;
 					}
+				} else {
+					// Do nothing
+					Thread.sleep(1);
 				}
-				
-				Thread.sleep(1);
 			}
 			
 			client.close();
@@ -169,30 +172,32 @@ public class ReplayServer implements Runnable {
 			input.read(buffer.array());
 			available = file_input.available();
 			
-			long frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
-			int diff = timestamp_input - Replay.timestamp;
+			int timestamp_diff = timestamp_input - Replay.timestamp;
 			
 			// If the timestamp is 300+ frames in the future, it's a client disconnection
 			// So we disconnect and reconnect the client
-			if (diff > 300) {
+			if (timestamp_diff > 300) {
 				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp);
 				client.close();
 				client = sock.accept();
 				client.configureBlocking(false);
-				diff -= 300;
-				Replay.timestamp = timestamp_input - diff;
+				timestamp_diff -= 300;
+				Replay.timestamp = timestamp_input - timestamp_diff;
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
 			}
 			
-			while (Replay.timestamp != timestamp_input) {
+			// Synchronize the server to input
+			while (Replay.timestamp < timestamp_input) {
 				long time = System.currentTimeMillis();
 				if (time >= frame_timer) {
-					frame_timer = time + Replay.getFrameTimeSlice();
+					frame_timer += Replay.getFrameTimeSlice();
 					Replay.incrementTimestamp();
 				}
 				
-				// Don't hammer the cpu
-				Thread.sleep(1);
+				// Don't hammer the cpu, unless we have to
+				long sleepTime = frame_timer - System.currentTimeMillis() - 1;
+				if (sleepTime > 0)
+					Thread.sleep(sleepTime);
 			}
 			
 			// Read from client, but don't do anything with the data
@@ -200,6 +205,7 @@ public class ReplayServer implements Runnable {
 				readBuffer.clear();
 			}
 			
+			// Write out replay data to the client
 			client.write(buffer);
 			
 			return true;

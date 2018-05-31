@@ -95,6 +95,7 @@ public class Replay {
 	public static int prevPlayerY;
 	
 	public static int timestamp;
+	public static int timestamp_client;
 	public static int timestamp_kb_input;
 	public static int timestamp_mouse_input;
     
@@ -106,6 +107,15 @@ public class Replay {
 		// EOF is -1
 		if (timestamp == -1) {
 			timestamp = 0;
+		}
+	}
+	
+	public static void incrementTimestampClient() {
+		timestamp_client++;
+		
+		// EOF is -1
+		if (timestamp_client == -1) {
+			timestamp_client = 0;
 		}
 	}
 	
@@ -334,6 +344,8 @@ public class Replay {
 			// Replay server is no longer running
 			if (replayServer.isDone)
 				closeReplayPlayback();
+			
+			incrementTimestampClient();
 		}
 		
 		// Increment the replay timestamp
@@ -506,15 +518,19 @@ public class Replay {
                     Client.displayMessage(paused ? "Playback paused." : "Playback unpaused.", Client.CHAT_QUEST);
                     break;
                 case "ff_plus":
-                    if (fpsPlayMultiplier < 256.0f) {
-                        fpsPlayMultiplier /= 0.5f;
-                    }
+				if (fpsPlayMultiplier < 1.0f) {
+					fpsPlayMultiplier += 0.25f;
+				} else if (fpsPlayMultiplier < 20.0f) {
+                    	fpsPlayMultiplier += 1.0f;
+                    	}
 				updateFrameTimeSlice();
                     Client.displayMessage("Playback speed set to " + new DecimalFormat("##.##").format(fpsPlayMultiplier) + "x.", Client.CHAT_QUEST);
                     break;
                 case "ff_minus":
-                    if (fpsPlayMultiplier > 0.25f) {
-                        fpsPlayMultiplier *= 0.5f;
+				if (fpsPlayMultiplier > 1.0f) {
+					fpsPlayMultiplier -= 1.0f;
+				} else if (fpsPlayMultiplier > 0.25f) {
+					fpsPlayMultiplier -= 0.25f;
                     }
 				updateFrameTimeSlice();
                     Client.displayMessage("Playback speed set to " + new DecimalFormat("##.##").format(fpsPlayMultiplier) + "x.", Client.CHAT_QUEST);
