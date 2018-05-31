@@ -437,6 +437,18 @@ public class Client {
 		Replay.closeReplayRecording();
 	}
 	
+	// check if login attempt is not a valid login or reconnect, send to disconnect hook
+	// response 1 i don't know exactly what's for might be trying to connect in combat or something
+	public static void login_attempt_hook(int response, boolean reconnecting, int[] xtea_keys) {
+		// redirect to disconnect hook
+		if (Renderer.replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
+			// at this stage just close it
+			if (response != 64 && response != 1) {
+				disconnect_hook();
+			}
+		}
+	}
+	
 	/**
 	 * Hooks the message that hovering over X thing gives in the client
 	 * 

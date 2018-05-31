@@ -404,9 +404,6 @@ public class JClassPatcher {
 					}
 				}
 				
-				// treat response other than 64 or 1 or reconnecting (i hope order is right) as disconnect hook
-				insnNodeList = methodNode.instructions.iterator();
-				
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
 					AbstractInsnNode nextNode = insnNode.getNext();
@@ -415,10 +412,20 @@ public class JClassPatcher {
 					if (nextNode == null || twoNextNodes == null)
 						break;
 					
-					if (insnNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)insnNode).var == 11 && nextNode.getOpcode() == Opcodes.ICONST_M1
-							&& twoNextNodes.getOpcode() == Opcodes.IXOR) {
-						// entry point when its true to close it
-						methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "disconnect_hook", "()V", false));
+					if (insnNode.getOpcode() == Opcodes.GETSTATIC && ((FieldInsnNode)insnNode).name.equals("il") &&
+							nextNode.getOpcode() == Opcodes.SIPUSH
+							&& ((IntInsnNode)nextNode).operand == 439
+							&& twoNextNodes.getOpcode() == Opcodes.AALOAD) {
+						// just do the logic in client
+						MethodInsnNode call = (MethodInsnNode)(twoNextNodes.getNext());
+						// loginresponse
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 11));
+						// reconnecting
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
+						// xtea keys
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 8));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client",
+								"login_attempt_hook", "(IZ[I)V", false));
 						break;
 					}
 				}
