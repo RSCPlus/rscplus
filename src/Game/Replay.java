@@ -690,11 +690,13 @@ public class Replay {
 	
 	public static void resetPatchClient() {
 		// Resets all replay patching
+		Client.friends_count = 0;
 		Client.friends = new String[200];
 		Client.friends_world = new String[200];
 		Client.friends_formerly = new String[200];
 		Client.friends_online = new int[200];
 		
+		Client.ignores_count = 0;
 		Client.ignores = new String[100];
 		Client.ignores_formerly = new String[100];
 		Client.ignores_copy = new String[100];

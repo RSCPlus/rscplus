@@ -118,22 +118,29 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	}
 	
 	public void updateTitle() {
-		String title = "rscplus (World " + Settings.WORLD;
-		if (Client.player_name != null && Client.player_name.length() != 0) {
-			title += "; " + Client.player_name;
+		String title = "rscplus (";
+		
+		if(!Replay.isPlaying) {
+			title += "World " + Settings.WORLD;
+			
+			if (Client.player_name != null && Client.player_name.length() != 0) {
+				title += "; " + Client.player_name;
+			}
 		}
-		if (Replay.isPlaying) {
+		else {
 			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
 			String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
-			title += "; Elapsed: " + elapsed + " / " + end;
+			title += elapsed + " / " + end;
 			title += ", Speed: " + new DecimalFormat("##.##").format(Replay.fpsPlayMultiplier) + "x";
 			if (Replay.paused)
 				title += ", Paused";
 		}
+		
 		if (Replay.isRecording) {
 			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.elapsedTimeMillis());
-			title += "; Recording, Elapsed: " + elapsed;
+			title += "; Recording: " + elapsed;
 		}
+		
 		title += ")";
 		
 		if (m_title.equals(title)) {
