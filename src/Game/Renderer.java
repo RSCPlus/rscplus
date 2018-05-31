@@ -668,8 +668,9 @@ public class Renderer {
 				}
 			}
 			
-			Rectangle bounds = new Rectangle(width - 148, height - 36, 48, 16);
-			drawShadowText(g2, "-replay-", bounds.x + 48, bounds.y - 10, color_text, true);
+			// TODO: This will need to be adjusted when the login screen is resizable
+			Rectangle bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+			drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
 			
 			setAlpha(g2, 0.5f);
 			if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
