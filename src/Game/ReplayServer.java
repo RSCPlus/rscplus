@@ -149,7 +149,7 @@ public class ReplayServer implements Runnable {
 				client = sock.accept();
 				client.configureBlocking(false);
 				diff -= 300;
-				Replay.timestamp = timestamp_input - Integer.max(diff, 0);
+				Replay.timestamp = timestamp_input - diff;
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
 			}
 			
