@@ -91,6 +91,8 @@ keyword stored.
 
 *::toggleinvcount* - Toggle the overlay of current inventory used
 
+*::togglebuffs* - Toggle combat (de)buffs and cooldowns display
+
 *::togglestatusdisplay* - Toggle Hits/Prayer/Fatigue display
 
 *::cmb* - WARNING! Because of color codes, this command will break the character limit and *may be bannable*. Don't send this command across PM to RS2/RS3 because they'll see a bunch of RS1 color codes and you may get banned if you're reported. Mimic's osbuddy's !cmb; outputs combat level (with decimal), Att, Str, Def, Hits, Ranged, Magic, and Prayer levels.
@@ -128,6 +130,7 @@ stored keyword on searchable bank)
 
 #### Overlays
 - Ctrl + u - Toggle Hits/Prayer/Fatigue display
+- Ctrl + y - Toggle combat (de)buffs and cooldowns display
 - Ctrl + e - Toggle inventory count overlay
 - Ctrl + i - Toggle Item name ovelay
 - Ctrl + p - Toggle Player name overlay
@@ -140,11 +143,11 @@ stored keyword on searchable bank)
 
 #### Streaming & Privacy
 - Ctrl + t - Toggle twitch chat hidden/shown
-- Unbound - Toggle IP/DNS shown at login screen
+- Ctrl + j - Toggle IP/DNS shown at login screen
 
 #### Replay (only used while a recording is played back)
 - Ctrl + b - Stop playback
-- space - Pause playback
+- Space - Pause playback
 - Ctrl + Right - Increase playback speed
 - Ctrl + Left - Decrease playback speed
 - Ctrl + Down - Reset playback speed

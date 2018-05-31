@@ -63,10 +63,11 @@ public class Help {
 					Client.displayMessage("@whi@::toggleplayerinfo - Toggle Player info", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::toggleroofs - Toggle roof hiding", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglestatusdisplay - Toggle Hits/Prayer/Fatigue display", Client.CHAT_QUEST);
-					Client.displayMessage("@whi@::toggletwitch - Toggle twitch chat hidden/shown", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::togglebuffs - Toggle combat (de)buffs and cooldowns display", Client.CHAT_QUEST);
 					break;
 				case 3:
 					Client.displayMessage("@whi@Page 3 of 3", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::toggletwitch - Toggle twitch chat hidden/shown", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglexpdrops - Toggle XP drops", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglestartsearchedbank <aWord> - Toggle between starting bank on search mode", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@ optionally specify the bank search word", Client.CHAT_QUEST);
