@@ -340,10 +340,7 @@ public class Client {
         }
 		
 		if (state == STATE_GAME) {
-			if (Client.player_name == null) {
-				Client.getPlayerName();
-			}
-			
+			Client.getPlayerName();
 			Client.adaptLoginInfo();
 			
 			// Process XP drops
@@ -469,7 +466,14 @@ public class Client {
 	 */
 	public static void getPlayerName() {
 		try {
-			player_name = (String)Reflection.characterName.get(player_object);
+			String name = (String)Reflection.characterName.get(player_object);
+			if (name != null) {
+				if (player_name == null) {
+					player_name = name;
+				} else if (!name.equals(player_name)) {
+					player_name = name;
+				}
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e1) {
 			e1.printStackTrace();
 		}
