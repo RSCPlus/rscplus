@@ -346,6 +346,24 @@ public class JClassPatcher {
 						methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 1));
 					}
 				}
+			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(Ljava/lang/String;Z)V")) {
+				// this part shows error_game_
+				// we want to call disconnect hook for instance in error_game_crash
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode)insnNode).name.equals("println")) {
+						LabelNode call = (LabelNode)insnNode.getNext();
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 1));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "error_game_hook", "(Ljava/lang/String;)V", false));
+					}
+				}
 			}
 		}
 	}

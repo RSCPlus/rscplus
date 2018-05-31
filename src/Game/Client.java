@@ -448,6 +448,15 @@ public class Client {
 		}
 	}
 	
+	public static void error_game_hook(String s) {
+		// from here its error_game_ + s -> check if its error_game_crash, thats the finalizing one that interrupts
+		// things
+		Logger.Error("Error game reported: " + s);
+		if (s.toLowerCase().equals("crash")) {
+			disconnect_hook();
+		}
+	}
+	
 	/**
 	 * Hooks the message that hovering over X thing gives in the client
 	 * 
