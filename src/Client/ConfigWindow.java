@@ -138,6 +138,7 @@ public class ConfigWindow {
 	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
 	private JSlider generalPanelCommandPatchModeSlider;
+	private JCheckBox generalPanelBypassAttackCheckbox;
 	private JCheckBox generalPanelRoofHidingCheckbox;
 	private JCheckBox generalPanelColoredTextCheckbox;
 	private JSlider generalPanelFoVSlider;
@@ -597,6 +598,9 @@ public class ConfigWindow {
 			}
 		});
 		
+		generalPanelBypassAttackCheckbox = addCheckbox("Bypass Attack", generalPanel);
+		generalPanelBypassAttackCheckbox.setToolTipText("Left click attack monsters regardless of level difference");
+		
 		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
 		generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
 		
@@ -950,6 +954,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle fatigue drops", "toggle_fatigue_drops", KeyModifier.CTRL, KeyEvent.VK_CLOSE_BRACKET);
 		addKeybindSet(keybindPanel, "Toggle fatigue alert", "toggle_fatigue_alert", KeyModifier.CTRL, KeyEvent.VK_F);
 		addKeybindSet(keybindPanel, "Toggle inventory full alert", "toggle_inventory_full_alert", KeyModifier.CTRL, KeyEvent.VK_V);
+		addKeybindSet(keybindPanel, "Toggle bypass attack", "toggle_bypass_attack", KeyModifier.CTRL, KeyEvent.VK_A);
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
 		addKeybindSet(keybindPanel, "Toggle start with searched bank", "toggle_start_searched_bank", KeyModifier.CTRL, KeyEvent.VK_Q);
@@ -1258,6 +1263,7 @@ public class ConfigWindow {
 		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT);
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
 		generalPanelCommandPatchModeSlider.setValue(Settings.COMMAND_PATCH_TYPE);
+		generalPanelBypassAttackCheckbox.setSelected(Settings.BYPASS_ATTACK);
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
 		generalPanelFoVSlider.setValue(Settings.FOV);
@@ -1355,6 +1361,7 @@ public class ConfigWindow {
 		Settings.INVENTORY_FULL_ALERT = generalPanelInventoryFullAlertCheckbox.isSelected();
 		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
 		Settings.COMMAND_PATCH_TYPE = generalPanelCommandPatchModeSlider.getValue();
+		Settings.BYPASS_ATTACK = generalPanelBypassAttackCheckbox.isSelected();
 		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
 		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
 		Settings.FOV = generalPanelFoVSlider.getValue();

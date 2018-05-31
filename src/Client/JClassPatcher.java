@@ -1194,6 +1194,25 @@ public class JClassPatcher {
 						break;
 					}
 				}
+			} else if (methodNode.name.equals("s") && methodNode.desc.equals("(I)V")) {
+				 // bypass npc attack on left option, regardless of level difference if user wants it that way
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode prevNode = insnNode.getPrevious();
+					
+					if (prevNode == null)
+						continue;
+					
+					if (insnNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)insnNode).var == 12 && prevNode.getOpcode() == Opcodes.GETFIELD
+							&& ((FieldInsnNode)prevNode).owner.equals("ta") && ((FieldInsnNode)prevNode).name.equals("b")) {
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 12));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ISTORE, 12));
+						methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "attack_menu_hook", "(I)I", false));
+						break;
+					}
+				}
 			}
 		}
 	}

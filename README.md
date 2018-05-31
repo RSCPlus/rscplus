@@ -57,6 +57,8 @@ banker again.
 mode and normal mode; specifying the parameter updates the search 
 keyword stored.
 
+*::togglebypassattack* - Toggle bypass right click attack
+
 *::toggleroofs* - Toggle roof hiding
 
 *::togglecolor* - Toggle colored text in terminal
@@ -123,6 +125,7 @@ All keybinds are configurable via the Settings GUI
 - Ctrl + ] - Toggle fatigue drops
 - Ctrl + f - Toggle fatigue alert
 - Ctrl + v - Toggle inventory full alert
+- Ctrl + a - Toggle bypass right click attack
 - Ctrl + r - Toggle roof hiding
 - Ctrl + q - Toggle start on searchable bank mode (uses previously 
 stored keyword on searchable bank)

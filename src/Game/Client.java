@@ -548,6 +548,9 @@ public class Client {
 			String[] commandArray = line.substring(2, line.length()).toLowerCase().split(" ");
 			
 			switch (commandArray[0]) {
+			case "togglebypassattack":
+				Settings.toggleBypassAttack();
+				break;
 			case "toggleroofs":
 				Settings.toggleHideRoofs();
 				break;
@@ -927,6 +930,14 @@ public class Client {
 			}
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
+		}
+	}
+	
+	public static int attack_menu_hook(int cmpVar) {
+		if (Settings.BYPASS_ATTACK) {
+			return 10;
+		} else {
+			return cmpVar;
 		}
 	}
 	

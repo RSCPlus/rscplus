@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
-// in here there should always be "Client.NotificationsHandler"
 import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
@@ -40,6 +39,7 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+// check that the import Client.NotificationsHandler is present!
 
 /**
  * Manages storing, loading, and changing settings.
@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180531.201802;
+	public static final double VERSION_NUMBER = 20180531.223857;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -102,6 +102,7 @@ public class Settings {
 	 * </p>
 	 */
 	public static int COMMAND_PATCH_TYPE = 3;
+	public static boolean BYPASS_ATTACK = false;
 	public static boolean HIDE_ROOFS = true;
 	public static boolean COLORIZE = true; // TODO: Vague, consider refactoring for clarity
 	public static int FOV = 9;
@@ -229,6 +230,7 @@ public class Settings {
 			INVENTORY_FULL_ALERT = getBoolean(props, "inventory_full_alert", INVENTORY_FULL_ALERT);
 			NAME_PATCH_TYPE = getInt(props, "name_patch_type", NAME_PATCH_TYPE);
 			COMMAND_PATCH_TYPE = getInt(props, "command_patch_type", COMMAND_PATCH_TYPE);
+			BYPASS_ATTACK = getBoolean(props, "bypass_attack", BYPASS_ATTACK);
 			HIDE_ROOFS = getBoolean(props, "hide_roofs", HIDE_ROOFS);
 			COLORIZE = getBoolean(props, "colorize", COLORIZE);
 			FOV = getInt(props, "fov", FOV);
@@ -403,6 +405,7 @@ public class Settings {
 			props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT));
 			props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE));
 			props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE));
+			props.setProperty("bypass_attack", Boolean.toString(BYPASS_ATTACK));
 			props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS));
 			props.setProperty("colorize", Boolean.toString(COLORIZE));
 			props.setProperty("fov", Integer.toString(FOV));
@@ -551,6 +554,15 @@ public class Settings {
 	/*
 	 * Setting toggle methods
 	 */
+	
+	public static void toggleBypassAttack() {
+		BYPASS_ATTACK = !BYPASS_ATTACK;
+		if (BYPASS_ATTACK)
+			Client.displayMessage("@cya@You are now able to left click attack all monsters", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@You are no longer able to left click attack all monsters", Client.CHAT_NONE);
+		save();
+	}
 	
 	public static void toggleHideRoofs() {
 		HIDE_ROOFS = !HIDE_ROOFS;
@@ -947,6 +959,9 @@ public class Settings {
 		case "toggle_player_name_overlay":
 			Settings.toggleShowPlayerInfo();
 			return true;
+		case "toggle_bypass_attack":
+			Settings.toggleBypassAttack();
+			return true;
 		case "toggle_roof_hiding":
 			Settings.toggleHideRoofs();
 			return true;
@@ -1017,6 +1032,7 @@ public class Settings {
 		INVENTORY_FULL_ALERT = false;
 		NAME_PATCH_TYPE = 3;
 		COMMAND_PATCH_TYPE = 3;
+		BYPASS_ATTACK = false;
 		HIDE_ROOFS = true;
 		COLORIZE = true;
 		FOV = 9;
