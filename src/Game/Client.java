@@ -468,9 +468,7 @@ public class Client {
 		try {
 			String name = (String)Reflection.characterName.get(player_object);
 			if (name != null) {
-				if (player_name == null) {
-					player_name = name;
-				} else if (!name.equals(player_name)) {
+				if (player_name == null || !name.equals(player_name)) {
 					player_name = name;
 				}
 			}
