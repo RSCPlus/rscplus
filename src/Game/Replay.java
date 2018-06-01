@@ -648,8 +648,10 @@ public class Replay {
 			}
 			if (isLogin && pos != -1) {
 				for (int i = pos; i < off + len; i++) {
-					out_b[i] = 0;
+					out_b[i] = 0x00;
 				}
+				
+				Logger.Info("Replay: Removed login block from client output");
 				
 				output.writeInt(timestamp);
 				output.writeInt(len);
