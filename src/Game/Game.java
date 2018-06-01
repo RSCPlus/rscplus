@@ -122,8 +122,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 								Renderer.replayName = selection.getPath();
 								if (Replay.isValid(Renderer.replayName)) {
 									Logger.Info("Replay selected: " + Renderer.replayName);
-									Renderer.replayOption = 2;
-									Client.login_hook();
+									Client.runReplayHook = true;
 									return;
 								} else {
 									JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you dropped onto the client is not a replay.\n" +

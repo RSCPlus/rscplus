@@ -122,6 +122,8 @@ public class Client {
 	public static boolean show_tradeconfirm;
 	public static boolean show_welcome;
 	
+	public static boolean runReplayHook = false;
+	
 	public static int[] inventory_items;
 	
 	public static long poison_timer = 0L;
@@ -391,6 +393,13 @@ public class Client {
 		}
 		
 		Game.getInstance().updateTitle();
+		
+		// Login hook on this thread
+		if (runReplayHook) {
+			Renderer.replayOption = 2;
+			runReplayHook = false;
+			login_hook();
+		}
 	}
 	
 	public static void init_login() {

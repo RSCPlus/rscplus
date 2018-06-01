@@ -189,8 +189,14 @@ public class Replay {
 			Client.strings[662] = "@bla@from:";
 		}
 		isPlaying = true;
+		
+		// Wait
+		try {
+			while (!replayServer.isReady)
+				Thread.sleep(1);
+		} catch (Exception e) {
+		}
 		Client.login(false, "Replay", "");
-		Logger.Info("Replay playback started; client v" + client_version + ", replay v" + replay_version);
 		return true;
 	}
 	
@@ -220,7 +226,6 @@ public class Replay {
 		replayServer.isDone = true;
 		resetPatchClient();
 		isPlaying = false;
-		Logger.Info("Replay playback stopped");
 	}
 	
 	public static void initializeReplayRecording() {
@@ -666,7 +671,7 @@ public class Replay {
 			try {
 				return play_keys.readInt();
 			} catch (Exception e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				shutdown_error();
 				return key;
 			}
@@ -678,7 +683,7 @@ public class Replay {
 		try {
 			keys.writeInt(key); // data length
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			shutdown_error();
 		}
 		
