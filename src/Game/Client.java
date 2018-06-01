@@ -426,6 +426,7 @@ public class Client {
 	
 	public static void login_hook() {
 		// Order of comparison matters here
+		Replay.init();
 		if (Renderer.replayOption == 2) {
 			if (!Replay.initializeReplayPlayback(Renderer.replayName))
 				Renderer.replayOption = 0;

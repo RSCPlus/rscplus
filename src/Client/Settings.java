@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
-import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -49,7 +48,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180531.223857;
+	public static final double VERSION_NUMBER = 20180601.012853;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -82,6 +81,7 @@ public class Settings {
 	public static int FATIGUE_FIGURES = 2;
 	public static boolean FATIGUE_ALERT = true;
 	public static boolean INVENTORY_FULL_ALERT = false;
+	public static boolean INDICATORS = true;
 	/**
 	 * Defines to what extent the item names should be patched.
 	 * <p>
@@ -238,6 +238,7 @@ public class Settings {
 			VIEW_DISTANCE = getInt(props, "view_distance", VIEW_DISTANCE);
 			START_SEARCHEDBANK = getBoolean(props, "start_searched_bank", START_SEARCHEDBANK);
 			SEARCH_BANK_WORD = getString(props, "search_bank_word", SEARCH_BANK_WORD);
+			INDICATORS = getBoolean(props, "indicators", INDICATORS);
 			
 			// Overlays options
 			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
@@ -430,6 +431,7 @@ public class Settings {
 			props.setProperty("debug", Boolean.toString(DEBUG));
 			props.setProperty("highlighted_items", "" + Util.joinAsString(",", HIGHLIGHTED_ITEMS));
 			props.setProperty("blocked_items", "" + Util.joinAsString(",", BLOCKED_ITEMS));
+			props.setProperty("indicators", Boolean.toString(INDICATORS));
 
 			// Notifications
 			props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS));
@@ -747,6 +749,15 @@ public class Settings {
 		save();
 	}
 	
+	public static void toggleIndicators() {
+		INDICATORS = !INDICATORS;
+		if (INDICATORS)
+			Client.displayMessage("@cya@Connection indicators are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Connection indicators are now ignored", Client.CHAT_NONE);
+		save();
+	}
+	
 	public static void checkSoftwareCursor() {
 		if (Settings.SOFTWARE_CURSOR) {
 			Game.getInstance().setCursor(Game.getInstance().getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
@@ -911,6 +922,9 @@ public class Settings {
                 Renderer.takeScreenshot();
             }
 			return true;
+		case "toggle_indicators":
+			Settings.toggleIndicators();
+			return true;
 		case "toggle_colorize":
 			Settings.toggleColorTerminal();
 			return true;
@@ -1026,6 +1040,7 @@ public class Settings {
 		LOAD_CHAT_HISTORY = false;
 		COMBAT_MENU = false;
 		SHOW_XPDROPS = true;
+		INDICATORS = true;
 		SHOW_FATIGUEDROPS = true;
 		FATIGUE_FIGURES = 2;
 		FATIGUE_ALERT = true;

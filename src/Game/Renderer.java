@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
 import java.io.File;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -443,7 +444,6 @@ public class Renderer {
 						setAlpha(g2, alphaFatigue);
 						drawShadowText(g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
 						y += 16;
-						setAlpha(g2, 1.0f);
 					}
 				} else {
 					int barSize = 4 + image_bar_frame.getWidth(null);
@@ -629,7 +629,18 @@ public class Renderer {
 				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
 			}
 			
-			// drawShadowText(g2, "Test: " + Client.test, 100, 100, color_text, false);
+			// A little over a full tick
+			if (Settings.INDICATORS && Replay.getServerLagMillis() >= 800) {
+				x = width - 80; y = height - 80;
+				setAlpha(g2, alpha_time);
+				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
+				x += 16; y += 38;
+				drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
+				y += 12;
+				int lag = Replay.getServerLagMillis() - 600;
+				drawShadowText(g2, new DecimalFormat("0.0").format((float)lag / 1000.0f) + "s", x, y, color_low, true);
+				setAlpha(g2, 1.0f);
+			}
 			
 			g2.setFont(font_big);
 			if (Settings.FATIGUE_ALERT && Client.getFatigue() >= 98 && !Client.isInterfaceOpen()) {

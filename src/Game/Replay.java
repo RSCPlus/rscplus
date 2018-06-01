@@ -96,6 +96,7 @@ public class Replay {
 	
 	public static int timestamp;
 	public static int timestamp_client;
+	public static int timestamp_server_last;
 	public static int timestamp_kb_input;
 	public static int timestamp_mouse_input;
     
@@ -117,6 +118,16 @@ public class Replay {
 		if (timestamp_client == -1) {
 			timestamp_client = 0;
 		}
+	}
+	
+	public static void init() {
+		timestamp = 0;
+		timestamp_client = 0;
+		timestamp_server_last = 0;
+	}
+	
+	public static int getServerLagMillis() {
+		return (timestamp - timestamp_server_last) * frame_time_slice;
 	}
 	
 	public static boolean initializeReplayPlayback(String replayDirectory) {
@@ -160,8 +171,6 @@ public class Replay {
             } else {
                 started_record_kb_mouse = false;
             }
-			
-			timestamp = 0;
 		} catch (Exception e) {
 			play_keys = null;
 			play_keyboard = null;
@@ -243,7 +252,6 @@ public class Replay {
             } else {
                 started_record_kb_mouse = false;
             }
-			timestamp = 0;
 			
 			Logger.Info("Replay recording started");
 		} catch (Exception e) {
@@ -344,12 +352,10 @@ public class Replay {
 			// Replay server is no longer running
 			if (replayServer.isDone)
 				closeReplayPlayback();
-			
-			incrementTimestampClient();
 		}
 		
 		// Increment the replay timestamp
-		if (Replay.isRecording)
+		if (!Replay.isPlaying)
 			Replay.incrementTimestamp();
 	}
 	
@@ -598,6 +604,10 @@ public class Replay {
 	}
 	
 	public static void dumpRawInputStream(byte[] b, int n, int n2, int n5, int bytesread) {
+		// Save timestamp of last time we saw data from the server
+		if (bytesread > 0)
+			timestamp_server_last = timestamp;
+		
 		if (input == null)
 			return;
 		

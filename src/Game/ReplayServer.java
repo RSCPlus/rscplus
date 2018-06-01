@@ -134,7 +134,8 @@ public class ReplayServer implements Runnable {
 						isDone = true;
 					}
 				} else {
-					// Do nothing
+					// Update timestamp immediately on unpausing
+					frame_timer = System.currentTimeMillis();
 					Thread.sleep(1);
 				}
 			}

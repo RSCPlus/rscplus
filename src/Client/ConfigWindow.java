@@ -146,6 +146,7 @@ public class ConfigWindow {
 	private JSlider generalPanelViewDistanceSlider;
 	private JCheckBox generalPanelStartSearchedBankCheckbox;
 	private JTextField generalPanelSearchBankWordTextfield;
+	private JCheckBox generalPanelIndicatorsCheckbox;
 	
 	// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -452,6 +453,9 @@ public class ConfigWindow {
 		generalPanelXPCenterAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown at the top-middle of the screen.");
 		XPAlignButtonGroup.add(generalPanelXPRightAlignFocusButton);
 		XPAlignButtonGroup.add(generalPanelXPCenterAlignFocusButton);
+		
+		generalPanelIndicatorsCheckbox = addCheckbox("Connection indicators", generalPanel);
+		generalPanelIndicatorsCheckbox.setToolTipText("When problems are wrong with your connection, rscplus will notify you");
 		
 		generalPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", generalPanel);
 		generalPanelFatigueDropsCheckbox.setToolTipText("Show the fatigue gained as an overlay each time fatigue is received");
@@ -958,6 +962,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
 		addKeybindSet(keybindPanel, "Toggle start with searched bank", "toggle_start_searched_bank", KeyModifier.CTRL, KeyEvent.VK_Q);
+		addKeybindSet(keybindPanel, "Toggle connection indicators", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
 		
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
@@ -1257,6 +1262,7 @@ public class ConfigWindow {
 		generalPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS);
 		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
 		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
+		generalPanelIndicatorsCheckbox.setSelected(Settings.INDICATORS);
 		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS);
 		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES));
 		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT);
@@ -1355,6 +1361,7 @@ public class ConfigWindow {
 		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
 		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();
 		Settings.CENTER_XPDROPS = generalPanelXPCenterAlignFocusButton.isSelected();
+		Settings.INDICATORS = generalPanelIndicatorsCheckbox.isSelected();
 		Settings.SHOW_FATIGUEDROPS = generalPanelFatigueDropsCheckbox.isSelected();
 		Settings.FATIGUE_FIGURES = ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue();
 		Settings.FATIGUE_ALERT = generalPanelFatigueAlertCheckbox.isSelected();
