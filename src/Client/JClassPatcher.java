@@ -380,6 +380,25 @@ public class JClassPatcher {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				AbstractInsnNode insnNode = insnNodeList.next();
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "patchClient", "()V", false));
+				// save encrypted opcodes (used when decrypted opcode = 182)
+				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 3));
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "saveEncOpcode", "(I)V", false));
+				
+				//fetch opcode for packets
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					insnNode = insnNodeList.next();
+					
+					if (insnNode.getOpcode() == Opcodes.ISTORE && ((VarInsnNode)insnNode).var == 3) {
+						VarInsnNode call = (VarInsnNode)insnNode.getNext();
+						
+						// check opcode against checkpoint 182 - code for welcome screen info
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "checkPoint", "(II)V", false));
+						break;
+					}
+				}
 			}
 			// sendLogout
 			else if (methodNode.name.equals("B") && methodNode.desc.equals("(I)V")) {
