@@ -275,7 +275,7 @@ public class Replay {
 			return;
 		}
 		
-		retained_timestamp = 0;
+		retained_timestamp = -1;
 		retained_bytes = null;
 		isRecording = true;
 	}
@@ -287,7 +287,7 @@ public class Replay {
 		try {
 			// since we are working with packet retention, last packet on memory has not been written,
 			// write it here
-			if (retained_timestamp != 0 && retained_bytes != null) {
+			if (retained_timestamp != -1 && retained_bytes != null) {
 				try {
 					input.writeInt(retained_timestamp);
 					input.writeInt(retained_bread);
@@ -318,7 +318,7 @@ public class Replay {
 			keyboard = null;
 			mouse = null;
 			
-			retained_timestamp = 0;
+			retained_timestamp = -1;
 			retained_bytes = null;
 			
 			Logger.Info("Replay recording stopped");
@@ -643,7 +643,7 @@ public class Replay {
 		int off = n2 + n5;
 		// when packet 182 is received retained_timestamp should be 0
 		// to indicate not to dump previous packet
-		if (retained_timestamp != 0) {
+		if (retained_timestamp != -1) {
 			// new set of packets arrived, dump previous ones
 			try {
 				input.writeInt(retained_timestamp);
@@ -744,17 +744,18 @@ public class Replay {
 					Logger.Info("Replay: Removed host block from client input");
 					
 					input.writeInt(retained_timestamp);
-					input.writeInt(10);
-					input.writeByte((byte)enc_opcode);
-					input.writeInt((127 << 24) + 1);
-					input.writeShort(0);
-					input.writeByte((byte)201);
-					input.writeShort(0);
+					input.writeInt(retained_bread);
+					retained_bytes[retained_off + 1] = (byte)127;
+					retained_bytes[retained_off + 2] = 0;
+					retained_bytes[retained_off + 3] = 0;
+					retained_bytes[retained_off + 4] = 1;
+					input.write(retained_bytes, retained_off, retained_bread);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 					shutdown_error();
 				}
-				retained_timestamp = 0;
+				retained_timestamp = -1;
 				// free memory
 				retained_bytes = null;
 			}
