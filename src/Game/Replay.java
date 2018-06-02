@@ -72,6 +72,8 @@ public class Replay {
 	
 	public static final int DEFAULT_PORT = 43594;
 	
+	public static final int TIMESTAMP_EOF = -1;
+	
 	public static boolean isPlaying = false;
 	public static boolean isRecording = false;
 	public static boolean paused = false;
@@ -111,8 +113,7 @@ public class Replay {
 	public static void incrementTimestamp() {
 		timestamp++;
 		
-		// EOF is -1
-		if (timestamp == -1) {
+		if (timestamp == TIMESTAMP_EOF) {
 			timestamp = 0;
 		}
 	}
@@ -120,8 +121,7 @@ public class Replay {
 	public static void incrementTimestampClient() {
 		timestamp_client++;
 		
-		// EOF is -1
-		if (timestamp_client == -1) {
+		if (timestamp_client == TIMESTAMP_EOF) {
 			timestamp_client = 0;
 		}
 	}
@@ -275,7 +275,7 @@ public class Replay {
 			return;
 		}
 		
-		retained_timestamp = -1;
+		retained_timestamp = TIMESTAMP_EOF;
 		retained_bytes = null;
 		isRecording = true;
 	}
@@ -287,7 +287,7 @@ public class Replay {
 		try {
 			// since we are working with packet retention, last packet on memory has not been written,
 			// write it here
-			if (retained_timestamp != -1 && retained_bytes != null) {
+			if (retained_timestamp != TIMESTAMP_EOF && retained_bytes != null) {
 				try {
 					input.writeInt(retained_timestamp);
 					input.writeInt(retained_bread);
@@ -299,15 +299,15 @@ public class Replay {
 			}
 			
 			// Write EOF values
-			input.writeInt(-1);
-			output.writeInt(-1);
+			input.writeInt(TIMESTAMP_EOF);
+			output.writeInt(TIMESTAMP_EOF);
 			
 			output.close();
 			input.close();
 			keys.close();
             if (started_record_kb_mouse) {
-            	keyboard.writeInt(-1);
-            	mouse.writeInt(-1);
+				keyboard.writeInt(TIMESTAMP_EOF);
+				mouse.writeInt(TIMESTAMP_EOF);
                 keyboard.close();
                 mouse.close();
             }
@@ -318,7 +318,7 @@ public class Replay {
 			keyboard = null;
 			mouse = null;
 			
-			retained_timestamp = -1;
+			retained_timestamp = TIMESTAMP_EOF;
 			retained_bytes = null;
 			
 			Logger.Info("Replay recording stopped");
@@ -643,7 +643,7 @@ public class Replay {
 		int off = n2 + n5;
 		// when packet 182 is received retained_timestamp should be 0
 		// to indicate not to dump previous packet
-		if (retained_timestamp != -1) {
+		if (retained_timestamp != TIMESTAMP_EOF) {
 			// new set of packets arrived, dump previous ones
 			try {
 				input.writeInt(retained_timestamp);
@@ -741,8 +741,6 @@ public class Replay {
 				// in here probably would need to check the position
 				// don't care about the packet if 182, just rewrite it using the enc opcode
 				try {
-					Logger.Info("Replay: Removed host block from client input");
-					
 					input.writeInt(retained_timestamp);
 					input.writeInt(retained_bread);
 					retained_bytes[retained_off + 1] = (byte)127;
@@ -750,12 +748,12 @@ public class Replay {
 					retained_bytes[retained_off + 3] = 0;
 					retained_bytes[retained_off + 4] = 1;
 					input.write(retained_bytes, retained_off, retained_bread);
-					
+					Logger.Info("Replay: Removed host block from client input");
 				} catch (Exception e) {
 					e.printStackTrace();
 					shutdown_error();
 				}
-				retained_timestamp = -1;
+				retained_timestamp = TIMESTAMP_EOF;
 				// free memory
 				retained_bytes = null;
 			}
