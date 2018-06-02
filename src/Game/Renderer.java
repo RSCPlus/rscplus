@@ -204,9 +204,6 @@ public class Renderer {
 			macOS_resize_workaround = false;
 		}
 		
-		// Run other parts update methods
-		Client.update();
-		
 		Graphics2D g2 = (Graphics2D)game_image.getGraphics(); // TODO: Declare g2 outside of the present method
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setFont(font_main);
@@ -627,6 +624,10 @@ public class Renderer {
 				drawShadowText(g2, "Plane: (" + Client.planeWidth + "," + Client.planeHeight + "," + Client.planeIndex + ")", x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "replay_timestamp: " + Replay.timestamp, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "replay_server_timestamp: " + Replay.timestamp_server_last, x, y, color_text, false);
 			}
 			
 			// A little over a full tick

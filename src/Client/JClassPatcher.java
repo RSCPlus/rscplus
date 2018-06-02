@@ -1233,6 +1233,14 @@ public class JClassPatcher {
 					}
 				}
 			}
+			
+			if (methodNode.name.equals("e") && methodNode.desc.equals("(I)V")) {
+				// handleGameInput
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				
+				AbstractInsnNode insnNode = insnNodeList.next();
+				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "update", "()V", false));
+			}
 		}
 	}
 	
