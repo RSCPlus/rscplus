@@ -641,7 +641,7 @@ public class Replay {
 			return;
 		
 		int off = n2 + n5;
-		// when packet 182 is received retained_timestamp should be 0
+		// when packet 182 is received retained_timestamp should be TIMESTAMP_EOF
 		// to indicate not to dump previous packet
 		if (retained_timestamp != TIMESTAMP_EOF) {
 			// new set of packets arrived, dump previous ones
