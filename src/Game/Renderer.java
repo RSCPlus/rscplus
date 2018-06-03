@@ -631,7 +631,7 @@ public class Renderer {
 			}
 			
 			// A little over a full tick
-			if (Settings.INDICATORS && Replay.getServerLagMillis() >= 650) {
+			if (Settings.INDICATORS && Replay.getServerLagMillis() >= 800) {
 				x = width - 80; y = height - 80;
 				setAlpha(g2, alpha_time);
 				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
