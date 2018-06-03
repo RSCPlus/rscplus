@@ -594,7 +594,7 @@ public class Renderer {
 				
 				x = 256;
 				y = 32;
-				drawShadowText(g2, "FPS: " + fps, x, y, color_text, false);
+				drawShadowText(g2, "FPS: " + fps + " (" + Client.updatesPerSecond + ")", x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false);
 				y += 16;
@@ -624,6 +624,10 @@ public class Renderer {
 				drawShadowText(g2, "Plane: (" + Client.planeWidth + "," + Client.planeHeight + "," + Client.planeIndex + ")", x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "combat_timer: " + Client.combat_timer, x, y, color_text, false);
+				y += 32;
+				drawShadowText(g2, "frame_time_slice: " + Replay.frame_time_slice, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "lag: " + Replay.timestamp_lag + " updates", x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "replay_timestamp: " + Replay.timestamp, x, y, color_text, false);
 				y += 16;
@@ -631,14 +635,14 @@ public class Renderer {
 			}
 			
 			// A little over a full tick
-			if (Settings.INDICATORS && Replay.getServerLagMillis() >= 800) {
+			if (Settings.INDICATORS && Replay.getServerLag() >= 35) {
 				x = width - 80; y = height - 80;
 				setAlpha(g2, alpha_time);
 				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
 				x += 16; y += 38;
 				drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
 				y += 12;
-				int lag = Replay.getServerLagMillis() - 600;
+				int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
 				drawShadowText(g2, new DecimalFormat("0.0").format((float)lag / 1000.0f) + "s", x, y, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
@@ -810,6 +814,7 @@ public class Renderer {
 		g.drawImage(game_image, 0, 0, null);
 		
 		frames++;
+		time = System.currentTimeMillis();
 		if (time > fps_timer) {
 			fps = frames;
 			frames = 0;

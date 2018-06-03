@@ -216,6 +216,10 @@ public class Client {
 	public static boolean showRecordAlwaysDialogue = false;
     public static boolean showMacintoshReplayNotImplementedError = false;
 	
+	public static long update_timer;
+	public static long updates;
+	public static long updatesPerSecond;
+	
 	/**
 	 * A boolean array that stores if the XP per hour should be shown for a given skill when hovering on the XP bar.
 	 * <p>
@@ -299,6 +303,8 @@ public class Client {
 	public static void update() {
 		// FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
 		version = 235;
+		
+		long time = System.currentTimeMillis();
 		
 		Replay.update();
 		
@@ -392,6 +398,14 @@ public class Client {
 			Renderer.replayOption = 2;
 			runReplayHook = false;
 			login_hook();
+		}
+		
+		updates++;
+		time = System.currentTimeMillis();
+		if (time >= update_timer) {
+			updatesPerSecond = updates;
+			update_timer = time + 1000;
+			updates = 0;
 		}
 	}
 	

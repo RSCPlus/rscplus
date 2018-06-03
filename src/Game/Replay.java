@@ -110,6 +110,8 @@ public class Replay {
 	public static int retained_off;
 	public static int retained_bread;
 	
+	public static int timestamp_lag = 0;
+	
 	public static void incrementTimestamp() {
 		timestamp++;
 		
@@ -132,8 +134,8 @@ public class Replay {
 		timestamp_server_last = 0;
 	}
 	
-	public static int getServerLagMillis() {
-		return (timestamp - timestamp_server_last) * frame_time_slice;
+	public static int getServerLag() {
+		return timestamp - timestamp_server_last;
 	}
 	
 	public static boolean initializeReplayPlayback(String replayDirectory) {
@@ -634,8 +636,12 @@ public class Replay {
 	
 	public static void dumpRawInputStream(byte[] b, int n, int n2, int n5, int bytesread) {
 		// Save timestamp of last time we saw data from the server
-		if (bytesread > 0)
+		if (bytesread > 0) {
+			int lag = timestamp - timestamp_server_last;
+			if (lag > 10)
+				timestamp_lag = lag;
 			timestamp_server_last = timestamp;
+		}
 		
 		if (input == null)
 			return;
