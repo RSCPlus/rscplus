@@ -435,6 +435,7 @@ public class Client {
 		combat_style = Settings.COMBAT_STYLE;
 		state = STATE_GAME;
 		bank_active_page = 0;
+		combat_timer = 0;
 		
 		if (TwitchIRC.isUsing())
 			twitch.connect();

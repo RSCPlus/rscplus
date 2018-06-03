@@ -164,7 +164,7 @@ public class JClassPatcher {
 			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
 			hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true);
 			
-			hookClassVariable(methodNode, "client", "ai", "I", "Game/Client", "combat_timer", "I", true, false);
+			hookClassVariable(methodNode, "client", "ai", "I", "Game/Client", "combat_timer", "I", true, true);
 			hookClassVariable(methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
 			hookClassVariable(methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
 			hookClassVariable(methodNode, "client", "Pj", "Z", "Game/Client", "show_duelconfirm", "Z", true, false);
