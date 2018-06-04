@@ -237,14 +237,15 @@ public class Replay {
 			return;
 		
 		try {
+			isRestarting = true;
 			play_keys.close();
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
 			Client.loseConnection(false);
 			Replay.timestamp_client = 0;
-			isRestarting = true;
 			replayServer.restart = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			isRestarting = false;
 			shutdown_error();
 		}
 	}
