@@ -205,6 +205,10 @@ public class Renderer {
 			macOS_resize_workaround = false;
 		}
 		
+		// Reset dialogue option after force pressed in replay
+		if (Replay.isPlaying && KeyboardHandler.dialogue_option != -1)
+			KeyboardHandler.dialogue_option = -1;
+		
 		Graphics2D g2 = (Graphics2D)game_image.getGraphics(); // TODO: Declare g2 outside of the present method
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setFont(font_main);

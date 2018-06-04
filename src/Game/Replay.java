@@ -380,10 +380,6 @@ public class Replay {
 			if (Client.isGameLoaded) {
 				playerX = Client.localRegionX + Client.regionX;
 				playerY = Client.localRegionY + Client.regionY;
-				
-				// Reset dialogue option after force pressed in replay
-				if (KeyboardHandler.dialogue_option != -1)
-					KeyboardHandler.dialogue_option = -1;
 			}
 			
 			// If the player moves, we're going to run some events
