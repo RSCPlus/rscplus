@@ -851,10 +851,6 @@ public class Renderer {
 			int server_x = (int)(bounds.width * percent);
 			int client_x = (int)(server_x * percentClient);
 			
-			// Remove progress bar jitter
-			if (server_x - client_x <= 1)
-				client_x = server_x;
-			
 			g2.setColor(color_prayer);
 			setAlpha(g2, 0.5f);
 			g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
@@ -874,7 +870,10 @@ public class Renderer {
 			}
 			
 			if (Replay.isSeeking) {
-				drawShadowTextBorder(g2, "Seeking...", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false);
+				int seekPercent = (int)(percentClient * 100.0f);
+				if (seekPercent != 100) {
+					drawShadowTextBorder(g2, "Seeking (" + seekPercent + "%)", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false);
+				}
 			}
 		}
 			
@@ -997,7 +996,7 @@ public class Renderer {
 		int rectX = x - (bounds.width / 2) - 2;
 		int rectY = y - (bounds.height / 2) + 2;
 		int rectWidth = bounds.width + 2;
-		int rectHeight = bounds.height - 1;
+		int rectHeight = bounds.height;
 		if (border) {
 			setAlpha(g, 1.0f);
 			g.drawRect(rectX, rectY, rectWidth, rectHeight);
