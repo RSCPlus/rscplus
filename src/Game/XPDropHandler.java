@@ -36,6 +36,10 @@ public class XPDropHandler {
 	private List<XPDrop> m_list = new ArrayList<>();
 	
 	public void add(String text, Color color) {
+		// No XP drops while seeking
+		if (Replay.isSeeking)
+			return;
+		
 		XPDrop xpdrop = new XPDrop(text, color);
 		m_list.add(xpdrop);
 	}

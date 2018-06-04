@@ -1068,6 +1068,10 @@ public class Client {
 	 * @param count The count for the options
 	 */
 	public static void receivedOptionsHook(String[] menuOptions, int count) {
+		// Do not run anything below here while seeking
+		if (Replay.isSeeking)
+			return;
+		
 		int type = CHAT_INCOMING_OPTION;
 		
 		String option = "";
@@ -1173,6 +1177,10 @@ public class Client {
 				updateTimer = currentTime + (60 * 60 * 1000);
 			}
 		}
+		
+		// Everything below here won't effect game while seeking
+		if (Replay.isSeeking)
+			return;
 		
 		if (Settings.COLORIZE) {
 			AnsiConsole.systemInstall();

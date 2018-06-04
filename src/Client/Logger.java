@@ -21,6 +21,8 @@
 
 package Client;
 
+import Game.Replay;
+
 /**
  * A simple logger
  */
@@ -39,7 +41,7 @@ public class Logger {
 	}
 	
 	public static void Log(Type type, String message) {
-		if (!Settings.DEBUG && type == Type.DEBUG)
+		if (Replay.isSeeking && !Settings.DEBUG && type == Type.DEBUG)
 			return;
 		
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;
