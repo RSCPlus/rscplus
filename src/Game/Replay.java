@@ -74,6 +74,7 @@ public class Replay {
 	
 	public static final int TIMESTAMP_EOF = -1;
 	
+	public static boolean isSeeking = false;
 	public static boolean isPlaying = false;
 	public static boolean isRecording = false;
 	public static boolean paused = false;
@@ -138,6 +139,16 @@ public class Replay {
 	
 	public static int getServerLag() {
 		return timestamp - timestamp_server_last;
+	}
+	
+	public static int getSeekEnd() {
+		return replayServer.timestamp_new;
+	}
+	
+	public static void seek(int new_timestamp) {
+		isSeeking = true;
+		frame_time_slice = 0;
+		replayServer.seek(new_timestamp);
 	}
 	
 	public static boolean initializeReplayPlayback() {
@@ -211,13 +222,14 @@ public class Replay {
 	}
 	
 	public static void restartReplayPlayback() {
-		if (play_keys == null)
+		if (replayServer.isSeeking || play_keys == null)
 			return;
 		
 		try {
 			play_keys.close();
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
 			Client.loseConnection(false);
+			Replay.timestamp_client = 0;
 			replayServer.restart = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -244,6 +256,7 @@ public class Replay {
 		}
 		
 		Game.getInstance().getJConfig().changeWorld(Settings.WORLD);
+		isSeeking = false;
 		resetFrameTimeSlice();
 		Client.closeConnection(true);
 		resetPort();
@@ -405,6 +418,8 @@ public class Replay {
 		// Increment the replay timestamp
 		if (!Replay.isPlaying)
 			Replay.incrementTimestamp();
+		else
+			Replay.incrementTimestampClient();
 	}
 	
 	public static int getPercentPlayed() {
@@ -509,6 +524,9 @@ public class Replay {
 	}
 	
 	public static void resetFrameTimeSlice() {
+		if (isSeeking)
+			return;
+		
 		frame_time_slice = 1000 / fps;
 	}
 	
@@ -530,7 +548,7 @@ public class Replay {
 	}
 	
 	public static void updateFrameTimeSlice() {
-		if (paused)
+		if (paused || isSeeking)
 			return;
 		
 		if (isPlaying) {
@@ -547,6 +565,18 @@ public class Replay {
 		}
 		
 		return fps;
+	}
+	
+	public static int getReplayEnd() {
+		return replayServer.timestamp_end;
+	}
+	
+	public static int getClientRead() {
+		return replayServer.client_read;
+	}
+	
+	public static int getClientWrite() {
+		return replayServer.client_write;
 	}
 	
 	// only change port in replay
@@ -661,6 +691,7 @@ public class Replay {
 			if (lag > 10)
 				timestamp_lag = lag;
 			timestamp_server_last = timestamp;
+			replayServer.client_read += bytesread;
 		}
 		
 		if (input == null)

@@ -42,13 +42,18 @@ public class ReplayServer implements Runnable {
 	SocketChannel client = null;
 	ByteBuffer readBuffer = null;
 	long frame_timer = 0;
+	int timestamp_new = Replay.TIMESTAMP_EOF;
 	
 	public boolean isReady = false;
 	public boolean isDone = false;
+	public boolean isSeeking = false;
 	public boolean restart = false;
 	public long size = 0;
 	public long available = 0;
 	public int timestamp_end = 0;
+	
+	public int client_read = 0;
+	public int client_write = 0;
 	
 	ReplayServer(String directory) {
 		playbackDirectory = directory;
@@ -61,6 +66,14 @@ public class ReplayServer implements Runnable {
 		} catch (Exception e) {
 		}
 		return 0;
+	}
+	
+	public void seek(int new_timestamp) {
+		if (Replay.timestamp > new_timestamp)
+			Replay.restartReplayPlayback();
+		
+		timestamp_new = new_timestamp;
+		isSeeking = true;
 	}
 	
 	public int getReplayEnding(File file) {
@@ -137,19 +150,26 @@ public class ReplayServer implements Runnable {
 			while (!isDone) {
 				// Restart the replay
 				if (restart) {
+					boolean wasPaused = Replay.paused;
+					Replay.paused = false;
 					client.close();
 					client = sock.accept();
+					if (Replay.isSeeking)
+						Replay.paused = wasPaused;
+					else
+						Replay.paused = false;
 					input.close();
 					file_input = new FileInputStream(file);
 					input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
 					Replay.timestamp = 0;
-					Replay.timestamp_client = 0;
 					Replay.timestamp_server_last = 0;
+					client_read = 0;
+					client_write = 0;
 					frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
 					restart = false;
 				}
 				
-				if (!Replay.paused) {
+				if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
 					if (!doTick()) {
 						isDone = true;
 					}
@@ -185,7 +205,7 @@ public class ReplayServer implements Runnable {
 			int timestamp_input = input.readInt();
 			
 			// We've reached the end of the replay
-			if (timestamp_input == -1)
+			if (timestamp_input == Replay.TIMESTAMP_EOF)
 				return false;
 			
 			int length = input.readInt();
@@ -194,7 +214,7 @@ public class ReplayServer implements Runnable {
 			available = file_input.available();
 			
 			int timestamp_diff = timestamp_input - Replay.timestamp;
-			
+				
 			// If the timestamp is 300+ frames in the future, it's a client disconnection
 			// So we disconnect and reconnect the client
 			if (timestamp_diff > 300) {
@@ -204,6 +224,27 @@ public class ReplayServer implements Runnable {
 				timestamp_diff -= 300;
 				Replay.timestamp = timestamp_input - timestamp_diff;
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
+			}
+			
+			// Handle seeking
+			if (timestamp_new != Replay.TIMESTAMP_EOF)
+				Replay.timestamp = timestamp_input;
+			
+			if (timestamp_new != Replay.TIMESTAMP_EOF) {
+				Replay.timestamp = timestamp_input;
+				if (Replay.timestamp >= timestamp_new) {
+					// Wait for client
+					while (client_read < client_write)
+						Thread.sleep(1);
+					
+					Replay.isSeeking = false;
+					timestamp_new = Replay.TIMESTAMP_EOF;
+					Replay.updateFrameTimeSlice();
+					frame_timer = System.currentTimeMillis();
+					if (Replay.paused)
+						Replay.resetFrameTimeSlice();
+					isSeeking = false;
+				}
 			}
 			
 			// Synchronize the server to input
@@ -222,7 +263,7 @@ public class ReplayServer implements Runnable {
 			
 			// Write out replay data to the client
 			try {
-				client.write(buffer);
+				client_write += client.write(buffer);
 			} catch (Exception e) {
 			}
 			

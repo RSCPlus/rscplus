@@ -88,6 +88,7 @@ public class Renderer {
 	public static Color color_poison = new Color(155, 205, 50);
 	public static Color color_item = new Color(245, 245, 245);
 	public static Color color_item_highlighted = new Color(245, 196, 70);
+	public static Color color_replay = new Color(77, 254, 21);
 	
 	public static Image image_border;
 	public static Image image_bar_frame;
@@ -633,6 +634,12 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "replay_server_timestamp: " + Replay.timestamp_server_last, x, y, color_text, false);
 				y += 16;
+				drawShadowText(g2, "replay_client_timestamp: " + Replay.timestamp_client, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "replay_client_read: " + Replay.getClientRead(), x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "replay_client_write: " + Replay.getClientWrite(), x, y, color_text, false);
+				y += 16;
 				drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
 			}
 			
@@ -793,6 +800,72 @@ public class Renderer {
 			drawShadowText(g2, "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER), width - 164, height - 2, color_text, false);
 		}
 		
+		if (Replay.isPlaying) {
+			float percent = (float)Replay.timestamp / Replay.getReplayEnd();
+			boolean extended = (MouseHandler.y >= height - 29);
+			
+			if (extended) {
+				Rectangle bounds = new Rectangle(0, height - 29, width, 48);
+				g2.setColor(color_shadow);
+				setAlpha(g2, 0.75f);
+				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+				setAlpha(g2, 1.0f);
+				g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			}
+			
+			// Set small font
+			g2.setFont(font_main);
+			
+			// Handle bar
+			Rectangle bounds = new Rectangle(32, height - 27, width - 64, 8);
+			g2.setColor(color_text);
+			setAlpha(g2, 0.25f);
+			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			g2.setColor(color_prayer);
+			setAlpha(g2, 0.5f);
+			g2.fillRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
+			g2.setColor(color_text);
+			g2.drawRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
+			g2.setColor(color_text);
+			setAlpha(g2, 1.0f);
+			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+			
+			if (extended) {
+				String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
+				String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
+				drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_prayer, true);
+			}
+			
+			if (Replay.isSeeking) {
+				float percentSeekEnd = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
+				int seek_x = bounds.x + (int)(bounds.width * percentSeekEnd);
+				g2.setColor(color_fatigue);
+				setAlpha(g2, 1.0f);
+				g2.drawLine(seek_x, bounds.y, seek_x, bounds.y + bounds.height);
+				
+				if (extended) {
+					setAlpha(g2, alpha_time);
+					drawShadowText(g2, "Seeking...", bounds.x + 32, bounds.y + bounds.height + 8, color_low, true);
+					setAlpha(g2, 1.0f);
+				}
+			}
+			
+			if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height) {
+				float percentEnd = (float)(MouseHandler.x - bounds.x) / bounds.width;
+				int timestamp = (int)(Replay.getReplayEnd() * percentEnd);
+				g2.setColor(color_low);
+				setAlpha(g2, 0.5f);
+				g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
+				setAlpha(g2, 1.0f);
+				drawShadowText(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
+						color_prayer,
+						true);
+				
+				if (!Replay.isSeeking && MouseHandler.mouseClicked)
+					Replay.seek(timestamp);
+			}
+		}
+			
 		// Draw software cursor
 		if (Settings.SOFTWARE_CURSOR) {
 			setAlpha(g2, 1.0f);
