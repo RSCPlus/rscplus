@@ -1265,12 +1265,19 @@ public class JClassPatcher {
 					if (insnNode.getOpcode() == Opcodes.PUTSTATIC) {
 						methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "lastSoundEffect", "Ljava/lang/String;"));
 						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 2));
+						
+						insnNode = insnNodeList.next();
+						LabelNode label = new LabelNode();
+						methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+						methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+						methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+						methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
+						methodNode.instructions.insertBefore(insnNode, label);
 						break;
 					}
 				}
 				
 			}
-			
 			// drawGame
 			if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
