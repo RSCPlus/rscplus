@@ -64,6 +64,7 @@ public class Reflection {
 	public static Method logout = null;
 	public static Method itemClick = null;
 	public static Method menuGen = null;
+	public static Method drawString = null;
 	
 	public static Method newPacket = null;
 	public static Method putShort = null;
@@ -81,6 +82,7 @@ public class Reflection {
 	private static final String LOGOUT = "private final void client.B(int)";
 	private static final String ITEMCLICK = "private final void client.b(boolean,int)";
 	private static final String MENUGEN = "final void wb.a(int,int,boolean,java.lang.String,java.lang.String)";
+	private static final String DRAWSTRING = "final void ua.a(java.lang.String,int,int,int,boolean,int)";
 	
 	private static final String NEWPACKET = "final void b.b(int,int)";
 	private static final String PUTSHORT = "final void tb.e(int,int)";
@@ -208,6 +210,10 @@ public class Reflection {
 					setGameBounds = method;
 					Logger.Info("Found setGameBounds");
 				}
+				if (method.toGenericString().equals(DRAWSTRING)) {
+					drawString = method;
+					Logger.Info("Found drawString");
+				}
 			}
 			
 			// Character
@@ -299,6 +305,8 @@ public class Reflection {
 				itemClick.setAccessible(true);
 			if (menuGen != null)
 				menuGen.setAccessible(true);
+			if (drawString != null)
+				drawString.setAccessible(true);
 			if (newPacket != null)
 				newPacket.setAccessible(true);
 			if (putShort != null)

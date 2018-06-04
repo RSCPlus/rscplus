@@ -152,6 +152,7 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
 	private JCheckBox overlayPanelBuffsCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
+	private JCheckBox overlayPanelRetroFpsCheckbox;
 	private JCheckBox overlayPanelItemNamesCheckbox;
 	private JCheckBox overlayPanelPlayerNamesCheckbox;
 	private JCheckBox overlayPanelFriendNamesCheckbox;
@@ -690,6 +691,9 @@ public class ConfigWindow {
 		
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
 		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
+		
+		overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
+		overlayPanelRetroFpsCheckbox.setToolTipText("Shows the FPS like it used to be displayed in RSC");
 		
 		overlayPanelItemNamesCheckbox = addCheckbox("Display item name overlay", overlayPanel);
 		overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
@@ -1301,6 +1305,7 @@ public class ConfigWindow {
 		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_STATUSDISPLAY);
 		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS);
 		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT);
+		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS);
 		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEMINFO);
 		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYERINFO);
 		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIENDINFO);
@@ -1381,6 +1386,7 @@ public class ConfigWindow {
 		Settings.SHOW_STATUSDISPLAY = overlayPanelStatusDisplayCheckbox.isSelected();
 		Settings.SHOW_BUFFS = overlayPanelBuffsCheckbox.isSelected();
 		Settings.SHOW_INVCOUNT = overlayPanelInvCountCheckbox.isSelected();
+		Settings.SHOW_RETRO_FPS = overlayPanelRetroFpsCheckbox.isSelected();
 		Settings.SHOW_ITEMINFO = overlayPanelItemNamesCheckbox.isSelected();
 		Settings.SHOW_PLAYERINFO = overlayPanelPlayerNamesCheckbox.isSelected();
 		Settings.SHOW_FRIENDINFO = overlayPanelFriendNamesCheckbox.isSelected();

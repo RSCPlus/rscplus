@@ -220,6 +220,8 @@ public class Client {
 	public static long updates;
 	public static long updatesPerSecond;
 	
+	public static String lastSoundEffect = "";
+	
 	/**
 	 * A boolean array that stores if the XP per hour should be shown for a given skill when hovering on the XP bar.
 	 * <p>
@@ -649,6 +651,9 @@ public class Client {
 			case "logout":
 				Client.logout();
 				break;
+			case "toggleretrofps":
+				Settings.toggleRetroFPS();
+				break;
 			case "toggleinvcount":
 				Settings.toggleInvCount();
 				break;
@@ -959,6 +964,16 @@ public class Client {
 			}
 		} else if (announceIfUpToDate) {
 			displayMessage("You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
+		}
+	}
+	
+	// hook to display retro fps on the client, early 2001 style
+	public static void retroFPSHook(Object surfaceInstance) {
+		if (surfaceInstance != null && Settings.SHOW_RETRO_FPS) {
+			try {
+				Reflection.drawString.invoke(surfaceInstance, "Fps: " + Renderer.fps, Renderer.width - 60, Renderer.height - 20, 0xffff00, false, 1);
+			} catch (Exception e) {
+			}
 		}
 	}
 	

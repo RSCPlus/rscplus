@@ -812,6 +812,20 @@ public class JClassPatcher {
 						}
 					}
 				}
+				
+				// Retro FPS overlay
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKESPECIAL && ((MethodInsnNode)insnNode).name.equals("l") && ((MethodInsnNode)insnNode).desc.equals("(I)V")) {
+						InsnNode call = (InsnNode)insnNode.getNext();
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+						methodNode.instructions.insertBefore(call, new FieldInsnNode(Opcodes.GETFIELD, "client", "li", "Lba;"));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "retroFPSHook", "(Ljava/lang/Object;)V", false));
+						break;
+					}
+				}
 			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(IIZ)Z")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -1232,6 +1246,20 @@ public class JClassPatcher {
 						break;
 					}
 				}
+			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;)V")) {
+				// hook onto sound effect played
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					
+					if (insnNode.getOpcode() == Opcodes.PUTSTATIC) {
+						methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "lastSoundEffect", "Ljava/lang/String;"));
+						methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 2));
+						break;
+					}
+				}
+				
 			}
 			
 			if (methodNode.name.equals("e") && methodNode.desc.equals("(I)V")) {

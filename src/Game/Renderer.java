@@ -632,6 +632,8 @@ public class Renderer {
 				drawShadowText(g2, "replay_timestamp: " + Replay.timestamp, x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "replay_server_timestamp: " + Replay.timestamp_server_last, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
 			}
 			
 			// A little over a full tick

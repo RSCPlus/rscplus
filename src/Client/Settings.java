@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
+import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -48,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180604.005220;
+	public static final double VERSION_NUMBER = 20180604.005839;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -119,6 +120,7 @@ public class Settings {
 	public static boolean SHOW_FRIENDINFO = false; // TODO ^
 	public static boolean SHOW_NPCINFO = false; // TODO ^
 	public static boolean SHOW_COMBAT_INFO = false;
+	public static boolean SHOW_RETRO_FPS = false;
 	public static boolean USE_PERCENTAGE = false;
 	public static boolean SHOW_HITBOX = false; // TODO: Consider refactoring for clarity that this only affects NPCs
 	public static boolean SHOW_FOOD_HEAL_OVERLAY = false;
@@ -244,6 +246,7 @@ public class Settings {
 			SHOW_STATUSDISPLAY = getBoolean(props, "show_statusdisplay", SHOW_STATUSDISPLAY);
 			SHOW_BUFFS = getBoolean(props, "show_buffs", SHOW_BUFFS);
 			SHOW_INVCOUNT = getBoolean(props, "show_invcount", SHOW_INVCOUNT);
+			SHOW_RETRO_FPS = getBoolean(props, "show_retro_fps", SHOW_RETRO_FPS);
 			SHOW_ITEMINFO = getBoolean(props, "show_iteminfo", SHOW_ITEMINFO);
 			SHOW_PLAYERINFO = getBoolean(props, "show_playerinfo", SHOW_PLAYERINFO);
 			SHOW_FRIENDINFO = getBoolean(props, "show_friendinfo", SHOW_FRIENDINFO);
@@ -419,6 +422,7 @@ public class Settings {
 			props.setProperty("show_statusdisplay", Boolean.toString(SHOW_STATUSDISPLAY));
 			props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS));
 			props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT));
+			props.setProperty("show_retro_fps", Boolean.toString(SHOW_RETRO_FPS));
 			props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEMINFO));
 			props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYERINFO));
 			props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIENDINFO));
@@ -590,6 +594,15 @@ public class Settings {
 			Client.displayMessage("@cya@Friend info is now shown", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@Friend info is now hidden", Client.CHAT_NONE);
+		save();
+	}
+	
+	public static void toggleRetroFPS() {
+		SHOW_RETRO_FPS = !SHOW_RETRO_FPS;
+		if (Settings.SHOW_RETRO_FPS)
+			Client.displayMessage("@cya@Retro FPS is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Retro FPS is now hidden", Client.CHAT_NONE);
 		save();
 	}
 	
@@ -955,6 +968,9 @@ public class Settings {
 		case "toggle_hpprayerfatigue_display":
 			Settings.toggleStatusDisplay();
 			return true;
+		case "toggle_retro_fps_overlay":
+			Settings.toggleRetroFPS();
+			return true;
 		case "toggle_inven_count_overlay":
 			Settings.toggleInvCount();
 			return true;
@@ -1065,6 +1081,7 @@ public class Settings {
 		SHOW_STATUSDISPLAY = true;
 		SHOW_BUFFS = true;
 		SHOW_INVCOUNT = true;
+		SHOW_RETRO_FPS = false;
 		SHOW_ITEMINFO = false;
 		SHOW_PLAYERINFO = false;
 		SHOW_FRIENDINFO = false;
