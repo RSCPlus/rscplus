@@ -870,7 +870,7 @@ public class Renderer {
 			}
 			
 			if (Replay.isSeeking) {
-				drawShadowTextBorder(g2, "Seeking... Please Wait", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false, 2);
+				drawShadowTextBorder(g2, "Seeking... Please wait", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false, 2);
 			}
 		}
 			
