@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -162,26 +161,13 @@ public class Launcher extends JFrame implements Runnable {
 			}
 		}
 		
-		setStatus("Loading JConfig...");
+		setStatus("Creating JConfig...");
 		JConfig config = Game.getInstance().getJConfig();
-		if (!config.fetch(Util.makeWorldURL(Settings.WORLD))) {
-			error("Unable to fetch JConfig");
-			return;
-		}
-		
-		if (!config.isSupported()) {
-			error("JConfig outdated");
-			return;
-		}
+		config.create(Settings.WORLD);
 		
 		m_classLoader = new JClassLoader();
 		if (!m_classLoader.fetch("/assets/rsc.jar")) {
 			error("Unable to fetch Jar");
-		}
-		
-		setStatus("Updating game cache...");
-		if (!updateCache()) {
-			Logger.Info("Some of the cache has failed to download, but we're going to try and continue anyway");
 		}
 		
 		setStatus("Launching game...");
@@ -190,8 +176,8 @@ public class Launcher extends JFrame implements Runnable {
 			Class<?> client = m_classLoader.loadClass(config.getJarClass());
 			game.setApplet((Applet)client.newInstance());
 		} catch (Exception e) {
-			error("Unable to launch game");
 			e.printStackTrace();
+			error("Unable to launch game");
 			return;
 		}
 		setVisible(false);
@@ -225,60 +211,6 @@ public class Launcher extends JFrame implements Runnable {
 				m_progressBar.setString(text);
 			}
 		});
-	}
-	
-	public boolean updateCache() {
-		boolean success = true;
-		String contentcrcs_fname = "/contentcrcs" + Long.toHexString(System.currentTimeMillis());
-		CacheDownload download = new CacheDownload(contentcrcs_fname);
-		setStatus("Checking for game cache updates...");
-		if (download.fetch(this)) {
-			if (!download.dump(Settings.Dir.CACHE + "/contentcrcs")) {
-				Logger.Error("Unable to write contentcrcs cache file to path");
-				success = false;
-			}
-			ByteBuffer data = download.getDataBuffer();
-			int cacheCount = (data.capacity() - 8) / 4;
-			for (int idx = 0; idx < cacheCount; idx++) {
-				int idx_crc = data.getInt(idx * 4);
-				String idx_fname = "/content" + idx + "_" + Long.toHexString(idx_crc);
-				File file = new File(Settings.Dir.CACHE + idx_fname);
-				boolean downloadContent = true;
-				if (file.exists()) {
-					int file_crc = (int)Util.fileGetCRC32(Settings.Dir.CACHE + idx_fname);
-					if (file_crc == idx_crc) {
-						Logger.Info("Cache file '" + idx_fname + "' is up-to-date");
-						setStatus("Cache file '" + idx_fname + "' is up-to-date");
-						downloadContent = false;
-					} else {
-						Logger.Info("Cache CRC mismatch (" + idx_crc + " != " + file_crc + "), redownloading file '" + idx_fname + "'");
-					}
-				}
-				
-				if (downloadContent) {
-					Logger.Info("Downloading cache file: " + idx_fname);
-					setStatus("Updating cache file '" + idx_fname + "' (" + (idx + 1) + " / " + cacheCount + ")");
-					download = new CacheDownload(idx_fname);
-					if (download.fetch(this)) {
-						if (download.getCRC() == idx_crc) {
-							if (!download.dump(Settings.Dir.CACHE + idx_fname)) {
-								Logger.Error("Unable to write cache file '" + idx_fname + "' to path");
-								success = false;
-							}
-						} else {
-							Logger.Error("CRC mismatch while downloading cache file '" + idx_fname + "'");
-							success = false;
-						}
-					} else {
-						Logger.Error("Failed to download cache file '" + idx_fname + "'");
-						success = false;
-					}
-				}
-			}
-		} else {
-			Logger.Error("Failed to retrieve contentcrcs, attempting run anyway!");
-		}
-		return success;
 	}
 	
 	public boolean updateJar() {

@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
-import Client.NotificationsHandler;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -49,7 +48,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180604.005839;
+	public static final double VERSION_NUMBER = 20180604.033411;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -199,8 +198,6 @@ public class Settings {
 		Logger.Info("Jar Location: " + Dir.JAR);
 		
 		// Load other directories
-		Dir.CACHE = Dir.JAR + "/cache";
-		Util.makeDirectory(Dir.CACHE);
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.makeDirectory(Dir.SCREENSHOT);
 		Dir.REPLAY = Dir.JAR + "/replay";
@@ -907,7 +904,6 @@ public class Settings {
 	public static class Dir {
 		
 		public static String JAR;
-		public static String CACHE;
 		public static String DUMP;
 		public static String SCREENSHOT;
 		public static String REPLAY;

@@ -51,6 +51,40 @@ public class JConfig {
 	 */
 	private Map<String, String> m_data = new HashMap<>();
 	
+	public void create(int world) {
+		if (world > 5)
+			world = 5;
+		else if (world < 1)
+			world = 1;
+		
+		m_data.put("title", "RuneScape Classic");
+		m_data.put("adverturl", "http://services.runescape.com/m=advert/banner.ws?size=732&amp;norefresh=1");
+		m_data.put("codebase", "http://classic" + world + ".runescape.com/");
+		m_data.put("cachesubdir", "rsclassic");
+		m_data.put("initial_jar", "rsclassic_860618473.jar");
+		m_data.put("initial_class", "client.class");
+		m_data.put("browsercontrol_win_x86_jar", "browsercontrol_0_-1928975093.jar");
+		m_data.put("browsercontrol_win_amd64_jar", "browsercontrol_1_1674545273.jar");
+		m_data.put("window_preferredwidth", "512");
+		m_data.put("window_preferredheight", "410");
+		m_data.put("advert_height", "90");
+		m_data.put("applet_minwidth", "512");
+		m_data.put("applet_minheight", "384");
+		m_data.put("applet_maxwidth", "512");
+		m_data.put("applet_maxheight", "384");
+		
+		parameters.put("nodeid", "" + (5000 + world));
+		parameters.put("modewhere", "0");
+		parameters.put("modewhat", "0");
+		if (world == 1)
+			parameters.put("servertype", "" + 3);
+		else
+			parameters.put("servertype", "" + 1);
+		parameters.put("js", "1");
+		parameters.put("settings", "wwGlrZHF5gKN6D3mDdihco3oPeYN2KFybL9hUUFqOvk");
+		parameters.put("country", "0");
+	}
+	
 	/**
 	 * Opens and parses a jav_config.ws file.
 	 * 
