@@ -45,6 +45,7 @@ public class ReplayServer implements Runnable {
 	
 	public boolean isReady = false;
 	public boolean isDone = false;
+	public boolean restart = false;
 	public long size = 0;
 	public long available = 0;
 	public int timestamp_end = 0;
@@ -134,6 +135,20 @@ public class ReplayServer implements Runnable {
 			isDone = false;
 			frame_timer = System.currentTimeMillis();
 			while (!isDone) {
+				// Restart the replay
+				if (restart) {
+					client.close();
+					client = sock.accept();
+					input.close();
+					file_input = new FileInputStream(file);
+					input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
+					Replay.timestamp = 0;
+					Replay.timestamp_client = 0;
+					Replay.timestamp_server_last = 0;
+					frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
+					restart = false;
+				}
+				
 				if (!Replay.paused) {
 					if (!doTick()) {
 						isDone = true;
@@ -206,7 +221,10 @@ public class ReplayServer implements Runnable {
 			}
 			
 			// Write out replay data to the client
-			client.write(buffer);
+			try {
+				client.write(buffer);
+			} catch (Exception e) {
+			}
 			
 			return true;
 		} catch (Exception e) {

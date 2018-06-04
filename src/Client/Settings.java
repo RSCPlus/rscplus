@@ -48,7 +48,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180604.033411;
+	public static final double VERSION_NUMBER = 20180604.041518;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -1030,6 +1030,7 @@ public class Settings {
 				Game.getInstance().getJConfig().changeWorld(5);
 			return true;
 		case "stop":
+		case "restart":
 		case "pause":
         case "ff_plus":
         case "ff_minus":

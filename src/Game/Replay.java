@@ -210,6 +210,21 @@ public class Replay {
 		return true;
 	}
 	
+	public static void restartReplayPlayback() {
+		if (play_keys == null)
+			return;
+		
+		try {
+			play_keys.close();
+			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
+			Client.loseConnection(false);
+			replayServer.restart = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			shutdown_error();
+		}
+	}
+	
 	public static void closeReplayPlayback() {
 		if (play_keys == null)
 			return;
@@ -551,6 +566,9 @@ public class Replay {
             switch (action){
 			case "stop":
 				closeReplayPlayback();
+				break;
+			case "restart":
+				restartReplayPlayback();
 				break;
                 case "pause":
                     togglePause();
