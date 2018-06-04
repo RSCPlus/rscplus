@@ -800,7 +800,7 @@ public class Renderer {
 			drawShadowText(g2, "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER), width - 164, height - 2, color_text, false);
 		}
 		
-		if (Replay.isPlaying) {
+		if (Client.state == Client.STATE_GAME && Replay.isPlaying) {
 			float percent = (float)Replay.timestamp / Replay.getReplayEnd();
 			boolean extended = (MouseHandler.y >= height - 29);
 			
