@@ -836,13 +836,19 @@ public class Renderer {
 				drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_prayer, true);
 			}
 			
+			float percentClient = (float)Replay.getClientRead() / Replay.getClientWrite();
+			int server_x = (int)(bounds.width * percent);
+			int client_x = (int)(server_x * percentClient);
+			
+			// Remove progress bar jitter
+			if (server_x - client_x <= 1)
+				client_x = server_x;
+			
+			g2.setColor(color_shadow);
+			setAlpha(g2, 0.25f);
+			g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
+			
 			if (Replay.isSeeking) {
-				float percentSeekEnd = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
-				int seek_x = bounds.x + (int)(bounds.width * percentSeekEnd);
-				g2.setColor(color_fatigue);
-				setAlpha(g2, 1.0f);
-				g2.drawLine(seek_x, bounds.y, seek_x, bounds.y + bounds.height);
-				
 				if (extended) {
 					setAlpha(g2, alpha_time);
 					drawShadowText(g2, "Seeking...", bounds.x + 32, bounds.y + bounds.height + 8, color_low, true);
