@@ -802,6 +802,11 @@ public class Renderer {
 		
 		if (Client.state == Client.STATE_GAME && Replay.isPlaying) {
 			float percent = (float)Replay.timestamp / Replay.getReplayEnd();
+			
+			if (Replay.isSeeking) {
+				percent = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
+			}
+			
 			boolean extended = (MouseHandler.y >= height - 29);
 			
 			if (extended) {
