@@ -691,7 +691,8 @@ public class Replay {
 			if (lag > 10)
 				timestamp_lag = lag;
 			timestamp_server_last = timestamp;
-			replayServer.client_read += bytesread;
+			if (replayServer != null)
+				replayServer.client_read += bytesread;
 		}
 		
 		if (input == null)
