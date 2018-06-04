@@ -406,6 +406,17 @@ public class JClassPatcher {
 				AbstractInsnNode insnNode = insnNodeList.next();
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "closeReplayPlayback", "()V", false));
 			}
+			// drawGame
+			else if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				AbstractInsnNode insnNode = insnNodeList.next();
+				LabelNode label = new LabelNode();
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(insnNode, label);
+			}
 			// I (I)V is where most of the interface is processed
 			else if (methodNode.name.equals("I") && methodNode.desc.equals("(I)V")) {
 				// Show combat menu
