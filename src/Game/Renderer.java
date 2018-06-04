@@ -831,7 +831,7 @@ public class Renderer {
 			setAlpha(g2, 0.25f);
 			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			g2.setColor(color_prayer);
-			setAlpha(g2, 0.5f);
+			setAlpha(g2, 0.75f);
 			g2.fillRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
 			g2.setColor(color_text);
 			g2.drawRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
@@ -854,7 +854,7 @@ public class Renderer {
 				client_x = server_x;
 			
 			g2.setColor(color_shadow);
-			setAlpha(g2, 0.25f);
+			setAlpha(g2, 0.20f);
 			g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
 			
 			if (Replay.isSeeking) {
