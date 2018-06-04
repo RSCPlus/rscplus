@@ -859,9 +859,8 @@ public class Renderer {
 			
 			if (Replay.isSeeking) {
 				if (extended) {
-					setAlpha(g2, alpha_time);
-					drawShadowText(g2, "Seeking...", bounds.x + 32, bounds.y + bounds.height + 8, color_low, true);
 					setAlpha(g2, 1.0f);
+					drawShadowText(g2, "Seeking...", bounds.x + 32, bounds.y + bounds.height + 8, color_low, true);
 				}
 			}
 			
