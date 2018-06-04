@@ -950,6 +950,11 @@ public class JClassPatcher {
 			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
 				AbstractInsnNode first = methodNode.instructions.getFirst();
 				
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
+				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
+				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "messageHook", "(Ljava/lang/String;Ljava/lang/String;I)V"));
+				
 				// Replay seeking don't show messages hook
 				LabelNode label = new LabelNode();
 				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.ICONST_0));
@@ -957,11 +962,6 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(first, label);
-				
-				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
-				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
-				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
-				methodNode.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "messageHook", "(Ljava/lang/String;Ljava/lang/String;I)V"));
 			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
 				// Fix on swap between command and use, if 635 is received make it 650 by hook
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
