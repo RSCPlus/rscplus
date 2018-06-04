@@ -88,7 +88,8 @@ public class Renderer {
 	public static Color color_poison = new Color(155, 205, 50);
 	public static Color color_item = new Color(245, 245, 245);
 	public static Color color_item_highlighted = new Color(245, 196, 70);
-	public static Color color_replay = new Color(77, 254, 21);
+	public static Color color_replay = new Color(100, 185, 178);
+	public static Color color_white = new Color(255, 255, 255);
 	
 	public static Image image_border;
 	public static Image image_bar_frame;
@@ -811,10 +812,10 @@ public class Renderer {
 				percent = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
 			}
 			
-			boolean extended = (MouseHandler.y >= height - 29);
+			boolean extended = (MouseHandler.y >= height - 28);
 			
 			if (extended) {
-				Rectangle bounds = new Rectangle(0, height - 29, width, 48);
+				Rectangle bounds = new Rectangle(0, height - 28, width, 48);
 				g2.setColor(color_shadow);
 				setAlpha(g2, 0.75f);
 				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -831,18 +832,19 @@ public class Renderer {
 			setAlpha(g2, 0.25f);
 			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			g2.setColor(color_prayer);
-			setAlpha(g2, 0.75f);
+			setAlpha(g2, 0.5f);
 			g2.fillRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
 			g2.setColor(color_text);
+			setAlpha(g2, 1.0f);
 			g2.drawRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
 			g2.setColor(color_text);
-			setAlpha(g2, 1.0f);
 			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			
+			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
+			String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
 			if (extended) {
-				String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
-				String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
-				drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_prayer, true);
+				// drawShadowText(g2, "Hold 'Ctrl' to hide", bounds.x - 24, bounds.y + bounds.height + 14, color_fatigue, false);
+				drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_replay, true);
 			}
 			
 			float percentClient = (float)Replay.getClientRead() / Replay.getClientWrite();
@@ -853,30 +855,26 @@ public class Renderer {
 			if (server_x - client_x <= 1)
 				client_x = server_x;
 			
-			g2.setColor(color_shadow);
-			setAlpha(g2, 0.20f);
+			g2.setColor(color_prayer);
+			setAlpha(g2, 0.5f);
 			g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
-			
-			if (Replay.isSeeking) {
-				if (extended) {
-					setAlpha(g2, 1.0f);
-					drawShadowText(g2, "Seeking...", bounds.x + 32, bounds.y + bounds.height + 8, color_low, true);
-				}
-			}
 			
 			if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height) {
 				float percentEnd = (float)(MouseHandler.x - bounds.x) / bounds.width;
 				int timestamp = (int)(Replay.getReplayEnd() * percentEnd);
-				g2.setColor(color_low);
+				g2.setColor(color_fatigue);
 				setAlpha(g2, 0.5f);
 				g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
 				setAlpha(g2, 1.0f);
-				drawShadowText(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
-						color_prayer,
-						true);
+				drawShadowTextBorder(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
+						color_text, 1.0f, 0.75f, true);
 				
 				if (!Replay.isSeeking && MouseHandler.mouseClicked)
 					Replay.seek(timestamp);
+			}
+			
+			if (Replay.isSeeking) {
+				drawShadowTextBorder(g2, "Seeking...", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false);
 			}
 		}
 			
@@ -979,6 +977,34 @@ public class Renderer {
 		}
 		
 		g.setColor(color_shadow);
+		g.drawString(text, textX + 1, textY);
+		g.drawString(text, textX - 1, textY);
+		g.drawString(text, textX, textY + 1);
+		g.drawString(text, textX, textY - 1);
+		
+		g.setColor(textColor);
+		g.drawString(text, textX, textY);
+	}
+	
+	public static void drawShadowTextBorder(Graphics2D g, String text, int x, int y, Color textColor, float alpha, float boxAlpha, boolean border) {
+		int textX = x;
+		int textY = y;
+		Dimension bounds = getStringBounds(g, text);
+		textX -= (bounds.width / 2);
+		textY += (bounds.height / 2);
+		
+		g.setColor(color_shadow);
+		int rectX = x - (bounds.width / 2) - 2;
+		int rectY = y - (bounds.height / 2) + 2;
+		int rectWidth = bounds.width + 2;
+		int rectHeight = bounds.height - 1;
+		if (border) {
+			setAlpha(g, 1.0f);
+			g.drawRect(rectX, rectY, rectWidth, rectHeight);
+		}
+		setAlpha(g, boxAlpha);
+		g.fillRect(rectX, rectY, rectWidth, rectHeight);
+		setAlpha(g, alpha);
 		g.drawString(text, textX + 1, textY);
 		g.drawString(text, textX - 1, textY);
 		g.drawString(text, textX, textY + 1);
