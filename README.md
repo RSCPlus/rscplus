@@ -91,6 +91,8 @@ keyword stored.
 
 *::togglefriendinfo* - Toggle Player info for Friends only
 
+*::toggleretrofps* - Toggle retro FPS overlay (Early RSC style)
+
 *::toggleinvcount* - Toggle the overlay of current inventory used
 
 *::togglebuffs* - Toggle combat (de)buffs and cooldowns display
@@ -135,6 +137,7 @@ stored keyword on searchable bank)
 - Ctrl + u - Toggle Hits/Prayer/Fatigue display
 - Ctrl + y - Toggle combat (de)buffs and cooldowns display
 - Ctrl + e - Toggle inventory count overlay
+- Unbound - Toggle retro FPS overlay
 - Ctrl + i - Toggle Item name ovelay
 - Ctrl + p - Toggle Player name overlay
 - Unbound - Toggle Friend name overlay

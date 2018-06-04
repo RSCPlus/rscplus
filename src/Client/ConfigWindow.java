@@ -972,6 +972,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
 		addKeybindSet(keybindPanel, "Toggle combat buffs and cooldowns display", "toggle_buffs_display", KeyModifier.CTRL, KeyEvent.VK_Y);
 		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
+		addKeybindSet(keybindPanel, "Toggle retro fps overlay", "toggle_retro_fps_overlay", KeyModifier.NONE, -1);
 		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
 		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
 		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.NONE, -1);
