@@ -949,6 +949,15 @@ public class JClassPatcher {
 				}
 			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
 				AbstractInsnNode first = methodNode.instructions.getFirst();
+				
+				// Replay seeking don't show messages hook
+				LabelNode label = new LabelNode();
+				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insertBefore(first, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, label));
+				methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(first, label);
+				
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
