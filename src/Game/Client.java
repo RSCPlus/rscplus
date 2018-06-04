@@ -443,9 +443,9 @@ public class Client {
 	
 	public static void login_hook() {
 		// Order of comparison matters here
-		Replay.init();
+		Replay.init(Renderer.replayName);
 		if (Renderer.replayOption == 2) {
-			if (!Replay.initializeReplayPlayback(Renderer.replayName))
+			if (!Replay.initializeReplayPlayback())
 				Renderer.replayOption = 0;
 		} else if (Renderer.replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
 			Replay.initializeReplayRecording();
@@ -823,6 +823,17 @@ public class Client {
 		try {
 			Reflection.closeConnection.invoke(Client.instance, close, 31);
 		} catch (Exception e) {
+		}
+	}
+	
+	public static void loseConnection(boolean close) {
+		if (Reflection.loseConnection == null)
+			return;
+		
+		try {
+			Reflection.loseConnection.invoke(Client.clientStream, close);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

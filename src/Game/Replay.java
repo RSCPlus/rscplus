@@ -90,6 +90,7 @@ public class Replay {
 	
 	public static ReplayServer replayServer = null;
 	public static Thread replayThread = null;
+	public static String replayDirectory;
 	
 	public static int replay_version;
 	public static int client_version;
@@ -128,17 +129,18 @@ public class Replay {
 		}
 	}
 	
-	public static void init() {
+	public static void init(String directory) {
 		timestamp = 0;
 		timestamp_client = 0;
 		timestamp_server_last = 0;
+		replayDirectory = directory;
 	}
 	
 	public static int getServerLag() {
 		return timestamp - timestamp_server_last;
 	}
 	
-	public static boolean initializeReplayPlayback(String replayDirectory) {
+	public static boolean initializeReplayPlayback() {
 		try {
 			// We read in this information to adjust our replay method based on versioning
 			// No need to check if output matches until other revisions come out

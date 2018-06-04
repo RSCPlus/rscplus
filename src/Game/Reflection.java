@@ -59,6 +59,7 @@ public class Reflection {
 	public static Method setGameBounds = null;
 	public static Method setLoginText = null;
 	public static Method closeConnection = null;
+	public static Method loseConnection = null;
 	public static Method login = null;
 	public static Method logout = null;
 	public static Method itemClick = null;
@@ -75,6 +76,7 @@ public class Reflection {
 	private static final String SETGAMEBOUNDS = "final void ua.a(int,int,int,int,byte)";
 	private static final String SETLOGINTEXT = "private final void client.b(byte,java.lang.String,java.lang.String)";
 	private static final String CLOSECONNECTION = "private final void client.a(boolean,int)";
+	private static final String LOSECONNECTION = "final void da.a(boolean)";
 	private static final String LOGIN = "private final void client.a(int,java.lang.String,java.lang.String,boolean)";
 	private static final String LOGOUT = "private final void client.B(int)";
 	private static final String ITEMCLICK = "private final void client.b(boolean,int)";
@@ -147,6 +149,10 @@ public class Reflection {
 						Logger.Info("Found newPacket");
 						found = true;
 						continue;
+					}
+					if (method.toGenericString().contains(LOSECONNECTION)) {
+						loseConnection = method;
+						Logger.Info("Found loseConnection");
 					}
 					if (method.toGenericString().equals(SENDPACKET)) {
 						sendPacket = method;
@@ -283,6 +289,8 @@ public class Reflection {
 				setLoginText.setAccessible(true);
 			if (closeConnection != null)
 				closeConnection.setAccessible(true);
+			if (loseConnection != null)
+				loseConnection.setAccessible(true);
 			if (login != null)
 				login.setAccessible(true);
 			if (logout != null)
