@@ -167,6 +167,7 @@ public class ReplayServer implements Runnable {
 					client_write = 0;
 					frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
 					restart = false;
+					Replay.isRestarting = false;
 				}
 				
 				if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {

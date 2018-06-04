@@ -1276,7 +1276,6 @@ public class JClassPatcher {
 						break;
 					}
 				}
-				
 			}
 			// drawGame
 			if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
@@ -1285,6 +1284,26 @@ public class JClassPatcher {
 				LabelNode label = new LabelNode();
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(insnNode, label);
+			}
+			
+			// drawTextBox
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(Ljava/lang/String;BLjava/lang/String;)V")) {
+				// hook onto sound effect played
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				
+				AbstractInsnNode insnNode = insnNodeList.next();
+				LabelNode label = new LabelNode();
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(insnNode, label);
+				label = new LabelNode();
+				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isRestarting", "Z"));
 				methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(insnNode, label);
@@ -1311,6 +1330,13 @@ public class JClassPatcher {
 			if (methodNode.desc.equals("(Ljava/awt/Graphics;III)V")) {
 				AbstractInsnNode findNode = methodNode.instructions.getFirst();
 				FieldInsnNode imageNode = null;
+				
+				LabelNode label = new LabelNode();
+				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.ICONST_0));
+				methodNode.instructions.insertBefore(findNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(findNode, new JumpInsnNode(Opcodes.IFEQ, label));
+				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.RETURN));
+				methodNode.instructions.insertBefore(findNode, label);
 				
 				while (findNode.getOpcode() != Opcodes.POP) {
 					findNode = findNode.getNext();

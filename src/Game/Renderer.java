@@ -863,17 +863,14 @@ public class Renderer {
 				g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
 				setAlpha(g2, 1.0f);
 				drawShadowTextBorder(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
-						color_text, 1.0f, 0.75f, true);
+						color_text, 1.0f, 0.75f, true, 0);
 				
 				if (!Replay.isSeeking && MouseHandler.mouseClicked)
 					Replay.seek(timestamp);
 			}
 			
 			if (Replay.isSeeking) {
-				int seekPercent = (int)(percentClient * 100.0f);
-				if (seekPercent != 100) {
-					drawShadowTextBorder(g2, "Seeking (" + seekPercent + "%)", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false);
-				}
+				drawShadowTextBorder(g2, "Seeking... Please Wait", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false, 2);
 			}
 		}
 			
@@ -985,7 +982,7 @@ public class Renderer {
 		g.drawString(text, textX, textY);
 	}
 	
-	public static void drawShadowTextBorder(Graphics2D g, String text, int x, int y, Color textColor, float alpha, float boxAlpha, boolean border) {
+	public static void drawShadowTextBorder(Graphics2D g, String text, int x, int y, Color textColor, float alpha, float boxAlpha, boolean border, int borderSize) {
 		int textX = x;
 		int textY = y;
 		Dimension bounds = getStringBounds(g, text);
@@ -993,10 +990,10 @@ public class Renderer {
 		textY += (bounds.height / 2);
 		
 		g.setColor(color_shadow);
-		int rectX = x - (bounds.width / 2) - 2;
-		int rectY = y - (bounds.height / 2) + 2;
-		int rectWidth = bounds.width + 2;
-		int rectHeight = bounds.height;
+		int rectX = x - (bounds.width / 2) - 2 - borderSize;
+		int rectY = y - (bounds.height / 2) + 2 - borderSize;
+		int rectWidth = bounds.width + 2 + (borderSize * 2);
+		int rectHeight = bounds.height + (borderSize * 2);
 		if (border) {
 			setAlpha(g, 1.0f);
 			g.drawRect(rectX, rectY, rectWidth, rectHeight);

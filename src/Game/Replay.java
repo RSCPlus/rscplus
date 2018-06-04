@@ -77,6 +77,7 @@ public class Replay {
 	public static boolean isSeeking = false;
 	public static boolean isPlaying = false;
 	public static boolean isRecording = false;
+	public static boolean isRestarting = true;
 	public static boolean paused = false;
 	public static boolean closeDialogue = false;
 	
@@ -134,6 +135,13 @@ public class Replay {
 		timestamp = 0;
 		timestamp_client = 0;
 		timestamp_server_last = 0;
+		isRestarting = false;
+		isSeeking = false;
+		isRecording = false;
+		isPlaying = false;
+		replayServer = null;
+		paused = false;
+		closeDialogue = false;
 		replayDirectory = directory;
 	}
 	
@@ -142,6 +150,9 @@ public class Replay {
 	}
 	
 	public static int getSeekEnd() {
+		if (replayServer == null)
+			return 0;
+		
 		return replayServer.timestamp_new;
 	}
 	
@@ -222,7 +233,7 @@ public class Replay {
 	}
 	
 	public static void restartReplayPlayback() {
-		if (replayServer.isSeeking || play_keys == null)
+		if (isRestarting || play_keys == null)
 			return;
 		
 		try {
@@ -230,6 +241,7 @@ public class Replay {
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
 			Client.loseConnection(false);
 			Replay.timestamp_client = 0;
+			isRestarting = true;
 			replayServer.restart = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -539,6 +551,9 @@ public class Replay {
 	
 	// Returns video length in millis
 	public static int endTimeMillis() {
+		if (replayServer == null)
+			return 0;
+		
 		int time_slice = 1000 / fps;
 		return replayServer.timestamp_end * time_slice;
 	}
@@ -564,14 +579,23 @@ public class Replay {
 	}
 	
 	public static int getReplayEnd() {
+		if (replayServer == null)
+			return 0;
+		
 		return replayServer.timestamp_end;
 	}
 	
 	public static int getClientRead() {
+		if (replayServer == null)
+			return 0;
+		
 		return replayServer.client_read;
 	}
 	
 	public static int getClientWrite() {
+		if (replayServer == null)
+			return 0;
+		
 		return replayServer.client_write;
 	}
 	
@@ -594,7 +618,9 @@ public class Replay {
 				closeReplayPlayback();
 				break;
 			case "restart":
-				restartReplayPlayback();
+				if (!replayServer.isSeeking) {
+					restartReplayPlayback();
+				}
 				break;
                 case "pause":
                     togglePause();
