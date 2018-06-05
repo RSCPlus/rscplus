@@ -840,6 +840,13 @@ public class Renderer {
 			g2.setColor(color_text);
 			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			
+			if (Replay.paused) {
+				g2.setColor(color_fatigue);
+				setAlpha(g2, alpha_time / 6.0f);
+				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+				setAlpha(g2, 1.0f);
+			}
+			
 			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
 			String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
 			if (extended) {
