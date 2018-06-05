@@ -329,7 +329,8 @@ public class JClassPatcher {
 						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(IB)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(IB)V")) {
 				// FPS hook
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				
@@ -346,7 +347,8 @@ public class JClassPatcher {
 						methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 1));
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(Ljava/lang/String;Z)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(Ljava/lang/String;Z)V")) {
 				// this part shows error_game_
 				// we want to call disconnect hook for instance in error_game_crash
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -401,13 +403,13 @@ public class JClassPatcher {
 				}
 			}
 			// sendLogout
-			else if (methodNode.name.equals("B") && methodNode.desc.equals("(I)V")) {
+			if (methodNode.name.equals("B") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				AbstractInsnNode insnNode = insnNodeList.next();
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "closeReplayPlayback", "()V", false));
 			}
 			// I (I)V is where most of the interface is processed
-			else if (methodNode.name.equals("I") && methodNode.desc.equals("(I)V")) {
+			if (methodNode.name.equals("I") && methodNode.desc.equals("(I)V")) {
 				// Show combat menu
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -428,7 +430,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;Ljava/lang/String;Z)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;Ljava/lang/String;Z)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				int xteaIndex = 0;
 				while (insnNodeList.hasNext()) {
@@ -468,7 +471,8 @@ public class JClassPatcher {
 						break;
 					}
 				}
-			} else if (methodNode.name.equals("u") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("u") && methodNode.desc.equals("(I)V")) {
 				// Replay pause hook
 				// TODO: Not sure but it seems like it gets broken upon starting another replay sometimes?
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -481,7 +485,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(findNode, label);
 				
-			} else if (methodNode.name.equals("J") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("J") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -532,7 +537,8 @@ public class JClassPatcher {
 						break;
 					}
 				}
-			} else if (methodNode.name.equals("h") && methodNode.desc.equals("(B)V")) {
+			}
+			if (methodNode.name.equals("h") && methodNode.desc.equals("(B)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -552,7 +558,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
 				// Draw NPC hook
 				AbstractInsnNode insnNode = methodNode.instructions.getLast();
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
@@ -579,7 +586,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;II)V"));
-			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V")) {
+			}
+			if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V")) {
 				// Draw Player hook
 				AbstractInsnNode insnNode = methodNode.instructions.getLast();
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
@@ -603,7 +611,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
 				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;II)V"));
-			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V")) {
+			}
+			if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V")) {
 				// Draw Item hook
 				// ILOAD 4 is item id
 				AbstractInsnNode insnNode = methodNode.instructions.getLast();
@@ -613,7 +622,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 1));
 				methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
 				methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawItem", "(IIIII)V"));
-			} else if (methodNode.name.equals("L") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("L") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -659,7 +669,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZZ)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ZZ)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -680,7 +691,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("i") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("i") && methodNode.desc.equals("(I)V")) {
 				AbstractInsnNode lastNode = methodNode.instructions.getLast().getPrevious();
 				
 				// Send combat style option
@@ -716,11 +728,13 @@ public class JClassPatcher {
 				
 				// Client init_game
 				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_game", "()V", false));
-			} else if (methodNode.name.equals("o") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("o") && methodNode.desc.equals("(I)V")) {
 				// Client.init_login patch
 				AbstractInsnNode findNode = methodNode.instructions.getLast();
 				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_login", "()V", false));
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -739,7 +753,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(findNode, new VarInsnNode(Opcodes.ALOAD, 0));
 				methodNode.instructions.insertBefore(findNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "instance", "Ljava/lang/Object;"));
 				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init", "()V", false));
-			} else if (methodNode.name.equals("G") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("G") && methodNode.desc.equals("(I)V")) {
 				// TODO: This can be shortened, I'll fix it another time
 				
 				// NPC Dialogue keyboard
@@ -783,7 +798,8 @@ public class JClassPatcher {
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
 				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IFLT, label));
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/KeyboardHandler", "dialogue_option", "I"));
-			} else if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -826,7 +842,8 @@ public class JClassPatcher {
 						break;
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(IIZ)Z")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(IIZ)Z")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -847,7 +864,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("d") && methodNode.desc.equals("(B)V")) {
+			}
+			if (methodNode.name.equals("d") && methodNode.desc.equals("(B)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -878,7 +896,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("j") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("j") && methodNode.desc.equals("(I)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -930,7 +949,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("k") && methodNode.desc.equals("(B)V")) {
+			}
+			if (methodNode.name.equals("k") && methodNode.desc.equals("(B)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
@@ -947,7 +967,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
 				AbstractInsnNode first = methodNode.instructions.getFirst();
 				
 				methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
@@ -962,7 +983,8 @@ public class JClassPatcher {
 				// methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, label));
 				// methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 				// methodNode.instructions.insertBefore(first, label);
-			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
+			}
+			if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
 				// Fix on swap between command and use, if 635 is received make it 650 by hook
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -1040,7 +1062,8 @@ public class JClassPatcher {
 						methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_0));
 					}
 				}
-			} else if (methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
 				// Hook updateBankItems
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -1072,7 +1095,8 @@ public class JClassPatcher {
 					}
 				}
 				
-			} else if (methodNode.name.equals("b") && methodNode.desc.equals("(IBI)V")) {
+			}
+			if (methodNode.name.equals("b") && methodNode.desc.equals("(IBI)V")) {
 				// hook first time opened bank interface
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				while (insnNodeList.hasNext()) {
@@ -1162,7 +1186,7 @@ public class JClassPatcher {
 				
 			}
 			// hook menu item
-			else if (methodNode.name.equals("a") && methodNode.desc.equals("(IZ)V")) {
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(IZ)V")) {
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				LabelNode firstLabel = null;
 				while (insnNodeList.hasNext()) {
@@ -1199,7 +1223,8 @@ public class JClassPatcher {
 						continue;
 					}
 				}
-			} else if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
 				// Login button press hook
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				
@@ -1219,7 +1244,8 @@ public class JClassPatcher {
 				
 				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
 						"Game/Client", "login_hook", "()V", false));
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
 				// Disconnect hook (::closecon)
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				
@@ -1236,7 +1262,8 @@ public class JClassPatcher {
 						break;
 					}
 				}
-			} else if (methodNode.name.equals("s") && methodNode.desc.equals("(I)V")) {
+			}
+			if (methodNode.name.equals("s") && methodNode.desc.equals("(I)V")) {
 				 // bypass npc attack on left option, regardless of level difference if user wants it that way
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				
@@ -1255,7 +1282,8 @@ public class JClassPatcher {
 						break;
 					}
 				}
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;)V")) {
 				// hook onto sound effect played
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 				
@@ -1353,7 +1381,8 @@ public class JClassPatcher {
 				methodNode.instructions.insert(findNode, new FieldInsnNode(Opcodes.GETFIELD, node.name, imageNode.name, imageNode.desc));
 				methodNode.instructions.insert(findNode, new VarInsnNode(Opcodes.ALOAD, 0));
 				methodNode.instructions.insert(findNode, new VarInsnNode(Opcodes.ALOAD, 1));
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(IILjava/lang/String;IIBI)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(IILjava/lang/String;IIBI)V")) {
 				AbstractInsnNode start = methodNode.instructions.getFirst();
 				while (start != null) {
 					if (start.getOpcode() == Opcodes.ALOAD && start.getNext().getOpcode() == Opcodes.ILOAD && start.getNext().getNext().getOpcode() == Opcodes.INVOKEVIRTUAL
@@ -1404,7 +1433,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, finishLabel));
 				
 				methodNode.instructions.insertBefore(start, failLabel);
-			} else if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;IIII)V")) {
+			}
+			if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;IIII)V")) {
 				// method hook for drawstringCenter, reserved testing
 			}
 		}
@@ -1458,12 +1488,14 @@ public class JClassPatcher {
 					methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
 					methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/GameApplet", "cacheURLHook", "(Ljava/net/URL;)Ljava/net/URL;"));
 					methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 0));
-				} else if (methodNode.desc.equals("(Z)V")) {
+				}
+				if (methodNode.desc.equals("(Z)V")) {
 					// Disconnect hook (::lostcon)
 					Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 					AbstractInsnNode insnNode = insnNodeList.next();
 					methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "disconnect_hook", "()V", false));
-				} else if (methodNode.desc.equals("([BIII)V")) {
+				}
+				if (methodNode.desc.equals("([BIII)V")) {
 					// dump whole input stream!
 					Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 					while (insnNodeList.hasNext()) {
@@ -1486,7 +1518,8 @@ public class JClassPatcher {
 						}
 					}
 				}
-			} else if (methodNode.name.equals("run")) {
+			}
+			if (methodNode.name.equals("run") && methodNode.desc.equals("()V")) {
 				
 				// dump whole output stream!
 				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
