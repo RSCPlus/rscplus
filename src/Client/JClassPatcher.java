@@ -82,6 +82,8 @@ public class JClassPatcher {
 			patchRandom(node);
 		else if (node.name.equals("da"))
 			patchGameApplet(node);
+		else if (node.name.equals("lb"))
+			patchRendererHelper(node);
 		
 		// Patch applied to all classes
 		patchGeneric(node);
@@ -1536,6 +1538,32 @@ public class JClassPatcher {
 						methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 1));
 						methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay", "dumpRawOutputStream", "([BII)V"));
 						break;
+					}
+				}
+			}
+		}
+	}
+	
+	private void patchRendererHelper(ClassNode node) {
+		Logger.Info("Patching renderer helper (" + node.name + ".class)");
+		
+		Iterator<MethodNode> methodNodeList = node.methods.iterator();
+		while (methodNodeList.hasNext()) {
+			MethodNode methodNode = methodNodeList.next();
+			
+			if (methodNode.name.equals("c") && methodNode.desc.equals("(I)V")) {
+				// Throwable crash patch - a condition of indexoutbounds was reported on this method
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					
+					if (nextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.INVOKESTATIC && nextNode.getOpcode() == Opcodes.ATHROW) {
+						MethodInsnNode call = (MethodInsnNode)insnNode;
+						methodNode.instructions.insert(call, new InsnNode(Opcodes.RETURN));
 					}
 				}
 			}
