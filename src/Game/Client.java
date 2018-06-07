@@ -1295,7 +1295,7 @@ public class Client {
 		if (blueMessage) { // this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";
 		} else if (greenMessage) {
-			return "@|green,intensity_bold " + colorMessage + "|@";
+			return "@|green,intensity_bold " + colorReplace(colorMessage) + "|@";
 		} else if (whiteMessage) {
 			// if (colorMessage.contains("Welcome to RuneScape!")) {
 			// this would be necessary if whiteMessage had more than one .contains()
