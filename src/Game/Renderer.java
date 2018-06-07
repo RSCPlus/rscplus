@@ -646,6 +646,8 @@ public class Renderer {
 				drawShadowText(g2, "replay_client_write: " + Replay.getClientWrite(), x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
 			}
 			
 			// A little over a full tick

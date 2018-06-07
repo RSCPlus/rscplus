@@ -128,6 +128,7 @@ public class Client {
 	
 	public static long poison_timer = 0L;
 	public static boolean is_poisoned = false;
+	public static boolean is_in_wild;
 	public static int fatigue;
 	private static float currentFatigue;
 	public static boolean[] prayers_on;
@@ -198,6 +199,7 @@ public class Client {
 	
 	public static int selectedItem;
 	public static int selectedItemSlot;
+	public static boolean is_hover;
 	
 	/**
 	 * An array of Strings that stores text used in the client
@@ -970,8 +972,11 @@ public class Client {
 	// hook to display retro fps on the client, early 2001 style
 	public static void retroFPSHook(Object surfaceInstance) {
 		if (surfaceInstance != null && Settings.SHOW_RETRO_FPS) {
+			int offset = 0;
+			if (Client.is_in_wild)
+				offset = 70;
 			try {
-				Reflection.drawString.invoke(surfaceInstance, "Fps: " + Renderer.fps, Renderer.width - 60, Renderer.height - 20, 0xffff00, false, 1);
+				Reflection.drawString.invoke(surfaceInstance, "Fps: " + Renderer.fps, Renderer.width - 62 - offset, Renderer.height - 19, 0xffff00, false, 1);
 			} catch (Exception e) {
 			}
 		}

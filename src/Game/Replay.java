@@ -753,7 +753,7 @@ public class Replay {
 			// for the first bytes if byte == (byte)Client.version, 4 bytes before indicate if its
 			// login or reconnect and 5 its what determines if its login-related
 			for (int i = off + 5; i < off + Math.min(15, len); i++) {
-				if (b[i] == (byte)Client.version && b[i - 5] == 0) {
+				if (b[i] == (byte)Client.version && b[i - 5] == 0 && (b[i - 4] == 0 || b[i - 4] == 1)) {
 					isLogin = true;
 					pos = i + 1;
 					out_b = b.clone();

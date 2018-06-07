@@ -656,19 +656,33 @@ public class JClassPatcher {
 				// TODO: use the hook
 				insnNodeList = methodNode.instructions.iterator();
 				
+				LabelNode lblNode = null;
 				while (insnNodeList.hasNext()) {
 					AbstractInsnNode insnNode = insnNodeList.next();
 					AbstractInsnNode nextNode = insnNode.getNext();
 					
-					// getfield client.li:ba
+					// this part checks to see if there's a string to render for the two cases below
+					if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)insnNode).var == 3 && nextNode.getOpcode() == Opcodes.IFNONNULL) {
+						lblNode = ((JumpInsnNode)nextNode.getNext()).label;
+					}
+					
+					// is_hover = 1, also getfield client.li:ba
 					if (insnNode.getOpcode() == Opcodes.GETFIELD) {
 						FieldInsnNode fieldNode = ((FieldInsnNode)insnNode);
 						if (fieldNode.owner.equals("client") && fieldNode.name.equals("li") && nextNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)nextNode).var == 5) {
 							methodNode.instructions.insert(fieldNode,
 									new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "mouse_action_hook", "(Ljava/lang/String;)V", false));
 							methodNode.instructions.insert(fieldNode, new VarInsnNode(Opcodes.ALOAD, 5));
-							break;
+							methodNode.instructions.insert(fieldNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_hover", "Z"));
+							methodNode.instructions.insert(fieldNode, new InsnNode(Opcodes.ICONST_1));
+							continue;
 						}
+					}
+					
+					// is_hover = 0
+					if (insnNode instanceof LabelNode && lblNode != null && ((LabelNode)insnNode).equals(lblNode)) {
+						methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_hover", "Z"));
+						methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ICONST_0));
 					}
 				}
 			}
@@ -826,8 +840,17 @@ public class JClassPatcher {
 						if (call.operand == 465 || call.operand == 453) {
 							call.operand = 512 - call.operand;
 							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_in_wild", "Z"));
+							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ICONST_1));
 							methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
 						}
+					}
+					
+					// unset is_in_wild flag if not in wild
+					AbstractInsnNode nextNode = insnNode.getNext();
+					if (insnNode.getOpcode() == Opcodes.ICONST_M1 && nextNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)nextNode).var == 2) {
+						methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+						methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_in_wild", "Z"));
 					}
 				}
 				

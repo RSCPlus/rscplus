@@ -48,7 +48,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180606.014551;
+	public static final double VERSION_NUMBER = 20180607.013156;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
