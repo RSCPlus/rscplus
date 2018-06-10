@@ -184,7 +184,7 @@ public class JConfig {
 		m_data.put("codebase", "http://classic" + world + ".runescape.com/");
 		
 		// Update settings
-		Settings.WORLD = world;
+		Settings.WORLD.put(Settings.currentProfile, world);
 		Settings.save();
 	}
 	

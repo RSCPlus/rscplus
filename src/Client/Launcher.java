@@ -104,7 +104,7 @@ public class Launcher extends JFrame implements Runnable {
 		// Generates a config file if needed
 		Settings.save();
 		
-		if (!Settings.UPDATE_CONFIRMATION) {
+		if (Settings.UPDATE_CONFIRMATION.get(Settings.currentProfile)) {
 			int response = JOptionPane.showConfirmDialog(this, "rscplus has an automatic update feature.\n" +
 					"\n" +
 					"When enabled, rscplus will prompt for and install updates when launching the client.\n" +
@@ -114,11 +114,11 @@ public class Launcher extends JFrame implements Runnable {
 					"\n" +
 					"NOTE: This option can be toggled in the Settings interface under the General tab.", "rscplus", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
 			if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
-				Settings.CHECK_UPDATES = true;
+				Settings.CHECK_UPDATES.put(Settings.currentProfile, true);
 				JOptionPane.showMessageDialog(this, "rscplus is set to check for updates on GitHub at every launch!", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon);
 			}
 			else if (response == JOptionPane.NO_OPTION) {
-				Settings.CHECK_UPDATES = false;
+				Settings.CHECK_UPDATES.put(Settings.currentProfile, false);
 				JOptionPane.showMessageDialog(this, "rscplus will not check for updates automatically.\n" +
 						"\n" +
 						"You will not get notified when new releases are available. To update your client, you\n" +
@@ -126,11 +126,11 @@ public class Launcher extends JFrame implements Runnable {
 						"\n" +
 						"You can enable GitHub updates again in the Settings interface under the General tab.", "rscplus", JOptionPane.INFORMATION_MESSAGE, icon_warn);
 			}
-			Settings.UPDATE_CONFIRMATION = true;
+			Settings.UPDATE_CONFIRMATION.put(Settings.currentProfile, false);
 			Settings.save();
 		}
 			
-		if (Settings.CHECK_UPDATES) {
+		if (Settings.CHECK_UPDATES.get(Settings.currentProfile)) {
 			setStatus("Checking for rscplus update...");
 			double latestVersion = Client.fetchLatestVersionNumber();
 			if (Settings.VERSION_NUMBER < latestVersion) {
@@ -163,7 +163,7 @@ public class Launcher extends JFrame implements Runnable {
 		
 		setStatus("Creating JConfig...");
 		JConfig config = Game.getInstance().getJConfig();
-		config.create(Settings.WORLD);
+		config.create(Settings.WORLD.get(Settings.currentProfile));
 		
 		m_classLoader = new JClassLoader();
 		if (!m_classLoader.fetch("/assets/rsc.jar")) {
@@ -283,7 +283,7 @@ public class Launcher extends JFrame implements Runnable {
 	public static void main(String[] args) {
 		Settings.initDir();
 		setConfigWindow(new ConfigWindow());
-		Settings.Load();
+		Settings.initSettings();
 		TrayHandler.initTrayIcon();
 		NotificationsHandler.initialize();
 		Launcher.getInstance().init();

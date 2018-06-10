@@ -58,7 +58,7 @@ public class Item {
 	 * Patches item names as specified by {@link Settings#NAME_PATCH_TYPE}.
 	 */
 	public static void patchItemNames() {
-		int namePatchType = Settings.NAME_PATCH_TYPE;
+		int namePatchType = Settings.NAME_PATCH_TYPE.get(Settings.currentProfile);
 		Connection c = null;
 		
 		try {
@@ -138,7 +138,7 @@ public class Item {
 	 * Removes completely the option to eat/drink
 	 */
 	public static void patchItemCommands() {
-		int commandPatchType = Settings.COMMAND_PATCH_TYPE;
+		int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
 		// ids of Half full wine jug, Disk of Returning, Pumpkin, Easter egg
 		int[] edible_rare_item_ids = { 246, 387, 422, 677 };
 		
@@ -154,7 +154,7 @@ public class Item {
 	 * Swaps around the option to eat/drink
 	 */
 	public static boolean shouldPatch(int index) {
-		int commandPatchType = Settings.COMMAND_PATCH_TYPE;
+		int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
 		// ids of giant Carp, chocolaty milk, Rock cake, nightshade
 		int[] edible_quest_item_ids = { 718, 770, 1061, 1086 };
 		boolean found = false;

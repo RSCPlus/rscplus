@@ -107,7 +107,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		Reflection.Load();
 		Renderer.init();
 		
-		if (!Util.isMacOS() && Settings.CUSTOM_CLIENT_SIZE) {
+		if (!Util.isMacOS() && Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
 			Game.getInstance().resizeFrameWithContents();
 		}
 		
@@ -151,7 +151,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	 * Starts the game applet.
 	 */
 	public void launchGame() {
-		m_config.changeWorld(Settings.WORLD);
+		m_config.changeWorld(Settings.WORLD.get(Settings.currentProfile));
 		m_applet.init();
 		m_applet.start();
 	}
@@ -160,7 +160,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		String title = "rscplus (";
 		
 		if(!Replay.isPlaying) {
-			title += "World " + Settings.WORLD;
+			title += "World " + Settings.WORLD.get(Settings.currentProfile);
 			
 			if (Client.player_name != null && Client.player_name.length() != 0) {
 				title += "; " + Client.player_name;
@@ -316,8 +316,8 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 	 * the next rendering tick.
 	 */
 	public void resizeFrameWithContents() {
-		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X + getInsets().left + getInsets().right;
-		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y + getInsets().top + getInsets().bottom;
+		int windowWidth = Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile) + getInsets().left + getInsets().right;
+		int windowHeight = Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile) + getInsets().top + getInsets().bottom;
 		setSize(windowWidth, windowHeight);
 		setLocationRelativeTo(null);
 	}

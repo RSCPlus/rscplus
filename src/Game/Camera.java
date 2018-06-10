@@ -45,7 +45,7 @@ public class Camera {
 	public static void init() {
 		zoom = 750;
 		rotation = 126;
-		setDistance(Settings.VIEW_DISTANCE);
+		setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
 	}
 	
 	public static void resize() {

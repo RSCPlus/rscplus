@@ -90,7 +90,7 @@ public class XPBar {
 		// Draw bar
 		
 		// Check and set the appropriate display position
-		if (Settings.CENTER_XPDROPS)
+		if (Settings.CENTER_XPDROPS.get(Settings.currentProfile))
 			xp_bar_x = (Renderer.width - bounds.width) / 2; // Position in the center
 		else
 			xp_bar_x = Renderer.width - 210 - bounds.width; // Position to the left of the Settings wrench

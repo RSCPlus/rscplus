@@ -265,12 +265,12 @@ public class Client {
 		
 	}
 	
-	// string 662 is the one in version 235 that contains the "from:" used in login welcome screen
+	// string 662 is the one in version 235 that contains the "from: " used in login welcome screen
 	public static void adaptLoginInfo() {
-		if (!Settings.SHOW_LOGINDETAILS && strings[662].startsWith("from:")) {
-			strings[662] = "@bla@from:";
-		} else if (Settings.SHOW_LOGINDETAILS && strings[662].startsWith("@bla@from:")) {
-			strings[662] = "from:";
+		if (!Settings.SHOW_LOGIN_IP_ADDRESS.get(Settings.currentProfile) && strings[662].startsWith("from:")) {
+			strings[662] = "@bla@from: ";
+		} else if (Settings.SHOW_LOGIN_IP_ADDRESS.get(Settings.currentProfile) && strings[662].startsWith("@bla@from:")) {
+			strings[662] = "from: ";
 		}
 	}
 	
@@ -288,7 +288,7 @@ public class Client {
 		applet.addKeyListener(handler_keyboard);
 		applet.setFocusTraversalKeysEnabled(false);
 		
-		if (Settings.DISASSEMBLE)
+		if (Settings.DISASSEMBLE.get(Settings.currentProfile))
 			dumpStrings();
 		
 		// Initialize login
@@ -312,7 +312,7 @@ public class Client {
 		
 		Replay.update();
 		
-		if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME && showRecordAlwaysDialogue) {
+		if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME.get(Settings.currentProfile) && showRecordAlwaysDialogue) {
 			int response = JOptionPane.showConfirmDialog(Game.getInstance().getApplet(), "If you'd like, you can record your session every time you play by default.\n" +
 					"\n" +
 					"These recordings do not leave your computer unless you manually do it on purpose.\n" +
@@ -326,11 +326,11 @@ public class Client {
 					"NOTE: This option can be toggled in the Settings interface (ctrl-o by default) under the Replay tab.", "rscplus", JOptionPane.YES_NO_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, Launcher.icon);
 			if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
-				Settings.RECORD_AUTOMATICALLY = true;
+				Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, true);
 			} else if (response == JOptionPane.NO_OPTION) {
-				Settings.RECORD_AUTOMATICALLY = false;
+				Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, false);
 			}
-			Settings.RECORD_AUTOMATICALLY_FIRST_TIME = false;
+			Settings.RECORD_AUTOMATICALLY_FIRST_TIME.put(Settings.currentProfile, false);
 			Settings.save();
 		}
         
@@ -355,7 +355,7 @@ public class Client {
 				xpdrop_state[i] += xpGain;
 				
 				if (xpGain > 0.0f && dropXP) {
-					if (Settings.SHOW_XPDROPS)
+					if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
 						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")", Renderer.color_text);
 					
 					// XP/hr calculations
@@ -382,11 +382,11 @@ public class Client {
 				}
 			}
 			// Process fatigue drops
-			if (Settings.SHOW_FATIGUEDROPS) {
+			if (Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile)) {
 				final float actualFatigue = getActualFatigue();
 				final float fatigueGain = actualFatigue - currentFatigue;
 				if (fatigueGain > 0.0f && !isWelcomeScreen()) {
-					xpdrop_handler.add("+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES) + "% (Fatigue)", Renderer.color_fatigue);
+					xpdrop_handler.add("+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile)) + "% (Fatigue)", Renderer.color_fatigue);
 					currentFatigue = actualFatigue;
 				}
 			}
@@ -436,7 +436,7 @@ public class Client {
 		// This helps out the replay mode to have matching output from the time it was recorded
 		Camera.init();
 		Menu.init();
-		combat_style = Settings.COMBAT_STYLE;
+		combat_style = Settings.COMBAT_STYLE.get(Settings.currentProfile);
 		state = STATE_GAME;
 		bank_active_page = 0;
 		combat_timer = 0;
@@ -451,7 +451,7 @@ public class Client {
 		if (Renderer.replayOption == 2) {
 			if (!Replay.initializeReplayPlayback())
 				Renderer.replayOption = 0;
-		} else if (Renderer.replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
+		} else if (Renderer.replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
 			Replay.initializeReplayRecording();
         }
 	}
@@ -571,13 +571,13 @@ public class Client {
 			
 			switch (commandArray[0]) {
 			case "togglebypassattack":
-				Settings.toggleBypassAttack();
+				Settings.toggleAttackAlwaysLeftClick();
 				break;
 			case "toggleroofs":
 				Settings.toggleHideRoofs();
 				break;
 			case "togglecombat":
-				Settings.toggleCombatMenu();
+				Settings.toggleCombatMenuShown();
 				break;
 			case "togglecolor":
 				Settings.toggleColorTerminal();
@@ -592,19 +592,19 @@ public class Client {
 				Settings.toggleTwitchHide();
 				break;
 			case "toggleplayerinfo":
-				Settings.toggleShowPlayerInfo();
+				Settings.toggleShowPlayerNameOverlay();
 				break;
 			case "togglefriendinfo":
-				Settings.toggleShowFriendInfo();
+				Settings.toggleShowFriendNameOverlay();
 				break;
 			case "togglenpcinfo":
-				Settings.toggleShowNPCInfo();
+				Settings.toggleShowNPCNameOverlay();
 				break;
 			case "toggleiteminfo":
-				Settings.toggleShowItemInfo();
+				Settings.toggleShowItemGroundOverlay();
 				break;
 			case "togglelogindetails":
-				Settings.toggleShowLoginDetails();
+				Settings.toggleShowLoginIpAddress();
 				break;
 			case "togglestartsearchedbank":
 				if (commandArray.length > 1) {
@@ -663,7 +663,7 @@ public class Client {
 				Settings.toggleBuffs();
 				break;
 			case "togglestatusdisplay":
-				Settings.toggleStatusDisplay();
+				Settings.toggleHpPrayerFatigueOverlay();
 				break;
 			case "help":
 				try {
@@ -961,7 +961,7 @@ public class Client {
 			// TODO: before Y10K update this to %9.6f
 			displayMessage("The latest version is @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
 			displayMessage("~034~ Your version is @red@" + String.format("%8.6f", Settings.VERSION_NUMBER), CHAT_QUEST);
-			if (Settings.CHECK_UPDATES) {
+			if (Settings.CHECK_UPDATES.get(Settings.currentProfile)) {
 				displayMessage("~034~ You will receive the update next time you restart rscplus", CHAT_QUEST);
 			}
 		} else if (announceIfUpToDate) {
@@ -971,7 +971,7 @@ public class Client {
 	
 	// hook to display retro fps on the client, early 2001 style
 	public static void retroFPSHook(Object surfaceInstance) {
-		if (surfaceInstance != null && Settings.SHOW_RETRO_FPS) {
+		if (surfaceInstance != null && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
 			int offset = 0;
 			if (Client.is_in_wild)
 				offset = 70;
@@ -983,7 +983,7 @@ public class Client {
 	}
 	
 	public static int attack_menu_hook(int cmpVar) {
-		if (Settings.BYPASS_ATTACK) {
+		if (Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile)) {
 			return 10;
 		} else {
 			return cmpVar;
@@ -1082,7 +1082,7 @@ public class Client {
 		String option = "";
 		for (int i = 0; i < count; i++) {
 			option = menuOptions[i];
-			if (Settings.COLORIZE) {
+			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 				AnsiConsole.systemInstall();
 				System.out.println(ansi()
 						.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
@@ -1118,7 +1118,7 @@ public class Client {
 			if (username == null && message != null) {
 				if (message.contains("The spell fails! You may try again in 20 seconds"))
 					magic_timer = Renderer.time + 21000L;
-				else if (Settings.TRAY_NOTIFS && message.contains("You have been standing here for 5 mins! Please move to a new area")) {
+				else if (Settings.TRAY_NOTIFS.get(Settings.currentProfile) && message.contains("You have been standing here for 5 mins! Please move to a new area")) {
 					NotificationsHandler.notify(NotifType.LOGOUT, "Logout Notification", "You're about to log out");
 				}
 				// while the message is really You @gr2@are @gr1@poisioned! @gr2@You @gr3@lose @gr2@3 @gr1@health.
@@ -1153,8 +1153,8 @@ public class Client {
 		if (message.startsWith("Welcome to RuneScape!")) {
 			// because this section of code is triggered when the "Welcome to RuneScape!" message first appears, we can
 			// use it to do some first time set up
-			if (Settings.FIRST_TIME) {
-				Settings.FIRST_TIME = false;
+			if (Settings.FIRST_TIME.get(Settings.currentProfile)) {
+				Settings.FIRST_TIME.put(Settings.currentProfile, false);
 				Settings.save();
 			}
 			
@@ -1177,7 +1177,7 @@ public class Client {
 			
 			// Check for updates every login in hour intervals, so users are notified when an update is available
 			long currentTime = System.currentTimeMillis();
-			if (Settings.CHECK_UPDATES && currentTime >= updateTimer) {
+			if (Settings.CHECK_UPDATES.get(Settings.currentProfile) && currentTime >= updateTimer) {
 				checkForUpdate(false);
 				updateTimer = currentTime + (60 * 60 * 1000);
 			}
@@ -1187,7 +1187,7 @@ public class Client {
 		if (Replay.isSeeking)
 			return;
 		
-		if (Settings.COLORIZE) {
+		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
 			System.out.println(ansi()
 					.render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));

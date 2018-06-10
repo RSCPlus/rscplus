@@ -58,8 +58,8 @@ public class TwitchIRC implements Runnable {
 			m_writer = new BufferedWriter(new OutputStreamWriter(m_socket.getOutputStream()));
 			m_reader = new BufferedReader(new InputStreamReader(m_socket.getInputStream()));
 			
-			m_writer.write("PASS " + Settings.TWITCH_OAUTH + "\r\n");
-			m_writer.write("NICK " + Settings.TWITCH_USERNAME.toLowerCase() + "\r\n");
+			m_writer.write("PASS " + Settings.TWITCH_OAUTH.get(Settings.currentProfile) + "\r\n");
+			m_writer.write("NICK " + Settings.TWITCH_USERNAME.get(Settings.currentProfile).toLowerCase() + "\r\n");
 			m_writer.flush();
 		} catch (Exception e) {
 			disconnect(); // Clean up if the connection fails
@@ -104,7 +104,7 @@ public class TwitchIRC implements Runnable {
 	 * @return If the client is currently configured to use Twitch
 	 */
 	public static boolean isUsing() {
-		return Settings.TWITCH_CHANNEL.length() > 0; // TODO maybe check for an OAUTH/password also?
+		return Settings.TWITCH_CHANNEL.get(Settings.currentProfile).length() > 0; // TODO maybe check for an OAUTH/password also?
 	}
 	
 	/**
@@ -119,7 +119,7 @@ public class TwitchIRC implements Runnable {
 			while (active && (line = m_reader.readLine()) != null) {
 				if (line.indexOf("004") >= 0) {
 					m_writer.write("CAP REQ :twitch.tv/commands\r\n");
-					m_writer.write("JOIN #" + Settings.TWITCH_CHANNEL.toLowerCase() + "\r\n");
+					m_writer.write("JOIN #" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile).toLowerCase() + "\r\n");
 					m_writer.flush();
 					// FIXME: Consider thread safety for applet GUI updates outside of its thread?
 					Client.displayMessage("@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL + "]@yel@ Twitch chat", Client.CHAT_CHAT);
@@ -143,17 +143,17 @@ public class TwitchIRC implements Runnable {
 				if ("PING".equals(lineArray[0])) {
 					m_writer.write("PONG " + lineArray[1] + "\r\n");
 					m_writer.flush();
-				} else if ("PRIVMSG".equals(lineArray[1]) && !Settings.TWITCH_HIDE) {
+				} else if ("PRIVMSG".equals(lineArray[1]) && !Settings.TWITCH_HIDE_CHAT.get(Settings.currentProfile)) {
 					String username = line.substring(1, line.indexOf('!'));
 					String message = line.substring(line.indexOf(':', 2) + 1, line.length());
 					
-					if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL))
+					if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL.get(Settings.currentProfile)))
 						username = "@cya@" + username;
 					else
 						username = "@yel@" + username;
 					
 					String msgColor = "@yel@";
-					if (message.toLowerCase().contains(Settings.TWITCH_USERNAME.toLowerCase()))
+					if (message.toLowerCase().contains(Settings.TWITCH_USERNAME.get(Settings.currentProfile).toLowerCase()))
 						msgColor = "@gre@";
 					
 					if (message.startsWith(Character.toString((char)1)) && message.endsWith(Character.toString((char)1))) {
@@ -162,9 +162,9 @@ public class TwitchIRC implements Runnable {
 					} else {
 						Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@yel@: " + msgColor + message, Client.CHAT_CHAT);
 					}
-				} else if ("NOTICE".equals(lineArray[1]) && !Settings.TWITCH_HIDE) {
+				} else if ("NOTICE".equals(lineArray[1]) && !Settings.TWITCH_HIDE_CHAT.get(Settings.currentProfile)) {
 					String message = line.substring(line.indexOf(':', 2) + 1, line.length());
-					Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + message, Client.CHAT_CHAT);
+					Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] " + message, Client.CHAT_CHAT);
 				}
 				
 				Logger.Debug(line);
@@ -174,7 +174,7 @@ public class TwitchIRC implements Runnable {
 		
 		// Reconnect on disconnect
 		if (active) {
-			Client.displayMessage("@yel@Disconnected from @red@[" + Settings.TWITCH_CHANNEL + "] @yel@, reconnecting in 10 seconds...", Client.CHAT_CHAT);
+			Client.displayMessage("@yel@Disconnected from @red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] @yel@, reconnecting in 10 seconds...", Client.CHAT_CHAT);
 			try {
 				Thread.sleep(10000);
 			} catch (Exception e) {
@@ -212,15 +212,15 @@ public class TwitchIRC implements Runnable {
 	 */
 	public void sendMessage(String message, boolean show) {
 		try {
-			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.toLowerCase() + " :" + message + "\r\n");
+			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile).toLowerCase() + " :" + message + "\r\n");
 			m_writer.flush();
 			if (show) {
-				String username = Settings.TWITCH_USERNAME.toLowerCase();
-				if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL))
+				String username = Settings.TWITCH_USERNAME.get(Settings.currentProfile).toLowerCase();
+				if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL.get(Settings.currentProfile)))
 					username = "@cya@" + username;
 				else
 					username = "@yel@" + username;
-				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@yel@: " + message, Client.CHAT_CHAT);
+				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] " + username + "@yel@: " + message, Client.CHAT_CHAT);
 			}
 		} catch (Exception e) {
 		}
@@ -236,15 +236,15 @@ public class TwitchIRC implements Runnable {
 	 */
 	public void sendEmote(String message, boolean show) {
 		try {
-			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.toLowerCase() + " :" + Character.toString((char)1) + "ACTION " + message + Character.toString((char)1) + "\r\n");
+			m_writer.write("PRIVMSG #" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile).toLowerCase() + " :" + Character.toString((char)1) + "ACTION " + message + Character.toString((char)1) + "\r\n");
 			m_writer.flush();
 			if (show) {
-				String username = Settings.TWITCH_USERNAME.toLowerCase();
-				if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL))
+				String username = Settings.TWITCH_USERNAME.get(Settings.currentProfile).toLowerCase();
+				if (username.equalsIgnoreCase(Settings.TWITCH_CHANNEL.get(Settings.currentProfile)))
 					username = "@cya@" + username;
 				else
 					username = "@yel@" + username;
-				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL + "] " + username + "@lre@ " + message, Client.CHAT_CHAT);
+				Client.displayMessage("@red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] " + username + "@lre@ " + message, Client.CHAT_CHAT);
 			}
 		} catch (Exception e) {
 		}

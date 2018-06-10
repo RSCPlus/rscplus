@@ -88,7 +88,7 @@ public class JClassPatcher {
 		// Patch applied to all classes
 		patchGeneric(node);
 		
-		if (Settings.DISASSEMBLE) {
+		if (Settings.DISASSEMBLE.get(Settings.currentProfile)) {
 			Logger.Info("Disassembling file: " + node.name + ".class");
 			dumpClass(node);
 		}
@@ -160,7 +160,7 @@ public class JClassPatcher {
 			hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
 			hookClassVariable(methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
 			hookClassVariable(methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
-			if (Settings.SAVE_LOGININFO)
+			if (Settings.SAVE_LOGININFO.get(Settings.currentProfile))
 				hookClassVariable(methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
 			
 			hookClassVariable(methodNode, "client", "Ek", "Llb;", "Game/Camera", "instance", "Ljava/lang/Object;", true, false);
@@ -426,7 +426,8 @@ public class JClassPatcher {
 								findNode = findNode.getNext();
 							
 							LabelNode label = ((JumpInsnNode)findNode).label;
-							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU", "Z"));
+							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "updateInjectedVariables", "()V", false)); //TODO Remove this line when COMBAT_MENU_SHOWN_BOOL is eliminated
+							methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU_SHOWN_BOOL", "Z"));
 							methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFGT, label));
 							break;
 						}
@@ -725,7 +726,8 @@ public class JClassPatcher {
 				// Write byte
 				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ja", "c", "(II)V", false));
 				methodNode.instructions.insert(lastNode, new IntInsnNode(Opcodes.BIPUSH, -80));
-				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "updateInjectedVariables", "()V", false)); //TODO Remove this line when COMBAT_STYLE_INT is eliminated
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE_INT", "I"));
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "da", "f", "Lja;"));
 				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jh", "Lda;"));
 				methodNode.instructions.insert(lastNode, new VarInsnNode(Opcodes.ALOAD, 0));
@@ -740,7 +742,8 @@ public class JClassPatcher {
 				// Skip combat packet if style is already controlled
 				methodNode.instructions.insert(lastNode, new JumpInsnNode(Opcodes.IF_ICMPLE, label));
 				methodNode.instructions.insert(lastNode, new InsnNode(Opcodes.ICONST_0));
-				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
+				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "updateInjectedVariables", "()V", false)); //TODO Remove this line when COMBAT_STYLE_INT is eliminated
+				methodNode.instructions.insert(lastNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "COMBAT_STYLE_INT", "I"));
 				
 				// Client init_game
 				methodNode.instructions.insert(lastNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "init_game", "()V", false));
@@ -829,7 +832,8 @@ public class JClassPatcher {
 							if (nextNode.getOpcode() == Opcodes.IFNE) {
 								LabelNode label = ((JumpInsnNode)nextNode).label;
 								methodNode.instructions.insert(nextNode, new JumpInsnNode(Opcodes.IFGT, label));
-								methodNode.instructions.insert(nextNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS", "Z"));
+								methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "updateInjectedVariables", "()V", false)); //TODO Remove this line when HIDE_ROOFS_BOOL is eliminated
+								methodNode.instructions.insert(nextNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS_BOOL", "Z"));
 							}
 						}
 					}
@@ -986,7 +990,7 @@ public class JClassPatcher {
 						
 						if (field.owner.equals("client") && field.name.equals("Fg")) {
 							methodNode.instructions.insert(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "save", "()V", false));
-							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Client/Settings", "COMBAT_STYLE", "I"));
+							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Client/Settings", "COMBAT_STYLE_INT", "I"));
 							methodNode.instructions.insert(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Fg", "I"));
 							methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
 						}

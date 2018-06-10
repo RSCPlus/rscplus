@@ -41,7 +41,7 @@ public class Logger {
 	}
 	
 	public static void Log(Type type, String message) {
-		if (Replay.isSeeking && !Settings.DEBUG && type == Type.DEBUG)
+		if (Replay.isSeeking && !Settings.DEBUG.get(Settings.currentProfile) && type == Type.DEBUG)
 			return;
 		
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;

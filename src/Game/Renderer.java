@@ -197,7 +197,7 @@ public class Renderer {
 		
 		// This workaround is required to use custom resolution on macOS
 		if (macOS_resize_workaround) {
-			if (Settings.CUSTOM_CLIENT_SIZE) {
+			if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
 				Game.getInstance().resizeFrameWithContents();
 			} else {
 				Game.getInstance().pack();
@@ -246,17 +246,17 @@ public class Renderer {
 					if (npc.type == NPC.TYPE_PLAYER) {
 						color = color_fatigue;
 						
-						if (Client.isFriend(npc.name) && (Settings.SHOW_FRIENDINFO || Settings.SHOW_PLAYERINFO)) {
+						if (Client.isFriend(npc.name) && (Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile) || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
 							color = color_hp;
 							show = true;
-						} else if (Settings.SHOW_PLAYERINFO) {
+						} else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
 							show = true;
 						}
-					} else if (npc.type == NPC.TYPE_MOB && Settings.SHOW_NPCINFO) {
+					} else if (npc.type == NPC.TYPE_MOB && Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile)) {
 						show = true;
 					}
 					
-					if (Settings.SHOW_HITBOX) {
+					if (Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile)) {
 						List<Rectangle> hitbox = player_hitbox;
 						boolean showHitbox = true;
 						
@@ -282,7 +282,7 @@ public class Renderer {
 						}
 					}
 					
-					if (Settings.SHOW_STATUSDISPLAY && npc.name != null) {
+					if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile) && npc.name != null) {
 						int x = npc.x + (npc.width / 2);
 						int y = npc.y - 20;
 						for (Iterator<Point> locIterator = entity_text_loc.iterator(); locIterator.hasNext();) {
@@ -303,7 +303,7 @@ public class Renderer {
 				List<Rectangle> item_hitbox = new ArrayList<>();
 				List<Point> item_text_loc = new ArrayList<>();
 				
-				if (Settings.SHOW_ITEMINFO) { // Don't sort if we aren't displaying any item names anyway
+				if (Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile)) { // Don't sort if we aren't displaying any item names anyway
 					try {
 						// Keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of randomly
 						// changing places each frame
@@ -317,7 +317,7 @@ public class Renderer {
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next(); // TODO: Remove unnecessary allocations
 					
-					if (Settings.SHOW_HITBOX) {
+					if (Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile)) {
 						boolean show = true;
 						for (Iterator<Rectangle> boxIterator = item_hitbox.iterator(); boxIterator.hasNext();) {
 							Rectangle rect = boxIterator.next(); // TODO: Remove unnecessary allocations
@@ -338,13 +338,13 @@ public class Renderer {
 						}
 					}
 					
-					if (Settings.SHOW_ITEMINFO) {
+					if (Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile)) {
 						int x = item.x + (item.width / 2);
 						int y = item.y - 20;
 						int freq = Collections.frequency(Client.item_list, item);
 
 						// Check if item is in blocked list
-						boolean itemIsBlocked = stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS);
+						boolean itemIsBlocked = stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS.get("custom"));
 						
 						// We've sorted item list in such a way that it is possible to not draw the ITEMINFO unless it's
 						// the first time we've tried to for this itemid at that location by just using last_item.
@@ -363,7 +363,7 @@ public class Renderer {
 							String itemText = item.getName() + ((freq == 1) ? "" : " (" + freq + ")");
 
 							// Check if item is in highlighted list
-							if (stringIsWithinList(item.getName(), Settings.HIGHLIGHTED_ITEMS)) {
+							if (stringIsWithinList(item.getName(), Settings.HIGHLIGHTED_ITEMS.get("custom"))) {
 								itemColor = color_item_highlighted;
 								drawHighlighImage(g2, itemText, x, y);
 							}
@@ -386,7 +386,7 @@ public class Renderer {
 			Client.item_list.clear();
 			last_item = null;
 			
-			if (!Client.show_sleeping && Settings.SHOW_INVCOUNT)
+			if (!Client.show_sleeping && Settings.SHOW_INVCOUNT.get(Settings.currentProfile))
 				drawShadowText(g2, Client.inventory_count + "/" + Client.max_inventory, width - 19, 17, color_text, true);
 			
 			int percentHP = 0;
@@ -419,12 +419,12 @@ public class Renderer {
 			}
 			
 			// Low HP notification
-			if (percentHP <= Settings.LOW_HP_NOTIF_VALUE && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE)
+			if (percentHP <= Settings.LOW_HP_NOTIF_VALUE.get(Settings.currentProfile) && lastPercentHP > percentHP && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE.get(Settings.currentProfile))
 				NotificationsHandler.notify(NotifType.LOWHP, "Low HP Notification", "Your HP is at " + percentHP + "%");
 			lastPercentHP = percentHP;
 			
 			// High fatigue notification
-			if (Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE)
+			if (Client.getFatigue() >= Settings.FATIGUE_NOTIF_VALUE.get(Settings.currentProfile) && lastFatigue < Client.getFatigue() && lastFatigue < Settings.FATIGUE_NOTIF_VALUE.get(Settings.currentProfile))
 				NotificationsHandler.notify(NotifType.FATIGUE, "High Fatigue Notification", "Your fatigue is at " + Client.getFatigue() + "%");
 			lastFatigue = Client.getFatigue();
 			
@@ -432,10 +432,10 @@ public class Renderer {
 			int x = 24;
 			int y = 32;
 			
-			if (Client.isInCombat() || Settings.COMBAT_MENU) { // combat menu is showing, so move everything down
+			if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile)) { // combat menu is showing, so move everything down
 				y = 138;
 			}
-			if (Settings.SHOW_STATUSDISPLAY) {
+			if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
 				if (width < 800) {
 					if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
 						setAlpha(g2, alphaHP);
@@ -466,7 +466,7 @@ public class Renderer {
 			
 			// Draw under combat style info
 			// buffs, debuffs and cooldowns
-			if (!Client.isInterfaceOpen() && Settings.SHOW_BUFFS) {
+			if (!Client.isInterfaceOpen() && Settings.SHOW_BUFFS.get(Settings.currentProfile)) {
 				if (time <= Client.magic_timer) {
 					float timer = (float)Math.ceil((Client.magic_timer - time) / 1000.0);
 					drawShadowText(g2, "Magic Timer: " + (int)timer, x, y, color_text, false);
@@ -537,7 +537,7 @@ public class Renderer {
 			}
 			
 			// NPC Post-processing for ui
-			if (Settings.SHOW_COMBAT_INFO && !Client.isInterfaceOpen()) {
+			if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next();
 					if (npc != null && isInCombatWithNPC(npc)) {
@@ -555,7 +555,7 @@ public class Renderer {
 			Client.xpdrop_handler.draw(g2);
 			Client.xpbar.draw(g2);
 			
-			if (Settings.DEBUG) {
+			if (Settings.DEBUG.get(Settings.currentProfile)) {
 				x = 32;
 				y = 32;
 				
@@ -651,7 +651,7 @@ public class Renderer {
 			}
 			
 			// A little over a full tick
-			if (Settings.INDICATORS && Replay.getServerLag() >= 35) {
+			if (Settings.LAG_INDICATOR.get(Settings.currentProfile) && Replay.getServerLag() >= 35) {
 				x = width - 80; y = height - 80;
 				setAlpha(g2, alpha_time);
 				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
@@ -664,18 +664,18 @@ public class Renderer {
 			}
 			
 			g2.setFont(font_big);
-			if (Settings.FATIGUE_ALERT && Client.getFatigue() >= 98 && !Client.isInterfaceOpen()) {
+			if (Settings.FATIGUE_ALERT.get(Settings.currentProfile) && Client.getFatigue() >= 98 && !Client.isInterfaceOpen()) {
 				setAlpha(g2, alpha_time);
 				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
-			if (Settings.INVENTORY_FULL_ALERT && Client.inventory_count >= 30 && !Client.isInterfaceOpen()) {
+			if (Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile) && Client.inventory_count >= 30 && !Client.isInterfaceOpen()) {
 				setAlpha(g2, alpha_time);
 				drawShadowText(g2, "INVENTORY FULL", width / 2, height / 2, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
 		} else if (Client.state == Client.STATE_LOGIN) {
-			if (Settings.DEBUG)
+			if (Settings.DEBUG.get(Settings.currentProfile))
 				drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
 			
 			// Draw world list
@@ -684,7 +684,7 @@ public class Renderer {
 				Rectangle bounds = new Rectangle(152 + (i * 18), height - 12, 16, 12);
 				Color color = color_text;
 				
-				if (i == Settings.WORLD - 1)
+				if (i == Settings.WORLD.get(Settings.currentProfile) - 1)
 					color = color_low;
 				
 				setAlpha(g2, 0.5f);
@@ -705,14 +705,14 @@ public class Renderer {
 			drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
 			
 			setAlpha(g2, 0.5f);
-			if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY) {
+			if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
 				g2.setColor(color_low);
 			} else {
 				g2.setColor(color_text);
             }
 			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			
-			if (Settings.RECORD_AUTOMATICALLY) {
+			if (Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
 				g2.setColor(color_text);
 				g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 			}
@@ -884,7 +884,7 @@ public class Renderer {
 		}
 			
 		// Draw software cursor
-		if (Settings.SOFTWARE_CURSOR) {
+		if (Settings.SOFTWARE_CURSOR.get(Settings.currentProfile)) {
 			setAlpha(g2, 1.0f);
 			g2.drawImage(image_cursor, MouseHandler.x, MouseHandler.y, null);
 		}
@@ -916,7 +916,7 @@ public class Renderer {
 		if (width != new_size.width || height != new_size.height)
 			handle_resize();
 		if (Settings.fovUpdateRequired) {
-			Camera.setFoV(Settings.FOV);
+			Camera.setFoV(Settings.FOV.get(Settings.currentProfile));
 			Settings.fovUpdateRequired = false;
 		}
 		
@@ -1088,7 +1088,7 @@ public class Renderer {
 		g.fillRect(x, y + 20, (int)(bounds.width * hp_ratio), bounds.height / 2);
 		
 		// HP text
-		if (Settings.USE_PERCENTAGE)
+		if (Settings.NPC_HEALTH_SHOW_PERCENTAGE.get(Settings.currentProfile))
 			drawShadowText(g, (int)Math.ceil(hp_ratio * 100) + "%", x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);
 		else
 			drawShadowText(g, npc.currentHits + "/" + npc.maxHits, x + (bounds.width / 2), y + (bounds.height / 2) + 8, color_text, true);

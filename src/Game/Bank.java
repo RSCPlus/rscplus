@@ -66,7 +66,7 @@ public class Bank {
 		if (Client.new_bank_items[254] == 1) {
 			// first time bank interface, unset the flag
 			Client.new_bank_items[254] = 0;
-			if (Settings.START_SEARCHEDBANK && !Settings.SEARCH_BANK_WORD.equals("")) {
+			if (Settings.START_SEARCHEDBANK.get("custom") && !Settings.SEARCH_BANK_WORD.get("custom").equals("")) {
 				int[] tmpBankItems = Client.bank_items.clone();
 				int[] tmpBankItemsCount = Client.bank_items_count.clone();
 				int[] tmpNewBankItems = Client.new_bank_items.clone();
@@ -85,7 +85,7 @@ public class Bank {
 				for (int i = 0; i < tmpNewBankItems.length; i++) {
 					if (tmpNewBankItemsCount[i] == 0)
 						break;
-					if (Item.item_name[tmpNewBankItems[i]].toLowerCase().contains(Settings.SEARCH_BANK_WORD.toLowerCase())) {
+					if (Item.item_name[tmpNewBankItems[i]].toLowerCase().contains(Settings.SEARCH_BANK_WORD.get("custom").toLowerCase())) {
 						Client.bank_items[n] = tmpBankItems[i];
 						Client.bank_items_count[n] = tmpBankItemsCount[i];
 						Client.new_bank_items[n] = tmpNewBankItems[i];
@@ -242,7 +242,7 @@ public class Bank {
 				Client.displayMessage("@whi@::banksearch is only available when bank interface is open", Client.CHAT_QUEST);
 			} else {
 				// overwrite query string on local config
-				Settings.SEARCH_BANK_WORD = search;
+				Settings.SEARCH_BANK_WORD.put("custom", search);
 				Settings.save();
 				int[] tmpBankItems = Client.bank_items.clone();
 				int[] tmpBankItemsCount = Client.bank_items_count.clone();
@@ -296,7 +296,7 @@ public class Bank {
 				Client.displayMessage("@whi@::querybank is only available when bank interface is open", Client.CHAT_QUEST);
 			} else {
 				// overwrite query string on local config
-				Settings.SEARCH_BANK_WORD = search;
+				Settings.SEARCH_BANK_WORD.put("custom", search);
 				Settings.save();
 				int page, row, col, tmp;
 				Client.displayMessage("@whi@" + "Queried bank with '" + search + "'", Client.CHAT_QUEST);

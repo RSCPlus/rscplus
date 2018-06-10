@@ -188,7 +188,7 @@ public class Replay {
 			}
 			
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
-            if (Settings.RECORD_KB_MOUSE) {
+            if (Settings.RECORD_KB_MOUSE.get(Settings.currentProfile)) {
 				File file = new File(replayDirectory + "/keyboard.bin.gz");
 				if (file.exists()) {
 					play_keyboard = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
@@ -268,7 +268,7 @@ public class Replay {
 			play_mouse = null;
 		}
 		
-		Game.getInstance().getJConfig().changeWorld(Settings.WORLD);
+		Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
 		isSeeking = false;
 		resetFrameTimeSlice();
 		Client.closeConnection(true);
@@ -301,7 +301,7 @@ public class Replay {
 			output = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(recordingDirectory + "/out.bin.gz")))));
 			input = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(recordingDirectory + "/in.bin.gz")))));
 			keys = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(recordingDirectory + "/keys.bin"))));
-            if (Settings.RECORD_KB_MOUSE) {
+            if (Settings.RECORD_KB_MOUSE.get(Settings.currentProfile)) {
 				keyboard = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(recordingDirectory + "/keyboard.bin.gz")))));
 				mouse = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(recordingDirectory + "/mouse.bin.gz")))));
                 started_record_kb_mouse = true; //need this to know whether or not to close the file if the user changes settings mid-recording

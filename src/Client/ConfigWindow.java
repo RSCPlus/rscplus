@@ -146,7 +146,6 @@ public class ConfigWindow {
 	private JSlider generalPanelViewDistanceSlider;
 	private JCheckBox generalPanelStartSearchedBankCheckbox;
 	private JTextField generalPanelSearchBankWordTextfield;
-	private JCheckBox generalPanelIndicatorsCheckbox;
 	
 	// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -163,6 +162,7 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelFoodHealingCheckbox;
 	private JCheckBox overlayPanelHPRegenTimerCheckbox;
 	private JCheckBox overlayPanelDebugModeCheckbox;
+    private JCheckBox overlayPanelLagIndicatorCheckbox;
 	private JTextField blockedItemsTextField;
 	private JTextField highlightedItemsTextField;
 	
@@ -194,6 +194,13 @@ public class ConfigWindow {
     //Replay tab
     private JCheckBox replayPanelRecordKBMouseCheckbox;
     private JCheckBox replayPanelRecordAutomaticallyCheckbox;
+    
+    //Presets tab
+    private JCheckBox presetsPanelCustomSettingsCheckbox;
+    private JSlider presetsPanelPresetSlider;
+    private JButton replaceConfigButton;
+    private JButton resetPresetsButton;
+    private int sliderValue = -1;
     
 	public ConfigWindow() {
 		try {
@@ -268,6 +275,7 @@ public class ConfigWindow {
 		/** The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of the window */
 		JPanel navigationPanel = new JPanel();
 		
+		JScrollPane presetsScrollPane = new JScrollPane();
 		JScrollPane generalScrollPane = new JScrollPane();
 		JScrollPane overlayScrollPane = new JScrollPane();
 		JScrollPane notificationScrollPane = new JScrollPane();
@@ -275,6 +283,7 @@ public class ConfigWindow {
 		JScrollPane keybindScrollPane = new JScrollPane();
         JScrollPane replayScrollPane = new JScrollPane();
 		
+        JPanel presetsPanel = new JPanel();
 		JPanel generalPanel = new JPanel();
 		JPanel overlayPanel = new JPanel();
 		JPanel notificationPanel = new JPanel();
@@ -285,12 +294,15 @@ public class ConfigWindow {
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_END);
 		
+        tabbedPane.addTab("Presets", null, presetsScrollPane, null);
 		tabbedPane.addTab("General", null, generalScrollPane, null); 
 		tabbedPane.addTab("Overlays", null, overlayScrollPane, null); 
 		tabbedPane.addTab("Notifications", null, notificationScrollPane, null);	
 		tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null); 
 		tabbedPane.addTab("Keybinds", null, keybindScrollPane, null); 
 		tabbedPane.addTab("Replay", null, replayScrollPane, null); 
+
+        presetsScrollPane.setViewportView(presetsPanel);
         generalScrollPane.setViewportView(generalPanel);
         overlayScrollPane.setViewportView(overlayPanel);
         notificationScrollPane.setViewportView(notificationPanel);
@@ -300,13 +312,15 @@ public class ConfigWindow {
 		
 		// Adding padding for aesthetics
 		navigationPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 10));
-		generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		presetsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		overlayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		notificationPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		streamingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		keybindPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         replayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
+        setScrollSpeed(presetsScrollPane, 20, 15);
 		setScrollSpeed(generalScrollPane, 20, 15);
 		setScrollSpeed(overlayScrollPane, 20, 15);
 		setScrollSpeed(notificationScrollPane, 20, 15);
@@ -353,7 +367,7 @@ public class ConfigWindow {
 			public void actionPerformed(ActionEvent e) {
 				int choice = JOptionPane.showConfirmDialog(
 						Launcher.getConfigWindow().frame,
-						"Are you sure you want to restore this tab's settings to their defaults?",
+						"Are you sure you want to restore all settings to their defaults?",
 						"Confirm",
 						JOptionPane.YES_NO_OPTION,
 						JOptionPane.QUESTION_MESSAGE);
@@ -361,7 +375,12 @@ public class ConfigWindow {
 					return;
 				}
 				
+                Settings.initSettings(); //make sure "default" is really default
+                Settings.save("default");
+                synchronizeGuiValues();
+                
 				// Restore defaults
+                /* TODO: reimplement per-tab defaults?
 				switch (tabbedPane.getSelectedIndex()) {
 				case 0:
 					Settings.restoreDefaultGeneral();
@@ -379,9 +398,11 @@ public class ConfigWindow {
 				case 4:
 					Settings.restoreDefaultKeybinds();
 					break;
+                //TODO more pages
 				default:
 					Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
 				}
+                */
 			}
 		});
 		
@@ -454,9 +475,6 @@ public class ConfigWindow {
 		generalPanelXPCenterAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown at the top-middle of the screen.");
 		XPAlignButtonGroup.add(generalPanelXPRightAlignFocusButton);
 		XPAlignButtonGroup.add(generalPanelXPCenterAlignFocusButton);
-		
-		generalPanelIndicatorsCheckbox = addCheckbox("Connection indicators", generalPanel);
-		generalPanelIndicatorsCheckbox.setToolTipText("When problems are wrong with your connection, rscplus will notify you");
 		
 		generalPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", generalPanel);
 		generalPanelFatigueDropsCheckbox.setToolTipText("Show the fatigue gained as an overlay each time fatigue is received");
@@ -715,6 +733,9 @@ public class ConfigWindow {
 		
 		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
 		overlayPanelNPCHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs and players");
+        
+        overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
+		overlayPanelLagIndicatorCheckbox.setToolTipText("When there's a problem with your connection, rscplus will tell you in the bottom right");
 		
 		overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
 		overlayPanelFoodHealingCheckbox.setToolTipText("When hovering on food, shows the HP a consumable recovers");
@@ -771,7 +792,7 @@ public class ConfigWindow {
 		
 		notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 		
-		addNotificationCategory(notificationPanel, "Notification Settings");
+		addSettingsHeader(notificationPanel, "Notification Settings");
 		
 		notificationPanelTrayPopupCheckbox = addCheckbox("Enable notification tray popups", notificationPanel);
 		notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
@@ -802,7 +823,7 @@ public class ConfigWindow {
 		notificationPanelUseSystemNotifsCheckbox
 				.setToolTipText("Uses built-in system notifications. Enable this to attempt to use your operating system's notification system instead of the built-in pop-up");
 		
-		addNotificationCategory(notificationPanel, "Notifications");
+		addSettingsHeader(notificationPanel, "Notifications");
 		
 		notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
 		notificationPanelPMNotifsCheckbox.setToolTipText("Shows a system notification when a PM is received");
@@ -935,8 +956,8 @@ public class ConfigWindow {
 		streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
 		streamingPanelTwitchOAuthTextField.setAlignmentY((float)0.75);
 		
-		streamingPanelIPAtLoginCheckbox = addCheckbox("Enable IP/DNS details at login welcome screen", streamingPanel);
-		streamingPanelIPAtLoginCheckbox.setToolTipText("Shows the last IP/DNS you last logged in from when you log in (Disable this if you're streaming)");
+		streamingPanelIPAtLoginCheckbox = addCheckbox("Show IP details at login welcome screen", streamingPanel);
+		streamingPanelIPAtLoginCheckbox.setToolTipText("Shows the last IP you last logged in from when you log in (Disable this if you're streaming)");
 		
 		streamingPanelSaveLoginCheckbox = addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
 		streamingPanelSaveLoginCheckbox.setToolTipText("Preserves login details between logins (Disable this if you're streaming)");
@@ -966,7 +987,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Toggle color coded text", "toggle_colorize", KeyModifier.CTRL, KeyEvent.VK_Z);
 		addKeybindSet(keybindPanel, "Toggle start with searched bank", "toggle_start_searched_bank", KeyModifier.CTRL, KeyEvent.VK_Q);
-		addKeybindSet(keybindPanel, "Toggle connection indicators", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
+		addKeybindSet(keybindPanel, "Toggle lag indicator", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
 		
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
@@ -984,7 +1005,7 @@ public class ConfigWindow {
 		
 		addKeybindCategory(keybindPanel, "Streaming & Privacy");
 		addKeybindSet(keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
-		addKeybindSet(keybindPanel, "Toggle IP/DNS shown at login screen", "toggle_ipdns", KeyModifier.CTRL, KeyEvent.VK_J);
+		addKeybindSet(keybindPanel, "Toggle IP shown at login screen", "toggle_ipdns", KeyModifier.CTRL, KeyEvent.VK_J);
 		// TODO: Uncomment the following line if this feature no longer requires a restart
 		// addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info", KeyModifier.NONE, -1);
 		
@@ -1015,6 +1036,88 @@ public class ConfigWindow {
         
         replayPanelRecordKBMouseCheckbox = addCheckbox("(EXPERIMENTAL) Record Keyboard and Mouse input for future replay recordings", replayPanel);
 		replayPanelRecordKBMouseCheckbox.setToolTipText("(EXPERIMENTAL) additionally record mouse and keyboard inputs when recording a session");
+        
+        /*
+         * Presets tab
+         */
+        presetsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+		presetsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        presetsPanel.setLayout(new BoxLayout(presetsPanel, BoxLayout.Y_AXIS));
+        
+        addSettingsHeader(presetsPanel, "Presets");
+        presetsPanelCustomSettingsCheckbox = addCheckbox("Custom Settings", presetsPanel);
+		presetsPanelCustomSettingsCheckbox.setToolTipText("Load settings from config.ini instead of using a preset");
+        
+        JPanel presetsPanelPresetSliderPanel = new JPanel();
+		presetsPanelPresetSliderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		presetsPanelPresetSliderPanel.setMaximumSize(new Dimension(400, 175));
+		presetsPanelPresetSliderPanel.setLayout(new BoxLayout(presetsPanelPresetSliderPanel, BoxLayout.X_AXIS));
+		presetsPanel.add(presetsPanelPresetSliderPanel);
+		
+        //these JLabels are purposely mispelled to give it that authentic RS1 feel
+        Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable = new Hashtable<Integer, JLabel>();
+        presetsPanelPresetSliderLabelTable.put(new Integer(0), new JLabel("every posible setting?!"));
+        presetsPanelPresetSliderLabelTable.put(new Integer(1), new JLabel("Overlay lovers"));
+        presetsPanelPresetSliderLabelTable.put(new Integer(2), new JLabel("Recommended settings"));
+        presetsPanelPresetSliderLabelTable.put(new Integer(3), new JLabel("\"lite\" overlays"));
+        presetsPanelPresetSliderLabelTable.put(new Integer(4), new JLabel("Resizable only\""));
+        presetsPanelPresetSliderLabelTable.put(new Integer(5), new JLabel("no interface changes"));
+        
+        presetsPanelPresetSlider = new JSlider();
+        presetsPanelPresetSlider.setMajorTickSpacing(1);
+        presetsPanelPresetSlider.setLabelTable(presetsPanelPresetSliderLabelTable);
+        presetsPanelPresetSlider.setPaintLabels(true);
+        presetsPanelPresetSlider.setPaintTicks(true);
+        presetsPanelPresetSlider.setSnapToTicks(true);
+        presetsPanelPresetSlider.setMinimum(0);
+        presetsPanelPresetSlider.setMaximum(5);
+        presetsPanelPresetSlider.setPreferredSize(new Dimension(100, 0));
+        presetsPanelPresetSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+        presetsPanelPresetSlider.setBorder(new EmptyBorder(0, 0, 5, 70));
+        presetsPanelPresetSlider.setOrientation(SwingConstants.VERTICAL);
+        presetsPanelPresetSliderPanel.add(presetsPanelPresetSlider);
+        
+        JPanel presetsButtonPanel = new JPanel();
+        presetsButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        presetsButtonPanel.setMaximumSize(new Dimension(300,50));
+        presetsButtonPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 0));
+		presetsButtonPanel.setLayout(new BoxLayout(presetsButtonPanel, BoxLayout.X_AXIS));
+        
+        replaceConfigButton = addButton("Replace Config with Preset", presetsButtonPanel, Component.LEFT_ALIGNMENT);
+        replaceConfigButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int choice = JOptionPane.showConfirmDialog(
+						Launcher.getConfigWindow().frame,
+						"Warning: this will delete your old settings! Are you sure you want to delete your old settings?",
+						"Confirm",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+				if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+				
+                Settings.save(Settings.currentProfile);
+            }
+        });
+        resetPresetsButton = addButton("Reset Presets", presetsButtonPanel, Component.RIGHT_ALIGNMENT);
+        resetPresetsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Logger.Info("Try saying that 10 times fast...");
+                Settings.initSettings();
+            }
+        });
+        presetsButtonPanel.add(Box.createHorizontalGlue());
+        presetsPanel.add(presetsButtonPanel);
+        
+        presetsPanelCustomSettingsCheckbox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                synchronizePresetOptions();
+            }
+        });
+
 	}
 	
 	/**
@@ -1162,9 +1265,9 @@ public class ConfigWindow {
 	 * @param panel Panel to add the title to.
 	 * @param categoryName Name of the category to add.
 	 */
-	private void addNotificationCategory(JPanel panel, String categoryName) {
-		addNotificationCategoryLabel(panel, "<html><b>" + categoryName + "</b></html>");
-		addNotificationCategorySeparator(panel);
+	private void addSettingsHeader(JPanel panel, String categoryName) {
+		addSettingsHeaderLabel(panel, "<html><b>" + categoryName + "</b></html>");
+		addSettingsHeaderSeparator(panel);
 	}
 	
 	/**
@@ -1172,7 +1275,7 @@ public class ConfigWindow {
 	 * 
 	 * @param panel Panel to add the separator to.
 	 */
-	private void addNotificationCategorySeparator(JPanel panel) {
+	private void addSettingsHeaderSeparator(JPanel panel) {
 		JSeparator jsep = new JSeparator(SwingConstants.HORIZONTAL);
 		jsep.setMaximumSize(new Dimension(Short.MAX_VALUE, 7));
 		panel.add(jsep);
@@ -1185,7 +1288,7 @@ public class ConfigWindow {
 	 * @param categoryName Name of the category to add.
 	 * @return The label that was added.
 	 */
-	private JLabel addNotificationCategoryLabel(JPanel panel, String categoryName) {
+	private JLabel addSettingsHeaderLabel(JPanel panel, String categoryName) {
 		JLabel jlbl = new JLabel(categoryName);
 		panel.add(jlbl);
 		return jlbl;
@@ -1256,33 +1359,46 @@ public class ConfigWindow {
 	 * Synchronizes all relevant values in the gui's elements to match those in Settings.java
 	 */
 	public void synchronizeGuiValues() {
+        
+        //Presets tab (has to go first to properly synchronizeGui)
+        presetsPanelCustomSettingsCheckbox.setSelected(Settings.currentProfile.equals("custom"));
+        synchronizePresetOptions();
+        
+        if (!Settings.currentProfile.equals("custom")) {
+            sliderValue = Settings.presetTable.indexOf(Settings.currentProfile);
+        }
+        if (sliderValue < 0 || sliderValue > Settings.presetTable.size()) {
+            sliderValue = Settings.presetTable.indexOf("default");
+        }
+        presetsPanelPresetSlider.setValue(sliderValue);
+        
 		// General tab
-		generalPanelClientSizeCheckbox.setSelected(Settings.CUSTOM_CLIENT_SIZE);
-		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X);
-		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y);
-		generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES);
-		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY); // TODO: Implement this feature
-		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU);
-		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS);
-		generalPanelXPCenterAlignFocusButton.setSelected(Settings.CENTER_XPDROPS);
-		generalPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS);
-		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
-		generalPanelIndicatorsCheckbox.setSelected(Settings.INDICATORS);
-		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS);
-		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES));
-		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT);
-		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT);
-		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE);
-		generalPanelCommandPatchModeSlider.setValue(Settings.COMMAND_PATCH_TYPE);
-		generalPanelBypassAttackCheckbox.setSelected(Settings.BYPASS_ATTACK);
-		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS);
-		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE);
-		generalPanelFoVSlider.setValue(Settings.FOV);
-		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR);
-		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE);
-		generalPanelStartSearchedBankCheckbox.setSelected(Settings.START_SEARCHEDBANK);
-		generalPanelSearchBankWordTextfield.setText(Settings.SEARCH_BANK_WORD);
+		generalPanelClientSizeCheckbox.setSelected(Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile));
+		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile));
+		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
+		generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
+		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
+		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
+		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS.get(Settings.currentProfile));
+		generalPanelXPCenterAlignFocusButton.setSelected(Settings.CENTER_XPDROPS.get(Settings.currentProfile));
+		generalPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS.get(Settings.currentProfile));
+		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
+		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
+		overlayPanelLagIndicatorCheckbox.setSelected(Settings.LAG_INDICATOR.get(Settings.currentProfile));
+		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile));
+		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES.get(Settings.currentProfile)));
+		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT.get(Settings.currentProfile));
+		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
+		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
+		generalPanelCommandPatchModeSlider.setValue(Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile));
+		generalPanelBypassAttackCheckbox.setSelected(Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
+		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
+		generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
+		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
+		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
+		generalPanelStartSearchedBankCheckbox.setSelected(Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
+		generalPanelSearchBankWordTextfield.setText(Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
 		
 		// Sets the text associated with the name patch slider.
 		switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -1304,51 +1420,51 @@ public class ConfigWindow {
 		}
 		
 		// Overlays tab
-		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_STATUSDISPLAY);
-		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS);
-		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT);
-		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS);
-		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEMINFO);
-		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYERINFO);
-		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIENDINFO);
-		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPCINFO);
-		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_HITBOX);
-		overlayPanelShowCombatInfoCheckbox.setSelected(Settings.SHOW_COMBAT_INFO);
-		overlayPanelUsePercentageCheckbox.setSelected(Settings.USE_PERCENTAGE);
-		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY); // TODO: Implement this feature
-		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN); // TODO: Implement this feature
-		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG);
-		highlightedItemsTextField.setText(Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS));
-		blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS));
+		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
+		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
+		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
+		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
+		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
+		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
+		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile));
+		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile));
+		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile));
+		overlayPanelShowCombatInfoCheckbox.setSelected(Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile));
+		overlayPanelUsePercentageCheckbox.setSelected(Settings.NPC_HEALTH_SHOW_PERCENTAGE.get(Settings.currentProfile));
+		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY.get(Settings.currentProfile)); // TODO: Implement this feature
+		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN.get(Settings.currentProfile)); // TODO: Implement this feature
+		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
+		highlightedItemsTextField.setText(Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
+		blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
 		
 		// Notifications tab
-		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS);
-		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS);
-		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS);
-		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS);
-		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS);
-		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE);
-		notificationPanelFatigueNotifsCheckbox.setSelected(Settings.FATIGUE_NOTIFICATIONS);
-		notificationPanelFatigueNotifsSpinner.setValue(Settings.FATIGUE_NOTIF_VALUE);
-		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS);
-		notificationPanelUseSystemNotifsCheckbox.setSelected(Settings.USE_SYSTEM_NOTIFICATIONS);
-		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS);
-		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS);
-		notificationPanelNotifSoundClientFocusButton.setSelected(!Settings.SOUND_NOTIFS_ALWAYS);
-		notificationPanelNotifSoundAnyFocusButton.setSelected(Settings.SOUND_NOTIFS_ALWAYS);
+		notificationPanelPMNotifsCheckbox.setSelected(Settings.PM_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelTradeNotifsCheckbox.setSelected(Settings.TRADE_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelDuelNotifsCheckbox.setSelected(Settings.DUEL_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelLogoutNotifsCheckbox.setSelected(Settings.LOGOUT_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelLowHPNotifsCheckbox.setSelected(Settings.LOW_HP_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelLowHPNotifsSpinner.setValue(Settings.LOW_HP_NOTIF_VALUE.get(Settings.currentProfile));
+		notificationPanelFatigueNotifsCheckbox.setSelected(Settings.FATIGUE_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelFatigueNotifsSpinner.setValue(Settings.FATIGUE_NOTIF_VALUE.get(Settings.currentProfile));
+		notificationPanelNotifSoundsCheckbox.setSelected(Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile));
+		notificationPanelUseSystemNotifsCheckbox.setSelected(Settings.USE_SYSTEM_NOTIFICATIONS.get(Settings.currentProfile));
+		notificationPanelTrayPopupCheckbox.setSelected(Settings.TRAY_NOTIFS.get(Settings.currentProfile));
+		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
+		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
+		notificationPanelNotifSoundClientFocusButton.setSelected(!Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
+		notificationPanelNotifSoundAnyFocusButton.setSelected(Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
 		
 		// Streaming & Privacy tab
-		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE);
-		streamingPanelTwitchChannelNameTextField.setText(Settings.TWITCH_CHANNEL);
-		streamingPanelTwitchOAuthTextField.setText(Settings.TWITCH_OAUTH);
-		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME);
-		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGINDETAILS);
-		streamingPanelSaveLoginCheckbox.setSelected(Settings.SAVE_LOGININFO);
+		streamingPanelTwitchChatCheckbox.setSelected(Settings.TWITCH_HIDE_CHAT.get(Settings.currentProfile));
+		streamingPanelTwitchChannelNameTextField.setText(Settings.TWITCH_CHANNEL.get(Settings.currentProfile));
+		streamingPanelTwitchOAuthTextField.setText(Settings.TWITCH_OAUTH.get(Settings.currentProfile));
+		streamingPanelTwitchUserTextField.setText(Settings.TWITCH_USERNAME.get(Settings.currentProfile));
+		streamingPanelIPAtLoginCheckbox.setSelected(Settings.SHOW_LOGIN_IP_ADDRESS.get(Settings.currentProfile));
+		streamingPanelSaveLoginCheckbox.setSelected(Settings.SAVE_LOGININFO.get(Settings.currentProfile));
 		
         // Replay tab
-        replayPanelRecordAutomaticallyCheckbox.setSelected(Settings.RECORD_AUTOMATICALLY);
-        replayPanelRecordKBMouseCheckbox.setSelected(Settings.RECORD_KB_MOUSE);
+        replayPanelRecordAutomaticallyCheckbox.setSelected(Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
+        replayPanelRecordKBMouseCheckbox.setSelected(Settings.RECORD_KB_MOUSE.get(Settings.currentProfile));
         
 		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
 			setKeybindButtonText(kbs);
@@ -1360,74 +1476,98 @@ public class ConfigWindow {
 	 */
 	public void saveSettings() {
 		// General options
-		Settings.CUSTOM_CLIENT_SIZE = generalPanelClientSizeCheckbox.isSelected();
-		Settings.CUSTOM_CLIENT_SIZE_X = ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue();
-		Settings.CUSTOM_CLIENT_SIZE_Y = ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue();
-		Settings.CHECK_UPDATES = generalPanelCheckUpdates.isSelected();
-		Settings.LOAD_CHAT_HISTORY = generalPanelChatHistoryCheckbox.isSelected();
-		Settings.COMBAT_MENU = generalPanelCombatXPMenuCheckbox.isSelected();
-		Settings.SHOW_XPDROPS = generalPanelXPDropsCheckbox.isSelected();
-		Settings.CENTER_XPDROPS = generalPanelXPCenterAlignFocusButton.isSelected();
-		Settings.INDICATORS = generalPanelIndicatorsCheckbox.isSelected();
-		Settings.SHOW_FATIGUEDROPS = generalPanelFatigueDropsCheckbox.isSelected();
-		Settings.FATIGUE_FIGURES = ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue();
-		Settings.FATIGUE_ALERT = generalPanelFatigueAlertCheckbox.isSelected();
-		Settings.INVENTORY_FULL_ALERT = generalPanelInventoryFullAlertCheckbox.isSelected();
-		Settings.NAME_PATCH_TYPE = generalPanelNamePatchModeSlider.getValue();
-		Settings.COMMAND_PATCH_TYPE = generalPanelCommandPatchModeSlider.getValue();
-		Settings.BYPASS_ATTACK = generalPanelBypassAttackCheckbox.isSelected();
-		Settings.HIDE_ROOFS = generalPanelRoofHidingCheckbox.isSelected();
-		Settings.COLORIZE = generalPanelColoredTextCheckbox.isSelected();
-		Settings.FOV = generalPanelFoVSlider.getValue();
-		Settings.SOFTWARE_CURSOR = generalPanelCustomCursorCheckbox.isSelected();
-		Settings.VIEW_DISTANCE = generalPanelViewDistanceSlider.getValue();
-		Settings.START_SEARCHEDBANK = generalPanelStartSearchedBankCheckbox.isSelected();
-		Settings.SEARCH_BANK_WORD = generalPanelSearchBankWordTextfield.getText().trim().toLowerCase();
+		Settings.CUSTOM_CLIENT_SIZE.put(Settings.currentProfile, generalPanelClientSizeCheckbox.isSelected());
+		Settings.CUSTOM_CLIENT_SIZE_X.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue());
+		Settings.CUSTOM_CLIENT_SIZE_Y.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
+		Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
+		Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
+		Settings.COMBAT_MENU_SHOWN.put(Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
+		Settings.SHOW_XPDROPS.put(Settings.currentProfile, generalPanelXPDropsCheckbox.isSelected());
+		Settings.CENTER_XPDROPS.put(Settings.currentProfile, generalPanelXPCenterAlignFocusButton.isSelected());
+		Settings.SHOW_FATIGUEDROPS.put(Settings.currentProfile, generalPanelFatigueDropsCheckbox.isSelected());
+		Settings.FATIGUE_FIGURES.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue());
+		Settings.FATIGUE_ALERT.put(Settings.currentProfile, generalPanelFatigueAlertCheckbox.isSelected());
+		Settings.INVENTORY_FULL_ALERT.put(Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
+		Settings.NAME_PATCH_TYPE.put(Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());
+		Settings.COMMAND_PATCH_TYPE.put(Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
+		Settings.ATTACK_ALWAYS_LEFT_CLICK.put(Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+		Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
+		Settings.COLORIZE_CONSOLE_TEXT.put(Settings.currentProfile, generalPanelColoredTextCheckbox.isSelected());
+		Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
+		Settings.SOFTWARE_CURSOR.put(Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
+		Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
+		Settings.START_SEARCHEDBANK.put(Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
+		Settings.SEARCH_BANK_WORD.put(Settings.currentProfile, generalPanelSearchBankWordTextfield.getText().trim().toLowerCase());
 		
 		// Overlays options
-		Settings.SHOW_STATUSDISPLAY = overlayPanelStatusDisplayCheckbox.isSelected();
-		Settings.SHOW_BUFFS = overlayPanelBuffsCheckbox.isSelected();
-		Settings.SHOW_INVCOUNT = overlayPanelInvCountCheckbox.isSelected();
-		Settings.SHOW_RETRO_FPS = overlayPanelRetroFpsCheckbox.isSelected();
-		Settings.SHOW_ITEMINFO = overlayPanelItemNamesCheckbox.isSelected();
-		Settings.SHOW_PLAYERINFO = overlayPanelPlayerNamesCheckbox.isSelected();
-		Settings.SHOW_FRIENDINFO = overlayPanelFriendNamesCheckbox.isSelected();
-		Settings.SHOW_NPCINFO = overlayPanelNPCNamesCheckbox.isSelected();
-		Settings.SHOW_HITBOX = overlayPanelNPCHitboxCheckbox.isSelected();
-		Settings.SHOW_COMBAT_INFO = overlayPanelShowCombatInfoCheckbox.isSelected();
-		Settings.USE_PERCENTAGE = overlayPanelUsePercentageCheckbox.isSelected();
-		Settings.SHOW_FOOD_HEAL_OVERLAY = overlayPanelFoodHealingCheckbox.isSelected();
-		Settings.SHOW_TIME_UNTIL_HP_REGEN = overlayPanelHPRegenTimerCheckbox.isSelected();
-		Settings.DEBUG = overlayPanelDebugModeCheckbox.isSelected();
-		Settings.HIGHLIGHTED_ITEMS = new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(",")));
-		Settings.BLOCKED_ITEMS = new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(",")));
+		Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
+		Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
+		Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
+		Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());
+		Settings.SHOW_ITEM_GROUND_OVERLAY.put(Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
+		Settings.SHOW_PLAYER_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
+		Settings.SHOW_FRIEND_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelFriendNamesCheckbox.isSelected());
+		Settings.SHOW_NPC_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelNPCNamesCheckbox.isSelected());
+		Settings.SHOW_NPC_HITBOX.put(Settings.currentProfile, overlayPanelNPCHitboxCheckbox.isSelected());
+		Settings.SHOW_COMBAT_INFO.put(Settings.currentProfile, overlayPanelShowCombatInfoCheckbox.isSelected());
+		Settings.NPC_HEALTH_SHOW_PERCENTAGE.put(Settings.currentProfile, overlayPanelUsePercentageCheckbox.isSelected());
+		Settings.SHOW_FOOD_HEAL_OVERLAY.put(Settings.currentProfile, overlayPanelFoodHealingCheckbox.isSelected());
+		Settings.SHOW_TIME_UNTIL_HP_REGEN.put(Settings.currentProfile, overlayPanelHPRegenTimerCheckbox.isSelected());
+        Settings.LAG_INDICATOR.put(Settings.currentProfile, overlayPanelLagIndicatorCheckbox.isSelected());
+		Settings.DEBUG.put(Settings.currentProfile, overlayPanelDebugModeCheckbox.isSelected());
+		Settings.HIGHLIGHTED_ITEMS.put("custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
+		Settings.BLOCKED_ITEMS.put("custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
 
 		// Notifications options
-		Settings.PM_NOTIFICATIONS = notificationPanelPMNotifsCheckbox.isSelected();
-		Settings.TRADE_NOTIFICATIONS = notificationPanelTradeNotifsCheckbox.isSelected();
-		Settings.DUEL_NOTIFICATIONS = notificationPanelDuelNotifsCheckbox.isSelected();
-		Settings.LOGOUT_NOTIFICATIONS = notificationPanelLogoutNotifsCheckbox.isSelected();
-		Settings.LOW_HP_NOTIFICATIONS = notificationPanelLowHPNotifsCheckbox.isSelected();
-		Settings.LOW_HP_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelLowHPNotifsSpinner.getModel())).getNumber().intValue();
-		Settings.FATIGUE_NOTIFICATIONS = notificationPanelFatigueNotifsCheckbox.isSelected();
-		Settings.FATIGUE_NOTIF_VALUE = ((SpinnerNumberModel)(notificationPanelFatigueNotifsSpinner.getModel())).getNumber().intValue();
-		Settings.NOTIFICATION_SOUNDS = notificationPanelNotifSoundsCheckbox.isSelected();
-		Settings.USE_SYSTEM_NOTIFICATIONS = notificationPanelUseSystemNotifsCheckbox.isSelected();
-		Settings.TRAY_NOTIFS = notificationPanelTrayPopupCheckbox.isSelected();
-		Settings.TRAY_NOTIFS_ALWAYS = notificationPanelTrayPopupAnyFocusButton.isSelected();
-		Settings.SOUND_NOTIFS_ALWAYS = notificationPanelNotifSoundAnyFocusButton.isSelected();
+		Settings.PM_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelPMNotifsCheckbox.isSelected());
+		Settings.TRADE_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelTradeNotifsCheckbox.isSelected());
+		Settings.DUEL_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelDuelNotifsCheckbox.isSelected());
+		Settings.LOGOUT_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelLogoutNotifsCheckbox.isSelected());
+		Settings.LOW_HP_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelLowHPNotifsCheckbox.isSelected());
+		Settings.LOW_HP_NOTIF_VALUE.put(Settings.currentProfile, ((SpinnerNumberModel)(notificationPanelLowHPNotifsSpinner.getModel())).getNumber().intValue());
+		Settings.FATIGUE_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelFatigueNotifsCheckbox.isSelected());
+		Settings.FATIGUE_NOTIF_VALUE.put(Settings.currentProfile, ((SpinnerNumberModel)(notificationPanelFatigueNotifsSpinner.getModel())).getNumber().intValue());
+		Settings.NOTIFICATION_SOUNDS.put(Settings.currentProfile, notificationPanelNotifSoundsCheckbox.isSelected());
+		Settings.USE_SYSTEM_NOTIFICATIONS.put(Settings.currentProfile, notificationPanelUseSystemNotifsCheckbox.isSelected());
+		Settings.TRAY_NOTIFS.put(Settings.currentProfile, notificationPanelTrayPopupCheckbox.isSelected());
+		Settings.TRAY_NOTIFS_ALWAYS.put(Settings.currentProfile, notificationPanelTrayPopupAnyFocusButton.isSelected());
+		Settings.SOUND_NOTIFS_ALWAYS.put(Settings.currentProfile, notificationPanelNotifSoundAnyFocusButton.isSelected());
 		
 		// Streaming & Privacy
-		Settings.TWITCH_HIDE = streamingPanelTwitchChatCheckbox.isSelected();
-		Settings.TWITCH_CHANNEL = streamingPanelTwitchChannelNameTextField.getText();
-		Settings.TWITCH_OAUTH = streamingPanelTwitchOAuthTextField.getText();
-		Settings.TWITCH_USERNAME = streamingPanelTwitchUserTextField.getText();
-		Settings.SHOW_LOGINDETAILS = streamingPanelIPAtLoginCheckbox.isSelected();
-		Settings.SAVE_LOGININFO = streamingPanelSaveLoginCheckbox.isSelected();
+		Settings.TWITCH_HIDE_CHAT.put(Settings.currentProfile, streamingPanelTwitchChatCheckbox.isSelected());
+		Settings.TWITCH_CHANNEL.put(Settings.currentProfile, streamingPanelTwitchChannelNameTextField.getText());
+		Settings.TWITCH_OAUTH.put(Settings.currentProfile, streamingPanelTwitchOAuthTextField.getText());
+		Settings.TWITCH_USERNAME.put(Settings.currentProfile, streamingPanelTwitchUserTextField.getText());
+		Settings.SHOW_LOGIN_IP_ADDRESS.put(Settings.currentProfile, streamingPanelIPAtLoginCheckbox.isSelected());
+		Settings.SAVE_LOGININFO.put(Settings.currentProfile, streamingPanelSaveLoginCheckbox.isSelected());
         
         // Replay
-        Settings.RECORD_AUTOMATICALLY = replayPanelRecordAutomaticallyCheckbox.isSelected();
-        Settings.RECORD_KB_MOUSE = replayPanelRecordKBMouseCheckbox.isSelected();
+        Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
+        Settings.RECORD_KB_MOUSE.put(Settings.currentProfile, replayPanelRecordKBMouseCheckbox.isSelected());
+        
+        // Presets
+        if (presetsPanelCustomSettingsCheckbox.isSelected()) {
+            if (!Settings.currentProfile.equals("custom")) {
+                Settings.currentProfile = "custom";
+                Logger.Info("Changed to custom profile");
+            }
+        } else {
+            String lastPresetValue = Settings.currentProfile;
+
+            int presetValue = presetsPanelPresetSlider.getValue();
+            if(presetValue >= 0 && presetValue <= Settings.presetTable.size()) {
+                Settings.currentProfile = Settings.presetTable.get(presetValue);
+            } else { //not custom, and also out of range for presetTable
+                Logger.Error("presetsPanelPresetSlider out of range of Settings.presetTable");
+            }
+
+            if (!lastPresetValue.equals(Settings.currentProfile)) {
+                String saveMe = Settings.currentProfile;
+                Settings.initSettings(); //reset preset values to their defaults
+                Settings.currentProfile = saveMe;
+                Logger.Info("Changed to " + Settings.currentProfile + " preset");
+            }
+        }
 		
 		Settings.save();
 	}
@@ -1455,14 +1595,31 @@ public class ConfigWindow {
 	 */
 	public void applySettings() {
 		saveSettings();
-		if (Settings.CUSTOM_CLIENT_SIZE)
+		if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile))
 			Game.getInstance().resizeFrameWithContents();
 		// Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
 		Settings.fovUpdateRequired = true;
 		Settings.checkSoftwareCursor();
-		Camera.setDistance(Settings.VIEW_DISTANCE);
-		
+		Camera.setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
+		synchronizeGuiValues();
 	}
+    
+    public void synchronizePresetOptions() {
+        if (presetsPanelCustomSettingsCheckbox.isSelected()) {
+            if (sliderValue == -1) {
+                presetsPanelPresetSlider.setValue(Settings.presetTable.indexOf("default"));
+            } else {
+                presetsPanelPresetSlider.setValue(sliderValue);
+            }
+            presetsPanelPresetSlider.setEnabled(false);
+            replaceConfigButton.setEnabled(false);
+            resetPresetsButton.setEnabled(false);
+        } else {
+            presetsPanelPresetSlider.setEnabled(true);
+            replaceConfigButton.setEnabled(true);
+            resetPresetsButton.setEnabled(true);
+        }
+    }
 }
 
 /**
