@@ -26,6 +26,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180610.000341;
+	public static final double VERSION_NUMBER = 20180610.224440;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -962,6 +963,17 @@ public class Settings {
 		// Load settings
 		try {
 			Properties props = new Properties();
+
+			File configFile = new File(Dir.JAR + "/config.ini");
+			if (!configFile.isDirectory()) {
+				if (!configFile.exists()) {
+					definePresets(props);
+					save("default");
+				}
+			} else {
+				Logger.Info("Please delete the directory you've called config.ini");
+			}
+
 			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
 			Logger.Info("Loaded config.ini");
 			props.load(in);

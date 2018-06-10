@@ -102,7 +102,7 @@ public class Launcher extends JFrame implements Runnable {
 	@Override
 	public void run() {
 		// Generates a config file if needed
-		Settings.save();
+		Settings.save("default");
 		
 		if (Settings.UPDATE_CONFIRMATION.get(Settings.currentProfile)) {
 			int response = JOptionPane.showConfirmDialog(this, "rscplus has an automatic update feature.\n" +
