@@ -115,6 +115,8 @@ public class Renderer {
 	
 	private static boolean macOS_resize_workaround = Util.isMacOS();
     private static boolean showRecordAlwaysDialogueThisFrame = false;
+    
+    public static boolean quietScreenshot = false;
 	
 	public static void init() {
 		// patch copyright to match current year
@@ -256,7 +258,7 @@ public class Renderer {
 						show = true;
 					}
 					
-					if (Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile)) {
+					if (Settings.SHOW_HITBOX.get(Settings.currentProfile)) {
 						List<Rectangle> hitbox = player_hitbox;
 						boolean showHitbox = true;
 						
@@ -317,7 +319,7 @@ public class Renderer {
 				for (Iterator<Item> iterator = Client.item_list.iterator(); iterator.hasNext();) {
 					Item item = iterator.next(); // TODO: Remove unnecessary allocations
 					
-					if (Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile)) {
+					if (Settings.SHOW_HITBOX.get(Settings.currentProfile)) {
 						boolean show = true;
 						for (Iterator<Rectangle> boxIterator = item_hitbox.iterator(); boxIterator.hasNext();) {
 							Rectangle rect = boxIterator.next(); // TODO: Remove unnecessary allocations
@@ -376,6 +378,9 @@ public class Renderer {
 						last_item = item; // Done with item this loop, can save it as last_item
 					}
 				}
+				
+				Client.processFatigueXPDrops();
+				
 			}
 			
 			if (!Client.isSleeping()) {
@@ -897,7 +902,8 @@ public class Renderer {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 				String fname = Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
 				ImageIO.write(game_image, "png", new File(fname));
-				Client.displayMessage("@cya@Screenshot saved to '" + fname + "'", Client.CHAT_NONE);
+				if (!quietScreenshot)
+					Client.displayMessage("@cya@Screenshot saved to '" + fname + "'", Client.CHAT_NONE);
 			} catch (Exception e) {
 			}
 			screenshot = false;
@@ -1019,7 +1025,8 @@ public class Renderer {
 		g.drawString(text, textX, textY);
 	}
 	
-	public static void takeScreenshot() {
+	public static void takeScreenshot(boolean quiet) {
+		quietScreenshot = quiet;
 		screenshot = true;
 	}
 	

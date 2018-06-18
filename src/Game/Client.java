@@ -347,52 +347,6 @@ public class Client {
 		if (state == STATE_GAME) {
 			Client.getPlayerName();
 			Client.adaptLoginInfo();
-			
-			// Process XP drops
-			boolean dropXP = xpdrop_state[SKILL_HP] > 0.0f; // TODO: Declare dropXP outside of the update method
-			for (int i = 0; i < xpdrop_state.length; i++) {
-				float xpGain = getXP(i) - xpdrop_state[i]; // TODO: Declare xpGain outside of the update method
-				xpdrop_state[i] += xpGain;
-				
-				if (xpGain > 0.0f && dropXP) {
-					if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
-						xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")", Renderer.color_text);
-					
-					// XP/hr calculations
-					// TODO: After 5-10 minutes of tracking XP, make it display a rolling average instead of a session
-					// average
-					if ((System.currentTimeMillis() - lastXpGain[i][1]) <= 180000) {
-						// < 3 minutes since last XP drop
-						lastXpGain[i][0] = xpGain + lastXpGain[i][0];
-						xpPerHour[i] = 3600 * (lastXpGain[i][0]) / ((System.currentTimeMillis() - lastXpGain[i][2]) / 1000);
-						lastXpGain[i][3]++;
-						showXpPerHour[i] = true;
-						lastXpGain[i][1] = System.currentTimeMillis();
-					} else {
-						lastXpGain[i][0] = xpGain;
-						lastXpGain[i][1] = lastXpGain[i][2] = System.currentTimeMillis();
-						lastXpGain[i][3] = 0;
-						showXpPerHour[i] = false;
-					}
-					
-					if (i == SKILL_HP && xpbar.current_skill != -1)
-						continue;
-					
-					xpbar.setSkill(i);
-				}
-			}
-			// Process fatigue drops
-			if (Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile)) {
-				final float actualFatigue = getActualFatigue();
-				final float fatigueGain = actualFatigue - currentFatigue;
-				if (fatigueGain > 0.0f && !isWelcomeScreen()) {
-					xpdrop_handler.add("+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile)) + "% (Fatigue)", Renderer.color_fatigue);
-					currentFatigue = actualFatigue;
-				}
-			}
-			// Prevents a fatigue drop upon first login during a session
-			if (isWelcomeScreen() && currentFatigue != getActualFatigue())
-				currentFatigue = getActualFatigue();
 		}
 		
 		Game.getInstance().updateTitle();
@@ -411,6 +365,54 @@ public class Client {
 			update_timer = time + 1000;
 			updates = 0;
 		}
+	}
+	
+	public static void processFatigueXPDrops() {
+		// Process XP drops
+		boolean dropXP = xpdrop_state[SKILL_HP] > 0.0f; // TODO: Declare dropXP outside of this method
+		for (int i = 0; i < xpdrop_state.length; i++) {
+			float xpGain = getXP(i) - xpdrop_state[i]; // TODO: Declare xpGain outside of this method
+			xpdrop_state[i] += xpGain;
+			
+			if (xpGain > 0.0f && dropXP) {
+				if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
+					xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")", Renderer.color_text);
+				
+				// XP/hr calculations
+				// TODO: After 5-10 minutes of tracking XP, make it display a rolling average instead of a session
+				// average
+				if ((System.currentTimeMillis() - lastXpGain[i][1]) <= 180000) {
+					// < 3 minutes since last XP drop
+					lastXpGain[i][0] = xpGain + lastXpGain[i][0];
+					xpPerHour[i] = 3600 * (lastXpGain[i][0]) / ((System.currentTimeMillis() - lastXpGain[i][2]) / 1000);
+					lastXpGain[i][3]++;
+					showXpPerHour[i] = true;
+					lastXpGain[i][1] = System.currentTimeMillis();
+				} else {
+					lastXpGain[i][0] = xpGain;
+					lastXpGain[i][1] = lastXpGain[i][2] = System.currentTimeMillis();
+					lastXpGain[i][3] = 0;
+					showXpPerHour[i] = false;
+				}
+				
+				if (i == SKILL_HP && xpbar.current_skill != -1)
+					continue;
+				
+				xpbar.setSkill(i);
+			}
+		}
+		// Process fatigue drops
+		if (Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile)) {
+			final float actualFatigue = getActualFatigue();
+			final float fatigueGain = actualFatigue - currentFatigue;
+			if (fatigueGain > 0.0f && !isWelcomeScreen()) {
+				xpdrop_handler.add("+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile)) + "% (Fatigue)", Renderer.color_fatigue);
+				currentFatigue = actualFatigue;
+			}
+		}
+		// Prevents a fatigue drop upon first login during a session
+		if (isWelcomeScreen() && currentFatigue != getActualFatigue())
+			currentFatigue = getActualFatigue();	
 	}
 	
 	public static void init_login() {
@@ -634,7 +636,7 @@ public class Client {
 				Client.sleep();
 				break;
 			case "screenshot":
-				Renderer.takeScreenshot();
+				Renderer.takeScreenshot(false);
 				break;
 			case "debug":
 				Settings.toggleDebug();
@@ -1186,6 +1188,12 @@ public class Client {
 		// Everything below here won't effect game while seeking
 		if (Replay.isSeeking)
 			return;
+
+		//Don't output private messages if option is turned on and replaying
+		if (Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile) && Replay.isPlaying) {
+			if (type == CHAT_PRIVATE_LOG_IN_OUT || type == CHAT_PRIVATE || type == CHAT_PRIVATE_OUTGOING)
+				return;
+		}
 		
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
@@ -1289,8 +1297,12 @@ public class Client {
 		boolean whiteMessage = colorMessage.contains("Welcome to RuneScape!"); // want this to be bold
 		boolean blueMessage = (type == CHAT_NONE) && (colorMessage.contains("You have been standing here for 5 mins! Please move to a new area"));
 		boolean yellowMessage = (type == CHAT_NONE) && (colorMessage.contains("Well Done")); //tourist trap completion
-		boolean greenMessage = (type == CHAT_NONE) && (colorMessage.contains("You just advanced ") || colorMessage.contains("quest point") || colorMessage.contains("***") || colorMessage.contains("ou have completed")); //"***" is for Tourist Trap completion
-		greenMessage = greenMessage || (type == CHAT_NONE && colorMessage.contains("poisioned!"));
+		boolean screenshotMessage = (type == CHAT_NONE) && (colorMessage.contains("You just advanced ") || colorMessage.contains("quest point") || colorMessage.contains("ou have completed"));
+		boolean greenMessage = screenshotMessage || (type == CHAT_NONE && (colorMessage.contains("poisioned!") || colorMessage.contains("***"))); //"***" is for Tourist Trap completion
+		
+		if (screenshotMessage && Settings.AUTO_SCREENSHOT.get(Settings.currentProfile) && !Replay.isPlaying) {
+			Renderer.takeScreenshot(true);
+		}		
 		
 		if (blueMessage) { // this is one of the messages which we must overwrite expected color for
 			return "@|cyan,intensity_faint " + colorMessage + "|@";

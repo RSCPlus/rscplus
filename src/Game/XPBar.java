@@ -95,6 +95,11 @@ public class XPBar {
 		else
 			xp_bar_x = Renderer.width - 210 - bounds.width; // Position to the left of the Settings wrench
 			
+		// need to 	exit *after* setting xp_bar_x because XPDropHandler needs it
+		if (!Settings.SHOW_XP_BAR.get(Settings.currentProfile)) {
+			return;
+		}
+		
 		int percent = xp * (bounds.width - 2) / xp_needed;
 		
 		int x = xp_bar_x;

@@ -50,7 +50,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180611.175255;
+	public static final double VERSION_NUMBER = 20180618.033946;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -108,6 +108,8 @@ public class Settings {
             = new HashMap<String, Integer>();
     public static HashMap<String, Boolean>    SOFTWARE_CURSOR
             = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean>    AUTO_SCREENSHOT
+            = new HashMap<String, Boolean>();
     public static HashMap<String, Integer>    VIEW_DISTANCE
             = new HashMap<String, Integer>();
     public static HashMap<String, Boolean>    START_SEARCHEDBANK
@@ -136,7 +138,11 @@ public class Settings {
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    NPC_HEALTH_SHOW_PERCENTAGE
             = new HashMap<String, Boolean>();
-    public static HashMap<String, Boolean>    SHOW_NPC_HITBOX
+    public static HashMap<String, Boolean>    SHOW_HITBOX
+            = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean>    SHOW_XP_BAR
+            = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean>    LAG_INDICATOR
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    SHOW_FOOD_HEAL_OVERLAY
             = new HashMap<String, Boolean>();
@@ -196,7 +202,7 @@ public class Settings {
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    RECORD_AUTOMATICALLY
             = new HashMap<String, Boolean>();
-    public static HashMap<String, Boolean>    LAG_INDICATOR
+    public static HashMap<String, Boolean>    HIDE_PRIVATE_MSGS_REPLAY //only hides, still in data
             = new HashMap<String, Boolean>();
 
     //// nogui
@@ -437,6 +443,15 @@ public class Settings {
         VIEW_DISTANCE.put("all",     10000);
         VIEW_DISTANCE.put("custom",
             getPropInt(props, "view_distance", VIEW_DISTANCE.get("default")));
+            
+		AUTO_SCREENSHOT.put("vanilla", false);
+        AUTO_SCREENSHOT.put("vanilla_resizable", false);
+        AUTO_SCREENSHOT.put("lite",    false);
+        AUTO_SCREENSHOT.put("default", true);
+        AUTO_SCREENSHOT.put("heavy",   true);
+        AUTO_SCREENSHOT.put("all",     true);
+        AUTO_SCREENSHOT.put("custom",
+            getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
 
         START_SEARCHEDBANK.put("vanilla", false);
         START_SEARCHEDBANK.put("vanilla_resizable", false);
@@ -529,6 +544,15 @@ public class Settings {
         SHOW_COMBAT_INFO.put("custom",
             getPropBoolean(props, "show_combat_info", SHOW_COMBAT_INFO.get("default")));
 
+        LAG_INDICATOR.put("vanilla", false);
+        LAG_INDICATOR.put("vanilla_resizable", false);
+        LAG_INDICATOR.put("lite",    false);
+        LAG_INDICATOR.put("default", true);
+        LAG_INDICATOR.put("heavy",   true);
+        LAG_INDICATOR.put("all",     true);
+        LAG_INDICATOR.put("custom",
+            getPropBoolean(props, "indicators", LAG_INDICATOR.get("default")));
+
         SHOW_RETRO_FPS.put("vanilla", false);
         SHOW_RETRO_FPS.put("vanilla_resizable", false);
         SHOW_RETRO_FPS.put("lite",    false);
@@ -537,6 +561,15 @@ public class Settings {
         SHOW_RETRO_FPS.put("all",     true);
         SHOW_RETRO_FPS.put("custom",
             getPropBoolean(props, "show_retro_fps", SHOW_RETRO_FPS.get("default")));
+        
+		SHOW_XP_BAR.put("vanilla", false);
+        SHOW_XP_BAR.put("vanilla_resizable", false);
+        SHOW_XP_BAR.put("lite",    false);
+        SHOW_XP_BAR.put("default", true);
+        SHOW_XP_BAR.put("heavy",   true);
+        SHOW_XP_BAR.put("all",     true);
+        SHOW_XP_BAR.put("custom",
+            getPropBoolean(props, "show_xp_bar", SHOW_XP_BAR.get("default")));
 
         NPC_HEALTH_SHOW_PERCENTAGE.put("vanilla", false);
         NPC_HEALTH_SHOW_PERCENTAGE.put("vanilla_resizable", false);
@@ -547,14 +580,14 @@ public class Settings {
         NPC_HEALTH_SHOW_PERCENTAGE.put("custom",
             getPropBoolean(props, "use_percentage", NPC_HEALTH_SHOW_PERCENTAGE.get("default")));
 
-        SHOW_NPC_HITBOX.put("vanilla", false);
-        SHOW_NPC_HITBOX.put("vanilla_resizable", false);
-        SHOW_NPC_HITBOX.put("lite",    false);
-        SHOW_NPC_HITBOX.put("default", false);
-        SHOW_NPC_HITBOX.put("heavy",   false);
-        SHOW_NPC_HITBOX.put("all",     true);
-        SHOW_NPC_HITBOX.put("custom",
-            getPropBoolean(props, "show_hitbox", SHOW_NPC_HITBOX.get("default")));
+        SHOW_HITBOX.put("vanilla", false);
+        SHOW_HITBOX.put("vanilla_resizable", false);
+        SHOW_HITBOX.put("lite",    false);
+        SHOW_HITBOX.put("default", false);
+        SHOW_HITBOX.put("heavy",   false);
+        SHOW_HITBOX.put("all",     true);
+        SHOW_HITBOX.put("custom",
+            getPropBoolean(props, "show_hitbox", SHOW_HITBOX.get("default")));
 
         SHOW_FOOD_HEAL_OVERLAY.put("vanilla", false);
         SHOW_FOOD_HEAL_OVERLAY.put("vanilla_resizable", false);
@@ -792,15 +825,15 @@ public class Settings {
         RECORD_AUTOMATICALLY.put("all",     true);
         RECORD_AUTOMATICALLY.put("custom",
             getPropBoolean(props, "record_automatically", RECORD_AUTOMATICALLY.get("default")));
-
-        LAG_INDICATOR.put("vanilla", false);
-        LAG_INDICATOR.put("vanilla_resizable", false);
-        LAG_INDICATOR.put("lite",    false);
-        LAG_INDICATOR.put("default", true);
-        LAG_INDICATOR.put("heavy",   true);
-        LAG_INDICATOR.put("all",     true);
-        LAG_INDICATOR.put("custom",
-            getPropBoolean(props, "indicators", LAG_INDICATOR.get("default")));
+		
+		HIDE_PRIVATE_MSGS_REPLAY.put("vanilla", false);
+        HIDE_PRIVATE_MSGS_REPLAY.put("vanilla_resizable", false);
+        HIDE_PRIVATE_MSGS_REPLAY.put("lite",    false);
+        HIDE_PRIVATE_MSGS_REPLAY.put("default", false);
+        HIDE_PRIVATE_MSGS_REPLAY.put("heavy",   false);
+        HIDE_PRIVATE_MSGS_REPLAY.put("all",     true);
+        HIDE_PRIVATE_MSGS_REPLAY.put("custom",
+            getPropBoolean(props, "hide_private_msgs_replay", HIDE_PRIVATE_MSGS_REPLAY.get("default")));
 
         //// nogui
         COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
@@ -1068,6 +1101,8 @@ public class Settings {
                 FOV.get(preset)));
             props.setProperty("software_cursor",Boolean.toString(
                 SOFTWARE_CURSOR.get(preset)));
+			props.setProperty("auto_screenshot",Boolean.toString(
+                AUTO_SCREENSHOT.get(preset)));
             props.setProperty("view_distance",Integer.toString(
                 VIEW_DISTANCE.get(preset)));
             props.setProperty("start_searched_bank",Boolean.toString(
@@ -1097,11 +1132,15 @@ public class Settings {
             props.setProperty("use_percentage",Boolean.toString(
                 NPC_HEALTH_SHOW_PERCENTAGE.get(preset)));
             props.setProperty("show_hitbox",Boolean.toString(
-                SHOW_NPC_HITBOX.get(preset)));
+                SHOW_HITBOX.get(preset)));
             props.setProperty("show_food_heal_overlay",Boolean.toString(
                 SHOW_FOOD_HEAL_OVERLAY.get(preset)));
             props.setProperty("show_time_until_hp_regen",Boolean.toString(
                 SHOW_TIME_UNTIL_HP_REGEN.get(preset)));
+			props.setProperty("indicators",Boolean.toString(
+                LAG_INDICATOR.get(preset)));
+			props.setProperty("show_xp_bar",Boolean.toString(
+                SHOW_XP_BAR.get(preset)));
             props.setProperty("debug",Boolean.toString(
                 DEBUG.get(preset)));
             props.setProperty("highlighted_items",Util.joinAsString(",", 
@@ -1156,8 +1195,8 @@ public class Settings {
                 RECORD_KB_MOUSE.get(preset)));
             props.setProperty("record_automatically",Boolean.toString(
                 RECORD_AUTOMATICALLY.get(preset)));
-            props.setProperty("indicators",Boolean.toString(
-                LAG_INDICATOR.get(preset)));
+			props.setProperty("hide_private_msgs_replay",Boolean.toString(
+                HIDE_PRIVATE_MSGS_REPLAY.get(preset)));
                 
             //// presets
             props.setProperty("current_profile", currentProfile);
@@ -1323,6 +1362,15 @@ public class Settings {
         save();
 	}
 	
+	public static void toggleXPBar() {
+		SHOW_XP_BAR.put(currentProfile, !SHOW_XP_BAR.get(currentProfile));
+		if (SHOW_XP_BAR.get(currentProfile))
+			Client.displayMessage("@cya@XP Bar is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@XP Bar is now hidden", Client.CHAT_NONE);
+        save();
+	}
+	
 	public static void toggleInvCount() {
 		SHOW_INVCOUNT.put(currentProfile, !SHOW_INVCOUNT.get(currentProfile));
 		
@@ -1360,9 +1408,9 @@ public class Settings {
 	}
 	
 	public static void toggleShowHitbox() {
-		SHOW_NPC_HITBOX.put(currentProfile, !SHOW_NPC_HITBOX.get(currentProfile));
+		SHOW_HITBOX.put(currentProfile, !SHOW_HITBOX.get(currentProfile));
 		
-		if (SHOW_NPC_HITBOX.get(currentProfile)) {
+		if (SHOW_HITBOX.get(currentProfile)) {
 			Client.displayMessage("@cya@Hitboxes are now shown", Client.CHAT_NONE);
 		} else {
 			Client.displayMessage("@cya@Hitboxes are now hidden", Client.CHAT_NONE);

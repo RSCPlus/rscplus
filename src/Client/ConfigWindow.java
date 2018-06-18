@@ -122,18 +122,13 @@ public class ConfigWindow {
 	 * JComponent variables which hold configuration data
 	 */
 	
-	// General tab
+	//// General tab
 	private JCheckBox generalPanelClientSizeCheckbox;
 	private JSpinner generalPanelClientSizeXSpinner;
 	private JSpinner generalPanelClientSizeYSpinner;
 	private JCheckBox generalPanelCheckUpdates;
-	private JCheckBox generalPanelChatHistoryCheckbox;
+	//private JCheckBox generalPanelChatHistoryCheckbox;
 	private JCheckBox generalPanelCombatXPMenuCheckbox;
-	private JCheckBox generalPanelXPDropsCheckbox;
-	private JRadioButton generalPanelXPCenterAlignFocusButton;
-	private JRadioButton generalPanelXPRightAlignFocusButton;
-	private JCheckBox generalPanelFatigueDropsCheckbox;
-	private JSpinner generalPanelFatigueFigSpinner;
 	private JCheckBox generalPanelFatigueAlertCheckbox;
 	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
@@ -144,10 +139,11 @@ public class ConfigWindow {
 	private JSlider generalPanelFoVSlider;
 	private JCheckBox generalPanelCustomCursorCheckbox;
 	private JSlider generalPanelViewDistanceSlider;
+	private JCheckBox generalPanelAutoScreenshotCheckbox;
 	private JCheckBox generalPanelStartSearchedBankCheckbox;
 	private JTextField generalPanelSearchBankWordTextfield;
 	
-	// Overlays tab
+	//// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
 	private JCheckBox overlayPanelBuffsCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
@@ -156,7 +152,13 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelPlayerNamesCheckbox;
 	private JCheckBox overlayPanelFriendNamesCheckbox;
 	private JCheckBox overlayPanelNPCNamesCheckbox;
-	private JCheckBox overlayPanelNPCHitboxCheckbox;
+	private JCheckBox overlayPanelHitboxCheckbox;
+	private JCheckBox overlayPanelXPBarCheckbox;
+	private JCheckBox overlayPanelXPDropsCheckbox;
+	private JRadioButton overlayPanelXPCenterAlignFocusButton;
+	private JRadioButton overlayPanelXPRightAlignFocusButton;
+	private JCheckBox overlayPanelFatigueDropsCheckbox;
+	private JSpinner overlayPanelFatigueFigSpinner;
 	private JCheckBox overlayPanelShowCombatInfoCheckbox;
 	private JCheckBox overlayPanelUsePercentageCheckbox;
 	private JCheckBox overlayPanelFoodHealingCheckbox;
@@ -166,7 +168,7 @@ public class ConfigWindow {
 	private JTextField blockedItemsTextField;
 	private JTextField highlightedItemsTextField;
 	
-	// Notifications tab
+	//// Notifications tab
 	private JCheckBox notificationPanelPMNotifsCheckbox;
 	private JCheckBox notificationPanelTradeNotifsCheckbox;
 	private JCheckBox notificationPanelDuelNotifsCheckbox;
@@ -183,7 +185,7 @@ public class ConfigWindow {
 	private JRadioButton notificationPanelTrayPopupAnyFocusButton;
 	private JRadioButton notificationPanelNotifSoundAnyFocusButton;
 	
-	// Streaming & Privacy tab
+	//// Streaming & Privacy tab
 	private JCheckBox streamingPanelTwitchChatCheckbox;
 	private JTextField streamingPanelTwitchChannelNameTextField;
 	private JTextField streamingPanelTwitchOAuthTextField;
@@ -191,11 +193,12 @@ public class ConfigWindow {
 	private JCheckBox streamingPanelIPAtLoginCheckbox;
 	private JCheckBox streamingPanelSaveLoginCheckbox;
 	
-    //Replay tab
+    //// Replay tab
     private JCheckBox replayPanelRecordKBMouseCheckbox;
     private JCheckBox replayPanelRecordAutomaticallyCheckbox;
+    private JCheckBox replayPanelHidePrivateMessagesCheckbox;
     
-    //Presets tab
+    //// Presets tab
     private JCheckBox presetsPanelCustomSettingsCheckbox;
     private JSlider presetsPanelPresetSlider;
     private JButton replaceConfigButton;
@@ -412,6 +415,11 @@ public class ConfigWindow {
 		
 		generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
 		
+		///"Client settings" are settings related to just setting up how the client behaves
+		///Not really anything related to gameplay, just being able to set up the client 
+		///the way the user wants it
+		addSettingsHeader(generalPanel, "Client settings");
+		
 		JPanel generalPanelClientSizePanel = new JPanel();
 		generalPanel.add(generalPanelClientSizePanel);
 		generalPanelClientSizePanel.setLayout(new BoxLayout(generalPanelClientSizePanel, BoxLayout.X_AXIS));
@@ -458,58 +466,77 @@ public class ConfigWindow {
 		generalPanelCheckUpdates = addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
 		generalPanelCheckUpdates.setToolTipText("When enabled, rscplus will check for client updates before launching the game and install them when prompted");
 		
-		generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not implemented yet)", generalPanel);
-		generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-		generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat history is implemented
+		generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+		generalPanelColoredTextCheckbox.setToolTipText("When running the client from a console, chat messages in the console will reflect the colors they are in game");
 		
-		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat XP menu always on", generalPanel);
-		generalPanelCombatXPMenuCheckbox.setToolTipText("Always show the combat XP menu, even when out of combat");
+		generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
+		generalPanelCustomCursorCheckbox.setToolTipText("Switch to using a custom mouse cursor instead of the system default");
 		
-		generalPanelXPDropsCheckbox = addCheckbox("XP drops", generalPanel);
-		generalPanelXPDropsCheckbox.setToolTipText("Show the XP gained as an overlay each time XP is received");
+		generalPanelAutoScreenshotCheckbox = addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
+		generalPanelAutoScreenshotCheckbox.setToolTipText("Takes a screenshot for you for level ups and quest completion");
+
+		JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
+		generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
+		generalPanel.add(generalPanelFoVLabel);
+		generalPanelFoVLabel.setAlignmentY((float)0.9);
 		
-		ButtonGroup XPAlignButtonGroup = new ButtonGroup();
-		generalPanelXPRightAlignFocusButton = addRadioButton("Display on the right", generalPanel, 20);
-		generalPanelXPRightAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown just left of the Settings menu.");
-		generalPanelXPCenterAlignFocusButton = addRadioButton("Display in the center", generalPanel, 20);
-		generalPanelXPCenterAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown at the top-middle of the screen.");
-		XPAlignButtonGroup.add(generalPanelXPRightAlignFocusButton);
-		XPAlignButtonGroup.add(generalPanelXPCenterAlignFocusButton);
+		generalPanelFoVSlider = new JSlider();
 		
-		generalPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", generalPanel);
-		generalPanelFatigueDropsCheckbox.setToolTipText("Show the fatigue gained as an overlay each time fatigue is received");
+		generalPanel.add(generalPanelFoVSlider);
+		generalPanelFoVSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelFoVSlider.setMaximumSize(new Dimension(200, 55));
+		generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+		generalPanelFoVSlider.setMinimum(7);
+		generalPanelFoVSlider.setMaximum(16);
+		generalPanelFoVSlider.setMajorTickSpacing(1);
+		generalPanelFoVSlider.setPaintTicks(true);
+		generalPanelFoVSlider.setPaintLabels(true);
 		
-		JPanel generalPanelFatigueFigsPanel = new JPanel();
-		generalPanel.add(generalPanelFatigueFigsPanel);
-		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
-		generalPanelFatigueFigsPanel.setPreferredSize(new Dimension(0, 37));
-		generalPanelFatigueFigsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
+		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
+		generalPanelViewDistanceLabel.setToolTipText("Sets the max render distance of structures and landscape");
+		generalPanel.add(generalPanelViewDistanceLabel);
+		generalPanelViewDistanceLabel.setAlignmentY((float)0.9);
 		
-		JLabel generalPanelFatigueFigsLabel = new JLabel("Fatigue figures:");
-		generalPanelFatigueFigsPanel.add(generalPanelFatigueFigsLabel);
-		generalPanelFatigueFigsLabel.setAlignmentY((float)0.9);
-		generalPanelFatigueFigsLabel.setToolTipText("Number of significant figures past the decimal point to display on fatigue drops");
+		generalPanelViewDistanceSlider = new JSlider();
 		
-		generalPanelFatigueFigSpinner = new JSpinner();
-		generalPanelFatigueFigsPanel.add(generalPanelFatigueFigSpinner);
-		generalPanelFatigueFigSpinner.setMaximumSize(new Dimension(40, 22));
-		generalPanelFatigueFigSpinner.setAlignmentY((float)0.7);
-		generalPanelFatigueFigsPanel.setBorder(new EmptyBorder(0, 0, 7, 0));
-		generalPanelFatigueFigSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+		generalPanel.add(generalPanelViewDistanceSlider);
+		generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200, 55));
+		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 0, 0));
+		generalPanelViewDistanceSlider.setMinorTickSpacing(500);
+		generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
+		generalPanelViewDistanceSlider.setMinimum(2300);
+		generalPanelViewDistanceSlider.setMaximum(10000);
+		generalPanelViewDistanceSlider.setPaintTicks(true);
 		
-		// Sanitize JSpinner values
-		SpinnerNumberModel spinnerNumModel = new SpinnerNumberModel();
-		spinnerNumModel.setMinimum(1);
-		spinnerNumModel.setMaximum(7);
-		spinnerNumModel.setValue(2);
-		generalPanelFatigueFigSpinner.setModel(spinnerNumModel);
+		Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable = new Hashtable<Integer, JLabel>();
+		generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
+		generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
+		generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
+		generalPanelViewDistanceSlider.setPaintLabels(true);
+		
+		///"Gameplay settings" are settings that can be seen inside the game
+		addSettingsHeader(generalPanel, "Gameplay settings");
+		
+		//Commented out b/c probably no one will ever implement this
+		//generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not implemented yet)", generalPanel);
+		//generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+		//generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat history is implemented
+		
+		generalPanelCombatXPMenuCheckbox = addCheckbox("Combat style menu always shown", generalPanel);
+		generalPanelCombatXPMenuCheckbox.setToolTipText("Always show the combat style menu, even when out of combat");
 		
 		generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
 		generalPanelFatigueAlertCheckbox.setToolTipText("Displays a large notice when fatigue approaches 100%");
 		
 		generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
 		generalPanelInventoryFullAlertCheckbox.setToolTipText("Displays a large notice when the inventory is full");
+		
+		generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
+		generalPanelBypassAttackCheckbox.setToolTipText("Left click attack monsters regardless of level difference");
+		
+		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
+		generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
 		
 		JPanel generalPanelNamePatchModePanel = new JPanel();
 		generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -621,58 +648,6 @@ public class ConfigWindow {
 			}
 		});
 		
-		generalPanelBypassAttackCheckbox = addCheckbox("Bypass Attack", generalPanel);
-		generalPanelBypassAttackCheckbox.setToolTipText("Left click attack monsters regardless of level difference");
-		
-		generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
-		generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
-		
-		generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
-		generalPanelColoredTextCheckbox.setToolTipText("When running the client from a console, chat messages in the console will reflect the colors they are in game");
-		
-		generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
-		generalPanelCustomCursorCheckbox.setToolTipText("Switch to using a custom mouse cursor instead of the system default");
-		
-		JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
-		generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
-		generalPanel.add(generalPanelFoVLabel);
-		generalPanelFoVLabel.setAlignmentY((float)0.9);
-		
-		generalPanelFoVSlider = new JSlider();
-		
-		generalPanel.add(generalPanelFoVSlider);
-		generalPanelFoVSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelFoVSlider.setMaximumSize(new Dimension(200, 55));
-		generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-		generalPanelFoVSlider.setMinimum(7);
-		generalPanelFoVSlider.setMaximum(16);
-		generalPanelFoVSlider.setMajorTickSpacing(1);
-		generalPanelFoVSlider.setPaintTicks(true);
-		generalPanelFoVSlider.setPaintLabels(true);
-		
-		JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
-		generalPanelViewDistanceLabel.setToolTipText("Sets the max render distance of structures and landscape");
-		generalPanel.add(generalPanelViewDistanceLabel);
-		generalPanelViewDistanceLabel.setAlignmentY((float)0.9);
-		
-		generalPanelViewDistanceSlider = new JSlider();
-		
-		generalPanel.add(generalPanelViewDistanceSlider);
-		generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-		generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200, 55));
-		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 0, 0));
-		generalPanelViewDistanceSlider.setMinorTickSpacing(500);
-		generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
-		generalPanelViewDistanceSlider.setMinimum(2300);
-		generalPanelViewDistanceSlider.setMaximum(10000);
-		generalPanelViewDistanceSlider.setPaintTicks(true);
-		
-		Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable = new Hashtable<Integer, JLabel>();
-		generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
-		generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
-		generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
-		generalPanelViewDistanceSlider.setPaintLabels(true);
-		
 		generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
 		generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
 
@@ -701,6 +676,9 @@ public class ConfigWindow {
 		
 		overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
 		
+		///"Interface Overlays" are overlays that have a constant position on
+		///the screen because they are designed to modify just the interface of RSC+
+		addSettingsHeader(overlayPanel, "Interface Overlays");
 		overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
 		overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
 		
@@ -713,26 +691,12 @@ public class ConfigWindow {
 		overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
 		overlayPanelRetroFpsCheckbox.setToolTipText("Shows the FPS like it used to be displayed in RSC");
 		
-		overlayPanelItemNamesCheckbox = addCheckbox("Display item name overlay", overlayPanel);
-		overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
-		
-		overlayPanelPlayerNamesCheckbox = addCheckbox("Show player name overlay", overlayPanel);
-		overlayPanelPlayerNamesCheckbox.setToolTipText("Shows players' display names over their character");
-		
-		overlayPanelFriendNamesCheckbox = addCheckbox("Show nearby friend name overlay", overlayPanel);
-		overlayPanelFriendNamesCheckbox.setToolTipText("Shows your friends' display names over their character");
-		
-		overlayPanelNPCNamesCheckbox = addCheckbox("Display NPC name overlay", overlayPanel);
-		overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
 		
 		overlayPanelShowCombatInfoCheckbox = addCheckbox("Show NPC HP info", overlayPanel);
 		overlayPanelShowCombatInfoCheckbox.setToolTipText("Shows the HP info for the NPC you're in combat with");
 		
 		overlayPanelUsePercentageCheckbox = addCheckbox("Use percentage for NPC HP info", overlayPanel);
 		overlayPanelUsePercentageCheckbox.setToolTipText("Uses percentage for NPC HP info instead of actual HP");
-		
-		overlayPanelNPCHitboxCheckbox = addCheckbox("Show character hitboxes", overlayPanel);
-		overlayPanelNPCHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs and players");
         
         overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
 		overlayPanelLagIndicatorCheckbox.setToolTipText("When there's a problem with your connection, rscplus will tell you in the bottom right");
@@ -750,6 +714,69 @@ public class ConfigWindow {
 		overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
 		overlayPanelDebugModeCheckbox.setToolTipText("Shows debug overlays and enables debug text in the console");
 
+		///XP Bar
+		addSettingsHeader(overlayPanel, "XP Bar");
+		overlayPanelXPBarCheckbox = addCheckbox("Show an XP bar for the last trained skill", overlayPanel);
+		overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar for the last trained skill to the left of the wrench");
+		
+		overlayPanelXPDropsCheckbox = addCheckbox("XP drops", overlayPanel);
+		overlayPanelXPDropsCheckbox.setToolTipText("Show the XP gained as an overlay each time XP is received");
+		
+		ButtonGroup XPAlignButtonGroup = new ButtonGroup();
+		overlayPanelXPRightAlignFocusButton = addRadioButton("Display on the right", overlayPanel, 20);
+		overlayPanelXPRightAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown just left of the Settings menu.");
+		overlayPanelXPCenterAlignFocusButton = addRadioButton("Display in the center", overlayPanel, 20);
+		overlayPanelXPCenterAlignFocusButton.setToolTipText("The XP bar and XP drops will be shown at the top-middle of the screen.");
+		XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
+		XPAlignButtonGroup.add(overlayPanelXPCenterAlignFocusButton);
+		
+		overlayPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", overlayPanel);
+		overlayPanelFatigueDropsCheckbox.setToolTipText("Show the fatigue gained as an overlay each time fatigue is received");
+		
+		JPanel generalPanelFatigueFigsPanel = new JPanel();
+		overlayPanel.add(generalPanelFatigueFigsPanel);
+		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
+		generalPanelFatigueFigsPanel.setPreferredSize(new Dimension(0, 37));
+		generalPanelFatigueFigsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelFatigueFigsPanel.setLayout(new BoxLayout(generalPanelFatigueFigsPanel, BoxLayout.X_AXIS));
+		
+		JLabel generalPanelFatigueFigsLabel = new JLabel("Fatigue figures:");
+		generalPanelFatigueFigsPanel.add(generalPanelFatigueFigsLabel);
+		generalPanelFatigueFigsLabel.setAlignmentY((float)0.9);
+		generalPanelFatigueFigsLabel.setToolTipText("Number of significant figures past the decimal point to display on fatigue drops");
+		
+		overlayPanelFatigueFigSpinner = new JSpinner();
+		generalPanelFatigueFigsPanel.add(overlayPanelFatigueFigSpinner);
+		overlayPanelFatigueFigSpinner.setMaximumSize(new Dimension(40, 22));
+		overlayPanelFatigueFigSpinner.setAlignmentY((float)0.7);
+		generalPanelFatigueFigsPanel.setBorder(new EmptyBorder(0, 0, 7, 0));
+		overlayPanelFatigueFigSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+		
+		// Sanitize JSpinner values
+		SpinnerNumberModel spinnerNumModel = new SpinnerNumberModel();
+		spinnerNumModel.setMinimum(1);
+		spinnerNumModel.setMaximum(7);
+		spinnerNumModel.setValue(2);
+		overlayPanelFatigueFigSpinner.setModel(spinnerNumModel);
+		
+		///"In World" Overlays move with the camera, and modify objects that the are rendered in the world
+		addSettingsHeader(overlayPanel, "\"In World\" Overlays");
+		overlayPanelHitboxCheckbox = addCheckbox("Show hitboxes around NPCs, players, and items", overlayPanel);
+		overlayPanelHitboxCheckbox.setToolTipText("Shows the clickable areas on NPCs, players, and items");
+		
+		overlayPanelPlayerNamesCheckbox = addCheckbox("Show player names over their heads", overlayPanel);
+		overlayPanelPlayerNamesCheckbox.setToolTipText("Shows players' display names over their character");
+		
+		overlayPanelFriendNamesCheckbox = addCheckbox("Show nearby friend names over their heads", overlayPanel);
+		overlayPanelFriendNamesCheckbox.setToolTipText("Shows your friends' display names over their character");
+		
+		//even the animated axe has an "axe head". All NPCs have a head until proven otherwise
+		overlayPanelNPCNamesCheckbox = addCheckbox("Show NPC names over their heads", overlayPanel);
+		overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
+		
+		overlayPanelItemNamesCheckbox = addCheckbox("Display the names of items on the ground", overlayPanel);
+		overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
+		
 		// Blocked Items
 		JPanel blockedItemsPanel = new JPanel();
 		overlayPanel.add(blockedItemsPanel);
@@ -899,6 +926,8 @@ public class ConfigWindow {
 		
 		streamingPanel.setLayout(new BoxLayout(streamingPanel, BoxLayout.Y_AXIS));
 		
+		addSettingsHeader(streamingPanel, "Streaming & Privacy");
+		
 		streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
 		streamingPanelTwitchChatCheckbox.setToolTipText("Don't show chat from other Twitch users, but still be able to send Twitch chat");
 		
@@ -1031,11 +1060,18 @@ public class ConfigWindow {
 		replayPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		replayPanel.setLayout(new BoxLayout(replayPanel, BoxLayout.Y_AXIS));
 		
+		addSettingsHeader(replayPanel, "Recording settings");
+		
         replayPanelRecordAutomaticallyCheckbox = addCheckbox("Record your play sessions by default", replayPanel);
 		replayPanelRecordAutomaticallyCheckbox.setToolTipText("Record your play sessions without having to click the record button every time you log in");
         
         replayPanelRecordKBMouseCheckbox = addCheckbox("(EXPERIMENTAL) Record Keyboard and Mouse input for future replay recordings", replayPanel);
 		replayPanelRecordKBMouseCheckbox.setToolTipText("(EXPERIMENTAL) additionally record mouse and keyboard inputs when recording a session");
+        
+        addSettingsHeader(replayPanel, "Interface modifications");
+        
+        replayPanelHidePrivateMessagesCheckbox = addCheckbox("Prevent private messages from being output to the console during replay", replayPanel);
+		replayPanelHidePrivateMessagesCheckbox.setToolTipText("Message types 1, 2, and 5 will not be output to the console when this is selected"); //TODO: possibly don't show in client either
         
         /*
          * Presets tab
@@ -1377,16 +1413,8 @@ public class ConfigWindow {
 		generalPanelClientSizeXSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile));
 		generalPanelClientSizeYSpinner.setValue(Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
 		generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
-		generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
+		//generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
 		generalPanelCombatXPMenuCheckbox.setSelected(Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
-		generalPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS.get(Settings.currentProfile));
-		generalPanelXPCenterAlignFocusButton.setSelected(Settings.CENTER_XPDROPS.get(Settings.currentProfile));
-		generalPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS.get(Settings.currentProfile));
-		notificationPanelTrayPopupClientFocusButton.setSelected(!Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
-		notificationPanelTrayPopupAnyFocusButton.setSelected(Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile));
-		overlayPanelLagIndicatorCheckbox.setSelected(Settings.LAG_INDICATOR.get(Settings.currentProfile));
-		generalPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile));
-		generalPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES.get(Settings.currentProfile)));
 		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT.get(Settings.currentProfile));
 		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
@@ -1395,6 +1423,7 @@ public class ConfigWindow {
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
 		generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
+		generalPanelAutoScreenshotCheckbox.setSelected(Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
 		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
 		generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
 		generalPanelStartSearchedBankCheckbox.setSelected(Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
@@ -1428,9 +1457,16 @@ public class ConfigWindow {
 		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
 		overlayPanelFriendNamesCheckbox.setSelected(Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile));
 		overlayPanelNPCNamesCheckbox.setSelected(Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile));
-		overlayPanelNPCHitboxCheckbox.setSelected(Settings.SHOW_NPC_HITBOX.get(Settings.currentProfile));
+		overlayPanelHitboxCheckbox.setSelected(Settings.SHOW_HITBOX.get(Settings.currentProfile));
 		overlayPanelShowCombatInfoCheckbox.setSelected(Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile));
 		overlayPanelUsePercentageCheckbox.setSelected(Settings.NPC_HEALTH_SHOW_PERCENTAGE.get(Settings.currentProfile));
+		overlayPanelXPBarCheckbox.setSelected(Settings.SHOW_XP_BAR.get(Settings.currentProfile));
+		overlayPanelXPDropsCheckbox.setSelected(Settings.SHOW_XPDROPS.get(Settings.currentProfile));
+		overlayPanelXPCenterAlignFocusButton.setSelected(Settings.CENTER_XPDROPS.get(Settings.currentProfile));
+		overlayPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS.get(Settings.currentProfile));
+		overlayPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile));
+		overlayPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES.get(Settings.currentProfile)));
+		overlayPanelLagIndicatorCheckbox.setSelected(Settings.LAG_INDICATOR.get(Settings.currentProfile));
 		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY.get(Settings.currentProfile)); // TODO: Implement this feature
 		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN.get(Settings.currentProfile)); // TODO: Implement this feature
 		overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
@@ -1465,6 +1501,7 @@ public class ConfigWindow {
         // Replay tab
         replayPanelRecordAutomaticallyCheckbox.setSelected(Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
         replayPanelRecordKBMouseCheckbox.setSelected(Settings.RECORD_KB_MOUSE.get(Settings.currentProfile));
+        replayPanelHidePrivateMessagesCheckbox.setSelected(Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile));
         
 		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
 			setKeybindButtonText(kbs);
@@ -1480,12 +1517,12 @@ public class ConfigWindow {
 		Settings.CUSTOM_CLIENT_SIZE_X.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelClientSizeXSpinner.getModel())).getNumber().intValue());
 		Settings.CUSTOM_CLIENT_SIZE_Y.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
 		Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
-		Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
+		//Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
 		Settings.COMBAT_MENU_SHOWN.put(Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
-		Settings.SHOW_XPDROPS.put(Settings.currentProfile, generalPanelXPDropsCheckbox.isSelected());
-		Settings.CENTER_XPDROPS.put(Settings.currentProfile, generalPanelXPCenterAlignFocusButton.isSelected());
-		Settings.SHOW_FATIGUEDROPS.put(Settings.currentProfile, generalPanelFatigueDropsCheckbox.isSelected());
-		Settings.FATIGUE_FIGURES.put(Settings.currentProfile, ((SpinnerNumberModel)(generalPanelFatigueFigSpinner.getModel())).getNumber().intValue());
+		Settings.SHOW_XPDROPS.put(Settings.currentProfile, overlayPanelXPDropsCheckbox.isSelected());
+		Settings.CENTER_XPDROPS.put(Settings.currentProfile, overlayPanelXPCenterAlignFocusButton.isSelected());
+		Settings.SHOW_FATIGUEDROPS.put(Settings.currentProfile, overlayPanelFatigueDropsCheckbox.isSelected());
+		Settings.FATIGUE_FIGURES.put(Settings.currentProfile, ((SpinnerNumberModel)(overlayPanelFatigueFigSpinner.getModel())).getNumber().intValue());
 		Settings.FATIGUE_ALERT.put(Settings.currentProfile, generalPanelFatigueAlertCheckbox.isSelected());
 		Settings.INVENTORY_FULL_ALERT.put(Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
 		Settings.NAME_PATCH_TYPE.put(Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());
@@ -1495,6 +1532,7 @@ public class ConfigWindow {
 		Settings.COLORIZE_CONSOLE_TEXT.put(Settings.currentProfile, generalPanelColoredTextCheckbox.isSelected());
 		Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
 		Settings.SOFTWARE_CURSOR.put(Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
+		Settings.AUTO_SCREENSHOT.put(Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
 		Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
 		Settings.START_SEARCHEDBANK.put(Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
 		Settings.SEARCH_BANK_WORD.put(Settings.currentProfile, generalPanelSearchBankWordTextfield.getText().trim().toLowerCase());
@@ -1508,9 +1546,10 @@ public class ConfigWindow {
 		Settings.SHOW_PLAYER_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
 		Settings.SHOW_FRIEND_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelFriendNamesCheckbox.isSelected());
 		Settings.SHOW_NPC_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelNPCNamesCheckbox.isSelected());
-		Settings.SHOW_NPC_HITBOX.put(Settings.currentProfile, overlayPanelNPCHitboxCheckbox.isSelected());
+		Settings.SHOW_HITBOX.put(Settings.currentProfile, overlayPanelHitboxCheckbox.isSelected());
 		Settings.SHOW_COMBAT_INFO.put(Settings.currentProfile, overlayPanelShowCombatInfoCheckbox.isSelected());
 		Settings.NPC_HEALTH_SHOW_PERCENTAGE.put(Settings.currentProfile, overlayPanelUsePercentageCheckbox.isSelected());
+		Settings.SHOW_XP_BAR.put(Settings.currentProfile, overlayPanelXPBarCheckbox.isSelected());
 		Settings.SHOW_FOOD_HEAL_OVERLAY.put(Settings.currentProfile, overlayPanelFoodHealingCheckbox.isSelected());
 		Settings.SHOW_TIME_UNTIL_HP_REGEN.put(Settings.currentProfile, overlayPanelHPRegenTimerCheckbox.isSelected());
         Settings.LAG_INDICATOR.put(Settings.currentProfile, overlayPanelLagIndicatorCheckbox.isSelected());
@@ -1544,6 +1583,7 @@ public class ConfigWindow {
         // Replay
         Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
         Settings.RECORD_KB_MOUSE.put(Settings.currentProfile, replayPanelRecordKBMouseCheckbox.isSelected());
+        Settings.HIDE_PRIVATE_MSGS_REPLAY.put(Settings.currentProfile, replayPanelHidePrivateMessagesCheckbox.isSelected());
         
         // Presets
         if (presetsPanelCustomSettingsCheckbox.isSelected()) {

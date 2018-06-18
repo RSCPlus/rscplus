@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import Client.Settings;
+
 /**
  * Handles the rendering and behavior of XP drops
  */
@@ -48,8 +50,10 @@ public class XPDropHandler {
 		for (Iterator<XPDrop> iterator = m_list.iterator(); iterator.hasNext();) {
 			XPDrop xpdrop = iterator.next();
 			xpdrop.process(g);
-			if (xpdrop.y < 0 || xpdrop.y > Renderer.height)
+			if (xpdrop.y < 0 || xpdrop.y > Renderer.height ||
+			   (Settings.SHOW_XP_BAR.get(Settings.currentProfile) && xpdrop.y <= XPBar.xp_bar_y + 5)) {
 				iterator.remove();
+			}
 		}
 	}
 	
@@ -64,9 +68,16 @@ public class XPDropHandler {
 		
 		public void process(Graphics2D g) {
 			if (!active) {
-				if (Renderer.time > m_timer && y > XPBar.xp_bar_y + 5) {
-					m_timer = Renderer.time + 400;
-					active = true;
+				if (Renderer.time > m_timer) {
+					if (Settings.SHOW_XP_BAR.get(Settings.currentProfile)) {
+						 if (y > XPBar.xp_bar_y + 5) {
+							m_timer = Renderer.time + 400;
+							active = true;
+						}
+					} else {
+						m_timer = Renderer.time + 400;
+						active = true;
+					}
 				} else {
 					return;
 				}
@@ -74,10 +85,6 @@ public class XPDropHandler {
 			
 			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, this.color, true);
 			y -= (float)Renderer.height / 12.0f * Renderer.delta_time;
-			
-			if (y <= XPBar.xp_bar_y + 5) {
-				active = false;
-			}
 		}
 		
 		private String text;
