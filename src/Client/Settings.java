@@ -50,7 +50,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180618.035318;
+	public static final double VERSION_NUMBER = 20180627.183702;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -203,6 +203,12 @@ public class Settings {
     public static HashMap<String, Boolean>    RECORD_AUTOMATICALLY
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    HIDE_PRIVATE_MSGS_REPLAY //only hides, still in data
+            = new HashMap<String, Boolean>();
+    public static HashMap<String, Boolean>    SHOW_SEEK_BAR //TODO: maybe should implement a "hover in area" toggle for this
+            = new HashMap<String, Boolean>();
+    public static HashMap<String, Boolean>    SHOW_PLAYER_CONTROLS
+            = new HashMap<String, Boolean>();
+    public static HashMap<String, Boolean>    TRIGGER_ALERTS_REPLAY
             = new HashMap<String, Boolean>();
 
     //// nogui
@@ -835,6 +841,33 @@ public class Settings {
         HIDE_PRIVATE_MSGS_REPLAY.put("custom",
             getPropBoolean(props, "hide_private_msgs_replay", HIDE_PRIVATE_MSGS_REPLAY.get("default")));
 
+        SHOW_SEEK_BAR.put("vanilla", false);
+        SHOW_SEEK_BAR.put("vanilla_resizable", false);
+        SHOW_SEEK_BAR.put("lite",    true);
+        SHOW_SEEK_BAR.put("default", true);
+        SHOW_SEEK_BAR.put("heavy",   true);
+        SHOW_SEEK_BAR.put("all",     true);
+        SHOW_SEEK_BAR.put("custom",
+            getPropBoolean(props, "show_seek_bar", SHOW_SEEK_BAR.get("default")));
+
+        SHOW_PLAYER_CONTROLS.put("vanilla", false);
+        SHOW_PLAYER_CONTROLS.put("vanilla_resizable", false);
+        SHOW_PLAYER_CONTROLS.put("lite",    false);
+        SHOW_PLAYER_CONTROLS.put("default", true);
+        SHOW_PLAYER_CONTROLS.put("heavy",   true);
+        SHOW_PLAYER_CONTROLS.put("all",     true);
+        SHOW_PLAYER_CONTROLS.put("custom",
+            getPropBoolean(props, "show_player_controls", SHOW_PLAYER_CONTROLS.get("default")));
+		
+		TRIGGER_ALERTS_REPLAY.put("vanilla", false);
+        TRIGGER_ALERTS_REPLAY.put("vanilla_resizable", false);
+        TRIGGER_ALERTS_REPLAY.put("lite",    false);
+        TRIGGER_ALERTS_REPLAY.put("default", false);
+        TRIGGER_ALERTS_REPLAY.put("heavy",   true);
+        TRIGGER_ALERTS_REPLAY.put("all",     true);
+        TRIGGER_ALERTS_REPLAY.put("custom",
+            getPropBoolean(props, "trigger_alerts_replay", TRIGGER_ALERTS_REPLAY.get("default")));
+
         //// nogui
         COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
         COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
@@ -1197,6 +1230,12 @@ public class Settings {
                 RECORD_AUTOMATICALLY.get(preset)));
 			props.setProperty("hide_private_msgs_replay",Boolean.toString(
                 HIDE_PRIVATE_MSGS_REPLAY.get(preset)));
+            props.setProperty("show_seek_bar",Boolean.toString(
+                SHOW_SEEK_BAR.get(preset)));
+            props.setProperty("show_player_controls",Boolean.toString(
+                SHOW_PLAYER_CONTROLS.get(preset)));
+			props.setProperty("trigger_alerts_replay",Boolean.toString(
+                TRIGGER_ALERTS_REPLAY.get(preset)));
                 
             //// presets
             props.setProperty("current_profile", currentProfile);
@@ -1368,6 +1407,24 @@ public class Settings {
 			Client.displayMessage("@cya@XP Bar is now shown", Client.CHAT_NONE);
 		else
 			Client.displayMessage("@cya@XP Bar is now hidden", Client.CHAT_NONE);
+        save();
+	}
+	
+	public static void toggleShowSeekBar() {
+		SHOW_SEEK_BAR.put(currentProfile, !SHOW_SEEK_BAR.get(currentProfile));
+		if (SHOW_SEEK_BAR.get(currentProfile))
+			Client.displayMessage("@cya@Seek bar is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Seek bar is now hidden", Client.CHAT_NONE);
+        save();
+	}
+
+	public static void toggleShowPlayerControls() {
+		SHOW_PLAYER_CONTROLS.put(currentProfile, !SHOW_PLAYER_CONTROLS.get(currentProfile));
+		if (SHOW_PLAYER_CONTROLS.get(currentProfile))
+			Client.displayMessage("@cya@Player controls are now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Player controls are now hidden", Client.CHAT_NONE);
         save();
 	}
 	
@@ -1861,6 +1918,15 @@ public class Settings {
         case "ff_minus":
         case "ff_reset":
 			return Replay.controlPlayback(commandName);
+        case "show_xp_bar":
+            Settings.toggleXPBar();
+            return true;
+        case "show_seek_bar":
+            Settings.toggleShowSeekBar();
+            return true;
+        case "show_player_controls":
+            Settings.toggleShowPlayerControls();
+            return true;
 		default:
 			Logger.Error("An unrecognized command was sent to processCommand: " + commandName);
 			break;

@@ -57,6 +57,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import Game.Game;
 import Game.Client;
+import Game.Replay;
 
 /**
  * Handles system and pseudo-system notifications
@@ -345,6 +346,10 @@ public class NotificationsHandler {
 	 */
 	public static boolean notify(NotifType type, String title, String text) {
 		boolean didNotify = false;
+        
+        if (Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile)) {
+            return false;
+        }
 
 		switch (type) {
 		case PM: {

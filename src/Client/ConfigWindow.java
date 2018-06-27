@@ -197,6 +197,9 @@ public class ConfigWindow {
     private JCheckBox replayPanelRecordKBMouseCheckbox;
     private JCheckBox replayPanelRecordAutomaticallyCheckbox;
     private JCheckBox replayPanelHidePrivateMessagesCheckbox;
+    private JCheckBox replayPanelShowSeekBarCheckbox;
+    private JCheckBox replayPanelShowPlayerControlsCheckbox;
+    private JCheckBox replayPanelTriggerAlertsReplayCheckbox;
     
     //// Presets tab
     private JCheckBox presetsPanelCustomSettingsCheckbox;
@@ -1002,6 +1005,9 @@ public class ConfigWindow {
 		
 		keybindPanel.setLayout(gbl_panel);
 		
+		//Note: CTRL + every single letter on the keyboard is now used
+        //consider using ALT instead.
+        
 		addKeybindCategory(keybindPanel, "General");
 		addKeybindSet(keybindPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
 		addKeybindSet(keybindPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
@@ -1021,11 +1027,12 @@ public class ConfigWindow {
 		addKeybindCategory(keybindPanel, "Overlays");
 		addKeybindSet(keybindPanel, "Toggle HP/prayer/fatigue display", "toggle_hpprayerfatigue_display", KeyModifier.CTRL, KeyEvent.VK_U);
 		addKeybindSet(keybindPanel, "Toggle combat buffs and cooldowns display", "toggle_buffs_display", KeyModifier.CTRL, KeyEvent.VK_Y);
+        addKeybindSet(keybindPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
 		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
-		addKeybindSet(keybindPanel, "Toggle retro fps overlay", "toggle_retro_fps_overlay", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle retro fps overlay", "toggle_retro_fps_overlay", KeyModifier.ALT, KeyEvent.VK_F);
 		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
 		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
-		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.NONE, -1);
+		addKeybindSet(keybindPanel, "Toggle friend name overlay", "toggle_friend_name_overlay", KeyModifier.CTRL, KeyEvent.VK_M);
 		addKeybindSet(keybindPanel, "Toggle NPC name overlay", "toggle_npc_name_overlay", KeyModifier.CTRL, KeyEvent.VK_N);
 		addKeybindSet(keybindPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
 		addKeybindSet(keybindPanel, "Toggle food heal overlay", "toggle_food_heal_overlay", KeyModifier.CTRL, KeyEvent.VK_G);
@@ -1040,11 +1047,13 @@ public class ConfigWindow {
 		
         addKeybindCategory(keybindPanel, "Replay (only used while a recording is played back)");
 		addKeybindSet(keybindPanel, "Stop", "stop", KeyModifier.CTRL, KeyEvent.VK_B);
-		addKeybindSet(keybindPanel, "Restart", "restart", KeyModifier.NONE, KeyEvent.VK_R);
+		addKeybindSet(keybindPanel, "Restart", "restart", KeyModifier.ALT, KeyEvent.VK_R);
 		addKeybindSet(keybindPanel, "Pause", "pause", KeyModifier.NONE, KeyEvent.VK_SPACE);
         addKeybindSet(keybindPanel, "Increase playback speed", "ff_plus", KeyModifier.CTRL, KeyEvent.VK_RIGHT);
         addKeybindSet(keybindPanel, "Decrease playback speed", "ff_minus", KeyModifier.CTRL, KeyEvent.VK_LEFT);
         addKeybindSet(keybindPanel, "Reset playback speed", "ff_reset", KeyModifier.CTRL, KeyEvent.VK_DOWN);
+        addKeybindSet(keybindPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
+        //addKeybindSet(keybindPanel, "Show player controls", "show_player_controls", KeyModifier.CTRL, KeyEvent.VK_DOWN);
         
 		addKeybindCategory(keybindPanel, "Miscellaneous");
 		addKeybindSet(keybindPanel, "Switch to world 1 at login screen", "world_1", KeyModifier.CTRL, KeyEvent.VK_1);
@@ -1070,8 +1079,19 @@ public class ConfigWindow {
         
         addSettingsHeader(replayPanel, "Interface modifications");
         
+        replayPanelShowSeekBarCheckbox = addCheckbox("Show seek bar during replay", replayPanel);
+		replayPanelShowSeekBarCheckbox.setToolTipText("Displays an incredibly helpful seek bar that you can use to move your position in the replay");
+        
+        replayPanelShowPlayerControlsCheckbox = addCheckbox("Show control buttons under the seek bar", replayPanel);
+		replayPanelShowPlayerControlsCheckbox.setToolTipText("Buttons you can click on to increase speed, decrease speed, restart, play/pause"); //TODO: when implemented, should turn seek bar on automatically
+        replayPanelShowPlayerControlsCheckbox.setEnabled(false); //TODO remove this line when implemented
+        
         replayPanelHidePrivateMessagesCheckbox = addCheckbox("Prevent private messages from being output to the console during replay", replayPanel);
 		replayPanelHidePrivateMessagesCheckbox.setToolTipText("Message types 1, 2, and 5 will not be output to the console when this is selected"); //TODO: possibly don't show in client either
+        
+        replayPanelTriggerAlertsReplayCheckbox = addCheckbox("Prevent system alerts from triggering during replay", replayPanel);
+		replayPanelTriggerAlertsReplayCheckbox.setToolTipText("Overrides the system alerts setting during replay");
+        
         
         /*
          * Presets tab
@@ -1502,6 +1522,9 @@ public class ConfigWindow {
         replayPanelRecordAutomaticallyCheckbox.setSelected(Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
         replayPanelRecordKBMouseCheckbox.setSelected(Settings.RECORD_KB_MOUSE.get(Settings.currentProfile));
         replayPanelHidePrivateMessagesCheckbox.setSelected(Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile));
+        replayPanelShowSeekBarCheckbox.setSelected(Settings.SHOW_SEEK_BAR.get(Settings.currentProfile));
+        replayPanelShowPlayerControlsCheckbox.setSelected(Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile));
+        replayPanelTriggerAlertsReplayCheckbox.setSelected(Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile));
         
 		for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
 			setKeybindButtonText(kbs);
@@ -1584,6 +1607,9 @@ public class ConfigWindow {
         Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
         Settings.RECORD_KB_MOUSE.put(Settings.currentProfile, replayPanelRecordKBMouseCheckbox.isSelected());
         Settings.HIDE_PRIVATE_MSGS_REPLAY.put(Settings.currentProfile, replayPanelHidePrivateMessagesCheckbox.isSelected());
+        Settings.SHOW_SEEK_BAR.put(Settings.currentProfile, replayPanelShowSeekBarCheckbox.isSelected());
+        Settings.SHOW_PLAYER_CONTROLS.put(Settings.currentProfile, replayPanelShowPlayerControlsCheckbox.isSelected());
+        Settings.TRIGGER_ALERTS_REPLAY.put(Settings.currentProfile, replayPanelTriggerAlertsReplayCheckbox.isSelected());
         
         // Presets
         if (presetsPanelCustomSettingsCheckbox.isSelected()) {

@@ -656,7 +656,12 @@ public class Renderer {
 			}
 			
 			// A little over a full tick
-			if (Settings.LAG_INDICATOR.get(Settings.currentProfile) && Replay.getServerLag() >= 35) {
+            int threshold = 35;
+            
+            if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0)
+                threshold = 35*3; //this is to prevent blinking during fastforward
+            
+			if (Settings.LAG_INDICATOR.get(Settings.currentProfile) && Replay.getServerLag() >= threshold) {
 				x = width - 80; y = height - 80;
 				setAlpha(g2, alpha_time);
 				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
@@ -667,18 +672,19 @@ public class Renderer {
 				drawShadowText(g2, new DecimalFormat("0.0").format((float)lag / 1000.0f) + "s", x, y, color_low, true);
 				setAlpha(g2, 1.0f);
 			}
-			
-			g2.setFont(font_big);
-			if (Settings.FATIGUE_ALERT.get(Settings.currentProfile) && Client.getFatigue() >= 98 && !Client.isInterfaceOpen()) {
-				setAlpha(g2, alpha_time);
-				drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
-				setAlpha(g2, 1.0f);
-			}
-			if (Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile) && Client.inventory_count >= 30 && !Client.isInterfaceOpen()) {
-				setAlpha(g2, alpha_time);
-				drawShadowText(g2, "INVENTORY FULL", width / 2, height / 2, color_low, true);
-				setAlpha(g2, 1.0f);
-			}
+			if (!(Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile))) {
+                g2.setFont(font_big);
+                if (Settings.FATIGUE_ALERT.get(Settings.currentProfile) && Client.getFatigue() >= 98 && !Client.isInterfaceOpen()) {
+                    setAlpha(g2, alpha_time);
+                    drawShadowText(g2, "FATIGUED", width / 2, height / 2, color_low, true);
+                    setAlpha(g2, 1.0f);
+                }
+                if (Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile) && Client.inventory_count >= 30 && !Client.isInterfaceOpen()) {
+                    setAlpha(g2, alpha_time);
+                    drawShadowText(g2, "INVENTORY FULL", width / 2, height / 2, color_low, true);
+                    setAlpha(g2, 1.0f);
+                }
+            }
 		} else if (Client.state == Client.STATE_LOGIN) {
 			if (Settings.DEBUG.get(Settings.currentProfile))
 				drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
@@ -813,79 +819,84 @@ public class Renderer {
 		}
 		
 		if (Client.state == Client.STATE_GAME && Replay.isPlaying) {
-			float percent = (float)Replay.timestamp / Replay.getReplayEnd();
-			
-			if (Replay.isSeeking) {
-				percent = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
-			}
-			
-			boolean extended = (MouseHandler.y >= height - 28);
-			
-			if (extended) {
-				Rectangle bounds = new Rectangle(0, height - 28, width, 48);
-				g2.setColor(color_shadow);
-				setAlpha(g2, 0.75f);
-				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-				setAlpha(g2, 1.0f);
-				g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-			}
-			
-			// Set small font
-			g2.setFont(font_main);
-			
-			// Handle bar
-			Rectangle bounds = new Rectangle(32, height - 27, width - 64, 8);
-			g2.setColor(color_text);
-			setAlpha(g2, 0.25f);
-			g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-			g2.setColor(color_prayer);
-			setAlpha(g2, 0.5f);
-			g2.fillRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
-			g2.setColor(color_text);
-			setAlpha(g2, 1.0f);
-			g2.drawRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
-			g2.setColor(color_text);
-			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-			
-			if (Replay.paused) {
-				g2.setColor(color_fatigue);
-				setAlpha(g2, alpha_time / 6.0f);
-				g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-				setAlpha(g2, 1.0f);
-			}
-			
-			String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
-			String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
-			if (extended) {
-				// drawShadowText(g2, "Hold 'Ctrl' to hide", bounds.x - 24, bounds.y + bounds.height + 14, color_fatigue, false);
-				drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_replay, true);
-			}
-			
-			float percentClient = (float)Replay.getClientRead() / Replay.getClientWrite();
-			int server_x = (int)(bounds.width * percent);
-			int client_x = (int)(server_x * percentClient);
-			
-			g2.setColor(color_prayer);
-			setAlpha(g2, 0.5f);
-			g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
-			
-			if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height) {
-				float percentEnd = (float)(MouseHandler.x - bounds.x) / bounds.width;
-				int timestamp = (int)(Replay.getReplayEnd() * percentEnd);
-				g2.setColor(color_fatigue);
-				setAlpha(g2, 0.5f);
-				g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
-				setAlpha(g2, 1.0f);
-				drawShadowTextBorder(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
-						color_text, 1.0f, 0.75f, true, 0);
-				
-				if (!Replay.isSeeking && MouseHandler.mouseClicked)
-					Replay.seek(timestamp);
-			}
-			
-			if (Replay.isSeeking) {
-				drawShadowTextBorder(g2, "Seeking... Please wait", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false, 2);
-			}
+            if (Settings.SHOW_SEEK_BAR.get(Settings.currentProfile)) {
+                float percent = (float)Replay.timestamp / Replay.getReplayEnd();
+                
+                if (Replay.isSeeking) {
+                    percent = (float)Replay.getSeekEnd() / Replay.getReplayEnd();
+                }
+                
+                boolean extended = (MouseHandler.y >= height - 28);
+                
+                if (extended) {
+                    Rectangle bounds = new Rectangle(0, height - 28, width, 48);
+                    g2.setColor(color_shadow);
+                    setAlpha(g2, 0.75f);
+                    g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                    setAlpha(g2, 1.0f);
+                    g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                }
+                
+                // Set small font
+                g2.setFont(font_main);
+                
+                // Handle bar
+                Rectangle bounds = new Rectangle(32, height - 27, width - 64, 8);
+                g2.setColor(color_text);
+                setAlpha(g2, 0.25f);
+                g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                g2.setColor(color_prayer);
+                setAlpha(g2, 0.5f);
+                g2.fillRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
+                g2.setColor(color_text);
+                setAlpha(g2, 1.0f);
+                g2.drawRect(bounds.x, bounds.y, (int)((float)bounds.width * percent), bounds.height);
+                g2.setColor(color_text);
+                g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                
+                if (Replay.paused) {
+                    g2.setColor(color_fatigue);
+                    setAlpha(g2, alpha_time / 6.0f);
+                    g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                    setAlpha(g2, 1.0f);
+                }
+                
+                String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
+                String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
+                if (extended) {
+                    // drawShadowText(g2, "Hold 'Ctrl' to hide", bounds.x - 24, bounds.y + bounds.height + 14, color_fatigue, false);
+                    drawShadowText(g2, elapsed + " / " + end, bounds.x + (bounds.width / 2), bounds.y + bounds.height + 8, color_replay, true);
+                }
+                
+                float percentClient = (float)Replay.getClientRead() / Replay.getClientWrite();
+                int server_x = (int)(bounds.width * percent);
+                int client_x = (int)(server_x * percentClient);
+                
+                g2.setColor(color_prayer);
+                setAlpha(g2, 0.5f);
+                g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
+                
+                if (MouseHandler.x >= bounds.x && MouseHandler.x <= bounds.x + bounds.width && MouseHandler.y >= bounds.y && MouseHandler.y <= bounds.y + bounds.height) {
+                    float percentEnd = (float)(MouseHandler.x - bounds.x) / bounds.width;
+                    int timestamp = (int)(Replay.getReplayEnd() * percentEnd);
+                    g2.setColor(color_fatigue);
+                    setAlpha(g2, 0.5f);
+                    g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
+                    setAlpha(g2, 1.0f);
+                    drawShadowTextBorder(g2, Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()), MouseHandler.x, bounds.y - 8,
+                            color_text, 1.0f, 0.75f, true, 0);
+                    
+                    if (!Replay.isSeeking && MouseHandler.mouseClicked)
+                        Replay.seek(timestamp);
+                }
+                
+                if (Replay.isSeeking) {
+                    drawShadowTextBorder(g2, "Seeking... Please wait", bounds.x + (bounds.width / 2), bounds.y + bounds.height - 18, color_fatigue, 1.0f, 0.75f, false, 2);
+                }
+            }
+            if (Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
+                //TODO: put button code here
+            }
 		}
 			
 		// Draw software cursor
