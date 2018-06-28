@@ -218,11 +218,11 @@ public class ReplayServer implements Runnable {
 				
 			// If the timestamp is 300+ frames in the future, it's a client disconnection
 			// So we disconnect and reconnect the client
-			if (timestamp_diff > 300) {
+			if (timestamp_diff > 200) {
 				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp);
 				client.close();
 				client = sock.accept();
-				timestamp_diff -= 300;
+				timestamp_diff -= 200;
 				Replay.timestamp = timestamp_input - timestamp_diff;
 				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
 			}

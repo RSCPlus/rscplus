@@ -437,7 +437,6 @@ public class Client {
 		// Reset values to make the client more deterministic
 		// This helps out the replay mode to have matching output from the time it was recorded
 		Camera.init();
-		Menu.init();
 		combat_style = Settings.COMBAT_STYLE.get(Settings.currentProfile);
 		state = STATE_GAME;
 		bank_active_page = 0;
