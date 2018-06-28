@@ -221,6 +221,8 @@ public class Launcher extends JFrame implements Runnable {
 			
 			// Open connection
 			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(2000);
+			connection.setReadTimeout(2000);
 			
 			int size = connection.getContentLength();
 			int offset = 0;

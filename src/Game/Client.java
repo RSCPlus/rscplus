@@ -516,10 +516,10 @@ public class Client {
 		try {
 			// int coordX = Reflection.characterPosX.getInt(player_object) / 128;
 			// int coordY = Reflection.characterPosY.getInt(player_object) / 128;
-			// System.out.println("("+coordX+","+coordY+")");
+			// Logger.Info("("+coordX+","+coordY+")");
 			
-			System.out.println("Region x: " + regionX);
-			System.out.println("Region y: " + regionY);
+			Logger.Info("Region x: " + regionX);
+			Logger.Info("Region y: " + regionY);
 			
 		} catch (IllegalArgumentException e1) {
 			e1.printStackTrace();
@@ -1085,11 +1085,11 @@ public class Client {
 			option = menuOptions[i];
 			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 				AnsiConsole.systemInstall();
-				System.out.println(ansi()
+				Logger.Info(ansi()
 						.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
 				AnsiConsole.systemUninstall();
 			} else {
-				System.out.println("(" + type + ") " + option);
+				Logger.Info("(" + type + ") " + option);
 			}
 		}
 	}
@@ -1196,11 +1196,11 @@ public class Client {
 		
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
-			System.out.println(ansi()
+			Logger.Info(ansi()
 					.render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
-			System.out.println("(" + type + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
+			Logger.Info("(" + type + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
 		}
 	}
 	
@@ -1237,7 +1237,7 @@ public class Client {
 		case CHAT_PLAYER_INTERRACT_OUT:
 		*/
 		default:
-			System.out.println("Username specified for unhandled chat type, please report this: " + type);
+			Logger.Info("Username specified for unhandled chat type, please report this: " + type);
 			username = username + ": ";
 		}
 		
@@ -1279,7 +1279,7 @@ public class Client {
 		*/
 		
 		default:
-			System.out.println("Username specified for unhandled chat type, please report this: " + type);
+			Logger.Info("Username specified for unhandled chat type, please report this: " + type);
 			colorMessage = "@|white,intensity_bold " + colorMessage + "|@";
 		}
 		return colorMessage;
@@ -1348,7 +1348,7 @@ public class Client {
 			colorMessage = "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@";
 			break;
 		default: // this should never happen, only 8 Chat Types
-			System.out.println("Unhandled chat type in colourizeMessage, please report this:" + type);
+			Logger.Info("Unhandled chat type in colourizeMessage, please report this:" + type);
 			colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@";
 		}
 		return colorMessage;

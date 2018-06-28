@@ -21,6 +21,10 @@
 
 package Client;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import org.fusesource.jansi.Ansi;
 import Game.Replay;
 
 /**
@@ -29,6 +33,7 @@ import Game.Replay;
 public class Logger {
 	
 	private static final String[] m_logTypeName = { "DEBUG", " INFO", "ERROR" };
+	private static PrintWriter m_logWriter;
 	
 	public enum Type {
 		DEBUG(0), INFO(1), ERROR(2);
@@ -38,6 +43,21 @@ public class Logger {
 		}
 		
 		public int id;
+	}
+	
+	public static void start() {
+		File file = new File(Settings.Dir.JAR + "/log.txt");
+		try {
+			m_logWriter = new PrintWriter(new FileOutputStream(file));
+		} catch (Exception e) {
+		}
+	}
+	
+	public static void stop() {
+		try {
+			m_logWriter.close();
+		} catch (Exception e) {
+		}
 	}
 	
 	public static void Log(Type type, String message) {
@@ -50,6 +70,12 @@ public class Logger {
 			System.out.println(msg);
 		else
 			System.err.println(msg);
+		
+		try {
+			m_logWriter.write(msg + "\r\n");
+			m_logWriter.flush();
+		} catch (Exception e) {
+		}
 	}
 	
 	public static void Debug(String message) {
@@ -62,6 +88,18 @@ public class Logger {
 	
 	public static void Error(String message) {
 		Log(Type.ERROR, message);
+	}
+	
+	public static void Debug(Ansi message) {
+		Log(Type.DEBUG, message.toString());
+	}
+	
+	public static void Info(Ansi message) {
+		Log(Type.INFO, message.toString());
+	}
+	
+	public static void Error(Ansi message) {
+		Log(Type.ERROR, message.toString());
 	}
 	
 }

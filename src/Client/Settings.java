@@ -24,16 +24,15 @@ package Client;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.Properties;
 import Client.KeybindSet.KeyModifier;
 import Game.Camera;
 import Game.Client;
@@ -50,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180628.024810;
+	public static final double VERSION_NUMBER = 20180628.044536;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -1013,6 +1012,7 @@ public class Settings {
 		} catch (Exception e) {
 		}
 		
+		Logger.start();
 		Logger.Info("Jar Location: " + Dir.JAR);
 		
 		// Load other directories
