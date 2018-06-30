@@ -117,23 +117,19 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 					evt.acceptDrop(DnDConstants.ACTION_LINK);
 					List<File> droppedFiles = (List<File>)evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 					for (File selection : droppedFiles) {
-						if (!Util.isMacOS()) {
-							if (selection != null && Client.state == Client.STATE_LOGIN) {
-								Renderer.replayName = selection.getPath();
-								if (Replay.isValid(Renderer.replayName)) {
-									Logger.Info("Replay selected: " + Renderer.replayName);
-									Client.runReplayHook = true;
-									return;
-								} else {
-									JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you dropped onto the client is not a replay.\n" +
-											"\n" +
-											"You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.", "rscplus",
-											JOptionPane.ERROR_MESSAGE,
-											Launcher.icon_warn);
-								}
+						if (selection != null && Client.state == Client.STATE_LOGIN) {
+							Renderer.replayName = selection.getPath();
+							if (Replay.isValid(Renderer.replayName)) {
+								Logger.Info("Replay selected: " + Renderer.replayName);
+								Client.runReplayHook = true;
+								return;
+							} else {
+								JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you dropped onto the client is not a replay.\n" +
+										"\n" +
+										"You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.", "rscplus",
+										JOptionPane.ERROR_MESSAGE,
+										Launcher.icon_warn);
 							}
-						} else {
-							Client.showMacintoshReplayNotImplementedError = true;
 						}
 					}
 				} catch (Exception ex) {

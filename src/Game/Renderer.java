@@ -756,31 +756,27 @@ public class Renderer {
 				if (replayOption == 2) {
 					replayOption = 0;
 				} else {
-                    if (!Util.isMacOS()) {
-						JFileChooser j = new JFileChooser(Settings.Dir.REPLAY);
-						j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-						int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
+					JFileChooser j = new JFileChooser(Settings.Dir.REPLAY);
+					j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
 					
-						File selection = j.getSelectedFile();
-						if (selection != null && response != JFileChooser.CANCEL_OPTION) {
-							replayName = selection.getPath();
-							if (Replay.isValid(replayName)) {
-								replayOption = 2;
-								Logger.Info("Replay selected: " + replayName);
-								Client.login_hook();
-							} else {
-								JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you selected is not valid.\n" +
+					File selection = j.getSelectedFile();
+					if (selection != null && response != JFileChooser.CANCEL_OPTION) {
+						replayName = selection.getPath();
+						if (Replay.isValid(replayName)) {
+							replayOption = 2;
+							Logger.Info("Replay selected: " + replayName);
+							Client.login_hook();
+						} else {
+							JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "The replay folder you selected is not valid.\n" +
 									"\n" +
 									"You need to select a folder that contains the 'version.bin', 'in.bin.gz', and 'keys.bin' for your replay.\n" +
 									"They're usually in a folder with your login username.", "rscplus", JOptionPane.ERROR_MESSAGE,
 									Launcher.icon_warn);
-							}
-						} else {
-							replayOption = 0;
 						}
-                    } else {
-                        Client.showMacintoshReplayNotImplementedError = true;
-                    }
+					} else {
+						replayOption = 0;
+					}
 				}
 			}
 			

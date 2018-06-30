@@ -216,7 +216,6 @@ public class Client {
 	private static long updateTimer = 0;
 	
 	public static boolean showRecordAlwaysDialogue = false;
-    public static boolean showMacintoshReplayNotImplementedError = false;
 	
 	public static long update_timer;
 	public static long updates;
@@ -333,16 +332,6 @@ public class Client {
 			Settings.RECORD_AUTOMATICALLY_FIRST_TIME.put(Settings.currentProfile, false);
 			Settings.save();
 		}
-        
-        if (showMacintoshReplayNotImplementedError) {
-            JOptionPane.showMessageDialog(Game.getInstance().getApplet(), "Sorry, but the ability to replay your recordings on Mac is not implemented yet.\n" +
-                    "\n" +
-                    "Recordings made on Mac are valid and good, but there's currently an error actually playing them back.\n" +
-                    "If you want to see your playback, unfortunately your options are to use rscplus on Windows, on Linux, or wait.\n"+
-                    "Hopefully a fix for this can be made soon, but in the meantime, feel free to keep making recordings.", "rscplus", JOptionPane.ERROR_MESSAGE,
-                    Launcher.icon_warn);
-            showMacintoshReplayNotImplementedError = false;
-        }
 		
 		if (state == STATE_GAME) {
 			Client.getPlayerName();
