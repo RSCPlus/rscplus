@@ -64,10 +64,13 @@ public class ReplayServer implements Runnable {
 		// Wait for client
 		while (client_read < client_write) {
 			try {
-				Thread.sleep(1);
+				Thread.sleep(100);
 			} catch (Exception e) {
 			}
 		}
+		
+		client_read = 0;
+		client_write = 0;
 	}
 	
 	public int getPercentRemaining() {
@@ -164,8 +167,6 @@ public class ReplayServer implements Runnable {
 				if (restart) {
 					boolean wasPaused = Replay.paused;
 					Replay.paused = false;
-					
-					sync_with_client();
 					
 					client.close();
 					client = sock.accept();
@@ -273,7 +274,6 @@ public class ReplayServer implements Runnable {
 				Replay.timestamp = timestamp_input;
 				if (Replay.timestamp >= timestamp_new) {
 					sync_with_client();
-					
 					Replay.isSeeking = false;
 					timestamp_new = Replay.TIMESTAMP_EOF;
 					Replay.updateFrameTimeSlice();
