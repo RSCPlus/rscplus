@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180630.070103;
+	public static final double VERSION_NUMBER = 20180630.072418;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -201,6 +201,8 @@ public class Settings {
     //// replay
     public static HashMap<String, Boolean>    RECORD_KB_MOUSE
             = new HashMap<String, Boolean>();
+    public static HashMap<String, Boolean>    FAST_DISCONNECT
+    		= new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    RECORD_AUTOMATICALLY
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    HIDE_PRIVATE_MSGS_REPLAY //only hides, still in data
@@ -828,10 +830,19 @@ public class Settings {
         RECORD_KB_MOUSE.put("vanilla_resizable", false);
         RECORD_KB_MOUSE.put("lite",    false);
         RECORD_KB_MOUSE.put("default", false);
-        RECORD_KB_MOUSE.put("heavy",   true);
+		RECORD_KB_MOUSE.put("heavy", true);
         RECORD_KB_MOUSE.put("all",     true);
         RECORD_KB_MOUSE.put("custom",
             getPropBoolean(props, "record_kb_mouse", RECORD_KB_MOUSE.get("default")));
+        
+		FAST_DISCONNECT.put("vanilla", false);
+		FAST_DISCONNECT.put("vanilla_resizable", false);
+		FAST_DISCONNECT.put("lite", false);
+		FAST_DISCONNECT.put("default", false);
+		FAST_DISCONNECT.put("heavy", true);
+		FAST_DISCONNECT.put("all",     true);
+		FAST_DISCONNECT.put("custom",
+            getPropBoolean(props, "fast_disconnect", FAST_DISCONNECT.get("default")));
 
         RECORD_AUTOMATICALLY.put("vanilla", false);
         RECORD_AUTOMATICALLY.put("vanilla_resizable", false);
@@ -1229,6 +1240,8 @@ public class Settings {
             //// replay
             props.setProperty("record_kb_mouse",Boolean.toString(
                 RECORD_KB_MOUSE.get(preset)));
+			props.setProperty("fast_disconnect", Boolean.toString(
+				FAST_DISCONNECT.get(preset)));
             props.setProperty("record_automatically",Boolean.toString(
                 RECORD_AUTOMATICALLY.get(preset)));
 			props.setProperty("hide_private_msgs_replay",Boolean.toString(

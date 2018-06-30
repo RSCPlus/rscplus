@@ -196,6 +196,7 @@ public class ConfigWindow {
 	
     //// Replay tab
     private JCheckBox replayPanelRecordKBMouseCheckbox;
+	private JCheckBox replayPanelFastDisconnectCheckbox;
     private JCheckBox replayPanelRecordAutomaticallyCheckbox;
     private JCheckBox replayPanelHidePrivateMessagesCheckbox;
     private JCheckBox replayPanelShowSeekBarCheckbox;
@@ -1106,12 +1107,17 @@ public class ConfigWindow {
 		
         replayPanelRecordAutomaticallyCheckbox = addCheckbox("Record your play sessions by default", replayPanel);
 		replayPanelRecordAutomaticallyCheckbox.setToolTipText("Record your play sessions without having to click the record button every time you log in");
-        
+		
         replayPanelRecordKBMouseCheckbox = addCheckbox("(EXPERIMENTAL) Record Keyboard and Mouse input for future replay recordings", replayPanel);
 		replayPanelRecordKBMouseCheckbox.setToolTipText("(EXPERIMENTAL) additionally record mouse and keyboard inputs when recording a session");
         
-        addSettingsHeader(replayPanel, "Interface modifications");
+		addSettingsHeader(replayPanel, "Playback settings");
         
+		replayPanelFastDisconnectCheckbox = addCheckbox("Fast reconnect", replayPanel);
+		replayPanelFastDisconnectCheckbox.setToolTipText("When a disconnect happens in replay playback, it will reconnect as quick as it can");
+		
+		addSettingsHeader(replayPanel, "Interface modifications");
+		
         replayPanelShowSeekBarCheckbox = addCheckbox("Show seek bar during replay", replayPanel);
 		replayPanelShowSeekBarCheckbox.setToolTipText("Displays an incredibly helpful seek bar that you can use to move your position in the replay");
         
@@ -1554,6 +1560,7 @@ public class ConfigWindow {
 		
         // Replay tab
         replayPanelRecordAutomaticallyCheckbox.setSelected(Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
+		replayPanelFastDisconnectCheckbox.setSelected(Settings.FAST_DISCONNECT.get(Settings.currentProfile));
         replayPanelRecordKBMouseCheckbox.setSelected(Settings.RECORD_KB_MOUSE.get(Settings.currentProfile));
         replayPanelHidePrivateMessagesCheckbox.setSelected(Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile));
         replayPanelShowSeekBarCheckbox.setSelected(Settings.SHOW_SEEK_BAR.get(Settings.currentProfile));
@@ -1640,6 +1647,7 @@ public class ConfigWindow {
         
         // Replay
         Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
+		Settings.FAST_DISCONNECT.put(Settings.currentProfile, replayPanelFastDisconnectCheckbox.isSelected());
         Settings.RECORD_KB_MOUSE.put(Settings.currentProfile, replayPanelRecordKBMouseCheckbox.isSelected());
         Settings.HIDE_PRIVATE_MSGS_REPLAY.put(Settings.currentProfile, replayPanelHidePrivateMessagesCheckbox.isSelected());
         Settings.SHOW_SEEK_BAR.put(Settings.currentProfile, replayPanelShowSeekBarCheckbox.isSelected());

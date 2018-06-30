@@ -33,6 +33,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.zip.GZIPInputStream;
 import Client.Logger;
+import Client.Settings;
 
 public class ReplayServer implements Runnable {
 	String playbackDirectory;
@@ -240,6 +241,7 @@ public class ReplayServer implements Runnable {
 			
 			// Handle disconnects in replay playback
 			if (Replay.replay_version >= 1) {
+				// v1+ Disconnect handler
 				// If packet length is -1, it's a disconnection
 				if (length == -1) {
 					sync_with_client();
@@ -249,10 +251,11 @@ public class ReplayServer implements Runnable {
 					client = sock.accept();
 					Logger.Info("ReplayServer: Client reconnected");
 					
-					// TODO: Have a settings option for a replay instant reconnect hack
-					// Replay.timestamp = timestamp_input;
+					if (Replay.isSeeking || Settings.FAST_DISCONNECT.get(Settings.currentProfile))
+						Replay.timestamp = timestamp_input;
 				}
 			} else {
+				// v0 Disconnect handler
 				int timestamp_diff = timestamp_input - Replay.timestamp;
 				
 				// If the timestamp is 400+ frames in the future, it's a client disconnection
@@ -266,6 +269,9 @@ public class ReplayServer implements Runnable {
 					timestamp_diff -= 400;
 					Replay.timestamp = timestamp_input - timestamp_diff;
 					Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
+					
+					if (Replay.isSeeking || Settings.FAST_DISCONNECT.get(Settings.currentProfile))
+						Replay.timestamp = timestamp_input;
 				}
 			}
 			
