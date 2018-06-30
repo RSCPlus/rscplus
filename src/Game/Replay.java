@@ -235,7 +235,7 @@ public class Replay {
 	}
 	
 	public static void restartReplayPlayback() {
-		if (isRestarting || play_keys == null)
+		if (timestamp == 0 || isRestarting || play_keys == null)
 			return;
 		
 		try {
