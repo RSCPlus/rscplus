@@ -48,6 +48,7 @@ public class KeyboardHandler implements KeyListener {
 	 */
 	public static HashMap<String, KeybindSet> defaultKeybindSetList = new HashMap<String, KeybindSet>();
 	
+	// to detect if its altgr = ctr + alt
 	// TODO: Make spacebar clear the login message screen
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -55,7 +56,12 @@ public class KeyboardHandler implements KeyListener {
 			return;
         boolean shouldConsume;
 		
-		if (e.isControlDown()) {
+		boolean altgr = false;
+		if (e.isControlDown() && e.isAltDown()) {
+			altgr = true;
+		}
+		
+		if (e.isControlDown() && !altgr) {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.CTRL && e.getKeyCode() == kbs.getKey()) {
 					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
@@ -75,7 +81,7 @@ public class KeyboardHandler implements KeyListener {
 				}
 			}
 			
-		} else if (e.isAltDown()) {
+		} else if (e.isAltDown() && !altgr) {
 			for (KeybindSet kbs : keybindSetList) {
 				if (kbs.getModifier() == KeyModifier.ALT && e.getKeyCode() == kbs.getKey()) {
 					shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
@@ -133,7 +139,7 @@ public class KeyboardHandler implements KeyListener {
 			}
 			e.consume();
 		}
-			
+		
 		if (!e.isConsumed()) {
 			listener_key.keyPressed(e);
 		}
