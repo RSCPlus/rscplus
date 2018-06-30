@@ -166,6 +166,12 @@ public class ReplayServer implements Runnable {
 			while (!isDone) {
 				// Restart the replay
 				if (restart) {
+					// Sync on restart
+					// Offset client write by -1
+					client_write -= 1;
+					sync_with_client();
+					Client.loseConnection(false);
+					
 					boolean wasPaused = Replay.paused;
 					Replay.paused = false;
 					
@@ -179,6 +185,7 @@ public class ReplayServer implements Runnable {
 					file_input = new FileInputStream(file);
 					input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
 					Replay.timestamp = 0;
+					Replay.timestamp_client = 0;
 					Replay.timestamp_server_last = 0;
 					client_read = 0;
 					client_write = 0;

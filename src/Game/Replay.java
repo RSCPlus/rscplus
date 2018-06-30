@@ -242,8 +242,6 @@ public class Replay {
 			isRestarting = true;
 			play_keys.close();
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
-			Client.loseConnection(false);
-			Replay.timestamp_client = 0;
 			replayServer.restart = true;
 		} catch (Exception e) {
 			e.printStackTrace();
