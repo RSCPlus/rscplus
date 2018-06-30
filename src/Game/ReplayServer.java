@@ -304,7 +304,7 @@ public class ReplayServer implements Runnable {
 				{
 					int writeSize = client.write(buffer);
 					if (writeSize > 0)
-						client_write += client.write(buffer);
+						client_write += writeSize;
 				}
 			} catch (Exception e) {
 			}
