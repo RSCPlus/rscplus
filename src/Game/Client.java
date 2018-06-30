@@ -927,6 +927,8 @@ public class Client {
 			
 			// Open connection
 			URLConnection connection = updateURL.openConnection();
+			connection.setConnectTimeout(3000);
+			connection.setReadTimeout(3000);
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			// in our current client version, we are looking at the source file of Settings.java in the main repository
 			// in order to parse what the current version number is.

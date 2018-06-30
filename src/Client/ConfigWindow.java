@@ -132,6 +132,7 @@ public class ConfigWindow {
 	private JCheckBox generalPanelFatigueAlertCheckbox;
 	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
+	private JSlider generalPanelLogVerbositySlider;
 	private JSlider generalPanelCommandPatchModeSlider;
 	private JCheckBox generalPanelBypassAttackCheckbox;
 	private JCheckBox generalPanelRoofHidingCheckbox;
@@ -505,7 +506,7 @@ public class ConfigWindow {
 		generalPanel.add(generalPanelViewDistanceSlider);
 		generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
 		generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200, 55));
-		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 0, 0));
+		generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
 		generalPanelViewDistanceSlider.setMinorTickSpacing(500);
 		generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
 		generalPanelViewDistanceSlider.setMinimum(2300);
@@ -517,6 +518,38 @@ public class ConfigWindow {
 		generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
 		generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
 		generalPanelViewDistanceSlider.setPaintLabels(true);
+		
+		JPanel generalPanelLogVerbosityPanel = new JPanel();
+		generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(300, 128));
+		generalPanelLogVerbosityPanel.setLayout(new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
+		generalPanel.add(generalPanelLogVerbosityPanel);
+		
+		JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
+		generalPanelLogVerbosityTitle.setToolTipText("What max level of log text will be shown in the rscplus log/console");
+		generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
+		generalPanelLogVerbosityTitle.setAlignmentY((float)0.9);
+		
+		Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable = new Hashtable<Integer, JLabel>();
+		generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
+		generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
+		generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
+		generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Information"));
+		generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
+		
+		generalPanelLogVerbositySlider = new JSlider();
+		generalPanelLogVerbositySlider.setMajorTickSpacing(1);
+		generalPanelLogVerbositySlider.setLabelTable(generalPanelLogVerbosityLabelTable);
+		generalPanelLogVerbositySlider.setPaintLabels(true);
+		generalPanelLogVerbositySlider.setPaintTicks(true);
+		generalPanelLogVerbositySlider.setSnapToTicks(true);
+		generalPanelLogVerbositySlider.setMinimum(0);
+		generalPanelLogVerbositySlider.setMaximum(4);
+		generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
+		generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+		generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+		generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
+		generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
 		
 		///"Gameplay settings" are settings that can be seen inside the game
 		addSettingsHeader(generalPanel, "Gameplay settings");
@@ -645,7 +678,7 @@ public class ConfigWindow {
 					generalPanelCommandPatchModeDesc.setText("<html>No item command patching</html>");
 					break;
 				default:
-					Logger.Error("Invalid command patch mode value");
+					Logger.Error("Invalid log verbosity value");
 					break;
 				}
 			}
@@ -1438,6 +1471,7 @@ public class ConfigWindow {
 		generalPanelFatigueAlertCheckbox.setSelected(Settings.FATIGUE_ALERT.get(Settings.currentProfile));
 		generalPanelInventoryFullAlertCheckbox.setSelected(Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
 		generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
+		generalPanelLogVerbositySlider.setValue(Settings.LOG_VERBOSITY.get(Settings.currentProfile));
 		generalPanelCommandPatchModeSlider.setValue(Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile));
 		generalPanelBypassAttackCheckbox.setSelected(Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
@@ -1549,6 +1583,7 @@ public class ConfigWindow {
 		Settings.FATIGUE_ALERT.put(Settings.currentProfile, generalPanelFatigueAlertCheckbox.isSelected());
 		Settings.INVENTORY_FULL_ALERT.put(Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
 		Settings.NAME_PATCH_TYPE.put(Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());
+		Settings.LOG_VERBOSITY.put(Settings.currentProfile, generalPanelLogVerbositySlider.getValue());
 		Settings.COMMAND_PATCH_TYPE.put(Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
 		Settings.ATTACK_ALWAYS_LEFT_CLICK.put(Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
 		Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());

@@ -47,6 +47,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import Client.Settings.Dir;
 
 /**
  * Singleton class which hooks variables and patches classes.
@@ -89,6 +90,8 @@ public class JClassPatcher {
 		patchGeneric(node);
 		
 		if (Settings.DISASSEMBLE.get(Settings.currentProfile)) {
+			Settings.Dir.DUMP = Dir.JAR + "/" + Settings.DISASSEMBLE_DIRECTORY.get("custom");
+			Util.makeDirectory(Dir.DUMP);
 			Logger.Info("Disassembling file: " + node.name + ".class");
 			dumpClass(node);
 		}
@@ -102,6 +105,23 @@ public class JClassPatcher {
 		Iterator<MethodNode> methodNodeList = node.methods.iterator();
 		while (methodNodeList.hasNext()) {
 			MethodNode methodNode = methodNodeList.next();
+			
+			// General byte patch
+			Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+			while (insnNodeList.hasNext()) {
+				AbstractInsnNode insnNode = insnNodeList.next();
+				
+				if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+					MethodInsnNode call = (MethodInsnNode)insnNode;
+					
+					// Patch calls to System.out.println and route them to Logger.Game
+					if (call.owner.equals("java/io/PrintStream") && call.name.equals("println")) {
+						methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Logger", "Game", "(Ljava/lang/String;)V"));
+						methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP));
+						methodNode.instructions.remove(insnNode);
+					}
+				}
+			}
 			
 			hookClassVariable(methodNode, "ua", "fb", "Ljava/awt/image/ImageConsumer;", "Game/Renderer", "image_consumer", "Ljava/awt/image/ImageConsumer;", true, true);
 			hookClassVariable(methodNode, "ua", "u", "I", "Game/Renderer", "width", "I", false, true);

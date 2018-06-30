@@ -60,6 +60,7 @@ public class Launcher extends JFrame implements Runnable {
 	 * Renders the launcher progress bar window, then calls {@link #run()}.
 	 */
 	public void init() {
+		Logger.start();
 		Logger.Info("Starting rscplus");
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -221,8 +222,8 @@ public class Launcher extends JFrame implements Runnable {
 			
 			// Open connection
 			URLConnection connection = url.openConnection();
-			connection.setConnectTimeout(2000);
-			connection.setReadTimeout(2000);
+			connection.setConnectTimeout(3000);
+			connection.setReadTimeout(3000);
 			
 			int size = connection.getContentLength();
 			int offset = 0;
@@ -280,9 +281,10 @@ public class Launcher extends JFrame implements Runnable {
 	}
 	
 	public static void main(String[] args) {
+		Logger.start();
 		Settings.initDir();
-		setConfigWindow(new ConfigWindow());
 		Settings.initSettings();
+		setConfigWindow(new ConfigWindow());
 		TrayHandler.initTrayIcon();
 		NotificationsHandler.initialize();
 		Launcher.getInstance().init();

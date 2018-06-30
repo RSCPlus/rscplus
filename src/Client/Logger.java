@@ -25,18 +25,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import org.fusesource.jansi.Ansi;
-import Game.Replay;
 
 /**
  * A simple logger
  */
 public class Logger {
 	
-	private static final String[] m_logTypeName = { "DEBUG", " INFO", "ERROR", " WARN" };
+	private static final String[] m_logTypeName = { "ERROR", " WARN", " GAME", " INFO", " DEBUG" };
 	private static PrintWriter m_logWriter;
 	
 	public enum Type {
-		DEBUG(0), INFO(1), ERROR(2), WARN(3);
+		ERROR(0), WARN(1), GAME(2), INFO(3), DEBUG(4);
 		
 		Type(int id) {
 			this.id = id;
@@ -61,7 +60,7 @@ public class Logger {
 	}
 	
 	public static void Log(Type type, String message) {
-		if (Replay.isSeeking && !Settings.DEBUG.get(Settings.currentProfile) && type == Type.DEBUG)
+		if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile))
 			return;
 		
 		String msg = "[" + m_logTypeName[type.id] + "] " + message;
@@ -78,14 +77,6 @@ public class Logger {
 		}
 	}
 	
-	public static void Debug(String message) {
-		Log(Type.DEBUG, message);
-	}
-	
-	public static void Info(String message) {
-		Log(Type.INFO, message);
-	}
-	
 	public static void Error(String message) {
 		Log(Type.ERROR, message);
 	}
@@ -94,20 +85,36 @@ public class Logger {
 		Log(Type.WARN, message);
 	}
 	
-	public static void Debug(Ansi message) {
-		Log(Type.DEBUG, message.toString());
+	public static void Game(String message) {
+		Log(Type.GAME, message);
 	}
 	
-	public static void Info(Ansi message) {
-		Log(Type.INFO, message.toString());
+	public static void Info(String message) {
+		Log(Type.INFO, message);
+	}
+	
+	public static void Debug(String message) {
+		Log(Type.DEBUG, message);
+	}
+	
+	public static void Warn(Ansi message) {
+		Log(Type.WARN, message.toString());
 	}
 	
 	public static void Error(Ansi message) {
 		Log(Type.ERROR, message.toString());
 	}
 	
-	public static void Warn(Ansi message) {
-		Log(Type.WARN, message.toString());
+	public static void Game(Ansi message) {
+		Log(Type.GAME, message.toString());
+	}
+	
+	public static void Info(Ansi message) {
+		Log(Type.INFO, message.toString());
+	}
+	
+	public static void Debug(Ansi message) {
+		Log(Type.DEBUG, message.toString());
 	}
 	
 }

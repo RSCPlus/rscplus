@@ -168,11 +168,11 @@ public class Util {
 		try {
 			url = new URL("http://www.runescape.com/classicapplet/playclassic.ws");
 			con = url.openConnection();
+			con.setConnectTimeout(3000);
+			con.setReadTimeout(3000);
 			is = con.getInputStream();
 			br = new BufferedReader(new InputStreamReader(is));
 		} catch (IOException ioe) {
-			Logger.Error("Network connection issues");
-			ioe.printStackTrace();
 			try {
 				if (is != null)
 					is.close();
@@ -195,13 +195,9 @@ public class Util {
 				}
 			}
 		} catch (IOException ioe) {
-			Logger.Error("Error parsing");
-			ioe.printStackTrace();
-			return null;
+			return worldPopArray;
 		} catch (NumberFormatException nfe) {
-			Logger.Error("Error parsing a number");
-			nfe.printStackTrace();
-			return null;
+			return worldPopArray;
 		}
 		
 		try {

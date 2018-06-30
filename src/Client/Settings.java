@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180630.004211;
+	public static final double VERSION_NUMBER = 20180630.035829;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -113,8 +113,10 @@ public class Settings {
             = new HashMap<String, Integer>();
     public static HashMap<String, Boolean>    START_SEARCHEDBANK
             = new HashMap<String, Boolean>();
-    public static HashMap<String, String>    SEARCH_BANK_WORD
+    public static HashMap<String, String>     SEARCH_BANK_WORD
             = new HashMap<String, String>();
+    public static HashMap<String, Integer>    LOG_VERBOSITY
+			= new HashMap<String, Integer>();
 
     //// overlays
     public static HashMap<String, Boolean>    SHOW_HP_PRAYER_FATIGUE_OVERLAY
@@ -475,6 +477,15 @@ public class Settings {
         SEARCH_BANK_WORD.put("all",     "");
         SEARCH_BANK_WORD.put("custom",
             getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
+        
+		LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
+		LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
+		LOG_VERBOSITY.put("lite", Logger.Type.WARN.id);
+		LOG_VERBOSITY.put("default", Logger.Type.GAME.id);
+		LOG_VERBOSITY.put("heavy", Logger.Type.INFO.id);
+		LOG_VERBOSITY.put("all", Logger.Type.DEBUG.id);
+        LOG_VERBOSITY.put("custom",
+            getPropInt(props, "log_verbosity", LOG_VERBOSITY.get("default")));
 
         //// overlays
         SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -1012,9 +1023,6 @@ public class Settings {
 		} catch (Exception e) {
 		}
 		
-		Logger.start();
-		Logger.Info("Jar Location: " + Dir.JAR);
-		
 		// Load other directories
 		Dir.SCREENSHOT = Dir.JAR + "/screenshots";
 		Util.makeDirectory(Dir.SCREENSHOT);
@@ -1036,12 +1044,9 @@ public class Settings {
 					definePresets(props);
 					save("default");
 				}
-			} else {
-				Logger.Info("Please delete the directory you've called config.ini");
 			}
 
 			FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
-			Logger.Info("Loaded config.ini");
 			props.load(in);
 			in.close();
 
@@ -1056,11 +1061,7 @@ public class Settings {
 				kbs.key = Integer.parseInt(keybindCombo.substring(2));
 			}
 		} catch (Exception e) {
-		}
-		
-		if (DISASSEMBLE.get("custom")) { // TODO: Consider moving to a more relevant place
-			Dir.DUMP = Dir.JAR + "/" + DISASSEMBLE_DIRECTORY.get("custom");
-			Util.makeDirectory(Dir.DUMP);
+			e.printStackTrace();
 		}
 	}
 	
@@ -1142,6 +1143,8 @@ public class Settings {
                 START_SEARCHEDBANK.get(preset)));
             props.setProperty("search_bank_word",
                 SEARCH_BANK_WORD.get(preset));
+            props.setProperty("log_verbosity", Integer.toString(
+                LOG_VERBOSITY.get(preset)));
 
             //// overlays
             props.setProperty("show_statusdisplay",Boolean.toString(
