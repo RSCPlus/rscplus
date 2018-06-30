@@ -487,6 +487,8 @@ public class JClassPatcher {
 				methodNode.instructions.insertBefore(findNode, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(findNode, label);
+				methodNode.instructions.insertBefore(findNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Replay",
+						"disconnect_hook", "()V", false));
 				
 			}
 			if (methodNode.name.equals("J") && methodNode.desc.equals("(I)V")) {

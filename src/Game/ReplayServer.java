@@ -90,10 +90,12 @@ public class ReplayServer implements Runnable {
 				
 				// Skip data, we need to find the last timestamp
 				int length = fileInput.readInt();
-				int skipped = fileInput.skipBytes(length);
+				if (length > 0) {
+					int skipped = fileInput.skipBytes(length);
 				
-				if (skipped != length)
-					break;
+					if (skipped != length)
+						break;
+				}
 					
 				timestamp_ret = timestamp_input;
 			}
@@ -210,27 +212,48 @@ public class ReplayServer implements Runnable {
 				return false;
 			
 			int length = input.readInt();
-			ByteBuffer buffer = ByteBuffer.allocate(length);
-			input.read(buffer.array());
-			available = file_input.available();
+			ByteBuffer buffer = null;
+			if (length > 0) {
+				buffer = ByteBuffer.allocate(length);
+				input.read(buffer.array());
+				available = file_input.available();
+			}
 			
-			int timestamp_diff = timestamp_input - Replay.timestamp;
+			if (timestamp_input < Replay.timestamp) {
+				Logger.Warn("ReplayServer: Input timestamp is in the past, skipping packet");
+				return true;
+			}
+			
+			// Handle disconnects in replay playback
+			if (Replay.replay_version >= 1) {
+				// If packet length is -1, it's a disconnection
+				if (length == -1) {
+					Logger.Info("ReplayServer: Killing client connection");
+					client.close();
+					Logger.Info("ReplayServer: Reconnecting client");
+					client = sock.accept();
+					Logger.Info("ReplayServer: Client reconnected");
+					
+					// TODO: Have a settings option for a replay instant reconnect hack
+					// Replay.timestamp = timestamp_input;
+				}
+			} else {
+				int timestamp_diff = timestamp_input - Replay.timestamp;
 				
-			// If the timestamp is 400+ frames in the future, it's a client disconnection
-			// So we disconnect and reconnect the client
-			if (timestamp_diff > 400) {
-				Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp + ", timestamp_diff=" + timestamp_diff);
-				client.close();
-				client = sock.accept();
-				timestamp_diff -= 400;
-				Replay.timestamp = timestamp_input - timestamp_diff;
-				Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
+				// If the timestamp is 400+ frames in the future, it's a client disconnection
+				// So we disconnect and reconnect the client
+				// NOTE: Versions older than v1 have no disconnection indication
+				if (timestamp_diff > 400) {
+					Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp + ", timestamp_diff=" + timestamp_diff);
+					client.close();
+					client = sock.accept();
+					timestamp_diff -= 400;
+					Replay.timestamp = timestamp_input - timestamp_diff;
+					Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
+				}
 			}
 			
 			// Handle seeking
-			if (timestamp_new != Replay.TIMESTAMP_EOF)
-				Replay.timestamp = timestamp_input;
-			
 			if (timestamp_new != Replay.TIMESTAMP_EOF) {
 				Replay.timestamp = timestamp_input;
 				if (Replay.timestamp >= timestamp_new) {
@@ -264,7 +287,8 @@ public class ReplayServer implements Runnable {
 			
 			// Write out replay data to the client
 			try {
-				client_write += client.write(buffer);
+				if (buffer != null)
+					client_write += client.write(buffer);
 			} catch (Exception e) {
 			}
 			

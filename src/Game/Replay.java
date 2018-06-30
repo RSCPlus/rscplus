@@ -45,7 +45,7 @@ import Client.Util;
 
 public class Replay {
 	// If we ever change replays in a way that breaks backwards compatibility, we need to increment this
-	public static int VERSION = 0;
+	public static int VERSION = 1;
 	
 	static DataOutputStream output = null;
 	static DataOutputStream input = null;
@@ -100,6 +100,7 @@ public class Replay {
 	public static int prevPlayerY;
 	
 	public static int timestamp;
+	public static int timestamp_disconnect;
 	public static int timestamp_client;
 	public static int timestamp_server_last;
 	public static int timestamp_kb_input;
@@ -135,6 +136,7 @@ public class Replay {
 		timestamp = 0;
 		timestamp_client = 0;
 		timestamp_server_last = 0;
+		timestamp_disconnect = TIMESTAMP_EOF;
 		isRestarting = false;
 		isSeeking = false;
 		isRecording = false;
@@ -727,6 +729,13 @@ public class Replay {
 		if (retained_timestamp != TIMESTAMP_EOF) {
 			// new set of packets arrived, dump previous ones
 			try {
+				// Handle disconnection
+				if (timestamp_disconnect != TIMESTAMP_EOF && retained_timestamp >= timestamp_disconnect) {
+					input.writeInt(timestamp_disconnect);
+					input.writeInt(-1);
+					timestamp_disconnect = TIMESTAMP_EOF;
+				}
+				
 				input.writeInt(retained_timestamp);
 				input.writeInt(retained_bread);
 				input.write(retained_bytes, retained_off, retained_bread);
@@ -804,6 +813,10 @@ public class Replay {
 		}
 		
 		return key;
+	}
+	
+	public static void disconnect_hook() {
+		timestamp_disconnect = timestamp;
 	}
 	
 	public static void saveEncOpcode(int inopcode) {

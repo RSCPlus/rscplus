@@ -32,11 +32,11 @@ import Game.Replay;
  */
 public class Logger {
 	
-	private static final String[] m_logTypeName = { "DEBUG", " INFO", "ERROR" };
+	private static final String[] m_logTypeName = { "DEBUG", " INFO", "ERROR", " WARN" };
 	private static PrintWriter m_logWriter;
 	
 	public enum Type {
-		DEBUG(0), INFO(1), ERROR(2);
+		DEBUG(0), INFO(1), ERROR(2), WARN(3);
 		
 		Type(int id) {
 			this.id = id;
@@ -90,6 +90,10 @@ public class Logger {
 		Log(Type.ERROR, message);
 	}
 	
+	public static void Warn(String message) {
+		Log(Type.WARN, message);
+	}
+	
 	public static void Debug(Ansi message) {
 		Log(Type.DEBUG, message.toString());
 	}
@@ -100,6 +104,10 @@ public class Logger {
 	
 	public static void Error(Ansi message) {
 		Log(Type.ERROR, message.toString());
+	}
+	
+	public static void Warn(Ansi message) {
+		Log(Type.WARN, message.toString());
 	}
 	
 }
