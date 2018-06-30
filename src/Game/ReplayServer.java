@@ -60,6 +60,16 @@ public class ReplayServer implements Runnable {
 		readBuffer = ByteBuffer.allocate(1024);
 	}
 	
+	private void sync_with_client() {
+		// Wait for client
+		while (client_read < client_write) {
+			try {
+				Thread.sleep(1);
+			} catch (Exception e) {
+			}
+		}
+	}
+	
 	public int getPercentRemaining() {
 		try {
 			return (int)(available * 100 / size);
@@ -154,6 +164,9 @@ public class ReplayServer implements Runnable {
 				if (restart) {
 					boolean wasPaused = Replay.paused;
 					Replay.paused = false;
+					
+					sync_with_client();
+					
 					client.close();
 					client = sock.accept();
 					if (Replay.isSeeking)
@@ -228,6 +241,7 @@ public class ReplayServer implements Runnable {
 			if (Replay.replay_version >= 1) {
 				// If packet length is -1, it's a disconnection
 				if (length == -1) {
+					sync_with_client();
 					Logger.Info("ReplayServer: Killing client connection");
 					client.close();
 					Logger.Info("ReplayServer: Reconnecting client");
@@ -244,6 +258,7 @@ public class ReplayServer implements Runnable {
 				// So we disconnect and reconnect the client
 				// NOTE: Versions older than v1 have no disconnection indication
 				if (timestamp_diff > 400) {
+					sync_with_client();
 					Logger.Info("ReplayServer: Killing client connection; timestamp=" + Replay.timestamp + ", timestamp_diff=" + timestamp_diff);
 					client.close();
 					client = sock.accept();
@@ -257,9 +272,7 @@ public class ReplayServer implements Runnable {
 			if (timestamp_new != Replay.TIMESTAMP_EOF) {
 				Replay.timestamp = timestamp_input;
 				if (Replay.timestamp >= timestamp_new) {
-					// Wait for client
-					while (client_read < client_write)
-						Thread.sleep(1);
+					sync_with_client();
 					
 					Replay.isSeeking = false;
 					timestamp_new = Replay.TIMESTAMP_EOF;
@@ -288,7 +301,11 @@ public class ReplayServer implements Runnable {
 			// Write out replay data to the client
 			try {
 				if (buffer != null)
-					client_write += client.write(buffer);
+				{
+					int writeSize = client.write(buffer);
+					if (writeSize > 0)
+						client_write += client.write(buffer);
+				}
 			} catch (Exception e) {
 			}
 			
