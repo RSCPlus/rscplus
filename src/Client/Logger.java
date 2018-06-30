@@ -24,6 +24,9 @@ package Client;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.fusesource.jansi.Ansi;
 
 /**
@@ -63,7 +66,10 @@ public class Logger {
 		if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile))
 			return;
 		
-		String msg = "[" + m_logTypeName[type.id] + "] " + message;
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		String msg = "[" + m_logTypeName[type.id] + "]" +
+					 "[" + dateFormat.format(new Date()) + "]" +
+					 " " + message;
 		
 		if (type != Type.ERROR)
 			System.out.println(msg);
