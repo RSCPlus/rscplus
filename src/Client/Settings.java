@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180701.230018;
+	public static final double VERSION_NUMBER = 20180701.233802;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -2078,6 +2078,10 @@ public class Settings {
 		COMBAT_MENU_SHOWN_BOOL = COMBAT_MENU_SHOWN.get(currentProfile);
 	}
 	
+	public static void outputInjectedVariables() {
+		// TODO: get rid of these variables and this function if possible
+		COMBAT_STYLE.put(currentProfile, COMBAT_STYLE_INT);
+	}
 	
 	/**
 	 * Returns if it is recommended for the OS to use system notifications.
