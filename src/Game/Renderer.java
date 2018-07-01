@@ -738,7 +738,7 @@ public class Renderer {
 					y -= (y + bounds.height) - (Renderer.height);
 				
 				// Draw the final outcome
-				setAlpha(g2, 0.75f);
+				setAlpha(g2, 0.65f);
 				g2.setColor(color_shadow);
 				g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
 				setAlpha(g2, 1.0f);
