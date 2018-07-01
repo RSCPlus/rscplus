@@ -158,7 +158,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		if(!Replay.isPlaying) {
 			title += "World " + Settings.WORLD.get(Settings.currentProfile);
 			
-			if (Client.player_name != null && Client.player_name.length() != 0) {
+			if (Client.player_name.length() != 0) {
 				title += "; " + Client.player_name;
 			}
 		}

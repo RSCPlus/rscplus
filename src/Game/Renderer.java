@@ -225,7 +225,7 @@ public class Renderer {
 			// Update player coords
 			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 				NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
-				if (npc != null && Client.player_name != null && Client.player_name.equals(npc.name)) {
+				if (npc != null && Client.player_name.equals(npc.name)) {
 					Client.player_posX = npc.x;
 					Client.player_posY = npc.y;
 					Client.player_height = npc.height;
@@ -623,8 +623,7 @@ public class Renderer {
 				
 				x = 380;
 				y = 32;
-				if (Client.player_name != null)
-					drawShadowText(g2, Client.player_name, x, y, color_text, false);
+				drawShadowText(g2, Client.player_name, x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "LocalRegion: (" + Client.localRegionX + "," + Client.localRegionY + ")", x, y, color_text, false);
 				y += 16;

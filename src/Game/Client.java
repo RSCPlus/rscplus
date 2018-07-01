@@ -162,7 +162,7 @@ public class Client {
 	public static int autologin_timeout;
 	
 	public static Object player_object;
-	public static String player_name = null;
+	public static String player_name = "";
 	public static int player_posX = -1;
 	public static int player_posY = -1;
 	public static int player_height = -1;
@@ -419,7 +419,7 @@ public class Client {
 		Replay.closeReplayPlayback();
 		Replay.closeReplayRecording();
 		adaptStrings();
-		player_name = null;
+		player_name = "";
 	}
 	
 	public static void init_game() {
@@ -489,7 +489,7 @@ public class Client {
 		try {
 			String name = (String)Reflection.characterName.get(player_object);
 			if (name != null) {
-				if (player_name == null || !name.equals(player_name)) {
+				if (!name.equals(player_name)) {
 					player_name = name;
 				}
 			}
@@ -758,7 +758,7 @@ public class Client {
 				return subline;
 				
 			} else if (command.startsWith("system ")) {// ~007~@bla@Username~007~ Msg
-				if (Client.player_name != null) {
+				if (Client.player_name.length() != 0) {
 					return "~007~@bla@" + Client.player_name + ":~007~@yel@" + line.substring(9, line.length());
 				} else {
 					return line.substring(9, line.length()); // send the message anyway
@@ -1095,7 +1095,7 @@ public class Client {
 	public static void messageHook(String username, String message, int type) {
 		// Close dialogues when player says something in-game in quest chat
 		if (Replay.isPlaying) {
-			if (username != null && Client.player_name != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
+			if (username != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
 				Replay.closeDialogue = true;
 			}
 		}
