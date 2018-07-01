@@ -729,7 +729,8 @@ public class Renderer {
 				Dimension extraBounds = getStringBounds(g2, extraOptions);
 				if (extraOptions.length() == 0)
 					extraBounds.height = 0;
-				bounds.width = Integer.max(bounds.width, extraOptionsOffsetX + extraBounds.width);
+				extraBounds.width += extraOptionsOffsetX;
+				bounds.width = (bounds.width > extraBounds.width) ? bounds.width : extraBounds.width;
 				bounds.height += extraOptionsOffsetY + extraBounds.height;
 				if (x + bounds.width > Renderer.width - 4)
 					x -= (x + bounds.width) - (Renderer.width - 4);
