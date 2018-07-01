@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180701.002315;
+	public static final double VERSION_NUMBER = 20180701.223338;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -120,6 +120,8 @@ public class Settings {
 
     //// overlays
     public static HashMap<String, Boolean>    SHOW_HP_PRAYER_FATIGUE_OVERLAY
+            = new HashMap<String, Boolean>();
+    public static HashMap<String, Boolean>    SHOW_MOUSE_TOOLTIP
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    SHOW_BUFFS
             = new HashMap<String, Boolean>();
@@ -507,7 +509,16 @@ public class Settings {
         SHOW_BUFFS.put("all",     true);
         SHOW_BUFFS.put("custom",
             getPropBoolean(props, "show_buffs", SHOW_BUFFS.get("default")));
-
+        
+		SHOW_MOUSE_TOOLTIP.put("vanilla", false);
+		SHOW_MOUSE_TOOLTIP.put("vanilla_resizable", false);
+		SHOW_MOUSE_TOOLTIP.put("lite", false);
+		SHOW_MOUSE_TOOLTIP.put("default", true);
+		SHOW_MOUSE_TOOLTIP.put("heavy", true);
+		SHOW_MOUSE_TOOLTIP.put("all", true);
+		SHOW_MOUSE_TOOLTIP.put("custom",
+            getPropBoolean(props, "show_mouse_tooltip", SHOW_MOUSE_TOOLTIP.get("default")));
+        
         SHOW_INVCOUNT.put("vanilla", false);
         SHOW_INVCOUNT.put("vanilla_resizable", false);
         SHOW_INVCOUNT.put("lite",    true);
@@ -1162,6 +1173,8 @@ public class Settings {
                 SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
             props.setProperty("show_buffs",Boolean.toString(
                 SHOW_BUFFS.get(preset)));
+            props.setProperty("show_mouse_tooltip",Boolean.toString(
+            	SHOW_MOUSE_TOOLTIP.get(preset)));
             props.setProperty("show_invcount",Boolean.toString(
                 SHOW_INVCOUNT.get(preset)));
             props.setProperty("show_iteminfo",Boolean.toString(

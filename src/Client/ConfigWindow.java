@@ -147,6 +147,7 @@ public class ConfigWindow {
 	//// Overlays tab
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
 	private JCheckBox overlayPanelBuffsCheckbox;
+	private JCheckBox overlayPanelMouseTooltipCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
 	private JCheckBox overlayPanelRetroFpsCheckbox;
 	private JCheckBox overlayPanelItemNamesCheckbox;
@@ -721,6 +722,9 @@ public class ConfigWindow {
 		
 		overlayPanelBuffsCheckbox = addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
 		overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
+		
+		overlayPanelMouseTooltipCheckbox = addCheckbox("Show mouse hover actions at mouse cursor", overlayPanel);
+		overlayPanelMouseTooltipCheckbox.setToolTipText("Moves the text at the top left of the game to the mouse cursor");
 		
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
 		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
@@ -1511,6 +1515,7 @@ public class ConfigWindow {
 		// Overlays tab
 		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
 		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
+		overlayPanelMouseTooltipCheckbox.setSelected(Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile));
 		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
 		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
 		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
@@ -1605,6 +1610,7 @@ public class ConfigWindow {
 		// Overlays options
 		Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
 		Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
+		Settings.SHOW_MOUSE_TOOLTIP.put(Settings.currentProfile, overlayPanelMouseTooltipCheckbox.isSelected());
 		Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
 		Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());
 		Settings.SHOW_ITEM_GROUND_OVERLAY.put(Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
