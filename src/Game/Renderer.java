@@ -222,17 +222,26 @@ public class Renderer {
 		
 		// In-game UI
 		if (Client.state == Client.STATE_GAME) {
+			int npcCount = 0;
+			int playerCount = 0;
 			
 			// Update player coords
 			for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 				NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
-				if (npc != null && Client.player_name.equals(npc.name)) {
-					Client.player_posX = npc.x;
-					Client.player_posY = npc.y;
-					Client.player_height = npc.height;
-					Client.player_width = npc.width;
+				if (npc != null) {
+					if (npc.type == NPC.TYPE_PLAYER)
+						playerCount++;
+					else if (npc.type == NPC.TYPE_MOB)
+						npcCount++;
 					
-					Client.isGameLoaded = true;
+					if (Client.player_name.equals(npc.name)) {
+						Client.player_posX = npc.x;
+						Client.player_posY = npc.y;
+						Client.player_height = npc.height;
+						Client.player_width = npc.width;
+					
+						Client.isGameLoaded = true;
+					}
 				}
 			}
 			
@@ -556,8 +565,6 @@ public class Renderer {
 				}
 			}
 			
-			final int npcCount = Client.npc_list.size();
-			
 			// Clear npc list for the next frame
 			Client.npc_list.clear();
 			
@@ -628,6 +635,8 @@ public class Renderer {
 				x = 380;
 				y = 32;
 				drawShadowText(g2, Client.player_name, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "Player Count: " + playerCount, x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "NPC Count: " + npcCount, x, y, color_text, false);
 				y += 16;
