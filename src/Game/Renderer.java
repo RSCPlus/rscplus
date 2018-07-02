@@ -720,6 +720,9 @@ public class Renderer {
 					extraOptions = colorlessText.substring(indexExtraOptions + 1).trim();
 					colorlessText = colorlessText.substring(0, indexExtraOptions).trim();
 				}
+				
+				if (extraOptions.length() > 0)
+					extraOptions = "(" + extraOptions + ")";
 
 				x = MouseHandler.x + 16;
 				y = MouseHandler.y + 28;
