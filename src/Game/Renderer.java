@@ -555,6 +555,9 @@ public class Renderer {
 					}
 				}
 			}
+			
+			final int npcCount = Client.npc_list.size();
+			
 			// Clear npc list for the next frame
 			Client.npc_list.clear();
 			
@@ -625,6 +628,8 @@ public class Renderer {
 				x = 380;
 				y = 32;
 				drawShadowText(g2, Client.player_name, x, y, color_text, false);
+				y += 16;
+				drawShadowText(g2, "NPC Count: " + npcCount, x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "LocalRegion: (" + Client.localRegionX + "," + Client.localRegionY + ")", x, y, color_text, false);
 				y += 16;
