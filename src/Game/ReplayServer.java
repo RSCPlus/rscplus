@@ -55,6 +55,7 @@ public class ReplayServer implements Runnable {
 	
 	public int client_read = 0;
 	public int client_write = 0;
+	public int client_writePrev = 0;
 	
 	ReplayServer(String directory) {
 		playbackDirectory = directory;
@@ -63,7 +64,7 @@ public class ReplayServer implements Runnable {
 	
 	private void sync_with_client() {
 		// Wait for client
-		while (client_read < client_write) {
+		while (client_read < client_writePrev) {
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) {
@@ -72,6 +73,7 @@ public class ReplayServer implements Runnable {
 		
 		client_read = 0;
 		client_write = 0;
+		client_writePrev = 0;
 	}
 	
 	public int getPercentRemaining() {
@@ -167,8 +169,6 @@ public class ReplayServer implements Runnable {
 				// Restart the replay
 				if (restart) {
 					// Sync on restart
-					// Offset client write by -1
-					client_write -= 1;
 					sync_with_client();
 					Client.loseConnection(false);
 					
@@ -316,8 +316,10 @@ public class ReplayServer implements Runnable {
 				if (buffer != null)
 				{
 					int writeSize = client.write(buffer);
-					if (writeSize > 0)
+					if (writeSize > 0) {
+						client_writePrev = client_write;
 						client_write += writeSize;
+					}
 				}
 			} catch (Exception e) {
 			}
