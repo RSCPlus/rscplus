@@ -447,9 +447,24 @@ public class Renderer {
 			int x = 24;
 			int y = 32;
 			
-			if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile)) { // combat menu is showing, so move everything down
-				y = 138;
+			if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile)) // combat menu is showing, so move everything down
+				y = 132;
+			
+			// NPC Post-processing for ui
+			if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {
+				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
+					NPC npc = iterator.next();
+					if (npc != null && isInCombatWithNPC(npc)) {
+						drawNPCBar(g2, 7, y, npc);
+						// Increment y by npc bar height, so we can have multiple bars
+						// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
+						// that our combat detection isn't accurate
+						y += 50;
+					}
+				}
+				y += 16;
 			}
+			
 			if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
 				if (width < 800) {
 					if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
@@ -551,20 +566,6 @@ public class Renderer {
 				}
 			}
 			
-			// NPC Post-processing for ui
-			if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {
-				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
-					NPC npc = iterator.next();
-					if (npc != null && isInCombatWithNPC(npc)) {
-						drawNPCBar(g2, 7, y, npc);
-						// Increment y by npc bar height, so we can have multiple bars
-						// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
-						// that our combat detection isn't accurate
-						y += 50;
-					}
-				}
-			}
-			
 			// Clear npc list for the next frame
 			Client.npc_list.clear();
 			
@@ -644,7 +645,7 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "WorldCoord: (" + (Client.localRegionX + Client.regionX) + "," + (Client.localRegionY + Client.regionY) + ")", x, y, color_text, false);
+				drawShadowText(g2, "WorldCoord: (" + Client.worldX + "," + Client.worldY + ")", x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "Plane: (" + Client.planeWidth + "," + Client.planeHeight + "," + Client.planeIndex + ")", x, y, color_text, false);
 				y += 16;

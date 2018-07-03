@@ -172,6 +172,8 @@ public class Client {
 	
 	public static int regionX = -1;
 	public static int regionY = -1;
+	public static int worldX = -1;
+	public static int worldY = -1;
 	public static int localRegionX = -1;
 	public static int localRegionY = -1;
 	public static int planeWidth = -1;
@@ -348,6 +350,10 @@ public class Client {
 			runReplayHook = false;
 			login_hook();
 		}
+		
+		// Set world coordinates
+		worldX = Client.localRegionX + Client.regionX;
+		worldY = Client.localRegionY + Client.regionY;
 		
 		updates++;
 		time = System.currentTimeMillis();
