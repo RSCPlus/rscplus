@@ -370,8 +370,8 @@ public class Replay {
 			input.close();
 			keys.close();
             if (started_record_kb_mouse) {
-				keyboard.writeInt(TIMESTAMP_EOF);
-				mouse.writeInt(TIMESTAMP_EOF);
+				keyboard.write(buffer.array());
+				mouse.write(buffer.array());
                 keyboard.close();
                 mouse.close();
             }
