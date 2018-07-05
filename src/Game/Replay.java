@@ -47,7 +47,7 @@ import Client.Util;
 
 public class Replay {
 	// If we ever change replays in a way that breaks backwards compatibility, we need to increment this
-	public static int VERSION = 2;
+	public static int VERSION = 3;
 	
 	static DataOutputStream output = null;
 	static DataOutputStream input = null;
@@ -342,9 +342,12 @@ public class Replay {
 			// write it here
 			if (retained_timestamp != TIMESTAMP_EOF && retained_bytes != null) {
 				try {
-					input.writeInt(retained_timestamp);
-					input.writeInt(retained_bread);
-					input.write(retained_bytes, retained_off, retained_bread);
+					ByteBuffer buffer = ByteBuffer.allocate(retained_bread + 8);
+					buffer.putInt(retained_timestamp);
+					buffer.putInt(retained_bread);
+					buffer.put(retained_bytes, retained_off, retained_bread);
+					input_checksum.update(buffer.array());
+					input.write(buffer.array());
 				} catch (Exception e) {
 					e.printStackTrace();
 					shutdown_error();
@@ -352,8 +355,12 @@ public class Replay {
 			}
 			
 			// Write EOF values
-			input.writeInt(TIMESTAMP_EOF);
-			output.writeInt(TIMESTAMP_EOF);
+			ByteBuffer buffer = ByteBuffer.allocate(4);
+			buffer.putInt(TIMESTAMP_EOF);
+			input_checksum.update(buffer.array());
+			input.write(buffer.array());
+			output_checksum.update(buffer.array());
+			output.write(buffer.array());
 			
 			// Write Checksum
 			input.write(input_checksum.digest());
@@ -744,8 +751,11 @@ public class Replay {
 			try {
 				// Handle disconnection
 				if (timestamp_disconnect != TIMESTAMP_EOF && retained_timestamp >= timestamp_disconnect) {
-					input.writeInt(timestamp_disconnect);
-					input.writeInt(-1);
+					ByteBuffer buffer = ByteBuffer.allocate(8);
+					buffer.putInt(timestamp_disconnect);
+					buffer.putInt(-1);
+					input_checksum.update(buffer.array());
+					input.write(buffer.array());
 					timestamp_disconnect = TIMESTAMP_EOF;
 				}
 				
@@ -857,13 +867,16 @@ public class Replay {
 				// in here probably would need to check the position
 				// don't care about the packet if 182, just rewrite it using the enc opcode
 				try {
-					input.writeInt(retained_timestamp);
-					input.writeInt(retained_bread);
+					ByteBuffer buffer = ByteBuffer.allocate(retained_bread + 8);
+					buffer.putInt(retained_timestamp);
+					buffer.putInt(retained_bread);
 					retained_bytes[retained_off + 1] = (byte)127;
 					retained_bytes[retained_off + 2] = 0;
 					retained_bytes[retained_off + 3] = 0;
 					retained_bytes[retained_off + 4] = 1;
-					input.write(retained_bytes, retained_off, retained_bread);
+					buffer.put(retained_bytes, retained_off, retained_bread);
+					input_checksum.update(buffer.array());
+					input.write(buffer.array());
 					Logger.Info("Replay: Removed host block from client input");
 				} catch (Exception e) {
 					e.printStackTrace();
