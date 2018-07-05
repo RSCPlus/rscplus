@@ -31,6 +31,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -45,7 +47,7 @@ import Client.Util;
 
 public class Replay {
 	// If we ever change replays in a way that breaks backwards compatibility, we need to increment this
-	public static int VERSION = 1;
+	public static int VERSION = 2;
 	
 	static DataOutputStream output = null;
 	static DataOutputStream input = null;
@@ -56,6 +58,9 @@ public class Replay {
 	static DataInputStream play_keys = null;
 	static DataInputStream play_keyboard = null;
 	static DataInputStream play_mouse = null;
+	
+	static MessageDigest output_checksum = null;
+	static MessageDigest input_checksum = null;
 	
 	public static final byte KEYBOARD_TYPED = 0;
 	public static final byte KEYBOARD_PRESSED = 1;
@@ -309,6 +314,9 @@ public class Replay {
                 started_record_kb_mouse = false;
             }
 			
+			output_checksum = MessageDigest.getInstance("SHA-256");
+			input_checksum = MessageDigest.getInstance("SHA-256");
+			
 			Logger.Info("Replay recording started");
 		} catch (Exception e) {
 			output = null;
@@ -347,6 +355,10 @@ public class Replay {
 			input.writeInt(TIMESTAMP_EOF);
 			output.writeInt(TIMESTAMP_EOF);
 			
+			// Write Checksum
+			input.write(input_checksum.digest());
+			output.write(output_checksum.digest());
+			
 			output.close();
 			input.close();
 			keys.close();
@@ -362,6 +374,9 @@ public class Replay {
 			keys = null;
 			keyboard = null;
 			mouse = null;
+			
+			output_checksum = null;
+			input_checksum = null;
 			
 			retained_timestamp = TIMESTAMP_EOF;
 			retained_bytes = null;
@@ -734,9 +749,12 @@ public class Replay {
 					timestamp_disconnect = TIMESTAMP_EOF;
 				}
 				
-				input.writeInt(retained_timestamp);
-				input.writeInt(retained_bread);
-				input.write(retained_bytes, retained_off, retained_bread);
+				ByteBuffer buffer = ByteBuffer.allocate(retained_bread);
+				buffer.putInt(retained_timestamp);
+				buffer.putInt(retained_bread);
+				buffer.put(retained_bytes, retained_off, retained_bread);
+				input_checksum.update(buffer.array());
+				input.write(buffer.array());
 			} catch (Exception e) {
 				e.printStackTrace();
 				shutdown_error();
@@ -774,15 +792,21 @@ public class Replay {
 				
 				Logger.Info("Replay: Removed login block from client output");
 				
-				output.writeInt(timestamp);
-				output.writeInt(len);
-				output.write(out_b, off, len);
+				ByteBuffer buffer = ByteBuffer.allocate(len + 8);
+				buffer.putInt(timestamp);
+				buffer.putInt(len);
+				buffer.put(out_b, off, len);
+				output_checksum.update(buffer.array());
+				output.write(buffer.array());
 				return;
 			}
 			
-			output.writeInt(timestamp);
-			output.writeInt(len);
-			output.write(b, off, len);
+			ByteBuffer buffer = ByteBuffer.allocate(len + 8);
+			buffer.putInt(timestamp);
+			buffer.putInt(len);
+			buffer.put(b, off, len);
+			output_checksum.update(buffer.array());
+			output.write(buffer.array());
 		} catch (Exception e) {
 			e.printStackTrace();
 			shutdown_error();
