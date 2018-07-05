@@ -749,7 +749,7 @@ public class Replay {
 					timestamp_disconnect = TIMESTAMP_EOF;
 				}
 				
-				ByteBuffer buffer = ByteBuffer.allocate(retained_bread);
+				ByteBuffer buffer = ByteBuffer.allocate(retained_bread + 8);
 				buffer.putInt(retained_timestamp);
 				buffer.putInt(retained_bread);
 				buffer.put(retained_bytes, retained_off, retained_bread);
