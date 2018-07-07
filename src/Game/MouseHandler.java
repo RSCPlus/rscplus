@@ -80,8 +80,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 			Replay.dumpMouseInput(Replay.MOUSE_EXITED, e.getX(), e.getY(), 0, e.getModifiers(), e.getClickCount(), 0, 0, e.isPopupTrigger(), e.getButton());
 		}
 		
-		x = e.getX();
-		y = e.getY();
+		x = -100;
+		y = -100;
 		listener_mouse.mouseExited(e);
 	}
 	

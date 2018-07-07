@@ -711,9 +711,9 @@ public class Renderer {
 				int offset = 0;
 				if (Client.is_in_wild)
 					offset += 70;
-				if (Replay.isPlaying && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
+				if (!screenshot && Replay.isPlaying && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
 					y -= 12;
-				if (!Replay.isPlaying && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile))
+				if ((!Replay.isPlaying || screenshot) && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile))
 					offset += 70;
 				drawShadowText(g2, "Pos: " + Client.getCoords(), (Renderer.width - 92 - offset),
 						y, color_yellow, false);
@@ -930,7 +930,7 @@ public class Renderer {
 			drawShadowText(g2, "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER), width - 164, height - 2, color_text, false);
 		}
 		
-		if (Client.state == Client.STATE_GAME && Replay.isPlaying) {
+		if (Client.state == Client.STATE_GAME && Replay.isPlaying && !screenshot) {
             if (Settings.SHOW_SEEK_BAR.get(Settings.currentProfile)) {
                 float percent = (float)Replay.timestamp / Replay.getReplayEnd();
                 
@@ -1012,7 +1012,7 @@ public class Renderer {
 		}
 			
 		// Draw software cursor
-		if (Settings.SOFTWARE_CURSOR.get(Settings.currentProfile)) {
+		if (screenshot || Settings.SOFTWARE_CURSOR.get(Settings.currentProfile)) {
 			setAlpha(g2, 1.0f);
 			g2.drawImage(image_cursor, MouseHandler.x, MouseHandler.y, null);
 		}
