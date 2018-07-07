@@ -1134,7 +1134,7 @@ public class ConfigWindow {
         
 		addSettingsHeader(replayPanel, "Playback settings");
         
-		replayPanelFastDisconnectCheckbox = addCheckbox("Fast reconnect", replayPanel);
+		replayPanelFastDisconnectCheckbox = addCheckbox("Fast reconnect (Hack)", replayPanel);
 		replayPanelFastDisconnectCheckbox.setToolTipText("When a disconnect happens in replay playback, it will reconnect as quick as it can");
 		
 		addSettingsHeader(replayPanel, "Interface modifications");
