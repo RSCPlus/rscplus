@@ -91,6 +91,7 @@ public class Renderer {
 	public static Color color_item_highlighted = new Color(245, 196, 70);
 	public static Color color_replay = new Color(100, 185, 178);
 	public static Color color_white = new Color(255, 255, 255);
+	public static Color color_yellow = new Color(255, 255, 0);
 	
 	public static Image image_border;
 	public static Image image_bar_frame;
@@ -447,7 +448,8 @@ public class Renderer {
 			int x = 24;
 			int y = 32;
 			
-			if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile)) // combat menu is showing, so move everything down
+			// combat menu is showing, so move everything down
+			if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile))
 				y = 132;
 			
 			// NPC Post-processing for ui
@@ -645,7 +647,7 @@ public class Renderer {
 				y += 16;
 				drawShadowText(g2, "Region: (" + Client.regionX + "," + Client.regionY + ")", x, y, color_text, false);
 				y += 16;
-				drawShadowText(g2, "WorldCoord: (" + Client.worldX + "," + Client.worldY + ")", x, y, color_text, false);
+				drawShadowText(g2, "WorldCoord: " + Client.getCoords(), x, y, color_text, false);
 				y += 16;
 				drawShadowText(g2, "Plane: (" + Client.planeWidth + "," + Client.planeHeight + "," + Client.planeIndex + ")", x, y, color_text, false);
 				y += 16;
@@ -703,6 +705,16 @@ public class Renderer {
                 }
 				g2.setFont(font_main);
             }
+			
+			if (Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile)) {
+				int offset = 0;
+				if (Client.is_in_wild)
+					offset += 70;
+				if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile))
+					offset += 70;
+				drawShadowText(g2, "Pos: " + Client.getCoords(), (Renderer.width - 92 - offset),
+						(Renderer.height - 19), color_yellow, false);
+			}
 			
 			// Mouseover hover handling
 			if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile) && !Client.isInterfaceOpen() && !Client.show_questionmenu && Client.is_hover) {

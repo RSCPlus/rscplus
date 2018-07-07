@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180705.130035;
+	public static final double VERSION_NUMBER = 20180707.063303;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -137,6 +137,7 @@ public class Settings {
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    SHOW_COMBAT_INFO
             = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean> SHOW_PLAYER_POSITION = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    SHOW_RETRO_FPS
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    NPC_HEALTH_SHOW_PERCENTAGE
@@ -582,6 +583,15 @@ public class Settings {
         LAG_INDICATOR.put("custom",
             getPropBoolean(props, "indicators", LAG_INDICATOR.get("default")));
 
+		SHOW_PLAYER_POSITION.put("vanilla", false);
+		SHOW_PLAYER_POSITION.put("vanilla_resizable", false);
+		SHOW_PLAYER_POSITION.put("lite", false);
+		SHOW_PLAYER_POSITION.put("default", true);
+		SHOW_PLAYER_POSITION.put("heavy", true);
+		SHOW_PLAYER_POSITION.put("all", true);
+		SHOW_PLAYER_POSITION.put("custom",
+				getPropBoolean(props, "show_player_position", SHOW_PLAYER_POSITION.get("default")));
+		
         SHOW_RETRO_FPS.put("vanilla", false);
         SHOW_RETRO_FPS.put("vanilla_resizable", false);
         SHOW_RETRO_FPS.put("lite",    false);
@@ -1187,6 +1197,8 @@ public class Settings {
                 SHOW_NPC_NAME_OVERLAY.get(preset)));
             props.setProperty("show_combat_info",Boolean.toString(
                 SHOW_COMBAT_INFO.get(preset)));
+			props.setProperty("show_player_position", Boolean.toString(
+					SHOW_PLAYER_POSITION.get(preset)));
             props.setProperty("show_retro_fps",Boolean.toString(
                 SHOW_RETRO_FPS.get(preset)));
             props.setProperty("use_percentage",Boolean.toString(
@@ -1419,6 +1431,15 @@ public class Settings {
 		}
 			
         save();
+	}
+	
+	public static void togglePosition() {
+		SHOW_PLAYER_POSITION.put(currentProfile, !SHOW_PLAYER_POSITION.get(currentProfile));
+		if (SHOW_PLAYER_POSITION.get(currentProfile))
+			Client.displayMessage("@cya@Global Position is now shown", Client.CHAT_NONE);
+		else
+			Client.displayMessage("@cya@Global Position is now hidden", Client.CHAT_NONE);
+		save();
 	}
 	
 	public static void toggleRetroFPS() {
@@ -1874,6 +1895,9 @@ public class Settings {
 			return true;
 		case "toggle_hpprayerfatigue_display":
 			Settings.toggleHpPrayerFatigueOverlay();
+			return true;
+		case "toggle_position_overlay":
+			Settings.togglePosition();
 			return true;
 		case "toggle_retro_fps_overlay":
 			Settings.toggleRetroFPS();

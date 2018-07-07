@@ -69,6 +69,7 @@ public class Help {
 					Client.displayMessage("@whi@Page 3 of 3", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::toggletwitch - Toggle twitch chat hidden/shown", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglebypassattack - Toggle bypass right click attack", Client.CHAT_QUEST);
+					Client.displayMessage("@whi@::toggleposition - Toggle Player's position", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::toggleretrofps - Toggle Retro FPS", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglexpdrops - Toggle XP drops", Client.CHAT_QUEST);
 					Client.displayMessage("@whi@::togglestartsearchedbank <aWord> - Toggle between starting bank on search mode", Client.CHAT_QUEST);

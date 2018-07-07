@@ -149,6 +149,7 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelBuffsCheckbox;
 	private JCheckBox overlayPanelMouseTooltipCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
+	private JCheckBox overlayPanelPositionCheckbox;
 	private JCheckBox overlayPanelRetroFpsCheckbox;
 	private JCheckBox overlayPanelItemNamesCheckbox;
 	private JCheckBox overlayPanelPlayerNamesCheckbox;
@@ -729,6 +730,9 @@ public class ConfigWindow {
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
 		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
 		
+		overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
+		overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
+		
 		overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
 		overlayPanelRetroFpsCheckbox.setToolTipText("Shows the FPS like it used to be displayed in RSC");
 		
@@ -1067,6 +1071,7 @@ public class ConfigWindow {
 		addKeybindSet(keybindPanel, "Toggle combat buffs and cooldowns display", "toggle_buffs_display", KeyModifier.CTRL, KeyEvent.VK_Y);
         addKeybindSet(keybindPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
 		addKeybindSet(keybindPanel, "Toggle inventory count overlay", "toggle_inven_count_overlay", KeyModifier.CTRL, KeyEvent.VK_E);
+		addKeybindSet(keybindPanel, "Toggle position overlay", "toggle_position_overlay", KeyModifier.ALT, KeyEvent.VK_P);
 		addKeybindSet(keybindPanel, "Toggle retro fps overlay", "toggle_retro_fps_overlay", KeyModifier.ALT, KeyEvent.VK_F);
 		addKeybindSet(keybindPanel, "Toggle item name overlay", "toggle_item_overlay", KeyModifier.CTRL, KeyEvent.VK_I);
 		addKeybindSet(keybindPanel, "Toggle player name overlay", "toggle_player_name_overlay", KeyModifier.CTRL, KeyEvent.VK_P);
@@ -1517,6 +1522,7 @@ public class ConfigWindow {
 		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
 		overlayPanelMouseTooltipCheckbox.setSelected(Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile));
 		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
+		overlayPanelPositionCheckbox.setSelected(Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
 		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
 		overlayPanelItemNamesCheckbox.setSelected(Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
 		overlayPanelPlayerNamesCheckbox.setSelected(Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
@@ -1612,6 +1618,7 @@ public class ConfigWindow {
 		Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
 		Settings.SHOW_MOUSE_TOOLTIP.put(Settings.currentProfile, overlayPanelMouseTooltipCheckbox.isSelected());
 		Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
+		Settings.SHOW_PLAYER_POSITION.put(Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
 		Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());
 		Settings.SHOW_ITEM_GROUND_OVERLAY.put(Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
 		Settings.SHOW_PLAYER_NAME_OVERLAY.put(Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());

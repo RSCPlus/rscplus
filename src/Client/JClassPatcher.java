@@ -1211,6 +1211,24 @@ public class JClassPatcher {
 					}
 				}
 				
+				// setLoadingArea
+				insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					AbstractInsnNode twoNextNode = nextNode.getNext();
+					
+					if (nextNode == null || twoNextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.ILOAD && ((VarInsnNode)insnNode).var == 5 && nextNode.getOpcode() == Opcodes.IFNE
+							&& twoNextNode.getOpcode() == Opcodes.GOTO) {
+						methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
+						methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Client", "isLoadingHook", "(Z)V"));
+					}
+				}
+				
 				// hook onto received menu options
 				insnNodeList = methodNode.instructions.iterator();
 				LabelNode lblNode = null;
@@ -1242,6 +1260,29 @@ public class JClassPatcher {
 					}
 				}
 				
+			}
+			// hook onto selected menu option
+			if (methodNode.name.equals("G") && methodNode.desc.equals("(I)V")) {
+				Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+				while (insnNodeList.hasNext()) {
+					AbstractInsnNode insnNode = insnNodeList.next();
+					AbstractInsnNode nextNode = insnNode.getNext();
+					AbstractInsnNode twoNextNode = nextNode.getNext();
+					
+					if (nextNode == null || twoNextNode == null)
+						break;
+					
+					if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode)insnNode).var == 0 && nextNode.getOpcode() == Opcodes.GETFIELD
+							&& ((FieldInsnNode)nextNode).owner.equals("client") && ((FieldInsnNode)nextNode).name.equals("Jh")
+							&& twoNextNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode)twoNextNode).operand == 116) {
+						VarInsnNode call = (VarInsnNode)insnNode;
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+						methodNode.instructions.insertBefore(call, new FieldInsnNode(Opcodes.GETFIELD, "client", "ah", "[Ljava/lang/String;"));
+						methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+						methodNode.instructions.insertBefore(call, new MethodInsnNode(Opcodes.INVOKESTATIC,
+								"Game/Client", "selectedOptionHook", "([Ljava/lang/String;I)V"));
+					}
+				}
 			}
 			// hook menu item
 			if (methodNode.name.equals("a") && methodNode.desc.equals("(IZ)V")) {

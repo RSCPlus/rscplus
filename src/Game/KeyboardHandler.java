@@ -57,7 +57,7 @@ public class KeyboardHandler implements KeyListener {
         boolean shouldConsume;
 		
 		boolean altgr = false;
-		if (e.isControlDown() && e.isAltDown()) {
+		if (e.isControlDown() && e.isAltDown() || e.isAltGraphDown()) {
 			altgr = true;
 		}
 		

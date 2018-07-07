@@ -95,6 +95,7 @@ public class Client {
 	public static final int CHAT_TRADE_REQUEST_RECEIVED = 6; //only used when another player sends you a trade request. (hopefully!)
 	public static final int CHAT_OTHER = 7;	// used for when you send a player a duel/trade request, follow someone, or drop an item
 	public static final int CHAT_INCOMING_OPTION = 8;
+	public static final int CHAT_CHOSEN_OPTION = 9;
 	
 	public static final int COMBAT_CONTROLLED = 0;
 	public static final int COMBAT_AGGRESSIVE = 1;
@@ -351,10 +352,6 @@ public class Client {
 			login_hook();
 		}
 		
-		// Set world coordinates
-		worldX = Client.localRegionX + Client.regionX;
-		worldY = Client.localRegionY + Client.regionY;
-		
 		updates++;
 		time = System.currentTimeMillis();
 		if (time >= update_timer) {
@@ -491,6 +488,25 @@ public class Client {
 		return tooltipMessage;
 	}
 	
+	/**
+	 * Tells the client that the adjacent region is loading, so not to do
+	 * spikes in position printing
+	 * 
+	 * @param isLoading - the flag for loading
+	 */
+	public static void isLoadingHook(boolean isLoading) {
+		if (worldX == -1 && worldY == -1) {
+			worldX = localRegionX + regionX;
+			worldY = localRegionY + regionY;
+		} else {
+			if (isLoading) {
+			} else {
+				worldX = localRegionX + regionX;
+				worldY = localRegionY + regionY;
+			}
+		}
+	}
+	
 	public static void resetLoginMessage() {
 		setLoginMessage("Please enter your username and password", "");
 	}
@@ -512,20 +528,10 @@ public class Client {
 	}
 	
 	/**
-	 * Prints the coordinates of the player
+	 * Returns the coordinates of the player
 	 */
-	public static void getCoords() { // TODO: Use this method or remove it
-		try {
-			// int coordX = Reflection.characterPosX.getInt(player_object) / 128;
-			// int coordY = Reflection.characterPosY.getInt(player_object) / 128;
-			// Logger.Info("("+coordX+","+coordY+")");
-			
-			Logger.Info("Region x: " + regionX);
-			Logger.Info("Region y: " + regionY);
-			
-		} catch (IllegalArgumentException e1) {
-			e1.printStackTrace();
-		}
+	public static String getCoords() {
+		return "(" + worldX + "," + worldY + ")";
 	}
 	
 	/**
@@ -655,6 +661,9 @@ public class Client {
 				break;
 			case "logout":
 				Client.logout();
+				break;
+			case "toggleposition":
+				Settings.togglePosition();
 				break;
 			case "toggleretrofps":
 				Settings.toggleRetroFPS();
@@ -1099,6 +1108,32 @@ public class Client {
 	}
 	
 	/**
+	 * This method hooks into selected option from incoming options and adds the selection to console
+	 * 
+	 * @param possibleOptions The possible options that the user saw from server
+	 * @param selection The chosen option
+	 */
+	// This isn't called yet on replay since the output file is not yet read
+	public static void selectedOptionHook(String[] possibleOptions, int selection) {
+		// Do not run anything below here while seeking
+		if (Replay.isSeeking)
+			return;
+		
+		int type = CHAT_CHOSEN_OPTION;
+		
+		int select = (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
+		String option = possibleOptions[select];
+		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
+			AnsiConsole.systemInstall();
+			Logger.Info(ansi()
+					.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
+			AnsiConsole.systemUninstall();
+		} else {
+			Logger.Info("(" + type + ") " + option);
+		}
+	}
+	
+	/**
 	 * This method hooks all chat messages.
 	 * 
 	 * @param username the username that the message originated from
@@ -1351,7 +1386,11 @@ public class Client {
 		case CHAT_INCOMING_OPTION:
 			colorMessage = "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@";
 			break;
-		default: // this should never happen, only 8 Chat Types
+		// faint red since it would have been a hover/selection over the item
+		case CHAT_CHOSEN_OPTION:
+			colorMessage = "@|red,intensity_faint " + colorReplace(colorMessage) + "|@";
+			break;
+		default: // this should never happen, only 10 Chat Types
 			Logger.Info("Unhandled chat type in colourizeMessage, please report this:" + type);
 			colorMessage = "@|white,intensity_faint " + colorReplace(colorMessage) + "|@";
 		}
