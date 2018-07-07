@@ -1119,7 +1119,8 @@ public class Client {
 	// This isn't called yet on replay since the output file is not yet read
 	public static void selectedOptionHook(String[] possibleOptions, int selection) {
 		// Do not run anything below here while seeking
-		if (Replay.isSeeking)
+		// FIXME: We block this during replay playback, but if support is ever added, this needs to be removed
+		if (Replay.isSeeking || Replay.isPlaying)
 			return;
 		
 		int type = CHAT_CHOSEN_OPTION;
