@@ -771,6 +771,13 @@ public class Renderer {
 				if (y + bounds.height > Renderer.height)
 					y -= (y + bounds.height) - (Renderer.height);
 				
+				indexExtraOptions = cleanText.indexOf(":");
+				if (indexExtraOptions != -1) {
+					String name = cleanText.substring(0, indexExtraOptions).trim();
+					String action = cleanText.substring(indexExtraOptions + 1).trim();
+					cleanText = action + " " + name;
+				}
+				
 				// Draw the final outcome
 				if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
 					setAlpha(g2, 0.65f);
