@@ -148,6 +148,7 @@ public class ConfigWindow {
 	private JCheckBox overlayPanelStatusDisplayCheckbox;
 	private JCheckBox overlayPanelBuffsCheckbox;
 	private JCheckBox overlayPanelMouseTooltipCheckbox;
+	private JCheckBox overlayPanelExtendedTooltipCheckbox;
 	private JCheckBox overlayPanelInvCountCheckbox;
 	private JCheckBox overlayPanelPositionCheckbox;
 	private JCheckBox overlayPanelRetroFpsCheckbox;
@@ -724,8 +725,11 @@ public class ConfigWindow {
 		overlayPanelBuffsCheckbox = addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
 		overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
 		
-		overlayPanelMouseTooltipCheckbox = addCheckbox("Show mouse hover actions at mouse cursor", overlayPanel);
-		overlayPanelMouseTooltipCheckbox.setToolTipText("Moves the text at the top left of the game to the mouse cursor");
+		overlayPanelMouseTooltipCheckbox = addCheckbox("Show mouse hover action at mouse cursor", overlayPanel);
+		overlayPanelMouseTooltipCheckbox.setToolTipText("Shows important actions from the text at the top left of the game near the mouse cursor");
+		
+		overlayPanelExtendedTooltipCheckbox = addCheckbox("Extend mouse hover action at mouse cursor", overlayPanel);
+		overlayPanelExtendedTooltipCheckbox.setToolTipText("Shows the text at the top left of the game near the mouse cursor");
 		
 		overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
 		overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
@@ -1521,6 +1525,7 @@ public class ConfigWindow {
 		overlayPanelStatusDisplayCheckbox.setSelected(Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
 		overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
 		overlayPanelMouseTooltipCheckbox.setSelected(Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile));
+		overlayPanelExtendedTooltipCheckbox.setSelected(Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile));
 		overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
 		overlayPanelPositionCheckbox.setSelected(Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
 		overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
@@ -1617,6 +1622,7 @@ public class ConfigWindow {
 		Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
 		Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
 		Settings.SHOW_MOUSE_TOOLTIP.put(Settings.currentProfile, overlayPanelMouseTooltipCheckbox.isSelected());
+		Settings.SHOW_EXTENDED_TOOLTIP.put(Settings.currentProfile, overlayPanelExtendedTooltipCheckbox.isSelected());
 		Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
 		Settings.SHOW_PLAYER_POSITION.put(Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
 		Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());

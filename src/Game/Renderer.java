@@ -759,23 +759,37 @@ public class Renderer {
 				Dimension extraBounds = getStringBounds(g2, extraOptions);
 				if (extraOptions.length() == 0)
 					extraBounds.height = 0;
-				extraBounds.width += extraOptionsOffsetX;
-				bounds.width = (bounds.width > extraBounds.width) ? bounds.width : extraBounds.width;
-				bounds.height += extraOptionsOffsetY + extraBounds.height;
+				
+				bounds.height += extraOptionsOffsetY;
+				if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
+					extraBounds.width += extraOptionsOffsetX;
+					bounds.width = (bounds.width > extraBounds.width) ? bounds.width : extraBounds.width;
+					bounds.height += extraBounds.height;
+				}
 				if (x + bounds.width > Renderer.width - 4)
 					x -= (x + bounds.width) - (Renderer.width - 4);
 				if (y + bounds.height > Renderer.height)
 					y -= (y + bounds.height) - (Renderer.height);
 				
 				// Draw the final outcome
-				setAlpha(g2, 0.65f);
-				g2.setColor(color_shadow);
-				g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
-				setAlpha(g2, 1.0f);
-				drawColoredText(g2, cleanText, x, y);
-				x += extraOptionsOffsetX;
-				y += extraOptionsOffsetY;
-				drawColoredText(g2, "@whi@" + extraOptions, x, y);
+				if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
+					setAlpha(g2, 0.65f);
+					g2.setColor(color_shadow);
+					g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
+					setAlpha(g2, 1.0f);
+					drawColoredText(g2, cleanText, x, y);
+					x += extraOptionsOffsetX;
+					y += extraOptionsOffsetY;
+					drawColoredText(g2, "@whi@" + extraOptions, x, y);
+				} else {
+					if (!cleanText.contains("Walk here") && !cleanText.contains("Choose a target")) {
+						setAlpha(g2, 0.65f);
+						g2.setColor(color_shadow);
+						g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
+						setAlpha(g2, 1.0f);
+						drawColoredText(g2, cleanText, x, y);
+					}
+				}
 			}
 		} else if (Client.state == Client.STATE_LOGIN) {
 			if (Settings.DEBUG.get(Settings.currentProfile))

@@ -482,7 +482,10 @@ public class Client {
 	public static String mouse_action_hook(String tooltipMessage) {
 		if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)) {
 			mouseText = tooltipMessage;
-			return "";
+			
+			// Remove top-left action text in extended mode
+			if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile))
+				return "";
 		}
 		
 		return tooltipMessage;
