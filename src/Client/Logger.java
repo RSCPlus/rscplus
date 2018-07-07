@@ -84,6 +84,10 @@ public class Logger {
 			System.err.println(msg);
 		
 		try {
+			// Remove colorized text
+			msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+			
+			// Output to log file
 			m_logWriter.write(msg + "\r\n");
 			m_logWriter.flush();
 		} catch (Exception e) {
