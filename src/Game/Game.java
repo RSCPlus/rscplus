@@ -224,6 +224,8 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		
 		m_applet.stop();
 		m_applet.destroy();
+		
+		Logger.stop();
 	}
 	
 	@Override
@@ -233,7 +235,6 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
 		TrayHandler.removeTrayIcon();
 		NotificationsHandler.closeNotificationSoundClip();
 		NotificationsHandler.disposeNotificationHandler();
-		Logger.stop();
 	}
 	
 	@Override
