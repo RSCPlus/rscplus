@@ -67,10 +67,17 @@ public class Logger {
 			return;
 		
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		String msg = "[" + m_logTypeName[type.id] + "]" +
-					 "[" + dateFormat.format(new Date()) + "]" +
-					 " " + message;
+		String msg = message;
+		String extra = "";
 		
+		if(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile))
+			extra += "[" + m_logTypeName[type.id] + "]";
+		if(Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile))		
+			extra += "[" + dateFormat.format(new Date()) + "]";
+		
+		if (extra.length() > 0)
+			msg = extra + " " + msg;
+			
 		if (type != Type.ERROR)
 			System.out.println(msg);
 		else

@@ -133,6 +133,8 @@ public class ConfigWindow {
 	private JCheckBox generalPanelInventoryFullAlertCheckbox;
 	private JSlider generalPanelNamePatchModeSlider;
 	private JSlider generalPanelLogVerbositySlider;
+	private JCheckBox generalPanelLogLevelCheckbox;
+	private JCheckBox generalPanelLogTimestampsCheckbox;
 	private JSlider generalPanelCommandPatchModeSlider;
 	private JCheckBox generalPanelBypassAttackCheckbox;
 	private JCheckBox generalPanelRoofHidingCheckbox;
@@ -554,6 +556,12 @@ public class ConfigWindow {
 		generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
 		generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
 		generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
+		
+		generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
+		generalPanelLogTimestampsCheckbox.setToolTipText("Displays the time text was output to the log");
+		
+		generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
+		generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
 		
 		///"Gameplay settings" are settings that can be seen inside the game
 		addSettingsHeader(generalPanel, "Gameplay settings");
@@ -1495,6 +1503,8 @@ public class ConfigWindow {
 		generalPanelBypassAttackCheckbox.setSelected(Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
 		generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
 		generalPanelColoredTextCheckbox.setSelected(Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
+		generalPanelLogLevelCheckbox.setSelected(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile));
+		generalPanelLogTimestampsCheckbox.setSelected(Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile));
 		generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
 		generalPanelAutoScreenshotCheckbox.setSelected(Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
 		generalPanelCustomCursorCheckbox.setSelected(Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
@@ -1607,6 +1617,8 @@ public class ConfigWindow {
 		Settings.INVENTORY_FULL_ALERT.put(Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
 		Settings.NAME_PATCH_TYPE.put(Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());
 		Settings.LOG_VERBOSITY.put(Settings.currentProfile, generalPanelLogVerbositySlider.getValue());
+		Settings.LOG_SHOW_TIMESTAMPS.put(Settings.currentProfile, generalPanelLogTimestampsCheckbox.isSelected());
+		Settings.LOG_SHOW_LEVEL.put(Settings.currentProfile, generalPanelLogLevelCheckbox.isSelected());
 		Settings.COMMAND_PATCH_TYPE.put(Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
 		Settings.ATTACK_ALWAYS_LEFT_CLICK.put(Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
 		Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());

@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180707.074710;
+	public static final double VERSION_NUMBER = 20180707.080854;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -117,6 +117,8 @@ public class Settings {
             = new HashMap<String, String>();
     public static HashMap<String, Integer>    LOG_VERBOSITY
 			= new HashMap<String, Integer>();
+	public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
 
     //// overlays
     public static HashMap<String, Boolean>    SHOW_HP_PRAYER_FATIGUE_OVERLAY
@@ -492,6 +494,24 @@ public class Settings {
 		LOG_VERBOSITY.put("all", Logger.Type.DEBUG.id);
         LOG_VERBOSITY.put("custom",
             getPropInt(props, "log_verbosity", LOG_VERBOSITY.get("default")));
+        
+        LOG_SHOW_TIMESTAMPS.put("vanilla", true);
+        LOG_SHOW_TIMESTAMPS.put("vanilla_resizable", true);
+        LOG_SHOW_TIMESTAMPS.put("lite",    true);
+        LOG_SHOW_TIMESTAMPS.put("default", true);
+        LOG_SHOW_TIMESTAMPS.put("heavy",   true);
+        LOG_SHOW_TIMESTAMPS.put("all",     true);
+        LOG_SHOW_TIMESTAMPS.put("custom",
+            getPropBoolean(props, "log_show_timestamps", LOG_SHOW_TIMESTAMPS.get("default")));
+        
+        LOG_SHOW_LEVEL.put("vanilla", true);
+        LOG_SHOW_LEVEL.put("vanilla_resizable", true);
+        LOG_SHOW_LEVEL.put("lite",    true);
+        LOG_SHOW_LEVEL.put("default", true);
+        LOG_SHOW_LEVEL.put("heavy",   true);
+        LOG_SHOW_LEVEL.put("all",     true);
+        LOG_SHOW_LEVEL.put("custom",
+            getPropBoolean(props, "log_show_level", LOG_SHOW_LEVEL.get("default")));
 
         //// overlays
         SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -1187,6 +1207,10 @@ public class Settings {
                 SEARCH_BANK_WORD.get(preset));
             props.setProperty("log_verbosity", Integer.toString(
                 LOG_VERBOSITY.get(preset)));
+			props.setProperty("log_show_timestamps", Boolean.toString(
+				LOG_SHOW_TIMESTAMPS.get(preset)));
+			props.setProperty("log_show_level", Boolean.toString(
+				LOG_SHOW_LEVEL.get(preset)));
 
             //// overlays
             props.setProperty("show_statusdisplay",Boolean.toString(
