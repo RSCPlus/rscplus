@@ -707,13 +707,16 @@ public class Renderer {
             }
 			
 			if (Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile)) {
+				y = Renderer.height - 19;
 				int offset = 0;
 				if (Client.is_in_wild)
 					offset += 70;
-				if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile))
+				if (Replay.isPlaying && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
+					y -= 12;
+				if (!Replay.isPlaying && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile))
 					offset += 70;
 				drawShadowText(g2, "Pos: " + Client.getCoords(), (Renderer.width - 92 - offset),
-						(Renderer.height - 19), color_yellow, false);
+						y, color_yellow, false);
 			}
 			
 			// Mouseover hover handling
