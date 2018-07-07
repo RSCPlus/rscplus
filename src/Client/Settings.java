@@ -1895,9 +1895,7 @@ public class Settings {
 				Client.logout();
 			return true;
 		case "screenshot":
-            if (!Replay.isPlaying) {
-                Renderer.takeScreenshot(false);
-            }
+			Renderer.takeScreenshot(false);
 			return true;
 		case "toggle_indicators":
 			Settings.toggleLagIndicator();

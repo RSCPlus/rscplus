@@ -1024,9 +1024,10 @@ public class Renderer {
 			try {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 				String fname = Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
-				ImageIO.write(game_image, "png", new File(fname));
+				File screenshotFile = new File(fname);
+				ImageIO.write(game_image, "png", screenshotFile);
 				if (!quietScreenshot)
-					Client.displayMessage("@cya@Screenshot saved to '" + fname + "'", Client.CHAT_NONE);
+					Client.displayMessage("@cya@Screenshot saved to '" + screenshotFile.toString() + "'", Client.CHAT_NONE);
 			} catch (Exception e) {
 			}
 			screenshot = false;
