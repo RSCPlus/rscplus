@@ -96,7 +96,7 @@ public class Logger {
 			}
 		}
 		
-		if (type.showLevel && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
+		if ((type.showLevel || Settings.LOG_FORCE_LEVEL.get(Settings.currentProfile)) && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
 			// Uppercase and pad level for monospace fonts
 			String levelText = type.name.toUpperCase();
 			while (levelText.length() < levelFixedWidth)
@@ -104,7 +104,7 @@ public class Logger {
 			
 			extra += "[" + levelText + "]";
 		}
-		if (type.showTimestamp && Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile)) {
+		if ((type.showTimestamp || Settings.LOG_FORCE_TIMESTAMPS.get(Settings.currentProfile)) && Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile)) {
 			extra += "[" + dateFormat.format(new Date()) + "]";
 		}
 		

@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180709.065918;
+	public static final double VERSION_NUMBER = 20180709.073506;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -119,6 +119,8 @@ public class Settings {
 			= new HashMap<String, Integer>();
 	public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
 	public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean> LOG_FORCE_TIMESTAMPS = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
 
     //// overlays
     public static HashMap<String, Boolean>    SHOW_HP_PRAYER_FATIGUE_OVERLAY
@@ -512,6 +514,24 @@ public class Settings {
         LOG_SHOW_LEVEL.put("all",     true);
         LOG_SHOW_LEVEL.put("custom",
             getPropBoolean(props, "log_show_level", LOG_SHOW_LEVEL.get("default")));
+		
+		LOG_FORCE_TIMESTAMPS.put("vanilla", false);
+		LOG_FORCE_TIMESTAMPS.put("vanilla_resizable", false);
+		LOG_FORCE_TIMESTAMPS.put("lite", false);
+		LOG_FORCE_TIMESTAMPS.put("default", false);
+		LOG_FORCE_TIMESTAMPS.put("heavy", false);
+		LOG_FORCE_TIMESTAMPS.put("all", true);
+		LOG_FORCE_TIMESTAMPS.put("custom",
+				getPropBoolean(props, "log_force_timestamps", LOG_FORCE_TIMESTAMPS.get("default")));
+		
+		LOG_FORCE_LEVEL.put("vanilla", false);
+		LOG_FORCE_LEVEL.put("vanilla_resizable", false);
+		LOG_FORCE_LEVEL.put("lite", false);
+		LOG_FORCE_LEVEL.put("default", false);
+		LOG_FORCE_LEVEL.put("heavy", false);
+		LOG_FORCE_LEVEL.put("all", true);
+		LOG_FORCE_LEVEL.put("custom",
+				getPropBoolean(props, "log_force_level", LOG_FORCE_LEVEL.get("default")));
 
         //// overlays
         SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -1211,6 +1231,8 @@ public class Settings {
 				LOG_SHOW_TIMESTAMPS.get(preset)));
 			props.setProperty("log_show_level", Boolean.toString(
 				LOG_SHOW_LEVEL.get(preset)));
+			props.setProperty("log_force_timestamps", Boolean.toString(LOG_FORCE_TIMESTAMPS.get(preset)));
+			props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
 
             //// overlays
             props.setProperty("show_statusdisplay",Boolean.toString(
