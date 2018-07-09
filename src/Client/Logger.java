@@ -111,7 +111,8 @@ public class Logger {
 		
 		try {
 			// Remove colorized text
-			msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
+				msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
 			
 			// Output to log file
 			m_logWriter.write(msg + "\r\n");
