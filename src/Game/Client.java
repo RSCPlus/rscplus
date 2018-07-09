@@ -21,7 +21,6 @@
 
 package Game;
 
-import static org.fusesource.jansi.Ansi.ansi;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -1099,14 +1098,7 @@ public class Client {
 		String option = "";
 		for (int i = 0; i < count; i++) {
 			option = menuOptions[i];
-			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
-				AnsiConsole.systemInstall();
-				Logger.Chat(ansi()
-						.render("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type)));
-				AnsiConsole.systemUninstall();
-			} else {
-				Logger.Chat("(" + formatChatType(type) + ") " + option);
-			}
+			Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type));
 		}
 	}
 	
@@ -1127,14 +1119,7 @@ public class Client {
 		
 		int select = (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
 		String option = possibleOptions[select];
-		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
-			AnsiConsole.systemInstall();
-			Logger.Chat(ansi()
-					.render("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type)));
-			AnsiConsole.systemUninstall();
-		} else {
-			Logger.Chat("(" + formatChatType(type) + ") " + option);
-		}
+		Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type));
 	}
 	
 	/**
@@ -1237,14 +1222,7 @@ public class Client {
 				return;
 		}
 		
-		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
-			AnsiConsole.systemInstall();
-			Logger.Chat(ansi()
-					.render("@|white (" + formatChatType(type) + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));
-			AnsiConsole.systemUninstall();
-		} else {
-			Logger.Chat("(" + formatChatType(type) + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
-		}
+		Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type));
 	}
 	
 	private static String formatChatType(int type) {

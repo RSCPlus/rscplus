@@ -21,13 +21,14 @@
 
 package Client;
 
+import static org.fusesource.jansi.Ansi.ansi;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  * A simple logger
@@ -60,6 +61,7 @@ public class Logger {
 	}
 	
 	public static void start() {
+		AnsiConsole.systemInstall();
 		File file = new File(Settings.Dir.JAR + "/log.txt");
 		try {
 			m_logWriter = new PrintWriter(new FileOutputStream(file));
@@ -72,6 +74,7 @@ public class Logger {
 			m_logWriter.close();
 		} catch (Exception e) {
 		}
+		AnsiConsole.systemUninstall();
 	}
 	
 	public static void Log(Type type, String message) {
@@ -79,8 +82,12 @@ public class Logger {
 			return;
 		
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		String msg = message;
+		String msg = ansi().render(message).toString();
 		String extra = "";
+		
+		// Strip color information if the user doesn't want it
+		if (!Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
+			msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
 		
 		if (type.showLevel && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
 			// Uppercase and pad level for monospace fonts
@@ -137,31 +144,5 @@ public class Logger {
 	
 	public static void Debug(String message) {
 		Log(Type.DEBUG, message);
-	}
-	
-	// Ansi variants
-	
-	public static void Warn(Ansi message) {
-		Log(Type.WARN, message.toString());
-	}
-	
-	public static void Error(Ansi message) {
-		Log(Type.ERROR, message.toString());
-	}
-	
-	public static void Game(Ansi message) {
-		Log(Type.GAME, message.toString());
-	}
-	
-	public static void Chat(Ansi message) {
-		Log(Type.CHAT, message.toString());
-	}
-	
-	public static void Info(Ansi message) {
-		Log(Type.INFO, message.toString());
-	}
-	
-	public static void Debug(Ansi message) {
-		Log(Type.DEBUG, message.toString());
 	}
 }
