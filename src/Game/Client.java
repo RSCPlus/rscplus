@@ -33,7 +33,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-import org.fusesource.jansi.AnsiConsole;
 import Client.KeybindSet;
 import Client.Launcher;
 import Client.Logger;
@@ -1089,10 +1088,6 @@ public class Client {
 	 * @param count The count for the options
 	 */
 	public static void receivedOptionsHook(String[] menuOptions, int count) {
-		// Do not run anything below here while seeking
-		if (Replay.isSeeking)
-			return;
-		
 		int type = CHAT_INCOMING_OPTION;
 		
 		String option = "";
@@ -1112,7 +1107,7 @@ public class Client {
 	public static void selectedOptionHook(String[] possibleOptions, int selection) {
 		// Do not run anything below here while seeking
 		// FIXME: We block this during replay playback, but if support is ever added, this needs to be removed
-		if (Replay.isSeeking || Replay.isPlaying)
+		if (Replay.isPlaying)
 			return;
 		
 		int type = CHAT_CHOSEN_OPTION;
@@ -1211,10 +1206,6 @@ public class Client {
 				updateTimer = currentTime + (60 * 60 * 1000);
 			}
 		}
-		
-		// Everything below here won't effect game while seeking
-		if (Replay.isSeeking)
-			return;
 
 		//Don't output private messages if option is turned on and replaying
 		if (Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile) && Replay.isPlaying) {
