@@ -1101,11 +1101,11 @@ public class Client {
 			option = menuOptions[i];
 			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 				AnsiConsole.systemInstall();
-				Logger.Info(ansi()
+				Logger.Chat(ansi()
 						.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
 				AnsiConsole.systemUninstall();
 			} else {
-				Logger.Info("(" + type + ") " + option);
+				Logger.Chat("(" + type + ") " + option);
 			}
 		}
 	}
@@ -1129,11 +1129,11 @@ public class Client {
 		String option = possibleOptions[select];
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
-			Logger.Info(ansi()
+			Logger.Chat(ansi()
 					.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
 			AnsiConsole.systemUninstall();
 		} else {
-			Logger.Info("(" + type + ") " + option);
+			Logger.Chat("(" + type + ") " + option);
 		}
 	}
 	
@@ -1239,11 +1239,11 @@ public class Client {
 		
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
-			Logger.Info(ansi()
+			Logger.Chat(ansi()
 					.render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
-			Logger.Info("(" + type + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
+			Logger.Chat("(" + type + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
 		}
 	}
 	

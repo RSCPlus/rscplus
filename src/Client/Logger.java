@@ -33,18 +33,30 @@ import org.fusesource.jansi.Ansi;
  * A simple logger
  */
 public class Logger {
-	
-	private static final String[] m_logTypeName = { "ERROR", " WARN", " GAME", " INFO", " DEBUG" };
 	private static PrintWriter m_logWriter;
+	private static int levelFixedWidth = 0;
 	
 	public enum Type {
-		ERROR(0), WARN(1), GAME(2), INFO(3), DEBUG(4);
+		ERROR(0, "error", true, true),
+		WARN(1, "warn", true, true),
+		GAME(2, "game", true, true),
+		CHAT(GAME.id, "chat", false, false),
+		INFO(3, "info", true, true),
+		DEBUG(4, "debug", true, true);
 		
-		Type(int id) {
+		Type(int id, String name, boolean showLevel, boolean showTimestamp) {
 			this.id = id;
+			this.name = name;
+			this.showLevel = showLevel;
+			this.showTimestamp = showTimestamp;
+			
+			levelFixedWidth = (levelFixedWidth < name.length()) ? name.length() : levelFixedWidth;
 		}
 		
 		public int id;
+		public String name;
+		public boolean showLevel;
+		public boolean showTimestamp;
 	}
 	
 	public static void start() {
@@ -70,10 +82,17 @@ public class Logger {
 		String msg = message;
 		String extra = "";
 		
-		if(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile))
-			extra += "[" + m_logTypeName[type.id] + "]";
-		if(Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile))		
+		if (type.showLevel && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
+			// Uppercase and pad level for monospace fonts
+			String levelText = type.name.toUpperCase();
+			while (levelText.length() < levelFixedWidth)
+				levelText = " " + levelText;
+			
+			extra += "[" + levelText + "]";
+		}
+		if (type.showTimestamp && Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile)) {
 			extra += "[" + dateFormat.format(new Date()) + "]";
+		}
 		
 		if (extra.length() > 0)
 			msg = extra + " " + msg;
@@ -94,6 +113,8 @@ public class Logger {
 		}
 	}
 	
+	// String variants
+	
 	public static void Error(String message) {
 		Log(Type.ERROR, message);
 	}
@@ -106,6 +127,10 @@ public class Logger {
 		Log(Type.GAME, message);
 	}
 	
+	public static void Chat(String message) {
+		Log(Type.CHAT, message);
+	}
+	
 	public static void Info(String message) {
 		Log(Type.INFO, message);
 	}
@@ -113,6 +138,8 @@ public class Logger {
 	public static void Debug(String message) {
 		Log(Type.DEBUG, message);
 	}
+	
+	// Ansi variants
 	
 	public static void Warn(Ansi message) {
 		Log(Type.WARN, message.toString());
@@ -126,6 +153,10 @@ public class Logger {
 		Log(Type.GAME, message.toString());
 	}
 	
+	public static void Chat(Ansi message) {
+		Log(Type.CHAT, message.toString());
+	}
+	
 	public static void Info(Ansi message) {
 		Log(Type.INFO, message.toString());
 	}
@@ -133,5 +164,4 @@ public class Logger {
 	public static void Debug(Ansi message) {
 		Log(Type.DEBUG, message.toString());
 	}
-	
 }
