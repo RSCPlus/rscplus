@@ -1102,10 +1102,10 @@ public class Client {
 			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 				AnsiConsole.systemInstall();
 				Logger.Chat(ansi()
-						.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
+						.render("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type)));
 				AnsiConsole.systemUninstall();
 			} else {
-				Logger.Chat("(" + type + ") " + option);
+				Logger.Chat("(" + formatChatType(type) + ") " + option);
 			}
 		}
 	}
@@ -1130,10 +1130,10 @@ public class Client {
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
 			Logger.Chat(ansi()
-					.render("@|white (" + type + ")|@ " + colorizeMessage(option, type)));
+					.render("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type)));
 			AnsiConsole.systemUninstall();
 		} else {
-			Logger.Chat("(" + type + ") " + option);
+			Logger.Chat("(" + formatChatType(type) + ") " + option);
 		}
 	}
 	
@@ -1240,10 +1240,48 @@ public class Client {
 		if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
 			AnsiConsole.systemInstall();
 			Logger.Chat(ansi()
-					.render("@|white (" + type + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));
+					.render("@|white (" + formatChatType(type) + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type)));
 			AnsiConsole.systemUninstall();
 		} else {
-			Logger.Chat("(" + type + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
+			Logger.Chat("(" + formatChatType(type) + ") " + ((username == null) ? "" : formatUsername(username, type)) + message);
+		}
+	}
+	
+	private static String formatChatType(int type) {
+		String chatType = getChatTypeName(type).toUpperCase();
+		
+		// Make text fixed width so it aligns properly
+		final int fixedWidth = getChatTypeName(CHAT_INCOMING_OPTION).length();
+		while (chatType.length() < fixedWidth)
+			chatType = " " + chatType;
+		
+		return chatType;
+	}
+	
+	private static String getChatTypeName(int type) {
+		switch (type) {
+		case CHAT_NONE:
+			return "none";
+		case CHAT_PRIVATE:
+			return "pm_in";
+		case CHAT_PRIVATE_OUTGOING:
+			return "pm_out";
+		case CHAT_QUEST:
+			return "quest";
+		case CHAT_CHAT:
+			return "chat";
+		case CHAT_PRIVATE_LOG_IN_OUT:
+			return "pm_log";
+		case CHAT_TRADE_REQUEST_RECEIVED:
+			return "trade";
+		case CHAT_OTHER:
+			return "other";
+		case CHAT_INCOMING_OPTION:
+			return "option";
+		case CHAT_CHOSEN_OPTION:
+			return "select";
+		default:
+			return Integer.toString(type);
 		}
 	}
 	
