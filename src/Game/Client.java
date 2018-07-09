@@ -1093,7 +1093,10 @@ public class Client {
 		String option = "";
 		for (int i = 0; i < count; i++) {
 			option = menuOptions[i];
-			Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type));
+			
+			String originalLog = "(" + formatChatType(type) + ") " + option;
+			String colorizedLog = "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
+			Logger.Chat(colorizedLog, originalLog);
 		}
 	}
 	
@@ -1114,7 +1117,10 @@ public class Client {
 		
 		int select = (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
 		String option = possibleOptions[select];
-		Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type));
+		
+		String originalLog = "(" + formatChatType(type) + ") " + option;
+		String colorizedLog = "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
+		Logger.Chat(colorizedLog, originalLog);
 	}
 	
 	/**
@@ -1213,7 +1219,9 @@ public class Client {
 				return;
 		}
 		
-		Logger.Chat("@|white (" + formatChatType(type) + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type));
+		String originalLog = "(" + formatChatType(type) + ") " + ((username == null) ? "" : formatUsername(username, type)) + message;
+		String colorizedLog = "@|white (" + formatChatType(type) + ")|@ " + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type)) + colorizeMessage(message, type);
+		Logger.Chat(colorizedLog, originalLog);
 	}
 	
 	private static String formatChatType(int type) {

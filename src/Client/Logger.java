@@ -36,6 +36,7 @@ import org.fusesource.jansi.AnsiConsole;
 public class Logger {
 	private static PrintWriter m_logWriter;
 	private static int levelFixedWidth = 0;
+	private static String m_uncoloredMessage = "";
 	
 	public enum Type {
 		ERROR(0, "error", true, true),
@@ -85,9 +86,15 @@ public class Logger {
 		String msg = ansi().render(message).toString();
 		String extra = "";
 		
-		// Strip color information if the user doesn't want it
-		if (!Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
-			msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+		if (!Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
+			if (m_uncoloredMessage.length() > 0) {
+				msg = m_uncoloredMessage;
+				m_uncoloredMessage = "";
+			} else {
+				// Remove colorized text
+				msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+			}
+		}
 		
 		if (type.showLevel && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
 			// Uppercase and pad level for monospace fonts
@@ -110,9 +117,14 @@ public class Logger {
 			System.err.println(msg);
 		
 		try {
-			// Remove colorized text
-			if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
-				msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+			if (m_uncoloredMessage.length() > 0) {
+				msg = m_uncoloredMessage;
+				m_uncoloredMessage = "";
+			} else {
+				// Remove colorized text
+				if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
+					msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+			}
 			
 			// Output to log file
 			m_logWriter.write(msg + "\r\n");
@@ -135,7 +147,8 @@ public class Logger {
 		Log(Type.GAME, message);
 	}
 	
-	public static void Chat(String message) {
+	public static void Chat(String message, String messageOriginal) {
+		m_uncoloredMessage = messageOriginal;
 		Log(Type.CHAT, message);
 	}
 	
