@@ -413,8 +413,8 @@ public class Replay {
 			
 			// Make sure we're loaded in
 			if (Client.isGameLoaded) {
-				playerX = Client.localRegionX + Client.regionX;
-				playerY = Client.localRegionY + Client.regionY;
+				playerX = Client.worldX;
+				playerY = Client.worldY;
 			}
 			
 			// If the player moves, we're going to run some events
