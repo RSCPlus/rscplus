@@ -456,7 +456,7 @@ public class Renderer {
 			if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {
 				for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext();) {
 					NPC npc = iterator.next();
-					if (npc != null && isInCombatWithNPC(npc)) {
+					if (npc != null && Client.isInCombatWithNPC(npc)) {
 						drawNPCBar(g2, 7, y, npc);
 						// Increment y by npc bar height, so we can have multiple bars
 						// NOTE: We should never (?) have more than one npc health bar, so multiple bars indicates
@@ -1212,36 +1212,6 @@ public class Renderer {
 		FontRenderContext context = g.getFontRenderContext();
 		Rectangle2D bounds = g.getFont().getStringBounds(str, context);
 		return new Dimension((int)bounds.getWidth(), (int)bounds.getHeight());
-	}
-	
-	private static boolean isInCombatWithNPC(NPC npc) {
-		if (npc == null) {
-			return false;
-		}
-		
-		int bottom_posY_npc = npc.y + npc.height;
-		int bottom_posY_player = Client.player_posY + Client.player_height;
-		
-		// NPC's in combat with the player are always on the same bottom y coord, however
-		// when moving the screen around they can be slightly off for a moment. To prevent
-		// flickering, just give them a very small buffer of difference.
-		boolean inCombatCandidate = (Math.abs(bottom_posY_npc - bottom_posY_player) < 5);
-		
-		// Hitboxes will intersect on the X axis from what I've tested, giving this a small
-		// buffer as well just in case there are edge cases with very small monsters that
-		// don't follow this pattern exactly.
-		boolean hitboxesIntersectOnXAxis = (Client.player_posX - 10) < (npc.x + npc.width);
-		
-		// The NPC you're fighting is always on the left side of the player.
-		boolean isOnLeftOfPlayer = Client.player_posX > npc.x;
-		
-		return Client.isInCombat() &&
-				npc.currentHits != 0 &&
-				npc.maxHits != 0 &&
-				!Client.player_name.equals(npc.name) &&
-				inCombatCandidate &&
-				isOnLeftOfPlayer &&
-				hitboxesIntersectOnXAxis;
 	}
 	
 	private static Color colorFromCode(String s) {

@@ -1623,6 +1623,36 @@ public class Client {
 		return combat_timer == 499;
 	}
 	
+	public static boolean isInCombatWithNPC(NPC npc) {
+		if (npc == null) {
+			return false;
+		}
+		
+		int bottom_posY_npc = npc.y + npc.height;
+		int bottom_posY_player = player_posY + player_height;
+		
+		// NPC's in combat with the player are always on the same bottom y coord, however
+		// when moving the screen around they can be slightly off for a moment. To prevent
+		// flickering, just give them a very small buffer of difference.
+		boolean inCombatCandidate = (Math.abs(bottom_posY_npc - bottom_posY_player) < 5);
+		
+		// Hitboxes will intersect on the X axis from what I've tested, giving this a small
+		// buffer as well just in case there are edge cases with very small monsters that
+		// don't follow this pattern exactly.
+		boolean hitboxesIntersectOnXAxis = (player_posX - 10) < (npc.x + npc.width);
+		
+		// The NPC you're fighting is always on the left side of the player.
+		boolean isOnLeftOfPlayer = player_posX > npc.x;
+		
+		return isInCombat() &&
+				npc.currentHits != 0 &&
+				npc.maxHits != 0 &&
+				!player_name.equals(npc.name) &&
+				inCombatCandidate &&
+				isOnLeftOfPlayer &&
+				hitboxesIntersectOnXAxis;
+	}
+	
 	/**
 	 * Returns if an in-game interface, window, menu, etc. is currently displayed.
 	 * 
