@@ -128,7 +128,11 @@ public class Client {
 	public static long poison_timer = 0L;
 	public static boolean is_poisoned = false;
 	public static boolean is_in_wild;
+	// fatigue units as sent by the server
 	public static int fatigue;
+	// fatigue in units
+	public static int current_fatigue_units;
+	// fatigue in percentage
 	private static float currentFatigue;
 	public static boolean[] prayers_on;
 	// equipment stats (array position 4 holds prayer bonus to determine change drain rate)
@@ -397,14 +401,22 @@ public class Client {
 		if (Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile)) {
 			final float actualFatigue = getActualFatigue();
 			final float fatigueGain = actualFatigue - currentFatigue;
+			final int fatigueUnitsGain = fatigue - current_fatigue_units;
+			String gainText = "";
 			if (fatigueGain > 0.0f && !isWelcomeScreen()) {
-				xpdrop_handler.add("+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile)) + "% (Fatigue)", Renderer.color_fatigue);
+				gainText = "+" + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile)) + "% (Fatigue)";
+				if (Settings.SHOW_FATIGUEUNITS.get(Settings.currentProfile))
+					gainText += (" [" + fatigueUnitsGain + " U]");
+				xpdrop_handler.add(gainText, Renderer.color_fatigue);
 				currentFatigue = actualFatigue;
+				current_fatigue_units = fatigue;
 			}
 		}
 		// Prevents a fatigue drop upon first login during a session
-		if (isWelcomeScreen() && currentFatigue != getActualFatigue())
-			currentFatigue = getActualFatigue();	
+		if (isWelcomeScreen() && currentFatigue != getActualFatigue()) {
+			currentFatigue = getActualFatigue();
+			current_fatigue_units = fatigue;
+		}
 	}
 	
 	public static void init_login() {
@@ -1583,6 +1595,7 @@ public class Client {
 		final float nextFatigue = getActualFatigue();
 		if (currentFatigue != nextFatigue) {
 			currentFatigue = nextFatigue;
+			current_fatigue_units = fatigue;
 		}
 	}
 	

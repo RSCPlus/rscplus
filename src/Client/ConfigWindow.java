@@ -167,6 +167,7 @@ public class ConfigWindow {
 	private JRadioButton overlayPanelXPRightAlignFocusButton;
 	private JCheckBox overlayPanelFatigueDropsCheckbox;
 	private JSpinner overlayPanelFatigueFigSpinner;
+	private JCheckBox overlayPanelFatigueUnitsCheckbox;
 	private JCheckBox overlayPanelShowCombatInfoCheckbox;
 	private JCheckBox overlayPanelUsePercentageCheckbox;
 	private JCheckBox overlayPanelFoodHealingCheckbox;
@@ -823,6 +824,9 @@ public class ConfigWindow {
 		spinnerNumModel.setMaximum(7);
 		spinnerNumModel.setValue(2);
 		overlayPanelFatigueFigSpinner.setModel(spinnerNumModel);
+		
+		overlayPanelFatigueUnitsCheckbox = addCheckbox("Fatigue units", overlayPanel);
+		overlayPanelFatigueUnitsCheckbox.setToolTipText("Show the fatigue units gained additional to fatigue percentage");
 		
 		///"In World" Overlays move with the camera, and modify objects that the are rendered in the world
 		addSettingsHeader(overlayPanel, "\"In World\" Overlays");
@@ -1562,6 +1566,7 @@ public class ConfigWindow {
 		overlayPanelXPRightAlignFocusButton.setSelected(!Settings.CENTER_XPDROPS.get(Settings.currentProfile));
 		overlayPanelFatigueDropsCheckbox.setSelected(Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile));
 		overlayPanelFatigueFigSpinner.setValue(new Integer(Settings.FATIGUE_FIGURES.get(Settings.currentProfile)));
+		overlayPanelFatigueUnitsCheckbox.setSelected(Settings.SHOW_FATIGUEUNITS.get(Settings.currentProfile));
 		overlayPanelLagIndicatorCheckbox.setSelected(Settings.LAG_INDICATOR.get(Settings.currentProfile));
 		overlayPanelFoodHealingCheckbox.setSelected(Settings.SHOW_FOOD_HEAL_OVERLAY.get(Settings.currentProfile)); // TODO: Implement this feature
 		overlayPanelHPRegenTimerCheckbox.setSelected(Settings.SHOW_TIME_UNTIL_HP_REGEN.get(Settings.currentProfile)); // TODO: Implement this feature
@@ -1623,6 +1628,7 @@ public class ConfigWindow {
 		Settings.CENTER_XPDROPS.put(Settings.currentProfile, overlayPanelXPCenterAlignFocusButton.isSelected());
 		Settings.SHOW_FATIGUEDROPS.put(Settings.currentProfile, overlayPanelFatigueDropsCheckbox.isSelected());
 		Settings.FATIGUE_FIGURES.put(Settings.currentProfile, ((SpinnerNumberModel)(overlayPanelFatigueFigSpinner.getModel())).getNumber().intValue());
+		Settings.SHOW_FATIGUEUNITS.put(Settings.currentProfile, overlayPanelFatigueUnitsCheckbox.isSelected());
 		Settings.FATIGUE_ALERT.put(Settings.currentProfile, generalPanelFatigueAlertCheckbox.isSelected());
 		Settings.INVENTORY_FULL_ALERT.put(Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
 		Settings.NAME_PATCH_TYPE.put(Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());

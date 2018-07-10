@@ -49,7 +49,7 @@ public class Settings {
 	// Internally used variables
 	public static boolean fovUpdateRequired;
 	public static boolean versionCheckRequired = true;
-	public static final double VERSION_NUMBER = 20180709.073506;
+	public static final double VERSION_NUMBER = 20180710.020028;
 	/**
 	 * A time stamp corresponding to the current version of this source code. Used as a sophisticated versioning system.
 	 *
@@ -89,6 +89,7 @@ public class Settings {
             = new HashMap<String, Boolean>();
     public static HashMap<String, Integer>    FATIGUE_FIGURES
             = new HashMap<String, Integer>();
+	public static HashMap<String, Boolean> SHOW_FATIGUEUNITS = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    FATIGUE_ALERT
             = new HashMap<String, Boolean>();
     public static HashMap<String, Boolean>    INVENTORY_FULL_ALERT
@@ -356,6 +357,15 @@ public class Settings {
         FATIGUE_FIGURES.put("all",     2);
         FATIGUE_FIGURES.put("custom",
             getPropInt(props, "fatigue_figures", FATIGUE_FIGURES.get("default")));
+		
+		SHOW_FATIGUEUNITS.put("vanilla", false);
+		SHOW_FATIGUEUNITS.put("vanilla_resizable", false);
+		SHOW_FATIGUEUNITS.put("lite", false);
+		SHOW_FATIGUEUNITS.put("default", false);
+		SHOW_FATIGUEUNITS.put("heavy", true);
+		SHOW_FATIGUEUNITS.put("all", true);
+		SHOW_FATIGUEUNITS.put("custom",
+				getPropBoolean(props, "show_fatigueunits", SHOW_FATIGUEUNITS.get("default")));
 
         FATIGUE_ALERT.put("vanilla", false);
         FATIGUE_ALERT.put("vanilla_resizable", false);
@@ -1199,6 +1209,8 @@ public class Settings {
                 SHOW_FATIGUEDROPS.get(preset)));
             props.setProperty("fatigue_figures",Integer.toString(
                 FATIGUE_FIGURES.get(preset)));
+			props.setProperty("show_fatigueunits", Boolean.toString(
+					SHOW_FATIGUEUNITS.get(preset)));
             props.setProperty("fatigue_alert",Boolean.toString(
                 FATIGUE_ALERT.get(preset)));
             props.setProperty("inventory_full_alert",Boolean.toString(
