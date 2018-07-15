@@ -899,7 +899,6 @@ public class Client {
     try {
       Reflection.loseConnection.invoke(Client.clientStream, close);
     } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
