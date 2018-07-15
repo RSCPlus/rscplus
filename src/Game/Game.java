@@ -72,12 +72,6 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
   public void start() {
     if (m_applet == null) return;
 
-    // Testing
-    // Code formatter
-    // Because we can
-    setResizable(false);
-    setVisible(false);
-
     // Set window icon
     setIconImage(Launcher.icon.getImage());
 
