@@ -111,7 +111,6 @@ public class Renderer {
   public static String[] shellStrings;
 
   private static boolean macOS_resize_workaround = Util.isMacOS();
-  private static boolean showRecordAlwaysDialogueThisFrame = false;
 
   public static boolean quietScreenshot = false;
 
