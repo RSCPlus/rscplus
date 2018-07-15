@@ -78,8 +78,6 @@ public class XPBar {
 
     int skill_current_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill));
     int skill_next_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill) + 1);
-    int xp_until_level =
-        (int) Client.getXPUntilLevel(current_skill); // TODO: Use this variable or remove it
 
     int xp = (int) Client.getXP(current_skill) - skill_current_xp;
     int xp_needed = skill_next_xp - skill_current_xp;
