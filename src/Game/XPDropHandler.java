@@ -26,7 +26,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import Client.Settings;
 
 /**
@@ -38,53 +37,56 @@ public class XPDropHandler {
 	private List<XPDrop> m_list = new ArrayList<>();
 	
 	public void add(String text, Color color) {
-		// No XP drops while seeking
-		if (Replay.isSeeking)
-			return;
+		float y = (float)Renderer.height / 4.0f;
 		
-		XPDrop xpdrop = new XPDrop(text, color);
+		float diff = 8.0f;
+		for (int i = 0; i < m_list.size(); i++) {
+			float indexDiff = m_list.get(i).y - y;
+			if (indexDiff < diff) {
+				y = m_list.get(i).y + 12.0f;
+			}
+		}
+		
+		XPDrop xpdrop = new XPDrop(text, color, y);
 		m_list.add(xpdrop);
 	}
 	
-	public void draw(Graphics2D g) {
+	public void clear() {
+		m_list.clear();
+	}
+	
+	public void process() {
 		for (Iterator<XPDrop> iterator = m_list.iterator(); iterator.hasNext();) {
 			XPDrop xpdrop = iterator.next();
-			xpdrop.process(g);
-			if (xpdrop.y < 0 || xpdrop.y > Renderer.height ||
-			   (Settings.SHOW_XP_BAR.get(Settings.currentProfile) && xpdrop.y <= XPBar.xp_bar_y + 5)) {
+			xpdrop.process();
+			if (xpdrop.y < 0 || xpdrop.y > Renderer.height || (Settings.SHOW_XP_BAR.get(Settings.currentProfile) && xpdrop.y <= XPBar.xp_bar_y + 5)) {
 				iterator.remove();
 			}
 		}
 	}
 	
+	public void draw(Graphics2D g) {
+		for (Iterator<XPDrop> iterator = m_list.iterator(); iterator.hasNext();) {
+			XPDrop xpdrop = iterator.next();
+			xpdrop.draw(g);
+		}
+	}
+	
 	class XPDrop {
 		
-		XPDrop(String text, Color color) {
+		XPDrop(String text, Color color, float y) {
 			this.text = text;
 			this.color = color;
-			y = (float)Renderer.height / 4.0f;
-			active = false;
+			this.y = y;
+			this.active = false;
 		}
 		
-		public void process(Graphics2D g) {
-			if (!active) {
-				if (Renderer.time > m_timer) {
-					if (Settings.SHOW_XP_BAR.get(Settings.currentProfile)) {
-						 if (y > XPBar.xp_bar_y + 5) {
-							m_timer = Renderer.time + 400;
-							active = true;
-						}
-					} else {
-						m_timer = Renderer.time + 400;
-						active = true;
-					}
-				} else {
-					return;
-				}
-			}
-			
+		public void process() {
+			y -= (float)Renderer.height / 12.0f * Client.delta_time;
+		}
+		
+		public void draw(Graphics2D g) {
 			Renderer.drawShadowText(g, text, (XPBar.xp_bar_x + (XPBar.bounds.width / 2)), (int)y, this.color, true);
-			y -= (float)Renderer.height / 12.0f * Renderer.delta_time;
 		}
 		
 		private String text;

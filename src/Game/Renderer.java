@@ -108,7 +108,9 @@ public class Renderer {
 	
 	private static int frames = 0;
 	private static long fps_timer = 0;
-	private static boolean screenshot = false;
+	public static boolean screenshot = false;
+	public static int screenshotIndex = 0;
+	public static boolean screenshotNextFrame = false;
 	
 	public static int replayOption = 0;
 	public static String replayName = "";
@@ -389,13 +391,6 @@ public class Renderer {
 						last_item = item; // Done with item this loop, can save it as last_item
 					}
 				}
-				
-				Client.processFatigueXPDrops();
-				
-			}
-			
-			if (!Client.isSleeping()) {
-				Client.updateCurrentFatigue();
 			}
 			
 			// Clear item list for next frame
@@ -680,7 +675,7 @@ public class Renderer {
             if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0)
                 threshold = 35*3; //this is to prevent blinking during fastforward
             
-			if (Settings.LAG_INDICATOR.get(Settings.currentProfile) && Replay.getServerLag() >= threshold) {
+			if (!screenshot && Settings.LAG_INDICATOR.get(Settings.currentProfile) && Replay.getServerLag() >= threshold) {
 				x = width - 80; y = height - 80;
 				setAlpha(g2, alpha_time);
 				g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
@@ -1023,14 +1018,25 @@ public class Renderer {
 		if (screenshot) {
 			try {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-				String fname = Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
+				String dir = Settings.Dir.SCREENSHOT;
+				String filename = "Screenshot from " + format.format(new Date()) + ".png";
+				if (Settings.Params.screenshotDirectory.length() > 0) {
+					dir = Settings.Params.screenshotDirectory;
+					filename = screenshotIndex + ".png";
+				}
+				String fname = dir + "/" + filename;
 				File screenshotFile = new File(fname);
 				ImageIO.write(game_image, "png", screenshotFile);
-				if (!quietScreenshot)
+				if (!quietScreenshot && Settings.Params.screenshotDirectory.length() == 0)
 					Client.displayMessage("@cya@Screenshot saved to '" + screenshotFile.toString() + "'", Client.CHAT_NONE);
 			} catch (Exception e) {
 			}
 			screenshot = false;
+		}
+		
+		if (screenshotNextFrame) {
+			screenshot = true;
+			screenshotNextFrame = false;
 		}
 		
 		g.drawImage(game_image, 0, 0, null);

@@ -244,6 +244,7 @@ public class Settings {
     public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
     public static boolean HIDE_ROOFS_BOOL = false;
     public static boolean COMBAT_MENU_SHOWN_BOOL = false;
+	public static boolean disableRenderer = false;
     
     // determines which preset to load, or your custom settings :-)
     public static String currentProfile = "custom";
@@ -1142,7 +1143,10 @@ public class Settings {
 			props.load(in);
 			in.close();
 
-            currentProfile = getPropString(props, "current_profile", "custom");
+			if (Settings.Params.preset.length() == 0)
+				currentProfile = getPropString(props, "current_profile", "custom");
+			else
+				currentProfile = Settings.Params.preset;
             definePresets(props);
 			updateInjectedVariables(); //TODO remove this function
 			
@@ -1155,6 +1159,45 @@ public class Settings {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void initParameters(String[] args) {
+		Params.playReplay = "";
+		Params.exitReplayDone = false;
+		Params.disableFrameLimit = false;
+		Params.screenshotTimestamps = null;
+		Params.screenshotDirectory = "";
+		Params.logDirectory = "";
+		Params.disableRenderer = false;
+		Params.preset = "";
+		
+		for (int i = 0; i < args.length; i++) {
+			String param = args[i];
+			
+			// Parse options
+			if (param.startsWith("--exit-replay")) {
+				Params.exitReplayDone = true;
+			} else if (param.startsWith("--disable-framelimiter")) {
+				Params.disableFrameLimit = true;
+			} else if (param.startsWith("--disable-renderer")) {
+				Params.disableRenderer = true;
+			} else if (param.startsWith("--screenshot-dir")) {
+				Params.screenshotDirectory = args[++i];
+			} else if (param.startsWith("--log-dir")) {
+				Params.logDirectory = args[++i];
+			} else if (param.startsWith("--preset")) {
+				Params.preset = args[++i];
+			} else if (param.startsWith("--screenshot")) {
+				String[] timestamps = args[++i].split(",");
+				Params.screenshotTimestamps = new int[timestamps.length];
+				for (int x = 0; x < timestamps.length; x++)
+					Params.screenshotTimestamps[x] = Integer.parseInt(timestamps[x]);
+			} else {
+				Params.playReplay = args[i];
+			}
+		}
+		
+		Settings.disableRenderer = Params.disableRenderer;
 	}
 	
 	private static KeyModifier getKeyModifierFromString(String savedKeybindSet) {
@@ -1349,7 +1392,8 @@ public class Settings {
                 TRIGGER_ALERTS_REPLAY.get(preset)));
                 
             //// presets
-            props.setProperty("current_profile", currentProfile);
+			if (Settings.Params.preset.length() == 0)
+				props.setProperty("current_profile", currentProfile);
 
             //// nogui
             props.setProperty("combat_style",Integer.toString(
@@ -1909,6 +1953,17 @@ public class Settings {
 		public static String DUMP;
 		public static String SCREENSHOT;
 		public static String REPLAY;
+	}
+	
+	public static class Params {
+		public static String playReplay;
+		public static boolean exitReplayDone;
+		public static boolean disableFrameLimit;
+		public static int[] screenshotTimestamps;
+		public static String screenshotDirectory;
+		public static String logDirectory;
+		public static String preset;
+		public static boolean disableRenderer;
 	}
 	
 	public static String[] WORLD_LIST = { "1", "2", "3", "4", "5" };

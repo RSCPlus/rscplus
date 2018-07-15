@@ -1410,7 +1410,7 @@ public class JClassPatcher {
 				AbstractInsnNode insnNode = insnNodeList.next();
 				LabelNode label = new LabelNode();
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
-				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "disableRenderer", "Z"));
 				methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(insnNode, label);
@@ -1454,7 +1454,7 @@ public class JClassPatcher {
 				
 				LabelNode label = new LabelNode();
 				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.ICONST_0));
-				methodNode.instructions.insertBefore(findNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Replay", "isSeeking", "Z"));
+				methodNode.instructions.insertBefore(findNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "disableRenderer", "Z"));
 				methodNode.instructions.insertBefore(findNode, new JumpInsnNode(Opcodes.IFEQ, label));
 				methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.RETURN));
 				methodNode.instructions.insertBefore(findNode, label);

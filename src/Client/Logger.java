@@ -63,7 +63,10 @@ public class Logger {
 	
 	public static void start() {
 		AnsiConsole.systemInstall();
-		File file = new File(Settings.Dir.JAR + "/log.txt");
+		String dir = Settings.Dir.JAR;
+		if (Settings.Params.logDirectory.length() > 0)
+			dir = Settings.Params.logDirectory;
+		File file = new File(dir + "/log.txt");
 		try {
 			m_logWriter = new PrintWriter(new FileOutputStream(file));
 		} catch (Exception e) {

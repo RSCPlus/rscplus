@@ -248,6 +248,7 @@ public class Replay {
 			play_keys.close();
 			play_keys = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayDirectory + "/keys.bin"))));
 			replayServer.restart = true;
+			Client.xpdrop_handler.clear();
 		} catch (Exception e) {
 			e.printStackTrace();
 			isRestarting = false;
@@ -555,7 +556,7 @@ public class Replay {
 	}
 	
 	public static void resetFrameTimeSlice() {
-		if (isSeeking)
+		if (isSeeking || Settings.Params.disableFrameLimit)
 			return;
 		
 		frame_time_slice = 1000 / fps;
@@ -584,6 +585,11 @@ public class Replay {
 	public static void updateFrameTimeSlice() {
 		if (paused || isSeeking)
 			return;
+		
+		if (Settings.Params.disableFrameLimit) {
+			Replay.frame_time_slice = 1;
+			return;
+		}
 		
 		if (isPlaying) {
 			frame_time_slice = 1000 / ((int)(fps * fpsPlayMultiplier));

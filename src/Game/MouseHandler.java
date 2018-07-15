@@ -33,8 +33,8 @@ import java.awt.event.MouseWheelListener;
  */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
 	
-	public static int x = 0;
-	public static int y = 0;
+	public static int x = -100;
+	public static int y = -100;
 	public static boolean mouseClicked = false;
 	public static MouseListener listener_mouse = null;
 	public static MouseMotionListener listener_mouse_motion = null;

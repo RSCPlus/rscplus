@@ -90,6 +90,7 @@ public class ReplayServer implements Runnable {
 		
 		timestamp_new = new_timestamp;
 		isSeeking = true;
+		Settings.disableRenderer = true;
 	}
 	
 	public int getReplayEnding(File file) {
@@ -209,6 +210,10 @@ public class ReplayServer implements Runnable {
 			sock.close();
 			input.close();
 			Logger.Info("ReplayServer: Playback has finished");
+			
+			// Exit when the replay is finished when requested
+			if(Settings.Params.exitReplayDone)
+				Game.getInstance().dispose();
 		} catch (Exception e) {
 			if (sock != null) {
 				try {
@@ -282,12 +287,24 @@ public class ReplayServer implements Runnable {
 				}
 			}
 			
+			if (Settings.Params.screenshotTimestamps != null) {
+				for (int i = 0; i < Settings.Params.screenshotTimestamps.length; i++) {
+					if (Settings.Params.screenshotTimestamps[i] != -1 && Replay.timestamp >= Settings.Params.screenshotTimestamps[i]) {
+						sync_with_client();
+						Client.screenshotNextFrame = true;
+						Renderer.screenshotIndex = i;
+						Settings.Params.screenshotTimestamps[i] = -1;
+					}
+				}
+			}
+			
 			// Handle seeking
 			if (timestamp_new != Replay.TIMESTAMP_EOF) {
 				Replay.timestamp = timestamp_input;
 				if (Replay.timestamp >= timestamp_new) {
 					sync_with_client();
 					Replay.isSeeking = false;
+					Settings.disableRenderer = false;
 					timestamp_new = Replay.TIMESTAMP_EOF;
 					Replay.updateFrameTimeSlice();
 					frame_timer = System.currentTimeMillis();

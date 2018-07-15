@@ -120,6 +120,7 @@ public class Client {
 	public static boolean show_trade;
 	public static boolean show_tradeconfirm;
 	public static boolean show_welcome;
+	public static boolean screenshotNextFrame;
 	
 	public static boolean runReplayHook = false;
 	
@@ -304,6 +305,9 @@ public class Client {
 		login_screen = 2;
 	}
 	
+	private static long prev_time;
+	public static float delta_time;
+	
 	/**
 	 * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
 	 * <p>
@@ -315,6 +319,15 @@ public class Client {
 		version = 235;
 		
 		long time = System.currentTimeMillis();
+		
+		long nanoTime = System.nanoTime();
+		delta_time = (float)(nanoTime - prev_time) / 1000000000.0f;
+		
+		if (delta_time < 0.02f) {
+			delta_time = 0.02f;
+		}
+		
+		prev_time = nanoTime;
 		
 		Replay.update();
 		
@@ -343,6 +356,12 @@ public class Client {
 		if (state == STATE_GAME) {
 			Client.getPlayerName();
 			Client.adaptLoginInfo();
+			
+			Client.processFatigueXPDrops();
+			xpdrop_handler.process();
+			
+			if (!Client.isSleeping())
+				Client.updateCurrentFatigue();
 		}
 		
 		Game.getInstance().updateTitle();
@@ -354,6 +373,16 @@ public class Client {
 			login_hook();
 		}
 		
+		if (screenshotNextFrame) {
+			if (Settings.disableRenderer)
+				Settings.disableRenderer = false;
+			Renderer.screenshotNextFrame = true;
+			screenshotNextFrame = false;
+		}
+		
+		if (Settings.Params.disableRenderer && !Renderer.screenshot && !Renderer.screenshotNextFrame)
+			Settings.disableRenderer = true;
+			
 		updates++;
 		time = System.currentTimeMillis();
 		if (time >= update_timer) {
@@ -430,6 +459,21 @@ public class Client {
 		
 		twitch.disconnect();
 		
+		// Auto-run replay if provided on commandline
+		if (Settings.Params.playReplay.length() > 0) {
+			Renderer.replayName = Settings.Params.playReplay;
+			if (Replay.isValid(Renderer.replayName)) {
+				Logger.Info("Replay selected: " + Renderer.replayName);
+				Client.runReplayHook = true;
+			}
+			Settings.Params.playReplay = "";
+		}
+		
+		// Disable framelimiter if requested
+		if (Settings.Params.disableFrameLimit) {
+			Replay.frame_time_slice = 1;
+		}
+		
 		resetLoginMessage();
 		Replay.closeReplayPlayback();
 		Replay.closeReplayRecording();
@@ -445,6 +489,11 @@ public class Client {
 		state = STATE_GAME;
 		bank_active_page = 0;
 		combat_timer = 0;
+		
+		// Disable framelimiter if requested
+		if (Settings.Params.disableFrameLimit) {
+			Replay.frame_time_slice = 1;
+		}
 		
 		if (TwitchIRC.isUsing())
 			twitch.connect();

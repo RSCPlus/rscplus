@@ -282,6 +282,7 @@ public class Launcher extends JFrame implements Runnable {
 	
 	public static void main(String[] args) {
 		System.setProperty("jansi.passthrough", "true");
+		Settings.initParameters(args);
 		Logger.start();
 		Settings.initDir();
 		Settings.initSettings();
