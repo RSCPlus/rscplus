@@ -74,10 +74,10 @@ public class JClassLoader extends ClassLoader {
   }
 
   @Override
-  public final Class findClass(String name) {
+  public final Class<?> findClass(String name) {
     byte[] data = m_classData.get(name);
     if (data == null) return null;
 
-    return defineClass(data, 0, data.length);
+    return defineClass(name, data, 0, data.length);
   }
 }
