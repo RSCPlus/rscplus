@@ -907,7 +907,6 @@ public class Client {
     try {
       Reflection.lastMouseAction.set(Client.instance, val);
     } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
