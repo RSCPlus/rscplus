@@ -988,7 +988,9 @@ public class Replay {
     if (keys == null) return key;
 
     try {
+      Logger.Debug(String.format("Writing XTEA key: %d", key));
       keys.writeInt(key); // data length
+      keys.flush();
     } catch (Exception e) {
       // e.printStackTrace();
       shutdown_error();

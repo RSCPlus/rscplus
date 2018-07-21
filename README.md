@@ -185,6 +185,8 @@ The result should be in the *dist* folder.
 
 There is an Eclipse project in the source root you can import.
 
+If you are running rsc+ in Eclipse, you may want to use an extension called [ANSI Escape in Console](https://marketplace.eclipse.org/content/ansi-escape-console). If not, you can just disable color codes in General settings.
+
 ### Contributors
 Check [here](https://github.com/OrN/rscplus/graphs/contributors)
 
