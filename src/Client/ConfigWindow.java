@@ -140,6 +140,7 @@ public class ConfigWindow {
   private JSlider generalPanelCommandPatchModeSlider;
   private JCheckBox generalPanelBypassAttackCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
+  private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
@@ -628,6 +629,10 @@ public class ConfigWindow {
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+
+    generalPanelCameraZoomableCheckbox = addCheckbox("Mouse wheel camera zoom", generalPanel);
+    generalPanelCameraZoomableCheckbox.setToolTipText(
+        "Zoom the camera in and out with the mouse wheel");
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1805,6 +1810,8 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
+    generalPanelCameraZoomableCheckbox.setSelected(
+        Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
     generalPanelColoredTextCheckbox.setSelected(
         Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
     generalPanelLogLevelCheckbox.setSelected(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile));
@@ -2007,6 +2014,8 @@ public class ConfigWindow {
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
+    Settings.CAMERA_ZOOMABLE.put(
+        Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
     Settings.COLORIZE_CONSOLE_TEXT.put(
         Settings.currentProfile, generalPanelColoredTextCheckbox.isSelected());
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());

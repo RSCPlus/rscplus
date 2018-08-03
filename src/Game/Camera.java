@@ -89,7 +89,7 @@ public class Camera {
   }
 
   public static void addZoom(int amount) {
-    if (amount == 0) return;
+    if (amount == 0 || !Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) return;
 
     zoom += amount;
     if (zoom > 1238) zoom = 1238;

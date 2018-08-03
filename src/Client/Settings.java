@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180803.113315;
+  public static final double VERSION_NUMBER = 20180803.140046;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -83,6 +83,7 @@ public class Settings {
   public static HashMap<String, Integer> COMMAND_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COLORIZE_CONSOLE_TEXT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FOV = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
@@ -172,6 +173,7 @@ public class Settings {
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
   public static boolean HIDE_ROOFS_BOOL = false;
   public static boolean COMBAT_MENU_SHOWN_BOOL = false;
+  public static boolean CAMERA_ZOOMABLE_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -356,6 +358,15 @@ public class Settings {
     HIDE_ROOFS.put("heavy", true);
     HIDE_ROOFS.put("all", true);
     HIDE_ROOFS.put("custom", getPropBoolean(props, "hide_roofs", HIDE_ROOFS.get("default")));
+
+    CAMERA_ZOOMABLE.put("vanilla", false);
+    CAMERA_ZOOMABLE.put("vanilla_resizable", false);
+    CAMERA_ZOOMABLE.put("lite", true);
+    CAMERA_ZOOMABLE.put("default", true);
+    CAMERA_ZOOMABLE.put("heavy", true);
+    CAMERA_ZOOMABLE.put("all", true);
+    CAMERA_ZOOMABLE.put(
+        "custom", getPropBoolean(props, "camera_zoomable", CAMERA_ZOOMABLE.get("default")));
 
     COLORIZE_CONSOLE_TEXT.put("vanilla", true);
     COLORIZE_CONSOLE_TEXT.put("vanilla_resizable", true);
@@ -1134,6 +1145,7 @@ public class Settings {
       props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
+      props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("colorize", Boolean.toString(COLORIZE_CONSOLE_TEXT.get(preset)));
       props.setProperty("fov", Integer.toString(FOV.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
@@ -2026,6 +2038,7 @@ public class Settings {
     COMBAT_STYLE_INT = COMBAT_STYLE.get(currentProfile);
     HIDE_ROOFS_BOOL = HIDE_ROOFS.get(currentProfile);
     COMBAT_MENU_SHOWN_BOOL = COMBAT_MENU_SHOWN.get(currentProfile);
+    CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

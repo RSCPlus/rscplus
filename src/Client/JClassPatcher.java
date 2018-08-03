@@ -396,7 +396,17 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "ug", "I", "Game/Camera", "rotation", "I", true, true);
-      hookClassVariable(methodNode, "client", "ac", "I", "Game/Camera", "zoom", "I", false, true);
+      hookConditionalClassVariable(
+          methodNode,
+          "client",
+          "ac",
+          "I",
+          "Game/Camera",
+          "zoom",
+          "I",
+          false,
+          true,
+          "CAMERA_ZOOMABLE_BOOL");
 
       // Chat menu
       hookClassVariable(
@@ -1348,31 +1358,51 @@ public class JClassPatcher {
       }
       if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        boolean roofHidePatched = false;
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
 
           // Hide Roof option
-          if (insnNode.getOpcode() == Opcodes.GETFIELD) {
-            FieldInsnNode field = (FieldInsnNode) insnNode;
+          if (insnNode.getOpcode() == Opcodes.BIPUSH) {
+            IntInsnNode field = (IntInsnNode) insnNode;
 
-            if (field.owner.equals("client") && field.name.equals("yj")) {
-              AbstractInsnNode nextNode = insnNode.getNext();
-              if (nextNode.getOpcode() == Opcodes.IFNE) {
-                LabelNode label = ((JumpInsnNode) nextNode).label;
-                methodNode.instructions.insert(nextNode, new JumpInsnNode(Opcodes.IFGT, label));
-                methodNode.instructions.insert(
-                    nextNode,
-                    new FieldInsnNode(
-                        Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS_BOOL", "Z"));
-                methodNode.instructions.insert(
-                    insnNode,
-                    new MethodInsnNode(
-                        Opcodes.INVOKESTATIC,
-                        "Client/Settings",
-                        "updateInjectedVariables",
-                        "()V",
-                        false)); // TODO Remove this line when HIDE_ROOFS_BOOL is eliminated
-              }
+            if (!roofHidePatched && field.operand == 118) {
+              JumpInsnNode end =
+                  (JumpInsnNode)
+                      insnNode
+                          .getNext()
+                          .getNext()
+                          .getNext()
+                          .getNext()
+                          .getNext()
+                          .getNext()
+                          .getNext();
+              AbstractInsnNode ifStart =
+                  insnNode
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious()
+                      .getPrevious();
+              methodNode.instructions.insertBefore(
+                  ifStart,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Settings",
+                      "updateInjectedVariables",
+                      "()V",
+                      false));
+              methodNode.instructions.insertBefore(
+                  ifStart,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "HIDE_ROOFS_BOOL", "Z"));
+              methodNode.instructions.insertBefore(
+                  ifStart, new JumpInsnNode(Opcodes.IFGT, end.label));
+              roofHidePatched = true;
             }
           }
 
@@ -2385,6 +2415,71 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.DUP_X1));
             methodNode.instructions.insert(
                 insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, newClass, newVar, newDesc));
+          }
+        }
+      }
+    }
+  }
+
+  private void hookConditionalClassVariable(
+      MethodNode methodNode,
+      String owner,
+      String var,
+      String desc,
+      String newClass,
+      String newVar,
+      String newDesc,
+      boolean canRead,
+      boolean canWrite,
+      String boolTrigger) {
+    Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+    while (insnNodeList.hasNext()) {
+      AbstractInsnNode insnNode = insnNodeList.next();
+
+      int opcode = insnNode.getOpcode();
+      if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD) {
+        FieldInsnNode field = (FieldInsnNode) insnNode;
+        if (field.owner.equals(owner) && field.name.equals(var) && field.desc.equals(desc)) {
+          if (opcode == Opcodes.GETFIELD && canWrite) {
+            LabelNode label = new LabelNode();
+            methodNode.instructions.insert(insnNode, label);
+            methodNode.instructions.insert(
+                insnNode, new FieldInsnNode(Opcodes.GETSTATIC, newClass, newVar, newDesc));
+            methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.POP));
+            methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+            methodNode.instructions.insert(
+                insnNode,
+                new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", boolTrigger, "Z"));
+            methodNode.instructions.insert(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Settings",
+                    "updateInjectedVariables",
+                    "()V",
+                    false));
+          } else if (opcode == Opcodes.PUTFIELD && canRead) {
+            LabelNode label_end = new LabelNode();
+            LabelNode label = new LabelNode();
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.DUP_X1));
+            methodNode.instructions.insert(insnNode, label_end);
+            methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.POP));
+            methodNode.instructions.insert(insnNode, label);
+            methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.GOTO, label_end));
+            methodNode.instructions.insert(
+                insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, newClass, newVar, newDesc));
+            methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+            methodNode.instructions.insert(
+                insnNode,
+                new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", boolTrigger, "Z"));
+            methodNode.instructions.insert(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Settings",
+                    "updateInjectedVariables",
+                    "()V",
+                    false));
           }
         }
       }
