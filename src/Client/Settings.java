@@ -44,7 +44,8 @@ public class Settings {
   // Internally used variables
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
-  public static final double VERSION_NUMBER = 20180803.092927;
+  public static int javaVersion = 0;
+  public static final double VERSION_NUMBER = 20180803.104148;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1049,6 +1050,12 @@ public class Settings {
   public static void initSettings() {
     // Load settings
     try {
+      String versionText = System.getProperty("java.version");
+      if (versionText.startsWith("1.")) {
+        versionText = versionText.substring(2);
+      }
+      javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+
       Properties props = new Properties();
 
       File configFile = new File(Dir.JAR + "/config.ini");

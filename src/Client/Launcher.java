@@ -316,6 +316,14 @@ public class Launcher extends JFrame implements Runnable {
     Logger.start();
     Settings.initDir();
     Settings.initSettings();
+
+    if (Settings.javaVersion >= 9) {
+      Logger.Warn(
+          "rsc wasn't designed for Java version "
+              + Settings.javaVersion
+              + ". You may encounter additional bugs, for best results use 8.");
+    }
+
     setConfigWindow(new ConfigWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();

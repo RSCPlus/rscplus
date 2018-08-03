@@ -701,7 +701,15 @@ public class JClassPatcher {
           }
         }
       }
-      if (methodNode.name.equals("isDisplayable") && methodNode.desc.equals("()Z")) {
+      if (Settings.javaVersion >= 9
+          && methodNode.name.equals("isDisplayable")
+          && methodNode.desc.equals("()Z")) {
+        Logger.Warn(
+            "Applying Java 9+ compatibility fix in "
+                + node.name
+                + "."
+                + methodNode.name
+                + methodNode.desc);
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
         AbstractInsnNode insnNode = insnNodeList.next().getNext();
 
@@ -713,8 +721,15 @@ public class JClassPatcher {
                 Opcodes.INVOKESPECIAL, "java/applet/Applet", "isDisplayable", "()Z", false));
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IRETURN));
       }
-      if ((methodNode.name.equals("mousePressed") || methodNode.name.equals("mouseDragged"))
+      if (Settings.javaVersion >= 9
+          && (methodNode.name.equals("mousePressed") || methodNode.name.equals("mouseDragged"))
           && methodNode.desc.equals("(Ljava/awt/event/MouseEvent;)V")) {
+        Logger.Warn(
+            "Applying Java 9+ compatibility fix in "
+                + node.name
+                + "."
+                + methodNode.name
+                + methodNode.desc);
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();

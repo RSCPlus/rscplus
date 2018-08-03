@@ -799,6 +799,8 @@ public class Renderer {
         drawShadowText(g2, "Mouse Text: " + Client.mouseText, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
+        y += 16;
+        drawShadowText(g2, "Java version: " + Settings.javaVersion, x, y, color_text, false);
       }
 
       // A little over a full tick
