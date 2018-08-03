@@ -530,6 +530,7 @@ public class Renderer {
             setAlpha(g2, alphaFatigue);
             drawShadowText(
                 g2, "Fatigue: " + Client.getFatigue() + "/100", x, y, colorFatigue, false);
+            setAlpha(g2, 1.0f);
             y += 16;
           }
         } else {
