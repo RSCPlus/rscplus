@@ -483,6 +483,7 @@ public class Renderer {
 
       // NPC Post-processing for ui
       if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {
+        int bar_count = 0;
         for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext(); ) {
           NPC npc = iterator.next();
           if (npc != null && Client.isInCombatWithNPC(npc)) {
@@ -492,9 +493,12 @@ public class Renderer {
             // indicates
             // that our combat detection isn't accurate
             y += 50;
+            bar_count++;
           }
         }
-        y += 16;
+        if (bar_count > 0) {
+          y += 16;
+        }
       }
 
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {

@@ -1721,7 +1721,7 @@ public class Client {
     boolean hitboxesIntersectOnXAxis = (player_posX - 10) < (npc.x + npc.width);
 
     // The NPC you're fighting is always on the left side of the player.
-    boolean isOnLeftOfPlayer = player_posX > npc.x;
+    boolean isOnLeftOfPlayer = (player_posX + player_width) > npc.x;
 
     return isInCombat()
         && npc.currentHits != 0

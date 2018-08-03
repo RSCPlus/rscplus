@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180803.161031;
+  public static final double VERSION_NUMBER = 20180803.171416;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -563,7 +563,7 @@ public class Settings {
     SHOW_COMBAT_INFO.put("vanilla", false);
     SHOW_COMBAT_INFO.put("vanilla_resizable", false);
     SHOW_COMBAT_INFO.put("lite", false);
-    SHOW_COMBAT_INFO.put("default", false);
+    SHOW_COMBAT_INFO.put("default", true);
     SHOW_COMBAT_INFO.put("heavy", true);
     SHOW_COMBAT_INFO.put("all", true);
     SHOW_COMBAT_INFO.put(
