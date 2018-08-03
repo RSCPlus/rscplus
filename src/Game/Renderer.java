@@ -307,9 +307,6 @@ public class Renderer {
             }
             if (show) {
               drawShadowText(g2, npc.name, x, y, color, true);
-              if (npc.currentHits != 0 && npc.maxHits != 0) {
-                drawShadowText(g2, npc.currentHits + "/" + npc.maxHits, x, y - 12, color, true);
-              }
             }
             entity_text_loc.add(new Point(x, y));
           }
