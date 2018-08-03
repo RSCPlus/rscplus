@@ -713,6 +713,28 @@ public class JClassPatcher {
                 Opcodes.INVOKESPECIAL, "java/applet/Applet", "isDisplayable", "()Z", false));
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IRETURN));
       }
+      if ((methodNode.name.equals("mousePressed") || methodNode.name.equals("mouseDragged"))
+          && methodNode.desc.equals("(Ljava/awt/event/MouseEvent;)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && ((MethodInsnNode) insnNode).name.equals("isMetaDown")) {
+            // Use SwingUtilities to determine if click is right click to support java 9+ right
+            // clicking
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "javax/swing/SwingUtilities",
+                    "isRightMouseButton",
+                    "(Ljava/awt/event/MouseEvent;)Z",
+                    false));
+            methodNode.instructions.remove(insnNode);
+          }
+        }
+      }
     }
   }
 
