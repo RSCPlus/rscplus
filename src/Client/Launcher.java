@@ -321,7 +321,7 @@ public class Launcher extends JFrame implements Runnable {
       Logger.Warn(
           "rsc wasn't designed for Java version "
               + Settings.javaVersion
-              + ". You may encounter additional bugs, for best results use 8.");
+              + ". You may encounter additional bugs, for best results use version 8.");
     }
 
     setConfigWindow(new ConfigWindow());
