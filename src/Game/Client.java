@@ -782,8 +782,6 @@ public class Client {
             + base_level[SKILL_PRAYER]
             + " M:"
             + base_level[SKILL_MAGIC];
-      } else if ("bank".equals(command)) {
-        return "Hey, everyone, I just tried to do something very silly!";
       } else if ("update".equals(command)) {
         checkForUpdate(true);
       } else if (command.startsWith("xmas ")) {
@@ -819,15 +817,6 @@ public class Client {
         }
         return subline;
 
-      } else if (command.startsWith("system ")) { // ~007~@bla@Username~007~ Msg
-        if (Client.player_name.length() != 0) {
-          return "~007~@bla@"
-              + Client.player_name
-              + ":~007~@yel@"
-              + line.substring(9, line.length());
-        } else {
-          return line.substring(9, line.length()); // send the message anyway
-        }
       } else if (command.startsWith("next_")) {
         for (int i = 0; i < 18; i++) {
           if (command.equals("next_" + skill_name[i].toLowerCase())) {
