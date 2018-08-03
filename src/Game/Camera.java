@@ -67,6 +67,7 @@ public class Camera {
    * @param distance the view distance
    */
   public static synchronized void setDistance(int distance) {
+    Settings.VIEW_DISTANCE_BOOL = (distance != 2300);
     distance1 = distance + 100;
     distance2 = distance + 100;
     distance3 = 1;

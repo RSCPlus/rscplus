@@ -284,10 +284,50 @@ public class JClassPatcher {
           "item_commands",
           "[Ljava/lang/String;");
 
-      hookClassVariable(methodNode, "lb", "Mb", "I", "Game/Camera", "distance1", "I", false, true);
-      hookClassVariable(methodNode, "lb", "X", "I", "Game/Camera", "distance2", "I", false, true);
-      hookClassVariable(methodNode, "lb", "P", "I", "Game/Camera", "distance3", "I", false, true);
-      hookClassVariable(methodNode, "lb", "G", "I", "Game/Camera", "distance4", "I", false, true);
+      hookConditionalClassVariable(
+          methodNode,
+          "lb",
+          "Mb",
+          "I",
+          "Game/Camera",
+          "distance1",
+          "I",
+          false,
+          true,
+          "VIEW_DISTANCE_BOOL");
+      hookConditionalClassVariable(
+          methodNode,
+          "lb",
+          "X",
+          "I",
+          "Game/Camera",
+          "distance2",
+          "I",
+          false,
+          true,
+          "VIEW_DISTANCE_BOOL");
+      hookConditionalClassVariable(
+          methodNode,
+          "lb",
+          "P",
+          "I",
+          "Game/Camera",
+          "distance3",
+          "I",
+          false,
+          true,
+          "VIEW_DISTANCE_BOOL");
+      hookConditionalClassVariable(
+          methodNode,
+          "lb",
+          "G",
+          "I",
+          "Game/Camera",
+          "distance4",
+          "I",
+          false,
+          true,
+          "VIEW_DISTANCE_BOOL");
 
       hookClassVariable(
           methodNode, "client", "cl", "I", "Game/Client", "max_inventory", "I", true, false);
