@@ -702,11 +702,10 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("isDisplayable") && methodNode.desc.equals("()Z")) {
-        // this part shows error_game_
-        // we want to call disconnect hook for instance in error_game_crash
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
         AbstractInsnNode insnNode = insnNodeList.next().getNext();
 
+        // To fix java 9+, just forward the call to super.isDisplayable()
         methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.insertBefore(
             insnNode,
