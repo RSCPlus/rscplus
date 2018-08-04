@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.FlushableGZIPOutputStream;
 import Client.Launcher;
 import Client.Logger;
 import Client.Settings;
@@ -39,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import javax.swing.JOptionPane;
 
 public class Replay {
@@ -330,12 +330,12 @@ public class Replay {
       output =
           new DataOutputStream(
               new BufferedOutputStream(
-                  new GZIPOutputStream(
+                  new FlushableGZIPOutputStream(
                       new FileOutputStream(new File(recordingDirectory + "/out.bin.gz")))));
       input =
           new DataOutputStream(
               new BufferedOutputStream(
-                  new GZIPOutputStream(
+                  new FlushableGZIPOutputStream(
                       new FileOutputStream(new File(recordingDirectory + "/in.bin.gz")))));
       keys =
           new DataOutputStream(
@@ -345,12 +345,12 @@ public class Replay {
         keyboard =
             new DataOutputStream(
                 new BufferedOutputStream(
-                    new GZIPOutputStream(
+                    new FlushableGZIPOutputStream(
                         new FileOutputStream(new File(recordingDirectory + "/keyboard.bin.gz")))));
         mouse =
             new DataOutputStream(
                 new BufferedOutputStream(
-                    new GZIPOutputStream(
+                    new FlushableGZIPOutputStream(
                         new FileOutputStream(new File(recordingDirectory + "/mouse.bin.gz")))));
         started_record_kb_mouse =
             true; // need this to know whether or not to close the file if the user changes settings
@@ -392,6 +392,7 @@ public class Replay {
           buffer.put(retained_bytes, retained_off, retained_bread);
           input_checksum.update(buffer.array());
           input.write(buffer.array());
+          input.flush();
         } catch (Exception e) {
           e.printStackTrace();
           shutdown_error();
@@ -847,6 +848,7 @@ public class Replay {
       keyboard.writeChar(keychar);
       keyboard.writeInt(keycode);
       keyboard.writeInt(modifier);
+      keyboard.flush();
     } catch (Exception e) {
       e.printStackTrace();
       shutdown_error();
@@ -878,6 +880,7 @@ public class Replay {
       mouse.writeInt(scrollAmount);
       mouse.writeBoolean(popupTrigger);
       mouse.writeInt(button);
+      mouse.flush();
     } catch (Exception e) {
       e.printStackTrace();
       shutdown_error();
@@ -908,6 +911,7 @@ public class Replay {
           buffer.putInt(-1);
           input_checksum.update(buffer.array());
           input.write(buffer.array());
+          input.flush();
           timestamp_disconnect = TIMESTAMP_EOF;
         }
 
@@ -917,6 +921,7 @@ public class Replay {
         buffer.put(retained_bytes, retained_off, retained_bread);
         input_checksum.update(buffer.array());
         input.write(buffer.array());
+        input.flush();
       } catch (Exception e) {
         e.printStackTrace();
         shutdown_error();
@@ -959,6 +964,7 @@ public class Replay {
         buffer.put(out_b, off, len);
         output_checksum.update(buffer.array());
         output.write(buffer.array());
+        output.flush();
         return;
       }
 
@@ -968,6 +974,7 @@ public class Replay {
       buffer.put(b, off, len);
       output_checksum.update(buffer.array());
       output.write(buffer.array());
+      output.flush();
     } catch (Exception e) {
       e.printStackTrace();
       shutdown_error();
@@ -1028,6 +1035,7 @@ public class Replay {
           buffer.put(retained_bytes, retained_off, retained_bread);
           input_checksum.update(buffer.array());
           input.write(buffer.array());
+          input.flush();
           Logger.Info("Replay: Removed host block from client input");
         } catch (Exception e) {
           e.printStackTrace();

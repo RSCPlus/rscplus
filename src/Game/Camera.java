@@ -86,6 +86,8 @@ public class Camera {
   }
 
   public static void addRotation(int amount) {
+    if (!Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) return;
+
     rotation = (rotation + amount) & 0xFF;
   }
 

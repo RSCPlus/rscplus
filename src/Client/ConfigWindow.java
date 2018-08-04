@@ -141,6 +141,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelBypassAttackCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelCameraZoomableCheckbox;
+  private JCheckBox generalPanelCameraRotatableCheckbox;
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
@@ -633,6 +634,10 @@ public class ConfigWindow {
     generalPanelCameraZoomableCheckbox = addCheckbox("Mouse wheel camera zoom", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
         "Zoom the camera in and out with the mouse wheel");
+
+    generalPanelCameraRotatableCheckbox =
+        addCheckbox("Middle mouse click camera rotation", generalPanel);
+    generalPanelCameraRotatableCheckbox.setToolTipText("Rotate the camera with middle mouse click");
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1812,6 +1817,8 @@ public class ConfigWindow {
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
+    generalPanelCameraRotatableCheckbox.setSelected(
+        Settings.CAMERA_ROTATABLE.get(Settings.currentProfile));
     generalPanelColoredTextCheckbox.setSelected(
         Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
     generalPanelLogLevelCheckbox.setSelected(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile));
@@ -2016,6 +2023,8 @@ public class ConfigWindow {
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
+    Settings.CAMERA_ROTATABLE.put(
+        Settings.currentProfile, generalPanelCameraRotatableCheckbox.isSelected());
     Settings.COLORIZE_CONSOLE_TEXT.put(
         Settings.currentProfile, generalPanelColoredTextCheckbox.isSelected());
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
