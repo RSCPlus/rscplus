@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180804.012520;
+  public static final double VERSION_NUMBER = 20180804.031305;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -72,6 +72,7 @@ public class Settings {
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOAD_CHAT_HISTORY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMBAT_MENU_SHOWN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> COMBAT_MENU_HIDDEN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_XPDROPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CENTER_XPDROPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FATIGUEDROPS = new HashMap<String, Boolean>();
@@ -174,6 +175,7 @@ public class Settings {
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
   public static boolean HIDE_ROOFS_BOOL = false;
   public static boolean COMBAT_MENU_SHOWN_BOOL = false;
+  public static boolean COMBAT_MENU_HIDDEN_BOOL = false;
   public static boolean CAMERA_ZOOMABLE_BOOL = false;
   public static boolean CAMERA_ROTATABLE_BOOL = false;
   public static boolean VIEW_DISTANCE_BOOL = false;
@@ -249,10 +251,19 @@ public class Settings {
     COMBAT_MENU_SHOWN.put("vanilla_resizable", false);
     COMBAT_MENU_SHOWN.put("lite", false);
     COMBAT_MENU_SHOWN.put("default", false);
-    COMBAT_MENU_SHOWN.put("heavy", false);
+    COMBAT_MENU_SHOWN.put("heavy", true);
     COMBAT_MENU_SHOWN.put("all", true);
     COMBAT_MENU_SHOWN.put(
         "custom", getPropBoolean(props, "combat_menu", COMBAT_MENU_SHOWN.get("default")));
+
+    COMBAT_MENU_HIDDEN.put("vanilla", false);
+    COMBAT_MENU_HIDDEN.put("vanilla_resizable", false);
+    COMBAT_MENU_HIDDEN.put("lite", false);
+    COMBAT_MENU_HIDDEN.put("default", false);
+    COMBAT_MENU_HIDDEN.put("heavy", false);
+    COMBAT_MENU_HIDDEN.put("all", true);
+    COMBAT_MENU_HIDDEN.put(
+        "custom", getPropBoolean(props, "combat_menu_hidden", COMBAT_MENU_HIDDEN.get("default")));
 
     SHOW_XPDROPS.put("vanilla", false);
     SHOW_XPDROPS.put("vanilla_resizable", false);
@@ -575,7 +586,7 @@ public class Settings {
     SHOW_COMBAT_INFO.put("vanilla", false);
     SHOW_COMBAT_INFO.put("vanilla_resizable", false);
     SHOW_COMBAT_INFO.put("lite", false);
-    SHOW_COMBAT_INFO.put("default", true);
+    SHOW_COMBAT_INFO.put("default", false);
     SHOW_COMBAT_INFO.put("heavy", true);
     SHOW_COMBAT_INFO.put("all", true);
     SHOW_COMBAT_INFO.put(
@@ -1147,6 +1158,7 @@ public class Settings {
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
       props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY.get(preset)));
       props.setProperty("combat_menu", Boolean.toString(COMBAT_MENU_SHOWN.get(preset)));
+      props.setProperty("combat_menu_hidden", Boolean.toString(COMBAT_MENU_HIDDEN.get(preset)));
       props.setProperty("show_xpdrops", Boolean.toString(SHOW_XPDROPS.get(preset)));
       props.setProperty("center_xpdrops", Boolean.toString(CENTER_XPDROPS.get(preset)));
       props.setProperty("show_fatiguedrops", Boolean.toString(SHOW_FATIGUEDROPS.get(preset)));
@@ -2052,6 +2064,7 @@ public class Settings {
     COMBAT_STYLE_INT = COMBAT_STYLE.get(currentProfile);
     HIDE_ROOFS_BOOL = HIDE_ROOFS.get(currentProfile);
     COMBAT_MENU_SHOWN_BOOL = COMBAT_MENU_SHOWN.get(currentProfile);
+    COMBAT_MENU_HIDDEN_BOOL = COMBAT_MENU_HIDDEN.get(currentProfile);
     CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
   }

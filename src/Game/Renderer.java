@@ -105,6 +105,8 @@ public class Renderer {
   private static long fps_timer = 0;
   private static boolean screenshot = false;
 
+  public static boolean combat_menu_shown = false;
+
   public static int replayOption = 0;
   public static String replayName = "";
 
@@ -478,8 +480,11 @@ public class Renderer {
       int x = 24;
       int y = 32;
 
+      // Extended tooltips don't draw the message at the top left of the screen
+      if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) y -= 10;
+
       // combat menu is showing, so move everything down
-      if (Client.isInCombat() || Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile)) y = 132;
+      if (combat_menu_shown) y = 132;
 
       // NPC Post-processing for ui
       if (Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile) && !Client.isInterfaceOpen()) {

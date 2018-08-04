@@ -129,6 +129,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCheckUpdates;
   // private JCheckBox generalPanelChatHistoryCheckbox;
   private JCheckBox generalPanelCombatXPMenuCheckbox;
+  private JCheckBox generalPanelCombatXPMenuHiddenCheckbox;
   private JCheckBox generalPanelFatigueAlertCheckbox;
   private JCheckBox generalPanelInventoryFullAlertCheckbox;
   private JSlider generalPanelNamePatchModeSlider;
@@ -612,9 +613,14 @@ public class ConfigWindow {
     // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
     // history is implemented
 
-    generalPanelCombatXPMenuCheckbox = addCheckbox("Combat style menu always shown", generalPanel);
+    generalPanelCombatXPMenuCheckbox =
+        addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
-        "Always show the combat style menu, even when out of combat");
+        "Always show the combat style menu when out of combat");
+
+    generalPanelCombatXPMenuHiddenCheckbox =
+        addCheckbox("Combat style menu hidden when in combat", generalPanel);
+    generalPanelCombatXPMenuHiddenCheckbox.setToolTipText("Hide combat style menu when in combat");
 
     generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
     generalPanelFatigueAlertCheckbox.setToolTipText(
@@ -1467,12 +1473,12 @@ public class ConfigWindow {
     // these JLabels are purposely mispelled to give it that authentic RS1 feel
     Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable =
         new Hashtable<Integer, JLabel>();
-    presetsPanelPresetSliderLabelTable.put(new Integer(0), new JLabel("every posible setting?!"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(1), new JLabel("Overlay lovers"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(2), new JLabel("Recommended settings"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(3), new JLabel("\"lite\" overlays"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(4), new JLabel("Resizable only\""));
-    presetsPanelPresetSliderLabelTable.put(new Integer(5), new JLabel("no interface changes"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(0), new JLabel("All"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(1), new JLabel("Heavy"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(2), new JLabel("Recommended"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(3), new JLabel("Lite"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(4), new JLabel("Vanilla (Resizable)"));
+    presetsPanelPresetSliderLabelTable.put(new Integer(5), new JLabel("Vanilla"));
 
     presetsPanelPresetSlider = new JSlider();
     presetsPanelPresetSlider.setMajorTickSpacing(1);
@@ -1804,6 +1810,8 @@ public class ConfigWindow {
     // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
+    generalPanelCombatXPMenuHiddenCheckbox.setSelected(
+        Settings.COMBAT_MENU_HIDDEN.get(Settings.currentProfile));
     generalPanelFatigueAlertCheckbox.setSelected(
         Settings.FATIGUE_ALERT.get(Settings.currentProfile));
     generalPanelInventoryFullAlertCheckbox.setSelected(
@@ -1992,6 +2000,8 @@ public class ConfigWindow {
     // generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(
         Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
+    Settings.COMBAT_MENU_HIDDEN.put(
+        Settings.currentProfile, generalPanelCombatXPMenuHiddenCheckbox.isSelected());
     Settings.SHOW_XPDROPS.put(Settings.currentProfile, overlayPanelXPDropsCheckbox.isSelected());
     Settings.CENTER_XPDROPS.put(
         Settings.currentProfile, overlayPanelXPCenterAlignFocusButton.isSelected());

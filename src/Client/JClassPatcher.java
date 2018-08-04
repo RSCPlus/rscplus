@@ -878,24 +878,64 @@ public class JClassPatcher {
           if (insnNode.getOpcode() == Opcodes.BIPUSH) {
             IntInsnNode bipush = (IntInsnNode) insnNode;
 
-            if (bipush.operand == -9) {
-              AbstractInsnNode findNode = insnNode;
-              while (findNode.getOpcode() != Opcodes.IF_ICMPEQ) findNode = findNode.getNext();
+            if (bipush.operand == 9) {
+              AbstractInsnNode findNode = null;
 
-              LabelNode label = ((JumpInsnNode) findNode).label;
+              // Hide combat menu patch
+              findNode = insnNode;
+              while (findNode.getOpcode() != Opcodes.ALOAD) findNode = findNode.getNext();
+              LabelNode label = new LabelNode();
+              LabelNode skipLabel = new LabelNode();
               methodNode.instructions.insertBefore(
-                  insnNode,
+                  findNode,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
                       "Client/Settings",
                       "updateInjectedVariables",
                       "()V",
-                      false)); // TODO Remove this line when COMBAT_MENU_SHOWN_BOOL is eliminated
+                      false));
               methodNode.instructions.insertBefore(
-                  insnNode,
+                  findNode,
+                  new FieldInsnNode(
+                      Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU_HIDDEN_BOOL", "Z"));
+              methodNode.instructions.insertBefore(findNode, new JumpInsnNode(Opcodes.IFGT, label));
+              methodNode.instructions.insertBefore(findNode, skipLabel);
+              methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.ICONST_1));
+              methodNode.instructions.insertBefore(
+                  findNode,
+                  new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Renderer", "combat_menu_shown", "Z"));
+              methodNode.instructions.insert(findNode.getNext().getNext(), label);
+
+              // Show combat menu patch
+              JumpInsnNode jumpNode = (JumpInsnNode) insnNode.getNext();
+              LabelNode exitLabel = jumpNode.label;
+              LabelNode runLabel = (LabelNode) jumpNode.getNext();
+              label = new LabelNode();
+              jumpNode.label = label;
+              methodNode.instructions.insert(jumpNode, new JumpInsnNode(Opcodes.GOTO, exitLabel));
+              methodNode.instructions.insert(jumpNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
+              methodNode.instructions.insert(
+                  jumpNode,
                   new FieldInsnNode(
                       Opcodes.GETSTATIC, "Client/Settings", "COMBAT_MENU_SHOWN_BOOL", "Z"));
-              methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFGT, label));
+              methodNode.instructions.insert(
+                  jumpNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Settings",
+                      "updateInjectedVariables",
+                      "()V",
+                      false));
+              methodNode.instructions.insert(jumpNode, label);
+              methodNode.instructions.insert(jumpNode, new JumpInsnNode(Opcodes.GOTO, runLabel));
+
+              findNode = insnNode.getPrevious();
+              while (findNode.getOpcode() != Opcodes.BIPUSH) findNode = findNode.getPrevious();
+              methodNode.instructions.insertBefore(findNode, new InsnNode(Opcodes.ICONST_0));
+              methodNode.instructions.insertBefore(
+                  findNode,
+                  new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Renderer", "combat_menu_shown", "Z"));
+
               break;
             }
           }
