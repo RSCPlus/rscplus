@@ -17,5 +17,6 @@ sonar-project.properties
 .scannerwork/
 org.sonarlint.eclipse.core.prefs
 # Ignore IntelliJ generated files
-.idea
+/.idea/
 *.iml
+*.eml
