@@ -136,15 +136,15 @@ public class KeyboardHandler implements KeyListener {
       }
       e.consume();
     }
-    
+
     // Handle camera rotation keys
     if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-    	keyLeft = true;
+        keyLeft = true;
         e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-    	keyRight = true;
+        keyRight = true;
         e.consume();
       }
     }
@@ -170,15 +170,15 @@ public class KeyboardHandler implements KeyListener {
     }
 
     if (e.getKeyCode() == KeyEvent.VK_TAB) e.consume();
-    
+
     // Handle camera rotation keys
     if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-    	keyLeft = false;
+        keyLeft = false;
         e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-    	keyRight = false;
+        keyRight = false;
         e.consume();
       }
     }
@@ -198,15 +198,15 @@ public class KeyboardHandler implements KeyListener {
     }
 
     if (dialogue_option >= 0) e.consume();
-    
+
     // Handle camera rotation keys
     if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-    	keyLeft = true;
+        keyLeft = true;
         e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-    	keyRight = true;
+        keyRight = true;
         e.consume();
       }
     }

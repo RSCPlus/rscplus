@@ -18,6 +18,13 @@
  */
 package Game;
 
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.TwitchIRC;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,13 +37,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.TwitchIRC;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -307,13 +307,13 @@ public class Client {
   public static void update() {
     // FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
     version = 235;
-    
+
     long time = System.currentTimeMillis();
     long nanoTime = System.nanoTime();
-    
-    float delta_time = (float)(nanoTime - last_time) / 1000000000.0f;
+
+    float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
-    
+
     // Handle camera rotation
     if (KeyboardHandler.keyLeft) Camera.addRotation(2 * 50 * delta_time);
     if (KeyboardHandler.keyRight) Camera.addRotation(-2 * 50 * delta_time);

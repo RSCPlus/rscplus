@@ -7,7 +7,7 @@
 	<property name="dist.dir" value="dist" />
 	<property name="bin.dir" value="bin" />
 	<property name="assets.dir" value="assets" />
-	<property name="build_assets.dir" value="build_assets" />
+	<property name="tools.dir" value="tools" />
 	<property name="doc.dir" value="doc" />
 
 	<property name="jar.main-class" value="Client.Launcher" />
@@ -66,7 +66,7 @@
 
 	<target name="format-source">
 		<apply executable="java">
-			<arg line="-jar ${build_assets.dir}/google-java-format-1.6-all-deps.jar" />
+			<arg line="-jar ${tools.dir}/google-java-format-1.6-all-deps.jar" />
 			<arg value="--replace" />
 			<srcfile />
 			<fileset dir="${main.src.dir}" includes="**/**.java" />
