@@ -478,10 +478,7 @@ public class Renderer {
 
       // Draw HP, Prayer, Fatigue overlay
       int x = 24;
-      int y = 32;
-
-      // Extended tooltips don't draw the message at the top left of the screen
-      if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) y -= 10;
+      int y = 28;
 
       // combat menu is showing, so move everything down
       if (combat_menu_shown) y = 132;
