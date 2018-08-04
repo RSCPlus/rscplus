@@ -1,4 +1,4 @@
 language: java
 sudo: false
-jdk: openjdk7
+jdk: openjdk8
 script: ant test dist
