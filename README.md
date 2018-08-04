@@ -185,7 +185,11 @@ The result should be in the *dist* folder.
 
 There is an Eclipse project in the source root you can import.
 
-If you are running rsc+ in Eclipse, you may want to use an extension called [ANSI Escape in Console](https://marketplace.eclipse.org/content/ansi-escape-console). If not, you can just disable color codes in General settings.
+If you are running rsc+ in Eclipse and want colorized console output, you may want to use an extension called [ANSI Escape in Console](https://marketplace.eclipse.org/content/ansi-escape-console) and add -Djansi.passthrough=true to VM arguments for your run configuration.
+
+If you are running rsc+ in IntelliJ IDEA and want colorized console output, you need to add -Djansi.passthrough=true to VM options for your run configuration.
+
+If you are running rsc+ from console, and want to output console text with colorization to a log file, add -Djansi.passthrough=true to your java arguments.
 
 ### Contributors
 Check [here](https://github.com/OrN/rscplus/graphs/contributors)
