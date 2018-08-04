@@ -24,6 +24,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import Client.Settings;
 
 /** Listens to mouse events and stores relevant information about them */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -188,7 +189,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           e.getButton());
     }
 
-    if (m_rotating) {
+    if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile) && m_rotating) {
       m_rotateX += (float) (e.getX() - m_rotatePosition.x) / 2.0f;
       int xDist = (int) m_rotateX;
 

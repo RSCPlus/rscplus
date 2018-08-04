@@ -27,6 +27,7 @@ public class Camera {
 
   public static int fov = 9;
   public static int zoom;
+  public static float delta_rotation = 0.0f;
   public static int rotation;
   public static int distance1;
   public static int distance2;
@@ -40,6 +41,7 @@ public class Camera {
   public static void init() {
     zoom = 750;
     rotation = 126;
+    delta_rotation = (float)rotation;
     setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     setFoV(Settings.FOV.get(Settings.currentProfile));
   }
@@ -88,10 +90,9 @@ public class Camera {
     resize();
   }
 
-  public static void addRotation(int amount) {
-    if (!Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) return;
-
-    rotation = (rotation + amount) & 0xFF;
+  public static void addRotation(float amount) {
+	delta_rotation += amount;
+    rotation = (int)delta_rotation & 0xFF;
   }
 
   public static void addZoom(int amount) {
