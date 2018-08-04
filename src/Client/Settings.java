@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180804.233318;
+  public static final double VERSION_NUMBER = 20180804.235337;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1096,7 +1096,7 @@ public class Settings {
       if (!configFile.isDirectory()) {
         if (!configFile.exists()) {
           definePresets(props);
-          save("default");
+          save("custom");
         }
       }
 
