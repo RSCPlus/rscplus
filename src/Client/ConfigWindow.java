@@ -18,10 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Game;
-import Game.KeyboardHandler;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -71,6 +67,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Game;
+import Game.KeyboardHandler;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -275,6 +275,7 @@ public class ConfigWindow {
       e.printStackTrace();
     }
   }
+
 
   private void runInit() {
     frame = new JFrame();
