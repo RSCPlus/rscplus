@@ -41,6 +41,7 @@ public class Camera {
     zoom = 750;
     rotation = 126;
     setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
+    setFoV(Settings.FOV.get(Settings.currentProfile));
   }
 
   public static void resize() {
@@ -75,6 +76,8 @@ public class Camera {
   }
 
   public static void setFoV(int fov) {
+    Settings.FOV_BOOL = (fov != 9);
+
     // lower than 7 crashes (FoV 4, 5, 6 all crash)
     if (fov < 7) fov = 7;
     // higher than 16 doesn't crash, but above 16 isn't impressive (screen just turns 1 color) and

@@ -376,7 +376,8 @@ public class JClassPatcher {
           "Ljava/lang/Object;",
           true,
           false);
-      hookClassVariable(methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true);
+      hookConditionalClassVariable(
+          methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true, "FOV_BOOL");
 
       hookClassVariable(
           methodNode, "client", "ai", "I", "Game/Client", "combat_timer", "I", true, true);
@@ -434,8 +435,17 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
 
-      hookClassVariable(
-          methodNode, "client", "ug", "I", "Game/Camera", "rotation", "I", true, true);
+      hookConditionalClassVariable(
+          methodNode,
+          "client",
+          "ug",
+          "I",
+          "Game/Camera",
+          "rotation",
+          "I",
+          true,
+          true,
+          "CAMERA_ROTATABLE_BOOL");
       hookConditionalClassVariable(
           methodNode,
           "client",
