@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180804.034501;
+  public static final double VERSION_NUMBER = 20180804.101811;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1308,11 +1308,11 @@ public class Settings {
     } catch (Exception e) {
     }
 
+    // Try finding assets
     if (url == null) {
       try {
-        url = new URL("file://" + Dir.JAR + "/.." + fileName);
+        url = new URL("file://" + Util.findDirectoryReverse("/assets") + fileName);
       } catch (Exception e) {
-        e.printStackTrace();
       }
     }
 
@@ -1336,11 +1336,11 @@ public class Settings {
     } catch (Exception e) {
     }
 
+    // Try finding assets
     if (stream == null) {
       try {
-        stream = new FileInputStream(Dir.JAR + "/.." + fileName);
+        stream = new FileInputStream(Util.findDirectoryReverse("/assets") + fileName);
       } catch (Exception e) {
-        e.printStackTrace();
       }
     }
 

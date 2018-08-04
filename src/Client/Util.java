@@ -43,6 +43,18 @@ public class Util {
     // Empty private constructor to prevent instantiation.
   }
 
+  public static String findDirectoryReverse(String name) {
+    String ret = Settings.Dir.JAR;
+
+    for (int i = 0; i < 8; i++) {
+      File file = new File(ret + name);
+      if (file.exists() && file.isDirectory()) return ret;
+      ret += "/..";
+    }
+
+    return Settings.Dir.JAR;
+  }
+
   public static boolean isMacOS() {
     String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     return (os.contains("mac") || os.contains("darwin"));
