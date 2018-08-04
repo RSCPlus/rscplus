@@ -782,6 +782,8 @@ public class Client {
             + base_level[SKILL_PRAYER]
             + " M:"
             + base_level[SKILL_MAGIC];
+      } else if ("bank".equals(command)) {
+        return "Hey, everyone, I just tried to do something very silly!";
       } else if ("update".equals(command)) {
         checkForUpdate(true);
       } else if (command.startsWith("xmas ")) {
