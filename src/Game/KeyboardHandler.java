@@ -31,10 +31,10 @@ public class KeyboardHandler implements KeyListener {
 
   public static int dialogue_option = -1;
   public static KeyListener listener_key;
-  public static boolean keyLeft;
-  public static boolean keyRight;
-  public static boolean keyUp;
-  public static boolean keyDown;
+  public static boolean keyLeft = false;
+  public static boolean keyRight = false;
+  public static boolean keyUp = false;
+  public static boolean keyDown = false;
 
   /** ArrayList containing all registered KeybindSet values */
   public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
@@ -50,7 +50,6 @@ public class KeyboardHandler implements KeyListener {
   // TODO: Make spacebar clear the login message screen
   @Override
   public void keyPressed(KeyEvent e) {
-    if (listener_key == null) return;
     boolean shouldConsume;
 
     boolean altgr = false;
@@ -159,15 +158,13 @@ public class KeyboardHandler implements KeyListener {
       }
     }
 
-    if (!e.isConsumed()) {
+    if (listener_key != null && !e.isConsumed()) {
       listener_key.keyPressed(e);
     }
   }
 
   @Override
   public void keyReleased(KeyEvent e) {
-    if (listener_key == null) return;
-
     if (Replay.isRecording) {
       Replay.dumpKeyboardInput(
           e.getKeyCode(), Replay.KEYBOARD_RELEASED, e.getKeyChar(), e.getModifiers());
@@ -201,15 +198,13 @@ public class KeyboardHandler implements KeyListener {
       }
     }
 
-    if (!e.isConsumed()) {
+    if (listener_key != null && !e.isConsumed()) {
       listener_key.keyReleased(e);
     }
   }
 
   @Override
   public void keyTyped(KeyEvent e) {
-    if (listener_key == null) return;
-
     if (Replay.isRecording) {
       Replay.dumpKeyboardInput(
           e.getKeyCode(), Replay.KEYBOARD_TYPED, e.getKeyChar(), e.getModifiers());
@@ -237,7 +232,7 @@ public class KeyboardHandler implements KeyListener {
       }
     }
 
-    if (!e.isConsumed()) {
+    if (listener_key != null && !e.isConsumed()) {
       listener_key.keyTyped(e);
     }
   }
