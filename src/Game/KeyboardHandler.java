@@ -33,6 +33,8 @@ public class KeyboardHandler implements KeyListener {
   public static KeyListener listener_key;
   public static boolean keyLeft;
   public static boolean keyRight;
+  public static boolean keyUp;
+  public static boolean keyDown;
 
   /** ArrayList containing all registered KeybindSet values */
   public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
@@ -147,6 +149,14 @@ public class KeyboardHandler implements KeyListener {
         keyRight = true;
         e.consume();
       }
+      if (e.getKeyCode() == KeyEvent.VK_UP) {
+        keyUp = true;
+        e.consume();
+      }
+      if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+        keyDown = true;
+        e.consume();
+      }
     }
 
     if (!e.isConsumed()) {
@@ -181,6 +191,14 @@ public class KeyboardHandler implements KeyListener {
         keyRight = false;
         e.consume();
       }
+      if (e.getKeyCode() == KeyEvent.VK_UP) {
+        keyUp = false;
+        e.consume();
+      }
+      if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+        keyDown = false;
+        e.consume();
+      }
     }
 
     if (!e.isConsumed()) {
@@ -207,6 +225,14 @@ public class KeyboardHandler implements KeyListener {
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
         keyRight = true;
+        e.consume();
+      }
+      if (e.getKeyCode() == KeyEvent.VK_UP) {
+        keyUp = true;
+        e.consume();
+      }
+      if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+        keyDown = true;
         e.consume();
       }
     }

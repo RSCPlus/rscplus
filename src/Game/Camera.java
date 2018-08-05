@@ -27,12 +27,14 @@ public class Camera {
 
   public static int fov = 9;
   public static int zoom;
-  public static float delta_rotation = 0.0f;
   public static int rotation;
   public static int distance1;
   public static int distance2;
   public static int distance3; // This one is divided onto something to do with fog (it's usually 1)
   public static int distance4; // This one seems to be fog distance
+
+  public static float delta_zoom = 0.0f;
+  public static float delta_rotation = 0.0f;
 
   private Camera() {
     // Empty private constructor to prevent instantiation.
@@ -41,6 +43,7 @@ public class Camera {
   public static void init() {
     zoom = 750;
     rotation = 126;
+    delta_zoom = (float) zoom;
     delta_rotation = (float) rotation;
     setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     setFoV(Settings.FOV.get(Settings.currentProfile));
@@ -95,12 +98,13 @@ public class Camera {
     rotation = (int) delta_rotation & 0xFF;
   }
 
-  public static void addZoom(int amount) {
+  public static void addZoom(float amount) {
     if (amount == 0 || !Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) return;
 
-    zoom += amount;
-    if (zoom > 1238) zoom = 1238;
-    else if (zoom < 262) zoom = 262;
+    delta_zoom += amount;
+    if (delta_zoom > 1238.0f) delta_zoom = 1238.0f;
+    else if (delta_zoom < 262.0f) delta_zoom = 262.0f;
+    zoom = (int) delta_zoom;
 
     // Crash fix for camera zoom, camera zoom can't be zero after (((zoom - 500) / 15) + 16
     //
@@ -112,6 +116,9 @@ public class Camera {
     // BIPUSH 16
     // IADD <-- If zoom is -16 here, it's a guaranteed crash
     // IDIV <-- Divide by zero if zoom is (-16 + 16)
-    while (((zoom - 500) / 15) + 16 == 0) zoom -= 1;
+    while (((zoom - 500) / 15) + 16 == 0) {
+      delta_zoom -= 1.0f;
+      zoom = (int) delta_zoom;
+    }
   }
 }

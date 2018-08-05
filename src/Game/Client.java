@@ -314,9 +314,11 @@ public class Client {
     float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
 
-    // Handle camera rotation
+    // Handle camera rotation and zoom
     if (KeyboardHandler.keyLeft) Camera.addRotation(2 * 50 * delta_time);
     if (KeyboardHandler.keyRight) Camera.addRotation(-2 * 50 * delta_time);
+    if (KeyboardHandler.keyDown) Camera.addZoom(8 * 50 * delta_time);
+    if (KeyboardHandler.keyUp) Camera.addZoom(-8 * 50 * delta_time);
 
     Replay.update();
 
