@@ -1074,7 +1074,7 @@ public class Renderer {
           color_text,
           true);
 
-      String daysString = "RuneScape Classic will be taken offline today";
+      String daysString = "RuneScape Classic has been taken offline";
       drawShadowText(g2, daysString, width / 2, 24, Renderer.color_fatigue, true);
 
       // Draw version information
