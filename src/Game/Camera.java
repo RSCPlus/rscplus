@@ -19,6 +19,7 @@
 package Game;
 
 import Client.Settings;
+import Client.Util;
 
 /** Handles adjustments to the camera */
 public class Camera {
@@ -39,6 +40,12 @@ public class Camera {
   public static int distance3; // This one is divided onto something to do with fog (it's usually 1)
   public static int distance4; // This one seems to be fog distance
 
+  public static float add_lookat_x;
+  public static float add_lookat_y;
+  public static int new_lookat_x;
+  public static int new_lookat_y;
+  public static float delta_lookat_x;
+  public static float delta_lookat_y;
   public static float delta_zoom = 0.0f;
   public static float delta_rotation = 0.0f;
 
@@ -53,6 +60,51 @@ public class Camera {
     delta_rotation = (float) rotation;
     setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     setFoV(Settings.FOV.get(Settings.currentProfile));
+  }
+
+  public static void reset_lookat() {
+    lookat_x = Client.getPlayerWaypointX();
+    lookat_y = Client.getPlayerWaypointY();
+    new_lookat_x = lookat_x;
+    new_lookat_y = lookat_y;
+    delta_lookat_x = new_lookat_x;
+    delta_lookat_y = new_lookat_y;
+    add_lookat_x = 0.0f;
+    add_lookat_y = 0.0f;
+  }
+
+  public static void update(float delta_time) {
+    // Handle camera rotation, zoom, and movement
+    final float camera_speed = 32.0f;
+    if (KeyboardHandler.keyLeft) {
+      if (KeyboardHandler.keyShift) move(-camera_speed * delta_time);
+      else addRotation(2 * 50 * delta_time);
+    }
+    if (KeyboardHandler.keyRight) {
+      if (KeyboardHandler.keyShift) move(camera_speed * delta_time);
+      else addRotation(-2 * 50 * delta_time);
+    }
+    if (KeyboardHandler.keyUp) {
+      if (KeyboardHandler.keyShift) strafe(-camera_speed * delta_time);
+      else addZoom(-8 * 50 * delta_time);
+    }
+    if (KeyboardHandler.keyDown) {
+      if (KeyboardHandler.keyShift) strafe(camera_speed * delta_time);
+      else addZoom(8 * 50 * delta_time);
+    }
+
+    if (!KeyboardHandler.keyShift) {
+      add_lookat_x = Util.lerp(add_lookat_x, 0.0f, 8.0f * delta_time);
+      add_lookat_y = Util.lerp(add_lookat_y, 0.0f, 8.0f * delta_time);
+    }
+
+    delta_lookat_x = new_lookat_x; // Util.lerp(delta_lookat_x, new_lookat_x, 8.0f * delta_time);
+    delta_lookat_y = new_lookat_y; // Util.lerp(delta_lookat_y, new_lookat_y, 8.0f * delta_time);
+    lookat_x = (int) delta_lookat_x + (int) add_lookat_x;
+    lookat_y = (int) delta_lookat_y + (int) add_lookat_y;
+
+    // Reset auto speed
+    if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) auto_speed = 0;
   }
 
   public static void resize() {
@@ -70,6 +122,27 @@ public class Camera {
           Renderer.width / 2);
     } catch (Exception e) {
     }
+  }
+
+  public static void strafe(float speed) {
+    float rotation_degrees = ((float) rotation / 255.0f) * 360.0f + 90.0f;
+    float xDiff = Util.lengthdir_x(64, rotation_degrees);
+    float yDiff = Util.lengthdir_y(64, rotation_degrees);
+    add_lookat_x += xDiff * speed;
+    add_lookat_y += yDiff * speed;
+  }
+
+  public static void move(float speed) {
+    float rotation_degrees = ((float) rotation / 255.0f) * 360.0f;
+    float xDiff = Util.lengthdir_x(64, rotation_degrees);
+    float yDiff = Util.lengthdir_y(64, rotation_degrees);
+    add_lookat_x += xDiff * speed;
+    add_lookat_y += yDiff * speed;
+  }
+
+  public static void setLookatTile(int x, int y) {
+    new_lookat_x = x;
+    new_lookat_y = y;
   }
 
   /**

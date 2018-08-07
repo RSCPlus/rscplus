@@ -314,14 +314,8 @@ public class Client {
     float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
 
-    // Handle camera rotation and zoom
-    if (KeyboardHandler.keyLeft) Camera.addRotation(2 * 50 * delta_time);
-    if (KeyboardHandler.keyRight) Camera.addRotation(-2 * 50 * delta_time);
-    if (KeyboardHandler.keyDown) Camera.addZoom(8 * 50 * delta_time);
-    if (KeyboardHandler.keyUp) Camera.addZoom(-8 * 50 * delta_time);
-
-    // Reset auto speed
-    if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) Camera.auto_speed = 0;
+    Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
+    Camera.update(delta_time);
 
     Replay.update();
 
@@ -528,6 +522,7 @@ public class Client {
       worldY = localRegionY + regionY;
     } else {
       if (isLoading) {
+        Camera.reset_lookat();
       } else {
         worldX = localRegionX + regionX;
         worldY = localRegionY + regionY;
@@ -546,11 +541,30 @@ public class Client {
       if (name != null) {
         if (!name.equals(player_name)) {
           player_name = name;
+          Camera.reset_lookat();
         }
       }
     } catch (IllegalArgumentException | IllegalAccessException e1) {
       e1.printStackTrace();
     }
+  }
+
+  public static int getPlayerWaypointX() {
+    int x = 0;
+    try {
+      x = (int) Reflection.characterWaypointX.get(player_object);
+    } catch (Exception e) {
+    }
+    return x;
+  }
+
+  public static int getPlayerWaypointY() {
+    int y = 0;
+    try {
+      y = (int) Reflection.characterWaypointY.get(player_object);
+    } catch (Exception e) {
+    }
+    return y;
   }
 
   /** Returns the coordinates of the player */

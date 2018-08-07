@@ -35,6 +35,7 @@ public class KeyboardHandler implements KeyListener {
   public static boolean keyRight = false;
   public static boolean keyUp = false;
   public static boolean keyDown = false;
+  public static boolean keyShift = false;
 
   /** ArrayList containing all registered KeybindSet values */
   public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
@@ -156,6 +157,8 @@ public class KeyboardHandler implements KeyListener {
         keyDown = true;
         if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
+
+      keyShift = e.isShiftDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {
@@ -196,6 +199,8 @@ public class KeyboardHandler implements KeyListener {
         keyDown = false;
         if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
+
+      keyShift = e.isShiftDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {
@@ -230,6 +235,8 @@ public class KeyboardHandler implements KeyListener {
         keyDown = true;
         if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
+
+      keyShift = e.isShiftDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {

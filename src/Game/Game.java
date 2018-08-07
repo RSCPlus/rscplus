@@ -191,6 +191,7 @@ public class Game extends JFrame
     KeyboardHandler.keyDown = false;
     KeyboardHandler.keyLeft = false;
     KeyboardHandler.keyRight = false;
+    KeyboardHandler.keyShift = false;
   }
 
   /*

@@ -43,6 +43,18 @@ public class Util {
     // Empty private constructor to prevent instantiation.
   }
 
+  public static float lengthdir_x(float dist, float angle) {
+    return dist * (float) Math.cos(Math.toRadians(angle));
+  }
+
+  public static float lengthdir_y(float dist, float angle) {
+    return dist * (float) -Math.sin(Math.toRadians(angle));
+  }
+
+  public static float lerp(float a, float b, float c) {
+    return a + c * (b - a);
+  }
+
   public static String findDirectoryReverse(String name) {
     String ret = Settings.Dir.JAR;
 

@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180807.064130;
+  public static final double VERSION_NUMBER = 20180807.202233;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -86,6 +86,7 @@ public class Settings {
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CAMERA_MOVABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COLORIZE_CONSOLE_TEXT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FOV = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
@@ -178,6 +179,7 @@ public class Settings {
   public static boolean COMBAT_MENU_HIDDEN_BOOL = false;
   public static boolean CAMERA_ZOOMABLE_BOOL = false;
   public static boolean CAMERA_ROTATABLE_BOOL = false;
+  public static boolean CAMERA_MOVABLE_BOOL = false;
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
 
@@ -391,6 +393,15 @@ public class Settings {
     CAMERA_ROTATABLE.put("all", true);
     CAMERA_ROTATABLE.put(
         "custom", getPropBoolean(props, "camera_rotatable", CAMERA_ROTATABLE.get("default")));
+
+    CAMERA_MOVABLE.put("vanilla", false);
+    CAMERA_MOVABLE.put("vanilla_resizable", false);
+    CAMERA_MOVABLE.put("lite", true);
+    CAMERA_MOVABLE.put("default", true);
+    CAMERA_MOVABLE.put("heavy", true);
+    CAMERA_MOVABLE.put("all", true);
+    CAMERA_MOVABLE.put(
+        "custom", getPropBoolean(props, "camera_movable", CAMERA_MOVABLE.get("default")));
 
     COLORIZE_CONSOLE_TEXT.put("vanilla", true);
     COLORIZE_CONSOLE_TEXT.put("vanilla_resizable", true);
@@ -1172,6 +1183,7 @@ public class Settings {
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
+      props.setProperty("camera_movable", Boolean.toString(CAMERA_MOVABLE.get(preset)));
       props.setProperty("colorize", Boolean.toString(COLORIZE_CONSOLE_TEXT.get(preset)));
       props.setProperty("fov", Integer.toString(FOV.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
@@ -2067,6 +2079,7 @@ public class Settings {
     COMBAT_MENU_HIDDEN_BOOL = COMBAT_MENU_HIDDEN.get(currentProfile);
     CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
+    CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
