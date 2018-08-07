@@ -320,6 +320,9 @@ public class Client {
     if (KeyboardHandler.keyDown) Camera.addZoom(8 * 50 * delta_time);
     if (KeyboardHandler.keyUp) Camera.addZoom(-8 * 50 * delta_time);
 
+    // Reset auto speed
+    if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) Camera.auto_speed = 0;
+
     Replay.update();
 
     if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME.get(Settings.currentProfile)

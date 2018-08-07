@@ -25,8 +25,10 @@ public class Camera {
 
   public static Object instance = null;
 
+  public static boolean auto = false;
   public static int fov = 9;
   public static int zoom;
+  public static int auto_speed;
   public static int rotation;
   public static int angle;
   public static int rotation_y;
