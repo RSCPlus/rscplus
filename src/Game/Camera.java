@@ -30,8 +30,8 @@ public class Camera {
   public static int rotation;
   public static int angle;
   public static int rotation_y;
-  public static int rotation_auto_x;
-  public static int rotation_auto_y;
+  public static int lookat_x;
+  public static int lookat_y;
   public static int distance1;
   public static int distance2;
   public static int distance3; // This one is divided onto something to do with fog (it's usually 1)
