@@ -138,23 +138,23 @@ public class KeyboardHandler implements KeyListener {
       e.consume();
     }
 
-    // Handle camera rotation keys
-    if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
+    // Handle camera keys
+    if (!e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
         keyLeft = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
         keyRight = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 
@@ -178,23 +178,23 @@ public class KeyboardHandler implements KeyListener {
 
     if (e.getKeyCode() == KeyEvent.VK_TAB) e.consume();
 
-    // Handle camera rotation keys
-    if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
+    // Handle camera keys
+    if (!e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
         keyLeft = false;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
         keyRight = false;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = false;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = false;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 
@@ -213,22 +213,22 @@ public class KeyboardHandler implements KeyListener {
     if (dialogue_option >= 0) e.consume();
 
     // Handle camera rotation keys
-    if (Client.state == Client.STATE_GAME && !e.isConsumed()) {
+    if (!e.isConsumed()) {
       if (e.getKeyCode() == KeyEvent.VK_LEFT) {
         keyLeft = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
         keyRight = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = true;
-        e.consume();
+        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 

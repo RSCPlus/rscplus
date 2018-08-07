@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180807.011454;
+  public static final double VERSION_NUMBER = 20180807.013904;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -177,6 +177,7 @@ public class Settings {
   public static boolean COMBAT_MENU_SHOWN_BOOL = false;
   public static boolean COMBAT_MENU_HIDDEN_BOOL = false;
   public static boolean CAMERA_ZOOMABLE_BOOL = false;
+  public static boolean CAMERA_ROTATABLE_BOOL = false;
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
 
@@ -2065,6 +2066,7 @@ public class Settings {
     COMBAT_MENU_SHOWN_BOOL = COMBAT_MENU_SHOWN.get(currentProfile);
     COMBAT_MENU_HIDDEN_BOOL = COMBAT_MENU_HIDDEN.get(currentProfile);
     CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);
+    CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
