@@ -34,10 +34,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -46,7 +43,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /** Singleton class that handles packaging the client into a JFrame and starting the applet. */
-public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener {
+public class Game extends JFrame
+    implements AppletStub, ComponentListener, WindowListener, FocusListener {
 
   // Singleton
   private static Game instance = null;
@@ -143,6 +141,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
   /** Starts the game applet. */
   public void launchGame() {
     m_config.changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    m_applet.addFocusListener(this);
     m_applet.init();
     m_applet.start();
   }
@@ -177,6 +176,21 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     }
     m_title = title;
     super.setTitle(m_title);
+  }
+
+  /*
+   * FocusListener methods
+   */
+
+  @Override
+  public final void focusGained(FocusEvent e) {}
+
+  @Override
+  public final void focusLost(FocusEvent e) {
+    KeyboardHandler.keyUp = false;
+    KeyboardHandler.keyDown = false;
+    KeyboardHandler.keyLeft = false;
+    KeyboardHandler.keyRight = false;
   }
 
   /*
