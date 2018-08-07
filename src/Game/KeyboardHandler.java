@@ -171,7 +171,7 @@ public class KeyboardHandler implements KeyListener {
     }
 
     // Reset dialogue option
-    if (dialogue_option >= 0) {
+    if (dialogue_option >= 0 && !Replay.isPlaying) {
       dialogue_option = -1;
       e.consume();
     }
@@ -210,7 +210,7 @@ public class KeyboardHandler implements KeyListener {
           e.getKeyCode(), Replay.KEYBOARD_TYPED, e.getKeyChar(), e.getModifiers());
     }
 
-    if (dialogue_option >= 0) e.consume();
+    if (dialogue_option >= 0 && !Replay.isPlaying) e.consume();
 
     // Handle camera rotation keys
     if (!e.isConsumed()) {
