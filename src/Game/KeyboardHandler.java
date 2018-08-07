@@ -150,11 +150,11 @@ public class KeyboardHandler implements KeyListener {
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = true;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = true;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 
@@ -190,11 +190,11 @@ public class KeyboardHandler implements KeyListener {
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = false;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = false;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 
@@ -224,11 +224,11 @@ public class KeyboardHandler implements KeyListener {
       }
       if (e.getKeyCode() == KeyEvent.VK_UP) {
         keyUp = true;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
       if (e.getKeyCode() == KeyEvent.VK_DOWN) {
         keyDown = true;
-        if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) e.consume();
+        if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) e.consume();
       }
     }
 
