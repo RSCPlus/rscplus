@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180806.091807;
+  public static final double VERSION_NUMBER = 20180807.011454;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -905,8 +905,8 @@ public class Settings {
         "custom",
         getPropBoolean(props, "hide_private_msgs_replay", HIDE_PRIVATE_MSGS_REPLAY.get("default")));
 
-    SHOW_SEEK_BAR.put("vanilla", false);
-    SHOW_SEEK_BAR.put("vanilla_resizable", false);
+    SHOW_SEEK_BAR.put("vanilla", true);
+    SHOW_SEEK_BAR.put("vanilla_resizable", true);
     SHOW_SEEK_BAR.put("lite", true);
     SHOW_SEEK_BAR.put("default", true);
     SHOW_SEEK_BAR.put("heavy", true);
@@ -914,9 +914,9 @@ public class Settings {
     SHOW_SEEK_BAR.put(
         "custom", getPropBoolean(props, "show_seek_bar", SHOW_SEEK_BAR.get("default")));
 
-    SHOW_PLAYER_CONTROLS.put("vanilla", false);
-    SHOW_PLAYER_CONTROLS.put("vanilla_resizable", false);
-    SHOW_PLAYER_CONTROLS.put("lite", false);
+    SHOW_PLAYER_CONTROLS.put("vanilla", true);
+    SHOW_PLAYER_CONTROLS.put("vanilla_resizable", true);
+    SHOW_PLAYER_CONTROLS.put("lite", true);
     SHOW_PLAYER_CONTROLS.put("default", true);
     SHOW_PLAYER_CONTROLS.put("heavy", true);
     SHOW_PLAYER_CONTROLS.put("all", true);
