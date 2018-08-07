@@ -435,9 +435,9 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
       hookClassVariable(
-          methodNode, "client", "Si", "I", "Game/Camera", "lookat_x", "I", true, true);
+          methodNode, "client", "kg", "I", "Game/Camera", "lookat_x", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "kg", "I", "Game/Camera", "lookat_y", "I", true, true);
+          methodNode, "client", "Si", "I", "Game/Camera", "lookat_y", "I", true, true);
       hookClassVariable(
           methodNode, "client", "Wc", "I", "Game/Camera", "auto_speed", "I", true, true);
       hookClassVariable(
