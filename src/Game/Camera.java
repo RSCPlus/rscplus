@@ -28,6 +28,8 @@ public class Camera {
   public static int fov = 9;
   public static int zoom;
   public static int rotation;
+  public static int angle;
+  public static int rotation_y;
   public static int rotation_auto_x;
   public static int rotation_auto_y;
   public static int distance1;

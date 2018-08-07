@@ -438,6 +438,9 @@ public class JClassPatcher {
           methodNode, "client", "Si", "I", "Game/Camera", "rotation_auto_x", "I", true, true);
       hookClassVariable(
           methodNode, "client", "kg", "I", "Game/Camera", "rotation_auto_y", "I", true, true);
+      hookClassVariable(
+          methodNode, "client", "Be", "I", "Game/Camera", "rotation_y", "I", true, true);
+      hookClassVariable(methodNode, "client", "si", "I", "Game/Camera", "angle", "I", true, true);
 
       hookConditionalClassVariable(
           methodNode,
