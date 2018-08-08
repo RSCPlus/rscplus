@@ -640,13 +640,13 @@ public class ConfigWindow {
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
 
-    generalPanelCameraZoomableCheckbox = addCheckbox("Mouse wheel camera zoom", generalPanel);
+    generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
-        "Zoom the camera in and out with the mouse wheel");
+        "Zoom the camera in and out with the mouse wheel, and no longer zooms in inside buildings");
 
-    generalPanelCameraRotatableCheckbox =
-        addCheckbox("Middle mouse click camera rotation", generalPanel);
-    generalPanelCameraRotatableCheckbox.setToolTipText("Rotate the camera with middle mouse click");
+    generalPanelCameraRotatableCheckbox = addCheckbox("Camera rotation enhancement", generalPanel);
+    generalPanelCameraRotatableCheckbox.setToolTipText(
+        "Rotate the camera with middle mouse click, among other things");
 
     generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
     generalPanelCameraMovableCheckbox.setToolTipText(
@@ -655,7 +655,7 @@ public class ConfigWindow {
     generalPanelCameraMovableRelativeCheckbox =
         addCheckbox("Camera movement is relative to player", generalPanel);
     generalPanelCameraMovableRelativeCheckbox.setToolTipText(
-        "Camera movement will be relative to the player position");
+        "Camera movement will follow the player position");
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
