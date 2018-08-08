@@ -75,7 +75,7 @@ public class Camera {
 
   public static void update(float delta_time) {
     // Handle camera rotation, zoom, and movement
-    final float camera_speed = 32.0f;
+    final float camera_speed = 24.0f;
     if (KeyboardHandler.keyLeft) {
       if (KeyboardHandler.keyShift) move(-camera_speed * delta_time);
       else addRotation(2 * 50 * delta_time);
@@ -94,8 +94,10 @@ public class Camera {
     }
 
     if (!KeyboardHandler.keyShift) {
-      add_lookat_x = Util.lerp(add_lookat_x, 0.0f, 8.0f * delta_time);
-      add_lookat_y = Util.lerp(add_lookat_y, 0.0f, 8.0f * delta_time);
+      int tileX = ((int) add_lookat_x / 128) * 128;
+      int tileY = ((int) add_lookat_y / 128) * 128;
+      add_lookat_x = Util.lerp(add_lookat_x, tileX, 8.0f * delta_time);
+      add_lookat_y = Util.lerp(add_lookat_y, tileY, 8.0f * delta_time);
     }
 
     delta_lookat_x = new_lookat_x; // Util.lerp(delta_lookat_x, new_lookat_x, 8.0f * delta_time);
