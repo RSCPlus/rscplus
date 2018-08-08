@@ -144,6 +144,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelCameraRotatableCheckbox;
   private JCheckBox generalPanelCameraMovableCheckbox;
+  private JCheckBox generalPanelCameraMovableRelativeCheckbox;
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
@@ -650,6 +651,11 @@ public class ConfigWindow {
     generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
     generalPanelCameraMovableCheckbox.setToolTipText(
         "Makes the camera follow the player more closely, and allow camera movement while holding shift, and pressing arrow keys");
+
+    generalPanelCameraMovableRelativeCheckbox =
+        addCheckbox("Camera movement is relative to player", generalPanel);
+    generalPanelCameraMovableRelativeCheckbox.setToolTipText(
+        "Camera movement will be relative to the player position");
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1835,6 +1841,8 @@ public class ConfigWindow {
         Settings.CAMERA_ROTATABLE.get(Settings.currentProfile));
     generalPanelCameraMovableCheckbox.setSelected(
         Settings.CAMERA_MOVABLE.get(Settings.currentProfile));
+    generalPanelCameraMovableRelativeCheckbox.setSelected(
+        Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile));
     generalPanelColoredTextCheckbox.setSelected(
         Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile));
     generalPanelLogLevelCheckbox.setSelected(Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile));
@@ -2045,6 +2053,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCameraRotatableCheckbox.isSelected());
     Settings.CAMERA_MOVABLE.put(
         Settings.currentProfile, generalPanelCameraMovableCheckbox.isSelected());
+    Settings.CAMERA_MOVABLE_RELATIVE.put(
+        Settings.currentProfile, generalPanelCameraMovableRelativeCheckbox.isSelected());
     Settings.COLORIZE_CONSOLE_TEXT.put(
         Settings.currentProfile, generalPanelColoredTextCheckbox.isSelected());
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());

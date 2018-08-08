@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180808.191641;
+  public static final double VERSION_NUMBER = 20180808.210447;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -87,6 +87,7 @@ public class Settings {
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_MOVABLE = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CAMERA_MOVABLE_RELATIVE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COLORIZE_CONSOLE_TEXT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FOV = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
@@ -402,6 +403,16 @@ public class Settings {
     CAMERA_MOVABLE.put("all", true);
     CAMERA_MOVABLE.put(
         "custom", getPropBoolean(props, "camera_movable", CAMERA_MOVABLE.get("default")));
+
+    CAMERA_MOVABLE_RELATIVE.put("vanilla", false);
+    CAMERA_MOVABLE_RELATIVE.put("vanilla_resizable", false);
+    CAMERA_MOVABLE_RELATIVE.put("lite", false);
+    CAMERA_MOVABLE_RELATIVE.put("default", false);
+    CAMERA_MOVABLE_RELATIVE.put("heavy", false);
+    CAMERA_MOVABLE_RELATIVE.put("all", false);
+    CAMERA_MOVABLE_RELATIVE.put(
+        "custom",
+        getPropBoolean(props, "camera_movable_relative", CAMERA_MOVABLE_RELATIVE.get("default")));
 
     COLORIZE_CONSOLE_TEXT.put("vanilla", true);
     COLORIZE_CONSOLE_TEXT.put("vanilla_resizable", true);
@@ -1184,6 +1195,8 @@ public class Settings {
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
       props.setProperty("camera_movable", Boolean.toString(CAMERA_MOVABLE.get(preset)));
+      props.setProperty(
+          "camera_movable_relative", Boolean.toString(CAMERA_MOVABLE_RELATIVE.get(preset)));
       props.setProperty("colorize", Boolean.toString(COLORIZE_CONSOLE_TEXT.get(preset)));
       props.setProperty("fov", Integer.toString(FOV.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));

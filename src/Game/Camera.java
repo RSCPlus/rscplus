@@ -26,6 +26,8 @@ public class Camera {
 
   public static Object instance = null;
 
+  private static boolean relative = false;
+
   public static boolean auto = false;
   public static int fov = 9;
   public static int zoom;
@@ -98,12 +100,40 @@ public class Camera {
       int tileY = ((int) add_lookat_y / 128) * 128;
       add_lookat_x = Util.lerp(add_lookat_x, tileX, 8.0f * delta_time);
       add_lookat_y = Util.lerp(add_lookat_y, tileY, 8.0f * delta_time);
+
+      if (!Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)) {
+        if ((add_lookat_x != 0.0f && add_lookat_y != 0.0f)
+            && (add_lookat_x < new_lookat_x + 128 && add_lookat_x > new_lookat_x - 128)
+            && (add_lookat_y < new_lookat_y + 128 && add_lookat_y > new_lookat_y - 128)) {
+          add_lookat_x = 0.0f;
+          add_lookat_y = 0.0f;
+          Client.displayMessage("The camera is now following the player", Client.CHAT_NONE);
+        }
+      }
+    }
+
+    // If the user changes modes, reset
+    if (relative != Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)) {
+      add_lookat_x = 0;
+      add_lookat_y = 0;
+      relative = Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile);
     }
 
     delta_lookat_x = new_lookat_x; // Util.lerp(delta_lookat_x, new_lookat_x, 8.0f * delta_time);
     delta_lookat_y = new_lookat_y; // Util.lerp(delta_lookat_y, new_lookat_y, 8.0f * delta_time);
-    lookat_x = (int) delta_lookat_x + (int) add_lookat_x;
-    lookat_y = (int) delta_lookat_y + (int) add_lookat_y;
+
+    if (!Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)) {
+      // Absolute mode
+      if (add_lookat_x == 0.0f) lookat_x = (int) delta_lookat_x;
+      else lookat_x = (int) add_lookat_x;
+
+      if (add_lookat_y == 0.0f) lookat_y = (int) delta_lookat_y;
+      else lookat_y = (int) add_lookat_y;
+    } else {
+      // Relative camera mode
+      lookat_x = (int) delta_lookat_x + (int) add_lookat_x;
+      lookat_y = (int) delta_lookat_y + (int) add_lookat_y;
+    }
 
     // Reset auto speed
     if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) auto_speed = 0;
@@ -130,16 +160,26 @@ public class Camera {
     float rotation_degrees = ((float) rotation / 255.0f) * 360.0f + 90.0f;
     float xDiff = Util.lengthdir_x(64, rotation_degrees);
     float yDiff = Util.lengthdir_y(64, rotation_degrees);
-    add_lookat_x += xDiff * speed;
-    add_lookat_y += yDiff * speed;
+    add_movement(xDiff * speed, yDiff * speed);
   }
 
   public static void move(float speed) {
     float rotation_degrees = ((float) rotation / 255.0f) * 360.0f;
     float xDiff = Util.lengthdir_x(64, rotation_degrees);
     float yDiff = Util.lengthdir_y(64, rotation_degrees);
-    add_lookat_x += xDiff * speed;
-    add_lookat_y += yDiff * speed;
+    add_movement(xDiff * speed, yDiff * speed);
+  }
+
+  public static void add_movement(float x, float y) {
+    if (!Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)
+        && ((add_lookat_x == 0.0f && x != 0.0f) || (add_lookat_y == 0.0f && y != 0.0f))) {
+      add_lookat_x = lookat_x;
+      add_lookat_y = lookat_y;
+      Client.displayMessage("The camera is no longer following the player", Client.CHAT_NONE);
+    }
+
+    add_lookat_x += x;
+    add_lookat_y += y;
   }
 
   public static void setLookatTile(int x, int y) {
