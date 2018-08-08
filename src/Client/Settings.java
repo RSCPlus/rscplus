@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180808.185613;
+  public static final double VERSION_NUMBER = 20180808.191641;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -433,8 +433,8 @@ public class Settings {
     VIEW_DISTANCE.put("vanilla_resizable", 3000);
     VIEW_DISTANCE.put("lite", 10000);
     VIEW_DISTANCE.put("default", 10000);
-    VIEW_DISTANCE.put("heavy", 10000);
-    VIEW_DISTANCE.put("all", 10000);
+    VIEW_DISTANCE.put("heavy", 20000);
+    VIEW_DISTANCE.put("all", 20000);
     VIEW_DISTANCE.put("custom", getPropInt(props, "view_distance", VIEW_DISTANCE.get("default")));
 
     AUTO_SCREENSHOT.put("vanilla", false);
@@ -1027,8 +1027,8 @@ public class Settings {
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       save("custom");
-    } else if (VIEW_DISTANCE.get("custom") > 10000) {
-      VIEW_DISTANCE.put("custom", 10000);
+    } else if (VIEW_DISTANCE.get("custom") > 20000) {
+      VIEW_DISTANCE.put("custom", 20000);
       save("custom");
     }
 

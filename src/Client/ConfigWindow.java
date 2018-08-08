@@ -544,13 +544,14 @@ public class ConfigWindow {
     generalPanelViewDistanceSlider.setMinorTickSpacing(500);
     generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
     generalPanelViewDistanceSlider.setMinimum(2300);
-    generalPanelViewDistanceSlider.setMaximum(10000);
+    generalPanelViewDistanceSlider.setMaximum(20000);
     generalPanelViewDistanceSlider.setPaintTicks(true);
 
     Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable =
         new Hashtable<Integer, JLabel>();
     generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
     generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
+    generalPanelViewDistanceLabelTable.put(new Integer(20000), new JLabel("20,000"));
     generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
     generalPanelViewDistanceSlider.setPaintLabels(true);
 
