@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -230,6 +231,9 @@ public class Client {
   public static long updatesPerSecond;
 
   public static String lastSoundEffect = "";
+
+  public static BigInteger modulus;
+  public static BigInteger exponent;
 
   /**
    * A boolean array that stores if the XP per hour should be shown for a given skill when hovering

@@ -584,6 +584,24 @@ public class JClassPatcher {
       // Client version
       hookStaticVariable(methodNode, "fa", "d", "I", "Game/Client", "version", "I");
 
+      // Client modulus and exponent
+      hookStaticVariable(
+          methodNode,
+          "s",
+          "c",
+          "Ljava/math/BigInteger;",
+          "Game/Client",
+          "exponent",
+          "Ljava/math/BigInteger;");
+      hookStaticVariable(
+          methodNode,
+          "ja",
+          "K",
+          "Ljava/math/BigInteger;",
+          "Game/Client",
+          "modulus",
+          "Ljava/math/BigInteger;");
+
       // Shell strings
       hookStaticVariable(
           methodNode,
