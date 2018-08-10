@@ -1,3 +1,5 @@
+*This repository is no longer being updated. If you want updates, try looking at Hubcapp's [here](https://github.com/hubcapp/rscplus).*
+
 # rscplus
 *RuneScape Classic is made and owned by Jagex Ltd. and this project is not in any way affiliated with them.*
 
