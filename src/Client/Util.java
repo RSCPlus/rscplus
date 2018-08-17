@@ -111,9 +111,11 @@ public class Util {
    * @param world the world
    * @return the URL to the jav_config.ws file
    */
+  /* historical, unused
   public static String makeWorldURL(int world) {
     return "http://classic" + world + ".runescape.com/jav_config.ws";
   }
+  */
 
   /**
    * Creates a directory relative to codebase, which is typically either the jar or location of the
@@ -166,6 +168,11 @@ public class Util {
    */
   public static int[] getPop() {
     if (worldPopArray == null) worldPopArray = new int[6];
+    
+    return worldPopArray; //RIP RSC, 2001-01-04 to 2018-08-06
+    
+    /* historical, we no longer even try to talk to jagex
+     * this is what it used to look like when we did.
 
     if (System.currentTimeMillis() < lastPopCheck + 60000) return worldPopArray;
 
@@ -218,6 +225,7 @@ public class Util {
     }
 
     return worldPopArray;
+    */
   }
 
   /**
