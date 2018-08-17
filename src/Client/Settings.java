@@ -542,7 +542,7 @@ public class Settings {
     SHOW_MOUSE_TOOLTIP.put("vanilla", false);
     SHOW_MOUSE_TOOLTIP.put("vanilla_resizable", false);
     SHOW_MOUSE_TOOLTIP.put("lite", false);
-    SHOW_MOUSE_TOOLTIP.put("default", true);
+    SHOW_MOUSE_TOOLTIP.put("default", false);
     SHOW_MOUSE_TOOLTIP.put("heavy", true);
     SHOW_MOUSE_TOOLTIP.put("all", true);
     SHOW_MOUSE_TOOLTIP.put(
