@@ -820,6 +820,9 @@ public class Renderer {
       // A little over a full tick
       int threshold = 35;
 
+      if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0)
+        threshold = 35 * 3; // this is to prevent blinking during fastforward
+      
       if (Settings.LAG_INDICATOR.get(Settings.currentProfile)
           && Replay.getServerLag() >= threshold) {
         x = width - 80;
