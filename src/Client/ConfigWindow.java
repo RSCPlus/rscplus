@@ -1375,8 +1375,8 @@ public class ConfigWindow {
         keybindPanel, "Reset playback speed", "ff_reset", KeyModifier.CTRL, KeyEvent.VK_DOWN);
     addKeybindSet(
         keybindPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
-    // addKeybindSet(keybindPanel, "Show player controls", "show_player_controls", KeyModifier.CTRL,
-    // KeyEvent.VK_DOWN);
+    addKeybindSet(
+        keybindPanel, "Show player controls", "show_player_controls", KeyModifier.ALT, KeyEvent.VK_UP);
 
     addKeybindCategory(keybindPanel, "Miscellaneous");
     addKeybindSet(
@@ -1446,11 +1446,7 @@ public class ConfigWindow {
     replayPanelShowPlayerControlsCheckbox =
         addCheckbox("Show control buttons under the seek bar", replayPanel);
     replayPanelShowPlayerControlsCheckbox.setToolTipText(
-        "Buttons you can click on to increase speed, decrease speed, restart, play/pause"); // TODO:
-    // when
-    // implemented, should turn seek bar on automatically
-    replayPanelShowPlayerControlsCheckbox.setEnabled(
-        false); // TODO remove this line when implemented
+        "Buttons you can click on to increase speed, decrease speed, restart, play/pause");
 
     replayPanelHidePrivateMessagesCheckbox =
         addCheckbox(

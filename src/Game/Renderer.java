@@ -114,11 +114,22 @@ public class Renderer {
 
   public static boolean quietScreenshot = false;
 
+  public static Rectangle barBounds;
+  public static Rectangle previousBounds;
+  public static Rectangle slowForwardBounds;
+  public static Rectangle playPauseBounds;
+  public static Rectangle fastForwardBounds;
+  public static Rectangle nextBounds;
+  public static Rectangle stopBounds;
+  public static Rectangle queueBounds;
+  private static int shapeHeight;
+  private static int shapeX; 
+
   public static void init() {
-    // patch copyright to match current year
+    // patch copyright to match the year that jagex took down RSC
     shellStrings[23] =
         shellStrings[23].replaceAll(
-            "2015", Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
+            "2015", "2018");
 
     // Resize game window
     new_size.width = 512;
@@ -367,12 +378,10 @@ public class Renderer {
                 stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS.get("custom"));
 
             // We've sorted item list in such a way that it is possible to not draw the ITEMINFO
-            // unless it's
-            // the first time we've tried to for this itemid at that location by just using
-            // last_item.
+            // unless it's the first time we've tried to for this itemid at that location
+            // by just using last_item.
             // last_item == null necessary in case only one item on screen is being rendered. slight
-            // speed
-            // increase from freq == 1 if compiler can stop early in conditional.
+            // speed increase from freq == 1 if compiler can stop early in conditional.
             if ((freq == 1 || !item.equals(last_item) || last_item == null) && !itemIsBlocked) {
               for (Iterator<Point> locIterator = item_text_loc.iterator();
                   locIterator.hasNext(); ) {
@@ -393,10 +402,8 @@ public class Renderer {
               }
 
               // TODO: it would be nice if for items like Coins or Runes, we showed how many of the
-              // item
-              // were on the ground instead of how many times you have to click to pick them all up.
-              // Currently will just show "Coins (2)" if there are two stacks of coins on the
-              // ground.
+              // item were on the ground instead of how many times you have to click to pick them all up.
+              // Currently will just show "Coins (2)" if there are two stacks of coins on the ground.
               drawShadowText(g2, itemText, x, y, itemColor, true);
             }
             last_item = item; // Done with item this loop, can save it as last_item
@@ -490,8 +497,7 @@ public class Renderer {
             drawNPCBar(g2, 7, y, npc);
             // Increment y by npc bar height, so we can have multiple bars
             // NOTE: We should never (?) have more than one npc health bar, so multiple bars
-            // indicates
-            // that our combat detection isn't accurate
+            // indicates that our combat detection isn't accurate
             y += 50;
             bar_count++;
           }
@@ -1110,8 +1116,10 @@ public class Renderer {
           percent = (float) Replay.getSeekEnd() / Replay.getReplayEnd();
         }
 
+        //"extended" is "in hover mode"
         boolean extended = (MouseHandler.y >= height - 28);
 
+        //draw shadow box while hovering
         if (extended) {
           Rectangle bounds = new Rectangle(0, height - 28, width, 48);
           g2.setColor(color_shadow);
@@ -1125,64 +1133,64 @@ public class Renderer {
         g2.setFont(font_main);
 
         // Handle bar
-        Rectangle bounds = new Rectangle(32, height - 27, width - 64, 8);
+        barBounds = new Rectangle(32, height - 27, width - 64, 8);
         g2.setColor(color_text);
         setAlpha(g2, 0.25f);
-        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        g2.fillRect(barBounds.x, barBounds.y, barBounds.width, barBounds.height);
         g2.setColor(color_prayer);
         setAlpha(g2, 0.5f);
-        g2.fillRect(bounds.x, bounds.y, (int) ((float) bounds.width * percent), bounds.height);
+        g2.fillRect(barBounds.x, barBounds.y, (int) ((float) barBounds.width * percent), barBounds.height);
         g2.setColor(color_text);
         setAlpha(g2, 1.0f);
-        g2.drawRect(bounds.x, bounds.y, (int) ((float) bounds.width * percent), bounds.height);
+        g2.drawRect(barBounds.x, barBounds.y, (int) ((float) barBounds.width * percent), barBounds.height);
         g2.setColor(color_text);
-        g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        g2.drawRect(barBounds.x, barBounds.y, barBounds.width, barBounds.height);
 
+        //flash the bar while paused
         if (Replay.paused) {
-          g2.setColor(color_fatigue);
-          setAlpha(g2, alpha_time / 6.0f);
-          g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+          g2.setColor(color_low);
+          setAlpha(g2, alpha_time / 5.0f);
+          g2.fillRect(barBounds.x, barBounds.y, barBounds.width, barBounds.height);
           setAlpha(g2, 1.0f);
         }
 
+        //draw time-into-replay
         String elapsed =
             Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
         String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
         if (extended) {
-          // drawShadowText(g2, "Hold 'Ctrl' to hide", bounds.x - 24, bounds.y + bounds.height + 14,
-          // color_fatigue, false);
           drawShadowText(
               g2,
               elapsed + " / " + end,
-              bounds.x + (bounds.width / 2),
-              bounds.y + bounds.height + 8,
+              barBounds.x + (barBounds.width / 2),
+              barBounds.y + barBounds.height + 8,
               color_replay,
               true);
         }
 
         float percentClient = (float) Replay.getClientRead() / Replay.getClientWrite();
-        int server_x = (int) (bounds.width * percent);
+        int server_x = (int) (barBounds.width * percent);
         int client_x = (int) (server_x * percentClient);
 
         g2.setColor(color_prayer);
         setAlpha(g2, 0.5f);
-        g2.fillRect(bounds.x + 1, bounds.y + 1, client_x - 1, bounds.height - 1);
+        g2.fillRect(barBounds.x + 1, barBounds.y + 1, client_x - 1, barBounds.height - 1);
 
-        if (MouseHandler.x >= bounds.x
-            && MouseHandler.x <= bounds.x + bounds.width
-            && MouseHandler.y >= bounds.y
-            && MouseHandler.y <= bounds.y + bounds.height) {
-          float percentEnd = (float) (MouseHandler.x - bounds.x) / bounds.width;
+        if (MouseHandler.x >= barBounds.x
+            && MouseHandler.x <= barBounds.x + barBounds.width
+            && MouseHandler.y >= barBounds.y
+            && MouseHandler.y <= barBounds.y + barBounds.height) {
+          float percentEnd = (float) (MouseHandler.x - barBounds.x) / barBounds.width;
           int timestamp = (int) (Replay.getReplayEnd() * percentEnd);
           g2.setColor(color_fatigue);
           setAlpha(g2, 0.5f);
-          g2.drawLine(MouseHandler.x, bounds.y, MouseHandler.x, bounds.y + bounds.height);
+          g2.drawLine(MouseHandler.x, barBounds.y, MouseHandler.x, barBounds.y + barBounds.height);
           setAlpha(g2, 1.0f);
           drawShadowTextBorder(
               g2,
               Util.formatTimeDuration(timestamp * 20, Replay.endTimeMillis()),
               MouseHandler.x,
-              bounds.y - 8,
+              barBounds.y - 8,
               color_text,
               1.0f,
               0.75f,
@@ -1196,17 +1204,173 @@ public class Renderer {
           drawShadowTextBorder(
               g2,
               "Seeking... Please wait",
-              bounds.x + (bounds.width / 2),
-              bounds.y + bounds.height - 18,
+              barBounds.x + (barBounds.width / 2),
+              barBounds.y + barBounds.height - 18,
               color_fatigue,
               1.0f,
               0.75f,
               false,
               2);
         }
-      }
-      if (Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
-        // TODO: put button code here
+        //draw & handle gui "video player" control buttons
+        if (extended && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
+          final int BUTTON_WIDTH = 32;
+          final int BUTTON_HEIGHT = 11;
+          final int BUTTON_OFFSET_X = 4; //how many pixels between each button horizontally
+          final int BUTTON_OFFSET_Y = 4; //how many pixels "down" from the bottom of
+                                         //the seek bar to  draw the control buttons
+          
+          //buttons are in this order:
+          //previous slowforward playpause fastforward next stop --- queue
+          
+          //previous button
+          previousBounds = new Rectangle(barBounds.x, barBounds.y + barBounds.height + BUTTON_OFFSET_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(previousBounds.x, previousBounds.y, previousBounds.width, previousBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(previousBounds.x + 1, previousBounds.y + 1, previousBounds.width - 1, previousBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = previousBounds.height - 3;
+          shapeX = previousBounds.x + (int)(((float)previousBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, previousBounds.y  + 2, shapeHeight , "previous");
+          
+          if (MouseHandler.inBounds(previousBounds) &&
+            MouseHandler.mouseClicked) {
+            Logger.Info("previous button pressed");
+          }
+          
+          //slowdown button
+          slowForwardBounds = new Rectangle(previousBounds.x + previousBounds.width + BUTTON_OFFSET_X, previousBounds.y, BUTTON_WIDTH, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(slowForwardBounds.x, slowForwardBounds.y, slowForwardBounds.width, slowForwardBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(slowForwardBounds.x + 1, slowForwardBounds.y + 1, slowForwardBounds.width - 1, slowForwardBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = slowForwardBounds.height - 3;
+          shapeX = slowForwardBounds.x + (int)(((float)slowForwardBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, slowForwardBounds.y  + 2, shapeHeight , "slowforward");
+          
+          if (MouseHandler.inBounds(slowForwardBounds) &&
+            MouseHandler.mouseClicked) {
+            Replay.controlPlayback("ff_minus");
+          }
+
+          //play/pause (one button)
+          playPauseBounds = new Rectangle(slowForwardBounds.x + slowForwardBounds.width + BUTTON_OFFSET_X, previousBounds.y, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(playPauseBounds.x, playPauseBounds.y, playPauseBounds.width, playPauseBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(playPauseBounds.x + 1, playPauseBounds.y + 1, playPauseBounds.width - 1, playPauseBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = playPauseBounds.height - 3;
+          shapeX = playPauseBounds.x + (int)(((float)playPauseBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, playPauseBounds.y  + 2, shapeHeight , "playpause");
+          
+          if (MouseHandler.inBounds(playPauseBounds) &&
+            MouseHandler.mouseClicked) {
+            Replay.togglePause();
+          }
+          //fastforward button
+          fastForwardBounds = new Rectangle(playPauseBounds.x + playPauseBounds.width + BUTTON_OFFSET_X, previousBounds.y, BUTTON_WIDTH, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(fastForwardBounds.x, fastForwardBounds.y, fastForwardBounds.width, fastForwardBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(fastForwardBounds.x + 1, fastForwardBounds.y + 1, fastForwardBounds.width - 1, fastForwardBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = fastForwardBounds.height - 3;
+          shapeX = fastForwardBounds.x + (int)(((float)fastForwardBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, fastForwardBounds.y  + 2, shapeHeight , "fastforward");
+          
+          if (MouseHandler.inBounds(fastForwardBounds) &&
+            MouseHandler.mouseClicked) {
+            Replay.controlPlayback("ff_plus");
+          }
+
+          //next button
+          nextBounds = new Rectangle(fastForwardBounds.x + fastForwardBounds.width + BUTTON_OFFSET_X, previousBounds.y, BUTTON_WIDTH, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(nextBounds.x, nextBounds.y, nextBounds.width, nextBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(nextBounds.x + 1, nextBounds.y + 1, nextBounds.width - 1, nextBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = nextBounds.height - 3;
+          shapeX = nextBounds.x + (int)(((float)nextBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, nextBounds.y  + 2, shapeHeight , "next");
+          
+          if (MouseHandler.inBounds(nextBounds) &&
+            MouseHandler.mouseClicked) {
+            Logger.Info("next button pressed");
+          }
+          
+          //open queue button (right aligned)
+          queueBounds = new Rectangle(barBounds.x + barBounds.width - BUTTON_WIDTH * 2, previousBounds.y, BUTTON_WIDTH * 2, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(queueBounds.x, queueBounds.y, queueBounds.width, queueBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(queueBounds.x + 1, queueBounds.y + 1, queueBounds.width - 1, queueBounds.height - 1);
+
+          drawShadowText(
+            g2,
+            "queue",
+            queueBounds.x +  BUTTON_OFFSET_X,
+            queueBounds.y + queueBounds.height - 2,
+            color_white,
+            false);
+
+          if (MouseHandler.inBounds(queueBounds) &&
+            MouseHandler.mouseClicked) {
+            Logger.Info("queue button pressed");
+          }
+
+          //stop button
+          stopBounds = new Rectangle(queueBounds.x - BUTTON_WIDTH - BUTTON_OFFSET_X, previousBounds.y, BUTTON_WIDTH, BUTTON_HEIGHT);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          g2.drawRect(stopBounds.x, stopBounds.y, stopBounds.width, stopBounds.height);
+          g2.setColor(color_shadow);
+          setAlpha(g2, 0.50f);
+          g2.fillRect(stopBounds.x + 1, stopBounds.y + 1, stopBounds.width - 1, stopBounds.height - 1);
+          
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+          shapeHeight = stopBounds.height - 3;
+          shapeX = stopBounds.x + (int)(((float)stopBounds.width)/2.0) - (int)((float)shapeHeight/2.0);
+          drawPlayerControlShape(g2, shapeX, stopBounds.y  + 2, shapeHeight , "stop");
+          
+          if (MouseHandler.inBounds(stopBounds) &&
+            MouseHandler.mouseClicked) {
+            Replay.controlPlayback("stop");
+          }
+        }
       }
     }
 
@@ -1409,6 +1573,123 @@ public class Renderer {
     g.drawString(text, textX, textY);
   }
 
+  //rather than import someone else's font and try to get the unicode to work,
+  //just draw the classic player control shapes myself. they're not that complex.
+  public static void drawPlayerControlShape(Graphics2D g, int x, int y, int height, String icon) {
+    int nPoints;
+    int[] xPoints;
+    int[] yPoints;
+    int halfx = (int)(x + (float)height / 2.0);
+    int halfy = (int)(y + (float)height / 2.0);
+    
+    switch (icon) {
+      case "fastforward": //⏩
+        //this  icon is two right angle triangles touching
+        nPoints = 7;
+        xPoints = new int[nPoints];
+        yPoints = new int[nPoints];
+
+        //define shape
+        xPoints[0] = x;
+        yPoints[0] = y;
+        
+        xPoints[1] = halfx;
+        yPoints[1] = halfy;
+        
+        xPoints[2] = halfx;
+        yPoints[2] = y;
+        
+        xPoints[3] = x + height;
+        yPoints[3] = halfy;
+        
+        xPoints[4] = halfx;
+        yPoints[4] = y + height;
+        
+        xPoints[5] = halfx;
+        yPoints[5] = halfy;
+        
+        xPoints[6] = x;
+        yPoints[6] = y + height;
+        
+        //goes back to x,y to close shape by itself
+        g.fillPolygon(xPoints, yPoints, nPoints);
+        break;
+      case "slowforward": //⏪
+        //if I was clever, I'd do some math on "fastforward"'s
+        //xPoints coordinates to generate slowforward.
+        //but it's simple enough to just manually swap "x" & "x+height"
+        //faster to execute too...
+        nPoints = 7;
+        xPoints = new int[nPoints];
+        yPoints = new int[nPoints];
+
+        xPoints[0] = x + height;
+        yPoints[0] = y;
+        
+        xPoints[1] = halfx;
+        yPoints[1] = halfy;
+        
+        xPoints[2] = halfx;
+        yPoints[2] = y;
+        
+        xPoints[3] = x;
+        yPoints[3] = halfy;
+        
+        xPoints[4] = halfx;
+        yPoints[4] = y + height;
+        
+        xPoints[5] = halfx;
+        yPoints[5] = halfy;
+        
+        xPoints[6] = x + height;
+        yPoints[6] = y + height;
+        
+        //goes back to x,y to close shape by itself
+        g.fillPolygon(xPoints, yPoints, nPoints);
+        break;
+      case "next": //⏭
+        //this is just fastforward but with a line drawn next  to it
+        //the line should be 1 px width;
+        drawPlayerControlShape(g, x, y, height, "fastforward");
+        g.drawLine(x + height, y, x + height, y + height - 1);
+        break;
+      case "previous": //⏮
+        drawPlayerControlShape(g, x, y, height, "slowforward");
+        g.drawLine(x, y, x, y + height - 1);
+        break;
+      case "playpause": //⏯
+        //pause's white space is as wide as single line of pause
+        //each element in pause is 1/3rd width of triangle
+        nPoints = 3;
+        xPoints = new int[nPoints];
+        yPoints = new int[nPoints];
+        
+        xPoints[0] = x;
+        yPoints[0] = y;
+        
+        xPoints[1] = halfx;
+        yPoints[1] = halfy;
+        
+        xPoints[2] = x;
+        yPoints[2] = y + height;
+        
+        g.fillPolygon(xPoints, yPoints, nPoints); //triangle-y part
+        
+        //now draw pause symbol next to it
+        g.fillRect(halfx, y, (int)((float)height / 6.0), height);
+        g.fillRect((int)(x + height - ((float)height / 6.0)), y, (int)((float)height / 6.0), height);
+        break;
+      case "stop": //⏹
+        //just a rectangle. :)
+        //slightly smaller than height
+        g.fillRect(x + (int)(height*0.15), y + (int)(height*0.15), (int)(height * 0.80), (int)(height * 0.80));
+        break;
+      case "queue":
+      default:
+        Logger.Debug("drawPlayerControlShape given invalid shape");
+    }
+  }
+  
   public static void takeScreenshot(boolean quiet) {
     quietScreenshot = quiet;
     screenshot = true;

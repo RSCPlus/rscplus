@@ -45,7 +45,7 @@ import javax.swing.JOptionPane;
 public class Replay {
   // If we ever change replays in a way that breaks backwards compatibility, we need to increment
   // this
-  public static int VERSION = 3;
+  public static int VERSION = 4;
 
   static DataOutputStream output = null;
   static DataOutputStream input = null;
@@ -190,6 +190,13 @@ public class Replay {
             Launcher.icon_warn);
         return false;
       }
+      
+      /* TODO: 
+       * Should also write out endpoint, so we know what server the replay is for
+      if (replay_version <= 3) {
+        boolean claims_authentic_rsc = true;
+      }
+      */
 
       if (client_version < 234 || client_version > 235) {
         JOptionPane.showMessageDialog(
@@ -354,7 +361,7 @@ public class Replay {
                         new FileOutputStream(new File(recordingDirectory + "/mouse.bin.gz")))));
         started_record_kb_mouse =
             true; // need this to know whether or not to close the file if the user changes settings
-        // mid-recording
+                  // mid-recording
       } else {
         started_record_kb_mouse = false;
       }

@@ -25,6 +25,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.Rectangle;
 
 /** Listens to mouse events and stores relevant information about them */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -38,9 +39,33 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   private boolean m_rotating = false;
   private Point m_rotatePosition;
   private float m_rotateX = 0.0f;
+  
+  public static boolean inBounds(Rectangle bounds) {
+    if (bounds == null) return false;
+    if (Replay.isPlaying && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
+      return MouseHandler.x >= bounds.x
+        && MouseHandler.x <= bounds.x + bounds.width
+        && MouseHandler.y >= bounds.y
+        && MouseHandler.y <= bounds.y + bounds.height;
+    }
+    return false; //add handling for buttons that aren't playback related here
+  }
+  
+  public boolean inConsumableButton() {
+    return inBounds(Renderer.previousBounds) ||
+      inBounds(Renderer.slowForwardBounds) ||
+      inBounds(Renderer.playPauseBounds) ||
+      inBounds(Renderer.fastForwardBounds) ||
+      inBounds(Renderer.nextBounds) ||
+      inBounds(Renderer.queueBounds) ||
+      inBounds(Renderer.stopBounds);
+  }
 
   @Override
   public void mouseClicked(MouseEvent e) {
+    if (inConsumableButton()) {
+      e.consume();
+    }
     if (listener_mouse == null) return;
 
     if (Replay.isRecording) {
@@ -56,10 +81,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           e.isPopupTrigger(),
           e.getButton());
     }
-
-    x = e.getX();
-    y = e.getY();
-    listener_mouse.mouseClicked(e);
+    
+    if (!e.isConsumed()) {
+      x = e.getX();
+      y = e.getY();
+      listener_mouse.mouseClicked(e);
+    }
   }
 
   @Override
@@ -79,10 +106,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           e.isPopupTrigger(),
           e.getButton());
     }
-
-    x = e.getX();
-    y = e.getY();
-    listener_mouse.mouseEntered(e);
+    
+    if (!e.isConsumed()) {
+      x = e.getX();
+      y = e.getY();
+      listener_mouse.mouseEntered(e);
+    }
   }
 
   @Override
@@ -102,14 +131,19 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           e.isPopupTrigger(),
           e.getButton());
     }
-
-    x = -100;
-    y = -100;
-    listener_mouse.mouseExited(e);
+    
+    if (!e.isConsumed()) {
+      x = -100;
+      y = -100;
+      listener_mouse.mouseExited(e);
+    }
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
+    if (inConsumableButton()) {
+      e.consume();
+    }
     if (listener_mouse == null) return;
 
     if (Replay.isRecording) {
@@ -143,6 +177,9 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   @Override
   public void mouseReleased(MouseEvent e) {
+    if (inConsumableButton()) {
+      e.consume();
+    }
     if (listener_mouse == null) return;
 
     if (Replay.isRecording) {
@@ -223,10 +260,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           e.isPopupTrigger(),
           e.getButton());
     }
-
-    x = e.getX();
-    y = e.getY();
-    listener_mouse_motion.mouseMoved(e);
+    
+    if (!e.isConsumed()) {
+      x = e.getX();
+      y = e.getY();
+      listener_mouse_motion.mouseMoved(e);
+    }
   }
 
   @Override
