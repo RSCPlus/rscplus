@@ -89,7 +89,6 @@ public class Replay {
 
   public static int fps = 50;
   public static float fpsPlayMultiplier = 1.0f;
-  public static float prevFPSPlayMultiplier = fpsPlayMultiplier;
   public static int frame_time_slice;
   public static int connection_port;
 
@@ -264,6 +263,7 @@ public class Replay {
     } catch (Exception e) {
     }
     Client.login(false, "Replay", "");
+    updateFrameTimeSlice();
     return true;
   }
 
@@ -307,7 +307,7 @@ public class Replay {
     resetFrameTimeSlice();
     Client.closeConnection(true);
     resetPort();
-    fpsPlayMultiplier = 1.0f;
+    //fpsPlayMultiplier = 1.0f;
     replayServer.isDone = true;
     resetPatchClient();
     isPlaying = false;
