@@ -27,8 +27,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.zip.CRC32;
+import Game.Replay;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -245,5 +248,41 @@ public class Util {
       sb.append(delim);
     }
     return sb.toString();
+  }
+  public static ArrayList<File> getAllReplays(String parentDir) {
+    ArrayList<File> potentialReplayFolders = new ArrayList<File>();
+    ArrayList<File> replayFolders = new ArrayList<File>();
+    listf(parentDir, potentialReplayFolders);
+    for (File file : potentialReplayFolders) {
+      if (Replay.isValid(file.getAbsolutePath())) {
+        replayFolders.add(file);
+      }
+    }
+    Collections.sort(replayFolders, new Comparator<File>() {
+      @Override
+      public int compare(File file2, File file1)
+      {
+        //sorts alphabetically
+        return file2.compareTo(file1);
+        //sort by lastModified, but not very good if that info has been deleted
+        //TODO: offer this as an option in the queue list window
+        //return (int)(new File(file2.getAbsolutePath() + "/keys.bin").lastModified() - new File(file1.getAbsolutePath() + "/keys.bin").lastModified());
+      }
+    });
+    return replayFolders;
+  }
+  
+  public static void listf(String directoryName, ArrayList<File> files) {
+    File directory = new File(directoryName);
+
+    File[] fList = directory.listFiles();
+    if(fList != null) {
+      for (File file : fList) {
+        if (file.isDirectory()) {
+          listf(file.getAbsolutePath(), files);
+          files.add(file);
+        }
+      }
+    }
   }
 }

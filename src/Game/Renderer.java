@@ -51,8 +51,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 /** Handles rendering overlays and client adjustments based on window size */
 public class Renderer {
@@ -106,7 +104,6 @@ public class Renderer {
   public static boolean combat_menu_shown = false;
 
   public static int replayOption = 0;
-  public static String replayName = "";
 
   public static String[] shellStrings;
 
@@ -1048,30 +1045,12 @@ public class Renderer {
         if (replayOption == 2) {
           replayOption = 0;
         } else {
-          JFileChooser j = new JFileChooser(Settings.Dir.REPLAY);
-          j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-          int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
-
-          File selection = j.getSelectedFile();
-          if (selection != null && response != JFileChooser.CANCEL_OPTION) {
-            replayName = selection.getPath();
-            if (Replay.isValid(replayName)) {
-              replayOption = 2;
-              Logger.Info("Replay selected: " + replayName);
-              Client.login_hook();
-            } else {
-              JOptionPane.showMessageDialog(
-                  Game.getInstance().getApplet(),
-                  "The replay folder you selected is not valid.\n"
-                      + "\n"
-                      + "You need to select a folder that contains the 'version.bin', 'in.bin.gz', and 'keys.bin' for your replay.\n"
-                      + "They're usually in a folder with your login username.",
-                  "rscplus",
-                  JOptionPane.ERROR_MESSAGE,
-                  Launcher.icon_warn);
-            }
+          if (ReplayQueue.replayFileSelectAdd()) {
+            Renderer.replayOption = 2;
+            Logger.Info("Replay selected: " + ReplayQueue.currentReplayName);
+            Client.login_hook();
           } else {
-            replayOption = 0;
+            Renderer.replayOption = 0;
           }
         }
       }
@@ -1214,7 +1193,7 @@ public class Renderer {
         }
         //draw & handle gui "video player" control buttons
         if (extended && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
-          final int BUTTON_WIDTH = 32;
+          final int BUTTON_WIDTH = 30;
           final int BUTTON_HEIGHT = 11;
           final int BUTTON_OFFSET_X = 4; //how many pixels between each button horizontally
           final int BUTTON_OFFSET_Y = 4; //how many pixels "down" from the bottom of
@@ -1241,7 +1220,8 @@ public class Renderer {
           
           if (MouseHandler.inBounds(previousBounds) &&
             MouseHandler.mouseClicked) {
-            Logger.Info("previous button pressed");
+            ReplayQueue.skipped = true;
+            ReplayQueue.previousReplay();
           }
           
           //slowdown button
@@ -1324,7 +1304,8 @@ public class Renderer {
           
           if (MouseHandler.inBounds(nextBounds) &&
             MouseHandler.mouseClicked) {
-            Logger.Info("next button pressed");
+            ReplayQueue.skipped = true;
+            ReplayQueue.nextReplay();
           }
           
           //open queue button (right aligned)
@@ -1347,7 +1328,8 @@ public class Renderer {
 
           if (MouseHandler.inBounds(queueBounds) &&
             MouseHandler.mouseClicked) {
-            Logger.Info("queue button pressed");
+            ReplayQueue.clearQueue();
+            Logger.Info("queue button pressed, cleared queue TODO: implement gui!");
           }
 
           //stop button

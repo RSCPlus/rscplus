@@ -43,8 +43,8 @@ import java.util.zip.GZIPInputStream;
 import javax.swing.JOptionPane;
 
 public class Replay {
-  // If we ever change replays in a way that breaks backwards compatibility, we need to increment
-  // this
+  // If we ever change replays in a way that breaks backwards compatibility,
+  // we need to increment this
   public static int VERSION = 4;
 
   static DataOutputStream output = null;

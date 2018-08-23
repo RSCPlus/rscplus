@@ -202,7 +202,14 @@ public class ReplayServer implements Runnable {
       client.close();
       sock.close();
       input.close();
-      Logger.Info("ReplayServer: Playback has finished");
+      if (ReplayQueue.currentIndex >= ReplayQueue.queue.size()) {
+        Logger.Info("ReplayServer: Playback has finished");
+      } else {
+        if (!ReplayQueue.skipped) {
+          ReplayQueue.nextReplay();
+        }
+        ReplayQueue.skipped = false;
+      }
     } catch (Exception e) {
       if (sock != null) {
         try {
@@ -235,6 +242,7 @@ public class ReplayServer implements Runnable {
       }
 
       if (timestamp_input < Replay.timestamp) {
+        Logger.Debug(String.format("timestamp_input: %d; Replay.timestamp: %d", timestamp_input, Replay.timestamp));
         Logger.Warn("ReplayServer: Input timestamp is in the past, skipping packet");
         return true;
       }

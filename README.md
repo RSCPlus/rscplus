@@ -11,8 +11,9 @@ Join our Discord server ([Invite link](https://discord.gg/92gG87h))
 
 ## Changes since RSC went offline and development moved from [OrN](https://github.com/OrN/rscplus/)
 
-- Toggleable buttons to control Replay playback
 - No longer contact RuneScape.com to get world total counts
+- Toggleable buttons to control Replay playback
+- Queued recordings
 
 ## Features
 - Game resolution changing (about 80% complete)
