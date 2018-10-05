@@ -31,12 +31,9 @@ import java.applet.AppletStub;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.*;
-import java.io.File;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.List;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 /** Singleton class that handles packaging the client into a JFrame and starting the applet. */
 public class Game extends JFrame

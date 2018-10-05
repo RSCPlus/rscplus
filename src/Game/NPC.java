@@ -23,6 +23,8 @@ class NPC {
   public static final int TYPE_MOB = 0;
   public static final int TYPE_PLAYER = 1;
 
+  public int id;
+  public int id2;
   public int x;
   public int y;
   public int width;
@@ -33,7 +35,16 @@ class NPC {
   public int maxHits;
 
   public NPC(
-      int x, int y, int width, int height, String name, int type, int currentHits, int maxHits) {
+      int x,
+      int y,
+      int width,
+      int height,
+      String name,
+      int type,
+      int currentHits,
+      int maxHits,
+      int id,
+      int id2) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -42,5 +53,7 @@ class NPC {
     this.type = type;
     this.currentHits = currentHits;
     this.maxHits = maxHits;
+    this.id = id;
+    this.id2 = id2;
   }
 }

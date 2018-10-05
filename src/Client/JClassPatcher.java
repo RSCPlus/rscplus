@@ -1176,10 +1176,24 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
         methodNode.instructions.insertBefore(
             insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "t", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "b", "I"));
         methodNode.instructions.insertBefore(
             insnNode,
             new MethodInsnNode(
-                Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;II)V"));
+                Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;IIII)V"));
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V")) {
         // Draw Player hook
@@ -1210,10 +1224,17 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
         methodNode.instructions.insertBefore(
             insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "G", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "b", "I"));
         methodNode.instructions.insertBefore(
             insnNode,
             new MethodInsnNode(
-                Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;II)V"));
+                Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;III)V"));
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V")) {
         // Draw Item hook

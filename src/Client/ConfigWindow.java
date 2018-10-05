@@ -165,6 +165,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelPlayerNamesCheckbox;
   private JCheckBox overlayPanelFriendNamesCheckbox;
   private JCheckBox overlayPanelNPCNamesCheckbox;
+  private JCheckBox overlayPanelIDsCheckbox;
   private JCheckBox overlayPanelHitboxCheckbox;
   private JCheckBox overlayPanelXPBarCheckbox;
   private JCheckBox overlayPanelXPDropsCheckbox;
@@ -950,6 +951,10 @@ public class ConfigWindow {
     overlayPanelNPCNamesCheckbox = addCheckbox("Show NPC names over their heads", overlayPanel);
     overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
 
+    overlayPanelIDsCheckbox = addCheckbox("Extend names by showing IDs", overlayPanel);
+    overlayPanelIDsCheckbox.setToolTipText(
+        "Displays IDs of NPCs and Players if their name overlay is present");
+
     overlayPanelItemNamesCheckbox =
         addCheckbox("Display the names of items on the ground", overlayPanel);
     overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
@@ -1376,7 +1381,11 @@ public class ConfigWindow {
     addKeybindSet(
         keybindPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
     addKeybindSet(
-        keybindPanel, "Show player controls", "show_player_controls", KeyModifier.ALT, KeyEvent.VK_UP);
+        keybindPanel,
+        "Show player controls",
+        "show_player_controls",
+        KeyModifier.ALT,
+        KeyEvent.VK_UP);
 
     addKeybindCategory(keybindPanel, "Miscellaneous");
     addKeybindSet(
@@ -1901,6 +1910,7 @@ public class ConfigWindow {
         Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelNPCNamesCheckbox.setSelected(
         Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile));
+    overlayPanelIDsCheckbox.setSelected(Settings.EXTEND_IDS_OVERLAY.get(Settings.currentProfile));
     overlayPanelHitboxCheckbox.setSelected(Settings.SHOW_HITBOX.get(Settings.currentProfile));
     overlayPanelShowCombatInfoCheckbox.setSelected(
         Settings.SHOW_COMBAT_INFO.get(Settings.currentProfile));
@@ -2085,6 +2095,7 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelFriendNamesCheckbox.isSelected());
     Settings.SHOW_NPC_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelNPCNamesCheckbox.isSelected());
+    Settings.EXTEND_IDS_OVERLAY.put(Settings.currentProfile, overlayPanelIDsCheckbox.isSelected());
     Settings.SHOW_HITBOX.put(Settings.currentProfile, overlayPanelHitboxCheckbox.isSelected());
     Settings.SHOW_COMBAT_INFO.put(
         Settings.currentProfile, overlayPanelShowCombatInfoCheckbox.isSelected());

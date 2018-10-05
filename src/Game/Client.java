@@ -651,6 +651,9 @@ public class Client {
         case "togglenpcinfo":
           Settings.toggleShowNPCNameOverlay();
           break;
+        case "toggleidsinfo":
+          Settings.toggleExtendIdsOverlay();
+          break;
         case "toggleiteminfo":
           Settings.toggleShowItemGroundOverlay();
           break;
@@ -995,7 +998,8 @@ public class Client {
     try {
       Double currentVersion = 0.0;
       URL updateURL =
-          new URL("https://raw.githubusercontent.com/Hubcapp/rscplus/master/src/Client/Settings.java");
+          new URL(
+              "https://raw.githubusercontent.com/Hubcapp/rscplus/master/src/Client/Settings.java");
 
       // Open connection
       URLConnection connection = updateURL.openConnection();
@@ -1578,14 +1582,22 @@ public class Client {
   }
 
   public static void drawNPC(
-      int x, int y, int width, int height, String name, int currentHits, int maxHits) {
+      int x,
+      int y,
+      int width,
+      int height,
+      String name,
+      int currentHits,
+      int maxHits,
+      int id,
+      int id2) {
     // ILOAD 6 is index
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB, currentHits, maxHits));
+    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB, currentHits, maxHits, id, id2));
   }
 
   public static void drawPlayer(
-      int x, int y, int width, int height, String name, int currentHits, int maxHits) {
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER, currentHits, maxHits));
+      int x, int y, int width, int height, String name, int currentHits, int maxHits, int id2) {
+    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER, currentHits, maxHits, 0, id2));
   }
 
   public static void drawItem(int x, int y, int width, int height, int id) {
