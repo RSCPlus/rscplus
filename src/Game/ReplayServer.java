@@ -14,7 +14,7 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus> and <https://github.com/Hubcapp/rscplus>
+ * <p>Authors: see <https://github.com/OrN/rscplus>
  */
 package Game;
 
@@ -242,7 +242,9 @@ public class ReplayServer implements Runnable {
       }
 
       if (timestamp_input < Replay.timestamp) {
-        Logger.Debug(String.format("timestamp_input: %d; Replay.timestamp: %d", timestamp_input, Replay.timestamp));
+        Logger.Debug(
+            String.format(
+                "timestamp_input: %d; Replay.timestamp: %d", timestamp_input, Replay.timestamp));
         Logger.Warn("ReplayServer: Input timestamp is in the past, skipping packet");
         return true;
       }

@@ -14,24 +14,18 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus> and <https://github.com/Hubcapp/rscplus>
+ * <p>Authors: see <https://github.com/OrN/rscplus>
  */
 package Client;
 
-import java.io.BufferedReader;
+import Game.Replay;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.zip.CRC32;
-import Game.Replay;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -171,9 +165,9 @@ public class Util {
    */
   public static int[] getPop() {
     if (worldPopArray == null) worldPopArray = new int[6];
-    
-    return worldPopArray; //RIP RSC, 2001-01-04 to 2018-08-06
-    
+
+    return worldPopArray; // RIP RSC, 2001-01-04 to 2018-08-06
+
     /* historical, we no longer even try to talk to jagex
      * this is what it used to look like when we did.
 
@@ -249,6 +243,7 @@ public class Util {
     }
     return sb.toString();
   }
+
   public static ArrayList<File> getAllReplays(String parentDir) {
     ArrayList<File> potentialReplayFolders = new ArrayList<File>();
     ArrayList<File> replayFolders = new ArrayList<File>();
@@ -258,25 +253,27 @@ public class Util {
         replayFolders.add(file);
       }
     }
-    Collections.sort(replayFolders, new Comparator<File>() {
-      @Override
-      public int compare(File file2, File file1)
-      {
-        //sorts alphabetically
-        return file2.compareTo(file1);
-        //sort by lastModified, but not very good if that info has been deleted
-        //TODO: offer this as an option in the queue list window
-        //return (int)(new File(file2.getAbsolutePath() + "/keys.bin").lastModified() - new File(file1.getAbsolutePath() + "/keys.bin").lastModified());
-      }
-    });
+    Collections.sort(
+        replayFolders,
+        new Comparator<File>() {
+          @Override
+          public int compare(File file2, File file1) {
+            // sorts alphabetically
+            return file2.compareTo(file1);
+            // sort by lastModified, but not very good if that info has been deleted
+            // TODO: offer this as an option in the queue list window
+            // return (int)(new File(file2.getAbsolutePath() + "/keys.bin").lastModified() - new
+            // File(file1.getAbsolutePath() + "/keys.bin").lastModified());
+          }
+        });
     return replayFolders;
   }
-  
+
   public static void listf(String directoryName, ArrayList<File> files) {
     File directory = new File(directoryName);
 
     File[] fList = directory.listFiles();
-    if(fList != null) {
+    if (fList != null) {
       for (File file : fList) {
         if (file.isDirectory()) {
           listf(file.getAbsolutePath(), files);

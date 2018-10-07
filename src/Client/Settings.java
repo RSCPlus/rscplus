@@ -14,7 +14,7 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus> and <https://github.com/Hubcapp/rscplus>
+ * <p>Authors: see <https://github.com/OrN/rscplus>
  */
 package Client;
 
@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20180823.070401;
+  public static final double VERSION_NUMBER = 20181007.224112;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.

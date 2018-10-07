@@ -14,7 +14,7 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus> and <https://github.com/Hubcapp/rscplus>
+ * <p>Authors: see <https://github.com/OrN/rscplus>
  */
 package Game;
 
@@ -189,8 +189,8 @@ public class Replay {
             Launcher.icon_warn);
         return false;
       }
-      
-      /* TODO: 
+
+      /* TODO:
        * Should also write out endpoint, so we know what server the replay is for
       if (replay_version <= 3) {
         boolean claims_authentic_rsc = true;
@@ -307,7 +307,7 @@ public class Replay {
     resetFrameTimeSlice();
     Client.closeConnection(true);
     resetPort();
-    //fpsPlayMultiplier = 1.0f;
+    // fpsPlayMultiplier = 1.0f;
     replayServer.isDone = true;
     resetPatchClient();
     isPlaying = false;
@@ -361,7 +361,7 @@ public class Replay {
                         new FileOutputStream(new File(recordingDirectory + "/mouse.bin.gz")))));
         started_record_kb_mouse =
             true; // need this to know whether or not to close the file if the user changes settings
-                  // mid-recording
+        // mid-recording
       } else {
         started_record_kb_mouse = false;
       }
