@@ -9,7 +9,7 @@ The latest release can be found [here](https://github.com/hubcapp/rscplus/releas
 ## Discord
 Join our Discord server ([Invite link](https://discord.gg/92gG87h))
 
-## Changes since RSC went offline and development moved from [OrN](https://github.com/OrN/rscplus/)
+## Changes since RSC went offline
 
 - No longer contact RuneScape.com to get world total counts
 - Toggleable buttons to control Replay playback
@@ -197,9 +197,5 @@ If you are running rsc+ from console, and want to output console text with color
 
 ### Contributors
 Check [here](https://github.com/OrN/rscplus/graphs/contributors) for contributors before RSC shut down
-
-and
-
-Check [here](https://github.com/hubcapp/rscplus/graphs/contributors) for after RSC shut down
 
 Thanks to Warriorccc0 (Brinner) for testing various things on Windows.
