@@ -4,7 +4,7 @@
 *The code is licensed under GPLv3 in hopes of protecting people from malicious modifications.*
 
 ## Download
-The latest release can be found [here](https://github.com/hubcapp/rscplus/releases/latest).
+The latest release can be found [here](https://github.com/OrN/rscplus/releases/latest).
 
 ## Discord
 Join our Discord server ([Invite link](https://discord.gg/92gG87h))
@@ -180,7 +180,7 @@ stored keyword on searchable bank)
 ### Building [![Build Status](https://travis-ci.org/OrN/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
 *You must have git, apache-ant, and jdk 1.7 or 1.8 installed to do this.*
 ```
-git clone https://github.com/hubcapp/rscplus
+git clone https://github.com/OrN/rscplus
 cd rscplus
 ant dist
 ```
@@ -196,6 +196,6 @@ If you are running rsc+ in IntelliJ IDEA and want colorized console output, you 
 If you are running rsc+ from console, and want to output console text with colorization to a log file, add -Djansi.passthrough=true to your java arguments.
 
 ### Contributors
-Check [here](https://github.com/OrN/rscplus/graphs/contributors) for contributors before RSC shut down
+Check [here](https://github.com/OrN/rscplus/graphs/contributors) for contributors
 
 Thanks to Warriorccc0 (Brinner) for testing various things on Windows.
