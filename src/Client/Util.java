@@ -19,6 +19,7 @@
 package Client;
 
 import Game.Replay;
+import Game.ReplayQueue;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -244,15 +245,34 @@ public class Util {
     return sb.toString();
   }
 
-  public static ArrayList<File> getAllReplays(String parentDir) {
+  public static ArrayList<File> getAllReplays(ArrayList<File> folderInputs) {
+    ReplayQueue.foundBrokenReplay = false;
     ArrayList<File> potentialReplayFolders = new ArrayList<File>();
     ArrayList<File> replayFolders = new ArrayList<File>();
-    listf(parentDir, potentialReplayFolders);
-    for (File file : potentialReplayFolders) {
-      if (Replay.isValid(file.getAbsolutePath())) {
-        replayFolders.add(file);
+    
+    for (File folderInputFile : folderInputs) {
+      if (folderInputFile != null) {
+        String folderInput = folderInputFile.getAbsolutePath();
+        listf(folderInput, potentialReplayFolders);
+        if (Replay.isValid(folderInput)) {
+          replayFolders.add(new File(folderInput));
+        } else {
+          if (Replay.isBroken(folderInput)) {
+            ReplayQueue.foundBrokenReplay = true;
+          }
+        }
+        for (File file : potentialReplayFolders) {
+          if (Replay.isValid(file.getAbsolutePath())) {
+            replayFolders.add(file);
+          }  else {
+            if (Replay.isBroken(file.getAbsolutePath())) {
+              ReplayQueue.foundBrokenReplay = true;
+            }
+          }
+        }
       }
     }
+    
     Collections.sort(
         replayFolders,
         new Comparator<File>() {
@@ -269,6 +289,7 @@ public class Util {
     return replayFolders;
   }
 
+  //recurse through directory to get all folders
   public static void listf(String directoryName, ArrayList<File> files) {
     File directory = new File(directoryName);
 

@@ -701,9 +701,22 @@ public class Replay {
   }
 
   public static boolean isValid(String path) {
-    return (new File(path + "/in.bin.gz").exists()
-        && new File(path + "/keys.bin").exists()
-        && new File(path + "/version.bin").exists());
+    File keys = new File(path + "/keys.bin");
+    boolean filesExist = new File(path + "/in.bin.gz").exists()
+        && keys.exists()
+        && new File(path + "/version.bin").exists();
+    if (filesExist) {
+      return keys.length() > 0;
+    }
+    return false;
+  }
+
+  public static boolean isBroken(String path) {
+    File keys = new File(path + "/keys.bin");
+    if (keys.exists()) {
+      return keys.length() <= 0;
+    }
+    return false;
   }
 
   public static void resetFrameTimeSlice() {
