@@ -22,10 +22,7 @@ import Game.Replay;
 import Game.ReplayQueue;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Locale;
+import java.util.*;
 import java.util.zip.CRC32;
 
 /** A miscellaneous utility class */
@@ -245,10 +242,10 @@ public class Util {
     return sb.toString();
   }
 
-  public static ArrayList<File> getAllReplays(ArrayList<File> folderInputs) {
+  public static List<File> getAllReplays(List<File> folderInputs) {
     ReplayQueue.foundBrokenReplay = false;
-    ArrayList<File> potentialReplayFolders = new ArrayList<File>();
-    ArrayList<File> replayFolders = new ArrayList<File>();
+    List<File> potentialReplayFolders = new ArrayList<File>();
+    List<File> replayFolders = new ArrayList<File>();
 
     for (File folderInputFile : folderInputs) {
       if (folderInputFile != null) {
@@ -290,7 +287,7 @@ public class Util {
   }
 
   // recurse through directory to get all folders
-  public static void listf(String directoryName, ArrayList<File> files) {
+  public static void listf(String directoryName, List<File> files) {
     File directory = new File(directoryName);
 
     File[] fList = directory.listFiles();

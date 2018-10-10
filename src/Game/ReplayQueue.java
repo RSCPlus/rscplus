@@ -52,9 +52,9 @@ public class ReplayQueue {
       if (Replay.isValid(ReplayQueue.currentReplayName)) {
         return true;
       } else {
-        ArrayList<File> selectionArr = new ArrayList<File>();
+        List<File> selectionArr = new ArrayList<File>();
         selectionArr.add(selection);
-        ArrayList<File> replays = Util.getAllReplays(selectionArr);
+        List<File> replays = Util.getAllReplays(selectionArr);
         if (replays.size() > 0) {
           ReplayQueue.queue.addAll(replays);
           Logger.Info(
@@ -83,13 +83,12 @@ public class ReplayQueue {
   static DropTarget dropReplays =
       new DropTarget() {
         public synchronized void drop(DropTargetDropEvent evt) {
-          // Clear queue when new ones are dropped
-          clearQueue();
-
           try {
             evt.acceptDrop(DnDConstants.ACTION_LINK);
-            List<File> replays =
-                (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+            List<File> droppedFiles =
+                (List<File>)
+                    evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+            List<File> replays = Util.getAllReplays(droppedFiles);
 
             if (replays.size() == 0) {
               // no valid replays
@@ -124,7 +123,7 @@ public class ReplayQueue {
                       replays.size(), replays.size() != 1 ? "s" : "", ReplayQueue.queue.size()));
 
               if (Client.state == Client.STATE_LOGIN) {
-                ReplayQueue.playFromQueue(currentIndex);
+                ReplayQueue.nextReplay();
               }
             }
           } catch (Exception ex) {
