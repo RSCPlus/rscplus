@@ -86,8 +86,7 @@ public class ReplayQueue {
           try {
             evt.acceptDrop(DnDConstants.ACTION_LINK);
             List<File> droppedFiles =
-                (List<File>)
-                    evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
             List<File> replays = Util.getAllReplays(droppedFiles);
 
             if (replays.size() == 0) {
