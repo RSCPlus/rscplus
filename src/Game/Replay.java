@@ -702,9 +702,10 @@ public class Replay {
 
   public static boolean isValid(String path) {
     File keys = new File(path + "/keys.bin");
-    boolean filesExist = new File(path + "/in.bin.gz").exists()
-        && keys.exists()
-        && new File(path + "/version.bin").exists();
+    boolean filesExist =
+        new File(path + "/in.bin.gz").exists()
+            && keys.exists()
+            && new File(path + "/version.bin").exists();
     if (filesExist) {
       return keys.length() > 0;
     }

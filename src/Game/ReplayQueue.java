@@ -29,11 +29,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.Comparator;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class ReplayQueue {
@@ -83,51 +79,57 @@ public class ReplayQueue {
     return false;
   }
 
-  static DropTarget dropReplays = new DropTarget() {
-    public synchronized void drop(DropTargetDropEvent evt) {
-      try {
-        evt.acceptDrop(DnDConstants.ACTION_LINK);
-        ArrayList<File> droppedFiles = (ArrayList<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-        ArrayList<File> replays = Util.getAllReplays(droppedFiles);
-        
-        if (replays.size() == 0) {
-          //no valid replays
-          if (foundBrokenReplay) {
-            JOptionPane.showMessageDialog(
-              Game.getInstance().getApplet(),
-              "The replay you dragged onto the client has a keys.bin file which is empty.\n"
-                + "The data inside is encrypted without a key to decrypt it. :(\n\n"
-                + "Some information might be able to be retrieved from this replay\n"
-                + "through reverse engineering, but basically it's broken.",
-              "rscplus",
-              JOptionPane.ERROR_MESSAGE,
-              Launcher.icon_warn);
-          } else {
-            //nothing that even looks like a replay was found
-            JOptionPane.showMessageDialog(
-              Game.getInstance().getApplet(),
-              "The folder you dropped onto the client is not a replay, nor does it contain replay folders.\n"
-                  + "\n"
-                  + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.",
-              "rscplus",
-              JOptionPane.ERROR_MESSAGE,
-              Launcher.icon_warn);
-          }
-          return;
-        } else {
-          //at least 1 replay found
-          ReplayQueue.queue.addAll(replays);
-          Logger.Info(String.format("Added %d replay%s to the queue. New size: %d",  replays.size(), replays.size() != 1 ? "s" : "", ReplayQueue.queue.size()));
-          
-          if (Client.state == Client.STATE_LOGIN) {
-            ReplayQueue.playFromQueue(currentIndex);
+  static DropTarget dropReplays =
+      new DropTarget() {
+        public synchronized void drop(DropTargetDropEvent evt) {
+          try {
+            evt.acceptDrop(DnDConstants.ACTION_LINK);
+            ArrayList<File> droppedFiles =
+                (ArrayList<File>)
+                    evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+            ArrayList<File> replays = Util.getAllReplays(droppedFiles);
+
+            if (replays.size() == 0) {
+              // no valid replays
+              if (foundBrokenReplay) {
+                JOptionPane.showMessageDialog(
+                    Game.getInstance().getApplet(),
+                    "The replay you dragged onto the client has a keys.bin file which is empty.\n"
+                        + "The data inside is encrypted without a key to decrypt it. :(\n\n"
+                        + "Some information might be able to be retrieved from this replay\n"
+                        + "through reverse engineering, but basically it's broken.",
+                    "rscplus",
+                    JOptionPane.ERROR_MESSAGE,
+                    Launcher.icon_warn);
+              } else {
+                // nothing that even looks like a replay was found
+                JOptionPane.showMessageDialog(
+                    Game.getInstance().getApplet(),
+                    "The folder you dropped onto the client is not a replay, nor does it contain replay folders.\n"
+                        + "\n"
+                        + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.",
+                    "rscplus",
+                    JOptionPane.ERROR_MESSAGE,
+                    Launcher.icon_warn);
+              }
+              return;
+            } else {
+              // at least 1 replay found
+              ReplayQueue.queue.addAll(replays);
+              Logger.Info(
+                  String.format(
+                      "Added %d replay%s to the queue. New size: %d",
+                      replays.size(), replays.size() != 1 ? "s" : "", ReplayQueue.queue.size()));
+
+              if (Client.state == Client.STATE_LOGIN) {
+                ReplayQueue.playFromQueue(currentIndex);
+              }
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
           }
         }
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-    }
-  };
+      };
 
   public static void nextReplay() {
     if (queue.size() - 1 > currentIndex) {

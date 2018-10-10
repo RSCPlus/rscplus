@@ -249,7 +249,7 @@ public class Util {
     ReplayQueue.foundBrokenReplay = false;
     ArrayList<File> potentialReplayFolders = new ArrayList<File>();
     ArrayList<File> replayFolders = new ArrayList<File>();
-    
+
     for (File folderInputFile : folderInputs) {
       if (folderInputFile != null) {
         String folderInput = folderInputFile.getAbsolutePath();
@@ -264,7 +264,7 @@ public class Util {
         for (File file : potentialReplayFolders) {
           if (Replay.isValid(file.getAbsolutePath())) {
             replayFolders.add(file);
-          }  else {
+          } else {
             if (Replay.isBroken(file.getAbsolutePath())) {
               ReplayQueue.foundBrokenReplay = true;
             }
@@ -272,7 +272,7 @@ public class Util {
         }
       }
     }
-    
+
     Collections.sort(
         replayFolders,
         new Comparator<File>() {
@@ -289,7 +289,7 @@ public class Util {
     return replayFolders;
   }
 
-  //recurse through directory to get all folders
+  // recurse through directory to get all folders
   public static void listf(String directoryName, ArrayList<File> files) {
     File directory = new File(directoryName);
 
