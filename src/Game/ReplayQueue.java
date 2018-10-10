@@ -14,7 +14,7 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus> and <https://github.com/Hubcapp/rscplus>
+ * <p>Authors: see <https://github.com/OrN/rscplus>
  */
 package Game;
 
@@ -29,6 +29,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -82,12 +83,14 @@ public class ReplayQueue {
   static DropTarget dropReplays =
       new DropTarget() {
         public synchronized void drop(DropTargetDropEvent evt) {
+          // Clear queue when new ones are dropped
+          clearQueue();
+
           try {
             evt.acceptDrop(DnDConstants.ACTION_LINK);
-            ArrayList<File> droppedFiles =
-                (ArrayList<File>)
+            List<File> replays =
+                (List<File>)
                     evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-            ArrayList<File> replays = Util.getAllReplays(droppedFiles);
 
             if (replays.size() == 0) {
               // no valid replays
