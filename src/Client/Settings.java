@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20181010.173524;
+  public static final double VERSION_NUMBER = 20181127.171603;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
