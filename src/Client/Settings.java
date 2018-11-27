@@ -113,6 +113,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_NPC_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> EXTEND_IDS_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> TRACE_OBJECT_INFO = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_COMBAT_INFO = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_POSITION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_RETRO_FPS = new HashMap<String, Boolean>();
@@ -614,6 +615,15 @@ public class Settings {
     EXTEND_IDS_OVERLAY.put("all", true);
     EXTEND_IDS_OVERLAY.put(
         "custom", getPropBoolean(props, "extend_idsinfo", EXTEND_IDS_OVERLAY.get("default")));
+
+    TRACE_OBJECT_INFO.put("vanilla", false);
+    TRACE_OBJECT_INFO.put("vanilla_resizable", false);
+    TRACE_OBJECT_INFO.put("lite", false);
+    TRACE_OBJECT_INFO.put("default", false);
+    TRACE_OBJECT_INFO.put("heavy", false);
+    TRACE_OBJECT_INFO.put("all", true);
+    TRACE_OBJECT_INFO.put(
+        "custom", getPropBoolean(props, "trace_objectinfo", TRACE_OBJECT_INFO.get("default")));
 
     SHOW_COMBAT_INFO.put("vanilla", false);
     SHOW_COMBAT_INFO.put("vanilla_resizable", false);
@@ -1233,6 +1243,7 @@ public class Settings {
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
       props.setProperty("show_npcinfo", Boolean.toString(SHOW_NPC_NAME_OVERLAY.get(preset)));
       props.setProperty("extend_idsinfo", Boolean.toString(EXTEND_IDS_OVERLAY.get(preset)));
+      props.setProperty("trace_objectinfo", Boolean.toString(TRACE_OBJECT_INFO.get(preset)));
       props.setProperty("show_combat_info", Boolean.toString(SHOW_COMBAT_INFO.get(preset)));
       props.setProperty("show_player_position", Boolean.toString(SHOW_PLAYER_POSITION.get(preset)));
       props.setProperty("show_retro_fps", Boolean.toString(SHOW_RETRO_FPS.get(preset)));
@@ -1571,6 +1582,18 @@ public class Settings {
       Client.displayMessage("@cya@IDs are now shown", Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@IDs are now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleTraceObjectInfo() {
+    TRACE_OBJECT_INFO.put(currentProfile, !TRACE_OBJECT_INFO.get(currentProfile));
+
+    if (TRACE_OBJECT_INFO.get(currentProfile)) {
+      Client.displayMessage("@cya@Object info now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Object info now hidden", Client.CHAT_NONE);
     }
 
     save();
@@ -1943,6 +1966,9 @@ public class Settings {
         return true;
       case "toggle_ids_overlay":
         Settings.toggleExtendIdsOverlay();
+        return true;
+      case "toggle_trace_object_info":
+        Settings.toggleTraceObjectInfo();
         return true;
       case "toggle_player_name_overlay":
         Settings.toggleShowPlayerNameOverlay();

@@ -1081,6 +1081,16 @@ public class Client {
     }
   }
 
+  public static String appendDetailsHook(int id, int dir, int x, int y) {
+    int fullX = x + regionX;
+    int fullY = y + regionY;
+    if (Settings.TRACE_OBJECT_INFO.get(Settings.currentProfile)) {
+      return " @gre@(" + id + ";" + dir + ";" + fullX + "," + fullY + ")";
+    } else {
+      return "";
+    }
+  }
+
   /**
    * Index fix after menu swap of redrawMenuHook
    *

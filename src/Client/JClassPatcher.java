@@ -2189,6 +2189,126 @@ public class JClassPatcher {
           }
         }
       }
+      // add on info for objects
+      if (methodNode.name.equals("s") && methodNode.desc.equals("(I)V")) {
+        boolean foundExaminePos = false;
+
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        AbstractInsnNode insnNode = insnNodeList.next();
+
+        while (!foundExaminePos && insnNodeList.hasNext()) {
+          insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 3400) {
+            foundExaminePos = true;
+          }
+        }
+        if (foundExaminePos) {
+          while (insnNodeList.hasNext()) {
+            insnNode = insnNodeList.next();
+
+            if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+                && ((MethodInsnNode) insnNode).name.equals("toString")) {
+              // id
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
+              // direction
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "bg", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // x
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Se", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // y
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "ye", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/Client",
+                      "appendDetailsHook",
+                      "(IIII)Ljava/lang/String;",
+                      false));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKEVIRTUAL,
+                      "java/lang/StringBuilder",
+                      "append",
+                      "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+                      false));
+              break;
+            }
+          }
+        }
+      }
+      // add on info for wall objects
+      if (methodNode.name.equals("s") && methodNode.desc.equals("(I)V")) {
+        boolean foundExaminePos = false;
+
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        AbstractInsnNode insnNode = insnNodeList.next();
+
+        while (!foundExaminePos && insnNodeList.hasNext()) {
+          insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 3300) {
+            foundExaminePos = true;
+          }
+        }
+        if (foundExaminePos) {
+          while (insnNodeList.hasNext()) {
+            insnNode = insnNodeList.next();
+
+            if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+                && ((MethodInsnNode) insnNode).name.equals("toString")) {
+              // id
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
+              // direction
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Hj", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // x
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Jd", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // y
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "yk", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/Client",
+                      "appendDetailsHook",
+                      "(IIII)Ljava/lang/String;",
+                      false));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKEVIRTUAL,
+                      "java/lang/StringBuilder",
+                      "append",
+                      "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+                      false));
+              break;
+            }
+          }
+        }
+      }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;)V")) {
         // hook onto sound effect played
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
