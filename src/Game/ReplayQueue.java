@@ -61,8 +61,6 @@ public class ReplayQueue {
               String.format(
                   "Added %d replays to the queue. New size: %d",
                   replays.size(), ReplayQueue.queue.size()));
-          if (currentIndex < 0) currentIndex = 0;
-          ReplayQueue.currentReplayName = queue.get(currentIndex).getAbsolutePath();
           return true;
         } else {
           JOptionPane.showMessageDialog(
@@ -132,18 +130,18 @@ public class ReplayQueue {
       };
 
   public static void nextReplay() {
-    if (queue.size() - 1 > currentIndex) {
-      currentIndex++;
+    if (currentIndex < queue.size()) {
       playFromQueue(currentIndex);
+      currentIndex++;
     } else {
       Logger.Info("Reached end of queue!");
     }
   }
 
   public static void previousReplay() {
-    if (currentIndex > 0) {
+    if (currentIndex > 1) {
       currentIndex--;
-      playFromQueue(currentIndex);
+      playFromQueue(currentIndex - 1);
     } else {
       Logger.Info("Reached beginning of queue!");
     }
@@ -165,18 +163,13 @@ public class ReplayQueue {
       } // timestamps straight... TODO: eliminate need for this delay.
     }
     currentReplayName = queue.get(index).getAbsolutePath();
-    Logger.Info("Selected " + currentReplayName);
+    Logger.Info("Selected (" + index + "): " + currentReplayName);
     Client.runReplayHook = true;
     // Client.login_hook();
   }
 
   public static void clearQueue() {
     queue = new ArrayList<File>();
-    if (Replay.isPlaying) {
-      currentIndex =
-          -1; // so that it goes to 0th recording when more are added to queue after clearing
-    } else {
-      currentIndex = 0;
-    }
+    currentIndex = 0;
   }
 }
