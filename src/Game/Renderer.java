@@ -1060,6 +1060,31 @@ public class Renderer {
         }
       }
 
+      // Handle dump mode button
+      bounds = new Rectangle(bounds.x + bounds.width + 4, bounds.y, 16, bounds.height);
+      if (Replay.dumpMode) {
+        g2.setColor(color_low);
+        drawShadowText(g2, "WARNING: Dump mode is for advanced users.",
+                256, 50, color_low, true);
+        drawShadowText(g2, "Please disable it if you don't know what you're doing.",
+                256, 66, color_low, true);
+      }
+      else {
+        g2.setColor(color_text);
+      }
+      setAlpha(g2, 0.5f);
+      g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+      setAlpha(g2, 1.0f);
+      drawShadowText(g2, "=", bounds.x + (bounds.width / 2), bounds.y + 6, color_fatigue, true);
+      // Handle dump mode selection
+      if (MouseHandler.x >= bounds.x
+              && MouseHandler.x <= bounds.x + bounds.width
+              && MouseHandler.y >= bounds.y
+              && MouseHandler.y <= bounds.y + bounds.height
+              && MouseHandler.mouseClicked) {
+        Replay.dumpMode = !Replay.dumpMode;
+      }
+
       drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
 
       int worldPopArray[];

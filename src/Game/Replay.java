@@ -83,6 +83,7 @@ public class Replay {
   public static boolean isRestarting = true;
   public static boolean paused = false;
   public static boolean closeDialogue = false;
+  public static boolean dumpMode = false;
 
   // Hack for player position
   public static boolean ignoreFirstMovement = true;

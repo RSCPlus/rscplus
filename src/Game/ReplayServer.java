@@ -159,6 +159,13 @@ public class ReplayServer implements Runnable {
 
       Logger.Info("ReplayServer: Starting playback; port=" + usePort);
 
+      // Handle dump mode
+      // TODO: This is running on a seperate thread, may need to run on the main thread
+      if (Replay.dumpMode) {
+        Client.setLoginMessage("Dumping replay data", "Please wait...");
+        Replay.seek(timestamp_end);
+      }
+
       isDone = false;
       frame_timer = System.currentTimeMillis();
       while (!isDone) {
