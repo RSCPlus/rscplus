@@ -1227,7 +1227,14 @@ public class Client {
    * @param message the content of the message
    * @param type the type of message being displayed
    */
-  public static void messageHook(String username, String message, int type) {
+  public static void messageHook(
+      String username, String message, int type, String colorCodeOverride) {
+
+    if (colorCodeOverride != null) {
+      if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@")))
+        message = colorCodeOverride + message;
+    }
+
     // Close dialogues when player says something in-game in quest chat
     if (Replay.isPlaying) {
       if (username != null && username.equals(Client.player_name) && type == CHAT_QUEST) {
