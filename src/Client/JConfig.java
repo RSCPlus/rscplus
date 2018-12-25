@@ -31,7 +31,8 @@ public class JConfig {
   public static final String SERVER_URL = "rscminus.com";
   public static final int SERVER_WORLD_COUNT = 1;
   public static final String SERVER_RSA_EXPONENT = "65537";
-  public static final String SERVER_RSA_MODULUS = "8919358150844327671615194210081641058246796695652439261191309391046895650925408172336904532376967683135742637126732712594033167816708824171632934946881859";
+  public static final String SERVER_RSA_MODULUS =
+      "8919358150844327671615194210081641058246796695652439261191309391046895650925408172336904532376967683135742637126732712594033167816708824171632934946881859";
 
   // Official client version information, subversion uses 'other_sub_version'
   public static final int VERSION = 124;
@@ -169,13 +170,11 @@ public class JConfig {
 
     parameters.put("nodeid", "" + (5000 + world));
     // TODO: This might have meant veteran world
-    //if (world == 1) parameters.put("servertype", "" + 3);
+    // if (world == 1) parameters.put("servertype", "" + 3);
     parameters.put("servertype", "" + 1);
 
-    if (world == 0)
-      m_data.put("codebase", "http://127.0.0.1/");
-    else
-      m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
+    if (world == 0) m_data.put("codebase", "http://127.0.0.1/");
+    else m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);

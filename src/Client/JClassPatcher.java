@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -873,7 +872,7 @@ public class JClassPatcher {
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
           if (insnNode.getOpcode() == Opcodes.IFEQ) {
-            JumpInsnNode jmpNode = (JumpInsnNode)insnNode;
+            JumpInsnNode jmpNode = (JumpInsnNode) insnNode;
             JumpInsnNode gotoNode = new JumpInsnNode(Opcodes.GOTO, jmpNode.label);
             methodNode.instructions.insert(insnNode, gotoNode);
             methodNode.instructions.remove(jmpNode.getPrevious());

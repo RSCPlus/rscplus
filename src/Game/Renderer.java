@@ -986,12 +986,7 @@ public class Renderer {
         setAlpha(g2, 1.0f);
         String worldString = (i == 0) ? "D" : Integer.toString(i);
         drawShadowText(
-            g2,
-            worldString,
-            bounds.x + (bounds.width / 2),
-            bounds.y + 4,
-            color_text,
-            true);
+            g2, worldString, bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true);
 
         // Handle world selection click
         if (MouseHandler.x >= bounds.x
