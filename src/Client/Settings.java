@@ -986,12 +986,12 @@ public class Settings {
     COMBAT_STYLE.put("all", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("custom", getPropInt(props, "combat_style", COMBAT_STYLE.get("default")));
 
-    WORLD.put("vanilla", 2);
-    WORLD.put("vanilla_resizable", 2);
-    WORLD.put("lite", 2);
-    WORLD.put("default", 2);
-    WORLD.put("heavy", 2);
-    WORLD.put("all", 2);
+    WORLD.put("vanilla", 1);
+    WORLD.put("vanilla_resizable", 1);
+    WORLD.put("lite", 1);
+    WORLD.put("default", 1);
+    WORLD.put("heavy", 1);
+    WORLD.put("all", 1);
     WORLD.put("custom", getPropInt(props, "world", WORLD.get("default")));
 
     FIRST_TIME.put("vanilla", false);
@@ -1047,11 +1047,11 @@ public class Settings {
       save("custom");
     }
 
-    if (WORLD.get("custom") < 1) {
-      WORLD.put("custom", 1);
+    if (WORLD.get("custom") < 0) {
+      WORLD.put("custom", 0);
       save("custom");
-    } else if (WORLD.get("custom") > 5) {
-      WORLD.put("custom", 5);
+    } else if (WORLD.get("custom") > JConfig.SERVER_WORLD_COUNT) {
+      WORLD.put("custom", JConfig.SERVER_WORLD_COUNT);
       save("custom");
     }
 
@@ -1890,8 +1890,6 @@ public class Settings {
     public static String SCREENSHOT;
     public static String REPLAY;
   }
-
-  public static String[] WORLD_LIST = {"1", "2", "3", "4", "5"};
 
   /**
    * Processes the commands triggered by pressing keybinds

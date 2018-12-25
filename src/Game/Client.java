@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
 import Client.Logger;
@@ -311,6 +312,10 @@ public class Client {
   public static void update() {
     // FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
     version = 235;
+    if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT))
+      exponent = new BigInteger(JConfig.SERVER_RSA_EXPONENT);
+    if (!modulus.toString().equals(JConfig.SERVER_RSA_MODULUS))
+      modulus = new BigInteger(JConfig.SERVER_RSA_MODULUS);
 
     long time = System.currentTimeMillis();
     long nanoTime = System.nanoTime();

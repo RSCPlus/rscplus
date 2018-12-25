@@ -19,6 +19,7 @@
 package Game;
 
 import Client.FlushableGZIPOutputStream;
+import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
 import Client.Settings;
@@ -45,7 +46,7 @@ import javax.swing.JOptionPane;
 public class Replay {
   // If we ever change replays in a way that breaks backwards compatibility,
   // we need to increment this
-  public static int VERSION = 4;
+  public static int VERSION = 5;
 
   static DataOutputStream output = null;
   static DataOutputStream input = null;
@@ -247,7 +248,7 @@ public class Replay {
           Launcher.icon_warn);
       return false;
     }
-    Game.getInstance().getJConfig().changeWorld(6);
+    Game.getInstance().getJConfig().changeWorld(JConfig.SERVER_WORLD_COUNT + 1);
     replayServer = new ReplayServer(replayDirectory);
     replayThread = new Thread(replayServer);
     replayThread.start();

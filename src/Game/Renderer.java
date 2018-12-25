@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
@@ -973,19 +974,20 @@ public class Renderer {
 
       // Draw world list
       drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
-      for (int i = 0; i < Settings.WORLD_LIST.length; i++) {
+      for (int i = 0; i <= JConfig.SERVER_WORLD_COUNT; i++) {
         Rectangle bounds = new Rectangle(152 + (i * 18), height - 12, 16, 12);
         Color color = color_text;
 
-        if (i == Settings.WORLD.get(Settings.currentProfile) - 1) color = color_low;
+        if (i == Settings.WORLD.get(Settings.currentProfile)) color = color_low;
 
         setAlpha(g2, 0.5f);
         g2.setColor(color);
         g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         setAlpha(g2, 1.0f);
+        String worldString = (i == 0) ? "D" : Integer.toString(i);
         drawShadowText(
             g2,
-            Settings.WORLD_LIST[i],
+            worldString,
             bounds.x + (bounds.width / 2),
             bounds.y + 4,
             color_text,
@@ -997,7 +999,7 @@ public class Renderer {
             && MouseHandler.y >= bounds.y
             && MouseHandler.y <= bounds.y + bounds.height
             && MouseHandler.mouseClicked) {
-          Game.getInstance().getJConfig().changeWorld(i + 1);
+          Game.getInstance().getJConfig().changeWorld(i);
         }
       }
 
@@ -1060,8 +1062,8 @@ public class Renderer {
         }
       }
 
-      drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
-
+      // TODO: Uncomment this information when we can provide it again
+      /*drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
       int worldPopArray[];
       int totalPop = 0;
       worldPopArray = Util.getPop();
@@ -1078,9 +1080,8 @@ public class Renderer {
           8,
           color_text,
           true);
-
       String daysString = "RuneScape Classic has been taken offline";
-      drawShadowText(g2, daysString, width / 2, 24, Renderer.color_fatigue, true);
+      drawShadowText(g2, daysString, width / 2, 24, Renderer.color_fatigue, true);*/
 
       // Draw version information
       drawShadowText(

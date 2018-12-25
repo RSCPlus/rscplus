@@ -113,7 +113,9 @@ public class Game extends JFrame
     String title = "rscplus (";
 
     if (!Replay.isPlaying) {
-      title += "World " + Settings.WORLD.get(Settings.currentProfile);
+      int world = Settings.WORLD.get(Settings.currentProfile);
+      String worldString = (world == 0) ? "Developer World" : "World " + Integer.toString(world);
+      title += worldString;
 
       if (Client.player_name.length() != 0) {
         title += "; " + Client.player_name;

@@ -27,6 +27,11 @@ import java.util.Map;
 
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
+  // Server information
+  public static final String SERVER_URL = "rscminus.com";
+  public static final int SERVER_WORLD_COUNT = 1;
+  public static final String SERVER_RSA_EXPONENT = "65537";
+  public static final String SERVER_RSA_MODULUS = "8919358150844327671615194210081641058246796695652439261191309391046895650925408172336904532376967683135742637126732712594033167816708824171632934946881859";
 
   // Official client version information, subversion uses 'other_sub_version'
   public static final int VERSION = 124;
@@ -53,7 +58,7 @@ public class JConfig {
     m_data.put("title", "RuneScape Classic");
     m_data.put(
         "adverturl", "http://services.runescape.com/m=advert/banner.ws?size=732&amp;norefresh=1");
-    m_data.put("codebase", "http://classic" + world + ".runescape.com/");
+    m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
     m_data.put("cachesubdir", "rsclassic");
     m_data.put("initial_jar", "rsclassic_860618473.jar");
     m_data.put("initial_class", "client.class");
@@ -152,21 +157,25 @@ public class JConfig {
    * @param world The desired world to log into
    */
   public void changeWorld(int world) {
-    if (world == 6) {
+    if (world == SERVER_WORLD_COUNT + 1) {
       // Replay playback "world"
       m_data.put("codebase", "http://127.0.0.1/");
       return;
     }
 
-    // Clip world to 1 - 5
-    if (world > 5) world = 5;
-    else if (world < 1) world = 1;
+    // Clip world to world count
+    if (world > SERVER_WORLD_COUNT) world = SERVER_WORLD_COUNT;
+    else if (world < 0) world = 0;
 
     parameters.put("nodeid", "" + (5000 + world));
-    if (world == 1) parameters.put("servertype", "" + 3);
-    else parameters.put("servertype", "" + 1);
+    // TODO: This might have meant veteran world
+    //if (world == 1) parameters.put("servertype", "" + 3);
+    parameters.put("servertype", "" + 1);
 
-    m_data.put("codebase", "http://classic" + world + ".runescape.com/");
+    if (world == 0)
+      m_data.put("codebase", "http://127.0.0.1/");
+    else
+      m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);

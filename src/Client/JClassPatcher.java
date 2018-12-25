@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -866,6 +867,22 @@ public class JClassPatcher {
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
+      // URL check removal at launch
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.IFEQ) {
+            JumpInsnNode jmpNode = (JumpInsnNode)insnNode;
+            JumpInsnNode gotoNode = new JumpInsnNode(Opcodes.GOTO, jmpNode.label);
+            methodNode.instructions.insert(insnNode, gotoNode);
+            methodNode.instructions.remove(jmpNode.getPrevious());
+            methodNode.instructions.remove(jmpNode.getPrevious());
+            methodNode.instructions.remove(jmpNode);
+            break;
+          }
+        }
+      }
       // handlePacket
       if (methodNode.name.equals("a") && methodNode.desc.equals("(III)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
