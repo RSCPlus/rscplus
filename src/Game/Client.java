@@ -1493,7 +1493,7 @@ public class Client {
     boolean screenshotMessage =
         (type == CHAT_NONE)
             && (colorMessage.contains("You just advanced ")
-                || colorMessage.contains("quest point")
+                || (colorMessage.contains("quest point") && colorMessage.endsWith("!"))
                 || colorMessage.contains("ou have completed"));
     boolean greenMessage =
         screenshotMessage
@@ -1528,9 +1528,9 @@ public class Client {
         colorMessage = "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@";
         break;
       case CHAT_QUEST:
-        if (colorMessage.contains(":")) {
+        if (colorMessage.contains(":") && !colorMessage.startsWith("***")) {
           // this will be like "banker: would you like to access your bank account?" which should be
-          // yellow
+          // yellow. Avoids yellow print the message of tourist trap
           colorMessage = "@|yellow,intensity_faint " + colorReplace(colorMessage) + "|@";
         } else {
           // this is usually skilling
