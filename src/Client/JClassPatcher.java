@@ -2134,6 +2134,28 @@ public class JClassPatcher {
           }
         }
       }
+      // hook onto (windowed) server message hook
+      if (methodNode.name.equals("l") && methodNode.desc.equals("(B)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.PUTSTATIC) {
+            methodNode.instructions.insert(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "serverMessageHook",
+                    "(Ljava/lang/String;)V"));
+            methodNode.instructions.insert(
+                insnNode,
+                new FieldInsnNode(Opcodes.GETFIELD, "client", "Cj", "Ljava/lang/String;"));
+            methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            break;
+          }
+        }
+      }
       if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
         // Login button press hook
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();

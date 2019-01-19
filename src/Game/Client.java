@@ -31,6 +31,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
@@ -96,6 +98,7 @@ public class Client {
       7; // used for when you send a player a duel/trade request, follow someone, or drop an item
   public static final int CHAT_INCOMING_OPTION = 8;
   public static final int CHAT_CHOSEN_OPTION = 9;
+  public static final int CHAT_WINDOWED_MSG = 10;
 
   public static final int COMBAT_CONTROLLED = 0;
   public static final int COMBAT_AGGRESSIVE = 1;
@@ -235,6 +238,9 @@ public class Client {
 
   public static BigInteger modulus;
   public static BigInteger exponent;
+  public static byte[] fontData;
+  public static String lastServerMessage = "";
+  public static int[] inputFilterCharFontAddr;
 
   /**
    * A boolean array that stores if the XP per hour should be shown for a given skill when hovering
@@ -302,6 +308,31 @@ public class Client {
 
     // Skip first login screen and don't wipe user info
     login_screen = 2;
+
+    init_extra();
+  }
+
+  public static void init_extra() {
+    InputStream is = Settings.getResourceAsStream("/assets/fontdata.bin");
+    try {
+      fontData = new byte[is.available()];
+      is.read(fontData);
+    } catch (IOException e) {
+      Logger.Warn("Could not load font data, will not log prettified windowed server messages");
+      fontData = null;
+    }
+
+    String inputFilterChars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"\u00a3$%^&*()-_=+[{]};:\'@#~,<.>/?\\| ";
+    inputFilterCharFontAddr = new int[256];
+    for (int code = 0; code < 256; ++code) {
+      int index = inputFilterChars.indexOf(code);
+      if (index == -1) {
+        index = 74;
+      }
+
+      inputFilterCharFontAddr[code] = index * 9;
+    }
   }
 
   /**
@@ -1225,6 +1256,83 @@ public class Client {
     Logger.Chat(colorizedLog, originalLog);
   }
 
+  public static void serverMessageHook(String message) {
+    int type = CHAT_WINDOWED_MSG;
+    if (!message.equals(lastServerMessage) && !message.trim().equals("")) {
+      lastServerMessage = message;
+      String originalLog = "(" + formatChatType(type) + ") " + lastServerMessage;
+      String colorizedLog =
+          "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(lastServerMessage, type);
+      Logger.Chat(colorizedLog, originalLog);
+      if (fontData != null) windowedForm(lastServerMessage);
+    }
+  }
+
+  // original games client method to determine how to format server message into lines
+  // excludes centering as it is placed into simple text
+  private static void windowedForm(String str) {
+    int type = CHAT_WINDOWED_MSG;
+    int wrapWidth = 360;
+    boolean newLineOnPercent = true;
+
+    try {
+      int width = 0;
+
+      int lastLineTerm = 0;
+      int lastBreak = 0;
+      String originalLog, colorizedLog;
+      String stringLine;
+
+      for (int i = 0; str.length() > i; ++i) {
+        if (str.charAt(i) == '@' && 4 + i < str.length() && str.charAt(i + 4) == '@') {
+          i += 4;
+        } else if (str.charAt(i) == '~' && str.length() > 4 + i && str.charAt(4 + i) == '~') {
+          i += 4;
+        } else {
+          char c = str.charAt(i);
+          if (c < 0 || c >= inputFilterCharFontAddr.length) {
+            c = ' ';
+          }
+
+          width += fontData[7 + inputFilterCharFontAddr[c]];
+        }
+
+        if (str.charAt(i) == ' ') {
+          lastBreak = i;
+        }
+
+        if (str.charAt(i) == '%' && newLineOnPercent) {
+          width = 1000;
+          lastBreak = i;
+        }
+
+        if (width > wrapWidth) {
+          if (lastBreak <= lastLineTerm) {
+            lastBreak = i;
+          }
+
+          width = 0;
+          stringLine = str.substring(lastLineTerm, lastBreak);
+          originalLog = "(" + formatChatType(type) + ") " + stringLine;
+          colorizedLog =
+              "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(stringLine, type);
+          Logger.Chat(colorizedLog, originalLog);
+          lastLineTerm = i = 1 + lastBreak;
+        }
+      }
+
+      if (width > 0) {
+        stringLine = str.substring(lastLineTerm);
+        originalLog = "(" + formatChatType(type) + ") " + stringLine;
+        colorizedLog =
+            "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(stringLine, type);
+        Logger.Chat(colorizedLog, originalLog);
+      }
+    } catch (RuntimeException re) {
+      re.printStackTrace();
+    }
+  }
+
   /**
    * This method hooks all chat messages.
    *
@@ -1388,6 +1496,8 @@ public class Client {
         return "option";
       case CHAT_CHOSEN_OPTION:
         return "select";
+      case CHAT_WINDOWED_MSG:
+        return "window";
       default:
         return Integer.toString(type);
     }
@@ -1546,6 +1656,7 @@ public class Client {
         break;
       case CHAT_NONE: // have to replace b/c @cya@Screenshot saved...
       case CHAT_TRADE_REQUEST_RECEIVED:
+      case CHAT_WINDOWED_MSG:
       case CHAT_OTHER:
         colorMessage = "@|white " + colorReplace(colorMessage) + "|@";
         break;
