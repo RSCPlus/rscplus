@@ -1049,8 +1049,7 @@ public class Renderer {
         } else {
           if (ReplayQueue.replayFileSelectAdd()) {
             Renderer.replayOption = 2;
-            Logger.Info("Replay selected: " + ReplayQueue.currentReplayName);
-            Client.login_hook();
+            ReplayQueue.nextReplay();
           } else {
             Renderer.replayOption = 0;
           }
@@ -1388,18 +1387,23 @@ public class Renderer {
           setAlpha(g2, 0.50f);
           g2.fillRect(
               queueBounds.x + 1, queueBounds.y + 1, queueBounds.width - 1, queueBounds.height - 1);
+          g2.setColor(color_text);
+          setAlpha(g2, 1.0f);
+
+          shapeHeight = queueBounds.height - 3;
+          shapeX = queueBounds.x + 3;
+          drawPlayerControlShape(g2, shapeX, queueBounds.y + 2, shapeHeight, "queue");
 
           drawShadowText(
-              g2,
-              "queue",
-              queueBounds.x + BUTTON_OFFSET_X,
-              queueBounds.y + queueBounds.height - 2,
-              color_white,
-              false);
+                  g2,
+                  "Queue",
+                  queueBounds.x + BUTTON_OFFSET_X + (int)(shapeHeight * 2),
+                  queueBounds.y + queueBounds.height - 2,
+                  color_white,
+                  false);
 
           if (MouseHandler.inBounds(queueBounds) && MouseHandler.mouseClicked) {
-            ReplayQueue.clearQueue();
-            Logger.Info("queue button pressed, cleared queue TODO: implement gui!");
+            Launcher.getQueueWindow().showQueueWindow();
           }
 
           // stop button
@@ -1750,6 +1754,15 @@ public class Renderer {
             (int) (height * 0.80));
         break;
       case "queue":
+        // this shape looks like ":=" but with an extra dot, and an extra line
+        int right_bit_width = (int)((float)height * 1.2);
+        int line_size = (int)((float)height / 5.0) + 1 ;
+        for (int i = 0; i < 3; i++) {
+          g.fillRect(x, y + (int)(i * line_size * 1.5), line_size, line_size); // left dot
+          g.fillRect(x + line_size * 2, y + (int)(i * line_size * 1.5), right_bit_width, line_size); //right rectangle
+        }
+        break;
+
       default:
         Logger.Debug("drawPlayerControlShape given invalid shape");
     }

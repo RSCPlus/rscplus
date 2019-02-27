@@ -20,10 +20,15 @@ package Client;
 
 import Game.Replay;
 import Game.ReplayQueue;
+
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.CRC32;
+import java.util.zip.GZIPInputStream;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -252,20 +257,22 @@ public class Util {
         String folderInput = folderInputFile.getAbsolutePath();
         listf(folderInput, potentialReplayFolders);
         if (Replay.isValid(folderInput)) {
+          Replay.checkAndGenerateMetadata(folderInput);
           replayFolders.add(new File(folderInput));
         } else {
           if (Replay.isBroken(folderInput)) {
             ReplayQueue.foundBrokenReplay = true;
           }
         }
-        for (File file : potentialReplayFolders) {
-          if (Replay.isValid(file.getAbsolutePath())) {
-            replayFolders.add(file);
-          } else {
-            if (Replay.isBroken(file.getAbsolutePath())) {
-              ReplayQueue.foundBrokenReplay = true;
-            }
-          }
+      }
+    }
+    for (File file : potentialReplayFolders) {
+      if (Replay.isValid(file.getAbsolutePath())) {
+        Replay.checkAndGenerateMetadata(file.getAbsolutePath());
+        replayFolders.add(file);
+      } else {
+        if (Replay.isBroken(file.getAbsolutePath())) {
+          ReplayQueue.foundBrokenReplay = true;
         }
       }
     }
@@ -277,13 +284,40 @@ public class Util {
           public int compare(File file2, File file1) {
             // sorts alphabetically
             return file2.compareTo(file1);
-            // sort by lastModified, but not very good if that info has been deleted
-            // TODO: offer this as an option in the queue list window
-            // return (int)(new File(file2.getAbsolutePath() + "/keys.bin").lastModified() - new
-            // File(file1.getAbsolutePath() + "/keys.bin").lastModified());
           }
         });
     return replayFolders;
+  }
+
+  public static int getReplayEnding(File replay) {
+    int timestamp_ret = 0;
+
+    try {
+      DataInputStream fileInput =
+              new DataInputStream(
+                      new BufferedInputStream(new GZIPInputStream(new FileInputStream(replay))));
+      for (; ; ) {
+        int timestamp_input = fileInput.readInt();
+
+        // EOF
+        if (timestamp_input == -1) break;
+
+        // Skip data, we need to find the last timestamp
+        int length = fileInput.readInt();
+        if (length > 0) {
+          int skipped = fileInput.skipBytes(length);
+
+          if (skipped != length) break;
+        }
+
+        timestamp_ret = timestamp_input;
+      }
+      fileInput.close();
+    } catch (Exception e) {
+      // e.printStackTrace();
+    }
+
+    return timestamp_ret;
   }
 
   // recurse through directory to get all folders

@@ -59,7 +59,7 @@
 
 	<target name="compile">
 		<mkdir dir="${main.build.dir}" />
-		<javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false">
+		<javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false" encoding="UTF-8">
 			<classpath refid="classpath.main" />
 		</javac>
 	</target>

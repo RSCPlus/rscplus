@@ -20,6 +20,7 @@ package Game;
 
 import Client.Logger;
 import Client.Settings;
+import Client.Util;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -88,37 +89,6 @@ public class ReplayServer implements Runnable {
     isSeeking = true;
   }
 
-  public int getReplayEnding(File file) {
-    int timestamp_ret = 0;
-
-    try {
-      DataInputStream fileInput =
-          new DataInputStream(
-              new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
-      for (; ; ) {
-        int timestamp_input = fileInput.readInt();
-
-        // EOF
-        if (timestamp_input == -1) break;
-
-        // Skip data, we need to find the last timestamp
-        int length = fileInput.readInt();
-        if (length > 0) {
-          int skipped = fileInput.skipBytes(length);
-
-          if (skipped != length) break;
-        }
-
-        timestamp_ret = timestamp_input;
-      }
-      fileInput.close();
-    } catch (Exception e) {
-      // e.printStackTrace();
-    }
-
-    return timestamp_ret;
-  }
-
   @Override
   public void run() {
     sock = null;
@@ -141,9 +111,9 @@ public class ReplayServer implements Runnable {
       size = file.length();
       file_input = new FileInputStream(file);
       input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
-      timestamp_end = getReplayEnding(file);
+      timestamp_end = Util.getReplayEnding(file);
 
-      Logger.Info("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
+      Logger.Debug("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
       sock = ServerSocketChannel.open();
       // last attempt 10 + default port
       usePort = port == -1 ? Replay.DEFAULT_PORT + 10 : port;
@@ -153,11 +123,11 @@ public class ReplayServer implements Runnable {
       sock.bind(new InetSocketAddress(usePort));
 
       // Let's connect our client
-      Logger.Info("ReplayServer: Syncing playback to client...");
+      Logger.Debug("ReplayServer: Syncing playback to client...");
       isReady = true;
       client = sock.accept();
 
-      Logger.Info("ReplayServer: Starting playback; port=" + usePort);
+      Logger.Debug("ReplayServer: Starting playback; port=" + usePort);
 
       isDone = false;
       frame_timer = System.currentTimeMillis();
@@ -208,8 +178,8 @@ public class ReplayServer implements Runnable {
         if (!ReplayQueue.skipped) {
           ReplayQueue.nextReplay();
         }
-        ReplayQueue.skipped = false;
       }
+      ReplayQueue.skipped = false;
     } catch (Exception e) {
       if (sock != null) {
         try {

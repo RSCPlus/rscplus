@@ -164,6 +164,8 @@ public class Settings {
       = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_CONTROLS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> TRIGGER_ALERTS_REPLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, String> REPLAY_BASE_PATH = new HashMap<String, String>();
+  public static HashMap<String, String> PREFERRED_DATE_FORMAT = new HashMap<String, String>();
 
   //// nogui
   public static HashMap<String, Integer> COMBAT_STYLE = new HashMap<String, Integer>();
@@ -977,6 +979,24 @@ public class Settings {
         "custom",
         getPropBoolean(props, "trigger_alerts_replay", TRIGGER_ALERTS_REPLAY.get("default")));
 
+    REPLAY_BASE_PATH.put("vanilla", "");
+    REPLAY_BASE_PATH.put("vanilla_resizable", "");
+    REPLAY_BASE_PATH.put("lite", "");
+    REPLAY_BASE_PATH.put("default", "");
+    REPLAY_BASE_PATH.put("heavy", "");
+    REPLAY_BASE_PATH.put("all", "");
+    REPLAY_BASE_PATH.put(
+            "custom", getPropString(props, "replay_base_path", REPLAY_BASE_PATH.get("default")));
+
+    PREFERRED_DATE_FORMAT.put("vanilla", "dd MMMMMMMMM yyyy - HH:mm:ss"); // jagex is british so this is vanilla
+    PREFERRED_DATE_FORMAT.put("vanilla_resizable", "dd MMMMMMMMM yyyy - HH:mm:ss");
+    PREFERRED_DATE_FORMAT.put("lite", "dd MMMMMMMMM yyyy - HH:mm:ss");
+    PREFERRED_DATE_FORMAT.put("default", "yyyy-MM-dd HH:mm:ss"); // ISO 8601, same as default folder name format
+    PREFERRED_DATE_FORMAT.put("heavy", "MMMMMMMMM dd, yyyy, hh:mm:ss aa"); // american date format for some reason
+    PREFERRED_DATE_FORMAT.put("all", "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa"); // american date format with era and day of week
+    PREFERRED_DATE_FORMAT.put(
+            "custom", getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));
+
     //// nogui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
@@ -1294,6 +1314,8 @@ public class Settings {
       props.setProperty("show_player_controls", Boolean.toString(SHOW_PLAYER_CONTROLS.get(preset)));
       props.setProperty(
           "trigger_alerts_replay", Boolean.toString(TRIGGER_ALERTS_REPLAY.get(preset)));
+      props.setProperty("replay_base_path", REPLAY_BASE_PATH.get(preset));
+      props.setProperty("preferred_date_format", PREFERRED_DATE_FORMAT.get(preset));
 
       //// presets
       props.setProperty("current_profile", currentProfile);
@@ -1994,6 +2016,12 @@ public class Settings {
         return true;
       case "show_config_window":
         Launcher.getConfigWindow().showConfigWindow();
+        return true;
+      case "show_queue_window":
+        //Try to not allow Replay window to appear while logged into the game :-)
+        //(can still open while on login screen, then login to the game)
+        if (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting || Client.state == Client.STATE_LOGIN)
+          Launcher.getQueueWindow().showQueueWindow();
         return true;
       case "world_1":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(1);

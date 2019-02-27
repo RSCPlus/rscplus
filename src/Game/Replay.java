@@ -24,6 +24,7 @@ import Client.Launcher;
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
+import Client.QueueWindow;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -34,6 +35,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
@@ -81,7 +83,7 @@ public class Replay {
   public static boolean isSeeking = false;
   public static boolean isPlaying = false;
   public static boolean isRecording = false;
-  public static boolean isRestarting = true;
+  public static boolean isRestarting = false;
   public static boolean paused = false;
   public static boolean closeDialogue = false;
 
@@ -258,6 +260,8 @@ public class Replay {
     // }
     isPlaying = true;
 
+    QueueWindow.updatePlaying();
+
     // Wait
     try {
       while (!replayServer.isReady) Thread.sleep(1);
@@ -312,6 +316,7 @@ public class Replay {
     replayServer.isDone = true;
     resetPatchClient();
     isPlaying = false;
+    QueueWindow.updatePlaying();
   }
 
   public static void initializeReplayRecording() {
@@ -719,6 +724,40 @@ public class Replay {
       return keys.length() <= 0;
     }
     return false;
+  }
+
+  public static void checkAndGenerateMetadata(String replayFolder) {
+    if (new File(replayFolder + "/metadata.bin").exists()) {
+      return;
+    }
+    Logger.Info("Generating metadata for " + replayFolder);
+    //generate new metadata
+    int replayLength = Util.getReplayEnding(new File(replayFolder + "/in.bin.gz"));
+    long dateModified = new File(replayFolder + "/keys.bin").lastModified();
+
+    try {
+      DataOutputStream metadata = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(replayFolder + "/metadata.bin"))));
+      metadata.writeInt(replayLength);
+      metadata.writeLong(dateModified);
+      metadata.flush();
+      metadata.close();
+    } catch (IOException e) {
+      Logger.Error("Couldn't write metadata.bin!");
+    }
+  }
+
+  public static Object[] readMetadata(String replayFolder) {
+    int replayLength = -1;
+    long dateModified = -1;
+    try {
+      DataInputStream metadata = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayFolder + "/metadata.bin"))));
+      replayLength = metadata.readInt();
+      dateModified = metadata.readLong();
+      metadata.close();
+    } catch (IOException e) {
+      Logger.Error("Couldn't read metadata.bin!");
+    }
+    return new Object[] {replayLength,dateModified};
   }
 
   public static void resetFrameTimeSlice() {

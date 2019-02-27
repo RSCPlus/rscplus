@@ -151,7 +151,7 @@ public class ConfigWindow {
   private JSlider generalPanelViewDistanceSlider;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelStartSearchedBankCheckbox;
-  private JTextField generalPanelSearchBankWordTextfield;
+  private JTextField generalPanelSearchBankWordTextField;
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -217,6 +217,8 @@ public class ConfigWindow {
   private JCheckBox replayPanelShowSeekBarCheckbox;
   private JCheckBox replayPanelShowPlayerControlsCheckbox;
   private JCheckBox replayPanelTriggerAlertsReplayCheckbox;
+  private JTextField replayPanelDateFormatTextField;
+  private JTextField replayPanelReplayFolderBasePathTextField;
 
   //// Presets tab
   private JCheckBox presetsPanelCustomSettingsCheckbox;
@@ -283,7 +285,7 @@ public class ConfigWindow {
   private void runInit() {
     frame = new JFrame();
     frame.setTitle("Settings");
-    frame.setBounds(100, 100, 444, 650);
+    frame.setBounds(100, 100, 800, 650);
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
     URL iconURL = Settings.getResource("/assets/icon.png");
@@ -799,11 +801,11 @@ public class ConfigWindow {
     searchBankPanel.add(searchBankPanelLabel);
     searchBankPanelLabel.setAlignmentY((float) 0.9);
 
-    generalPanelSearchBankWordTextfield = new JTextField();
-    searchBankPanel.add(generalPanelSearchBankWordTextfield);
-    generalPanelSearchBankWordTextfield.setMinimumSize(new Dimension(100, 28));
-    generalPanelSearchBankWordTextfield.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
-    generalPanelSearchBankWordTextfield.setAlignmentY((float) 0.75);
+    generalPanelSearchBankWordTextField = new JTextField();
+    searchBankPanel.add(generalPanelSearchBankWordTextField);
+    generalPanelSearchBankWordTextField.setMinimumSize(new Dimension(100, 28));
+    generalPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    generalPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
 
     /*
      * Overlays tab
@@ -1236,6 +1238,12 @@ public class ConfigWindow {
         KeyEvent.VK_O);
     addKeybindSet(
         keybindPanel,
+        "Show queue window",
+        "show_queue_window",
+        KeyModifier.CTRL,
+        KeyEvent.VK_Q);
+    addKeybindSet(
+        keybindPanel,
         "Toggle combat XP menu persistence",
         "toggle_combat_xp_menu",
         KeyModifier.CTRL,
@@ -1282,7 +1290,7 @@ public class ConfigWindow {
         keybindPanel,
         "Toggle start with searched bank",
         "toggle_start_searched_bank",
-        KeyModifier.CTRL,
+        KeyModifier.ALT,
         KeyEvent.VK_Q);
     addKeybindSet(
         keybindPanel, "Toggle lag indicator", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
@@ -1472,6 +1480,50 @@ public class ConfigWindow {
         addCheckbox("Prevent system alerts from triggering during replay", replayPanel);
     replayPanelTriggerAlertsReplayCheckbox.setToolTipText(
         "Overrides the system alerts setting during replay");
+
+    addSettingsHeader(replayPanel, "Replay Queue Window");
+
+
+    JPanel replayPanelReplayFolderBasePathTextFieldPanel = new JPanel();
+    replayPanel.add(replayPanelReplayFolderBasePathTextFieldPanel);
+    replayPanelReplayFolderBasePathTextFieldPanel.setLayout(
+            new BoxLayout(replayPanelReplayFolderBasePathTextFieldPanel, BoxLayout.X_AXIS));
+    replayPanelReplayFolderBasePathTextFieldPanel.setPreferredSize(new Dimension(0, 37));
+    replayPanelReplayFolderBasePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    replayPanelReplayFolderBasePathTextFieldPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel replayPanelReplayFolderBasePathTextFieldLabel = new JLabel("Replay Folder Location: ");
+    replayPanelReplayFolderBasePathTextFieldLabel.setToolTipText("Any string of characters you enter into this field will be removed from the Folder Path column in the Replay Queue window.");
+    replayPanelReplayFolderBasePathTextFieldPanel.add(replayPanelReplayFolderBasePathTextFieldLabel);
+    replayPanelReplayFolderBasePathTextFieldLabel.setAlignmentY((float) 0.9);
+
+    replayPanelReplayFolderBasePathTextField = new JTextField();
+    replayPanelReplayFolderBasePathTextFieldPanel.add(replayPanelReplayFolderBasePathTextField);
+    replayPanelReplayFolderBasePathTextField.setMinimumSize(new Dimension(100, 28));
+    replayPanelReplayFolderBasePathTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    replayPanelReplayFolderBasePathTextField.setAlignmentY((float) 0.75);
+
+
+    JPanel replayPanelDateFormatTextFieldPanel = new JPanel();
+    replayPanel.add(replayPanelDateFormatTextFieldPanel);
+    replayPanelDateFormatTextFieldPanel.setLayout(
+            new BoxLayout(replayPanelDateFormatTextFieldPanel, BoxLayout.X_AXIS));
+    replayPanelDateFormatTextFieldPanel.setPreferredSize(new Dimension(0, 37));
+    replayPanelDateFormatTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    replayPanelDateFormatTextFieldPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel replayPanelDateFormatTextFieldLabel = new JLabel("Preferred Date Format: ");
+    replayPanelDateFormatTextFieldLabel.setToolTipText("This is the date string pattern that you personally prefer. If you're not sure what your options are, check https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html");
+    replayPanelDateFormatTextFieldPanel.add(replayPanelDateFormatTextFieldLabel);
+    replayPanelDateFormatTextFieldLabel.setAlignmentY((float) 0.9);
+
+    replayPanelDateFormatTextField = new JTextField();
+    replayPanelDateFormatTextFieldPanel.add(replayPanelDateFormatTextField);
+    replayPanelDateFormatTextField.setMinimumSize(new Dimension(100, 28));
+    replayPanelDateFormatTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    replayPanelDateFormatTextField.setAlignmentY((float) 0.75);
+
+
 
     /*
      * Presets tab
@@ -1870,7 +1922,7 @@ public class ConfigWindow {
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelStartSearchedBankCheckbox.setSelected(
         Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
-    generalPanelSearchBankWordTextfield.setText(
+    generalPanelSearchBankWordTextField.setText(
         Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
 
     // Sets the text associated with the name patch slider.
@@ -2007,6 +2059,8 @@ public class ConfigWindow {
         Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile));
     replayPanelTriggerAlertsReplayCheckbox.setSelected(
         Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile));
+    replayPanelDateFormatTextField.setText(Settings.PREFERRED_DATE_FORMAT.get("custom"));
+    replayPanelReplayFolderBasePathTextField.setText(Settings.REPLAY_BASE_PATH.get("custom"));
 
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
@@ -2080,7 +2134,7 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
     Settings.SEARCH_BANK_WORD.put(
         Settings.currentProfile,
-        generalPanelSearchBankWordTextfield.getText().trim().toLowerCase());
+        generalPanelSearchBankWordTextField.getText().trim().toLowerCase());
 
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
@@ -2186,6 +2240,10 @@ public class ConfigWindow {
         Settings.currentProfile, replayPanelShowPlayerControlsCheckbox.isSelected());
     Settings.TRIGGER_ALERTS_REPLAY.put(
         Settings.currentProfile, replayPanelTriggerAlertsReplayCheckbox.isSelected());
+    Settings.REPLAY_BASE_PATH.put(
+            Settings.currentProfile, replayPanelReplayFolderBasePathTextField.getText());
+    Settings.PREFERRED_DATE_FORMAT.put(
+            Settings.currentProfile, replayPanelDateFormatTextField.getText());
 
     // Presets
     if (presetsPanelCustomSettingsCheckbox.isSelected()) {
@@ -2243,6 +2301,7 @@ public class ConfigWindow {
     Settings.checkSoftwareCursor();
     Camera.setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     synchronizeGuiValues();
+    QueueWindow.playlistTable.repaint();
   }
 
   public void synchronizePresetOptions() {

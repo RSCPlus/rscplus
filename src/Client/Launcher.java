@@ -39,7 +39,8 @@ public class Launcher extends JFrame implements Runnable {
 
   // Singleton
   private static Launcher instance;
-  private static ConfigWindow window;
+  private static ConfigWindow configWindow;
+  private static QueueWindow queueWindow;
 
   public static ImageIcon icon = null;
   public static ImageIcon icon_warn = null;
@@ -324,6 +325,7 @@ public class Launcher extends JFrame implements Runnable {
     }
 
     setConfigWindow(new ConfigWindow());
+    setQueueWindow(new QueueWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();
     Launcher.getInstance().init();
@@ -340,11 +342,21 @@ public class Launcher extends JFrame implements Runnable {
 
   /** @return the window */
   public static ConfigWindow getConfigWindow() {
-    return window;
+    return configWindow;
   }
 
   /** @param window the window to set */
-  public static void setConfigWindow(ConfigWindow window) {
-    Launcher.window = window;
+  public static void setConfigWindow(ConfigWindow configWindow) {
+    Launcher.configWindow = configWindow;
+  }
+  
+  /** @return the window */
+  public static QueueWindow getQueueWindow() {
+    return queueWindow;
+  }
+
+  /** @param window the window to set */
+  public static void setQueueWindow(QueueWindow queueWindow) {
+    Launcher.queueWindow = queueWindow;
   }
 }
