@@ -1395,12 +1395,12 @@ public class Renderer {
           drawPlayerControlShape(g2, shapeX, queueBounds.y + 2, shapeHeight, "queue");
 
           drawShadowText(
-                  g2,
-                  "Queue",
-                  queueBounds.x + BUTTON_OFFSET_X + (int)(shapeHeight * 2),
-                  queueBounds.y + queueBounds.height - 2,
-                  color_white,
-                  false);
+              g2,
+              "Queue",
+              queueBounds.x + BUTTON_OFFSET_X + (int) (shapeHeight * 2),
+              queueBounds.y + queueBounds.height - 2,
+              color_white,
+              false);
 
           if (MouseHandler.inBounds(queueBounds) && MouseHandler.mouseClicked) {
             Launcher.getQueueWindow().showQueueWindow();
@@ -1755,11 +1755,15 @@ public class Renderer {
         break;
       case "queue":
         // this shape looks like ":=" but with an extra dot, and an extra line
-        int right_bit_width = (int)((float)height * 1.2);
-        int line_size = (int)((float)height / 5.0) + 1 ;
+        int right_bit_width = (int) ((float) height * 1.2);
+        int line_size = (int) ((float) height / 5.0) + 1;
         for (int i = 0; i < 3; i++) {
-          g.fillRect(x, y + (int)(i * line_size * 1.5), line_size, line_size); // left dot
-          g.fillRect(x + line_size * 2, y + (int)(i * line_size * 1.5), right_bit_width, line_size); //right rectangle
+          g.fillRect(x, y + (int) (i * line_size * 1.5), line_size, line_size); // left dot
+          g.fillRect(
+              x + line_size * 2,
+              y + (int) (i * line_size * 1.5),
+              right_bit_width,
+              line_size); // right rectangle
         }
         break;
 

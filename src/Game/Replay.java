@@ -22,9 +22,9 @@ import Client.FlushableGZIPOutputStream;
 import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
+import Client.QueueWindow;
 import Client.Settings;
 import Client.Util;
-import Client.QueueWindow;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -731,12 +731,15 @@ public class Replay {
       return;
     }
     Logger.Info("Generating metadata for " + replayFolder);
-    //generate new metadata
+    // generate new metadata
     int replayLength = Util.getReplayEnding(new File(replayFolder + "/in.bin.gz"));
     long dateModified = new File(replayFolder + "/keys.bin").lastModified();
 
     try {
-      DataOutputStream metadata = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(replayFolder + "/metadata.bin"))));
+      DataOutputStream metadata =
+          new DataOutputStream(
+              new BufferedOutputStream(
+                  new FileOutputStream(new File(replayFolder + "/metadata.bin"))));
       metadata.writeInt(replayLength);
       metadata.writeLong(dateModified);
       metadata.flush();
@@ -750,14 +753,17 @@ public class Replay {
     int replayLength = -1;
     long dateModified = -1;
     try {
-      DataInputStream metadata = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(replayFolder + "/metadata.bin"))));
+      DataInputStream metadata =
+          new DataInputStream(
+              new BufferedInputStream(
+                  new FileInputStream(new File(replayFolder + "/metadata.bin"))));
       replayLength = metadata.readInt();
       dateModified = metadata.readLong();
       metadata.close();
     } catch (IOException e) {
       Logger.Error("Couldn't read metadata.bin!");
     }
-    return new Object[] {replayLength,dateModified};
+    return new Object[] {replayLength, dateModified};
   }
 
   public static void resetFrameTimeSlice() {

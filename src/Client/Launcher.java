@@ -349,7 +349,7 @@ public class Launcher extends JFrame implements Runnable {
   public static void setConfigWindow(ConfigWindow configWindow) {
     Launcher.configWindow = configWindow;
   }
-  
+
   /** @return the window */
   public static QueueWindow getQueueWindow() {
     return queueWindow;

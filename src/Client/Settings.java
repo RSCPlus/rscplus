@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20181228.073257;
+  public static final double VERSION_NUMBER = 20190228.051806;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -986,16 +986,23 @@ public class Settings {
     REPLAY_BASE_PATH.put("heavy", "");
     REPLAY_BASE_PATH.put("all", "");
     REPLAY_BASE_PATH.put(
-            "custom", getPropString(props, "replay_base_path", REPLAY_BASE_PATH.get("default")));
+        "custom", getPropString(props, "replay_base_path", REPLAY_BASE_PATH.get("default")));
 
-    PREFERRED_DATE_FORMAT.put("vanilla", "dd MMMMMMMMM yyyy - HH:mm:ss"); // jagex is british so this is vanilla
+    PREFERRED_DATE_FORMAT.put(
+        "vanilla", "dd MMMMMMMMM yyyy - HH:mm:ss"); // jagex is british so this is vanilla
     PREFERRED_DATE_FORMAT.put("vanilla_resizable", "dd MMMMMMMMM yyyy - HH:mm:ss");
     PREFERRED_DATE_FORMAT.put("lite", "dd MMMMMMMMM yyyy - HH:mm:ss");
-    PREFERRED_DATE_FORMAT.put("default", "yyyy-MM-dd HH:mm:ss"); // ISO 8601, same as default folder name format
-    PREFERRED_DATE_FORMAT.put("heavy", "MMMMMMMMM dd, yyyy, hh:mm:ss aa"); // american date format for some reason
-    PREFERRED_DATE_FORMAT.put("all", "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa"); // american date format with era and day of week
     PREFERRED_DATE_FORMAT.put(
-            "custom", getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));
+        "default", "yyyy-MM-dd HH:mm:ss"); // ISO 8601, same as default folder name format
+    PREFERRED_DATE_FORMAT.put(
+        "heavy", "MMMMMMMMM dd, yyyy, hh:mm:ss aa"); // american date format for some reason
+    PREFERRED_DATE_FORMAT.put(
+        "all",
+        "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa"); // american date format with era and day of
+                                                        // week
+    PREFERRED_DATE_FORMAT.put(
+        "custom",
+        getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));
 
     //// nogui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
@@ -2018,10 +2025,12 @@ public class Settings {
         Launcher.getConfigWindow().showConfigWindow();
         return true;
       case "show_queue_window":
-        //Try to not allow Replay window to appear while logged into the game :-)
-        //(can still open while on login screen, then login to the game)
-        if (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting || Client.state == Client.STATE_LOGIN)
-          Launcher.getQueueWindow().showQueueWindow();
+        // Try to not allow Replay window to appear while logged into the game :-)
+        // (can still open while on login screen, then login to the game)
+        if (Replay.isPlaying
+            || Replay.isSeeking
+            || Replay.isRestarting
+            || Client.state == Client.STATE_LOGIN) Launcher.getQueueWindow().showQueueWindow();
         return true;
       case "world_1":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(1);

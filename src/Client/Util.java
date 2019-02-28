@@ -20,7 +20,6 @@ package Client;
 
 import Game.Replay;
 import Game.ReplayQueue;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -294,8 +293,8 @@ public class Util {
 
     try {
       DataInputStream fileInput =
-              new DataInputStream(
-                      new BufferedInputStream(new GZIPInputStream(new FileInputStream(replay))));
+          new DataInputStream(
+              new BufferedInputStream(new GZIPInputStream(new FileInputStream(replay))));
       for (; ; ) {
         int timestamp_input = fileInput.readInt();
 
