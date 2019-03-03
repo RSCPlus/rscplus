@@ -1404,10 +1404,10 @@ public class Client {
       if (username != null) lastpm_username = username;
     }
 
-    if (message.startsWith("Welcome to RuneScape!")) {
+    if (message.startsWith("Welcome to RuneScape!")
+        && Settings.WELCOME_ENABLED.get(Settings.currentProfile)) {
       // because this section of code is triggered when the "Welcome to RuneScape!" message first
-      // appears, we can
-      // use it to do some first time set up
+      // appears, we can use it to do some first time set up
       if (Settings.FIRST_TIME.get(Settings.currentProfile)) {
         Settings.FIRST_TIME.put(Settings.currentProfile, false);
         Settings.save();
