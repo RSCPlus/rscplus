@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20190228.051806;
+  public static final double VERSION_NUMBER = 20190303.090355;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1009,7 +1009,7 @@ public class Settings {
     PREFERRED_DATE_FORMAT.put(
         "all",
         "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa"); // american date format with era and day of
-                                                        // week
+    // week
     PREFERRED_DATE_FORMAT.put(
         "custom",
         getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));

@@ -99,7 +99,7 @@ public class XPBar {
 
     boolean post99xp = Client.base_level[current_skill] == 99;
 
-    if (percent > bounds.width - 2) { //happens after virtual lvl 100
+    if (percent > bounds.width - 2) { // happens after virtual lvl 100
       percent = bounds.width - 2;
     }
 
@@ -151,20 +151,20 @@ public class XPBar {
 
       if (!post99xp) {
         Renderer.drawShadowText(
-                g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+            g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
         y += 12;
         Renderer.drawShadowText(
-                g,
-                "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
-                x,
-                y,
-                Renderer.color_text,
-                true);
+            g,
+            "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
+            x,
+            y,
+            Renderer.color_text,
+            true);
         y += 12;
       } else {
         y += 8;
         Renderer.drawShadowText(
-                g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+            g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
         y += 12;
       }
       if (Client.getShowXpPerHour()[current_skill]) {
@@ -178,16 +178,16 @@ public class XPBar {
         y += 12;
         if (!post99xp) {
           Renderer.drawShadowText(
-                  g,
-                  "Actions until Level: "
-                          + formatXP(
-                          Client.getXPUntilLevel(current_skill)
-                                   / (Client.getLastXpGain()[current_skill][0]
-                                  / (Client.getLastXpGain()[current_skill][3] + 1))),
-                  x,
-                  y,
-                  Renderer.color_text,
-                  true);
+              g,
+              "Actions until Level: "
+                  + formatXP(
+                      Client.getXPUntilLevel(current_skill)
+                          / (Client.getLastXpGain()[current_skill][0]
+                              / (Client.getLastXpGain()[current_skill][3] + 1))),
+              x,
+              y,
+              Renderer.color_text,
+              true);
           y += 12;
         }
       }
