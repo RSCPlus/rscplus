@@ -97,6 +97,12 @@ public class XPBar {
 
     int percent = xp * (bounds.width - 2) / xp_needed;
 
+    boolean post99xp = Client.base_level[current_skill] == 99;
+
+    if (percent > bounds.width - 2) { //happens after virtual lvl 100
+      percent = bounds.width - 2;
+    }
+
     int x = xp_bar_x;
     int y = xp_bar_y;
     Renderer.setAlpha(g, alpha);
@@ -106,7 +112,11 @@ public class XPBar {
     g.setColor(Renderer.color_shadow);
     g.fillRect(x, y, bounds.width, bounds.height);
 
-    g.setColor(Renderer.color_hp);
+    if (!post99xp) {
+      g.setColor(Renderer.color_hp);
+    } else {
+      g.setColor(Renderer.color_fatigue);
+    }
     g.fillRect(x + 1, y + 1, percent, bounds.height - 2);
 
     Renderer.drawShadowText(
@@ -126,22 +136,37 @@ public class XPBar {
       y = MouseHandler.y + 16;
       g.setColor(Renderer.color_gray);
       Renderer.setAlpha(g, 0.5f);
-      if (Client.getShowXpPerHour()[current_skill]) g.fillRect(x - 100, y, 200, 60);
-      else g.fillRect(x - 100, y, 200, 36);
+      if (Client.getShowXpPerHour()[current_skill]) {
+        if (!post99xp) {
+          g.fillRect(x - 100, y, 200, 60);
+        } else {
+          g.fillRect(x - 100, y, 200, 48);
+        }
+      } else {
+        g.fillRect(x - 100, y, 200, 36);
+      }
       Renderer.setAlpha(g, 1.0f);
 
       y += 8;
-      Renderer.drawShadowText(
-          g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
-      y += 12;
-      Renderer.drawShadowText(
-          g,
-          "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
-          x,
-          y,
-          Renderer.color_text,
-          true);
-      y += 12;
+
+      if (!post99xp) {
+        Renderer.drawShadowText(
+                g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+        y += 12;
+        Renderer.drawShadowText(
+                g,
+                "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
+                x,
+                y,
+                Renderer.color_text,
+                true);
+        y += 12;
+      } else {
+        y += 8;
+        Renderer.drawShadowText(
+                g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+        y += 12;
+      }
       if (Client.getShowXpPerHour()[current_skill]) {
         Renderer.drawShadowText(
             g,
@@ -151,18 +176,20 @@ public class XPBar {
             Renderer.color_text,
             true);
         y += 12;
-        Renderer.drawShadowText(
-            g,
-            "Actions until Level: "
-                + formatXP(
-                    Client.getXPUntilLevel(current_skill)
-                        / (Client.getLastXpGain()[current_skill][0]
-                            / (Client.getLastXpGain()[current_skill][3] + 1))),
-            x,
-            y,
-            Renderer.color_text,
-            true);
-        y += 12;
+        if (!post99xp) {
+          Renderer.drawShadowText(
+                  g,
+                  "Actions until Level: "
+                          + formatXP(
+                          Client.getXPUntilLevel(current_skill)
+                                   / (Client.getLastXpGain()[current_skill][0]
+                                  / (Client.getLastXpGain()[current_skill][3] + 1))),
+                  x,
+                  y,
+                  Renderer.color_text,
+                  true);
+          y += 12;
+        }
       }
 
       // Don't allow XP bar to disappear while user is still interacting with it.
