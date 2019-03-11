@@ -44,7 +44,12 @@ public class ReplayQueue {
 
   // returns if it found valid replays in the directory chosen
   public static boolean replayFileSelectAdd() {
-    JFileChooser j = new JFileChooser(Settings.Dir.REPLAY);
+    JFileChooser j;
+    try {
+      j = new JFileChooser(Settings.REPLAY_BASE_PATH.get("custom"));
+    } catch (Exception e) {
+      j = new JFileChooser(Settings.Dir.REPLAY);
+    }
     j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
 
@@ -58,7 +63,7 @@ public class ReplayQueue {
         QueueWindow.copyQueueToTable();
         Logger.Info(
             String.format(
-                "Added %d replays to the queue. New size: %d",
+                "@|cyan Added |@@|cyan,intensity_bold %d |@@|cyan replays to the queue. New size: |@@|cyan,intensity_bold %d |@",
                 replays.size(), ReplayQueue.queue.size()));
         return true;
       } else {
@@ -189,7 +194,12 @@ public class ReplayQueue {
     }
 
     currentReplayName = queue.get(index).getAbsolutePath();
-    Logger.Info("Selected (" + index + "): " + currentReplayName);
+    Logger.Info(
+        "@|cyan Selected ("
+            + index
+            + "): |@@|cyan,intensity_bold "
+            + currentReplayName.replace(Settings.REPLAY_BASE_PATH.get("custom"), "")
+            + "|@");
     Client.runReplayHook = true;
     QueueWindow.updatePlaying();
   }

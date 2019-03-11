@@ -1103,7 +1103,7 @@ public class Replay {
           input_checksum.update(buffer.array());
           input.write(buffer.array());
           input.flush();
-          Logger.Info("Replay: Removed host block from client input");
+          Logger.Debug("Replay: Removed host block from client input");
         } catch (Exception e) {
           e.printStackTrace();
           shutdown_error();
@@ -1129,7 +1129,7 @@ public class Replay {
       Client.friends_world = Arrays.copyOf(Client.friends_world, newLength);
       Client.friends_formerly = Arrays.copyOf(Client.friends_formerly, newLength);
       Client.friends_online = Arrays.copyOf(Client.friends_online, newLength);
-      Logger.Info(
+      Logger.Debug(
           "Replay.patchClient(): Applied friends list length patch to fix playback; newLength: "
               + newLength);
     }
@@ -1143,7 +1143,7 @@ public class Replay {
       Client.ignores_formerly = Arrays.copyOf(Client.ignores_formerly, newLength);
       Client.ignores_copy = Arrays.copyOf(Client.ignores_copy, newLength);
       Client.ignores_formerly_copy = Arrays.copyOf(Client.ignores_formerly_copy, newLength);
-      Logger.Info(
+      Logger.Debug(
           "Replay.patchClient(): Applied ignores list length patch to fix playback; newLength: "
               + newLength);
     }
