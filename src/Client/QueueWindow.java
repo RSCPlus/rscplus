@@ -35,56 +35,26 @@ import java.awt.Insets;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DragSource;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DropMode;
-import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 //import javax.swing.ToolTipManager;
-import javax.swing.TransferHandler;
-import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.RowSorterEvent;
-import javax.swing.event.RowSorterListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.*;
 import Game.Replay;
 import Game.ReplayQueue;
 
@@ -97,7 +67,9 @@ public class QueueWindow {
   static JLabel replayCountLabel = new JLabel("0 replays");
   static private JFrame frame;
   static private JButton button;
-	static private Font controlsFont;
+  static private Font controlsFont;
+  static private String editValue = "@:/@";
+  static private boolean editingEnabled = false;
   static private boolean reorderIsPointless = true; //helper bool to stop copyTableToQueue if nothing in table has changed
 
   public QueueWindow() {
@@ -184,8 +156,8 @@ public class QueueWindow {
 	}
 
   private static void runInit() {
-		controlsFontInit();
-		
+    controlsFontInit();
+
     //ToolTipManager.sharedInstance().setInitialDelay(0);
     //ToolTipManager.sharedInstance().setDismissDelay(500);
     frame = new JFrame();
@@ -278,6 +250,20 @@ public class QueueWindow {
     };
     DefaultTableCellRenderer cutoffLeftRenderer = new CutoffLeftRenderer();
 
+    //get "previous" value of cell being edited
+    playlistTable.addPropertyChangeListener(new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+          Object ob = evt.getNewValue();
+          if (evt.getPropertyName().equals("tableCellEditor") && ob != null)  {
+            if (ob instanceof DefaultCellEditor) {
+              editValue = ((JTextField)((DefaultCellEditor)ob).getComponent()).getText();
+            }
+          }
+        }
+      }
+    );
+
     // center table headers
     JTableHeader header = playlistTable.getTableHeader();
     header.setDefaultRenderer(new HeaderRenderer(playlistTable));
@@ -291,6 +277,10 @@ public class QueueWindow {
     numberInQueueCol.setPreferredWidth(50);
     numberInQueueCol.setCellRenderer(centerRenderer);
     folderPathCol.setCellRenderer(cutoffLeftRenderer);
+    folderPathCol.setMinWidth(85);
+    folderPathCol.setPreferredWidth(250);
+    replayNameCol.setMinWidth(100);
+    replayNameCol.setPreferredWidth(250);
     replayLengthCol.setMinWidth(60);
     replayLengthCol.setMaxWidth(150);
     replayLengthCol.setPreferredWidth(60);
@@ -343,13 +333,17 @@ public class QueueWindow {
 
     navigationPanel.add(Box.createHorizontalGlue());
 
-    addButton("Clear Sort", navigationPanel, Component.LEFT_ALIGNMENT)
+    addButton("Rename", navigationPanel, Component.LEFT_ALIGNMENT)
             .addActionListener(
                     new ActionListener() {
                       @Override
                       public void actionPerformed(ActionEvent e) {
-                        reorderIsPointless = true;
-                        clearSort();
+                        editingEnabled = !editingEnabled;
+                        if (editingEnabled) {
+                          Logger.Info("@|green Toggled On:|@ Replays can now be renamed by double clicking the \"Replay Name\" column or by single clicking that column and pressing F2.");
+                        } else {
+                          Logger.Info("@|green Toggled Off:|@ You can now double click anywhere in each row to switch to that replay");
+                        }
                       }
                     });
 
@@ -471,7 +465,8 @@ public class QueueWindow {
     playlistTable.addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent mouseEvent) {
         int row = playlistTable.rowAtPoint(mouseEvent.getPoint());
-        if (mouseEvent.getClickCount() == 2 && playlistTable.getSelectedRow() != -1) {
+        int column = playlistTable.columnAtPoint(mouseEvent.getPoint());
+        if (mouseEvent.getClickCount() == 2 && playlistTable.getSelectedRow() != -1 && !playlistTable.isCellEditable(row, column)) {
           ReplayQueue.skipToReplay(playlistTable.getRowSorter().convertRowIndexToModel(row));
         }
       }
@@ -516,8 +511,54 @@ public class QueueWindow {
       }
     });
 
-    // detect when rows are sorted
-    addTheRowSorterListener();
+    // add functionality to go back to unsorted mode by clicking three times on the header
+    playlistTable.setRowSorter(new TableRowSorter(model));
+
+    // Add MouseListener for onClick event
+    playlistTable.getTableHeader().addMouseListener(new MouseAdapter() {
+      private SortOrder currentOrder = SortOrder.UNSORTED;
+      private int lastCol = -1;
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        int column = playlistTable.getTableHeader().columnAtPoint(e.getPoint());
+        RowSorter sorter = playlistTable.getRowSorter();
+
+        if (column != lastCol) {
+          currentOrder = SortOrder.UNSORTED;
+          lastCol = column;
+        }
+
+        for (RowSorter.SortKey sortKey : playlistTable.getRowSorter().getSortKeys()) {
+          if (sortKey.getColumn() != column) {
+            currentOrder = SortOrder.UNSORTED;
+          }
+          break;
+        }
+        if (reorderIsPointless) {
+          currentOrder = SortOrder.UNSORTED;
+        }
+
+        List sortKeys = new ArrayList();
+        if (e.getButton() == MouseEvent.BUTTON1) {
+          switch (currentOrder) {
+            case UNSORTED:
+              reorderIsPointless = false;
+              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.ASCENDING));
+              break;
+            case ASCENDING:
+              reorderIsPointless = false;
+              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.DESCENDING));
+              break;
+            case DESCENDING:
+              reorderIsPointless = true;
+              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.UNSORTED));
+              break;
+          }
+          sorter.setSortKeys(sortKeys);
+        }
+      }
+    });
 
     /*
     presetsScrollPane.setViewportView(presetsPanel);
@@ -620,8 +661,50 @@ public class QueueWindow {
     }
 
     @Override
-    public boolean isCellEditable(int i, int i1) {
+    public boolean isCellEditable(int row, int col) {
+      if (col == 3 && editingEnabled) { //Replay Name Column
+        return true;
+      }
       return false;
+    }
+
+    @Override
+    public void fireTableCellUpdated(int row, int col) {
+      //if (col == 3) { //need to uncomment this if isCellEditable is made true for any other column
+      Object[] rowContents = getRow(row);
+      String afterEditValue = (String) rowContents[3];
+
+      //rename folder
+      if (afterEditValue.indexOf('/') == -1) {
+        if (!editValue.equals(afterEditValue) && !editValue.equals("@:/@")) {
+          File renamedFile = new File(ReplayQueue.queue.get(row).getParent(), afterEditValue);
+          Logger.Debug("We'd like to rename to: " + renamedFile.getAbsolutePath());
+          if (!ReplayQueue.queue.get(row).renameTo(renamedFile)) {
+            Logger.Warn("@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
+            if (System.getProperty("os.name").contains("Windows")) {
+              if (afterEditValue.matches(".*[?%*:|\"<>]")) {
+                Logger.Warn(String.format("@|yellow You're on Windows and you tried to use a restricted character in your desired filename: |@@|red %s|@", afterEditValue));
+              } else {
+                Logger.Warn("@|yellow Probably this is because you're |@@|red using Windows |@@|yellow and Windows locks the replay files while they are in use. There are workarounds, but my advice is to |@@|green use Debian!|@");
+                Logger.Warn("@|yellow You can also try just advancing to the next replay, in order to name the replay you're currently watching, if you would like to stop watching this replay at this time.|@");
+              }
+            }
+            copyQueueToTable();
+          } else {
+            //Instances of the File class are immutable, so after calling renameTo, we must update the pathname to the new one
+            ReplayQueue.queue.set(row, renamedFile);
+            Logger.Info(String.format("Renamed @|green %s|@ to @|cyan %s|@", editValue, afterEditValue));
+          }
+        }
+      } else {
+        Logger.Warn(String.format("@|yellow RSC+ is not programmed to rename folders into subdirectories. Your offending filename: |@@|red %s|@",afterEditValue));
+        copyQueueToTable();
+      }
+      editValue = "@:/@";
+
+      //}
+
+      super.fireTableCellUpdated(row, col);
     }
 
     /*
@@ -866,15 +949,6 @@ public class QueueWindow {
     playlistTable.setAutoCreateRowSorter(false);
     playlistTable.setAutoCreateRowSorter(true);
     playlistTable.getTableHeader().repaint();
-    addTheRowSorterListener();
   }
 
-  private static void addTheRowSorterListener() {
-    playlistTable.getRowSorter().addRowSorterListener(new RowSorterListener() {
-      @Override
-      public void sorterChanged(RowSorterEvent rowSorterEvent) {
-        reorderIsPointless = false;
-      }
-    });
-  }
 }
