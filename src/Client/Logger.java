@@ -34,13 +34,15 @@ public class Logger {
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
 
+
   public enum Type {
     ERROR(0, "error", true, true),
     WARN(1, "warn", true, true),
     GAME(2, "game", true, true),
     CHAT(GAME.id, "chat", false, false),
     INFO(3, "info", true, true),
-    DEBUG(4, "debug", true, true);
+    DEBUG(4, "debug", true, true),
+    OPCODE(5, "opcode", true, true);
 
     Type(int id, String name, boolean showLevel, boolean showTimestamp) {
       this.id = id;
@@ -151,5 +153,29 @@ public class Logger {
 
   public static void Debug(String message) {
     Log(Type.DEBUG, message);
+  }
+
+  public static void Opcode(int timestamp, String type, int opcode, byte[] data) {
+
+    String data_length;
+    char[] hexChars;
+    // convert data to hex string
+    if (data != null) {
+      final char[] hexArray = "0123456789ABCDEF".toCharArray();
+      hexChars = new char[data.length * 3];
+      for (int j = 0; j < data.length; j++) {
+        int v = data[j] & 0xFF;
+        hexChars[j * 3] = hexArray[v >>> 4];
+        hexChars[j * 3 + 1] = hexArray[v & 0x0F];
+        hexChars[j * 3 + 2] = ' ';
+      }
+
+      data_length = String.format("%d byte%s",data.length,data.length != 1 ? "s" : "");
+    } else {
+      data_length = "0";
+      hexChars = new char[20];
+    }
+
+    Log(Type.OPCODE, String.format("[@|red %d|@] %s_OP: @|red %d|@ data_len: @|red %s|@ data: ", timestamp, type, opcode, data_length) + new String(hexChars));
   }
 }
