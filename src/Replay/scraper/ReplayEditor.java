@@ -108,8 +108,12 @@ public class ReplayEditor {
         File metadataFile = new File(fname + "/metadata.bin");
 
         // If none of the required files exist, we can't continue
-        if (!keysFile.exists() || !versionFile.exists() || !inFile.exists() || !outFile.exists())
+        if (!keysFile.exists() || !versionFile.exists() || !inFile.exists())
             return false;
+
+        if (!outFile.exists()) {
+          Client.Logger.Warn("@|red WARNING: out.bin.gz is missing! Will not be able to parse it!|@");
+        }
 
         // Files can't be smaller than a certain size
         if (keysFile.length() < 16 || versionFile.length() < 8)
@@ -167,18 +171,20 @@ public class ReplayEditor {
             e.printStackTrace();
         }
 
-        try {
-            // Import outgoing packets
-            ReplayReader outgoingReader = new ReplayReader();
-            boolean success = outgoingReader.open(outFile, m_replayVersion, m_replayMetadata, m_keys, m_outMetadata, m_metadata, m_outChecksum, true);
-            if (!success)
-                return false;
-            while ((replayPacket = outgoingReader.readPacket(false)) != null) {
-                m_outgoingPackets.add(replayPacket);
+        if (outFile.exists()) {
+            try {
+                // Import outgoing packets
+                ReplayReader outgoingReader = new ReplayReader();
+                boolean success = outgoingReader.open(outFile, m_replayVersion, m_replayMetadata, m_keys, m_outMetadata, m_metadata, m_outChecksum, true);
+                if (!success)
+                    return false;
+                while ((replayPacket = outgoingReader.readPacket(false)) != null) {
+                    m_outgoingPackets.add(replayPacket);
+                }
+                //FileUtil.writeFull("output/out.raw", outgoingReader.getData());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            //FileUtil.writeFull("output/out.raw", outgoingReader.getData());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         // Skew disconnect timestamps

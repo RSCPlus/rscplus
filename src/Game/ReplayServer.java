@@ -135,8 +135,7 @@ public class ReplayServer implements Runnable {
         boolean success = editor.importData(playbackDirectory);
 
         if (!success) {
-          Logger.Warn("Replay is not valid, skipping");
-          return;
+          Logger.Warn("@|red Can't parse this as complete replay!|@");
         }
 
         Logger.Debug("client version: " + editor.getReplayVersion().clientVersion);
@@ -153,7 +152,8 @@ public class ReplayServer implements Runnable {
         incomingPacketsSizeCache = incomingPackets.size();
         outgoingPacketsSizeCache = outgoingPackets.size();
         nextIncomingPacket = incomingPackets.getFirst();
-        nextOutgoingPacket = outgoingPackets.getFirst();
+        if (outgoingPacketsSizeCache > 0)
+          nextOutgoingPacket = outgoingPackets.getFirst();
       }
 
       // Start the server
