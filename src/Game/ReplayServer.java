@@ -197,6 +197,11 @@ public class ReplayServer implements Runnable {
           client_read = 0;
           client_write = 0;
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
+          incomingPacketsIndex = 0;
+          outgoingPacketsIndex = 0;
+          nextIncomingPacket = incomingPackets.getFirst();
+          if (outgoingPacketsSizeCache > 0)
+            nextOutgoingPacket = outgoingPackets.getFirst();
           restart = false;
           Replay.isRestarting = false;
         }
