@@ -18,6 +18,8 @@
  */
 package Client;
 
+import static Replay.game.constants.Game.incomingOpcodeMap;
+import static Replay.game.constants.Game.outgoingOpcodeMap;
 import static org.fusesource.jansi.Ansi.ansi;
 
 import java.io.File;
@@ -175,7 +177,16 @@ public class Logger {
       data_length = "0";
       hexChars = new char[20];
     }
-
-    Log(Type.OPCODE, String.format("[@|red %d|@] %s_OP: @|red %d|@ data_len: @|red %s|@ data: ", timestamp, type, opcode, data_length) + new String(hexChars));
+    if (type.equals(" IN")) {
+      if (true) { //opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user to filter them... possibly a way to filter arbitrary opcodes
+        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      }
+    } else if (type.equals("OUT")) {
+      if (true) { //opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
+        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      }
+    } else {
+      Log(Type.ERROR,"It's gotta be either \" IN\" or \"OUT\", man");
+    }
   }
 }

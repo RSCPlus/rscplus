@@ -96,6 +96,7 @@ public class Client {
       6; // only used when another player sends you a trade request. (hopefully!)
   public static final int CHAT_OTHER =
       7; // used for when you send a player a duel/trade request, follow someone, or drop an item
+
   public static final int CHAT_INCOMING_OPTION = 8;
   public static final int CHAT_CHOSEN_OPTION = 9;
   public static final int CHAT_WINDOWED_MSG = 10;
