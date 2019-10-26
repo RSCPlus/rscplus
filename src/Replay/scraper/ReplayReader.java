@@ -247,7 +247,7 @@ public class ReplayReader {
         if (packet == null || packet.opcode != PacketBuilder.OPCODE_PRIVACY_SETTINGS)
             success = false;
         packet = readPacket(true);
-        if (packet == null || (packet.opcode != PacketBuilder.OPCODE_SEND_MESSAGE && packet.opcode != PacketBuilder.OPCODE_SET_APPEARANCE))
+        if (packet == null || (packet.opcode != PacketBuilder.OPCODE_SEND_MESSAGE && packet.opcode != PacketBuilder.OPCODE_SHOW_APPEARANCE_CHANGE))
             success = false;
         m_position = originalPosition;
         isaac.reset();
