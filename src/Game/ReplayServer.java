@@ -250,8 +250,8 @@ public class ReplayServer implements Runnable {
 
       if (outgoingPacketsSizeCache > 0) {
         while (nextOutgoingPacket.timestamp <= timestamp_input) {
-          Logger.Opcode(nextOutgoingPacket.timestamp, "OUT", nextOutgoingPacket.opcode, nextOutgoingPacket.data);
-          if (outgoingPacketsIndex != outgoingPacketsSizeCache) {
+          if (outgoingPacketsIndex < outgoingPacketsSizeCache - 1) {
+            Logger.Opcode(nextOutgoingPacket.timestamp, "OUT", nextOutgoingPacket.opcode, nextOutgoingPacket.data);
             nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
           } else {
             break;
@@ -260,8 +260,8 @@ public class ReplayServer implements Runnable {
       }
       if (incomingPacketsSizeCache > 0) {
         while (nextIncomingPacket.timestamp <= timestamp_input) {
-          Logger.Opcode(nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
-          if (incomingPacketsIndex != incomingPacketsSizeCache) {
+          if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
+            Logger.Opcode(nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
             nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
           } else {
             break;
