@@ -568,7 +568,7 @@ public class ConfigWindow {
 
     JPanel generalPanelLogVerbosityPanel = new JPanel();
     generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(300, 128));
+    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(350, 128));
     generalPanelLogVerbosityPanel.setLayout(
         new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
     generalPanel.add(generalPanelLogVerbosityPanel);
@@ -584,8 +584,9 @@ public class ConfigWindow {
     generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
     generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
     generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Information"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Info"));
     generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(5), new JLabel("Opcode"));
 
     generalPanelLogVerbositySlider = new JSlider();
     generalPanelLogVerbositySlider.setMajorTickSpacing(1);
@@ -594,7 +595,7 @@ public class ConfigWindow {
     generalPanelLogVerbositySlider.setPaintTicks(true);
     generalPanelLogVerbositySlider.setSnapToTicks(true);
     generalPanelLogVerbositySlider.setMinimum(0);
-    generalPanelLogVerbositySlider.setMaximum(4);
+    generalPanelLogVerbositySlider.setMaximum(5);
     generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
     generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));

@@ -18,6 +18,8 @@
  */
 package Client;
 
+import static Replay.game.constants.Game.incomingOpcodeMap;
+import static Replay.game.constants.Game.outgoingOpcodeMap;
 import static org.fusesource.jansi.Ansi.ansi;
 
 import java.io.File;
@@ -34,13 +36,15 @@ public class Logger {
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
 
+
   public enum Type {
     ERROR(0, "error", true, true),
     WARN(1, "warn", true, true),
     GAME(2, "game", true, true),
     CHAT(GAME.id, "chat", false, false),
     INFO(3, "info", true, true),
-    DEBUG(4, "debug", true, true);
+    DEBUG(4, "debug", true, true),
+    OPCODE(5, "opcode", true, true);
 
     Type(int id, String name, boolean showLevel, boolean showTimestamp) {
       this.id = id;
@@ -151,5 +155,38 @@ public class Logger {
 
   public static void Debug(String message) {
     Log(Type.DEBUG, message);
+  }
+
+  public static void Opcode(int timestamp, String type, int opcode, byte[] data) {
+
+    String data_length;
+    char[] hexChars;
+    // convert data to hex string
+    if (data != null) {
+      final char[] hexArray = "0123456789ABCDEF".toCharArray();
+      hexChars = new char[data.length * 3];
+      for (int j = 0; j < data.length; j++) {
+        int v = data[j] & 0xFF;
+        hexChars[j * 3] = hexArray[v >>> 4];
+        hexChars[j * 3 + 1] = hexArray[v & 0x0F];
+        hexChars[j * 3 + 2] = ' ';
+      }
+
+      data_length = String.format("%d byte%s",data.length,data.length != 1 ? "s" : "");
+    } else {
+      data_length = "0";
+      hexChars = new char[20];
+    }
+    if (type.equals(" IN")) {
+      if (true) { //opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user to filter them... possibly a way to filter arbitrary opcodes
+        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      }
+    } else if (type.equals("OUT")) {
+      if (true) { //opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
+        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      }
+    } else {
+      Log(Type.ERROR,"It's gotta be either \" IN\" or \"OUT\", man");
+    }
   }
 }
