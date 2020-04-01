@@ -53,6 +53,7 @@ public class JConfig {
   private Map<String, String> m_data = new HashMap<>();
 
   public void create(int world) {
+    Logger.Info("Jconfig.create ->");
     if (world > 5) world = 5;
     else if (world < 1) world = 1;
 

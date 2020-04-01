@@ -220,6 +220,9 @@ public class ConfigWindow {
   private JCheckBox replayPanelTriggerAlertsReplayCheckbox;
   private JTextField replayPanelDateFormatTextField;
   private JTextField replayPanelReplayFolderBasePathTextField;
+  private JCheckBox replayPanelShowWorldColumnCheckbox;
+  private JCheckBox replayPanelShowConversionSettingsCheckbox;
+  private JCheckBox replayPanelShowUserFieldCheckbox;
 
   //// Presets tab
   private JCheckBox presetsPanelCustomSettingsCheckbox;
@@ -1527,6 +1530,20 @@ public class ConfigWindow {
     replayPanelDateFormatTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     replayPanelDateFormatTextField.setAlignmentY((float) 0.75);
 
+
+    replayPanelShowWorldColumnCheckbox =
+        addCheckbox("Show \"World\" Column", replayPanel);
+    replayPanelShowWorldColumnCheckbox.setToolTipText(
+        "Displays \"Friendly Name\" for IPs that RSC+ recognizes, and just the IP address otherwise.");
+    replayPanelShowConversionSettingsCheckbox =
+        addCheckbox("Show RSCMinus \"Conversion Settings\" Column (Chat Stripping, etc)", replayPanel);
+    replayPanelShowConversionSettingsCheckbox.setToolTipText(
+        "Chat Stripping, Private Chat Stripping, Whether or not it has been converted, etc.");
+    replayPanelShowUserFieldCheckbox =
+        addCheckbox("Show \"User Field\" Column (Most likely unused)", replayPanel);
+    replayPanelShowUserFieldCheckbox.setToolTipText(
+        "This int field when introduced did absolutely nothing and acts as \"Reserved Bits\" for the metadata.bin format. Users may feel free to use it for whatever they can think of.");
+
     /*
      * Presets tab
      */
@@ -2064,6 +2081,12 @@ public class ConfigWindow {
         Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile));
     replayPanelDateFormatTextField.setText(Settings.PREFERRED_DATE_FORMAT.get("custom"));
     replayPanelReplayFolderBasePathTextField.setText(Settings.REPLAY_BASE_PATH.get("custom"));
+    replayPanelShowWorldColumnCheckbox.setSelected(
+        Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile));
+    replayPanelShowConversionSettingsCheckbox.setSelected(
+        Settings.SHOW_CONVERSION_COLUMN.get(Settings.currentProfile));
+    replayPanelShowUserFieldCheckbox.setSelected(
+        Settings.SHOW_USERFIELD_COLUMN.get(Settings.currentProfile));
 
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
@@ -2248,6 +2271,12 @@ public class ConfigWindow {
         Settings.currentProfile, replayPanelReplayFolderBasePathTextField.getText());
     Settings.PREFERRED_DATE_FORMAT.put(
         Settings.currentProfile, replayPanelDateFormatTextField.getText());
+    Settings.SHOW_WORLD_COLUMN.put(
+        Settings.currentProfile, replayPanelShowWorldColumnCheckbox.isSelected());
+    Settings.SHOW_CONVERSION_COLUMN.put(
+        Settings.currentProfile, replayPanelShowConversionSettingsCheckbox.isSelected());
+    Settings.SHOW_USERFIELD_COLUMN.put(
+        Settings.currentProfile, replayPanelShowUserFieldCheckbox.isSelected());
 
     // Presets
     if (presetsPanelCustomSettingsCheckbox.isSelected()) {
@@ -2305,6 +2334,7 @@ public class ConfigWindow {
     Settings.checkSoftwareCursor();
     Camera.setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     synchronizeGuiValues();
+    QueueWindow.syncColumnsWithSettings();
     QueueWindow.playlistTable.repaint();
   }
 
