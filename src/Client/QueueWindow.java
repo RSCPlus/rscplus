@@ -71,6 +71,9 @@ public class QueueWindow {
   static private String editValue = "@:/@";
   static private boolean editingEnabled = false;
   static private boolean reorderIsPointless = true; //helper bool to stop copyTableToQueue if nothing in table has changed
+  static TableColumn serverCol;
+  static TableColumn converterSettingsCol;
+  static TableColumn userFieldCol;
 
   public QueueWindow() {
     try {
@@ -196,6 +199,9 @@ public class QueueWindow {
     TableColumn replayNameCol = playlistTable.getColumnModel().getColumn(3);
     TableColumn replayLengthCol = playlistTable.getColumnModel().getColumn(4);
     TableColumn dateModifiedCol = playlistTable.getColumnModel().getColumn(5);
+    serverCol = playlistTable.getColumnModel().getColumn(6);
+    converterSettingsCol = playlistTable.getColumnModel().getColumn(7);
+    userFieldCol = playlistTable.getColumnModel().getColumn(8);
     DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -229,21 +235,7 @@ public class QueueWindow {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         setHorizontalAlignment(JLabel.CENTER);
 
-        int total_centiseconds = (int)value*2; //50fps * 2; converts to hundreths of a second
-        int leftover_centiseconds = total_centiseconds % 100;
-        int total_seconds = (total_centiseconds - leftover_centiseconds) / 100;
-        int leftover_seconds = total_seconds % 60;
-        int total_minutes = (total_seconds - leftover_seconds) / 60;
-        int leftover_minutes = total_minutes % 60;
-        int total_hours = (total_minutes - leftover_minutes) / 60;
-
-        if (total_hours > 0) {
-          this.setText(String.format("%d:%02d:%02d", total_hours, leftover_minutes, leftover_seconds));
-        } else if (leftover_minutes > 0) {
-          this.setText(String.format("%d:%02d", leftover_minutes, leftover_seconds));
-        } else {
-          this.setText(String.format("%d.%02d", leftover_seconds, leftover_centiseconds));
-        }
+        this.setText(Util.formatTimeLongShort((int)value));
 
         return this;
       }
@@ -281,7 +273,7 @@ public class QueueWindow {
     folderPathCol.setPreferredWidth(250);
     replayNameCol.setMinWidth(100);
     replayNameCol.setPreferredWidth(250);
-    replayLengthCol.setMinWidth(60);
+    replayLengthCol.setMinWidth(67);
     replayLengthCol.setMaxWidth(150);
     replayLengthCol.setPreferredWidth(60);
     replayLengthCol.setCellRenderer(timesliceRenderer);
@@ -289,6 +281,25 @@ public class QueueWindow {
     dateModifiedCol.setMaxWidth(250);
     dateModifiedCol.setPreferredWidth(140);
     dateModifiedCol.setCellRenderer(dateRenderer);
+
+    serverCol.setMinWidth(60);
+    serverCol.setMaxWidth(200);
+    serverCol.setCellRenderer(centerRenderer);
+
+    converterSettingsCol.setMinWidth(40);
+    converterSettingsCol.setMaxWidth(200);
+    converterSettingsCol.setCellRenderer(centerRenderer);
+
+    userFieldCol.setMinWidth(40);
+    userFieldCol.setMaxWidth(200);
+    userFieldCol.setCellRenderer(centerRenderer);
+
+    if (!Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile))
+      playlistTable.removeColumn(serverCol);
+    if (!Settings.SHOW_CONVERSION_COLUMN.get(Settings.currentProfile))
+      playlistTable.removeColumn(converterSettingsCol);
+    if (!Settings.SHOW_USERFIELD_COLUMN.get(Settings.currentProfile))
+      playlistTable.removeColumn(userFieldCol);
 
     copyQueueToTable();
 
@@ -498,10 +509,12 @@ public class QueueWindow {
           }
           Arrays.sort(selectedRowsConverted);
         }
+
         for (int i = selectedRowsConverted.length - 1; i >= 0; i--) {
-          ReplayQueue.removeReplay((int)(model.getRow(selectedRowsConverted[i])[1]) - 1);
+          ReplayQueue.removeReplay((int)model.getValueAt(selectedRowsConverted[i], 1) - 1);
           model.removeRow(selectedRowsConverted[i]);
         }
+
         if (selectedRows.length > 0) {
           // update second column
           for (int i = 0; i < model.getRowCount(); i++) {
@@ -579,6 +592,59 @@ public class QueueWindow {
     scrollPane.getHorizontalScrollBar().setUnitIncrement(horizontalInc);
   }
 
+  public static void syncColumnsWithSettings() {
+    int serverColView = playlistTable.convertColumnIndexToView(6);
+    int conversionColView = playlistTable.convertColumnIndexToView(7);
+    int userFieldColView = playlistTable.convertColumnIndexToView(8);
+
+    if (Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile)) {
+      if (serverColView == -1) {
+        // Must remove columns ahead, because addColumn only supports adding to the end without destroying existing TableColumn
+        if (conversionColView != -1) {
+          playlistTable.removeColumn(converterSettingsCol);
+        }
+        if (userFieldColView != -1) {
+          playlistTable.removeColumn(userFieldCol);
+        }
+
+        // add column
+        playlistTable.addColumn(serverCol);
+
+        // add back columns removed
+        if (conversionColView != -1) {
+          playlistTable.addColumn(converterSettingsCol);
+        }
+        if (userFieldColView != -1) {
+          playlistTable.addColumn(userFieldCol);
+        }
+      }
+    } else {
+      playlistTable.removeColumn(serverCol);
+    }
+
+    if (Settings.SHOW_CONVERSION_COLUMN.get(Settings.currentProfile)) {
+      if (playlistTable.convertColumnIndexToView(7) == -1) {
+        if (userFieldColView != -1) {
+          playlistTable.removeColumn(userFieldCol);
+        }
+        playlistTable.addColumn(converterSettingsCol);
+        if (userFieldColView != -1) {
+          playlistTable.addColumn(userFieldCol);
+        }
+      }
+    } else {
+      playlistTable.removeColumn(converterSettingsCol);
+    }
+
+    if (Settings.SHOW_USERFIELD_COLUMN.get(Settings.currentProfile)) {
+      if (playlistTable.convertColumnIndexToView(8) == -1) {
+        playlistTable.addColumn(userFieldCol);
+      }
+    } else {
+      playlistTable.removeColumn(userFieldCol);
+    }
+  }
+
   public static void copyQueueToTable() {
     Logger.Debug("copyQueueToTable called");
     model.getDataVector().removeAllElements();
@@ -592,7 +658,10 @@ public class QueueWindow {
               new File(replayFolder).getParent(),
               ReplayQueue.queue.get(i).getName(),
               new Integer((int)metadata[0]),
-              new Date((long)metadata[1])
+              new Date((long)metadata[1]),
+              metadata[2],
+              new Integer((byte)metadata[3]),
+              new Integer((int)metadata[4])
       });
     }
     updateReplayCountLabel();
@@ -611,7 +680,7 @@ public class QueueWindow {
     ReplayQueue.clearQueue();
     for (int i = 0; i < size; i++) {
       int row = playlistTable.getRowSorter().convertRowIndexToModel(i);
-      ReplayQueue.queue.add(new File((String)model.getRow(row)[2],(String)model.getRow(row)[3]));
+      ReplayQueue.queue.add(new File((String)model.getValueAt(row, 2),(String)model.getValueAt(row, 3)));
     }
 
     // display newly reordered data in table
@@ -648,11 +717,15 @@ public class QueueWindow {
 
     // Handle Columns
     private String[] columnNames = {"▶", //is the currently selected replay or not
-                                    "#", //position the replay is in the replay queue
-                                    "Folder Path", //folder containing replay folder
-                                    "Replay Name", //replay folder name
-                                    "Length", //how long the replay plays for
-                                    "Date Modified"}; //date modified of keys.bin
+            "#", //position the replay is in the replay queue
+            "Folder Path", //folder containing replay folder
+            "Replay Name", //replay folder name
+            "Length", //how long the replay plays for
+            "Date Modified", //date modified of keys.bin
+            "World",
+            "Conversion Settings",
+            "User Field"};
+
     public int getColumnCount() {
       return columnNames.length;
     }
@@ -670,39 +743,37 @@ public class QueueWindow {
 
     @Override
     public void fireTableCellUpdated(int row, int col) {
-      //if (col == 3) { //need to uncomment this if isCellEditable is made true for any other column
-      Object[] rowContents = getRow(row);
-      String afterEditValue = (String) rowContents[3];
+      if (col == 3) {
+        String afterEditValue = (String) model.getValueAt(row, col);
 
-      //rename folder
-      if (afterEditValue.indexOf('/') == -1) {
-        if (!editValue.equals(afterEditValue) && !editValue.equals("@:/@")) {
-          File renamedFile = new File(ReplayQueue.queue.get(row).getParent(), afterEditValue);
-          Logger.Debug("We'd like to rename to: " + renamedFile.getAbsolutePath());
-          if (!ReplayQueue.queue.get(row).renameTo(renamedFile)) {
-            Logger.Warn("@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
-            if (System.getProperty("os.name").contains("Windows")) {
-              if (afterEditValue.matches(".*[?%*:|\"<>]")) {
-                Logger.Warn(String.format("@|yellow You're on Windows and you tried to use a restricted character in your desired filename: |@@|red %s|@", afterEditValue));
-              } else {
-                Logger.Warn("@|yellow Probably this is because you're |@@|red using Windows |@@|yellow and Windows locks the replay files while they are in use. There are workarounds, but my advice is to |@@|green use Debian!|@");
-                Logger.Warn("@|yellow You can also try just advancing to the next replay, in order to name the replay you're currently watching, if you would like to stop watching this replay at this time.|@");
+        //rename folder
+        if (afterEditValue.indexOf('/') == -1) {
+          if (!editValue.equals(afterEditValue) && !editValue.equals("@:/@")) {
+            File renamedFile = new File(ReplayQueue.queue.get(row).getParent(), afterEditValue);
+            Logger.Debug("We'd like to rename to: " + renamedFile.getAbsolutePath());
+            if (!ReplayQueue.queue.get(row).renameTo(renamedFile)) {
+              Logger.Warn("@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
+              if (System.getProperty("os.name").contains("Windows")) {
+                if (afterEditValue.matches(".*[?%*:|\"<>]")) {
+                  Logger.Warn(String.format("@|yellow You're on Windows and you tried to use a restricted character in your desired filename: |@@|red %s|@", afterEditValue));
+                } else {
+                  Logger.Warn("@|yellow Probably this is because you're |@@|red using Windows |@@|yellow and Windows locks the replay files while they are in use. There are workarounds, but my advice is to |@@|green use Debian!|@");
+                  Logger.Warn("@|yellow You can also try just advancing to the next replay, in order to name the replay you're currently watching, if you would like to stop watching this replay at this time.|@");
+                }
               }
+              copyQueueToTable();
+            } else {
+              //Instances of the File class are immutable, so after calling renameTo, we must update the pathname to the new one
+              ReplayQueue.queue.set(row, renamedFile);
+              Logger.Info(String.format("Renamed @|green %s|@ to @|cyan %s|@", editValue, afterEditValue));
             }
-            copyQueueToTable();
-          } else {
-            //Instances of the File class are immutable, so after calling renameTo, we must update the pathname to the new one
-            ReplayQueue.queue.set(row, renamedFile);
-            Logger.Info(String.format("Renamed @|green %s|@ to @|cyan %s|@", editValue, afterEditValue));
           }
+        } else {
+          Logger.Warn(String.format("@|yellow RSC+ is not programmed to rename folders into subdirectories. Your offending filename: |@@|red %s|@",afterEditValue));
+          copyQueueToTable();
         }
-      } else {
-        Logger.Warn(String.format("@|yellow RSC+ is not programmed to rename folders into subdirectories. Your offending filename: |@@|red %s|@",afterEditValue));
-        copyQueueToTable();
+        editValue = "@:/@";
       }
-      editValue = "@:/@";
-
-      //}
 
       super.fireTableCellUpdated(row, col);
     }
@@ -726,7 +797,7 @@ public class QueueWindow {
     // Handle Rows
     public void addRow(Object[] rowData) {
       Vector<Object> rowVector = new Vector<>();
-      for (int i=0; i <= 5; i++) {
+      for (int i=0; i < getColumnCount(); i++) {
         rowVector.add(rowData[i]);
       }
       super.addRow(rowVector);
@@ -734,22 +805,28 @@ public class QueueWindow {
 
     public void insertRow(int i, Object[] rowData) {
       Vector<Object> rowVector = new Vector<>();
-      for (int j=0; j <= 5; j++)
+      for (int j=0; j < getColumnCount(); j++)
         rowVector.add(rowData[j]);
       super.insertRow(i, rowVector);
     }
 
     public Object[] getRow(int i) {
-      if (getRowCount() >= i) {
-        return new Object[]{getValueAt(i, 0), getValueAt(i, 1), getValueAt(i, 2), getValueAt(i, 3), getValueAt(i, 4), getValueAt(i, 5)};
+      Object[] thisRow = new Object[getRowCount()];
+
+      for (int j=0; j < getColumnCount(); j++) {
+        if (getRowCount() >= i) {
+          thisRow[i] = getValueAt(i, j);
+        } else {
+          thisRow[i] = "";
+        }
       }
-      return new Object[] {"","","","","",""};
+      return thisRow;
     }
 
     // required for columns to not always sort as string (30 < 4)
     public Class getColumnClass(int c) {
       // specify each column manually b/c when table is empty, it dies
-      if (c == 1 || c == 4) {
+      if (c == 1 || c == 4 || c == 7 || c == 8) {
         return Integer.class;
       } else if (c == 5) {
         return Date.class;
@@ -943,6 +1020,23 @@ public class QueueWindow {
 
   private static void updateReplayCountLabel() {
     replayCountLabel.setText(String.format("<html><body>%d replays<br>%d selected</body></html>", ReplayQueue.queue.size(), playlistTable.getSelectedRowCount()));
+    if (Settings.DEBUG.get(Settings.currentProfile)) {
+      updateSelectedLengthLabel();
+    }
+  }
+
+  private static void updateSelectedLengthLabel() {
+    int[] selectedRows = playlistTable.getSelectedRows();
+    int timeSum = 0;
+    for (int i=0; i < selectedRows.length; i++) {
+      if (selectedRows[i] < playlistTable.getRowCount() && selectedRows[i] >= 0)
+        try {
+          timeSum += (int) playlistTable.getValueAt(selectedRows[i], 4);
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+    }
+    Logger.Info(String.format("Total Selected Time: %s", Util.formatTimeLongShort(timeSum)));
   }
 
   private static void clearSort() {
