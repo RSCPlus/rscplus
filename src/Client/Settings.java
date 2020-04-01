@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20191026.021134;
+  public static final double VERSION_NUMBER = 20200401.061900;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -167,6 +167,9 @@ public class Settings {
   public static HashMap<String, Boolean> TRIGGER_ALERTS_REPLAY = new HashMap<String, Boolean>();
   public static HashMap<String, String> REPLAY_BASE_PATH = new HashMap<String, String>();
   public static HashMap<String, String> PREFERRED_DATE_FORMAT = new HashMap<String, String>();
+  public static HashMap<String, Boolean> SHOW_WORLD_COLUMN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_CONVERSION_COLUMN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_USERFIELD_COLUMN = new HashMap<String, Boolean>();
 
   //// nogui
   public static HashMap<String, Integer> COMBAT_STYLE = new HashMap<String, Integer>();
@@ -1014,6 +1017,36 @@ public class Settings {
         "custom",
         getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));
 
+    SHOW_WORLD_COLUMN.put("vanilla", false);
+    SHOW_WORLD_COLUMN.put("vanilla_resizable", false);
+    SHOW_WORLD_COLUMN.put("lite", false);
+    SHOW_WORLD_COLUMN.put("default", true);
+    SHOW_WORLD_COLUMN.put("heavy", true);
+    SHOW_WORLD_COLUMN.put("all", true);
+    SHOW_WORLD_COLUMN.put(
+        "custom",
+        getPropBoolean(props, "show_world_column", SHOW_WORLD_COLUMN.get("default")));
+
+    SHOW_CONVERSION_COLUMN.put("vanilla", false);
+    SHOW_CONVERSION_COLUMN.put("vanilla_resizable", false);
+    SHOW_CONVERSION_COLUMN.put("lite", false);
+    SHOW_CONVERSION_COLUMN.put("default", false);
+    SHOW_CONVERSION_COLUMN.put("heavy", true);
+    SHOW_CONVERSION_COLUMN.put("all", true);
+    SHOW_CONVERSION_COLUMN.put(
+        "custom",
+        getPropBoolean(props, "show_conversion_column", SHOW_CONVERSION_COLUMN.get("default")));
+
+    SHOW_USERFIELD_COLUMN.put("vanilla", false);
+    SHOW_USERFIELD_COLUMN.put("vanilla_resizable", false);
+    SHOW_USERFIELD_COLUMN.put("lite", false);
+    SHOW_USERFIELD_COLUMN.put("default", false);
+    SHOW_USERFIELD_COLUMN.put("heavy", false);
+    SHOW_USERFIELD_COLUMN.put("all", true);
+    SHOW_USERFIELD_COLUMN.put(
+        "custom",
+        getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
+
     //// nogui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
@@ -1334,6 +1367,12 @@ public class Settings {
           "trigger_alerts_replay", Boolean.toString(TRIGGER_ALERTS_REPLAY.get(preset)));
       props.setProperty("replay_base_path", REPLAY_BASE_PATH.get(preset));
       props.setProperty("preferred_date_format", PREFERRED_DATE_FORMAT.get(preset));
+      props.setProperty(
+          "show_world_column", Boolean.toString(SHOW_WORLD_COLUMN.get(preset)));
+      props.setProperty(
+          "show_conversion_column", Boolean.toString(SHOW_CONVERSION_COLUMN.get(preset)));
+      props.setProperty(
+          "show_userfield_column", Boolean.toString(SHOW_USERFIELD_COLUMN.get(preset)));
 
       //// presets
       props.setProperty("current_profile", currentProfile);
