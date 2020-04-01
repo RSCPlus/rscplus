@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with rscminus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * Authors: see <https://github.com/OrN/rscminus>
+ * Authors: see <https://github.com/RSCPlus/rscminus>
  */
 
 package Replay.game;

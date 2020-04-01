@@ -14,7 +14,7 @@
  * <p>You should have received a copy of the GNU General Public License along with rscplus. If not,
  * see <http://www.gnu.org/licenses/>.
  *
- * <p>Authors: see <https://github.com/OrN/rscplus>
+ * <p>Authors: see <https://github.com/RSCPlus/rscplus>
  */
 package Game;
 
@@ -1035,7 +1035,7 @@ public class Client {
     try {
       Double currentVersion = 0.0;
       URL updateURL =
-          new URL("https://raw.githubusercontent.com/OrN/rscplus/master/src/Client/Settings.java");
+          new URL("https://raw.githubusercontent.com/RSCPlus/rscplus/master/src/Client/Settings.java");
 
       // Open connection
       URLConnection connection = updateURL.openConnection();
