@@ -1050,6 +1050,7 @@ public class Client {
         if (line.contains("VERSION_NUMBER")) {
           currentVersion =
               Double.parseDouble(line.substring(line.indexOf('=') + 1, line.indexOf(';')));
+          Logger.Info(String.format("@|green Current Version: %f|@", currentVersion));
           break;
         }
       }

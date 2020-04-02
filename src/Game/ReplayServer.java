@@ -131,26 +131,7 @@ public class ReplayServer implements Runnable {
 
       // Load replay a second time but using the RSCMinus method
       if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5) {
-        ReplayEditor editor = new ReplayEditor();
-        boolean success = editor.importData(playbackDirectory);
-
-        if (!success) {
-          Logger.Warn("@|red Can't parse this as complete replay!|@");
-        }
-
-        Logger.Debug("client version: " + editor.getReplayVersion().clientVersion);
-        Logger.Debug("replay version: " + editor.getReplayVersion().version);
-
-        incomingPackets = editor.getIncomingPackets();
-        outgoingPackets = editor.getOutgoingPackets();
-
-        Logger.Info(String.format("Incoming packet length: %d", incomingPackets.size()));
-        Logger.Info(String.format("Outgoing packet length: %d", outgoingPackets.size()));
-
-        incomingPacketsIndex = 0;
-        outgoingPacketsIndex = 0;
-        incomingPacketsSizeCache = incomingPackets.size();
-        outgoingPacketsSizeCache = outgoingPackets.size();
+        initializeIncomingOutgoingPackets();
         nextIncomingPacket = incomingPackets.getFirst();
         if (outgoingPacketsSizeCache > 0)
           nextOutgoingPacket = outgoingPackets.getFirst();
@@ -199,9 +180,17 @@ public class ReplayServer implements Runnable {
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
-          nextIncomingPacket = incomingPackets.getFirst();
-          if (outgoingPacketsSizeCache > 0)
-            nextOutgoingPacket = outgoingPackets.getFirst();
+
+          if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5) {
+            if (incomingPackets == null) {
+              initializeIncomingOutgoingPackets();
+            }
+
+            nextIncomingPacket = incomingPackets.getFirst();
+            if (outgoingPacketsSizeCache > 0)
+              nextOutgoingPacket = outgoingPackets.getFirst();
+          }
+
           restart = false;
           Replay.isRestarting = false;
         }
@@ -379,5 +368,28 @@ public class ReplayServer implements Runnable {
     }
 
     return false;
+  }
+
+  public void initializeIncomingOutgoingPackets() {
+    ReplayEditor editor = new ReplayEditor();
+    boolean success = editor.importData(playbackDirectory);
+
+    if (!success) {
+      Logger.Warn("@|red Can't parse this as complete replay!|@");
+    }
+
+    Logger.Debug("client version: " + editor.getReplayVersion().clientVersion);
+    Logger.Debug("replay version: " + editor.getReplayVersion().version);
+
+    incomingPackets = editor.getIncomingPackets();
+    outgoingPackets = editor.getOutgoingPackets();
+
+    Logger.Info(String.format("Incoming packet length: %d", incomingPackets.size()));
+    Logger.Info(String.format("Outgoing packet length: %d", outgoingPackets.size()));
+
+    incomingPacketsIndex = 0;
+    outgoingPacketsIndex = 0;
+    incomingPacketsSizeCache = incomingPackets.size();
+    outgoingPacketsSizeCache = outgoingPackets.size();
   }
 }
