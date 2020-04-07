@@ -20,28 +20,26 @@ package Client;
 
 import Client.KeybindSet.KeyModifier;
 import Game.Camera;
+import Game.Client;
 import Game.Game;
 import Game.KeyboardHandler;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.SystemTray;
+import Game.Replay;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -61,6 +59,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -71,6 +70,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -231,6 +231,11 @@ public class ConfigWindow {
   private JButton resetPresetsButton;
   private int sliderValue = -1;
 
+  //// World List tab
+  private JSpinner numberOfWorldsSpinner;
+  private HashMap <Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap <Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
+
   public ConfigWindow() {
     try {
       // Set System L&F as a fall-back option.
@@ -314,6 +319,8 @@ public class ConfigWindow {
     JScrollPane streamingScrollPane = new JScrollPane();
     JScrollPane keybindScrollPane = new JScrollPane();
     JScrollPane replayScrollPane = new JScrollPane();
+    JScrollPane worldListScrollPane = new JScrollPane();
+    JScrollPane authorsScrollPane = new JScrollPane();
 
     JPanel presetsPanel = new JPanel();
     JPanel generalPanel = new JPanel();
@@ -322,6 +329,8 @@ public class ConfigWindow {
     JPanel streamingPanel = new JPanel();
     JPanel keybindPanel = new JPanel();
     JPanel replayPanel = new JPanel();
+    JPanel worldListPanel = new JPanel();
+    JPanel authorsPanel = new JPanel();
 
     frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_END);
@@ -333,6 +342,8 @@ public class ConfigWindow {
     tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null);
     tabbedPane.addTab("Keybinds", null, keybindScrollPane, null);
     tabbedPane.addTab("Replay", null, replayScrollPane, null);
+    tabbedPane.addTab("World List", null, worldListScrollPane, null);
+    tabbedPane.addTab("Authors", null, authorsScrollPane, null);
 
     presetsScrollPane.setViewportView(presetsPanel);
     generalScrollPane.setViewportView(generalPanel);
@@ -341,6 +352,8 @@ public class ConfigWindow {
     streamingScrollPane.setViewportView(streamingPanel);
     keybindScrollPane.setViewportView(keybindPanel);
     replayScrollPane.setViewportView(replayPanel);
+    worldListScrollPane.setViewportView(worldListPanel);
+    authorsScrollPane.setViewportView(authorsPanel);
 
     // Adding padding for aesthetics
     navigationPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 10));
@@ -351,6 +364,8 @@ public class ConfigWindow {
     streamingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     keybindPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     replayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    worldListPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    authorsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
     setScrollSpeed(presetsScrollPane, 20, 15);
     setScrollSpeed(generalScrollPane, 20, 15);
@@ -359,6 +374,8 @@ public class ConfigWindow {
     setScrollSpeed(streamingScrollPane, 20, 15);
     setScrollSpeed(keybindScrollPane, 20, 15);
     setScrollSpeed(replayScrollPane, 20, 15);
+    setScrollSpeed(worldListScrollPane, 20, 15);
+    setScrollSpeed(authorsScrollPane, 20, 15);
 
     /*
      * Navigation buttons
@@ -634,6 +651,7 @@ public class ConfigWindow {
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
+    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(5, 0, 0, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -1225,218 +1243,228 @@ public class ConfigWindow {
     /*
      * Keybind tab
      */
+    JPanel keybindContainerPanel = new JPanel(new GridBagLayout());
 
-    // TODO: Make the contents top aligned
-    keybindPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-    keybindPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    GridBagLayout gbl_panel = new GridBagLayout();
+    JPanel keybindContainerContainerPanel = new JPanel(new GridBagLayout());
+    GridBagConstraints con = new GridBagConstraints();
+    con.gridy = 0;
+    con.gridx = 0;
+    con.fill = GridBagConstraints.HORIZONTAL;
 
-    keybindPanel.setLayout(gbl_panel);
+    GridBagConstraints gbl_constraints = new GridBagConstraints();
+    gbl_constraints.fill = GridBagConstraints.HORIZONTAL;
+    gbl_constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+    gbl_constraints.weightx = 1;
+    gbl_constraints.gridy = 0;
+    gbl_constraints.gridwidth = 3;
 
     // Note: CTRL + every single letter on the keyboard is now used
     // consider using ALT instead.
 
-    addKeybindCategory(keybindPanel, "General");
-    addKeybindSet(keybindPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
-    addKeybindSet(keybindPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
-    addKeybindSet(keybindPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
+    addKeybindCategory(keybindContainerPanel, "General");
+    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
+    addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
+    addKeybindSet(keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Show settings window",
         "show_config_window",
         KeyModifier.CTRL,
         KeyEvent.VK_O);
     addKeybindSet(
-        keybindPanel, "Show queue window", "show_queue_window", KeyModifier.CTRL, KeyEvent.VK_Q);
+        keybindContainerPanel, "Show queue window", "show_queue_window", KeyModifier.CTRL, KeyEvent.VK_Q);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle combat XP menu persistence",
         "toggle_combat_xp_menu",
         KeyModifier.CTRL,
         KeyEvent.VK_C);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle XP drops",
         "toggle_xp_drops",
         KeyModifier.CTRL,
         KeyEvent.VK_OPEN_BRACKET);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle fatigue drops",
         "toggle_fatigue_drops",
         KeyModifier.CTRL,
         KeyEvent.VK_CLOSE_BRACKET);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle fatigue alert",
         "toggle_fatigue_alert",
         KeyModifier.CTRL,
         KeyEvent.VK_F);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle inventory full alert",
         "toggle_inventory_full_alert",
         KeyModifier.CTRL,
         KeyEvent.VK_V);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle bypass attack",
         "toggle_bypass_attack",
         KeyModifier.CTRL,
         KeyEvent.VK_A);
     addKeybindSet(
-        keybindPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
+        keybindContainerPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle color coded text",
         "toggle_colorize",
         KeyModifier.CTRL,
         KeyEvent.VK_Z);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle start with searched bank",
         "toggle_start_searched_bank",
         KeyModifier.ALT,
         KeyEvent.VK_Q);
     addKeybindSet(
-        keybindPanel, "Toggle lag indicator", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
+        keybindContainerPanel, "Toggle lag indicator", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
 
-    addKeybindCategory(keybindPanel, "Overlays");
+    addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle HP/prayer/fatigue display",
         "toggle_hpprayerfatigue_display",
         KeyModifier.CTRL,
         KeyEvent.VK_U);
     addKeybindSet(
-        keybindPanel,
-        "Toggle combat buffs and cooldowns display",
+        keybindContainerPanel,
+        "Toggle combat buffs and cooldowns display         ", // TODO: remove this spacing
         "toggle_buffs_display",
         KeyModifier.CTRL,
         KeyEvent.VK_Y);
-    addKeybindSet(keybindPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
+    addKeybindSet(keybindContainerPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle inventory count overlay",
         "toggle_inven_count_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_E);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle position overlay",
         "toggle_position_overlay",
         KeyModifier.ALT,
         KeyEvent.VK_P);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle retro fps overlay",
         "toggle_retro_fps_overlay",
         KeyModifier.ALT,
         KeyEvent.VK_F);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle item name overlay",
         "toggle_item_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_I);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle player name overlay",
         "toggle_player_name_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_P);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle friend name overlay",
         "toggle_friend_name_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_M);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle NPC name overlay",
         "toggle_npc_name_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_N);
     addKeybindSet(
-        keybindPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
+        keybindContainerPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle food heal overlay",
         "toggle_food_heal_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_G);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle time until health regen",
         "toggle_health_regen_timer",
         KeyModifier.NONE,
         -1);
     addKeybindSet(
-        keybindPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
+        keybindContainerPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
 
-    addKeybindCategory(keybindPanel, "Streaming & Privacy");
+    addKeybindCategory(keybindContainerPanel, "Streaming & Privacy");
     addKeybindSet(
-        keybindPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
+        keybindContainerPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Toggle IP shown at login screen",
         "toggle_ipdns",
         KeyModifier.CTRL,
         KeyEvent.VK_J);
     // TODO: Uncomment the following line if this feature no longer requires a restart
-    // addKeybindSet(keybindPanel, "Toggle save login information", "toggle_save_login_info",
+    // addKeybindSet(keybindContainerPanel, "Toggle save login information", "toggle_save_login_info",
     // KeyModifier.NONE, -1);
 
-    addKeybindCategory(keybindPanel, "Replay (only used while a recording is played back)");
-    addKeybindSet(keybindPanel, "Stop", "stop", KeyModifier.CTRL, KeyEvent.VK_B);
-    addKeybindSet(keybindPanel, "Restart", "restart", KeyModifier.ALT, KeyEvent.VK_R);
-    addKeybindSet(keybindPanel, "Pause", "pause", KeyModifier.NONE, KeyEvent.VK_SPACE);
+    addKeybindCategory(keybindContainerPanel, "Replay (only used while a recording is played back)");
+    addKeybindSet(keybindContainerPanel, "Stop", "stop", KeyModifier.CTRL, KeyEvent.VK_B);
+    addKeybindSet(keybindContainerPanel, "Restart", "restart", KeyModifier.ALT, KeyEvent.VK_R);
+    addKeybindSet(keybindContainerPanel, "Pause", "pause", KeyModifier.NONE, KeyEvent.VK_SPACE);
     addKeybindSet(
-        keybindPanel, "Increase playback speed", "ff_plus", KeyModifier.CTRL, KeyEvent.VK_RIGHT);
+        keybindContainerPanel, "Increase playback speed", "ff_plus", KeyModifier.CTRL, KeyEvent.VK_RIGHT);
     addKeybindSet(
-        keybindPanel, "Decrease playback speed", "ff_minus", KeyModifier.CTRL, KeyEvent.VK_LEFT);
+        keybindContainerPanel, "Decrease playback speed", "ff_minus", KeyModifier.CTRL, KeyEvent.VK_LEFT);
     addKeybindSet(
-        keybindPanel, "Reset playback speed", "ff_reset", KeyModifier.CTRL, KeyEvent.VK_DOWN);
+        keybindContainerPanel, "Reset playback speed", "ff_reset", KeyModifier.CTRL, KeyEvent.VK_DOWN);
     addKeybindSet(
-        keybindPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
+        keybindContainerPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Show player controls",
         "show_player_controls",
         KeyModifier.ALT,
         KeyEvent.VK_UP);
 
-    addKeybindCategory(keybindPanel, "Miscellaneous");
+    addKeybindCategory(keybindContainerPanel, "Miscellaneous");
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Switch to world 1 at login screen",
         "world_1",
         KeyModifier.CTRL,
         KeyEvent.VK_1);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Switch to world 2 at login screen",
         "world_2",
         KeyModifier.CTRL,
         KeyEvent.VK_2);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Switch to world 3 at login screen",
         "world_3",
         KeyModifier.CTRL,
         KeyEvent.VK_3);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Switch to world 4 at login screen",
         "world_4",
         KeyModifier.CTRL,
         KeyEvent.VK_4);
     addKeybindSet(
-        keybindPanel,
+        keybindContainerPanel,
         "Switch to world 5 at login screen",
         "world_5",
         KeyModifier.CTRL,
         KeyEvent.VK_5);
+
+    keybindContainerContainerPanel.add(keybindContainerPanel, gbl_constraints);
+    keybindPanel.add(keybindContainerContainerPanel, con);
 
     /*
      *  Replay Settings tab
@@ -1454,10 +1482,10 @@ public class ConfigWindow {
 
     replayPanelRecordKBMouseCheckbox =
         addCheckbox(
-            "(EXPERIMENTAL) Record Keyboard and Mouse input for future replay recordings",
+            "Record Keyboard and Mouse input in replay recordings",
             replayPanel);
     replayPanelRecordKBMouseCheckbox.setToolTipText(
-        "(EXPERIMENTAL) additionally record mouse and keyboard inputs when recording a session");
+        "Additionally record mouse and keyboard inputs when recording a session");
 
     addSettingsHeader(replayPanel, "Playback settings");
 
@@ -1632,6 +1660,140 @@ public class ConfigWindow {
             synchronizePresetOptions();
           }
         });
+
+    // World List Tab
+    worldListPanel.setLayout(new BoxLayout(worldListPanel, BoxLayout.Y_AXIS));
+    worldListPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    worldListPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    addSettingsHeader(worldListPanel, "World List");
+
+    JPanel numberOfWorldsPanel = new JPanel();
+    worldListPanel.add(numberOfWorldsPanel);
+    numberOfWorldsPanel.setLayout(
+        new BoxLayout(numberOfWorldsPanel, BoxLayout.X_AXIS));
+    numberOfWorldsPanel.setPreferredSize(new Dimension(0, 37));
+    numberOfWorldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JLabel numberOfWorldsLabel = new JLabel(String.format("Number of Worlds (between 1 and %d)", Settings.MAX_WORLDS_TO_DISPLAY));
+    numberOfWorldsLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
+    numberOfWorldsPanel.add(numberOfWorldsLabel);
+    numberOfWorldsPanel.setAlignmentY((float) 0.9);
+
+    SpinnerModel numberOfWorldsSpinnerModel = new SpinnerNumberModel(Settings.WORLDS_TO_DISPLAY, 1, Settings.MAX_WORLDS_TO_DISPLAY, 1); /// default value, lower bound, upper bound, increment by
+    numberOfWorldsSpinner = new JSpinner(numberOfWorldsSpinnerModel);
+    numberOfWorldsSpinner.setMaximumSize(new Dimension(45, 22));
+    numberOfWorldsSpinner.setMinimumSize(new Dimension(45, 22));
+    numberOfWorldsSpinner.setAlignmentY((float) 0.5);
+    numberOfWorldsPanel.add(numberOfWorldsSpinner);
+    numberOfWorldsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
+    JPanel worldListTextFieldsPanel = new JPanel();
+    worldListTextFieldsPanel.setLayout(
+        new BoxLayout(worldListTextFieldsPanel, BoxLayout.Y_AXIS));
+    worldListTextFieldsPanel.setPreferredSize(new Dimension(0, 37));
+    worldListTextFieldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    HashMap <Integer, JPanel> worldListTextFieldContainers = new HashMap <Integer, JPanel>();
+
+    for (int i = 1; i <= Settings.MAX_WORLDS_TO_DISPLAY; i++) {
+      worldUrlsJTextFields.put(i, new HintTextField(String.format("World %d URL", i)));
+      worldPortsJTextFields.put(i, new HintTextField(String.format("World %d Port (default: 43594)", i)));
+
+      worldUrlsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+      worldUrlsJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
+      worldUrlsJTextFields.get(i).setAlignmentY((float) 0.75);
+
+      worldPortsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+      worldPortsJTextFields.get(i).setMaximumSize(new Dimension(180, 28));
+      worldPortsJTextFields.get(i).setAlignmentY((float) 0.75);
+
+      worldListTextFieldContainers.put(i, new JPanel());
+
+      worldListTextFieldContainers.get(i).setLayout(new BoxLayout(worldListTextFieldContainers.get(i), BoxLayout.X_AXIS));
+
+      if (i > Settings.WORLDS_TO_DISPLAY) {
+        worldUrlsJTextFields.get(i).setVisible(false);
+        worldPortsJTextFields.get(i).setVisible(false);
+      }
+
+      worldListTextFieldContainers.get(i).add(worldUrlsJTextFields.get(i));
+      worldListTextFieldContainers.get(i).add(worldPortsJTextFields.get(i));
+      worldListTextFieldsPanel.add(worldListTextFieldContainers.get(i));
+    }
+    worldListPanel.add(worldListTextFieldsPanel);
+
+    // Authors Tab
+    JPanel logoPanel = new JPanel();
+
+    JPanel thirdsPanel = new JPanel(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridy = 0;
+    c.gridx = 0;
+    c.fill = GridBagConstraints.HORIZONTAL;
+
+    try {
+      BufferedImage rscplusLogo = ImageIO.read(Settings.getResource("/assets/icon-large.png"));
+      JLabel rscplusLogoJLabel = new JLabel(new ImageIcon(rscplusLogo.getScaledInstance(250, 250, Image.SCALE_DEFAULT)));
+      rscplusLogoJLabel.setBorder(BorderFactory.createEmptyBorder(0,10,20,40));
+      logoPanel.add(rscplusLogoJLabel);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
+    thirdsPanel.add(logoPanel,c);
+
+    JPanel rightPane = new JPanel(new GridBagLayout());
+    GridBagConstraints cR = new GridBagConstraints();
+    cR.fill = GridBagConstraints.VERTICAL;
+    cR.anchor = GridBagConstraints.LINE_START;
+    cR.weightx = 0.5;
+    cR.gridy = 0;
+    cR.gridwidth = 3;
+
+    JLabel RSCPlusText = new JLabel(String.format(
+        "<html><div style=\"font-size:45px; padding-bottom:10px;\"<b>RSC</b>Plus</div><div style=\"font-size:20px;\">v%8.6f </div></html>",
+        Settings.VERSION_NUMBER));
+
+    rightPane.add(RSCPlusText);
+
+    cR.gridy = 1;
+
+    JLabel aboutText = new JLabel("<html><head><style>p{font-size:10px; padding-top:15px;}ul{padding-left:0px;margin-left:10px;}</style></head><p><b>RSC</b>Plus is a RuneLite-like client "+
+        "based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>" +
+        "Thanks to the authors who made this software possible:<br/>" +
+        "<ul><li><b>Ornox</b>, for creating the client & most of its features</li><li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li><li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li><li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li><li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li><li><b>nickzuber</b>, fixed some bugs</li><li><b>sammy123k</b>, added an option to center the XP progress bar</li><li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
+
+    rightPane.add(aboutText, cR);
+    c.gridx = 2;
+    thirdsPanel.add(rightPane,c);
+
+    JPanel bottomPane = new JPanel(new GridBagLayout());
+    GridBagConstraints cB = new GridBagConstraints();
+    cB = new GridBagConstraints();
+    cB.fill = GridBagConstraints.HORIZONTAL;
+    cB.anchor = GridBagConstraints.NORTH;
+
+    cB.gridx = 0;
+    cB.weightx = 0.33;
+    cB.gridwidth = 1;
+
+    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://wwww.gnu.org/licenses/gpl-3.0.en.html for more information.");
+    bottomPane.add(licenseText,cB);
+
+    cB.gridx = 5;
+    cB.weightx = 1;
+    cB.gridwidth = 20;
+    JLabel blank = new JLabel("");
+    bottomPane.add(blank,cB);
+
+
+    c.gridy = 10;
+    c.gridx = 0;
+    c.gridwidth = 10;
+    thirdsPanel.add(bottomPane, c);
+
+    authorsPanel.add(thirdsPanel);
+
   }
 
   /**
@@ -2088,6 +2250,20 @@ public class ConfigWindow {
     replayPanelShowUserFieldCheckbox.setSelected(
         Settings.SHOW_USERFIELD_COLUMN.get(Settings.currentProfile));
 
+    // World List tab
+    numberOfWorldsSpinner.setValue(Settings.WORLDS_TO_DISPLAY);
+    for (int i = 1; i < Settings.MAX_WORLDS_TO_DISPLAY; i++) {
+      worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
+      worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());
+      if (i <= Settings.WORLDS_TO_DISPLAY) {
+        worldUrlsJTextFields.get(i).setVisible(true);
+        worldPortsJTextFields.get(i).setVisible(true);
+      } else {
+        worldUrlsJTextFields.get(i).setVisible(false);
+        worldPortsJTextFields.get(i).setVisible(false);
+      }
+    }
+
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
     }
@@ -2302,6 +2478,19 @@ public class ConfigWindow {
       }
     }
 
+    // World List
+    Settings.WORLDS_TO_DISPLAY = ((SpinnerNumberModel)(numberOfWorldsSpinner.getModel())).getNumber().intValue();
+    for (int i = 1; i <= Settings.MAX_WORLDS_TO_DISPLAY; i++) {
+      Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
+      String portString = worldPortsJTextFields.get(i).getText();
+      if (portString.equals("")) {
+        Settings.WORLD_PORTS.put(i, Replay.DEFAULT_PORT);
+      } else {
+        Settings.WORLD_PORTS.put(i, Integer.parseInt(portString));
+      }
+    }
+    if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+
     Settings.save();
   }
 
@@ -2444,4 +2633,27 @@ class RebindListener implements KeyListener {
 
   @Override
   public void keyTyped(KeyEvent arg0) {}
+}
+
+class HintTextField extends JTextField {
+  public HintTextField(String hint) {
+    _hint = hint;
+  }
+  @Override
+  public void paint(Graphics g) {
+    super.paint(g);
+    if (getText().length() == 0) {
+      int h = getHeight();
+      ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      Insets ins = getInsets();
+      FontMetrics fm = g.getFontMetrics();
+      int c0 = getBackground().getRGB();
+      int c1 = getForeground().getRGB();
+      int m = 0xfefefefe;
+      int c2 = ((c0 & m) >>> 1) + ((c1 & m) >>> 1);
+      g.setColor(new Color(c2, true));
+      g.drawString(_hint, ins.left, h / 2 + fm.getAscent() / 2 - 2);
+    }
+  }
+  private final String _hint;
 }

@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20200402.211001;
+  public static final double VERSION_NUMBER = 20200407.162459;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -171,7 +171,14 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_CONVERSION_COLUMN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_USERFIELD_COLUMN = new HashMap<String, Boolean>();
 
-  //// nogui
+  //// world list
+  public static HashMap<Integer, String> WORLD_URLS = new HashMap<Integer, String>();
+  public static HashMap<Integer, Integer> WORLD_PORTS = new HashMap<Integer, Integer>();
+  public static int WORLDS_TO_DISPLAY = 5;
+  public static int MAX_WORLDS_TO_DISPLAY = 20;
+  public static boolean noWorldsConfigured = true;
+
+  //// no gui
   public static HashMap<String, Integer> COMBAT_STYLE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> WORLD = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> FIRST_TIME = new HashMap<String, Boolean>();
@@ -1047,7 +1054,25 @@ public class Settings {
         "custom",
         getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
 
-    //// nogui
+
+    //// world list
+    WORLDS_TO_DISPLAY = getPropInt(props, "worlds_to_display", WORLDS_TO_DISPLAY);
+    WORLD_URLS.put(0, "localhost");
+    WORLD_PORTS.put(0, Replay.DEFAULT_PORT);
+    for (int i = 1; i < MAX_WORLDS_TO_DISPLAY; i++) {
+      WORLD_URLS.put(i,
+          getPropString(props, String.format("world%durl", i), ""));
+      WORLD_PORTS.put(i,
+          getPropInt(props, String.format("world%dport", i), Replay.DEFAULT_PORT));
+
+      if (i <= WORLDS_TO_DISPLAY) {
+        if (!WORLD_URLS.get(i).equals("")) {
+          noWorldsConfigured = false;
+        }
+      }
+    }
+
+    //// no gui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("lite", Client.COMBAT_AGGRESSIVE);
@@ -1120,8 +1145,8 @@ public class Settings {
     if (WORLD.get("custom") < 0) {
       WORLD.put("custom", 0);
       save("custom");
-    } else if (WORLD.get("custom") > JConfig.SERVER_WORLD_COUNT) {
-      WORLD.put("custom", JConfig.SERVER_WORLD_COUNT);
+    } else if (WORLD.get("custom") > Settings.WORLDS_TO_DISPLAY) {
+      WORLD.put("custom", Settings.WORLDS_TO_DISPLAY);
       save("custom");
     }
 
@@ -1374,10 +1399,17 @@ public class Settings {
       props.setProperty(
           "show_userfield_column", Boolean.toString(SHOW_USERFIELD_COLUMN.get(preset)));
 
+      //// world urls
+      props.setProperty("worlds_to_display", Integer.toString(WORLDS_TO_DISPLAY));
+      for (int i = 1; i < MAX_WORLDS_TO_DISPLAY; i++) {
+        props.setProperty(String.format("world%durl",i), WORLD_URLS.get(i));
+        props.setProperty(String.format("world%dport",i), Integer.toString(WORLD_PORTS.get(i)));
+      }
+
       //// presets
       props.setProperty("current_profile", currentProfile);
 
-      //// nogui
+      //// no gui
       props.setProperty("combat_style", Integer.toString(COMBAT_STYLE.get(preset)));
       props.setProperty("world", Integer.toString(WORLD.get(preset)));
       // This is set to false, as logically, saving the config would imply this is not a first-run.

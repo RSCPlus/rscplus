@@ -18,18 +18,20 @@
  */
 package Client;
 
+import Game.Replay;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.net.InetAddress;
 
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
   // Server information
-  public static final String SERVER_URL = "rscminus.com";
-  public static final int SERVER_WORLD_COUNT = 1;
   public static final String SERVER_RSA_EXPONENT = "65537";
   public static final String SERVER_RSA_MODULUS =
       "8919358150844327671615194210081641058246796695652439261191309391046895650925408172336904532376967683135742637126732712594033167816708824171632934946881859";
@@ -53,14 +55,12 @@ public class JConfig {
   private Map<String, String> m_data = new HashMap<>();
 
   public void create(int world) {
-    Logger.Info("Jconfig.create ->");
     if (world > 5) world = 5;
     else if (world < 1) world = 1;
 
     m_data.put("title", "RuneScape Classic");
     m_data.put(
         "adverturl", "http://services.runescape.com/m=advert/banner.ws?size=732&amp;norefresh=1");
-    m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
     m_data.put("cachesubdir", "rsclassic");
     m_data.put("initial_jar", "rsclassic_860618473.jar");
     m_data.put("initial_class", "client.class");
@@ -82,6 +82,8 @@ public class JConfig {
     parameters.put("js", "1");
     parameters.put("settings", "wwGlrZHF5gKN6D3mDdihco3oPeYN2KFybL9hUUFqOvk");
     parameters.put("country", "0");
+
+    changeWorld(world);
   }
 
   /**
@@ -159,14 +161,14 @@ public class JConfig {
    * @param world The desired world to log into
    */
   public void changeWorld(int world) {
-    if (world == SERVER_WORLD_COUNT + 1) {
+    if (world == Settings.WORLDS_TO_DISPLAY + 1) {
       // Replay playback "world"
       m_data.put("codebase", "http://127.0.0.1/");
       return;
     }
 
     // Clip world to world count
-    if (world > SERVER_WORLD_COUNT) world = SERVER_WORLD_COUNT;
+    if (world > Settings.WORLDS_TO_DISPLAY) world = Settings.WORLDS_TO_DISPLAY;
     else if (world < 0) world = 0;
 
     parameters.put("nodeid", "" + (5000 + world));
@@ -174,14 +176,27 @@ public class JConfig {
     // if (world == 1) parameters.put("servertype", "" + 3);
     parameters.put("servertype", "" + 1);
 
-    if (world == 0) m_data.put("codebase", "http://127.0.0.1/");
-    else m_data.put("codebase", "http://classic" + world + "." + SERVER_URL + "/");
+    // Set world URL & port
+    String curWorldURL = Settings.WORLD_URLS.get(world);
+    curWorldURL = Settings.WORLD_URLS.get(world);
+    m_data.put("codebase", "http://" + curWorldURL + "/");
+    Replay.connection_port = Settings.WORLD_PORTS.get(world);
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);
     Settings.save();
-  }
 
+    // Resolve hostname here to be written to metadata (not used to connect to server)
+    try {
+      InetAddress address = InetAddress.getByName(curWorldURL);
+      Replay.ipAddressMetadata = address.getAddress();
+      Logger.Info(String.format("World set to %s", curWorldURL, address.toString()));
+    } catch (UnknownHostException e) {
+      Logger.Warn("Warning: Unable to resolve server url!");
+      Replay.ipAddressMetadata = new byte[]{0,0,0,0};
+    }
+  }
+  
   /**
    * Gets the corresponding String from the {@link #m_data} HashMap, given the key
    *
