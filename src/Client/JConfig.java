@@ -178,13 +178,9 @@ public class JConfig {
 
     // Set world URL & port
     String curWorldURL = Settings.WORLD_URLS.get(world);
-    if (world == 0) {
-      m_data.put("codebase", "http://127.0.0.1/");
-      Replay.connection_port = Settings.WORLD_PORTS.get(Replay.DEFAULT_PORT);
-    } else {
-      m_data.put("codebase", "http://" + curWorldURL + "/");
-      Replay.connection_port = Settings.WORLD_PORTS.get(world);
-    }
+    curWorldURL = Settings.WORLD_URLS.get(world);
+    m_data.put("codebase", "http://" + curWorldURL + "/");
+    Replay.connection_port = Settings.WORLD_PORTS.get(world);
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);
@@ -194,7 +190,7 @@ public class JConfig {
     try {
       InetAddress address = InetAddress.getByName(curWorldURL);
       Replay.ipAddressMetadata = address.getAddress();
-      Logger.Info(String.format("Switched to %s (%s)", curWorldURL, address.toString()));
+      Logger.Info(String.format("World set to %s", curWorldURL, address.toString()));
     } catch (UnknownHostException e) {
       Logger.Warn("Warning: Unable to resolve server url!");
       Replay.ipAddressMetadata = new byte[]{0,0,0,0};

@@ -1057,6 +1057,8 @@ public class Settings {
 
     //// world list
     WORLDS_TO_DISPLAY = getPropInt(props, "worlds_to_display", WORLDS_TO_DISPLAY);
+    WORLD_URLS.put(0, "localhost");
+    WORLD_PORTS.put(0, Replay.DEFAULT_PORT);
     for (int i = 1; i < MAX_WORLDS_TO_DISPLAY; i++) {
       WORLD_URLS.put(i,
           getPropString(props, String.format("world%durl", i), ""));
