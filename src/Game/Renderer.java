@@ -974,7 +974,7 @@ public class Renderer {
 
       // Draw world list
       drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
-      for (int i = 0; i <= JConfig.SERVER_WORLD_COUNT; i++) {
+      for (int i = 0; i <= Settings.WORLDS_TO_DISPLAY; i++) {
         Rectangle bounds = new Rectangle(152 + (i * 18), height - 12, 16, 12);
         Color color = color_text;
 

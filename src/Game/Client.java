@@ -243,6 +243,10 @@ public class Client {
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
 
+  public static Thread loginMessageHandlerThread;
+  public static String loginMessageTop = "To connect to a server, please configure your World URLs.";
+  public static String loginMessageBottom = "Hit @gre@Ctrl-O@whi@ to access Settings and select the \"World List\" tab.";
+
   /**
    * A boolean array that stores if the XP per hour should be shown for a given skill when hovering
    * on the XP bar.
@@ -509,6 +513,12 @@ public class Client {
     } else if (Renderer.replayOption == 1
         || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
       Replay.initializeReplayRecording();
+    }
+
+    if (Settings.noWorldsConfigured && Settings.WORLD.get(Settings.currentProfile) != 0 && !Replay.isPlaying) {
+      closeConnection(false);
+      loginMessageHandlerThread = new Thread(new LoginMessageHandler());
+      loginMessageHandlerThread.start();
     }
   }
 
@@ -947,11 +957,11 @@ public class Client {
     }
   }
 
-  public static void closeConnection(boolean close) {
+  public static void closeConnection(boolean sendPacket31) {
     if (Reflection.closeConnection == null) return;
 
     try {
-      Reflection.closeConnection.invoke(Client.instance, close, 31);
+      Reflection.closeConnection.invoke(Client.instance, sendPacket31, 31);
     } catch (Exception e) {
     }
   }
@@ -1978,5 +1988,20 @@ public class Client {
 
   public static double[][] getLastXpGain() {
     return lastXpGain;
+  }
+}
+
+// set Client.loginMessageBottom/Top before calling if you want something else to show up
+class LoginMessageHandler implements Runnable {
+@Override
+public void run() {
+    try {
+      Thread.sleep(5);
+      Client.setLoginMessage(Client.loginMessageBottom, Client.loginMessageTop);
+    } catch (InterruptedException e) {
+      Logger.Error(
+      "The login message thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
+      // End the thread
+    }
   }
 }
