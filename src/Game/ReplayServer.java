@@ -132,9 +132,7 @@ public class ReplayServer implements Runnable {
       // Load replay a second time but using the RSCMinus method
       if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5) {
         initializeIncomingOutgoingPackets();
-        nextIncomingPacket = incomingPackets.getFirst();
-        if (outgoingPacketsSizeCache > 0)
-          nextOutgoingPacket = outgoingPackets.getFirst();
+        initializeNextIncomingOutgoingPackets();
       }
 
       // Start the server
@@ -185,10 +183,7 @@ public class ReplayServer implements Runnable {
             if (incomingPackets == null) {
               initializeIncomingOutgoingPackets();
             }
-
-            nextIncomingPacket = incomingPackets.getFirst();
-            if (outgoingPacketsSizeCache > 0)
-              nextOutgoingPacket = outgoingPackets.getFirst();
+            initializeNextIncomingOutgoingPackets();
           }
 
           restart = false;
@@ -391,5 +386,17 @@ public class ReplayServer implements Runnable {
     outgoingPacketsIndex = 0;
     incomingPacketsSizeCache = incomingPackets.size();
     outgoingPacketsSizeCache = outgoingPackets.size();
+  }
+
+  public void initializeNextIncomingOutgoingPackets() {
+    if (incomingPacketsSizeCache > 0) {
+      nextIncomingPacket = incomingPackets.getFirst();
+    } else {
+      // RSC+ won't be able to play this replay, so let's skip it.
+      Logger.Warn("@|red No incoming packets in that Replay, moving on...|@");
+      ReplayQueue.nextReplay();
+    }
+    if (outgoingPacketsSizeCache > 0)
+      nextOutgoingPacket = outgoingPackets.getFirst();
   }
 }
