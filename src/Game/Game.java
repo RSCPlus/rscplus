@@ -114,7 +114,7 @@ public class Game extends JFrame
 
     if (!Replay.isPlaying) {
       int world = Settings.WORLD.get(Settings.currentProfile);
-      String worldString = (world == 0) ? "Developer World" : "World " + Integer.toString(world);
+      String worldString = "World " + Integer.toString(world);
       title += worldString;
 
       if (Client.player_name.length() != 0) {
