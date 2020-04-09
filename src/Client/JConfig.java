@@ -182,6 +182,10 @@ public class JConfig {
     m_data.put("codebase", "http://" + curWorldURL + "/");
     Replay.connection_port = Settings.WORLD_PORTS.get(world);
 
+    if (!curWorldURL.equals("")) {
+      Settings.noWorldsConfigured = false;
+    }
+
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);
     Settings.save();

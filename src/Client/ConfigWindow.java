@@ -1777,7 +1777,7 @@ public class ConfigWindow {
     cB.weightx = 0.33;
     cB.gridwidth = 1;
 
-    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://wwww.gnu.org/licenses/gpl-3.0.en.html for more information.");
+    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://www.gnu.org/licenses/gpl-3.0.en.html for more information.");
     bottomPane.add(licenseText,cB);
 
     cB.gridx = 5;
