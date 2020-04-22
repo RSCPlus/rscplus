@@ -178,7 +178,7 @@ public class Logger {
     }
     if (type.equals(" IN")) {
       if (true) { // opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user
-                  // to filter them... possibly a way to filter arbitrary opcodes
+        // to filter them... possibly a way to filter arbitrary opcodes
         Log(
             Type.OPCODE,
             String.format(
