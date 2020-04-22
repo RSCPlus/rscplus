@@ -87,7 +87,7 @@ public class Util {
   }
 
   public static String formatTimeLongShort(int fiftythsOfSecond) {
-    int total_centiseconds = fiftythsOfSecond * 2; //50fps * 2; converts to hundreths of a second
+    int total_centiseconds = fiftythsOfSecond * 2; // 50fps * 2; converts to hundreths of a second
     int leftover_centiseconds = total_centiseconds % 100;
     int total_seconds = (total_centiseconds - leftover_centiseconds) / 100;
     int leftover_seconds = total_seconds % 60;
@@ -98,7 +98,13 @@ public class Util {
     int total_days = (total_hours - leftover_hours) / 24;
 
     if (total_days > 0) {
-      return (String.format("%d day%s %d:%02d:%02d", total_days, total_days == 1 ? "": "s", leftover_hours, leftover_minutes, leftover_seconds));
+      return (String.format(
+          "%d day%s %d:%02d:%02d",
+          total_days,
+          total_days == 1 ? "" : "s",
+          leftover_hours,
+          leftover_minutes,
+          leftover_seconds));
     } else if (total_hours > 0) {
       return (String.format("%d:%02d:%02d", total_hours, leftover_minutes, leftover_seconds));
     } else if (leftover_minutes > 0) {

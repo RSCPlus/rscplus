@@ -19,7 +19,6 @@
 package Game;
 
 import Client.FlushableGZIPOutputStream;
-import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
 import Client.QueueWindow;
@@ -436,7 +435,7 @@ public class Replay {
       try {
         metadata.writeInt(retained_timestamp);
         metadata.writeLong(System.currentTimeMillis());
-        if (ipAddressMetadata.length == 4) {// ipv4, need padding in the ipv6 fields
+        if (ipAddressMetadata.length == 4) { // ipv4, need padding in the ipv6 fields
           metadata.writeInt(0);
           metadata.writeInt(0);
           metadata.writeInt(0xFFFF);
@@ -771,7 +770,7 @@ public class Replay {
       metadata.writeInt(replayLength);
       metadata.writeLong(dateModified);
       // TODO: implement attempting to find the IP address here, from rscminus
-      if (ipAddressMetadata.length == 4) {// ipv4, need padding
+      if (ipAddressMetadata.length == 4) { // ipv4, need padding
         metadata.writeInt(0);
         metadata.writeInt(0);
         metadata.writeInt(0xFFFF);
@@ -792,15 +791,13 @@ public class Replay {
     int replayLength = -1;
     long dateModified = -1;
     String world = "Unknown";
-    byte conversionSettings = (byte)128;
+    byte conversionSettings = (byte) 128;
     int userField = 0;
 
     File metadataFile = new File(replayFolder + "/metadata.bin");
     try {
       DataInputStream metadata =
-          new DataInputStream(
-              new BufferedInputStream(
-                  new FileInputStream(metadataFile)));
+          new DataInputStream(new BufferedInputStream(new FileInputStream(metadataFile)));
       replayLength = metadata.readInt();
       dateModified = metadata.readLong();
       if (metadataFile.length() > 12) {
@@ -830,16 +827,19 @@ public class Replay {
               world = "Jagex 5";
               break;
             default:
-              world = String.format("%d.%d.%d.%d",
-                  (ipAddress4 >> 24) & 0xFF,
-                  (ipAddress4 >> 16) & 0xFF,
-                  (ipAddress4 >> 8) & 0xFF,
-                  (ipAddress4) & 0xFF);
+              world =
+                  String.format(
+                      "%d.%d.%d.%d",
+                      (ipAddress4 >> 24) & 0xFF,
+                      (ipAddress4 >> 16) & 0xFF,
+                      (ipAddress4 >> 8) & 0xFF,
+                      (ipAddress4) & 0xFF);
               break;
           }
         } else { // ipv6
           // TODO: this is not a properly formatted ipv6 address
-          world = String.format("ipv6: %d:%d:%d:%d", ipAddress1, ipAddress2, ipAddress3, ipAddress4);
+          world =
+              String.format("ipv6: %d:%d:%d:%d", ipAddress1, ipAddress2, ipAddress3, ipAddress4);
         }
 
         conversionSettings = metadata.readByte();

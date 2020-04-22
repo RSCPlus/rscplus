@@ -18,7 +18,6 @@
  */
 package Game;
 
-import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;

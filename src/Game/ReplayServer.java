@@ -23,7 +23,6 @@ import Client.Settings;
 import Client.Util;
 import Replay.scraper.ReplayEditor;
 import Replay.scraper.ReplayPacket;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -67,7 +66,6 @@ public class ReplayServer implements Runnable {
   public int incomingPacketsIndex = 0;
   public ReplayPacket nextOutgoingPacket;
   public ReplayPacket nextIncomingPacket;
-
 
   ReplayServer(String directory) {
     playbackDirectory = directory;
@@ -235,7 +233,11 @@ public class ReplayServer implements Runnable {
       if (outgoingPacketsSizeCache > 0) {
         while (nextOutgoingPacket.timestamp <= timestamp_input) {
           if (outgoingPacketsIndex < outgoingPacketsSizeCache - 1) {
-            Logger.Opcode(nextOutgoingPacket.timestamp, "OUT", nextOutgoingPacket.opcode, nextOutgoingPacket.data);
+            Logger.Opcode(
+                nextOutgoingPacket.timestamp,
+                "OUT",
+                nextOutgoingPacket.opcode,
+                nextOutgoingPacket.data);
             nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
           } else {
             break;
@@ -245,7 +247,11 @@ public class ReplayServer implements Runnable {
       if (incomingPacketsSizeCache > 0) {
         while (nextIncomingPacket.timestamp <= timestamp_input) {
           if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
-            Logger.Opcode(nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
+            Logger.Opcode(
+                nextIncomingPacket.timestamp,
+                " IN",
+                nextIncomingPacket.opcode,
+                nextIncomingPacket.data);
             nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
           } else {
             break;
@@ -396,7 +402,6 @@ public class ReplayServer implements Runnable {
       Logger.Warn("@|red No incoming packets in that Replay, moving on...|@");
       ReplayQueue.nextReplay();
     }
-    if (outgoingPacketsSizeCache > 0)
-      nextOutgoingPacket = outgoingPackets.getFirst();
+    if (outgoingPacketsSizeCache > 0) nextOutgoingPacket = outgoingPackets.getFirst();
   }
 }

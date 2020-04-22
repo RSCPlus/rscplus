@@ -24,7 +24,6 @@ import Game.Client;
 import Game.Game;
 import Game.KeyboardHandler;
 import Game.Replay;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,7 +58,6 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -70,7 +68,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -232,16 +229,20 @@ public class ConfigWindow {
   private int sliderValue = -1;
 
   //// World List tab
-  private HashMap <Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap <Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
-  private HashMap <Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap <Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap <Integer, JTextField> worldRSAPubKeyJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap <Integer, JTextField> worldRSAExponentsJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap <Integer, JPanel> worldListTitleTextFieldContainers = new HashMap <Integer, JPanel>();
-  private HashMap <Integer, JPanel> worldListURLPortTextFieldContainers = new HashMap <Integer, JPanel>();
-  private HashMap <Integer, JPanel> worldListRSATextFieldContainers = new HashMap <Integer, JPanel>();
-  private HashMap <Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
+  private HashMap<Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
+  private HashMap<Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldRSAPubKeyJTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldRSAExponentsJTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JPanel> worldListTitleTextFieldContainers =
+      new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JPanel> worldListURLPortTextFieldContainers =
+      new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JPanel> worldListRSATextFieldContainers = new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
   private JPanel worldListPanel = new JPanel();
 
   public ConfigWindow() {
@@ -1272,7 +1273,8 @@ public class ConfigWindow {
     addKeybindCategory(keybindContainerPanel, "General");
     addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
     addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
-    addKeybindSet(keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
+    addKeybindSet(
+        keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
     addKeybindSet(
         keybindContainerPanel,
         "Show settings window",
@@ -1280,7 +1282,11 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_O);
     addKeybindSet(
-        keybindContainerPanel, "Show queue window", "show_queue_window", KeyModifier.CTRL, KeyEvent.VK_Q);
+        keybindContainerPanel,
+        "Show queue window",
+        "show_queue_window",
+        KeyModifier.CTRL,
+        KeyEvent.VK_Q);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle combat XP menu persistence",
@@ -1318,7 +1324,11 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_A);
     addKeybindSet(
-        keybindContainerPanel, "Toggle roof hiding", "toggle_roof_hiding", KeyModifier.CTRL, KeyEvent.VK_R);
+        keybindContainerPanel,
+        "Toggle roof hiding",
+        "toggle_roof_hiding",
+        KeyModifier.CTRL,
+        KeyEvent.VK_R);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle color coded text",
@@ -1332,7 +1342,11 @@ public class ConfigWindow {
         KeyModifier.ALT,
         KeyEvent.VK_Q);
     addKeybindSet(
-        keybindContainerPanel, "Toggle lag indicator", "toggle_indicators", KeyModifier.CTRL, KeyEvent.VK_W);
+        keybindContainerPanel,
+        "Toggle lag indicator",
+        "toggle_indicators",
+        KeyModifier.CTRL,
+        KeyEvent.VK_W);
 
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
@@ -1347,7 +1361,8 @@ public class ConfigWindow {
         "toggle_buffs_display",
         KeyModifier.CTRL,
         KeyEvent.VK_Y);
-    addKeybindSet(keybindContainerPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
+    addKeybindSet(
+        keybindContainerPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle inventory count overlay",
@@ -1391,7 +1406,11 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_N);
     addKeybindSet(
-        keybindContainerPanel, "Toggle hitboxes", "toggle_hitboxes", KeyModifier.CTRL, KeyEvent.VK_H);
+        keybindContainerPanel,
+        "Toggle hitboxes",
+        "toggle_hitboxes",
+        KeyModifier.CTRL,
+        KeyEvent.VK_H);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle food heal overlay",
@@ -1405,11 +1424,19 @@ public class ConfigWindow {
         KeyModifier.NONE,
         -1);
     addKeybindSet(
-        keybindContainerPanel, "Toggle debug mode", "toggle_debug", KeyModifier.CTRL, KeyEvent.VK_D);
+        keybindContainerPanel,
+        "Toggle debug mode",
+        "toggle_debug",
+        KeyModifier.CTRL,
+        KeyEvent.VK_D);
 
     addKeybindCategory(keybindContainerPanel, "Streaming & Privacy");
     addKeybindSet(
-        keybindContainerPanel, "Toggle Twitch chat", "toggle_twitch_chat", KeyModifier.CTRL, KeyEvent.VK_T);
+        keybindContainerPanel,
+        "Toggle Twitch chat",
+        "toggle_twitch_chat",
+        KeyModifier.CTRL,
+        KeyEvent.VK_T);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle IP shown at login screen",
@@ -1417,21 +1444,39 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_J);
     // TODO: Uncomment the following line if this feature no longer requires a restart
-    // addKeybindSet(keybindContainerPanel, "Toggle save login information", "toggle_save_login_info",
+    // addKeybindSet(keybindContainerPanel, "Toggle save login information",
+    // "toggle_save_login_info",
     // KeyModifier.NONE, -1);
 
-    addKeybindCategory(keybindContainerPanel, "Replay (only used while a recording is played back)");
+    addKeybindCategory(
+        keybindContainerPanel, "Replay (only used while a recording is played back)");
     addKeybindSet(keybindContainerPanel, "Stop", "stop", KeyModifier.CTRL, KeyEvent.VK_B);
     addKeybindSet(keybindContainerPanel, "Restart", "restart", KeyModifier.ALT, KeyEvent.VK_R);
     addKeybindSet(keybindContainerPanel, "Pause", "pause", KeyModifier.NONE, KeyEvent.VK_SPACE);
     addKeybindSet(
-        keybindContainerPanel, "Increase playback speed", "ff_plus", KeyModifier.CTRL, KeyEvent.VK_RIGHT);
+        keybindContainerPanel,
+        "Increase playback speed",
+        "ff_plus",
+        KeyModifier.CTRL,
+        KeyEvent.VK_RIGHT);
     addKeybindSet(
-        keybindContainerPanel, "Decrease playback speed", "ff_minus", KeyModifier.CTRL, KeyEvent.VK_LEFT);
+        keybindContainerPanel,
+        "Decrease playback speed",
+        "ff_minus",
+        KeyModifier.CTRL,
+        KeyEvent.VK_LEFT);
     addKeybindSet(
-        keybindContainerPanel, "Reset playback speed", "ff_reset", KeyModifier.CTRL, KeyEvent.VK_DOWN);
+        keybindContainerPanel,
+        "Reset playback speed",
+        "ff_reset",
+        KeyModifier.CTRL,
+        KeyEvent.VK_DOWN);
     addKeybindSet(
-        keybindContainerPanel, "Toggle seek bar", "show_seek_bar", KeyModifier.CTRL, KeyEvent.VK_UP);
+        keybindContainerPanel,
+        "Toggle seek bar",
+        "show_seek_bar",
+        KeyModifier.CTRL,
+        KeyEvent.VK_UP);
     addKeybindSet(
         keybindContainerPanel,
         "Show player controls",
@@ -1489,9 +1534,7 @@ public class ConfigWindow {
         "Record your play sessions without having to click the record button every time you log in");
 
     replayPanelRecordKBMouseCheckbox =
-        addCheckbox(
-            "Record Keyboard and Mouse input in replay recordings",
-            replayPanel);
+        addCheckbox("Record Keyboard and Mouse input in replay recordings", replayPanel);
     replayPanelRecordKBMouseCheckbox.setToolTipText(
         "Additionally record mouse and keyboard inputs when recording a session");
 
@@ -1566,13 +1609,12 @@ public class ConfigWindow {
     replayPanelDateFormatTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     replayPanelDateFormatTextField.setAlignmentY((float) 0.75);
 
-
-    replayPanelShowWorldColumnCheckbox =
-        addCheckbox("Show \"World\" Column", replayPanel);
+    replayPanelShowWorldColumnCheckbox = addCheckbox("Show \"World\" Column", replayPanel);
     replayPanelShowWorldColumnCheckbox.setToolTipText(
         "Displays \"Friendly Name\" for IPs that RSC+ recognizes, and just the IP address otherwise.");
     replayPanelShowConversionSettingsCheckbox =
-        addCheckbox("Show RSCMinus \"Conversion Settings\" Column (Chat Stripping, etc)", replayPanel);
+        addCheckbox(
+            "Show RSCMinus \"Conversion Settings\" Column (Chat Stripping, etc)", replayPanel);
     replayPanelShowConversionSettingsCheckbox.setToolTipText(
         "Chat Stripping, Private Chat Stripping, Whether or not it has been converted, etc.");
     replayPanelShowUserFieldCheckbox =
@@ -1676,7 +1718,7 @@ public class ConfigWindow {
     addSettingsHeader(worldListPanel, "World List");
 
     JLabel spacingLabel = new JLabel("");
-    spacingLabel.setBorder(BorderFactory.createEmptyBorder(5,0,0,0));
+    spacingLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
     worldListPanel.add(spacingLabel);
 
     for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
@@ -1695,14 +1737,15 @@ public class ConfigWindow {
 
     try {
       BufferedImage rscplusLogo = ImageIO.read(Settings.getResource("/assets/icon-large.png"));
-      JLabel rscplusLogoJLabel = new JLabel(new ImageIcon(rscplusLogo.getScaledInstance(250, 250, Image.SCALE_DEFAULT)));
-      rscplusLogoJLabel.setBorder(BorderFactory.createEmptyBorder(0,10,20,40));
+      JLabel rscplusLogoJLabel =
+          new JLabel(new ImageIcon(rscplusLogo.getScaledInstance(250, 250, Image.SCALE_DEFAULT)));
+      rscplusLogoJLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 20, 40));
       logoPanel.add(rscplusLogoJLabel);
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
 
-    thirdsPanel.add(logoPanel,c);
+    thirdsPanel.add(logoPanel, c);
 
     JPanel rightPane = new JPanel(new GridBagLayout());
     GridBagConstraints cR = new GridBagConstraints();
@@ -1712,22 +1755,26 @@ public class ConfigWindow {
     cR.gridy = 0;
     cR.gridwidth = 3;
 
-    JLabel RSCPlusText = new JLabel(String.format(
-        "<html><div style=\"font-size:45px; padding-bottom:10px;\"<b>RSC</b>Plus</div><div style=\"font-size:20px;\">v%8.6f </div></html>",
-        Settings.VERSION_NUMBER));
+    JLabel RSCPlusText =
+        new JLabel(
+            String.format(
+                "<html><div style=\"font-size:45px; padding-bottom:10px;\"<b>RSC</b>Plus</div><div style=\"font-size:20px;\">v%8.6f </div></html>",
+                Settings.VERSION_NUMBER));
 
     rightPane.add(RSCPlusText);
 
     cR.gridy = 1;
 
-    JLabel aboutText = new JLabel("<html><head><style>p{font-size:10px; padding-top:15px;}ul{padding-left:0px;margin-left:10px;}</style></head><p><b>RSC</b>Plus is a RuneLite-like client "+
-        "based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>" +
-        "Thanks to the authors who made this software possible:<br/>" +
-        "<ul><li><b>Ornox</b>, for creating the client & most of its features</li><li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li><li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li><li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li><li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li><li><b>nickzuber</b>, fixed some bugs</li><li><b>sammy123k</b>, added an option to center the XP progress bar</li><li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
+    JLabel aboutText =
+        new JLabel(
+            "<html><head><style>p{font-size:10px; padding-top:15px;}ul{padding-left:0px;margin-left:10px;}</style></head><p><b>RSC</b>Plus is a RuneLite-like client "
+                + "based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>"
+                + "Thanks to the authors who made this software possible:<br/>"
+                + "<ul><li><b>Ornox</b>, for creating the client & most of its features</li><li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li><li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li><li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li><li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li><li><b>nickzuber</b>, fixed some bugs</li><li><b>sammy123k</b>, added an option to center the XP progress bar</li><li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
 
     rightPane.add(aboutText, cR);
     c.gridx = 2;
-    thirdsPanel.add(rightPane,c);
+    thirdsPanel.add(rightPane, c);
 
     JPanel bottomPane = new JPanel(new GridBagLayout());
     GridBagConstraints cB = new GridBagConstraints();
@@ -1739,15 +1786,16 @@ public class ConfigWindow {
     cB.weightx = 0.33;
     cB.gridwidth = 1;
 
-    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://www.gnu.org/licenses/gpl-3.0.en.html for more information.");
-    bottomPane.add(licenseText,cB);
+    JLabel licenseText =
+        new JLabel(
+            "        This software is licensed under GPLv3. Visit https://www.gnu.org/licenses/gpl-3.0.en.html for more information.");
+    bottomPane.add(licenseText, cB);
 
     cB.gridx = 5;
     cB.weightx = 1;
     cB.gridwidth = 20;
     JLabel blank = new JLabel("");
-    bottomPane.add(blank,cB);
-
+    bottomPane.add(blank, cB);
 
     c.gridy = 10;
     c.gridx = 0;
@@ -1755,7 +1803,6 @@ public class ConfigWindow {
     thirdsPanel.add(bottomPane, c);
 
     authorsPanel.add(thirdsPanel);
-
   }
 
   /**
@@ -2431,7 +2478,8 @@ public class ConfigWindow {
 
     // World List
     for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
-      Settings.WORLD_NAMES.put(i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
+      Settings.WORLD_NAMES.put(
+          i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
 
       String portString = worldPortsJTextFields.get(i).getText();
@@ -2450,12 +2498,11 @@ public class ConfigWindow {
     Settings.save();
   }
 
-  private String getTextWithDefault(HashMap<Integer, JTextField> textFields, int index, String defaultValue) {
+  private String getTextWithDefault(
+      HashMap<Integer, JTextField> textFields, int index, String defaultValue) {
     String value = textFields.get(index).getText();
-    if (value.equals(""))
-      return defaultValue;
-    else
-      return value;
+    if (value.equals("")) return defaultValue;
+    else return value;
   }
 
   public void disposeJFrame() {
@@ -2545,26 +2592,30 @@ public class ConfigWindow {
     worldDeleteJButtons.get(i).setAlignmentY((float) 0.80);
     worldDeleteJButtons.get(i).setPreferredSize(new Dimension(50, 28));
     worldDeleteJButtons.get(i).setActionCommand(String.format("%d", i));
-    worldDeleteJButtons.get(i).addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            String actionCommandWorld = e.getActionCommand();
-            int choice =
-                JOptionPane.showConfirmDialog(
-                    Launcher.getConfigWindow().frame,
-                    String.format("Warning: Are you sure you want to DELETE World %s?", actionCommandWorld),
-                    "Confirm",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
-              return;
-            }
+    worldDeleteJButtons
+        .get(i)
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                String actionCommandWorld = e.getActionCommand();
+                int choice =
+                    JOptionPane.showConfirmDialog(
+                        Launcher.getConfigWindow().frame,
+                        String.format(
+                            "Warning: Are you sure you want to DELETE World %s?",
+                            actionCommandWorld),
+                        "Confirm",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+                if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+                  return;
+                }
 
-            Logger.Info("Deleting World " + actionCommandWorld);
-            Settings.removeWorld(Integer.parseInt(actionCommandWorld));
-          }
-        });
+                Logger.Info("Deleting World " + actionCommandWorld);
+                Settings.removeWorld(Integer.parseInt(actionCommandWorld));
+              }
+            });
 
     worldListTitleTextFieldContainers.get(i).add(worldDeleteJButtons.get(i), cR);
 
@@ -2573,7 +2624,8 @@ public class ConfigWindow {
 
     //// URL/Ports line
     worldUrlsJTextFields.put(i, new HintTextField(String.format("World %d URL", i)));
-    worldPortsJTextFields.put(i, new HintTextField(String.format("World %d Port (default: 43594)", i)));
+    worldPortsJTextFields.put(
+        i, new HintTextField(String.format("World %d Port (default: 43594)", i)));
 
     worldUrlsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
     worldUrlsJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
@@ -2586,15 +2638,19 @@ public class ConfigWindow {
 
     worldListURLPortTextFieldContainers.put(i, new JPanel());
 
-    worldListURLPortTextFieldContainers.get(i).setLayout(new BoxLayout(worldListURLPortTextFieldContainers.get(i), BoxLayout.X_AXIS));
+    worldListURLPortTextFieldContainers
+        .get(i)
+        .setLayout(new BoxLayout(worldListURLPortTextFieldContainers.get(i), BoxLayout.X_AXIS));
 
     worldListURLPortTextFieldContainers.get(i).add(worldUrlsJTextFields.get(i));
     worldListURLPortTextFieldContainers.get(i).add(worldPortsJTextFields.get(i));
     worldListPanel.add(worldListURLPortTextFieldContainers.get(i));
 
     //// RSA Pubkey/Exponent line
-    worldRSAPubKeyJTextFields.put(i, new HintTextField(String.format("World %d RSA Public Key", i)));
-    worldRSAExponentsJTextFields.put(i, new HintTextField(String.format("World %d RSA Exponent", i)));
+    worldRSAPubKeyJTextFields.put(
+        i, new HintTextField(String.format("World %d RSA Public Key", i)));
+    worldRSAExponentsJTextFields.put(
+        i, new HintTextField(String.format("World %d RSA Exponent", i)));
 
     worldRSAPubKeyJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
     worldRSAPubKeyJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
@@ -2607,14 +2663,16 @@ public class ConfigWindow {
 
     worldListRSATextFieldContainers.put(i, new JPanel());
 
-    worldListRSATextFieldContainers.get(i).setLayout(new BoxLayout(worldListRSATextFieldContainers.get(i), BoxLayout.X_AXIS));
+    worldListRSATextFieldContainers
+        .get(i)
+        .setLayout(new BoxLayout(worldListRSATextFieldContainers.get(i), BoxLayout.X_AXIS));
 
     worldListRSATextFieldContainers.get(i).add(worldRSAPubKeyJTextFields.get(i));
     worldListRSATextFieldContainers.get(i).add(worldRSAExponentsJTextFields.get(i));
     worldListPanel.add(worldListRSATextFieldContainers.get(i));
 
     worldListSpacingLabels.put(i, new JLabel(""));
-    worldListSpacingLabels.get(i).setBorder(BorderFactory.createEmptyBorder(30,0,0,0));
+    worldListSpacingLabels.get(i).setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
     worldListPanel.add(worldListSpacingLabels.get(i));
 
     if (i > Settings.WORLD_NAMES.size()) {
@@ -2766,12 +2824,15 @@ class HintTextField extends JTextField {
   public HintTextField(String hint) {
     _hint = hint;
   }
+
   @Override
   public void paint(Graphics g) {
     super.paint(g);
     if (getText().length() == 0) {
       int h = getHeight();
-      ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      ((Graphics2D) g)
+          .setRenderingHint(
+              RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
       Insets ins = getInsets();
       FontMetrics fm = g.getFontMetrics();
       int c0 = getBackground().getRGB();
@@ -2782,5 +2843,6 @@ class HintTextField extends JTextField {
       g.drawString(_hint, ins.left, h / 2 + fm.getAscent() / 2 - 2);
     }
   }
+
   private final String _hint;
 }

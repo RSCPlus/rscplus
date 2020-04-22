@@ -244,8 +244,10 @@ public class Client {
   public static int[] inputFilterCharFontAddr;
 
   public static Thread loginMessageHandlerThread;
-  public static String loginMessageTop = "To connect to a server, please configure your World URLs.";
-  public static String loginMessageBottom = "Hit @gre@Ctrl-O@whi@ to access Settings and select the \"World List\" tab.";
+  public static String loginMessageTop =
+      "To connect to a server, please configure your World URLs.";
+  public static String loginMessageBottom =
+      "Hit @gre@Ctrl-O@whi@ to access Settings and select the \"World List\" tab.";
 
   /**
    * A boolean array that stores if the XP per hour should be shown for a given skill when hovering
@@ -515,7 +517,9 @@ public class Client {
       Replay.initializeReplayRecording();
     }
 
-    if (Settings.noWorldsConfigured && Settings.WORLD.get(Settings.currentProfile) != 0 && !Replay.isPlaying) {
+    if (Settings.noWorldsConfigured
+        && Settings.WORLD.get(Settings.currentProfile) != 0
+        && !Replay.isPlaying) {
       closeConnection(false);
       loginMessageHandlerThread = new Thread(new LoginMessageHandler());
       loginMessageHandlerThread.start();
@@ -1045,7 +1049,8 @@ public class Client {
     try {
       Double currentVersion = 0.0;
       URL updateURL =
-          new URL("https://raw.githubusercontent.com/RSCPlus/rscplus/master/src/Client/Settings.java");
+          new URL(
+              "https://raw.githubusercontent.com/RSCPlus/rscplus/master/src/Client/Settings.java");
 
       // Open connection
       URLConnection connection = updateURL.openConnection();
@@ -1993,14 +1998,14 @@ public class Client {
 
 // set Client.loginMessageBottom/Top before calling if you want something else to show up
 class LoginMessageHandler implements Runnable {
-@Override
-public void run() {
+  @Override
+  public void run() {
     try {
       Thread.sleep(5);
       Client.setLoginMessage(Client.loginMessageBottom, Client.loginMessageTop);
     } catch (InterruptedException e) {
       Logger.Error(
-      "The login message thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
+          "The login message thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
       // End the thread
     }
   }

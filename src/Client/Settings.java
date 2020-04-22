@@ -42,7 +42,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20200422.154130;
+  public static final double VERSION_NUMBER = 20200422.162232;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1031,8 +1031,7 @@ public class Settings {
     SHOW_WORLD_COLUMN.put("heavy", true);
     SHOW_WORLD_COLUMN.put("all", true);
     SHOW_WORLD_COLUMN.put(
-        "custom",
-        getPropBoolean(props, "show_world_column", SHOW_WORLD_COLUMN.get("default")));
+        "custom", getPropBoolean(props, "show_world_column", SHOW_WORLD_COLUMN.get("default")));
 
     SHOW_CONVERSION_COLUMN.put("vanilla", false);
     SHOW_CONVERSION_COLUMN.put("vanilla_resizable", false);
@@ -1053,7 +1052,6 @@ public class Settings {
     SHOW_USERFIELD_COLUMN.put(
         "custom",
         getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
-
 
     //// world list
     initWorlds();
@@ -1250,12 +1248,14 @@ public class Settings {
     File[] fList = new File(Dir.WORLDS).listFiles();
 
     // Sorts alphabetically
-    Arrays.sort(fList, new Comparator<File>() {
-      @Override
-      public int compare(File o1, File o2) {
-        return o1.getName().compareTo(o2.getName());
-      }
-    });
+    Arrays.sort(
+        fList,
+        new Comparator<File>() {
+          @Override
+          public int compare(File o1, File o2) {
+            return o1.getName().compareTo(o2.getName());
+          }
+        });
 
     int i = 1;
     if (fList != null) {
@@ -1294,7 +1294,8 @@ public class Settings {
   public static void saveWorlds() {
     // TODO: it would be nice if we only saved a new file if information is different
     for (int i = 1; i <= WORLD_NAMES.size(); i++) {
-      String worldFileName = String.format("%s%d_%s%s", i < 10 ? "0": "", i, WORLD_NAMES.get(i), ".ini");
+      String worldFileName =
+          String.format("%s%d_%s%s", i < 10 ? "0" : "", i, WORLD_NAMES.get(i), ".ini");
       Properties worldProps = new Properties();
 
       worldProps.setProperty("name", WORLD_NAMES.get(i));
@@ -1314,7 +1315,8 @@ public class Settings {
         File oldFile = new File(WORLD_FILE_PATHS.get(i));
         if (!worldFileName.equals(oldFile.getName())) {
           if (!oldFile.delete()) {
-            Logger.Warn(String.format("Error deleting old file %d: %s", i, oldFile.getAbsolutePath()));
+            Logger.Warn(
+                String.format("Error deleting old file %d: %s", i, oldFile.getAbsolutePath()));
           }
           WORLD_FILE_PATHS.put(i, new File(Dir.WORLDS, worldFileName).getAbsolutePath());
         }
@@ -1331,7 +1333,9 @@ public class Settings {
     WORLD_RSA_PUB_KEYS.put(worldNum, "");
     WORLD_RSA_EXPONENTS.put(worldNum, "");
 
-    String worldFileName = String.format("%s%d_%s%s", worldNum < 10 ? "0": "", worldNum, WORLD_NAMES.get(worldNum), ".ini");
+    String worldFileName =
+        String.format(
+            "%s%d_%s%s", worldNum < 10 ? "0" : "", worldNum, WORLD_NAMES.get(worldNum), ".ini");
     Properties worldProps = new Properties();
 
     worldProps.setProperty("name", WORLD_NAMES.get(worldNum));
@@ -1514,8 +1518,7 @@ public class Settings {
           "trigger_alerts_replay", Boolean.toString(TRIGGER_ALERTS_REPLAY.get(preset)));
       props.setProperty("replay_base_path", REPLAY_BASE_PATH.get(preset));
       props.setProperty("preferred_date_format", PREFERRED_DATE_FORMAT.get(preset));
-      props.setProperty(
-          "show_world_column", Boolean.toString(SHOW_WORLD_COLUMN.get(preset)));
+      props.setProperty("show_world_column", Boolean.toString(SHOW_WORLD_COLUMN.get(preset)));
       props.setProperty(
           "show_conversion_column", Boolean.toString(SHOW_CONVERSION_COLUMN.get(preset)));
       props.setProperty(

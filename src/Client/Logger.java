@@ -36,7 +36,6 @@ public class Logger {
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
 
-
   public enum Type {
     ERROR(0, "error", true, true),
     WARN(1, "warn", true, true),
@@ -172,21 +171,32 @@ public class Logger {
         hexChars[j * 3 + 2] = ' ';
       }
 
-      data_length = String.format("%d byte%s",data.length,data.length != 1 ? "s" : "");
+      data_length = String.format("%d byte%s", data.length, data.length != 1 ? "s" : "");
     } else {
       data_length = "0";
       hexChars = new char[20];
     }
     if (type.equals(" IN")) {
-      if (true) { //opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user to filter them... possibly a way to filter arbitrary opcodes
-        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      if (true) { // opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user
+                  // to filter them... possibly a way to filter arbitrary opcodes
+        Log(
+            Type.OPCODE,
+            String.format(
+                    "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
+                    timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length)
+                + new String(hexChars));
       }
     } else if (type.equals("OUT")) {
-      if (true) { //opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
-        Log(Type.OPCODE, String.format("[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ", timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length) + new String(hexChars));
+      if (true) { // opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
+        Log(
+            Type.OPCODE,
+            String.format(
+                    "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
+                    timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length)
+                + new String(hexChars));
       }
     } else {
-      Log(Type.ERROR,"It's gotta be either \" IN\" or \"OUT\", man");
+      Log(Type.ERROR, "It's gotta be either \" IN\" or \"OUT\", man");
     }
   }
 }

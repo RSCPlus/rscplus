@@ -19,15 +19,14 @@
 package Client;
 
 import Game.Replay;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.InetAddress;
 
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
@@ -201,13 +200,15 @@ public class JConfig {
     try {
       InetAddress address = InetAddress.getByName(curWorldURL);
       Replay.ipAddressMetadata = address.getAddress();
-      Logger.Info(String.format("World set to %s (%s)", Settings.WORLD_NAMES.get(world), address.toString()));
+      Logger.Info(
+          String.format(
+              "World set to %s (%s)", Settings.WORLD_NAMES.get(world), address.toString()));
     } catch (UnknownHostException e) {
       Logger.Warn("Warning: Unable to resolve server url!");
-      Replay.ipAddressMetadata = new byte[]{0,0,0,0};
+      Replay.ipAddressMetadata = new byte[] {0, 0, 0, 0};
     }
   }
-  
+
   /**
    * Gets the corresponding String from the {@link #m_data} HashMap, given the key
    *
