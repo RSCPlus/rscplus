@@ -182,10 +182,10 @@ public class JConfig {
     SERVER_RSA_EXPONENT = Settings.WORLD_RSA_EXPONENTS.get(world);
     SERVER_RSA_MODULUS = Settings.WORLD_RSA_PUB_KEYS.get(world);
     if (SERVER_RSA_EXPONENT.equals("")) {
-      SERVER_RSA_EXPONENT = "0";
+      SERVER_RSA_EXPONENT = "123";
     }
     if (SERVER_RSA_MODULUS.equals("")) {
-      SERVER_RSA_MODULUS = "0";
+      SERVER_RSA_MODULUS = "123";
     }
 
     if (!curWorldURL.equals("")) {
