@@ -32,8 +32,8 @@ import java.net.InetAddress;
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
   // Server information
-  public static final String SERVER_RSA_EXPONENT = "65537";
-  public static final String SERVER_RSA_MODULUS =
+  public static String SERVER_RSA_EXPONENT = "65537";
+  public static String SERVER_RSA_MODULUS =
       "8919358150844327671615194210081641058246796695652439261191309391046895650925408172336904532376967683135742637126732712594033167816708824171632934946881859";
 
   // Official client version information, subversion uses 'other_sub_version'
@@ -169,7 +169,7 @@ public class JConfig {
 
     // Clip world to world count
     if (world > Settings.WORLDS_TO_DISPLAY) world = Settings.WORLDS_TO_DISPLAY;
-    else if (world < 0) world = 0;
+    else if (world < 1) world = 1;
 
     parameters.put("nodeid", "" + (5000 + world));
     // TODO: This might have meant veteran world
@@ -178,9 +178,16 @@ public class JConfig {
 
     // Set world URL & port
     String curWorldURL = Settings.WORLD_URLS.get(world);
-    curWorldURL = Settings.WORLD_URLS.get(world);
     m_data.put("codebase", "http://" + curWorldURL + "/");
     Replay.connection_port = Settings.WORLD_PORTS.get(world);
+    SERVER_RSA_EXPONENT = Settings.WORLD_RSA_EXPONENTS.get(world);
+    SERVER_RSA_MODULUS = Settings.WORLD_RSA_PUB_KEYS.get(world);
+    if (SERVER_RSA_EXPONENT.equals("")) {
+      SERVER_RSA_EXPONENT = "0";
+    }
+    if (SERVER_RSA_MODULUS.equals("")) {
+      SERVER_RSA_MODULUS = "0";
+    }
 
     if (!curWorldURL.equals("")) {
       Settings.noWorldsConfigured = false;
@@ -194,7 +201,7 @@ public class JConfig {
     try {
       InetAddress address = InetAddress.getByName(curWorldURL);
       Replay.ipAddressMetadata = address.getAddress();
-      Logger.Info(String.format("World set to %s", curWorldURL, address.toString()));
+      Logger.Info(String.format("World set to %s (%s)", Settings.WORLD_NAMES.get(world), address.toString()));
     } catch (UnknownHostException e) {
       Logger.Warn("Warning: Unable to resolve server url!");
       Replay.ipAddressMetadata = new byte[]{0,0,0,0};
