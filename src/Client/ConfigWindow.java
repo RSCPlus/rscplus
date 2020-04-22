@@ -232,9 +232,17 @@ public class ConfigWindow {
   private int sliderValue = -1;
 
   //// World List tab
-  private JSpinner numberOfWorldsSpinner;
+  private HashMap <Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap <Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
   private HashMap <Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
   private HashMap <Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap <Integer, JTextField> worldRSAPubKeyJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap <Integer, JTextField> worldRSAExponentsJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap <Integer, JPanel> worldListTitleTextFieldContainers = new HashMap <Integer, JPanel>();
+  private HashMap <Integer, JPanel> worldListURLPortTextFieldContainers = new HashMap <Integer, JPanel>();
+  private HashMap <Integer, JPanel> worldListRSATextFieldContainers = new HashMap <Integer, JPanel>();
+  private HashMap <Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
+  private JPanel worldListPanel = new JPanel();
 
   public ConfigWindow() {
     try {
@@ -329,7 +337,7 @@ public class ConfigWindow {
     JPanel streamingPanel = new JPanel();
     JPanel keybindPanel = new JPanel();
     JPanel replayPanel = new JPanel();
-    JPanel worldListPanel = new JPanel();
+    worldListPanel = new JPanel();
     JPanel authorsPanel = new JPanel();
 
     frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -1667,60 +1675,14 @@ public class ConfigWindow {
     worldListPanel.setAlignmentY(Component.TOP_ALIGNMENT);
     addSettingsHeader(worldListPanel, "World List");
 
-    JPanel numberOfWorldsPanel = new JPanel();
-    worldListPanel.add(numberOfWorldsPanel);
-    numberOfWorldsPanel.setLayout(
-        new BoxLayout(numberOfWorldsPanel, BoxLayout.X_AXIS));
-    numberOfWorldsPanel.setPreferredSize(new Dimension(0, 37));
-    numberOfWorldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JLabel spacingLabel = new JLabel("");
+    spacingLabel.setBorder(BorderFactory.createEmptyBorder(5,0,0,0));
+    worldListPanel.add(spacingLabel);
 
-    JLabel numberOfWorldsLabel = new JLabel(String.format("Number of Worlds (between 1 and %d)", Settings.MAX_WORLDS_TO_DISPLAY));
-    numberOfWorldsLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
-    numberOfWorldsPanel.add(numberOfWorldsLabel);
-    numberOfWorldsPanel.setAlignmentY((float) 0.9);
-
-    SpinnerModel numberOfWorldsSpinnerModel = new SpinnerNumberModel(Settings.WORLDS_TO_DISPLAY, 1, Settings.MAX_WORLDS_TO_DISPLAY, 1); /// default value, lower bound, upper bound, increment by
-    numberOfWorldsSpinner = new JSpinner(numberOfWorldsSpinnerModel);
-    numberOfWorldsSpinner.setMaximumSize(new Dimension(45, 22));
-    numberOfWorldsSpinner.setMinimumSize(new Dimension(45, 22));
-    numberOfWorldsSpinner.setAlignmentY((float) 0.5);
-    numberOfWorldsPanel.add(numberOfWorldsSpinner);
-    numberOfWorldsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
-
-    JPanel worldListTextFieldsPanel = new JPanel();
-    worldListTextFieldsPanel.setLayout(
-        new BoxLayout(worldListTextFieldsPanel, BoxLayout.Y_AXIS));
-    worldListTextFieldsPanel.setPreferredSize(new Dimension(0, 37));
-    worldListTextFieldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-    HashMap <Integer, JPanel> worldListTextFieldContainers = new HashMap <Integer, JPanel>();
-
-    for (int i = 1; i <= Settings.MAX_WORLDS_TO_DISPLAY; i++) {
-      worldUrlsJTextFields.put(i, new HintTextField(String.format("World %d URL", i)));
-      worldPortsJTextFields.put(i, new HintTextField(String.format("World %d Port (default: 43594)", i)));
-
-      worldUrlsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
-      worldUrlsJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
-      worldUrlsJTextFields.get(i).setAlignmentY((float) 0.75);
-
-      worldPortsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
-      worldPortsJTextFields.get(i).setMaximumSize(new Dimension(180, 28));
-      worldPortsJTextFields.get(i).setAlignmentY((float) 0.75);
-
-      worldListTextFieldContainers.put(i, new JPanel());
-
-      worldListTextFieldContainers.get(i).setLayout(new BoxLayout(worldListTextFieldContainers.get(i), BoxLayout.X_AXIS));
-
-      if (i > Settings.WORLDS_TO_DISPLAY) {
-        worldUrlsJTextFields.get(i).setVisible(false);
-        worldPortsJTextFields.get(i).setVisible(false);
-      }
-
-      worldListTextFieldContainers.get(i).add(worldUrlsJTextFields.get(i));
-      worldListTextFieldContainers.get(i).add(worldPortsJTextFields.get(i));
-      worldListTextFieldsPanel.add(worldListTextFieldContainers.get(i));
+    for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
+      addWorldFields(i);
     }
-    worldListPanel.add(worldListTextFieldsPanel);
+    addAddWorldButton();
 
     // Authors Tab
     JPanel logoPanel = new JPanel();
@@ -1777,7 +1739,7 @@ public class ConfigWindow {
     cB.weightx = 0.33;
     cB.gridwidth = 1;
 
-    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://wwww.gnu.org/licenses/gpl-3.0.en.html for more information.");
+    JLabel licenseText = new JLabel("        This software is licensed under GPLv3. Visit https://www.gnu.org/licenses/gpl-3.0.en.html for more information.");
     bottomPane.add(licenseText,cB);
 
     cB.gridx = 5;
@@ -2251,18 +2213,7 @@ public class ConfigWindow {
         Settings.SHOW_USERFIELD_COLUMN.get(Settings.currentProfile));
 
     // World List tab
-    numberOfWorldsSpinner.setValue(Settings.WORLDS_TO_DISPLAY);
-    for (int i = 1; i < Settings.MAX_WORLDS_TO_DISPLAY; i++) {
-      worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
-      worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());
-      if (i <= Settings.WORLDS_TO_DISPLAY) {
-        worldUrlsJTextFields.get(i).setVisible(true);
-        worldPortsJTextFields.get(i).setVisible(true);
-      } else {
-        worldUrlsJTextFields.get(i).setVisible(false);
-        worldPortsJTextFields.get(i).setVisible(false);
-      }
-    }
+    synchronizeWorldTab();
 
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
@@ -2479,19 +2430,32 @@ public class ConfigWindow {
     }
 
     // World List
-    Settings.WORLDS_TO_DISPLAY = ((SpinnerNumberModel)(numberOfWorldsSpinner.getModel())).getNumber().intValue();
-    for (int i = 1; i <= Settings.MAX_WORLDS_TO_DISPLAY; i++) {
+    for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
+      Settings.WORLD_NAMES.put(i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
+
       String portString = worldPortsJTextFields.get(i).getText();
       if (portString.equals("")) {
         Settings.WORLD_PORTS.put(i, Replay.DEFAULT_PORT);
       } else {
         Settings.WORLD_PORTS.put(i, Integer.parseInt(portString));
       }
+      Settings.WORLD_RSA_PUB_KEYS.put(i, worldRSAPubKeyJTextFields.get(i).getText());
+      Settings.WORLD_RSA_EXPONENTS.put(i, worldRSAExponentsJTextFields.get(i).getText());
     }
-    if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    if (Client.state == Client.STATE_LOGIN)
+      Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
 
+    // Save Settings
     Settings.save();
+  }
+
+  private String getTextWithDefault(HashMap<Integer, JTextField> textFields, int index, String defaultValue) {
+    String value = textFields.get(index).getText();
+    if (value.equals(""))
+      return defaultValue;
+    else
+      return value;
   }
 
   public void disposeJFrame() {
@@ -2541,6 +2505,169 @@ public class ConfigWindow {
       presetsPanelPresetSlider.setEnabled(true);
       replaceConfigButton.setEnabled(true);
       resetPresetsButton.setEnabled(true);
+    }
+  }
+
+  public void addWorldFields(int i) {
+    //// Name line
+    worldListTitleTextFieldContainers.put(i, new JPanel());
+    worldListTitleTextFieldContainers.get(i).setLayout(new GridBagLayout());
+    GridBagConstraints cR = new GridBagConstraints();
+    cR.fill = GridBagConstraints.HORIZONTAL;
+    cR.anchor = GridBagConstraints.LINE_START;
+    cR.weightx = 0.1;
+    cR.gridy = 0;
+    cR.gridwidth = 1;
+
+    JLabel worldNumberJLabel = new JLabel(String.format("<html><b>World %d</b></html>", i));
+    worldNumberJLabel.setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldNumberJLabel, cR);
+
+    cR.weightx = 0.5;
+    cR.gridwidth = 5;
+
+    worldNamesJTextFields.put(i, new HintTextField("Name of World"));
+    worldNamesJTextFields.get(i).setMinimumSize(new Dimension(80, 28));
+    worldNamesJTextFields.get(i).setMaximumSize(new Dimension(300, 28));
+    worldNamesJTextFields.get(i).setPreferredSize(new Dimension(200, 28));
+    worldNamesJTextFields.get(i).setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldNamesJTextFields.get(i), cR);
+
+    cR.weightx = 0.3;
+    cR.gridwidth = 1;
+    cR.anchor = GridBagConstraints.LINE_END;
+
+    JLabel spacingJLabel = new JLabel("");
+    worldNumberJLabel.setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
+
+    worldDeleteJButtons.put(i, new JButton("Delete World"));
+    worldDeleteJButtons.get(i).setAlignmentY((float) 0.80);
+    worldDeleteJButtons.get(i).setPreferredSize(new Dimension(50, 28));
+    worldDeleteJButtons.get(i).setActionCommand(String.format("%d", i));
+    worldDeleteJButtons.get(i).addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            String actionCommandWorld = e.getActionCommand();
+            int choice =
+                JOptionPane.showConfirmDialog(
+                    Launcher.getConfigWindow().frame,
+                    String.format("Warning: Are you sure you want to DELETE World %s?", actionCommandWorld),
+                    "Confirm",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+              return;
+            }
+
+            Logger.Info("Deleting World " + actionCommandWorld);
+            Settings.removeWorld(Integer.parseInt(actionCommandWorld));
+          }
+        });
+
+    worldListTitleTextFieldContainers.get(i).add(worldDeleteJButtons.get(i), cR);
+
+    worldListTitleTextFieldContainers.get(i).setMaximumSize(new Dimension(680, 40));
+    worldListPanel.add(worldListTitleTextFieldContainers.get(i));
+
+    //// URL/Ports line
+    worldUrlsJTextFields.put(i, new HintTextField(String.format("World %d URL", i)));
+    worldPortsJTextFields.put(i, new HintTextField(String.format("World %d Port (default: 43594)", i)));
+
+    worldUrlsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+    worldUrlsJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
+    worldUrlsJTextFields.get(i).setPreferredSize(new Dimension(500, 28));
+    worldUrlsJTextFields.get(i).setAlignmentY((float) 0.75);
+
+    worldPortsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+    worldPortsJTextFields.get(i).setMaximumSize(new Dimension(180, 28));
+    worldPortsJTextFields.get(i).setAlignmentY((float) 0.75);
+
+    worldListURLPortTextFieldContainers.put(i, new JPanel());
+
+    worldListURLPortTextFieldContainers.get(i).setLayout(new BoxLayout(worldListURLPortTextFieldContainers.get(i), BoxLayout.X_AXIS));
+
+    worldListURLPortTextFieldContainers.get(i).add(worldUrlsJTextFields.get(i));
+    worldListURLPortTextFieldContainers.get(i).add(worldPortsJTextFields.get(i));
+    worldListPanel.add(worldListURLPortTextFieldContainers.get(i));
+
+    //// RSA Pubkey/Exponent line
+    worldRSAPubKeyJTextFields.put(i, new HintTextField(String.format("World %d RSA Public Key", i)));
+    worldRSAExponentsJTextFields.put(i, new HintTextField(String.format("World %d RSA Exponent", i)));
+
+    worldRSAPubKeyJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+    worldRSAPubKeyJTextFields.get(i).setMaximumSize(new Dimension(500, 28));
+    worldRSAPubKeyJTextFields.get(i).setPreferredSize(new Dimension(500, 28));
+    worldRSAPubKeyJTextFields.get(i).setAlignmentY((float) 0.75);
+
+    worldRSAExponentsJTextFields.get(i).setMinimumSize(new Dimension(100, 28));
+    worldRSAExponentsJTextFields.get(i).setMaximumSize(new Dimension(180, 28));
+    worldRSAExponentsJTextFields.get(i).setAlignmentY((float) 0.75);
+
+    worldListRSATextFieldContainers.put(i, new JPanel());
+
+    worldListRSATextFieldContainers.get(i).setLayout(new BoxLayout(worldListRSATextFieldContainers.get(i), BoxLayout.X_AXIS));
+
+    worldListRSATextFieldContainers.get(i).add(worldRSAPubKeyJTextFields.get(i));
+    worldListRSATextFieldContainers.get(i).add(worldRSAExponentsJTextFields.get(i));
+    worldListPanel.add(worldListRSATextFieldContainers.get(i));
+
+    worldListSpacingLabels.put(i, new JLabel(""));
+    worldListSpacingLabels.get(i).setBorder(BorderFactory.createEmptyBorder(30,0,0,0));
+    worldListPanel.add(worldListSpacingLabels.get(i));
+
+    if (i > Settings.WORLD_NAMES.size()) {
+      Settings.createNewWorld(i);
+    }
+  }
+
+  public void addAddWorldButton() {
+    JButton addWorldButton = new JButton("Add New World");
+    addWorldButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            worldListPanel.remove(addWorldButton);
+            ++Settings.WORLDS_TO_DISPLAY;
+            synchronizeWorldTab();
+            addAddWorldButton();
+          }
+        });
+    worldListPanel.add(addWorldButton);
+    worldListPanel.revalidate();
+    worldListPanel.repaint();
+  }
+
+  // adds or removes world list text fields & fills them with their values
+  public void synchronizeWorldTab() {
+    int numberOfWorldsEver = worldUrlsJTextFields.size();
+    // sync values from Settings (read in from file) & hide worlds that have gotten deleted
+    if (Settings.WORLDS_TO_DISPLAY > numberOfWorldsEver) {
+      addWorldFields(Settings.WORLDS_TO_DISPLAY);
+    }
+    for (int i = 1; (i <= numberOfWorldsEver) || (i <= Settings.WORLDS_TO_DISPLAY); i++) {
+      if (i <= Settings.WORLDS_TO_DISPLAY) {
+        worldNamesJTextFields.get(i).setText(Settings.WORLD_NAMES.get(i));
+        worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
+        try {
+          worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());
+        } catch (Exception e) {
+          worldNamesJTextFields.get(i).setText(String.format("World %d", i));
+          Settings.createNewWorld(i);
+        }
+        worldRSAPubKeyJTextFields.get(i).setText(Settings.WORLD_RSA_PUB_KEYS.get(i));
+        worldRSAExponentsJTextFields.get(i).setText(Settings.WORLD_RSA_EXPONENTS.get(i));
+        worldListTitleTextFieldContainers.get(i).setVisible(true);
+        worldListURLPortTextFieldContainers.get(i).setVisible(true);
+        worldListRSATextFieldContainers.get(i).setVisible(true);
+        worldListSpacingLabels.get(i).setVisible(true);
+      } else {
+        worldListTitleTextFieldContainers.get(i).setVisible(false);
+        worldListURLPortTextFieldContainers.get(i).setVisible(false);
+        worldListRSATextFieldContainers.get(i).setVisible(false);
+        worldListSpacingLabels.get(i).setVisible(false);
+      }
     }
   }
 }
