@@ -1213,7 +1213,11 @@ public class Settings {
         versionText = versionText.substring(2);
       }
       javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+    } catch (Exception e) {
+      javaVersion = -1;
+    }
 
+    try {
       Properties props = new Properties();
 
       File configFile = new File(Dir.JAR + "/config.ini");
