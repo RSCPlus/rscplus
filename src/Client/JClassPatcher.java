@@ -807,7 +807,7 @@ public class JClassPatcher {
           }
         }
       }
-      if (Settings.javaVersion >= 9
+      if ((Settings.javaVersion >= 9 || Settings.javaVersion == -1)
           && methodNode.name.equals("isDisplayable")
           && methodNode.desc.equals("()Z")) {
         Logger.Warn(
@@ -827,7 +827,7 @@ public class JClassPatcher {
                 Opcodes.INVOKESPECIAL, "java/applet/Applet", "isDisplayable", "()Z", false));
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IRETURN));
       }
-      if (Settings.javaVersion >= 9
+      if ((Settings.javaVersion >= 9 || Settings.javaVersion == -1)
           && (methodNode.name.equals("mousePressed") || methodNode.name.equals("mouseDragged"))
           && methodNode.desc.equals("(Ljava/awt/event/MouseEvent;)V")) {
         Logger.Warn(
