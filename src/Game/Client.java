@@ -18,14 +18,6 @@
  */
 package Game;
 
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.TwitchIRC;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -41,6 +33,14 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.TwitchIRC;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -276,6 +276,8 @@ public class Client {
 
   /** The client version */
   public static int version;
+	
+	public static String[] menuOptions;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -528,7 +530,7 @@ public class Client {
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
-    Replay.closeReplayRecording();
+		Replay.closeReplayRecording();
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -1238,6 +1240,7 @@ public class Client {
     int type = CHAT_INCOMING_OPTION;
 
     String option = "";
+		Client.menuOptions = menuOptions;
     for (int i = 0; i < count; i++) {
       option = menuOptions[i];
 
@@ -1259,18 +1262,23 @@ public class Client {
     // Do not run anything below here while seeking
     // FIXME: We block this during replay playback, but if support is ever added, this needs to be
     // removed
-    if (Replay.isPlaying) return;
+		if (Replay.isPlaying)
+			return;
+		
+		Client.printSelectedOption(possibleOptions, selection);
+	}
+	
+	public static void printSelectedOption(String[] possibleOptions, int selection) {
+		int type = CHAT_CHOSEN_OPTION;
+		if (selection < 0)
+			return;
 
-    int type = CHAT_CHOSEN_OPTION;
+		int select = (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
+		String option = possibleOptions[select];
 
-    int select =
-        (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
-    String option = possibleOptions[select];
-
-    String originalLog = "(" + formatChatType(type) + ") " + option;
-    String colorizedLog =
-        "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
-    Logger.Chat(colorizedLog, originalLog);
+		String originalLog = "(" + formatChatType(type) + ") " + option;
+		String colorizedLog = "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
+		Logger.Chat(colorizedLog, originalLog);
   }
 
   public static void serverMessageHook(String message) {

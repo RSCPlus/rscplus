@@ -18,13 +18,21 @@
  */
 package Replay.scraper;
 
-import Replay.common.ISAACCipher;
-import Replay.game.PacketBuilder;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.zip.GZIPInputStream;
+import Replay.common.ISAACCipher;
+import Replay.game.PacketBuilder;
 
 public class ReplayReader {
   private byte[] m_data;
@@ -353,6 +361,7 @@ public class ReplayReader {
 
           // Set timestamp
           replayPacket.timestamp = packetTimestamp;
+					replayPacket.skipKeys = skipKeys;
         }
       } else {
         try {
@@ -375,6 +384,7 @@ public class ReplayReader {
 
           replayPacket.opcode = (replayPacket.opcode - isaac.getNextValue()) & 0xFF;
           replayPacket.timestamp = packetTimestamp;
+					replayPacket.skipKeys = 0;
         } catch (Exception e) {
           System.out.println("WARNING: Invalid packet found, trimming replay");
           return null;
