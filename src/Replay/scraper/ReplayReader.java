@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.zip.GZIPInputStream;
+import Client.Logger;
 import Replay.common.ISAACCipher;
 import Replay.game.PacketBuilder;
 
@@ -125,7 +126,7 @@ public class ReplayReader {
       // int timestampDiff = timestamp - lastTimestamp;
       // if (timestampDiff >= 500) {
       //    m_disconnectOffsets.add(offset);
-      //    System.out.println("WARNING: Using potential extreme disconnect point at offset " +
+			// Logger.Warn("Using potential extreme disconnect point at offset " +
       // offset);
       //    Sleep.sleep(10000);
       // }
@@ -159,7 +160,7 @@ public class ReplayReader {
       while (!isEOF()) {
         if (loginBinarySearch()) {
           m_disconnectOffsets.add(m_position);
-          // System.out.println("Disconnect found at offset " + m_position);
+					// Logger.Debug("Disconnect found at offset " + m_position);
         }
         skip(1);
       }
@@ -276,7 +277,7 @@ public class ReplayReader {
       if (m_disconnectOffsets.contains(m_position)) m_loggedIn = false;
       m_position = oldPosition;
     } else if (!peek) {
-      // System.out.println("Checking disconnect at " + m_position);
+			// Logger.Debug("Checking disconnect at " + m_position);
       // Handle disconnect
       if (m_disconnectOffsets.contains(m_position)) {
         m_loggedIn = false;
@@ -316,7 +317,7 @@ public class ReplayReader {
           replayPacket.timestamp = packetTimestamp;
 
           if (replayPacket.opcode != 0) {
-            System.out.println("ERROR: Invalid outgoing login packet: " + replayPacket.opcode);
+						Logger.Error("Invalid outgoing login packet: " + replayPacket.opcode);
             return null;
           }
 
@@ -337,7 +338,7 @@ public class ReplayReader {
               // Set isaac keys
               m_keyIndex++;
               if (m_keyIndex >= m_keys.size()) {
-                System.out.println("ERROR: Replay is trying to use non-existing keys");
+								Logger.Error("Replay is trying to use non-existing keys");
                 return null;
               }
               isaac.reset();
@@ -352,7 +353,8 @@ public class ReplayReader {
             m_forceQuit = true;
           }
 
-          if (skipKeys > 0) System.out.println("WARNING: Skipping " + skipKeys + " keys");
+					if (skipKeys > 0)
+						Logger.Warn("Skipping " + skipKeys + " keys");
 
           // Create virtual connect packet
           replayPacket.opcode = ReplayEditor.VIRTUAL_OPCODE_CONNECT;
@@ -386,7 +388,7 @@ public class ReplayReader {
           replayPacket.timestamp = packetTimestamp;
 					replayPacket.skipKeys = 0;
         } catch (Exception e) {
-          System.out.println("WARNING: Invalid packet found, trimming replay");
+					Logger.Warn("Invalid packet found, trimming replay");
           return null;
         }
       }
@@ -403,7 +405,8 @@ public class ReplayReader {
 
   private void read(byte[] data, int offset, int length) {
     int maxLength = Math.min(m_data.length - m_position, length);
-    if (maxLength != length) System.out.println("WARNING: Copy is out of bounds");
+		if (maxLength != length)
+			Logger.Warn("Copy is out of bounds");
     System.arraycopy(m_data, m_position, data, offset, length);
     m_position += length;
   }
