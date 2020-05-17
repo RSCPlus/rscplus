@@ -128,7 +128,8 @@ public class ReplayServer implements Runnable {
       Logger.Debug("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
 
       // Load replay a second time but using the RSCMinus method
-			if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 3) {
+			if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
+					|| Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
         initializeIncomingOutgoingPackets();
         initializeNextIncomingOutgoingPackets();
       }
@@ -177,7 +178,8 @@ public class ReplayServer implements Runnable {
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
 
-					if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 3) {
+					if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
+							|| Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
             if (incomingPackets == null) {
               initializeIncomingOutgoingPackets();
             }
@@ -225,6 +227,29 @@ public class ReplayServer implements Runnable {
       Logger.Error("ReplayServer: Failed to serve replay");
     }
   }
+	
+	public void replayOutput(ReplayPacket packet) {
+		if (packet.opcode == 246) {
+			int item = -1;
+			try {
+				item = packet.data[0] << 8 | packet.data[1];
+			} catch (Exception e) {
+			}
+			if (item < 0)
+				return;
+			Client.displayMessage("Dropping " + Item.item_name[Client.inventory_items[item]], Client.CHAT_NONE);
+		} else if (packet.opcode == 116) {
+			int chosen = -1;
+			try {
+				chosen = packet.data[0];
+			} catch (Exception e) {
+			}
+			if (Client.menuOptions == null || chosen < 0 || Client.menuOptions[chosen] == null)
+				return;
+			KeyboardHandler.dialogue_option = chosen;
+			Client.printSelectedOption(Client.menuOptions, chosen);
+		}
+	}
 
   public boolean doTick() {
     try {
@@ -238,26 +263,7 @@ public class ReplayServer implements Runnable {
                 "OUT",
                 nextOutgoingPacket.opcode,
                 nextOutgoingPacket.data);
-						if (nextOutgoingPacket.opcode == 246) {
-							int item = -1;
-							try {
-								item = nextOutgoingPacket.data[0] << 8 | nextOutgoingPacket.data[1];
-							} catch (Exception e) {
-							}
-							if (item < 0)
-								continue;
-							Client.displayMessage("Dropping " + Item.item_name[Client.inventory_items[item]], Client.CHAT_NONE);
-						} else if (nextOutgoingPacket.opcode == 116) {
-							int chosen = -1;
-							try {
-								chosen = nextOutgoingPacket.data[0];
-							} catch (Exception e) {
-							}
-							if (Client.menuOptions == null || chosen < 0 || Client.menuOptions[chosen] == null)
-								continue;
-							KeyboardHandler.dialogue_option = chosen;
-							Client.printSelectedOption(Client.menuOptions, chosen);
-						}
+						replayOutput(nextOutgoingPacket);
             nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
           } else {
             break;
@@ -278,7 +284,8 @@ public class ReplayServer implements Runnable {
           }
         }
       } else {
-				if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 3) {
+				if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
+						|| Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
           // restart playback of current replay in order to import the incoming/outgoing packets
           ReplayQueue.skipToReplay(ReplayQueue.currentIndex - 1);
           return false;
