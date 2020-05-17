@@ -1237,18 +1237,25 @@ public class Client {
    * @param count The count for the options
    */
   public static void receivedOptionsHook(String[] menuOptions, int count) {
-    int type = CHAT_INCOMING_OPTION;
+	  if (Settings.PARSE_OPCODES.get(Settings.currentProfile) &&
+				(Replay.isPlaying || Replay.isSeeking || Replay.isRestarting))
+			return;
+		
+		Client.printReceivedOptions(menuOptions, count);
+	}
+	
+	public static void printReceivedOptions(String[] menuOptions, int count) {
+		int type = CHAT_INCOMING_OPTION;
 
-    String option = "";
+		String option = "";
 		Client.menuOptions = menuOptions;
-    for (int i = 0; i < count; i++) {
-      option = menuOptions[i];
+		for (int i = 0; i < count; i++) {
+			option = menuOptions[i];
 
-      String originalLog = "(" + formatChatType(type) + ") " + option;
-      String colorizedLog =
-          "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
-      Logger.Chat(colorizedLog, originalLog);
-    }
+			String originalLog = "(" + formatChatType(type) + ") " + option;
+			String colorizedLog = "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(option, type);
+			Logger.Chat(colorizedLog, originalLog);
+		}
   }
 
   /**

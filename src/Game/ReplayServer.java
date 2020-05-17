@@ -300,6 +300,10 @@ public class ReplayServer implements Runnable {
 				lastMenu.set(menu);
 			} catch (Exception e) {
 			}
+			if (menu.size() == 0) {
+				return;
+			}
+			Client.printReceivedOptions(menu.toArray(new String[0]), menu.size());
 			// replay back chosen option (if couldnt be played earlier bc some bad sync)
 			if (lastMenu.get().size() > 0 && Math.abs(packet.timestamp - lastErrorChosenOptStamp) < 100
 					&& lastErrorChosenOpt > 0 && lastErrorChosenOpt < lastMenu.get().size()) {
