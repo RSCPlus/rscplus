@@ -18,6 +18,12 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -76,12 +82,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -223,7 +223,7 @@ public class ConfigWindow {
 
   //// Replay tab
   private JCheckBox replayPanelRecordKBMouseCheckbox;
-	private JCheckBox replayPanelParseOpcodesCheckbox;
+  private JCheckBox replayPanelParseOpcodesCheckbox;
   private JCheckBox replayPanelFastDisconnectCheckbox;
   private JCheckBox replayPanelRecordAutomaticallyCheckbox;
   private JCheckBox replayPanelHidePrivateMessagesCheckbox;
@@ -646,7 +646,6 @@ public class ConfigWindow {
     generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
 
-		
     generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
     generalPanelLogTimestampsCheckbox.setToolTipText(
         "Displays the time text was output to the log");
@@ -1555,10 +1554,10 @@ public class ConfigWindow {
         "Additionally record mouse and keyboard inputs when recording a session");
 
     addSettingsHeader(replayPanel, "Playback settings");
-		
-		replayPanelParseOpcodesCheckbox = addCheckbox("Use opcode parsing on playback", replayPanel);
-		replayPanelParseOpcodesCheckbox.setToolTipText(
-				"Uses opcode parsing for better playback & visual data of outgoing packets");
+
+    replayPanelParseOpcodesCheckbox = addCheckbox("Use opcode parsing on playback", replayPanel);
+    replayPanelParseOpcodesCheckbox.setToolTipText(
+        "Uses opcode parsing for better playback & visual data of outgoing packets");
 
     replayPanelFastDisconnectCheckbox = addCheckbox("Fast reconnect (Hack)", replayPanel);
     replayPanelFastDisconnectCheckbox.setToolTipText(
@@ -2259,7 +2258,8 @@ public class ConfigWindow {
     // Replay tab
     replayPanelRecordAutomaticallyCheckbox.setSelected(
         Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
-		replayPanelParseOpcodesCheckbox.setSelected(Settings.PARSE_OPCODES.get(Settings.currentProfile));
+    replayPanelParseOpcodesCheckbox.setSelected(
+        Settings.PARSE_OPCODES.get(Settings.currentProfile));
     replayPanelFastDisconnectCheckbox.setSelected(
         Settings.FAST_DISCONNECT.get(Settings.currentProfile));
     replayPanelRecordKBMouseCheckbox.setSelected(
@@ -2450,8 +2450,8 @@ public class ConfigWindow {
     // Replay
     Settings.RECORD_AUTOMATICALLY.put(
         Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
-		Settings.PARSE_OPCODES.put(
-				Settings.currentProfile, replayPanelParseOpcodesCheckbox.isSelected());
+    Settings.PARSE_OPCODES.put(
+        Settings.currentProfile, replayPanelParseOpcodesCheckbox.isSelected());
     Settings.FAST_DISCONNECT.put(
         Settings.currentProfile, replayPanelFastDisconnectCheckbox.isSelected());
     Settings.RECORD_KB_MOUSE.put(

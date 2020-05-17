@@ -25,7 +25,7 @@ public class ReplayPacket {
   public int timestamp;
   public int opcode;
   public byte[] data;
-	public int skipKeys = 0;
+  public int skipKeys = 0;
 
   private static Class11 stringDecrypter =
       new Class11(

@@ -18,6 +18,13 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
+import Game.Replay;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -31,13 +38,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Renderer;
-import Game.Replay;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20200428.152626;
+  public static final double VERSION_NUMBER = 20200517.234542;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -157,7 +157,7 @@ public class Settings {
 
   //// replay
   public static HashMap<String, Boolean> RECORD_KB_MOUSE = new HashMap<String, Boolean>();
-	public static HashMap<String, Boolean> PARSE_OPCODES = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PARSE_OPCODES = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> FAST_DISCONNECT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RECORD_AUTOMATICALLY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_PRIVATE_MSGS_REPLAY // only hides, still in data
@@ -945,15 +945,15 @@ public class Settings {
     RECORD_KB_MOUSE.put("all", true);
     RECORD_KB_MOUSE.put(
         "custom", getPropBoolean(props, "record_kb_mouse", RECORD_KB_MOUSE.get("default")));
-		
-		PARSE_OPCODES.put("vanilla", true);
-		PARSE_OPCODES.put("vanilla_resizable", true);
-		PARSE_OPCODES.put("lite", true);
-		PARSE_OPCODES.put("default", true);
-		PARSE_OPCODES.put("heavy", true);
-		PARSE_OPCODES.put("all", true);
-		PARSE_OPCODES.put(
-				"custom", getPropBoolean(props, "parse_opcodes", PARSE_OPCODES.get("default")));
+
+    PARSE_OPCODES.put("vanilla", true);
+    PARSE_OPCODES.put("vanilla_resizable", true);
+    PARSE_OPCODES.put("lite", true);
+    PARSE_OPCODES.put("default", true);
+    PARSE_OPCODES.put("heavy", true);
+    PARSE_OPCODES.put("all", true);
+    PARSE_OPCODES.put(
+        "custom", getPropBoolean(props, "parse_opcodes", PARSE_OPCODES.get("default")));
 
     FAST_DISCONNECT.put("vanilla", false);
     FAST_DISCONNECT.put("vanilla_resizable", false);
@@ -1526,7 +1526,7 @@ public class Settings {
 
       //// replay
       props.setProperty("record_kb_mouse", Boolean.toString(RECORD_KB_MOUSE.get(preset)));
-			props.setProperty("parse_opcodes", Boolean.toString(PARSE_OPCODES.get(preset)));
+      props.setProperty("parse_opcodes", Boolean.toString(PARSE_OPCODES.get(preset)));
       props.setProperty("fast_disconnect", Boolean.toString(FAST_DISCONNECT.get(preset)));
       props.setProperty("record_automatically", Boolean.toString(RECORD_AUTOMATICALLY.get(preset)));
       props.setProperty(
