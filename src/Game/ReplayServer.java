@@ -28,7 +28,10 @@ import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import Client.Logger;
 import Client.Settings;
@@ -66,6 +69,9 @@ public class ReplayServer implements Runnable {
   public int incomingPacketsIndex = 0;
   public ReplayPacket nextOutgoingPacket;
   public ReplayPacket nextIncomingPacket;
+	public AtomicReference<ArrayList<String>> lastMenu;
+	public int lastErrorChosenOptStamp; // timestamp in which couldnt replay chosen option
+	public int lastErrorChosenOpt; // chosen option which couldnt be replayed in that moment
 	
   ReplayServer(String directory) {
     playbackDirectory = directory;
@@ -229,6 +235,7 @@ public class ReplayServer implements Runnable {
   }
 	
 	public void replayOutput(ReplayPacket packet) {
+		// DROP_ITEM
 		if (packet.opcode == 246) {
 			int item = -1;
 			try {
@@ -238,16 +245,68 @@ public class ReplayServer implements Runnable {
 			if (item < 0)
 				return;
 			Client.displayMessage("Dropping " + Item.item_name[Client.inventory_items[item]], Client.CHAT_NONE);
-		} else if (packet.opcode == 116) {
+		}
+		// SELECT_DIALOGUE_OPTION
+		else if (packet.opcode == 116) {
 			int chosen = -1;
 			try {
 				chosen = packet.data[0];
 			} catch (Exception e) {
 			}
-			if (Client.menuOptions == null || chosen < 0 || Client.menuOptions[chosen] == null)
+			String[] menuOptions = lastMenu != null && lastMenu.get().size() > 0
+					? lastMenu.get().toArray(new String[0]) : Client.menuOptions;
+			if (chosen < 0) {
 				return;
-			KeyboardHandler.dialogue_option = chosen;
-			Client.printSelectedOption(Client.menuOptions, chosen);
+			} else if (menuOptions == null || menuOptions[chosen] == null) {
+				lastErrorChosenOpt = chosen;
+				lastErrorChosenOptStamp = packet.timestamp;
+				return;
+			}
+			Client.printSelectedOption(menuOptions, chosen);
+			lastMenu.set(new ArrayList<String>());
+		}
+	}
+	
+	public void readInput(ReplayPacket packet) {
+		// SHOW_DIALOGUE_MENU
+		if (packet.opcode == 245) {
+			ArrayList<String> menu = new ArrayList<String>();
+			int numOpts = 0;
+			boolean read = true;
+			byte[] option;
+			try {
+				numOpts = packet.data[0];
+				if (numOpts > 0) {
+					read = true;
+					int start = 1;
+					int end = 1;
+					int cur;
+					while(read) {
+						for(cur = start + 1; cur<packet.data.length; cur++) {
+							if(packet.data[cur] == 0) {
+								end = cur;
+								break;
+							}
+						}
+						// inclusive from, exclusive to
+						option = Arrays.copyOfRange(packet.data, start + 1, end);
+						menu.add(new String(option));
+						start = ++end;
+						if (cur >= packet.data.length || menu.size() == numOpts) {
+							read = false;
+						}
+					}
+				}
+				lastMenu.set(menu);
+			} catch (Exception e) {
+			}
+			// replay back chosen option (if couldnt be played earlier bc some bad sync)
+			if (lastMenu.get().size() > 0 && Math.abs(packet.timestamp - lastErrorChosenOptStamp) < 100
+					&& lastErrorChosenOpt > 0 && lastErrorChosenOpt < lastMenu.get().size()) {
+				Client.printSelectedOption(lastMenu.get().toArray(new String[0]), lastErrorChosenOpt);
+				lastErrorChosenOpt = -1;
+				lastErrorChosenOptStamp = -1;
+			}
 		}
 	}
 
@@ -270,27 +329,28 @@ public class ReplayServer implements Runnable {
           }
         }
       }
-      if (incomingPacketsSizeCache > 0) {
+			if (incomingPacketsSizeCache > 0) {
 				while (nextIncomingPacket.timestamp < timestamp_input) {
-          if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
-            Logger.Opcode(
-                nextIncomingPacket.timestamp,
-                " IN",
-                nextIncomingPacket.opcode,
-                nextIncomingPacket.data);
-            nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-          } else {
-            break;
-          }
-        }
-      } else {
+					if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
+						Logger.Opcode(
+								nextIncomingPacket.timestamp,
+								" IN",
+								nextIncomingPacket.opcode,
+								nextIncomingPacket.data);
+						readInput(nextIncomingPacket);
+						nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+					} else {
+						break;
+					}
+				}
+			} else {
 				if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
 						|| Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-          // restart playback of current replay in order to import the incoming/outgoing packets
-          ReplayQueue.skipToReplay(ReplayQueue.currentIndex - 1);
-          return false;
-        }
-      }
+					// restart playback of current replay in order to import the incoming/outgoing packets
+					ReplayQueue.skipToReplay(ReplayQueue.currentIndex - 1);
+					return false;
+				}
+			}
 
       // We've reached the end of the replay
 			if (timestamp_input == Replay.TIMESTAMP_EOF)
@@ -432,6 +492,7 @@ public class ReplayServer implements Runnable {
 
     incomingPackets = editor.getIncomingPackets();
     outgoingPackets = editor.getOutgoingPackets();
+		lastMenu = new AtomicReference<ArrayList<String>>();
 
     Logger.Info(String.format("Incoming packet length: %d", incomingPackets.size()));
     Logger.Info(String.format("Outgoing packet length: %d", outgoingPackets.size()));

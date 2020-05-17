@@ -1257,12 +1257,9 @@ public class Client {
    * @param possibleOptions The possible options that the user saw from server
    * @param selection The chosen option
    */
-  // This isn't called yet on replay since the output file is not yet read
   public static void selectedOptionHook(String[] possibleOptions, int selection) {
-    // Do not run anything below here while seeking
-    // FIXME: We block this during replay playback, but if support is ever added, this needs to be
-    // removed
-		if (Replay.isPlaying)
+		// Do not run anything below here while seeking or playing as is handled separately
+		if (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)
 			return;
 		
 		Client.printSelectedOption(possibleOptions, selection);
