@@ -574,6 +574,15 @@ public class Renderer {
           x2 -= barSize;
         }
       }
+      
+      // Draw last menu action
+      if (!Client.isInterfaceOpen() && !Client.show_questionmenu 
+    		  && Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile)) {
+    	  if (time <= Client.menu_timer) {
+              drawShadowText(g2, Client.lastAction, x, y, color_text, false);
+              y += 14;
+           }  
+      }
 
       // Draw under combat style info
       // buffs, debuffs and cooldowns

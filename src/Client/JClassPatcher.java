@@ -576,6 +576,8 @@ public class JClassPatcher {
           methodNode, "client", "bc", "I", "Game/Client", "planeIndex", "I", true, false);
       hookClassVariable(
           methodNode, "client", "Ub", "Z", "Game/Client", "loadingArea", "Z", true, false);
+      
+      hookClassVariable(methodNode, "client", "Ug", "I", "Game/Client", "tileSize", "I", true, false);
 
       // Last mouse activity
       // hookClassVariable(methodNode, "client", "sb", "I", "Game/Client", "lastMouseAction", "I",
@@ -1887,6 +1889,41 @@ public class JClassPatcher {
             methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_0));
           }
         }
+        
+        // catch on position clicked
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+        	AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode twoNextNodes = nextNode.getNext();
+            AbstractInsnNode threeNextNodes = twoNextNodes.getNext();
+
+            if (nextNode == null || twoNextNodes == null || threeNextNodes == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.ALOAD
+                  && ((VarInsnNode) insnNode).var == 0
+                  && nextNode.getOpcode() == Opcodes.GETFIELD
+                  && twoNextNodes.getOpcode() == Opcodes.ILOAD
+                  && ((VarInsnNode) twoNextNodes).var == 2
+                  && threeNextNodes.getOpcode() == Opcodes.SIPUSH
+                  && ((IntInsnNode) threeNextNodes).operand == -4126) {
+        	  
+        	  VarInsnNode call = (VarInsnNode) insnNode;
+
+                  methodNode.instructions.insertBefore(
+                		  call, new TypeInsnNode(Opcodes.NEW, "java/lang/Integer"));
+                  methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.DUP));
+                  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
+                  methodNode.instructions.insertBefore(
+                		  call,
+                          new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Integer", "<init>", "(I)V"));
+        	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
+        	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 5));
+        	  methodNode.instructions.insertBefore(call, new MethodInsnNode(
+                        Opcodes.INVOKESTATIC, "Game/Client", "gameClickHook", "(Ljava/lang/Integer;II)V"));
+        	  break;
+           }
+        }
       }
       if (methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
         // Hook updateBankItems
@@ -2411,6 +2448,30 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(
             insnNode,
             new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "update", "()V", false));
+      }
+      
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(IIBZIIIIZ)Z")) {
+    	  //hook into walk to source
+    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+          	AbstractInsnNode insnNode = insnNodeList.next();
+              AbstractInsnNode nextNode = insnNode.getNext();
+
+              if (nextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.IINC
+                    && ((IincInsnNode) insnNode).var == 10
+                    && ((IincInsnNode) insnNode).incr == -1) {
+          	  
+          	  VarInsnNode call = (VarInsnNode) insnNode.getNext();
+
+          	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+          	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 1));
+          	  methodNode.instructions.insertBefore(call, new MethodInsnNode(
+                          Opcodes.INVOKESTATIC, "Game/Client", "walkSourceHook", "(II)V"));
+          	  break;
+             }
+          }
       }
     }
   }

@@ -18,6 +18,8 @@
  */
 package Game;
 
+import static Replay.game.constants.Game.itemActionMap;
+
 import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
@@ -26,6 +28,8 @@ import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
+
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,8 +43,11 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
+
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -276,8 +283,12 @@ public class Client {
 
   /** The client version */
   public static int version;
-
-  public static String[] menuOptions;
+	
+	public static String[] menuOptions;
+	
+	public static int tileSize;
+	public static long menu_timer;
+	public static String lastAction;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -1210,6 +1221,54 @@ public class Client {
         e.printStackTrace();
       }
     }
+  }
+  
+  public static void gameClickHook(Integer lastMenuId, int idxOrDeltaX, int idxOrDeltaY) {
+	  ItemAction action = itemActionMap.get(lastMenuId);
+	  Object res;
+	  int mx, my;
+	  if (action != null) {
+		  if (action.containsWorldPoint == 1) {
+			  Client.displayMenuAction(action.name, idxOrDeltaX + regionX, idxOrDeltaY + regionY);
+		  } else if (action.containsWorldPoint == 2) {
+			  if (Reflection.getNpc == null) return;
+			  try {
+				  res = Reflection.getNpc.invoke(Client.instance, idxOrDeltaX, (byte)-123);
+				  mx = (Reflection.characterX.getInt(res) - 64) / Client.tileSize;
+		          my = (Reflection.characterY.getInt(res) - 64) / Client.tileSize;
+		          Client.displayMenuAction(action.name, mx + regionX, my + regionY);
+			  } catch (Exception e) {
+			  }
+		  } else if (action.containsWorldPoint == 3) {
+			  if (Reflection.getPlayer == null) return;
+			  try {
+				  res = Reflection.getPlayer.invoke(Client.instance, idxOrDeltaX, 220);
+				  mx = (Reflection.characterX.getInt(res) - 64) / Client.tileSize;
+		          my = (Reflection.characterY.getInt(res) - 64) / Client.tileSize;
+		          Client.displayMenuAction(action.name, mx + regionX, my + regionY);
+			  } catch (Exception e) {
+			  }
+		  }
+	  }	  
+  }
+  
+  public static void walkSourceHook(int deltaX, int deltaY) {
+	  Client.displayWalkToSource(deltaX + regionX, deltaY + regionY);
+  }
+  
+  public static void displayMenuAction(String action, int positionX, int positionY) {
+	  menu_timer = System.currentTimeMillis() + 2000L;
+	  lastAction = action + " @ (" + positionX + "," + positionY +")"; 
+  }
+  
+  public static void displayMenuAction(String action, int serverId) {
+	  menu_timer = System.currentTimeMillis() + 2000L;
+	  lastAction = action + " ID: " + serverId; 
+  }
+  
+  public static void displayWalkToSource(int positionX, int positionY) {
+	  menu_timer = System.currentTimeMillis() + 2000L;
+	  lastAction = "WALK_TO_SOURCE @ (" + positionX + "," + positionY +")"; 
   }
 
   // combat packet received (testing only, the info is taken on function that draws hits)

@@ -168,6 +168,7 @@ public class ConfigWindow {
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
   private JCheckBox overlayPanelBuffsCheckbox;
+  private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
   private JCheckBox overlayPanelExtendedTooltipCheckbox;
   private JCheckBox overlayPanelInvCountCheckbox;
@@ -874,6 +875,10 @@ public class ConfigWindow {
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
     overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
+    
+    overlayPanelLastMenuActionCheckbox =
+            addCheckbox("Show last menu action display", overlayPanel);
+    overlayPanelLastMenuActionCheckbox.setToolTipText("Toggle last menu action used display");
 
     overlayPanelMouseTooltipCheckbox =
         addCheckbox("Show mouse hover action at mouse cursor", overlayPanel);
@@ -2161,6 +2166,7 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox.setSelected(
         Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
     overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
+    overlayPanelLastMenuActionCheckbox.setSelected(Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
     overlayPanelMouseTooltipCheckbox.setSelected(
         Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile));
     overlayPanelExtendedTooltipCheckbox.setSelected(
@@ -2362,6 +2368,7 @@ public class ConfigWindow {
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
     Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
+    Settings.SHOW_LAST_MENU_ACTION.put(Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());
     Settings.SHOW_MOUSE_TOOLTIP.put(
         Settings.currentProfile, overlayPanelMouseTooltipCheckbox.isSelected());
     Settings.SHOW_EXTENDED_TOOLTIP.put(
