@@ -65,7 +65,7 @@ public class Reflection {
   public static Method putShort = null;
   public static Method sendPacket = null;
   public static Field bufferField = null;
-  
+
   public static Method getNpc = null;
   public static Method getPlayer = null;
 
@@ -90,7 +90,7 @@ public class Reflection {
   private static final String NEWPACKET = "final void b.b(int,int)";
   private static final String PUTSHORT = "final void tb.e(int,int)";
   private static final String SENDPACKET = "final void b.b(int)";
-  
+
   private static final String GETNPC = "private final ta client.b(int,byte)";
   private static final String GETPLAYER = "private final ta client.d(int,int)";
 
@@ -123,12 +123,12 @@ public class Reflection {
           itemClick = method;
           Logger.Info("Found itemClick");
         } else if (method.toGenericString().equals(GETNPC)) {
-            getNpc = method;
-            Logger.Info("Found getNpc");
-          } else if (method.toGenericString().equals(GETPLAYER)) {
-              getPlayer = method;
-              Logger.Info("Found getPlayer");
-            }
+          getNpc = method;
+          Logger.Info("Found getNpc");
+        } else if (method.toGenericString().equals(GETPLAYER)) {
+          getPlayer = method;
+          Logger.Info("Found getPlayer");
+        }
       }
 
       // Game Applet
