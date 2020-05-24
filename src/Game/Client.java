@@ -1266,7 +1266,7 @@ public class Client {
 
   public static void printAndShowActionString(String actionString) {
     if (Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile)) {
-      menu_timer = System.currentTimeMillis() + 2000L;
+      menu_timer = System.currentTimeMillis() + 3500L;
       lastAction = actionString;
       Logger.Info(actionString);
     }
