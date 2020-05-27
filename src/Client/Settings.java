@@ -109,6 +109,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_MOUSE_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_EXTENDED_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -567,6 +568,15 @@ public class Settings {
     SHOW_BUFFS.put("heavy", true);
     SHOW_BUFFS.put("all", true);
     SHOW_BUFFS.put("custom", getPropBoolean(props, "show_buffs", SHOW_BUFFS.get("default")));
+
+    SHOW_LAST_MENU_ACTION.put("vanilla", false);
+    SHOW_LAST_MENU_ACTION.put("vanilla_resizable", false);
+    SHOW_LAST_MENU_ACTION.put("lite", false);
+    SHOW_LAST_MENU_ACTION.put("default", false);
+    SHOW_LAST_MENU_ACTION.put("heavy", true);
+    SHOW_LAST_MENU_ACTION.put("all", true);
+    SHOW_LAST_MENU_ACTION.put(
+        "custom", getPropBoolean(props, "show_buffs", SHOW_LAST_MENU_ACTION.get("default")));
 
     SHOW_MOUSE_TOOLTIP.put("vanilla", false);
     SHOW_MOUSE_TOOLTIP.put("vanilla_resizable", false);
@@ -1474,6 +1484,8 @@ public class Settings {
       props.setProperty(
           "show_statusdisplay", Boolean.toString(SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
+      props.setProperty(
+          "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
       props.setProperty("show_mouse_tooltip", Boolean.toString(SHOW_MOUSE_TOOLTIP.get(preset)));
       props.setProperty(
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
