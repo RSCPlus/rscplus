@@ -90,21 +90,32 @@ public class ReplayServer implements Runnable {
   }
 
   private void sync_with_client() {
-      int diff = client_write - client_read;
-      int timestampDiff = timestamp_new - Replay.timestamp;
+      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          int diff = client_write - client_read;
+          int timestampDiff = timestamp_new - Replay.timestamp;
 
-      int threshold = 5000;
-      if (timestampDiff <= 400)
-          threshold = 1;
+          int threshold = 5000;
+          if (timestampDiff <= 400)
+              threshold = 1;
 
-    // Wait for client
-    while (diff >= threshold) {
-        diff = client_write - client_read;
-      try {
-        Thread.sleep(1);
-      } catch (Exception e) {
+          // Wait for client
+          while (diff >= threshold) {
+              try {
+                  Thread.sleep(1);
+              } catch (Exception e) {
+              }
+              diff = client_write - client_read;
+          }
+      } else {
+          int diff = client_writePrev - client_read;
+          while (diff >= 200) {
+              try {
+                  Thread.sleep(1);
+              } catch (Exception e) {
+              }
+              diff = client_writePrev - client_read;
+          }
       }
-    }
   }
 
   public int getPercentRemaining() {
@@ -149,8 +160,7 @@ public class ReplayServer implements Runnable {
       Logger.Debug("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
 
       // Load replay a second time but using the RSCMinus method
-      if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-          || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
         initializeIncomingOutgoingPackets();
         initializeNextIncomingOutgoingPackets();
       }
@@ -173,22 +183,32 @@ public class ReplayServer implements Runnable {
 
       isDone = false;
       frame_timer = System.currentTimeMillis();
+      boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+
       while (!isDone) {
+          if (parseOpcodesPrev != Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+              // Editor mode needs this initialized
+              if (parseOpcodesPrev == false)
+                  firstConnection = false;
+              Replay.restartReplayPlayback();
+              parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+          }
+
         // Restart the replay
         if (restart) {
-          // Sync on restart
-          //sync_with_client();
-          //Client.loseConnection(false);
-
-          //boolean wasPaused = Replay.paused;
-          //int oldTimeSlice = Replay.frame_time_slice;
-          //Replay.frame_time_slice = 1000 / 50;
-          //client.close();
-          //Replay.paused = false;
-          //client = sock.accept();
-          //if (Replay.isSeeking) Replay.paused = wasPaused;
-          //else Replay.paused = false;
-          //Replay.frame_time_slice = oldTimeSlice;
+            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+                // Sync on restart
+                Client.loseConnection(false);
+                boolean wasPaused = Replay.paused;
+                int oldTimeSlice = Replay.frame_time_slice;
+                Replay.frame_time_slice = 1000 / 50;
+                client.close();
+                Replay.paused = false;
+                client = sock.accept();
+                if (Replay.isSeeking) Replay.paused = wasPaused;
+                else Replay.paused = false;
+                Replay.frame_time_slice = oldTimeSlice;
+            }
           input.close();
           file_input = new FileInputStream(file);
           input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
@@ -203,8 +223,7 @@ public class ReplayServer implements Runnable {
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
 
-          if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-              || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
             if (incomingPackets == null) {
               initializeIncomingOutgoingPackets();
             }
@@ -216,9 +235,13 @@ public class ReplayServer implements Runnable {
         }
 
         if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
-          if (!doEditorTick()) {
-            isDone = true;
-          }
+            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+                if (!doTick())
+                    isDone = true;
+            } else {
+                if (!doEditorTick())
+                    isDone = false;
+            }
         } else {
           // Update timestamp immediately on unpausing
           frame_timer = System.currentTimeMillis();
@@ -338,11 +361,9 @@ public class ReplayServer implements Runnable {
   }
 
   public int getXTEAKey() {
-      // Workaround for restart messing up keys
-      if (keyIndex >= keys.length) {
-          Logger.Warn("ReplayServer: Requested invalid key!");
+      if (!Settings.PARSE_OPCODES.get(Settings.currentProfile))
           return 0;
-      }
+
       return keys[keyIndex++];
   }
 
@@ -495,44 +516,6 @@ public class ReplayServer implements Runnable {
     try {
       int timestamp_input = input.readInt();
 
-      if (outgoingPacketsSizeCache > 0) {
-        while (nextOutgoingPacket.timestamp < timestamp_input) {
-          if (outgoingPacketsIndex < outgoingPacketsSizeCache - 1) {
-            Logger.Opcode(
-                nextOutgoingPacket.timestamp,
-                "OUT",
-                nextOutgoingPacket.opcode,
-                nextOutgoingPacket.data);
-            replayOutput(nextOutgoingPacket);
-            nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
-          } else {
-            break;
-          }
-        }
-      }
-      if (incomingPacketsSizeCache > 0) {
-        while (nextIncomingPacket.timestamp < timestamp_input) {
-          if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
-            Logger.Opcode(
-                nextIncomingPacket.timestamp,
-                " IN",
-                nextIncomingPacket.opcode,
-                nextIncomingPacket.data);
-            readInput(nextIncomingPacket);
-            nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-          } else {
-            break;
-          }
-        }
-      } else {
-        if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-            || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-          // restart playback of current replay in order to import the incoming/outgoing packets
-          ReplayQueue.skipToReplay(ReplayQueue.currentIndex - 1);
-          return false;
-        }
-      }
-
       // We've reached the end of the replay
       if (timestamp_input == Replay.TIMESTAMP_EOF) return false;
 
@@ -559,7 +542,6 @@ public class ReplayServer implements Runnable {
         // v1+ Disconnect handler
         // If packet length is -1, it's a disconnection
         if (length == -1) {
-          sync_with_client();
           Logger.Info("ReplayServer: Killing client connection");
           client.close();
           Logger.Info("ReplayServer: Reconnecting client");
@@ -579,7 +561,6 @@ public class ReplayServer implements Runnable {
         // So we disconnect and reconnect the client
         // NOTE: Versions older than v1 have no disconnection indication
         if (timestamp_diff > 400) {
-          sync_with_client();
           Logger.Info(
               "ReplayServer: Killing client connection; timestamp="
                   + Replay.timestamp
@@ -598,27 +579,10 @@ public class ReplayServer implements Runnable {
         }
       }
 
-      // TODO: this only will skip 1 keys, unsure if there is a replay where more than 1 isaac key
-      // should be skipped from OG replays
-      if (nextIncomingPacket != null
-          && nextIncomingPacket.opcode == 10000
-          && !disconnected
-          && nextIncomingPacket.skipKeys > 0) {
-        sync_with_client();
-        Logger.Info("ReplayServer: Killing client connection");
-        client.close();
-        Logger.Info("ReplayServer: Reconnecting client");
-        client = sock.accept();
-        Logger.Info("ReplayServer: Client reconnected");
-        if (Replay.isSeeking || Settings.FAST_DISCONNECT.get(Settings.currentProfile))
-          Replay.timestamp = timestamp_input;
-      }
-
       // Handle seeking
       if (timestamp_new != Replay.TIMESTAMP_EOF) {
         Replay.timestamp = timestamp_input;
         if (Replay.timestamp >= timestamp_new) {
-          sync_with_client();
           Replay.isSeeking = false;
           timestamp_new = Replay.TIMESTAMP_EOF;
           Replay.updateFrameTimeSlice();
@@ -648,6 +612,7 @@ public class ReplayServer implements Runnable {
           if (writeSize > 0) {
             client_writePrev = client_write;
             client_write += writeSize;
+            sync_with_client();
           }
         }
       } catch (Exception e) {
