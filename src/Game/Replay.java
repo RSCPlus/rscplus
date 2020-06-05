@@ -1135,7 +1135,9 @@ public class Replay {
   }
 
   public static int hookXTEAKey(int key) {
-    if (play_keys != null) {
+    return replayServer.getXTEAKey();
+
+    /*if (play_keys != null) {
       try {
         return play_keys.readInt();
       } catch (Exception e) {
@@ -1156,7 +1158,7 @@ public class Replay {
       shutdown_error();
     }
 
-    return key;
+    return key;*/
   }
 
   public static void disconnect_hook() {

@@ -21,7 +21,9 @@ package Game;
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
+import Replay.common.ISAACCipher;
 import Replay.scraper.ReplayEditor;
+import Replay.scraper.ReplayKeyPair;
 import Replay.scraper.ReplayPacket;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -39,6 +41,9 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_CONNECT;
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_NOP;
+
 public class ReplayServer implements Runnable {
   String playbackDirectory;
   DataInputStream input = null;
@@ -48,6 +53,10 @@ public class ReplayServer implements Runnable {
   ByteBuffer readBuffer = null;
   long frame_timer = 0;
   int timestamp_new = Replay.TIMESTAMP_EOF;
+
+  int keyIndex = 0;
+  int serverKeyIndex = 0;
+  int[] keys = null;
 
   public boolean isReady = false;
   public boolean isDone = false;
@@ -60,6 +69,7 @@ public class ReplayServer implements Runnable {
   public int client_read = 0;
   public int client_write = 0;
   public int client_writePrev = 0;
+  ISAACCipher isaac = new ISAACCipher();
 
   public LinkedList<ReplayPacket> incomingPackets;
   public LinkedList<ReplayPacket> outgoingPackets;
@@ -180,6 +190,8 @@ public class ReplayServer implements Runnable {
           Replay.timestamp_server_last = 0;
           client_read = 0;
           client_write = 0;
+          keyIndex = 0;
+          serverKeyIndex = 0;
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
@@ -197,7 +209,7 @@ public class ReplayServer implements Runnable {
         }
 
         if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
-          if (!doTick()) {
+          if (!doEditorTick()) {
             isDone = true;
           }
         } else {
@@ -316,6 +328,136 @@ public class ReplayServer implements Runnable {
         lastErrorChosenOptStamp = -1;
       }
     }
+  }
+
+  public int getXTEAKey() {
+      // Workaround for restart messing up keys
+      if (keyIndex >= keys.length) {
+          Logger.Warn("ReplayServer: Requested invalid key!");
+          return 0;
+      }
+      return keys[keyIndex++];
+  }
+
+  public boolean doEditorTick() {
+      int timestamp_input = nextIncomingPacket.timestamp;
+
+      // Handle outgoing packets
+      while (outgoingPacketsIndex != (outgoingPacketsSizeCache - 1) && nextOutgoingPacket.timestamp <= timestamp_input) {
+          Logger.Opcode(
+                  nextOutgoingPacket.timestamp,
+                  "OUT",
+                  nextOutgoingPacket.opcode,
+                  nextOutgoingPacket.data);
+          replayOutput(nextOutgoingPacket);
+          nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
+      }
+
+      // Handle incoming packet logging
+      Logger.Opcode(
+              nextIncomingPacket.timestamp,
+              " IN",
+              nextIncomingPacket.opcode,
+              nextIncomingPacket.data);
+      readInput(nextIncomingPacket);
+
+      // Handle seeking
+      if (timestamp_new != Replay.TIMESTAMP_EOF) {
+          Replay.timestamp = timestamp_input;
+          if (Replay.timestamp >= timestamp_new) {
+              sync_with_client();
+              Replay.isSeeking = false;
+              timestamp_new = Replay.TIMESTAMP_EOF;
+              Replay.updateFrameTimeSlice();
+              frame_timer = System.currentTimeMillis();
+              if (Replay.paused) Replay.resetFrameTimeSlice();
+              isSeeking = false;
+          }
+      }
+
+      // Synchronize the server to input
+      while (Replay.timestamp < timestamp_input) {
+          long time = System.currentTimeMillis();
+          if (time >= frame_timer) {
+              frame_timer += Replay.getFrameTimeSlice();
+              Replay.incrementTimestamp();
+          }
+
+          // Don't hammer the cpu, unless we have to
+          long sleepTime = frame_timer - System.currentTimeMillis() - 1;
+          if (sleepTime > 0) {
+              try { Thread.sleep(sleepTime); } catch (Exception e) {}
+          }
+      }
+
+      // Do nothing
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
+          nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+          return true;
+      }
+
+      ByteBuffer buffer = null;
+
+      // Login response/disconnect
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
+          byte loginResponse = nextIncomingPacket.data[0];
+          buffer = ByteBuffer.allocate(1);
+          buffer.put(loginResponse);
+          int offset = serverKeyIndex * 4;
+          int[] isaacKeys = new int[] { keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3] };
+          serverKeyIndex += 1;
+          isaac.reset();
+          isaac.setKeys(isaacKeys);
+      } else {
+          int packetLength = 1;
+          if (nextIncomingPacket.data != null)
+              packetLength += nextIncomingPacket.data.length;
+
+          // Encode packet and send
+          int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
+          if (packetLength == 1) {
+              buffer = ByteBuffer.allocate(2);
+              buffer.put((byte)(packetLength));
+              buffer.put((byte)(encodedOpcode));
+          } else {
+              if (packetLength < 160) {
+                  buffer = ByteBuffer.allocate(packetLength + 1);
+                  int dataSize = packetLength - 1;
+                  buffer.put((byte)(packetLength));
+                  buffer.put((byte)(nextIncomingPacket.data[dataSize - 1]));
+                  buffer.put((byte)(encodedOpcode));
+                  if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
+              } else {
+                  buffer = ByteBuffer.allocate(packetLength + 2);
+                  buffer.put((byte)(packetLength / 256 + 160));
+                  buffer.put((byte)(packetLength & 0xFF));
+                  buffer.put((byte)(encodedOpcode));
+                  buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
+              }
+          }
+      }
+
+      if (buffer != null) {
+          try {
+              buffer.flip();
+              int writeSize = client.write(buffer);
+              if (writeSize > 0) {
+                  client_writePrev = client_write;
+                  client_write += writeSize;
+              }
+          } catch (Exception e) {
+              return false;
+          }
+      }
+
+      // End of replay
+      if (incomingPacketsIndex == (incomingPacketsSizeCache - 1))
+          return false;
+
+      // Load next packet
+      nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+
+      return true;
   }
 
   public boolean doTick() {
@@ -501,6 +643,19 @@ public class ReplayServer implements Runnable {
 
     incomingPackets = editor.getIncomingPackets();
     outgoingPackets = editor.getOutgoingPackets();
+
+    // Load keys
+    LinkedList<ReplayKeyPair> replay_keys = editor.getKeyPairs();
+    keys = new int[replay_keys.size() * 4];
+    for (int i = 0; i < replay_keys.size(); i++) {
+        ReplayKeyPair keyPair = replay_keys.get(i);
+        int offset = i * 4;
+        keys[offset] = keyPair.keys[0];
+        keys[offset + 1] = keyPair.keys[1];
+        keys[offset + 2] = keyPair.keys[2];
+        keys[offset + 3] = keyPair.keys[3];
+    }
+
     lastMenu = new AtomicReference<ArrayList<String>>();
 
     Logger.Info(String.format("Incoming packet length: %d", incomingPackets.size()));
