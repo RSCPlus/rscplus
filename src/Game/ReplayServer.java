@@ -91,9 +91,14 @@ public class ReplayServer implements Runnable {
 
   private void sync_with_client() {
       int diff = client_write - client_read;
+      int timestampDiff = timestamp_new - Replay.timestamp;
+
+      int threshold = 5000;
+      if (timestampDiff <= 400)
+          threshold = 1;
 
     // Wait for client
-    while (diff >= 100) {
+    while (diff >= threshold) {
         diff = client_write - client_read;
       try {
         Thread.sleep(1);
