@@ -296,7 +296,7 @@ public class ReplayServer implements Runnable {
       } catch (Exception e) {
       }
       String[] menuOptions =
-          lastMenu != null && lastMenu.get().size() > 0
+          lastMenu != null && lastMenu.get() != null && lastMenu.get().size() > 0
               ? lastMenu.get().toArray(new String[0])
               : Client.menuOptions;
       if (chosen < 0) {
