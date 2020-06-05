@@ -403,6 +403,22 @@ public class ReplayServer implements Runnable {
           byte loginResponse = nextIncomingPacket.data[0];
           buffer = ByteBuffer.allocate(1);
           buffer.put(loginResponse);
+
+          // Handle disconnecting
+          if (serverKeyIndex != 0) {
+              try {
+                  sync_with_client();
+                  Logger.Info("ReplayServer: Killing client connection");
+                  client.close();
+                  Logger.Info("ReplayServer: Reconnecting client");
+                  client = sock.accept();
+                  Logger.Info("ReplayServer: Client reconnected");
+              } catch (Exception e) {
+                  Logger.Error("ReplayServer: Error reconnecting client");
+                  return false;
+              }
+          }
+
           int offset = serverKeyIndex * 4;
           int[] isaacKeys = new int[] { keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3] };
           serverKeyIndex += 1;
