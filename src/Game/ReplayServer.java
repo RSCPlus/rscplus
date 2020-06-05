@@ -91,9 +91,9 @@ public class ReplayServer implements Runnable {
 
   private void sync_with_client() {
     // Wait for client
-    while (client_read < client_writePrev) {
+    while (client_read < client_write) {
       try {
-        Thread.sleep(100);
+        Thread.sleep(1);
       } catch (Exception e) {
       }
     }
