@@ -90,17 +90,16 @@ public class ReplayServer implements Runnable {
   }
 
   private void sync_with_client() {
+      int diff = client_write - client_read;
+
     // Wait for client
-    while (client_read < client_write) {
+    while (diff >= 1) {
+        diff = client_write - client_read;
       try {
         Thread.sleep(1);
       } catch (Exception e) {
       }
     }
-
-    client_read = 0;
-    client_write = 0;
-    client_writePrev = 0;
   }
 
   public int getPercentRemaining() {
