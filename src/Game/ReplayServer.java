@@ -57,6 +57,7 @@ public class ReplayServer implements Runnable {
   int keyIndex = 0;
   int serverKeyIndex = 0;
   int[] keys = null;
+  boolean firstConnection = true;
 
   public boolean isReady = false;
   public boolean isDone = false;
@@ -172,16 +173,18 @@ public class ReplayServer implements Runnable {
         // Restart the replay
         if (restart) {
           // Sync on restart
-          sync_with_client();
-          Client.loseConnection(false);
+          //sync_with_client();
+          //Client.loseConnection(false);
 
-          boolean wasPaused = Replay.paused;
-          Replay.paused = false;
-
-          client.close();
-          client = sock.accept();
-          if (Replay.isSeeking) Replay.paused = wasPaused;
-          else Replay.paused = false;
+          //boolean wasPaused = Replay.paused;
+          //int oldTimeSlice = Replay.frame_time_slice;
+          //Replay.frame_time_slice = 1000 / 50;
+          //client.close();
+          //Replay.paused = false;
+          //client = sock.accept();
+          //if (Replay.isSeeking) Replay.paused = wasPaused;
+          //else Replay.paused = false;
+          //Replay.frame_time_slice = oldTimeSlice;
           input.close();
           file_input = new FileInputStream(file);
           input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
@@ -405,21 +408,26 @@ public class ReplayServer implements Runnable {
           buffer.put(loginResponse);
 
           // Handle disconnecting
-          if (serverKeyIndex != 0) {
+          if (!firstConnection) {
               try {
+                  Client.loseConnection(false);
                   int oldTimeSlice = Replay.frame_time_slice;
-                  sync_with_client();
+                  boolean oldPaused = Replay.paused;
                   Replay.frame_time_slice = 1000 / 50;
+                  Replay.paused = false;
                   Logger.Info("ReplayServer: Killing client connection");
                   client.close();
                   Logger.Info("ReplayServer: Reconnecting client");
                   client = sock.accept();
                   Logger.Info("ReplayServer: Client reconnected");
                   Replay.frame_time_slice = oldTimeSlice;
+                  Replay.paused = oldPaused;
               } catch (Exception e) {
                   Logger.Error("ReplayServer: Error reconnecting client");
                   return false;
               }
+          } else {
+              firstConnection = false;
           }
 
           int offset = serverKeyIndex * 4;
