@@ -407,12 +407,15 @@ public class ReplayServer implements Runnable {
           // Handle disconnecting
           if (serverKeyIndex != 0) {
               try {
+                  int oldTimeSlice = Replay.frame_time_slice;
                   sync_with_client();
+                  Replay.frame_time_slice = 1000 / 50;
                   Logger.Info("ReplayServer: Killing client connection");
                   client.close();
                   Logger.Info("ReplayServer: Reconnecting client");
                   client = sock.accept();
                   Logger.Info("ReplayServer: Client reconnected");
+                  Replay.frame_time_slice = oldTimeSlice;
               } catch (Exception e) {
                   Logger.Error("ReplayServer: Error reconnecting client");
                   return false;
