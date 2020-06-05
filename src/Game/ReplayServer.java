@@ -93,7 +93,7 @@ public class ReplayServer implements Runnable {
       int diff = client_write - client_read;
 
     // Wait for client
-    while (diff >= 1) {
+    while (diff >= 100) {
         diff = client_write - client_read;
       try {
         Thread.sleep(1);
@@ -367,7 +367,6 @@ public class ReplayServer implements Runnable {
       if (timestamp_new != Replay.TIMESTAMP_EOF) {
           Replay.timestamp = timestamp_input;
           if (Replay.timestamp >= timestamp_new) {
-              sync_with_client();
               Replay.isSeeking = false;
               timestamp_new = Replay.TIMESTAMP_EOF;
               Replay.updateFrameTimeSlice();
@@ -470,6 +469,7 @@ public class ReplayServer implements Runnable {
               if (writeSize > 0) {
                   client_writePrev = client_write;
                   client_write += writeSize;
+                  sync_with_client();
               }
           } catch (Exception e) {
               return false;
