@@ -20,6 +20,7 @@ package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
 
+import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
@@ -301,6 +302,21 @@ public class Client {
         && strings[662].startsWith("@bla@from:")) {
       strings[662] = "from: ";
     }
+  }
+
+  public static Throwable HandleException(Throwable e, int index) {
+    String printMessage = "Caller: " + JClassPatcher.ExceptionSignatures.get(index) + "\n\n";
+    if (e.getMessage() != null)
+      printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
+    StackTraceElement[] stacktrace = e.getStackTrace();
+    for (int i = 0; i < stacktrace.length; i++) {
+      StackTraceElement element = stacktrace[i];
+      printMessage += element.getClassName() + "." + element.getMethodName() + "(UNKNOWN)";
+      if (i != stacktrace.length - 1)
+        printMessage += "\n";
+    }
+    Logger.Game("EXCEPTION\n" + printMessage);
+    return e;
   }
 
   public static void init() {

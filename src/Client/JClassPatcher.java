@@ -24,7 +24,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -51,6 +54,8 @@ public class JClassPatcher {
 
   // Singleton
   private static JClassPatcher instance = null;
+
+  public static List<String> ExceptionSignatures = new ArrayList<String>();
 
   private Printer printer = new Textifier();
   private TraceMethodVisitor mp = new TraceMethodVisitor(printer);
@@ -110,6 +115,15 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP));
             methodNode.instructions.remove(insnNode);
           }
+        }
+        if (insnNode.getOpcode() == Opcodes.ATHROW) {
+          int index = ExceptionSignatures.size();
+          ExceptionSignatures.add(node.name + "." + methodNode.name + methodNode.desc);
+          methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, index));
+          methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                            Opcodes.INVOKESTATIC, "Game/Client", "HandleException", "(Ljava/lang/Throwable;I)Ljava/lang/Throwable;"));
         }
       }
 
