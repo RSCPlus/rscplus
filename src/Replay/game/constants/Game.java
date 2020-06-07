@@ -287,4 +287,91 @@ public class Game {
           put(10000, "VIRTUAL_OPCODE_LOGIN_REQUEST");
         }
       };
+
+  public static final class ItemAction {
+    public int itemId;
+    public int opcode;
+    public int containsWorldPoint;
+    public String name;
+
+    public ItemAction(int itemId, int opcode, int containsWorldPoint, String name) {
+      this.itemId = itemId;
+      this.opcode = opcode;
+      this.containsWorldPoint = containsWorldPoint;
+      this.name = name;
+    }
+  }
+
+  public static final Map<Integer, ItemAction> itemActionMap =
+      new HashMap<Integer, ItemAction>() {
+        {
+          put(200, new ItemAction(200, 249, 1, "GROUND_ITEM_CAST_SPELL"));
+          put(210, new ItemAction(210, 53, 1, "GROUND_ITEM_USE_ITEM"));
+          put(220, new ItemAction(220, 247, 1, "GROUND_ITEM_TAKE"));
+          put(300, new ItemAction(300, 180, 1, "WALL_CAST_SPELL"));
+          put(310, new ItemAction(310, 161, 1, "WALL_USE_ITEM"));
+          put(320, new ItemAction(320, 14, 1, "WALL_COMMAND1"));
+          put(2300, new ItemAction(2300, 127, 1, "WALL_COMMAND2"));
+          put(400, new ItemAction(400, 99, 1, "OBJECT_CAST_SPELL"));
+          put(410, new ItemAction(410, 115, 1, "OBJECT_USE_ITEM"));
+          put(420, new ItemAction(420, 136, 1, "OBJECT_COMMAND1"));
+          put(2400, new ItemAction(2400, 79, 1, "OBJECT_COMMAND2"));
+          put(600, new ItemAction(600, 4, 0, "ITEM_CAST_SPELL"));
+          put(610, new ItemAction(610, 91, 0, "ITEM_USE_ITEM"));
+          put(620, new ItemAction(620, 170, 0, "ITEM_UNEQUIP_FROM_INVENTORY"));
+          put(630, new ItemAction(630, 169, 0, "ITEM_EQUIP_FROM_INVENTORY"));
+          put(640, new ItemAction(640, 90, 0, "ITEM_COMMAND"));
+          put(700, new ItemAction(700, 50, 2, "NPC_CAST_SPELL"));
+          put(710, new ItemAction(710, 135, 2, "NPC_USE_ITEM"));
+          put(720, new ItemAction(720, 153, 2, "NPC_TALK_TO"));
+          put(725, new ItemAction(725, 202, 2, "NPC_COMMAND1"));
+          put(715, new ItemAction(715, 190, 2, "NPC_ATTACK"));
+          put(2715, new ItemAction(2715, 190, 2, "NPC_ATTACK"));
+          put(800, new ItemAction(800, 229, 3, "PLAYER_CAST_SPELL"));
+          put(810, new ItemAction(810, 113, 3, "PLAYER_USE_ITEM"));
+          put(805, new ItemAction(805, 171, 3, "PLAYER_ATTACK"));
+          put(2805, new ItemAction(2805, 171, 3, "PLAYER_ATTACK"));
+          put(2806, new ItemAction(2806, 103, 0, "PLAYER_DUEL"));
+          put(2810, new ItemAction(2810, 142, 0, "PLAYER_TRADE"));
+          put(2820, new ItemAction(2820, 165, 0, "PLAYER_FOLLOW"));
+          put(900, new ItemAction(900, 158, 1, "LANDSCAPE_CAST_SPELL"));
+          put(920, new ItemAction(920, -1, 1, "LANDSCAPE_WALK_HERE"));
+          put(1000, new ItemAction(1000, 137, 0, "SELF_CAST_SPELL"));
+        }
+      };
+
+  public static final Map<Integer, Integer> opcodeToItemActionId =
+      new HashMap<Integer, Integer>() {
+        {
+          put(249, 200);
+          put(53, 210);
+          put(247, 220);
+          put(180, 300);
+          put(161, 310);
+          put(14, 320);
+          put(127, 2300);
+          put(99, 400);
+          put(115, 410);
+          put(136, 420);
+          put(79, 2400);
+          put(4, 600);
+          put(91, 610);
+          put(170, 620);
+          put(169, 630);
+          put(90, 640);
+          put(50, 700);
+          put(135, 710);
+          put(153, 720);
+          put(202, 725);
+          put(190, 715);
+          put(229, 800);
+          put(113, 810);
+          put(171, 805);
+          put(103, 2806);
+          put(142, 2810);
+          put(165, 2820);
+          put(158, 900);
+          put(137, 1000);
+        }
+      };
 }

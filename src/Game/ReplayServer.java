@@ -18,10 +18,14 @@
  */
 package Game;
 
+import static Replay.game.constants.Game.itemActionMap;
+import static Replay.game.constants.Game.opcodeToItemActionId;
+
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
 import Replay.common.ISAACCipher;
+import Replay.game.constants.Game.ItemAction;
 import Replay.scraper.ReplayEditor;
 import Replay.scraper.ReplayKeyPair;
 import Replay.scraper.ReplayPacket;
@@ -277,11 +281,13 @@ public class ReplayServer implements Runnable {
   }
 
   public void replayOutput(ReplayPacket packet) {
+    int menuAction = opcodeToItemActionId.getOrDefault(packet.opcode, -1);
+
     // DROP_ITEM
     if (packet.opcode == 246) {
       int item = -1;
       try {
-        item = packet.data[0] << 8 | packet.data[1];
+        item = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
       } catch (Exception e) {
       }
       if (item < 0) return;
@@ -308,6 +314,28 @@ public class ReplayServer implements Runnable {
       }
       Client.printSelectedOption(menuOptions, chosen);
       lastMenu.set(new ArrayList<String>());
+    }
+    // WALK_TO_SOURCE
+    else if (packet.opcode == 16 || packet.opcode == 187) {
+      int posX, posY;
+      posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+      posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
+      Client.displayWalkToSource(posX, posY);
+    }
+    // MENU ACTIONS such as NPC TALK TO, OBJECT COMMAND, etc
+    else if (menuAction != -1) {
+      int posX, posY, id;
+      ItemAction action = itemActionMap.get(menuAction);
+      if (action != null) {
+        if (action.containsWorldPoint == 1) {
+          posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+          posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
+          Client.displayMenuAction(action.name, posX, posY);
+        } else if (action.containsWorldPoint == 2 || action.containsWorldPoint == 3) {
+          id = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+          Client.displayMenuAction(action.name, id);
+        }
+      }
     }
   }
 
