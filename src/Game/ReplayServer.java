@@ -240,7 +240,7 @@ public class ReplayServer implements Runnable {
                     isDone = true;
             } else {
                 if (!doEditorTick())
-                    isDone = false;
+                    isDone = true;
             }
         } else {
           // Update timestamp immediately on unpausing
