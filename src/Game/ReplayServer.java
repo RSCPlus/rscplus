@@ -20,6 +20,8 @@ package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
 import static Replay.game.constants.Game.opcodeToItemActionId;
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_CONNECT;
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_NOP;
 
 import Client.Logger;
 import Client.Settings;
@@ -44,9 +46,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
-
-import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_CONNECT;
-import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_NOP;
 
 public class ReplayServer implements Runnable {
   String playbackDirectory;
@@ -94,32 +93,31 @@ public class ReplayServer implements Runnable {
   }
 
   private void sync_with_client() {
-      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-          int diff = client_write - client_read;
-          int timestampDiff = timestamp_new - Replay.timestamp;
+    if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+      int diff = client_write - client_read;
+      int timestampDiff = timestamp_new - Replay.timestamp;
 
-          int threshold = 5000;
-          if (timestampDiff <= 400)
-              threshold = 1;
+      int threshold = 5000;
+      if (timestampDiff <= 400) threshold = 1;
 
-          // Wait for client
-          while (diff >= threshold) {
-              try {
-                  Thread.sleep(1);
-              } catch (Exception e) {
-              }
-              diff = client_write - client_read;
-          }
-      } else {
-          int diff = client_writePrev - client_read;
-          while (diff >= 200) {
-              try {
-                  Thread.sleep(1);
-              } catch (Exception e) {
-              }
-              diff = client_writePrev - client_read;
-          }
+      // Wait for client
+      while (diff >= threshold) {
+        try {
+          Thread.sleep(1);
+        } catch (Exception e) {
+        }
+        diff = client_write - client_read;
       }
+    } else {
+      int diff = client_writePrev - client_read;
+      while (diff >= 200) {
+        try {
+          Thread.sleep(1);
+        } catch (Exception e) {
+        }
+        diff = client_writePrev - client_read;
+      }
+    }
   }
 
   public int getPercentRemaining() {
@@ -190,29 +188,28 @@ public class ReplayServer implements Runnable {
       boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
 
       while (!isDone) {
-          if (parseOpcodesPrev != Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-              // Editor mode needs this initialized
-              if (parseOpcodesPrev == false)
-                  firstConnection = false;
-              Replay.restartReplayPlayback();
-              parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
-          }
+        if (parseOpcodesPrev != Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          // Editor mode needs this initialized
+          if (parseOpcodesPrev == false) firstConnection = false;
+          Replay.restartReplayPlayback();
+          parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+        }
 
         // Restart the replay
         if (restart) {
-            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-                // Sync on restart
-                Client.loseConnection(false);
-                boolean wasPaused = Replay.paused;
-                int oldTimeSlice = Replay.frame_time_slice;
-                Replay.frame_time_slice = 1000 / 50;
-                client.close();
-                Replay.paused = false;
-                client = sock.accept();
-                if (Replay.isSeeking) Replay.paused = wasPaused;
-                else Replay.paused = false;
-                Replay.frame_time_slice = oldTimeSlice;
-            }
+          if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+            // Sync on restart
+            Client.loseConnection(false);
+            boolean wasPaused = Replay.paused;
+            int oldTimeSlice = Replay.frame_time_slice;
+            Replay.frame_time_slice = 1000 / 50;
+            client.close();
+            Replay.paused = false;
+            client = sock.accept();
+            if (Replay.isSeeking) Replay.paused = wasPaused;
+            else Replay.paused = false;
+            Replay.frame_time_slice = oldTimeSlice;
+          }
           input.close();
           file_input = new FileInputStream(file);
           input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
@@ -239,13 +236,11 @@ public class ReplayServer implements Runnable {
         }
 
         if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
-            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-                if (!doTick())
-                    isDone = true;
-            } else {
-                if (!doEditorTick())
-                    isDone = true;
-            }
+          if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+            if (!doTick()) isDone = true;
+          } else {
+            if (!doEditorTick()) isDone = true;
+          }
         } else {
           // Update timestamp immediately on unpausing
           frame_timer = System.currentTimeMillis();
@@ -389,155 +384,151 @@ public class ReplayServer implements Runnable {
   }
 
   public int getXTEAKey() {
-      if (!Settings.PARSE_OPCODES.get(Settings.currentProfile))
-          return 0;
+    if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) return 0;
 
-      return keys[keyIndex++];
+    return keys[keyIndex++];
   }
 
   public boolean doEditorTick() {
-      int timestamp_input = nextIncomingPacket.timestamp;
+    int timestamp_input = nextIncomingPacket.timestamp;
 
-      // Handle outgoing packets
-      while (outgoingPacketsIndex != (outgoingPacketsSizeCache - 1) && nextOutgoingPacket.timestamp <= timestamp_input) {
-          Logger.Opcode(
-                  nextOutgoingPacket.timestamp,
-                  "OUT",
-                  nextOutgoingPacket.opcode,
-                  nextOutgoingPacket.data);
-          replayOutput(nextOutgoingPacket);
-          nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
-      }
-
-      // Handle incoming packet logging
+    // Handle outgoing packets
+    while (outgoingPacketsIndex != (outgoingPacketsSizeCache - 1)
+        && nextOutgoingPacket.timestamp <= timestamp_input) {
       Logger.Opcode(
-              nextIncomingPacket.timestamp,
-              " IN",
-              nextIncomingPacket.opcode,
-              nextIncomingPacket.data);
-      readInput(nextIncomingPacket);
+          nextOutgoingPacket.timestamp, "OUT", nextOutgoingPacket.opcode, nextOutgoingPacket.data);
+      replayOutput(nextOutgoingPacket);
+      nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
+    }
 
-      // Handle seeking
-      if (timestamp_new != Replay.TIMESTAMP_EOF) {
-          Replay.timestamp = timestamp_input;
-          if (Replay.timestamp >= timestamp_new) {
-              Replay.isSeeking = false;
-              timestamp_new = Replay.TIMESTAMP_EOF;
-              Replay.updateFrameTimeSlice();
-              frame_timer = System.currentTimeMillis();
-              if (Replay.paused) Replay.resetFrameTimeSlice();
-              isSeeking = false;
-          }
+    // Handle incoming packet logging
+    Logger.Opcode(
+        nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
+    readInput(nextIncomingPacket);
+
+    // Handle seeking
+    if (timestamp_new != Replay.TIMESTAMP_EOF) {
+      Replay.timestamp = timestamp_input;
+      if (Replay.timestamp >= timestamp_new) {
+        Replay.isSeeking = false;
+        timestamp_new = Replay.TIMESTAMP_EOF;
+        Replay.updateFrameTimeSlice();
+        frame_timer = System.currentTimeMillis();
+        if (Replay.paused) Replay.resetFrameTimeSlice();
+        isSeeking = false;
+      }
+    }
+
+    // Synchronize the server to input
+    while (Replay.timestamp < timestamp_input) {
+      long time = System.currentTimeMillis();
+      if (time >= frame_timer) {
+        frame_timer += Replay.getFrameTimeSlice();
+        Replay.incrementTimestamp();
       }
 
-      // Synchronize the server to input
-      while (Replay.timestamp < timestamp_input) {
-          long time = System.currentTimeMillis();
-          if (time >= frame_timer) {
-              frame_timer += Replay.getFrameTimeSlice();
-              Replay.incrementTimestamp();
-          }
-
-          // Don't hammer the cpu, unless we have to
-          long sleepTime = frame_timer - System.currentTimeMillis() - 1;
-          if (sleepTime > 0) {
-              try { Thread.sleep(sleepTime); } catch (Exception e) {}
-          }
+      // Don't hammer the cpu, unless we have to
+      long sleepTime = frame_timer - System.currentTimeMillis() - 1;
+      if (sleepTime > 0) {
+        try {
+          Thread.sleep(sleepTime);
+        } catch (Exception e) {
+        }
       }
+    }
 
-      // Do nothing
-      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
-          nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-          return true;
-      }
-
-      ByteBuffer buffer = null;
-
-      // Login response/disconnect
-      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
-          byte loginResponse = nextIncomingPacket.data[0];
-          buffer = ByteBuffer.allocate(1);
-          buffer.put(loginResponse);
-
-          // Handle disconnecting
-          if (!firstConnection) {
-              try {
-                  Client.loseConnection(false);
-                  int oldTimeSlice = Replay.frame_time_slice;
-                  boolean oldPaused = Replay.paused;
-                  Replay.frame_time_slice = 1000 / 50;
-                  Replay.paused = false;
-                  Logger.Info("ReplayServer: Killing client connection");
-                  client.close();
-                  Logger.Info("ReplayServer: Reconnecting client");
-                  client = sock.accept();
-                  Logger.Info("ReplayServer: Client reconnected");
-                  Replay.frame_time_slice = oldTimeSlice;
-                  Replay.paused = oldPaused;
-              } catch (Exception e) {
-                  Logger.Error("ReplayServer: Error reconnecting client");
-                  return false;
-              }
-          } else {
-              firstConnection = false;
-          }
-
-          int offset = serverKeyIndex * 4;
-          int[] isaacKeys = new int[] { keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3] };
-          serverKeyIndex += 1;
-          isaac.reset();
-          isaac.setKeys(isaacKeys);
-      } else {
-          int packetLength = 1;
-          if (nextIncomingPacket.data != null)
-              packetLength += nextIncomingPacket.data.length;
-
-          // Encode packet and send
-          int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
-          if (packetLength == 1) {
-              buffer = ByteBuffer.allocate(2);
-              buffer.put((byte)(packetLength));
-              buffer.put((byte)(encodedOpcode));
-          } else {
-              if (packetLength < 160) {
-                  buffer = ByteBuffer.allocate(packetLength + 1);
-                  int dataSize = packetLength - 1;
-                  buffer.put((byte)(packetLength));
-                  buffer.put((byte)(nextIncomingPacket.data[dataSize - 1]));
-                  buffer.put((byte)(encodedOpcode));
-                  if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
-              } else {
-                  buffer = ByteBuffer.allocate(packetLength + 2);
-                  buffer.put((byte)(packetLength / 256 + 160));
-                  buffer.put((byte)(packetLength & 0xFF));
-                  buffer.put((byte)(encodedOpcode));
-                  buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
-              }
-          }
-      }
-
-      if (buffer != null) {
-          try {
-              buffer.flip();
-              int writeSize = client.write(buffer);
-              if (writeSize > 0) {
-                  client_writePrev = client_write;
-                  client_write += writeSize;
-                  sync_with_client();
-              }
-          } catch (Exception e) {
-              return false;
-          }
-      }
-
-      // End of replay
-      if (incomingPacketsIndex == (incomingPacketsSizeCache - 1))
-          return false;
-
-      // Load next packet
+    // Do nothing
+    if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
       nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-
       return true;
+    }
+
+    ByteBuffer buffer = null;
+
+    // Login response/disconnect
+    if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
+      byte loginResponse = nextIncomingPacket.data[0];
+      buffer = ByteBuffer.allocate(1);
+      buffer.put(loginResponse);
+
+      // Handle disconnecting
+      if (!firstConnection) {
+        try {
+          Client.loseConnection(false);
+          int oldTimeSlice = Replay.frame_time_slice;
+          boolean oldPaused = Replay.paused;
+          Replay.frame_time_slice = 1000 / 50;
+          Replay.paused = false;
+          Logger.Info("ReplayServer: Killing client connection");
+          client.close();
+          Logger.Info("ReplayServer: Reconnecting client");
+          client = sock.accept();
+          Logger.Info("ReplayServer: Client reconnected");
+          Replay.frame_time_slice = oldTimeSlice;
+          Replay.paused = oldPaused;
+        } catch (Exception e) {
+          Logger.Error("ReplayServer: Error reconnecting client");
+          return false;
+        }
+      } else {
+        firstConnection = false;
+      }
+
+      int offset = serverKeyIndex * 4;
+      int[] isaacKeys =
+          new int[] {keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3]};
+      serverKeyIndex += 1;
+      isaac.reset();
+      isaac.setKeys(isaacKeys);
+    } else {
+      int packetLength = 1;
+      if (nextIncomingPacket.data != null) packetLength += nextIncomingPacket.data.length;
+
+      // Encode packet and send
+      int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
+      if (packetLength == 1) {
+        buffer = ByteBuffer.allocate(2);
+        buffer.put((byte) (packetLength));
+        buffer.put((byte) (encodedOpcode));
+      } else {
+        if (packetLength < 160) {
+          buffer = ByteBuffer.allocate(packetLength + 1);
+          int dataSize = packetLength - 1;
+          buffer.put((byte) (packetLength));
+          buffer.put((byte) (nextIncomingPacket.data[dataSize - 1]));
+          buffer.put((byte) (encodedOpcode));
+          if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
+        } else {
+          buffer = ByteBuffer.allocate(packetLength + 2);
+          buffer.put((byte) (packetLength / 256 + 160));
+          buffer.put((byte) (packetLength & 0xFF));
+          buffer.put((byte) (encodedOpcode));
+          buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
+        }
+      }
+    }
+
+    if (buffer != null) {
+      try {
+        buffer.flip();
+        int writeSize = client.write(buffer);
+        if (writeSize > 0) {
+          client_writePrev = client_write;
+          client_write += writeSize;
+          sync_with_client();
+        }
+      } catch (Exception e) {
+        return false;
+      }
+    }
+
+    // End of replay
+    if (incomingPacketsIndex == (incomingPacketsSizeCache - 1)) return false;
+
+    // Load next packet
+    nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+
+    return true;
   }
 
   public boolean doTick() {
@@ -672,12 +663,12 @@ public class ReplayServer implements Runnable {
     LinkedList<ReplayKeyPair> replay_keys = editor.getKeyPairs();
     keys = new int[replay_keys.size() * 4];
     for (int i = 0; i < replay_keys.size(); i++) {
-        ReplayKeyPair keyPair = replay_keys.get(i);
-        int offset = i * 4;
-        keys[offset] = keyPair.keys[0];
-        keys[offset + 1] = keyPair.keys[1];
-        keys[offset + 2] = keyPair.keys[2];
-        keys[offset + 3] = keyPair.keys[3];
+      ReplayKeyPair keyPair = replay_keys.get(i);
+      int offset = i * 4;
+      keys[offset] = keyPair.keys[0];
+      keys[offset + 1] = keyPair.keys[1];
+      keys[offset + 2] = keyPair.keys[2];
+      keys[offset + 3] = keyPair.keys[3];
     }
 
     lastMenu = new AtomicReference<ArrayList<String>>();

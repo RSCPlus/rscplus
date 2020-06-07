@@ -1137,8 +1137,7 @@ public class Replay {
   public static int hookXTEAKey(int key) {
     if (replayServer != null) {
       int serverXTEAKey = replayServer.getXTEAKey();
-      if (serverXTEAKey != 0)
-        return serverXTEAKey;
+      if (serverXTEAKey != 0) return serverXTEAKey;
     }
 
     if (play_keys != null) {
