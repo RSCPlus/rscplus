@@ -24,8 +24,10 @@ import static Replay.game.constants.Game.opcodeToItemActionId;
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
+import Replay.common.ISAACCipher;
 import Replay.game.constants.Game.ItemAction;
 import Replay.scraper.ReplayEditor;
+import Replay.scraper.ReplayKeyPair;
 import Replay.scraper.ReplayPacket;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -43,6 +45,9 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_CONNECT;
+import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_NOP;
+
 public class ReplayServer implements Runnable {
   String playbackDirectory;
   DataInputStream input = null;
@@ -52,6 +57,11 @@ public class ReplayServer implements Runnable {
   ByteBuffer readBuffer = null;
   long frame_timer = 0;
   int timestamp_new = Replay.TIMESTAMP_EOF;
+
+  int keyIndex = 0;
+  int serverKeyIndex = 0;
+  int[] keys = null;
+  boolean firstConnection = true;
 
   public boolean isReady = false;
   public boolean isDone = false;
@@ -64,6 +74,7 @@ public class ReplayServer implements Runnable {
   public int client_read = 0;
   public int client_write = 0;
   public int client_writePrev = 0;
+  ISAACCipher isaac = new ISAACCipher();
 
   public LinkedList<ReplayPacket> incomingPackets;
   public LinkedList<ReplayPacket> outgoingPackets;
@@ -83,17 +94,32 @@ public class ReplayServer implements Runnable {
   }
 
   private void sync_with_client() {
-    // Wait for client
-    while (client_read < client_writePrev) {
-      try {
-        Thread.sleep(100);
-      } catch (Exception e) {
-      }
-    }
+      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          int diff = client_write - client_read;
+          int timestampDiff = timestamp_new - Replay.timestamp;
 
-    client_read = 0;
-    client_write = 0;
-    client_writePrev = 0;
+          int threshold = 5000;
+          if (timestampDiff <= 400)
+              threshold = 1;
+
+          // Wait for client
+          while (diff >= threshold) {
+              try {
+                  Thread.sleep(1);
+              } catch (Exception e) {
+              }
+              diff = client_write - client_read;
+          }
+      } else {
+          int diff = client_writePrev - client_read;
+          while (diff >= 200) {
+              try {
+                  Thread.sleep(1);
+              } catch (Exception e) {
+              }
+              diff = client_writePrev - client_read;
+          }
+      }
   }
 
   public int getPercentRemaining() {
@@ -138,8 +164,7 @@ public class ReplayServer implements Runnable {
       Logger.Debug("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
 
       // Load replay a second time but using the RSCMinus method
-      if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-          || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
         initializeIncomingOutgoingPackets();
         initializeNextIncomingOutgoingPackets();
       }
@@ -162,20 +187,32 @@ public class ReplayServer implements Runnable {
 
       isDone = false;
       frame_timer = System.currentTimeMillis();
+      boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+
       while (!isDone) {
+          if (parseOpcodesPrev != Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+              // Editor mode needs this initialized
+              if (parseOpcodesPrev == false)
+                  firstConnection = false;
+              Replay.restartReplayPlayback();
+              parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+          }
+
         // Restart the replay
         if (restart) {
-          // Sync on restart
-          sync_with_client();
-          Client.loseConnection(false);
-
-          boolean wasPaused = Replay.paused;
-          Replay.paused = false;
-
-          client.close();
-          client = sock.accept();
-          if (Replay.isSeeking) Replay.paused = wasPaused;
-          else Replay.paused = false;
+            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+                // Sync on restart
+                Client.loseConnection(false);
+                boolean wasPaused = Replay.paused;
+                int oldTimeSlice = Replay.frame_time_slice;
+                Replay.frame_time_slice = 1000 / 50;
+                client.close();
+                Replay.paused = false;
+                client = sock.accept();
+                if (Replay.isSeeking) Replay.paused = wasPaused;
+                else Replay.paused = false;
+                Replay.frame_time_slice = oldTimeSlice;
+            }
           input.close();
           file_input = new FileInputStream(file);
           input = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file_input)));
@@ -184,12 +221,13 @@ public class ReplayServer implements Runnable {
           Replay.timestamp_server_last = 0;
           client_read = 0;
           client_write = 0;
+          keyIndex = 0;
+          serverKeyIndex = 0;
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
 
-          if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-              || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
             if (incomingPackets == null) {
               initializeIncomingOutgoingPackets();
             }
@@ -201,9 +239,13 @@ public class ReplayServer implements Runnable {
         }
 
         if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
-          if (!doTick()) {
-            isDone = true;
-          }
+            if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+                if (!doTick())
+                    isDone = true;
+            } else {
+                if (!doEditorTick())
+                    isDone = true;
+            }
         } else {
           // Update timestamp immediately on unpausing
           frame_timer = System.currentTimeMillis();
@@ -260,7 +302,7 @@ public class ReplayServer implements Runnable {
       } catch (Exception e) {
       }
       String[] menuOptions =
-          lastMenu != null && lastMenu.get().size() > 0
+          lastMenu != null && lastMenu.get() != null && lastMenu.get().size() > 0
               ? lastMenu.get().toArray(new String[0])
               : Client.menuOptions;
       if (chosen < 0) {
@@ -346,47 +388,161 @@ public class ReplayServer implements Runnable {
     }
   }
 
+  public int getXTEAKey() {
+      if (!Settings.PARSE_OPCODES.get(Settings.currentProfile))
+          return 0;
+
+      return keys[keyIndex++];
+  }
+
+  public boolean doEditorTick() {
+      int timestamp_input = nextIncomingPacket.timestamp;
+
+      // Handle outgoing packets
+      while (outgoingPacketsIndex != (outgoingPacketsSizeCache - 1) && nextOutgoingPacket.timestamp <= timestamp_input) {
+          Logger.Opcode(
+                  nextOutgoingPacket.timestamp,
+                  "OUT",
+                  nextOutgoingPacket.opcode,
+                  nextOutgoingPacket.data);
+          replayOutput(nextOutgoingPacket);
+          nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
+      }
+
+      // Handle incoming packet logging
+      Logger.Opcode(
+              nextIncomingPacket.timestamp,
+              " IN",
+              nextIncomingPacket.opcode,
+              nextIncomingPacket.data);
+      readInput(nextIncomingPacket);
+
+      // Handle seeking
+      if (timestamp_new != Replay.TIMESTAMP_EOF) {
+          Replay.timestamp = timestamp_input;
+          if (Replay.timestamp >= timestamp_new) {
+              Replay.isSeeking = false;
+              timestamp_new = Replay.TIMESTAMP_EOF;
+              Replay.updateFrameTimeSlice();
+              frame_timer = System.currentTimeMillis();
+              if (Replay.paused) Replay.resetFrameTimeSlice();
+              isSeeking = false;
+          }
+      }
+
+      // Synchronize the server to input
+      while (Replay.timestamp < timestamp_input) {
+          long time = System.currentTimeMillis();
+          if (time >= frame_timer) {
+              frame_timer += Replay.getFrameTimeSlice();
+              Replay.incrementTimestamp();
+          }
+
+          // Don't hammer the cpu, unless we have to
+          long sleepTime = frame_timer - System.currentTimeMillis() - 1;
+          if (sleepTime > 0) {
+              try { Thread.sleep(sleepTime); } catch (Exception e) {}
+          }
+      }
+
+      // Do nothing
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
+          nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+          return true;
+      }
+
+      ByteBuffer buffer = null;
+
+      // Login response/disconnect
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
+          byte loginResponse = nextIncomingPacket.data[0];
+          buffer = ByteBuffer.allocate(1);
+          buffer.put(loginResponse);
+
+          // Handle disconnecting
+          if (!firstConnection) {
+              try {
+                  Client.loseConnection(false);
+                  int oldTimeSlice = Replay.frame_time_slice;
+                  boolean oldPaused = Replay.paused;
+                  Replay.frame_time_slice = 1000 / 50;
+                  Replay.paused = false;
+                  Logger.Info("ReplayServer: Killing client connection");
+                  client.close();
+                  Logger.Info("ReplayServer: Reconnecting client");
+                  client = sock.accept();
+                  Logger.Info("ReplayServer: Client reconnected");
+                  Replay.frame_time_slice = oldTimeSlice;
+                  Replay.paused = oldPaused;
+              } catch (Exception e) {
+                  Logger.Error("ReplayServer: Error reconnecting client");
+                  return false;
+              }
+          } else {
+              firstConnection = false;
+          }
+
+          int offset = serverKeyIndex * 4;
+          int[] isaacKeys = new int[] { keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3] };
+          serverKeyIndex += 1;
+          isaac.reset();
+          isaac.setKeys(isaacKeys);
+      } else {
+          int packetLength = 1;
+          if (nextIncomingPacket.data != null)
+              packetLength += nextIncomingPacket.data.length;
+
+          // Encode packet and send
+          int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
+          if (packetLength == 1) {
+              buffer = ByteBuffer.allocate(2);
+              buffer.put((byte)(packetLength));
+              buffer.put((byte)(encodedOpcode));
+          } else {
+              if (packetLength < 160) {
+                  buffer = ByteBuffer.allocate(packetLength + 1);
+                  int dataSize = packetLength - 1;
+                  buffer.put((byte)(packetLength));
+                  buffer.put((byte)(nextIncomingPacket.data[dataSize - 1]));
+                  buffer.put((byte)(encodedOpcode));
+                  if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
+              } else {
+                  buffer = ByteBuffer.allocate(packetLength + 2);
+                  buffer.put((byte)(packetLength / 256 + 160));
+                  buffer.put((byte)(packetLength & 0xFF));
+                  buffer.put((byte)(encodedOpcode));
+                  buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
+              }
+          }
+      }
+
+      if (buffer != null) {
+          try {
+              buffer.flip();
+              int writeSize = client.write(buffer);
+              if (writeSize > 0) {
+                  client_writePrev = client_write;
+                  client_write += writeSize;
+                  sync_with_client();
+              }
+          } catch (Exception e) {
+              return false;
+          }
+      }
+
+      // End of replay
+      if (incomingPacketsIndex == (incomingPacketsSizeCache - 1))
+          return false;
+
+      // Load next packet
+      nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+
+      return true;
+  }
+
   public boolean doTick() {
     try {
       int timestamp_input = input.readInt();
-
-      if (outgoingPacketsSizeCache > 0) {
-        while (nextOutgoingPacket.timestamp < timestamp_input) {
-          if (outgoingPacketsIndex < outgoingPacketsSizeCache - 1) {
-            Logger.Opcode(
-                nextOutgoingPacket.timestamp,
-                "OUT",
-                nextOutgoingPacket.opcode,
-                nextOutgoingPacket.data);
-            replayOutput(nextOutgoingPacket);
-            nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
-          } else {
-            break;
-          }
-        }
-      }
-      if (incomingPacketsSizeCache > 0) {
-        while (nextIncomingPacket.timestamp < timestamp_input) {
-          if (incomingPacketsIndex < incomingPacketsSizeCache - 1) {
-            Logger.Opcode(
-                nextIncomingPacket.timestamp,
-                " IN",
-                nextIncomingPacket.opcode,
-                nextIncomingPacket.data);
-            readInput(nextIncomingPacket);
-            nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-          } else {
-            break;
-          }
-        }
-      } else {
-        if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= 5
-            || Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-          // restart playback of current replay in order to import the incoming/outgoing packets
-          ReplayQueue.skipToReplay(ReplayQueue.currentIndex - 1);
-          return false;
-        }
-      }
 
       // We've reached the end of the replay
       if (timestamp_input == Replay.TIMESTAMP_EOF) return false;
@@ -414,7 +570,6 @@ public class ReplayServer implements Runnable {
         // v1+ Disconnect handler
         // If packet length is -1, it's a disconnection
         if (length == -1) {
-          sync_with_client();
           Logger.Info("ReplayServer: Killing client connection");
           client.close();
           Logger.Info("ReplayServer: Reconnecting client");
@@ -434,7 +589,6 @@ public class ReplayServer implements Runnable {
         // So we disconnect and reconnect the client
         // NOTE: Versions older than v1 have no disconnection indication
         if (timestamp_diff > 400) {
-          sync_with_client();
           Logger.Info(
               "ReplayServer: Killing client connection; timestamp="
                   + Replay.timestamp
@@ -453,27 +607,10 @@ public class ReplayServer implements Runnable {
         }
       }
 
-      // TODO: this only will skip 1 keys, unsure if there is a replay where more than 1 isaac key
-      // should be skipped from OG replays
-      if (nextIncomingPacket != null
-          && nextIncomingPacket.opcode == 10000
-          && !disconnected
-          && nextIncomingPacket.skipKeys > 0) {
-        sync_with_client();
-        Logger.Info("ReplayServer: Killing client connection");
-        client.close();
-        Logger.Info("ReplayServer: Reconnecting client");
-        client = sock.accept();
-        Logger.Info("ReplayServer: Client reconnected");
-        if (Replay.isSeeking || Settings.FAST_DISCONNECT.get(Settings.currentProfile))
-          Replay.timestamp = timestamp_input;
-      }
-
       // Handle seeking
       if (timestamp_new != Replay.TIMESTAMP_EOF) {
         Replay.timestamp = timestamp_input;
         if (Replay.timestamp >= timestamp_new) {
-          sync_with_client();
           Replay.isSeeking = false;
           timestamp_new = Replay.TIMESTAMP_EOF;
           Replay.updateFrameTimeSlice();
@@ -503,6 +640,7 @@ public class ReplayServer implements Runnable {
           if (writeSize > 0) {
             client_writePrev = client_write;
             client_write += writeSize;
+            sync_with_client();
           }
         }
       } catch (Exception e) {
@@ -529,6 +667,19 @@ public class ReplayServer implements Runnable {
 
     incomingPackets = editor.getIncomingPackets();
     outgoingPackets = editor.getOutgoingPackets();
+
+    // Load keys
+    LinkedList<ReplayKeyPair> replay_keys = editor.getKeyPairs();
+    keys = new int[replay_keys.size() * 4];
+    for (int i = 0; i < replay_keys.size(); i++) {
+        ReplayKeyPair keyPair = replay_keys.get(i);
+        int offset = i * 4;
+        keys[offset] = keyPair.keys[0];
+        keys[offset + 1] = keyPair.keys[1];
+        keys[offset + 2] = keyPair.keys[2];
+        keys[offset + 3] = keyPair.keys[3];
+    }
+
     lastMenu = new AtomicReference<ArrayList<String>>();
 
     Logger.Info(String.format("Incoming packet length: %d", incomingPackets.size()));
