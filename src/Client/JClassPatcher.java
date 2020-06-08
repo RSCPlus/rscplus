@@ -99,6 +99,7 @@ public class JClassPatcher {
 
   private void patchGeneric(ClassNode node) {
     Iterator<MethodNode> methodNodeList = node.methods.iterator();
+
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
@@ -886,6 +887,20 @@ public class JClassPatcher {
     Iterator<MethodNode> methodNodeList = node.methods.iterator();
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
+
+      // This fixes the rendering bug, it resizes a few arrays with messages, teleport, and action bubbles
+      Iterator<AbstractInsnNode> insnNodeList2 = methodNode.instructions.iterator();
+      while (insnNodeList2.hasNext()) {
+        AbstractInsnNode insnNode = insnNodeList2.next();
+        AbstractInsnNode nextNode = insnNode.getNext();
+        if ((insnNode.getOpcode() == Opcodes.BIPUSH || insnNode.getOpcode() == Opcodes.SIPUSH) && (nextNode.getOpcode() == Opcodes.NEWARRAY || nextNode.getOpcode() == Opcodes.ANEWARRAY)) {
+          IntInsnNode sizeNode = (IntInsnNode)insnNode;
+          if (sizeNode.operand == 50) {
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 200));
+            methodNode.instructions.remove(insnNode);
+          }
+        }
+      }
 
       // URL check removal at launch
       if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
