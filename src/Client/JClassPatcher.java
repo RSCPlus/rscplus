@@ -56,6 +56,7 @@ public class JClassPatcher {
   private static JClassPatcher instance = null;
 
   public static List<String> ExceptionSignatures = new ArrayList<String>();
+  public static List<String> InstructionBytecode = new ArrayList<String>();
 
   private Printer printer = new Textifier();
   private TraceMethodVisitor mp = new TraceMethodVisitor(printer);
@@ -109,9 +110,9 @@ public class JClassPatcher {
           // Patch calls to System.out.println and route them to Logger.Game
           if (call.owner.equals("java/io/PrintStream") && call.name.equals("println")) {
             methodNode.instructions.insertBefore(
-                insnNode,
-                new MethodInsnNode(
-                    Opcodes.INVOKESTATIC, "Client/Logger", "Game", "(Ljava/lang/String;)V"));
+                    insnNode,
+                    new MethodInsnNode(
+                            Opcodes.INVOKESTATIC, "Client/Logger", "Game", "(Ljava/lang/String;)V"));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP));
             methodNode.instructions.remove(insnNode);
           }
@@ -123,75 +124,75 @@ public class JClassPatcher {
           methodNode.instructions.insertBefore(
                   insnNode,
                   new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/Client", "HandleException", "(Ljava/lang/Throwable;I)Ljava/lang/Throwable;"));
+                          Opcodes.INVOKESTATIC, "Game/Client", "HandleException", "(Ljava/lang/Throwable;I)Ljava/lang/Throwable;"));
         }
       }
 
       hookClassVariable(
-          methodNode,
-          "ua",
-          "fb",
-          "Ljava/awt/image/ImageConsumer;",
-          "Game/Renderer",
-          "image_consumer",
-          "Ljava/awt/image/ImageConsumer;",
-          true,
-          true);
+              methodNode,
+              "ua",
+              "fb",
+              "Ljava/awt/image/ImageConsumer;",
+              "Game/Renderer",
+              "image_consumer",
+              "Ljava/awt/image/ImageConsumer;",
+              true,
+              true);
       hookClassVariable(methodNode, "ua", "u", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(methodNode, "ua", "k", "I", "Game/Renderer", "height", "I", false, true);
       hookClassVariable(methodNode, "ua", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
       hookClassVariable(
-          methodNode,
-          "e",
-          "Ob",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "pm_enteredText",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "e",
+              "Ob",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "pm_enteredText",
+              "Ljava/lang/String;",
+              true,
+              true);
       hookClassVariable(
-          methodNode,
-          "client",
-          "Ob",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "pm_enteredText",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "client",
+              "Ob",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "pm_enteredText",
+              "Ljava/lang/String;",
+              true,
+              true);
       hookClassVariable(
-          methodNode,
-          "e",
-          "x",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "pm_text",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "e",
+              "x",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "pm_text",
+              "Ljava/lang/String;",
+              true,
+              true);
       hookClassVariable(
-          methodNode,
-          "client",
-          "x",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "pm_text",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "client",
+              "x",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "pm_text",
+              "Ljava/lang/String;",
+              true,
+              true);
 
       hookClassVariable(
-          methodNode,
-          "client",
-          "li",
-          "Lba;",
-          "Game/Renderer",
-          "instance",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "li",
+              "Lba;",
+              "Game/Renderer",
+              "instance",
+              "Ljava/lang/Object;",
+              true,
+              false);
 
       hookClassVariable(methodNode, "ba", "u", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(methodNode, "ba", "k", "I", "Game/Renderer", "height", "I", false, true);
@@ -199,400 +200,400 @@ public class JClassPatcher {
 
       hookStaticVariable(methodNode, "n", "g", "I", "Game/Client", "friends_count", "I");
       hookStaticVariable(
-          methodNode,
-          "ua",
-          "h",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "friends",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ua",
+              "h",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "friends",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "ac",
-          "z",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "friends_world",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ac",
+              "z",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "friends_world",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "cb",
-          "c",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "friends_formerly",
-          "[Ljava/lang/String;");
+              methodNode,
+              "cb",
+              "c",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "friends_formerly",
+              "[Ljava/lang/String;");
       hookStaticVariable(methodNode, "client", "Fj", "[I", "Game/Client", "friends_online", "[I");
 
       hookStaticVariable(methodNode, "db", "g", "I", "Game/Client", "ignores_count", "I");
       hookStaticVariable(
-          methodNode,
-          "l",
-          "c",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "ignores",
-          "[Ljava/lang/String;");
+              methodNode,
+              "l",
+              "c",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "ignores",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "ia",
-          "g",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "ignores_formerly",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ia",
+              "g",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "ignores_formerly",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "ia",
-          "a",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "ignores_copy",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ia",
+              "a",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "ignores_copy",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "ua",
-          "wb",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "ignores_formerly_copy",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ua",
+              "wb",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "ignores_formerly_copy",
+              "[Ljava/lang/String;");
 
       hookClassVariable(
-          methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
+              methodNode, "client", "Wd", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(
-          methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
+              methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
 
       hookClassVariable(methodNode, "e", "m", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(methodNode, "e", "a", "I", "Game/Renderer", "height", "I", false, true);
       hookClassVariable(
-          methodNode, "e", "Ib", "I", "Game/Replay", "frame_time_slice", "I", true, true);
+              methodNode, "e", "Ib", "I", "Game/Replay", "frame_time_slice", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "fc", "I", "Game/Replay", "connection_port", "I", true, true);
+              methodNode, "client", "fc", "I", "Game/Replay", "connection_port", "I", true, true);
 
       hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
       hookStaticVariable(
-          methodNode,
-          "client",
-          "il",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "strings",
-          "[Ljava/lang/String;");
+              methodNode,
+              "client",
+              "il",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "strings",
+              "[Ljava/lang/String;");
 
       hookStaticVariable(
-          methodNode,
-          "ac",
-          "x",
-          "[Ljava/lang/String;",
-          "Game/Item",
-          "item_name",
-          "[Ljava/lang/String;");
+              methodNode,
+              "ac",
+              "x",
+              "[Ljava/lang/String;",
+              "Game/Item",
+              "item_name",
+              "[Ljava/lang/String;");
       hookStaticVariable(
-          methodNode,
-          "lb",
-          "ac",
-          "[Ljava/lang/String;",
-          "Game/Item",
-          "item_commands",
-          "[Ljava/lang/String;");
+              methodNode,
+              "lb",
+              "ac",
+              "[Ljava/lang/String;",
+              "Game/Item",
+              "item_commands",
+              "[Ljava/lang/String;");
 
       hookConditionalClassVariable(
-          methodNode,
-          "lb",
-          "Mb",
-          "I",
-          "Game/Camera",
-          "distance1",
-          "I",
-          false,
-          true,
-          "VIEW_DISTANCE_BOOL");
+              methodNode,
+              "lb",
+              "Mb",
+              "I",
+              "Game/Camera",
+              "distance1",
+              "I",
+              false,
+              true,
+              "VIEW_DISTANCE_BOOL");
       hookConditionalClassVariable(
-          methodNode,
-          "lb",
-          "X",
-          "I",
-          "Game/Camera",
-          "distance2",
-          "I",
-          false,
-          true,
-          "VIEW_DISTANCE_BOOL");
+              methodNode,
+              "lb",
+              "X",
+              "I",
+              "Game/Camera",
+              "distance2",
+              "I",
+              false,
+              true,
+              "VIEW_DISTANCE_BOOL");
       hookConditionalClassVariable(
-          methodNode,
-          "lb",
-          "P",
-          "I",
-          "Game/Camera",
-          "distance3",
-          "I",
-          false,
-          true,
-          "VIEW_DISTANCE_BOOL");
+              methodNode,
+              "lb",
+              "P",
+              "I",
+              "Game/Camera",
+              "distance3",
+              "I",
+              false,
+              true,
+              "VIEW_DISTANCE_BOOL");
       hookConditionalClassVariable(
-          methodNode,
-          "lb",
-          "G",
-          "I",
-          "Game/Camera",
-          "distance4",
-          "I",
-          false,
-          true,
-          "VIEW_DISTANCE_BOOL");
+              methodNode,
+              "lb",
+              "G",
+              "I",
+              "Game/Camera",
+              "distance4",
+              "I",
+              false,
+              true,
+              "VIEW_DISTANCE_BOOL");
 
       hookClassVariable(
-          methodNode, "client", "cl", "I", "Game/Client", "max_inventory", "I", true, false);
+              methodNode, "client", "cl", "I", "Game/Client", "max_inventory", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "bk", "[Z", "Game/Client", "prayers_on", "[Z", true, false);
+              methodNode, "client", "bk", "[Z", "Game/Client", "prayers_on", "[Z", true, false);
       hookClassVariable(
-          methodNode,
-          "client",
-          "Fc",
-          "[I",
-          "Game/Client",
-          "current_equipment_stats",
-          "[I",
-          true,
-          false);
+              methodNode,
+              "client",
+              "Fc",
+              "[I",
+              "Game/Client",
+              "current_equipment_stats",
+              "[I",
+              true,
+              false);
       hookClassVariable(
-          methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
+              methodNode, "client", "oh", "[I", "Game/Client", "current_level", "[I", true, false);
       hookClassVariable(
-          methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
+              methodNode, "client", "cg", "[I", "Game/Client", "base_level", "[I", true, false);
       hookClassVariable(
-          methodNode,
-          "client",
-          "Vk",
-          "[Ljava/lang/String;",
-          "Game/Client",
-          "skill_name",
-          "[Ljava/lang/String;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "Vk",
+              "[Ljava/lang/String;",
+              "Game/Client",
+              "skill_name",
+              "[Ljava/lang/String;",
+              true,
+              false);
       hookClassVariable(methodNode, "client", "Ak", "[I", "Game/Client", "xp", "[I", true, false);
       hookClassVariable(
-          methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
+              methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
+              methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
       if (Settings.SAVE_LOGININFO.get(Settings.currentProfile))
         hookClassVariable(
-            methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
+                methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", false, true);
 
       hookClassVariable(
-          methodNode,
-          "client",
-          "Ek",
-          "Llb;",
-          "Game/Camera",
-          "instance",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "Ek",
+              "Llb;",
+              "Game/Camera",
+              "instance",
+              "Ljava/lang/Object;",
+              true,
+              false);
       hookConditionalClassVariable(
-          methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true, "FOV_BOOL");
+              methodNode, "client", "qd", "I", "Game/Camera", "fov", "I", false, true, "FOV_BOOL");
 
       hookClassVariable(
-          methodNode, "client", "ai", "I", "Game/Client", "combat_timer", "I", true, true);
+              methodNode, "client", "ai", "I", "Game/Client", "combat_timer", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
+              methodNode, "client", "Fe", "Z", "Game/Client", "show_bank", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
+              methodNode, "client", "dd", "Z", "Game/Client", "show_duel", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Pj", "Z", "Game/Client", "show_duelconfirm", "Z", true, false);
+              methodNode, "client", "Pj", "Z", "Game/Client", "show_duelconfirm", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Bj", "I", "Game/Client", "show_friends", "I", true, true);
+              methodNode, "client", "Bj", "I", "Game/Client", "show_friends", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "qc", "I", "Game/Client", "show_menu", "I", true, false);
+              methodNode, "client", "qc", "I", "Game/Client", "show_menu", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
+              methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
+              methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "uk", "Z", "Game/Client", "show_shop", "Z", true, false);
+              methodNode, "client", "uk", "Z", "Game/Client", "show_shop", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Qk", "Z", "Game/Client", "show_sleeping", "Z", true, false);
+              methodNode, "client", "Qk", "Z", "Game/Client", "show_sleeping", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Hk", "Z", "Game/Client", "show_trade", "Z", true, false);
+              methodNode, "client", "Hk", "Z", "Game/Client", "show_trade", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
+              methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
       hookClassVariable(
-          methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, true);
+              methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, true);
 
       hookClassVariable(
-          methodNode,
-          "client",
-          "Qd",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "pm_username",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "client",
+              "Qd",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "pm_username",
+              "Ljava/lang/String;",
+              true,
+              true);
 
       hookClassVariable(
-          methodNode,
-          "client",
-          "wh",
-          "Ljava/lang/String;",
-          "Game/Client",
-          "username_login",
-          "Ljava/lang/String;",
-          true,
-          true);
+              methodNode,
+              "client",
+              "wh",
+              "Ljava/lang/String;",
+              "Game/Client",
+              "username_login",
+              "Ljava/lang/String;",
+              true,
+              true);
       hookClassVariable(
-          methodNode, "client", "Vh", "I", "Game/Client", "autologin_timeout", "I", true, true);
+              methodNode, "client", "Vh", "I", "Game/Client", "autologin_timeout", "I", true, true);
 
       hookClassVariable(
-          methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
+              methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
+              methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);
       hookConditionalClassVariable(
-          methodNode,
-          "client",
-          "kg",
-          "I",
-          "Game/Camera",
-          "lookat_x",
-          "I",
-          false,
-          true,
-          "CAMERA_MOVABLE_BOOL");
+              methodNode,
+              "client",
+              "kg",
+              "I",
+              "Game/Camera",
+              "lookat_x",
+              "I",
+              false,
+              true,
+              "CAMERA_MOVABLE_BOOL");
       hookConditionalClassVariable(
-          methodNode,
-          "client",
-          "Si",
-          "I",
-          "Game/Camera",
-          "lookat_y",
-          "I",
-          false,
-          true,
-          "CAMERA_MOVABLE_BOOL");
+              methodNode,
+              "client",
+              "Si",
+              "I",
+              "Game/Camera",
+              "lookat_y",
+              "I",
+              false,
+              true,
+              "CAMERA_MOVABLE_BOOL");
       hookClassVariable(
-          methodNode, "client", "Wc", "I", "Game/Camera", "auto_speed", "I", true, true);
+              methodNode, "client", "Wc", "I", "Game/Camera", "auto_speed", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "Be", "I", "Game/Camera", "rotation_y", "I", true, true);
+              methodNode, "client", "Be", "I", "Game/Camera", "rotation_y", "I", true, true);
       hookClassVariable(methodNode, "client", "Kh", "Z", "Game/Camera", "auto", "Z", true, true);
       hookClassVariable(methodNode, "client", "si", "I", "Game/Camera", "angle", "I", true, true);
 
       hookConditionalClassVariable(
-          methodNode,
-          "client",
-          "ug",
-          "I",
-          "Game/Camera",
-          "rotation",
-          "I",
-          false,
-          true,
-          "CAMERA_ROTATABLE_BOOL");
+              methodNode,
+              "client",
+              "ug",
+              "I",
+              "Game/Camera",
+              "rotation",
+              "I",
+              false,
+              true,
+              "CAMERA_ROTATABLE_BOOL");
       hookConditionalClassVariable(
-          methodNode,
-          "client",
-          "ac",
-          "I",
-          "Game/Camera",
-          "zoom",
-          "I",
-          false,
-          true,
-          "CAMERA_ZOOMABLE_BOOL");
+              methodNode,
+              "client",
+              "ac",
+              "I",
+              "Game/Camera",
+              "zoom",
+              "I",
+              false,
+              true,
+              "CAMERA_ZOOMABLE_BOOL");
 
       // Chat menu
       hookClassVariable(
-          methodNode,
-          "client",
-          "yd",
-          "Lqa;",
-          "Game/Menu",
-          "chat_menu",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "yd",
+              "Lqa;",
+              "Game/Menu",
+              "chat_menu",
+              "Ljava/lang/Object;",
+              true,
+              false);
       hookClassVariable(
-          methodNode, "client", "Fh", "I", "Game/Menu", "chat_type1", "I", true, false);
+              methodNode, "client", "Fh", "I", "Game/Menu", "chat_type1", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "bh", "I", "Game/Menu", "chat_input", "I", true, false);
+              methodNode, "client", "bh", "I", "Game/Menu", "chat_input", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "ud", "I", "Game/Menu", "chat_type2", "I", true, false);
+              methodNode, "client", "ud", "I", "Game/Menu", "chat_type2", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "mc", "I", "Game/Menu", "chat_type3", "I", true, false);
+              methodNode, "client", "mc", "I", "Game/Menu", "chat_type3", "I", true, false);
 
       // Quest menu
       hookClassVariable(
-          methodNode,
-          "client",
-          "fe",
-          "Lqa;",
-          "Game/Menu",
-          "quest_menu",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "fe",
+              "Lqa;",
+              "Game/Menu",
+              "quest_menu",
+              "Ljava/lang/Object;",
+              true,
+              false);
       hookClassVariable(
-          methodNode, "client", "lk", "I", "Game/Menu", "quest_handle", "I", true, false);
+              methodNode, "client", "lk", "I", "Game/Menu", "quest_handle", "I", true, false);
 
       // Friends menu
       hookClassVariable(
-          methodNode,
-          "client",
-          "zk",
-          "Lqa;",
-          "Game/Menu",
-          "friend_menu",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "zk",
+              "Lqa;",
+              "Game/Menu",
+              "friend_menu",
+              "Ljava/lang/Object;",
+              true,
+              false);
       hookClassVariable(
-          methodNode, "client", "Hi", "I", "Game/Menu", "friend_handle", "I", true, false);
+              methodNode, "client", "Hi", "I", "Game/Menu", "friend_handle", "I", true, false);
 
       // Spell menu
       hookClassVariable(
-          methodNode,
-          "client",
-          "Mc",
-          "Lqa;",
-          "Game/Menu",
-          "spell_menu",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "Mc",
+              "Lqa;",
+              "Game/Menu",
+              "spell_menu",
+              "Ljava/lang/Object;",
+              true,
+              false);
       hookClassVariable(
-          methodNode, "client", "Ud", "I", "Game/Menu", "spell_handle", "I", true, false);
+              methodNode, "client", "Ud", "I", "Game/Menu", "spell_handle", "I", true, false);
 
       // Player name
       hookClassVariable(
-          methodNode,
-          "client",
-          "wi",
-          "Lta;",
-          "Game/Client",
-          "player_object",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "wi",
+              "Lta;",
+              "Game/Client",
+              "player_object",
+              "Ljava/lang/Object;",
+              true,
+              false);
       // coordinates related
       hookClassVariable(
-          methodNode, "client", "Qg", "I", "Game/Client", "regionX", "I", true, false);
+              methodNode, "client", "Qg", "I", "Game/Client", "regionX", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "zg", "I", "Game/Client", "regionY", "I", true, false);
+              methodNode, "client", "zg", "I", "Game/Client", "regionY", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Lf", "I", "Game/Client", "localRegionX", "I", true, false);
+              methodNode, "client", "Lf", "I", "Game/Client", "localRegionX", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "sh", "I", "Game/Client", "localRegionY", "I", true, false);
+              methodNode, "client", "sh", "I", "Game/Client", "localRegionY", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Ki", "I", "Game/Client", "planeWidth", "I", true, false);
+              methodNode, "client", "Ki", "I", "Game/Client", "planeWidth", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "sk", "I", "Game/Client", "planeHeight", "I", true, false);
+              methodNode, "client", "sk", "I", "Game/Client", "planeHeight", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "bc", "I", "Game/Client", "planeIndex", "I", true, false);
+              methodNode, "client", "bc", "I", "Game/Client", "planeIndex", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Ub", "Z", "Game/Client", "loadingArea", "Z", true, false);
+              methodNode, "client", "Ub", "Z", "Game/Client", "loadingArea", "Z", true, false);
 
       hookClassVariable(
-          methodNode, "client", "Ug", "I", "Game/Client", "tileSize", "I", true, false);
+              methodNode, "client", "Ug", "I", "Game/Client", "tileSize", "I", true, false);
 
       // Last mouse activity
       // hookClassVariable(methodNode, "client", "sb", "I", "Game/Client", "lastMouseAction", "I",
@@ -603,71 +604,71 @@ public class JClassPatcher {
 
       // Client modulus and exponent
       hookStaticVariable(
-          methodNode,
-          "s",
-          "c",
-          "Ljava/math/BigInteger;",
-          "Game/Client",
-          "exponent",
-          "Ljava/math/BigInteger;");
+              methodNode,
+              "s",
+              "c",
+              "Ljava/math/BigInteger;",
+              "Game/Client",
+              "exponent",
+              "Ljava/math/BigInteger;");
       hookStaticVariable(
-          methodNode,
-          "ja",
-          "K",
-          "Ljava/math/BigInteger;",
-          "Game/Client",
-          "modulus",
-          "Ljava/math/BigInteger;");
+              methodNode,
+              "ja",
+              "K",
+              "Ljava/math/BigInteger;",
+              "Game/Client",
+              "modulus",
+              "Ljava/math/BigInteger;");
 
       // Shell strings
       hookStaticVariable(
-          methodNode,
-          "e",
-          "Sb",
-          "[Ljava/lang/String;",
-          "Game/Renderer",
-          "shellStrings",
-          "[Ljava/lang/String;");
+              methodNode,
+              "e",
+              "Sb",
+              "[Ljava/lang/String;",
+              "Game/Renderer",
+              "shellStrings",
+              "[Ljava/lang/String;");
 
       hookClassVariable(
-          methodNode,
-          "client",
-          "Jh",
-          "Lda;",
-          "Game/Client",
-          "clientStream",
-          "Ljava/lang/Object;",
-          true,
-          false);
+              methodNode,
+              "client",
+              "Jh",
+              "Lda;",
+              "Game/Client",
+              "clientStream",
+              "Ljava/lang/Object;",
+              true,
+              false);
 
       // Bank related vars
       hookClassVariable(
-          methodNode, "client", "ci", "[I", "Game/Client", "new_bank_items", "[I", true, true);
+              methodNode, "client", "ci", "[I", "Game/Client", "new_bank_items", "[I", true, true);
       hookClassVariable(
-          methodNode,
-          "client",
-          "Xe",
-          "[I",
-          "Game/Client",
-          "new_bank_items_count",
-          "[I",
-          true,
-          true);
+              methodNode,
+              "client",
+              "Xe",
+              "[I",
+              "Game/Client",
+              "new_bank_items_count",
+              "[I",
+              true,
+              true);
       hookClassVariable(
-          methodNode, "client", "ae", "[I", "Game/Client", "bank_items", "[I", true, true);
+              methodNode, "client", "ae", "[I", "Game/Client", "bank_items", "[I", true, true);
       hookClassVariable(
-          methodNode, "client", "di", "[I", "Game/Client", "bank_items_count", "[I", true, true);
+              methodNode, "client", "di", "[I", "Game/Client", "bank_items_count", "[I", true, true);
       hookClassVariable(
-          methodNode, "client", "fj", "I", "Game/Client", "new_count_items_bank", "I", true, true);
+              methodNode, "client", "fj", "I", "Game/Client", "new_count_items_bank", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "vj", "I", "Game/Client", "count_items_bank", "I", true, true);
+              methodNode, "client", "vj", "I", "Game/Client", "count_items_bank", "I", true, true);
       hookClassVariable(
-          methodNode, "client", "xg", "I", "Game/Client", "bank_active_page", "I", true, true);
+              methodNode, "client", "xg", "I", "Game/Client", "bank_active_page", "I", true, true);
 
       hookClassVariable(
-          methodNode, "client", "sj", "I", "Game/Client", "selectedItem", "I", true, false);
+              methodNode, "client", "sj", "I", "Game/Client", "selectedItem", "I", true, false);
       hookClassVariable(
-          methodNode, "client", "Rd", "I", "Game/Client", "selectedItemSlot", "I", true, false);
+              methodNode, "client", "Rd", "I", "Game/Client", "selectedItemSlot", "I", true, false);
     }
   }
 
@@ -2494,6 +2495,8 @@ public class JClassPatcher {
           }
         }
       }
+
+      //hookTracer(node, methodNode);
     }
   }
 
@@ -2774,6 +2777,17 @@ public class JClassPatcher {
     }
   }
 
+  private void patchTracer(ClassNode node) {
+    Logger.Info("Patching tracer (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      hookTracer(node, methodNode);
+    }
+  }
+
   /**
    * TODO: Complete JavaDoc
    *
@@ -2816,6 +2830,28 @@ public class JClassPatcher {
           }
         }
       }
+    }
+  }
+
+  private void hookTracer(ClassNode node, MethodNode methodNode) {
+    // Tracer function, called on every instruction
+    Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+    while (insnNodeList.hasNext()) {
+      AbstractInsnNode insnNode = insnNodeList.next();
+
+      if (insnNode.getType() == AbstractInsnNode.FRAME || insnNode.getType() == AbstractInsnNode.LABEL)
+        continue;
+
+      int index = InstructionBytecode.size();
+      String instruction = decodeInstruction(insnNode).replaceAll("\n", "").replaceAll("    ", "");
+      instruction = node.name + "." + methodNode.name + methodNode.desc + ": " + instruction;
+      InstructionBytecode.add(instruction);
+      methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, (index >> 16) & 0xFFFF));
+      methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, index & 0xFFFF));
+      methodNode.instructions.insertBefore(
+              insnNode,
+              new MethodInsnNode(
+                      Opcodes.INVOKESTATIC, "Game/Client", "TracerHandler", "(II)V"));
     }
   }
 

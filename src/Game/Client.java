@@ -43,7 +43,9 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import javax.swing.JOptionPane;
 
 /**
@@ -54,6 +56,30 @@ public class Client {
 
   // Game's client instance
   public static Object instance;
+
+  public static LinkedList<String> tracerInstructions = new LinkedList<String>() {
+    private Object threadLock = new Object();
+
+    @Override
+    public boolean add(String object) {
+      boolean result;
+      if (this.size() >= 20)
+        removeFirst();
+      synchronized(threadLock) {
+        result = super.add(object);
+      }
+      return result;
+    }
+
+    @Override
+    public String removeFirst() {
+      String result;
+      synchronized (threadLock) {
+        result = super.removeFirst();
+      }
+      return result;
+    }
+  };
 
   public static List<NPC> npc_list = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
@@ -315,8 +341,36 @@ public class Client {
       if (i != stacktrace.length - 1)
         printMessage += "\n";
     }
+
+    // Add tracer information
+    Object[] tracer = tracerInstructions.toArray();
+    if (tracer.length > 0) {
+      printMessage += "\n\nByteCode Tracer:\n";
+      for (int i = 0; i < tracer.length; i++) {
+        String instruction = (String)tracer[i];
+        if (instruction != null)
+          printMessage += instruction + "\n";
+      }
+    }
+
     Logger.Game("EXCEPTION\n" + printMessage);
+
     return e;
+  }
+
+  public static void TracerHandler(int indexHigh, int indexLow) {
+    // Convert index
+    if (indexHigh < 0)
+      indexHigh += Short.MAX_VALUE * 2;
+    if (indexLow < 0)
+      indexLow += Short.MAX_VALUE * 2;
+    int index = (indexHigh << 16) | indexLow;
+
+    Thread thread = Thread.currentThread();
+
+    // Add decoded instruction to tracer
+    String instruction = JClassPatcher.InstructionBytecode.get(index);
+    tracerInstructions.add("[" + thread.getName() + "] " + instruction);
   }
 
   public static void init() {
