@@ -79,6 +79,17 @@ public class Client {
       }
       return result;
     }
+
+    @Override
+    public String[] toArray() {
+      String[] result;
+      synchronized (threadLock) {
+        result = new String[size()];
+        for (int i = 0; i < size(); i++)
+          result[i] = get(i);
+      }
+      return result;
+    }
   };
 
   public static List<NPC> npc_list = new ArrayList<>();
