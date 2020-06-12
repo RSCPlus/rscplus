@@ -89,8 +89,8 @@ public class JClassPatcher {
     }
 
     // Dev Bytecode tracer, do not leave these uncommented in live builds!
-    if (node.name.equals("client")) patchTracer(node);
-    else if (node.name.equals("lb")) patchTracer(node);
+    //if (node.name.equals("client")) patchTracer(node);
+    //else if (node.name.equals("lb")) patchTracer(node);
 
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     node.accept(writer);

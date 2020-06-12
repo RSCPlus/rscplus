@@ -183,18 +183,8 @@ public class ReplayQueue {
       index = queue.size() - 1;
     }
 
-    if (Replay.isPlaying) {
+    if (Replay.isPlaying)
       Replay.controlPlayback("stop");
-      try {
-        // without this at all, client says user is still logged in lol
-        // through experimentation, I found that 700 is not long enough.
-        // this value works. shorter, and the replay server has trouble keeping its
-        // timestamps straight... TODO: eliminate need for this delay.
-        Thread.sleep(800);
-      } catch (Exception e) {
-        Logger.Debug(e.toString());
-      }
-    }
 
     currentReplayName = queue.get(index).getAbsolutePath();
     Logger.Info(

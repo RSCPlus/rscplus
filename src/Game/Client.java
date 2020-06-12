@@ -513,7 +513,7 @@ public class Client {
     Game.getInstance().updateTitle();
 
     // Login hook on this thread
-    if (runReplayHook) {
+    if (runReplayHook && state == STATE_LOGIN) {
       Renderer.replayOption = 2;
       runReplayHook = false;
       login_hook();
