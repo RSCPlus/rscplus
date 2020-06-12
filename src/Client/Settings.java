@@ -128,6 +128,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_FOOD_HEAL_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_TIME_UNTIL_HP_REGEN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DEBUG = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> EXCEPTION_HANDLER = new HashMap<String, Boolean>();
   public static HashMap<String, ArrayList<String>> HIGHLIGHTED_ITEMS =
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
@@ -751,6 +752,14 @@ public class Settings {
     DEBUG.put("heavy", false);
     DEBUG.put("all", false);
     DEBUG.put("custom", getPropBoolean(props, "debug", DEBUG.get("default")));
+
+    EXCEPTION_HANDLER.put("vanilla", false);
+    EXCEPTION_HANDLER.put("vanilla_resizable", false);
+    EXCEPTION_HANDLER.put("lite", false);
+    EXCEPTION_HANDLER.put("default", false);
+    EXCEPTION_HANDLER.put("heavy", false);
+    EXCEPTION_HANDLER.put("all", false);
+    EXCEPTION_HANDLER.put("custom", getPropBoolean(props, "exception_handler", EXCEPTION_HANDLER.get("default")));
 
     HIGHLIGHTED_ITEMS.put("vanilla", new ArrayList<String>());
     HIGHLIGHTED_ITEMS.put("vanilla_resizable", new ArrayList<String>());
@@ -1508,6 +1517,7 @@ public class Settings {
       props.setProperty("indicators", Boolean.toString(LAG_INDICATOR.get(preset)));
       props.setProperty("show_xp_bar", Boolean.toString(SHOW_XP_BAR.get(preset)));
       props.setProperty("debug", Boolean.toString(DEBUG.get(preset)));
+      props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
 
