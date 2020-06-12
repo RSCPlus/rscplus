@@ -902,26 +902,6 @@ public class JClassPatcher {
         }
       }
 
-      // Patch out calls to setCameraSize
-      if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
-        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-            MethodInsnNode invokeNode = (MethodInsnNode)insnNode;
-            if (invokeNode.owner.equals("lb") && invokeNode.name.equals("a") && invokeNode.desc.equals("(IZIIIII)V")) {
-              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
-              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
-              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
-              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
-              methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Camera", "unknown", "()V"));
-              //methodNode.instructions.remove(insnNode);
-              break;
-            }
-          }
-        }
-      }
-
       // URL check removal at launch
       if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();

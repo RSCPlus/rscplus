@@ -76,10 +76,6 @@ public class Camera {
     add_lookat_y = 0.0f;
   }
 
-  public static void unknown() {
-    Logger.Game(Thread.currentThread().getName() + ": KKLOL");
-  }
-
   public static void update(float delta_time) {
     // Handle camera rotation, zoom, and movement
     final float camera_speed = 24.0f;
