@@ -42,10 +42,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -57,40 +54,7 @@ public class Client {
   // Game's client instance
   public static Object instance;
 
-  public static LinkedList<String> tracerInstructions = new LinkedList<String>() {
-    private Object threadLock = new Object();
-
-    @Override
-    public boolean add(String object) {
-      boolean result;
-      if (this.size() >= 20)
-        removeFirst();
-      synchronized(threadLock) {
-        result = super.add(object);
-      }
-      return result;
-    }
-
-    @Override
-    public String removeFirst() {
-      String result;
-      synchronized (threadLock) {
-        result = super.removeFirst();
-      }
-      return result;
-    }
-
-    @Override
-    public String[] toArray() {
-      String[] result;
-      synchronized (threadLock) {
-        result = new String[size()];
-        for (int i = 0; i < size(); i++)
-          result[i] = get(i);
-      }
-      return result;
-    }
-  };
+  public static Map<String,LinkedList<String>> tracerInstructions = new LinkedHashMap<String,LinkedList<String>>();
 
   public static List<NPC> npc_list = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
@@ -238,6 +202,8 @@ public class Client {
   public static Object writeBuffer;
   public static Object menuCommon;
 
+  public static final int TRACER_LINES = 20;
+
   // bank items and their count for each type, new bank items are first to get updated and indicate
   // bank
   // excluding inventory types and bank items do include them (in regular mode), as bank operations
@@ -354,14 +320,26 @@ public class Client {
     }
 
     // Add tracer information
-    Object[] tracer = tracerInstructions.toArray();
-    if (tracer.length > 0) {
-      printMessage += "\n\nByteCode Tracer:\n";
+    Iterator tracerIterator = tracerInstructions.entrySet().iterator();
+    if (tracerIterator.hasNext()) {
+      printMessage += "\n\n";
+    }
+    while (tracerIterator.hasNext()) {
+      Map.Entry element = (Map.Entry)tracerIterator.next();
+      String name = (String)element.getKey();
+      String[] tracer = (String[])((LinkedList<String>)element.getValue()).toArray();
+      printMessage += "[" + name + "]\n";
       for (int i = 0; i < tracer.length; i++) {
         String instruction = (String)tracer[i];
-        if (instruction != null)
-          printMessage += instruction + "\n";
+        if (instruction != null) {
+          printMessage += instruction;
+          if (i != tracer.length - 1)
+            printMessage += "\n";
+        }
       }
+
+      if (tracerIterator.hasNext())
+        printMessage += "\n\n";
     }
 
     Logger.Game("EXCEPTION\n" + printMessage);
@@ -378,10 +356,52 @@ public class Client {
     int index = (indexHigh << 16) | indexLow;
 
     Thread thread = Thread.currentThread();
+    String threadName = thread.getName();
+
+    LinkedList<String> instructions;
+    if (tracerInstructions.containsKey(threadName)) {
+      instructions = tracerInstructions.get(threadName);
+    } else {
+      instructions = new LinkedList<String>() {
+        private Object threadLock = new Object();
+
+        @Override
+        public boolean add(String object) {
+          boolean result;
+          if (this.size() >= TRACER_LINES)
+            removeFirst();
+          synchronized(threadLock) {
+            result = super.add(object);
+          }
+          return result;
+        }
+
+        @Override
+        public String removeFirst() {
+          String result;
+          synchronized (threadLock) {
+            result = super.removeFirst();
+          }
+          return result;
+        }
+
+        @Override
+        public String[] toArray() {
+          String[] result;
+          synchronized (threadLock) {
+            result = new String[size()];
+            for (int i = 0; i < size(); i++)
+              result[i] = get(i);
+          }
+          return result;
+        }
+      };
+      tracerInstructions.put(threadName, instructions);
+    }
 
     // Add decoded instruction to tracer
     String instruction = JClassPatcher.InstructionBytecode.get(index);
-    tracerInstructions.add("[" + thread.getName() + "] " + instruction);
+    instructions.add(instruction);
   }
 
   public static void init() {
