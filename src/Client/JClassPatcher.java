@@ -90,7 +90,7 @@ public class JClassPatcher {
 
     // Dev Bytecode tracer, do not leave these uncommented in live builds!
     //if (node.name.equals("client")) patchTracer(node);
-    //else if (node.name.equals("lb")) patchTracer(node);
+    //if (node.name.equals("lb")) patchTracer(node);
 
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     node.accept(writer);
@@ -898,6 +898,26 @@ public class JClassPatcher {
           if (sizeNode.operand == 50) {
             methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 200));
             methodNode.instructions.remove(insnNode);
+          }
+        }
+      }
+
+      // Patch out calls to setCameraSize
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+            MethodInsnNode invokeNode = (MethodInsnNode)insnNode;
+            if (invokeNode.owner.equals("lb") && invokeNode.name.equals("a") && invokeNode.desc.equals("(IZIIIII)V")) {
+              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
+              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
+              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
+              //methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP2));
+              methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Camera", "unknown", "()V"));
+              //methodNode.instructions.remove(insnNode);
+              break;
+            }
           }
         }
       }

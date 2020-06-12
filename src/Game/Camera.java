@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.Logger;
 import Client.Settings;
 import Client.Util;
 
@@ -73,6 +74,10 @@ public class Camera {
     delta_lookat_y = new_lookat_y;
     add_lookat_x = 0.0f;
     add_lookat_y = 0.0f;
+  }
+
+  public static void unknown() {
+    Logger.Game(Thread.currentThread().getName() + ": KKLOL");
   }
 
   public static void update(float delta_time) {

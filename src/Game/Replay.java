@@ -293,6 +293,10 @@ public class Replay {
   }
 
   public static void closeReplayPlayback() {
+    Client.runReplayCloseHook = true;
+  }
+
+  public static void handleReplayClosing() {
     if (play_keys == null) return;
 
     try {

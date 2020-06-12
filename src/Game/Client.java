@@ -133,6 +133,7 @@ public class Client {
   public static boolean show_welcome;
 
   public static boolean runReplayHook = false;
+  public static boolean runReplayCloseHook = false;
 
   public static int[] inventory_items;
 
@@ -202,7 +203,7 @@ public class Client {
   public static Object writeBuffer;
   public static Object menuCommon;
 
-  public static final int TRACER_LINES = 20;
+  public static final int TRACER_LINES = 100;
 
   // bank items and their count for each type, new bank items are first to get updated and indicate
   // bank
@@ -517,6 +518,11 @@ public class Client {
       Renderer.replayOption = 2;
       runReplayHook = false;
       login_hook();
+    }
+
+    if (runReplayCloseHook) {
+      Replay.handleReplayClosing();
+      runReplayCloseHook = false;
     }
 
     updates++;
