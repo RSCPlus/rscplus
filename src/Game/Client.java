@@ -513,16 +513,17 @@ public class Client {
 
     Game.getInstance().updateTitle();
 
+    // Close replay, order matters on these two!
+    if (runReplayCloseHook) {
+      Replay.handleReplayClosing();
+      runReplayCloseHook = false;
+    }
+
     // Login hook on this thread
     if (runReplayHook && state == STATE_LOGIN) {
       Renderer.replayOption = 2;
       runReplayHook = false;
       login_hook();
-    }
-
-    if (runReplayCloseHook) {
-      Replay.handleReplayClosing();
-      runReplayCloseHook = false;
     }
 
     updates++;
