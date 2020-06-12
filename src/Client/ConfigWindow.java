@@ -192,8 +192,8 @@ public class ConfigWindow {
   private JCheckBox overlayPanelUsePercentageCheckbox;
   private JCheckBox overlayPanelFoodHealingCheckbox;
   private JCheckBox overlayPanelHPRegenTimerCheckbox;
-  private JCheckBox overlayPanelDebugModeCheckbox;
-  private JCheckBox overlayPanelExceptionHandlerCheckbox;
+  private JCheckBox generalPanelDebugModeCheckbox;
+  private JCheckBox generalPanelExceptionHandlerCheckbox;
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
@@ -663,12 +663,12 @@ public class ConfigWindow {
     generalPanelLogForceLevelCheckbox.setToolTipText(
         "Forces display of the log level of output in the log");
 
-    overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
-    overlayPanelDebugModeCheckbox.setToolTipText(
+    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
+    generalPanelDebugModeCheckbox.setToolTipText(
             "Shows debug overlays and enables debug text in the console");
 
-    overlayPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
-    overlayPanelExceptionHandlerCheckbox.setToolTipText(
+    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
+    generalPanelExceptionHandlerCheckbox.setToolTipText(
             "Show's all of RSC's thrown exceptions in the log.\n\nADVANCED USERS");
 
     /// "Gameplay settings" are settings that can be seen inside the game
@@ -2216,8 +2216,8 @@ public class ConfigWindow {
     overlayPanelHPRegenTimerCheckbox.setSelected(
         Settings.SHOW_TIME_UNTIL_HP_REGEN.get(
             Settings.currentProfile)); // TODO: Implement this feature
-    overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
-    overlayPanelExceptionHandlerCheckbox.setSelected(Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
+    generalPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
+    generalPanelExceptionHandlerCheckbox.setSelected(Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
@@ -2407,8 +2407,8 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelHPRegenTimerCheckbox.isSelected());
     Settings.LAG_INDICATOR.put(
         Settings.currentProfile, overlayPanelLagIndicatorCheckbox.isSelected());
-    Settings.DEBUG.put(Settings.currentProfile, overlayPanelDebugModeCheckbox.isSelected());
-    Settings.EXCEPTION_HANDLER.put(Settings.currentProfile, overlayPanelExceptionHandlerCheckbox.isSelected());
+    Settings.DEBUG.put(Settings.currentProfile, generalPanelDebugModeCheckbox.isSelected());
+    Settings.EXCEPTION_HANDLER.put(Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
     Settings.HIGHLIGHTED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
