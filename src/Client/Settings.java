@@ -2298,8 +2298,10 @@ public class Settings {
       case "ff_plus":
       case "ff_minus":
       case "ff_reset":
+      case "next":
+      case "prev":
         Replay.controlPlayback(commandName);
-        return true;
+        return Replay.isPlaying;
       case "show_xp_bar":
         Settings.toggleXPBar();
         return true;
