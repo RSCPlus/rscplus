@@ -251,14 +251,8 @@ public class ReplayServer implements Runnable {
       client.close();
       sock.close();
       input.close();
-      if (ReplayQueue.currentIndex >= ReplayQueue.queue.size()) {
-        Logger.Info("ReplayServer: Playback has finished");
-      } else {
-        if (!ReplayQueue.skipped) {
-          ReplayQueue.nextReplay();
-        }
-      }
-      ReplayQueue.skipped = false;
+
+      Logger.Info("ReplayServer: Playback has finished");
     } catch (Exception e) {
       if (sock != null) {
         try {

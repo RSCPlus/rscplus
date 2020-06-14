@@ -253,6 +253,8 @@ public class Replay {
       return false;
     }
     Game.getInstance().getJConfig().changeWorld(Settings.WORLDS_TO_DISPLAY + 1);
+    if (replayServer != null)
+      replayServer.isDone = true;
     replayServer = new ReplayServer(replayDirectory);
     replayThread = new Thread(replayServer);
     replayThread.start();
@@ -930,7 +932,15 @@ public class Replay {
     connection_port = Replay.DEFAULT_PORT;
   }
 
-  public static boolean controlPlayback(String action) {
+  public static String lastAction = null;
+
+  public static void processPlaybackAction() {
+    String action = lastAction;
+    if (action == null)
+      return;
+
+    lastAction = null;
+
     if (isPlaying) {
       switch (action) {
         case "stop":
@@ -944,7 +954,7 @@ public class Replay {
         case "pause":
           togglePause();
           Client.displayMessage(
-              paused ? "Playback paused." : "Playback unpaused.", Client.CHAT_QUEST);
+                  paused ? "Playback paused." : "Playback unpaused.", Client.CHAT_QUEST);
           break;
         case "ff_plus":
           if (fpsPlayMultiplier < 1.0f) {
@@ -954,10 +964,10 @@ public class Replay {
           }
           updateFrameTimeSlice();
           Client.displayMessage(
-              "Playback speed set to "
-                  + new DecimalFormat("##.##").format(fpsPlayMultiplier)
-                  + "x.",
-              Client.CHAT_QUEST);
+                  "Playback speed set to "
+                          + new DecimalFormat("##.##").format(fpsPlayMultiplier)
+                          + "x.",
+                  Client.CHAT_QUEST);
           break;
         case "ff_minus":
           if (fpsPlayMultiplier > 1.0f) {
@@ -967,24 +977,33 @@ public class Replay {
           }
           updateFrameTimeSlice();
           Client.displayMessage(
-              "Playback speed set to "
-                  + new DecimalFormat("##.##").format(fpsPlayMultiplier)
-                  + "x.",
-              Client.CHAT_QUEST);
+                  "Playback speed set to "
+                          + new DecimalFormat("##.##").format(fpsPlayMultiplier)
+                          + "x.",
+                  Client.CHAT_QUEST);
           break;
         case "ff_reset":
           fpsPlayMultiplier = 1.0f;
           updateFrameTimeSlice();
           Client.displayMessage("Playback speed reset to 1x.", Client.CHAT_QUEST);
           break;
+        case "prev":
+          ReplayQueue.skipped = true;
+          ReplayQueue.previousReplay();
+          break;
+        case "next":
+          ReplayQueue.skipped = true;
+          ReplayQueue.nextReplay();
+          break;
         default:
           Logger.Error("An unrecognized command was sent to controlPlayback: " + action);
           break;
       }
-      return true;
-    } else {
-      return false;
     }
+  }
+
+  public static void controlPlayback(String action) {
+    lastAction = action;
   }
 
   public static void shutdown_error() {

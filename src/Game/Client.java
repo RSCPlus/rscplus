@@ -516,6 +516,18 @@ public class Client {
 
     Game.getInstance().updateTitle();
 
+    // Handle skipping to next replay
+    if (!Replay.isPlaying && Replay.replayServer != null && Replay.replayServer.isDone) {
+      if (ReplayQueue.currentIndex < ReplayQueue.queue.size()) {
+        if (!ReplayQueue.skipped)
+          ReplayQueue.nextReplay();
+      }
+      ReplayQueue.skipped = false;
+    }
+
+    // Process playback actions for replays
+    Replay.processPlaybackAction();
+
     // Close replay, order matters on these two!
     if (runReplayCloseHook) {
       Replay.handleReplayClosing();

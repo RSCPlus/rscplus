@@ -1242,10 +1242,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, previousBounds.y + 2, shapeHeight, "previous");
 
-          if (MouseHandler.inBounds(previousBounds) && MouseHandler.mouseClicked) {
-            ReplayQueue.skipped = true;
-            ReplayQueue.previousReplay();
-          }
+          if (MouseHandler.inBounds(previousBounds) && MouseHandler.mouseClicked)
+            Replay.controlPlayback("prev");
 
           // slowdown button
           slowForwardBounds =
@@ -1376,10 +1374,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, nextBounds.y + 2, shapeHeight, "next");
 
-          if (MouseHandler.inBounds(nextBounds) && MouseHandler.mouseClicked) {
-            ReplayQueue.skipped = true;
-            ReplayQueue.nextReplay();
-          }
+          if (MouseHandler.inBounds(nextBounds) && MouseHandler.mouseClicked)
+            Replay.controlPlayback("next");
 
           // open queue button (right aligned)
           queueBounds =
