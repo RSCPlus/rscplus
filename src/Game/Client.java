@@ -516,6 +516,12 @@ public class Client {
 
     Game.getInstance().updateTitle();
 
+    // Process playback actions for replays
+    Replay.processPlaybackAction();
+
+    // Process playback queue for replays
+    ReplayQueue.processPlaybackQueue();
+
     // Handle skipping to next replay
     if (!Replay.isPlaying && Replay.replayServer != null && Replay.replayServer.isDone) {
       if (ReplayQueue.currentIndex < ReplayQueue.queue.size()) {
@@ -524,9 +530,6 @@ public class Client {
       }
       ReplayQueue.skipped = false;
     }
-
-    // Process playback actions for replays
-    Replay.processPlaybackAction();
 
     // Close replay, order matters on these two!
     if (runReplayCloseHook) {

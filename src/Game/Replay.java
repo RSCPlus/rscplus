@@ -301,6 +301,12 @@ public class Replay {
   public static void handleReplayClosing() {
     if (play_keys == null) return;
 
+    replayServer.isDone = true;
+    try {
+      replayThread.join();
+    } catch (Exception e) {
+    }
+
     try {
       play_keys.close();
       play_keyboard.close();
@@ -321,7 +327,6 @@ public class Replay {
     Client.closeConnection(true);
     resetPort();
     // fpsPlayMultiplier = 1.0f;
-    replayServer.isDone = true;
     resetPatchClient();
     isPlaying = false;
     QueueWindow.updatePlaying();
