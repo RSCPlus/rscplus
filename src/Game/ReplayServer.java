@@ -138,6 +138,7 @@ public class ReplayServer implements Runnable {
   @Override
   public void run() {
     sock = null;
+    isDone = false;
     // this one will try to find open port
     int port = -1;
     int usePort;
@@ -161,8 +162,11 @@ public class ReplayServer implements Runnable {
       timestamp_end = Util.getReplayEnding(file);
       Logger.Debug("ReplayServer: Replay loaded, waiting for client; length=" + timestamp_end);
 
+      boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+      boolean parseOpcode = parseOpcodesPrev;
+
       // Load replay a second time but using the RSCMinus method
-      if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+      if (parseOpcode) {
         initializeIncomingOutgoingPackets();
         initializeNextIncomingOutgoingPackets();
       }
@@ -183,10 +187,7 @@ public class ReplayServer implements Runnable {
 
       Logger.Debug("ReplayServer: Starting playback; port=" + usePort);
 
-      isDone = false;
       frame_timer = System.currentTimeMillis();
-      boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
-      boolean parseOpcode = parseOpcodesPrev;
 
       while (!isDone) {
         // Check if settings we're changed for parse opcode
@@ -686,6 +687,7 @@ public class ReplayServer implements Runnable {
       // RSC+ won't be able to play this replay, so let's skip it.
       Logger.Warn("@|red No incoming packets in that Replay, moving on...|@");
       ReplayQueue.nextReplay();
+      isDone = true;
     }
     if (outgoingPacketsSizeCache > 0) nextOutgoingPacket = outgoingPackets.getFirst();
   }
