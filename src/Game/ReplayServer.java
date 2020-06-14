@@ -58,8 +58,7 @@ public class ReplayServer implements Runnable {
   int timestamp_new = Replay.TIMESTAMP_EOF;
 
   int keyIndex = 0;
-  int serverKeyIndex = 0;
-  int[] keys = null;
+  int[] keys = new int[] {0xDEADBEEF, 0xDEADBEEF, 0xDEADBEEF, 0xDEADBEEF};
   boolean firstConnection = true;
 
   public boolean isReady = false;
@@ -223,7 +222,6 @@ public class ReplayServer implements Runnable {
           client_read = 0;
           client_write = 0;
           keyIndex = 0;
-          serverKeyIndex = 0;
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
@@ -476,12 +474,8 @@ public class ReplayServer implements Runnable {
         firstConnection = false;
       }
 
-      int offset = serverKeyIndex * 4;
-      int[] isaacKeys =
-          new int[] {keys[offset], keys[offset + 1], keys[offset + 2], keys[offset + 3]};
-      serverKeyIndex += 1;
       isaac.reset();
-      isaac.setKeys(isaacKeys);
+      isaac.setKeys(keys);
     } else {
       int packetLength = 1;
       if (nextIncomingPacket.data != null) packetLength += nextIncomingPacket.data.length;
@@ -660,18 +654,6 @@ public class ReplayServer implements Runnable {
 
     incomingPackets = editor.getIncomingPackets();
     outgoingPackets = editor.getOutgoingPackets();
-
-    // Load keys
-    LinkedList<ReplayKeyPair> replay_keys = editor.getKeyPairs();
-    keys = new int[replay_keys.size() * 4];
-    for (int i = 0; i < replay_keys.size(); i++) {
-      ReplayKeyPair keyPair = replay_keys.get(i);
-      int offset = i * 4;
-      keys[offset] = keyPair.keys[0];
-      keys[offset + 1] = keyPair.keys[1];
-      keys[offset + 2] = keyPair.keys[2];
-      keys[offset + 3] = keyPair.keys[3];
-    }
 
     lastMenu = new AtomicReference<ArrayList<String>>();
 
