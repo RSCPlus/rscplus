@@ -324,7 +324,7 @@ public class Replay {
     Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
     isSeeking = false;
     resetFrameTimeSlice();
-    Client.closeConnection(true);
+    Client.closeConnection(false);
     resetPort();
     // fpsPlayMultiplier = 1.0f;
     resetPatchClient();

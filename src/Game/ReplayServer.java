@@ -92,8 +92,8 @@ public class ReplayServer implements Runnable {
     readBuffer = ByteBuffer.allocate(1024);
   }
 
-  private void sync_with_client() {
-    if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+  private void sync_with_client(boolean parseOpcodes) {
+    if (parseOpcodes) {
       int diff = client_write - client_read;
       int timestampDiff = timestamp_new - Replay.timestamp;
 
@@ -186,18 +186,21 @@ public class ReplayServer implements Runnable {
       isDone = false;
       frame_timer = System.currentTimeMillis();
       boolean parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+      boolean parseOpcode = parseOpcodesPrev;
 
       while (!isDone) {
-        if (parseOpcodesPrev != Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-          // Editor mode needs this initialized
-          if (parseOpcodesPrev == false) firstConnection = false;
-          Replay.restartReplayPlayback();
-          parseOpcodesPrev = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+        // Check if settings we're changed for parse opcode
+        parseOpcode = Settings.PARSE_OPCODES.get(Settings.currentProfile);
+        if (parseOpcodesPrev != parseOpcode) {
+          Client.runReplayCloseHook = true;
+          Client.runReplayHook = true;
+          isDone = true;
+          break;
         }
 
         // Restart the replay
         if (restart) {
-          if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          if (!parseOpcode) {
             // Sync on restart
             Client.loseConnection(false);
             boolean wasPaused = Replay.paused;
@@ -224,7 +227,7 @@ public class ReplayServer implements Runnable {
           incomingPacketsIndex = 0;
           outgoingPacketsIndex = 0;
 
-          if (Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
+          if (parseOpcode) {
             if (incomingPackets == null) {
               initializeIncomingOutgoingPackets();
             }
@@ -236,10 +239,10 @@ public class ReplayServer implements Runnable {
         }
 
         if (timestamp_new != Replay.TIMESTAMP_EOF || !Replay.paused) {
-          if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) {
-            if (!doTick()) isDone = true;
+          if (!parseOpcode) {
+            if (!doTick(parseOpcode)) isDone = true;
           } else {
-            if (!doEditorTick()) isDone = true;
+            if (!doEditorTick(parseOpcode)) isDone = true;
           }
         } else {
           // Update timestamp immediately on unpausing
@@ -383,7 +386,7 @@ public class ReplayServer implements Runnable {
     return keys[keyIndex++];
   }
 
-  public boolean doEditorTick() {
+  public boolean doEditorTick(boolean parseOpcodes) {
     int timestamp_input = nextIncomingPacket.timestamp;
 
     // Handle outgoing packets
@@ -509,7 +512,7 @@ public class ReplayServer implements Runnable {
         if (writeSize > 0) {
           client_writePrev = client_write;
           client_write += writeSize;
-          sync_with_client();
+          sync_with_client(parseOpcodes);
         }
       } catch (Exception e) {
         return false;
@@ -525,7 +528,7 @@ public class ReplayServer implements Runnable {
     return true;
   }
 
-  public boolean doTick() {
+  public boolean doTick(boolean parseOpcodes) {
     try {
       int timestamp_input = input.readInt();
 
@@ -625,7 +628,7 @@ public class ReplayServer implements Runnable {
           if (writeSize > 0) {
             client_writePrev = client_write;
             client_write += writeSize;
-            sync_with_client();
+            sync_with_client(parseOpcodes);
           }
         }
       } catch (Exception e) {
