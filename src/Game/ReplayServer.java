@@ -96,11 +96,8 @@ public class ReplayServer implements Runnable {
       int diff = client_write - client_read;
       int timestampDiff = timestamp_new - Replay.timestamp;
 
-      int threshold = 5000;
-      if (timestampDiff <= 400) threshold = 1;
-
       // Wait for client
-      while (!isDone && diff >= threshold) {
+      while (!isDone && diff >= 1) {
         try {
           Thread.sleep(1);
         } catch (Exception e) {
