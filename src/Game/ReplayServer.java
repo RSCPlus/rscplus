@@ -384,6 +384,10 @@ public class ReplayServer implements Runnable {
   public int getXTEAKey() {
     if (!Settings.PARSE_OPCODES.get(Settings.currentProfile)) return 0;
 
+    // Wrap keys if they go out of bounds
+    if (keyIndex >= keys.length)
+      keyIndex = 0;
+
     return keys[keyIndex++];
   }
 
