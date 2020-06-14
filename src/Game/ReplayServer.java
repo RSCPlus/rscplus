@@ -202,7 +202,7 @@ public class ReplayServer implements Runnable {
         if (restart) {
           if (!parseOpcode) {
             // Sync on restart
-            Client.loseConnection(false);
+            Client.forceReconnect = true;
             boolean wasPaused = Replay.paused;
             int oldTimeSlice = Replay.frame_time_slice;
             Replay.frame_time_slice = 1000 / 50;
@@ -454,7 +454,7 @@ public class ReplayServer implements Runnable {
       // Handle disconnecting
       if (!firstConnection) {
         try {
-          Client.loseConnection(false);
+          Client.forceReconnect = true;
           int oldTimeSlice = Replay.frame_time_slice;
           boolean oldPaused = Replay.paused;
           Replay.frame_time_slice = 1000 / 50;

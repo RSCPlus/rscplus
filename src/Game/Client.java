@@ -456,6 +456,9 @@ public class Client {
     }
   }
 
+  public static boolean forceDisconnect = false;
+  public static boolean forceReconnect = false;
+
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
    *
@@ -515,6 +518,16 @@ public class Client {
     }
 
     Game.getInstance().updateTitle();
+
+    if (forceDisconnect) {
+      Client.closeConnection(false);
+      forceDisconnect = false;
+    }
+
+    if (forceReconnect) {
+      Client.loseConnection(false);
+      forceReconnect = false;
+    }
 
     // Handle skipping to next replay
     if (!Replay.isPlaying && Replay.replayServer != null && Replay.replayServer.isDone) {
