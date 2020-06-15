@@ -250,7 +250,10 @@ public class ReplayServer implements Runnable {
       sock.close();
       input.close();
 
-      Logger.Info("ReplayServer: Playback has finished");
+      Logger.Debug("ReplayServer: Replay ended");
+
+      if (ReplayQueue.currentIndex >= ReplayQueue.queue.size())
+        Logger.Info("ReplayServer: Playback has finished");
     } catch (Exception e) {
       if (sock != null) {
         try {
