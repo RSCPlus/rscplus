@@ -259,110 +259,118 @@ public class ReplayServer implements Runnable {
   }
 
   public void replayOutput(ReplayPacket packet) {
-    int menuAction = opcodeToItemActionId.getOrDefault(packet.opcode, -1);
+    try {
+      int menuAction = opcodeToItemActionId.getOrDefault(packet.opcode, -1);
 
-    // DROP_ITEM
-    if (packet.opcode == 246) {
-      int item = -1;
-      try {
-        item = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
-      } catch (Exception e) {
+      // DROP_ITEM
+      if (packet.opcode == 246) {
+        int item = -1;
+        try {
+          item = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+        } catch (Exception e) {
+        }
+        if (item < 0) return;
+        Client.displayMessage(
+            "Dropping " + Item.item_name[Client.inventory_items[item]], Client.CHAT_NONE);
       }
-      if (item < 0) return;
-      Client.displayMessage(
-          "Dropping " + Item.item_name[Client.inventory_items[item]], Client.CHAT_NONE);
-    }
-    // SELECT_DIALOGUE_OPTION
-    else if (packet.opcode == 116) {
-      int chosen = -1;
-      try {
-        chosen = packet.data[0];
-      } catch (Exception e) {
+      // SELECT_DIALOGUE_OPTION
+      else if (packet.opcode == 116) {
+        int chosen = -1;
+        try {
+          chosen = packet.data[0];
+        } catch (Exception e) {
+        }
+        String[] menuOptions =
+            lastMenu != null && lastMenu.get() != null && lastMenu.get().size() > 0
+                ? lastMenu.get().toArray(new String[0])
+                : Client.menuOptions;
+        if (chosen < 0) {
+          return;
+        } else if (menuOptions == null || menuOptions[chosen] == null) {
+          lastErrorChosenOpt = chosen;
+          lastErrorChosenOptStamp = packet.timestamp;
+          return;
+        }
+        Client.printSelectedOption(menuOptions, chosen);
+        lastMenu.set(new ArrayList<String>());
       }
-      String[] menuOptions =
-          lastMenu != null && lastMenu.get() != null && lastMenu.get().size() > 0
-              ? lastMenu.get().toArray(new String[0])
-              : Client.menuOptions;
-      if (chosen < 0) {
-        return;
-      } else if (menuOptions == null || menuOptions[chosen] == null) {
-        lastErrorChosenOpt = chosen;
-        lastErrorChosenOptStamp = packet.timestamp;
-        return;
+      // WALK_TO_SOURCE
+      else if (packet.opcode == 16 || packet.opcode == 187) {
+        int posX, posY;
+        posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+        posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
+        Client.displayWalkToSource(posX, posY);
       }
-      Client.printSelectedOption(menuOptions, chosen);
-      lastMenu.set(new ArrayList<String>());
-    }
-    // WALK_TO_SOURCE
-    else if (packet.opcode == 16 || packet.opcode == 187) {
-      int posX, posY;
-      posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
-      posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
-      Client.displayWalkToSource(posX, posY);
-    }
-    // MENU ACTIONS such as NPC TALK TO, OBJECT COMMAND, etc
-    else if (menuAction != -1) {
-      int posX, posY, id;
-      ItemAction action = itemActionMap.get(menuAction);
-      if (action != null) {
-        if (action.containsWorldPoint == 1) {
-          posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
-          posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
-          Client.displayMenuAction(action.name, posX, posY);
-        } else if (action.containsWorldPoint == 2 || action.containsWorldPoint == 3) {
-          id = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
-          Client.displayMenuAction(action.name, id);
+      // MENU ACTIONS such as NPC TALK TO, OBJECT COMMAND, etc
+      else if (menuAction != -1) {
+        int posX, posY, id;
+        ItemAction action = itemActionMap.get(menuAction);
+        if (action != null) {
+          if (action.containsWorldPoint == 1) {
+            posX = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+            posY = Byte.toUnsignedInt(packet.data[2]) << 8 | Byte.toUnsignedInt(packet.data[3]);
+            Client.displayMenuAction(action.name, posX, posY);
+          } else if (action.containsWorldPoint == 2 || action.containsWorldPoint == 3) {
+            id = Byte.toUnsignedInt(packet.data[0]) << 8 | Byte.toUnsignedInt(packet.data[1]);
+            Client.displayMenuAction(action.name, id);
+          }
         }
       }
+    } catch (Exception e) {
+      Logger.Warn("ReplayServer: Can not process corrupt output packet");
     }
   }
 
   public void readInput(ReplayPacket packet) {
-    // SHOW_DIALOGUE_MENU
-    if (packet.opcode == 245) {
-      ArrayList<String> menu = new ArrayList<String>();
-      int numOpts = 0;
-      boolean read = true;
-      byte[] option;
-      try {
-        numOpts = packet.data[0];
-        if (numOpts > 0) {
-          read = true;
-          int start = 1;
-          int end = 1;
-          int cur;
-          while (read) {
-            for (cur = start + 1; cur < packet.data.length; cur++) {
-              if (packet.data[cur] == 0) {
-                end = cur;
-                break;
+    try {
+      // SHOW_DIALOGUE_MENU
+      if (packet.opcode == 245) {
+        ArrayList<String> menu = new ArrayList<String>();
+        int numOpts = 0;
+        boolean read = true;
+        byte[] option;
+        try {
+          numOpts = packet.data[0];
+          if (numOpts > 0) {
+            read = true;
+            int start = 1;
+            int end = 1;
+            int cur;
+            while (read) {
+              for (cur = start + 1; cur < packet.data.length; cur++) {
+                if (packet.data[cur] == 0) {
+                  end = cur;
+                  break;
+                }
+              }
+              // inclusive from, exclusive to
+              option = Arrays.copyOfRange(packet.data, start + 1, end);
+              menu.add(new String(option));
+              start = ++end;
+              if (cur >= packet.data.length || menu.size() == numOpts) {
+                read = false;
               }
             }
-            // inclusive from, exclusive to
-            option = Arrays.copyOfRange(packet.data, start + 1, end);
-            menu.add(new String(option));
-            start = ++end;
-            if (cur >= packet.data.length || menu.size() == numOpts) {
-              read = false;
-            }
           }
+          lastMenu.set(menu);
+        } catch (Exception e) {
         }
-        lastMenu.set(menu);
-      } catch (Exception e) {
+        if (menu.size() == 0) {
+          return;
+        }
+        Client.printReceivedOptions(menu.toArray(new String[0]), menu.size());
+        // replay back chosen option (if couldnt be played earlier bc some bad sync)
+        if (lastMenu.get().size() > 0
+            && Math.abs(packet.timestamp - lastErrorChosenOptStamp) < 100
+            && lastErrorChosenOpt > 0
+            && lastErrorChosenOpt < lastMenu.get().size()) {
+          Client.printSelectedOption(lastMenu.get().toArray(new String[0]), lastErrorChosenOpt);
+          lastErrorChosenOpt = -1;
+          lastErrorChosenOptStamp = -1;
+        }
       }
-      if (menu.size() == 0) {
-        return;
-      }
-      Client.printReceivedOptions(menu.toArray(new String[0]), menu.size());
-      // replay back chosen option (if couldnt be played earlier bc some bad sync)
-      if (lastMenu.get().size() > 0
-          && Math.abs(packet.timestamp - lastErrorChosenOptStamp) < 100
-          && lastErrorChosenOpt > 0
-          && lastErrorChosenOpt < lastMenu.get().size()) {
-        Client.printSelectedOption(lastMenu.get().toArray(new String[0]), lastErrorChosenOpt);
-        lastErrorChosenOpt = -1;
-        lastErrorChosenOptStamp = -1;
-      }
+    } catch (Exception e) {
+      Logger.Warn("ReplayServer: Can not process corrupt incoming packet");
     }
   }
 
