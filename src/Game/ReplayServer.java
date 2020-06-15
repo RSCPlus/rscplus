@@ -318,6 +318,7 @@ public class ReplayServer implements Runnable {
       }
     } catch (Exception e) {
       Logger.Warn("ReplayServer: Can not process corrupt output packet");
+      e.printStackTrace();
     }
   }
 
@@ -371,6 +372,7 @@ public class ReplayServer implements Runnable {
       }
     } catch (Exception e) {
       Logger.Warn("ReplayServer: Can not process corrupt incoming packet");
+      e.printStackTrace();
     }
   }
 
