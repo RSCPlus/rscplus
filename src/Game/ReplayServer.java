@@ -90,28 +90,16 @@ public class ReplayServer implements Runnable {
     readBuffer = ByteBuffer.allocate(1024);
   }
 
-  private void sync_with_client(boolean parseOpcodes) {
-    if (parseOpcodes) {
-      int diff = client_write - client_read;
-      int timestampDiff = timestamp_new - Replay.timestamp;
-
-      // Wait for client
-      while (!isDone && diff >= 1) {
-        try {
-          Thread.sleep(1);
-        } catch (Exception e) {
-        }
-        diff = client_write - client_read;
+  private void sync_with_client() {
+    int diff = client_write - client_read;
+    int threshold = 200;
+    // Wait for client
+    while (!isDone && diff > threshold) {
+      try {
+        Thread.sleep(1);
+      } catch (Exception e) {
       }
-    } else {
-      int diff = client_writePrev - client_read;
-      while (!isDone && diff >= 200) {
-        try {
-          Thread.sleep(1);
-        } catch (Exception e) {
-        }
-        diff = client_writePrev - client_read;
-      }
+      diff = client_write - client_read;
     }
   }
 
@@ -205,6 +193,8 @@ public class ReplayServer implements Runnable {
             client.close();
             Replay.paused = false;
             client = sock.accept();
+            client_write = 0;
+            client_writePrev = 0;
             if (Replay.isSeeking) Replay.paused = wasPaused;
             else Replay.paused = false;
             Replay.frame_time_slice = oldTimeSlice;
@@ -215,8 +205,6 @@ public class ReplayServer implements Runnable {
           Replay.timestamp = 0;
           Replay.timestamp_client = 0;
           Replay.timestamp_server_last = 0;
-          client_read = 0;
-          client_write = 0;
           keyIndex = 0;
           frame_timer = System.currentTimeMillis() + Replay.getFrameTimeSlice();
           incomingPacketsIndex = 0;
@@ -461,6 +449,8 @@ public class ReplayServer implements Runnable {
           client.close();
           Logger.Info("ReplayServer: Reconnecting client");
           client = sock.accept();
+          client_write = 0;
+          client_writePrev = client_write;
           Logger.Info("ReplayServer: Client reconnected");
           Replay.frame_time_slice = oldTimeSlice;
           Replay.paused = oldPaused;
@@ -509,7 +499,7 @@ public class ReplayServer implements Runnable {
         if (writeSize > 0) {
           client_writePrev = client_write;
           client_write += writeSize;
-          sync_with_client(parseOpcodes);
+          sync_with_client();
         }
       } catch (Exception e) {
         return false;
@@ -555,10 +545,13 @@ public class ReplayServer implements Runnable {
         // v1+ Disconnect handler
         // If packet length is -1, it's a disconnection
         if (length == -1) {
+          Client.forceReconnect = true;
           Logger.Info("ReplayServer: Killing client connection");
           client.close();
           Logger.Info("ReplayServer: Reconnecting client");
           client = sock.accept();
+          client_write = 0;
+          client_writePrev = client_write;
           Logger.Info("ReplayServer: Client reconnected");
 
           if (Replay.isSeeking || Settings.FAST_DISCONNECT.get(Settings.currentProfile))
@@ -574,6 +567,7 @@ public class ReplayServer implements Runnable {
         // So we disconnect and reconnect the client
         // NOTE: Versions older than v1 have no disconnection indication
         if (timestamp_diff > 400) {
+          Client.forceReconnect = true;
           Logger.Info(
               "ReplayServer: Killing client connection; timestamp="
                   + Replay.timestamp
@@ -581,6 +575,8 @@ public class ReplayServer implements Runnable {
                   + timestamp_diff);
           client.close();
           client = sock.accept();
+          client_write = 0;
+          client_writePrev = client_write;
           timestamp_diff -= 400;
           Replay.timestamp = timestamp_input - timestamp_diff;
           Logger.Info("ReplayServer: Reconnected client; timestamp=" + Replay.timestamp);
@@ -625,7 +621,7 @@ public class ReplayServer implements Runnable {
           if (writeSize > 0) {
             client_writePrev = client_write;
             client_write += writeSize;
-            sync_with_client(parseOpcodes);
+            sync_with_client();
           }
         }
       } catch (Exception e) {
