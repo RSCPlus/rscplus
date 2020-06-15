@@ -685,7 +685,7 @@ public class ConfigWindow {
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(5, 0, 0, 0));
+    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -880,6 +880,7 @@ public class ConfigWindow {
     addSettingsHeader(overlayPanel, "Interface Overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
+    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -940,6 +941,7 @@ public class ConfigWindow {
         addCheckbox("Show an XP bar for the last trained skill", overlayPanel);
     overlayPanelXPBarCheckbox.setToolTipText(
         "Show an XP bar for the last trained skill to the left of the wrench");
+    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelXPDropsCheckbox = addCheckbox("XP drops", overlayPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
@@ -1000,6 +1002,7 @@ public class ConfigWindow {
         addCheckbox("Show hitboxes around NPCs, players, and items", overlayPanel);
     overlayPanelHitboxCheckbox.setToolTipText(
         "Shows the clickable areas on NPCs, players, and items");
+    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelPlayerNamesCheckbox =
         addCheckbox("Show player names over their heads", overlayPanel);
