@@ -157,8 +157,8 @@ public class Renderer {
   }
 
   public static void resize(int w, int h) {
-    new_size.width = w;
-    new_size.height = h;
+    new_size.width = Math.max(w, 512);
+    new_size.height = Math.max(h, 346);
   }
 
   public static void handle_resize() {
