@@ -759,7 +759,8 @@ public class Settings {
     EXCEPTION_HANDLER.put("default", false);
     EXCEPTION_HANDLER.put("heavy", false);
     EXCEPTION_HANDLER.put("all", false);
-    EXCEPTION_HANDLER.put("custom", getPropBoolean(props, "exception_handler", EXCEPTION_HANDLER.get("default")));
+    EXCEPTION_HANDLER.put(
+        "custom", getPropBoolean(props, "exception_handler", EXCEPTION_HANDLER.get("default")));
 
     HIGHLIGHTED_ITEMS.put("vanilla", new ArrayList<String>());
     HIGHLIGHTED_ITEMS.put("vanilla_resizable", new ArrayList<String>());

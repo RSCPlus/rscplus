@@ -29,7 +29,6 @@ import Client.Util;
 import Replay.common.ISAACCipher;
 import Replay.game.constants.Game.ItemAction;
 import Replay.scraper.ReplayEditor;
-import Replay.scraper.ReplayKeyPair;
 import Replay.scraper.ReplayPacket;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -186,7 +185,7 @@ public class ReplayServer implements Runnable {
       frame_timer = System.currentTimeMillis();
 
       while (!isDone) {
-        // Check if settings we're changed for parse opcode
+        // Check if settings were changed for parse opcode
         parseOpcode = Settings.PARSE_OPCODES.get(Settings.currentProfile);
         if (parseOpcodesPrev != parseOpcode) {
           Client.runReplayCloseHook = true;
@@ -380,8 +379,7 @@ public class ReplayServer implements Runnable {
     if (!Settings.PARSE_OPCODES.get(Settings.currentProfile) || isDone) return 0;
 
     // Wrap keys if they go out of bounds
-    if (keyIndex >= keys.length)
-      keyIndex = 0;
+    if (keyIndex >= keys.length) keyIndex = 0;
 
     return keys[keyIndex++];
   }

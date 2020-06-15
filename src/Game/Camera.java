@@ -18,7 +18,6 @@
  */
 package Game;
 
-import Client.Logger;
 import Client.Settings;
 import Client.Util;
 

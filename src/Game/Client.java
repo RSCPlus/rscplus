@@ -54,7 +54,8 @@ public class Client {
   // Game's client instance
   public static Object instance;
 
-  public static Map<String,LinkedList<String>> tracerInstructions = new LinkedHashMap<String,LinkedList<String>>();
+  public static Map<String, LinkedList<String>> tracerInstructions =
+      new LinkedHashMap<String, LinkedList<String>>();
 
   public static List<NPC> npc_list = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
@@ -309,18 +310,15 @@ public class Client {
   }
 
   public static Throwable HandleException(Throwable e, int index) {
-    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile))
-      return e;
+    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) return e;
 
     String printMessage = "Caller: " + JClassPatcher.ExceptionSignatures.get(index) + "\n\n";
-    if (e.getMessage() != null)
-      printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
+    if (e.getMessage() != null) printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
     StackTraceElement[] stacktrace = e.getStackTrace();
     for (int i = 0; i < stacktrace.length; i++) {
       StackTraceElement element = stacktrace[i];
       printMessage += element.getClassName() + "." + element.getMethodName() + "(UNKNOWN)";
-      if (i != stacktrace.length - 1)
-        printMessage += "\n";
+      if (i != stacktrace.length - 1) printMessage += "\n";
     }
 
     // Add tracer information
@@ -329,21 +327,19 @@ public class Client {
       printMessage += "\n\n";
     }
     while (tracerIterator.hasNext()) {
-      Map.Entry element = (Map.Entry)tracerIterator.next();
-      String name = (String)element.getKey();
-      String[] tracer = (String[])((LinkedList<String>)element.getValue()).toArray();
+      Map.Entry element = (Map.Entry) tracerIterator.next();
+      String name = (String) element.getKey();
+      String[] tracer = (String[]) ((LinkedList<String>) element.getValue()).toArray();
       printMessage += "[" + name + "]\n";
       for (int i = 0; i < tracer.length; i++) {
-        String instruction = (String)tracer[i];
+        String instruction = (String) tracer[i];
         if (instruction != null) {
           printMessage += instruction;
-          if (i != tracer.length - 1)
-            printMessage += "\n";
+          if (i != tracer.length - 1) printMessage += "\n";
         }
       }
 
-      if (tracerIterator.hasNext())
-        printMessage += "\n\n";
+      if (tracerIterator.hasNext()) printMessage += "\n\n";
     }
 
     Logger.Game("EXCEPTION\n" + printMessage);
@@ -353,10 +349,8 @@ public class Client {
 
   public static void TracerHandler(int indexHigh, int indexLow) {
     // Convert index
-    if (indexHigh < 0)
-      indexHigh += Short.MAX_VALUE * 2;
-    if (indexLow < 0)
-      indexLow += Short.MAX_VALUE * 2;
+    if (indexHigh < 0) indexHigh += Short.MAX_VALUE * 2;
+    if (indexLow < 0) indexLow += Short.MAX_VALUE * 2;
     int index = (indexHigh << 16) | indexLow;
 
     Thread thread = Thread.currentThread();
@@ -366,40 +360,39 @@ public class Client {
     if (tracerInstructions.containsKey(threadName)) {
       instructions = tracerInstructions.get(threadName);
     } else {
-      instructions = new LinkedList<String>() {
-        private Object threadLock = new Object();
+      instructions =
+          new LinkedList<String>() {
+            private Object threadLock = new Object();
 
-        @Override
-        public boolean add(String object) {
-          boolean result;
-          if (this.size() >= TRACER_LINES)
-            removeFirst();
-          synchronized(threadLock) {
-            result = super.add(object);
-          }
-          return result;
-        }
+            @Override
+            public boolean add(String object) {
+              boolean result;
+              if (this.size() >= TRACER_LINES) removeFirst();
+              synchronized (threadLock) {
+                result = super.add(object);
+              }
+              return result;
+            }
 
-        @Override
-        public String removeFirst() {
-          String result;
-          synchronized (threadLock) {
-            result = super.removeFirst();
-          }
-          return result;
-        }
+            @Override
+            public String removeFirst() {
+              String result;
+              synchronized (threadLock) {
+                result = super.removeFirst();
+              }
+              return result;
+            }
 
-        @Override
-        public String[] toArray() {
-          String[] result;
-          synchronized (threadLock) {
-            result = new String[size()];
-            for (int i = 0; i < size(); i++)
-              result[i] = get(i);
-          }
-          return result;
-        }
-      };
+            @Override
+            public String[] toArray() {
+              String[] result;
+              synchronized (threadLock) {
+                result = new String[size()];
+                for (int i = 0; i < size(); i++) result[i] = get(i);
+              }
+              return result;
+            }
+          };
       tracerInstructions.put(threadName, instructions);
     }
 

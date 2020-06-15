@@ -178,8 +178,7 @@ public class ReplayQueue {
   public static int playIndex = -1;
 
   public static void processPlaybackQueue() {
-    if (playIndex == -1)
-      return;
+    if (playIndex == -1) return;
 
     int index = playIndex;
     playIndex = -1;
@@ -191,16 +190,15 @@ public class ReplayQueue {
       index = queue.size() - 1;
     }
 
-    if (Replay.isPlaying)
-      Client.runReplayCloseHook = true;
+    if (Replay.isPlaying) Client.runReplayCloseHook = true;
 
     currentReplayName = queue.get(index).getAbsolutePath();
     Logger.Info(
-            "@|cyan Selected ("
-                    + (index + 1)
-                    + "): |@@|cyan,intensity_bold "
-                    + currentReplayName.replace(Settings.REPLAY_BASE_PATH.get("custom"), "")
-                    + "|@");
+        "@|cyan Selected ("
+            + (index + 1)
+            + "): |@@|cyan,intensity_bold "
+            + currentReplayName.replace(Settings.REPLAY_BASE_PATH.get("custom"), "")
+            + "|@");
     Client.runReplayHook = true;
     QueueWindow.updatePlaying();
   }

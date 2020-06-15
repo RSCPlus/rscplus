@@ -665,11 +665,11 @@ public class ConfigWindow {
 
     generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
     generalPanelDebugModeCheckbox.setToolTipText(
-            "Shows debug overlays and enables debug text in the console");
+        "Shows debug overlays and enables debug text in the console");
 
     generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
     generalPanelExceptionHandlerCheckbox.setToolTipText(
-            "Show's all of RSC's thrown exceptions in the log.\n\nADVANCED USERS");
+        "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
 
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
@@ -2217,7 +2217,8 @@ public class ConfigWindow {
         Settings.SHOW_TIME_UNTIL_HP_REGEN.get(
             Settings.currentProfile)); // TODO: Implement this feature
     generalPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
-    generalPanelExceptionHandlerCheckbox.setSelected(Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
+    generalPanelExceptionHandlerCheckbox.setSelected(
+        Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
@@ -2408,7 +2409,8 @@ public class ConfigWindow {
     Settings.LAG_INDICATOR.put(
         Settings.currentProfile, overlayPanelLagIndicatorCheckbox.isSelected());
     Settings.DEBUG.put(Settings.currentProfile, generalPanelDebugModeCheckbox.isSelected());
-    Settings.EXCEPTION_HANDLER.put(Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
+    Settings.EXCEPTION_HANDLER.put(
+        Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
     Settings.HIGHLIGHTED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
