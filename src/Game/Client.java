@@ -310,7 +310,7 @@ public class Client {
   }
 
   public static void CrashFixRoutine(Throwable e, int index) {
-    Logger.Warn("A crash was prevented, here is some information about it.");
+    Logger.Error("A crash was prevented, here is some information about it.");
     PrintException(e, index);
   }
 
@@ -345,7 +345,7 @@ public class Client {
       if (tracerIterator.hasNext()) printMessage += "\n\n";
     }
 
-    Logger.Game("EXCEPTION\n" + printMessage);
+    Logger.Error("EXCEPTION\n" + printMessage);
   }
 
   public static Throwable HandleException(Throwable e, int index) {
