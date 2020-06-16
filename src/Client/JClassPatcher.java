@@ -76,6 +76,7 @@ public class JClassPatcher {
     else if (node.name.equals("client")) patchClient(node);
     else if (node.name.equals("f")) patchRandom(node);
     else if (node.name.equals("da")) patchGameApplet(node);
+    else if (node.name.equals("lb")) patchRendererHelper(node);
 
     // Patch applied to all classes
     patchGeneric(node);
@@ -2782,6 +2783,41 @@ public class JClassPatcher {
       MethodNode methodNode = methodNodeList.next();
 
       hookTracer(node, methodNode);
+    }
+  }
+
+  private void patchRendererHelper(ClassNode node) {
+    Logger.Info("Patching renderer helper (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      if (methodNode.name.equals("c") && methodNode.desc.equals("(I)V")) {
+        // Throwable crash patch - a condition of indexoutbounds was reported on this method
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.INVOKESTATIC && nextNode.getOpcode() == Opcodes.ATHROW) {
+            int index = ExceptionSignatures.size();
+            ExceptionSignatures.add(node.name + "." + methodNode.name + methodNode.desc);
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, index));
+            methodNode.instructions.insertBefore(
+                    nextNode,
+                    new MethodInsnNode(
+                            Opcodes.INVOKESTATIC,
+                            "Game/Client",
+                            "CrashFixRoutine",
+                            "(Ljava/lang/Throwable;I)V"));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
+            methodNode.instructions.remove(nextNode);
+          }
+        }
+      }
     }
   }
 

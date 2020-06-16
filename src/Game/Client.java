@@ -309,9 +309,12 @@ public class Client {
     }
   }
 
-  public static Throwable HandleException(Throwable e, int index) {
-    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) return e;
+  public static void CrashFixRoutine(Throwable e, int index) {
+    Logger.Warn("A crash was prevented, here is some information about it.");
+    PrintException(e, index);
+  }
 
+  public static void PrintException(Throwable e, int index) {
     String printMessage = "Caller: " + JClassPatcher.ExceptionSignatures.get(index) + "\n\n";
     if (e.getMessage() != null) printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
     StackTraceElement[] stacktrace = e.getStackTrace();
@@ -343,6 +346,12 @@ public class Client {
     }
 
     Logger.Game("EXCEPTION\n" + printMessage);
+  }
+
+  public static Throwable HandleException(Throwable e, int index) {
+    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) return e;
+
+    PrintException(e, index);
 
     return e;
   }

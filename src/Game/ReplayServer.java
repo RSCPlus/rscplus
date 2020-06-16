@@ -95,11 +95,7 @@ public class ReplayServer implements Runnable {
 
   private void sync_with_client(boolean parseOpcodes) {
     int diff = client_write - client_read;
-    int threshold = 0;
-
-    // We can't be as certain here
-    if (!parseOpcodes)
-      threshold = 200;
+    int threshold = 200;
 
     // Wait for client
     while (!isDone && diff > threshold) {
