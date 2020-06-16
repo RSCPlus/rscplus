@@ -680,10 +680,6 @@ public class Client {
     if (response != 64 && response != 1) {
       disconnect_hook();
     }
-
-    // Reset read bytes, which should only contain what server wrote, so that is what we set
-    if (Replay.replayServer != null)
-      Replay.replayServer.client_read = Replay.replayServer.client_write;
   }
 
   public static void error_game_hook(String s) {

@@ -22,6 +22,7 @@ import static Replay.game.constants.Game.itemActionMap;
 import static Replay.game.constants.Game.opcodeToItemActionId;
 import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_CONNECT;
 import static Replay.scraper.ReplayEditor.VIRTUAL_OPCODE_NOP;
+import static java.net.StandardSocketOptions.TCP_NODELAY;
 
 import Client.Logger;
 import Client.Settings;
@@ -37,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketOption;
+import java.net.SocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -90,9 +93,14 @@ public class ReplayServer implements Runnable {
     readBuffer = ByteBuffer.allocate(1024);
   }
 
-  private void sync_with_client() {
+  private void sync_with_client(boolean parseOpcodes) {
     int diff = client_write - client_read;
-    int threshold = 200;
+    int threshold = 0;
+
+    // We can't be as certain here
+    if (!parseOpcodes)
+      threshold = 200;
+
     // Wait for client
     while (!isDone && diff > threshold) {
       try {
@@ -167,6 +175,7 @@ public class ReplayServer implements Runnable {
       Logger.Debug("ReplayServer: Syncing playback to client...");
       isReady = true;
       client = sock.accept();
+      client.setOption(TCP_NODELAY, new Boolean(true));
 
       Logger.Debug("ReplayServer: Starting playback; port=" + usePort);
 
@@ -193,7 +202,9 @@ public class ReplayServer implements Runnable {
             client.close();
             Replay.paused = false;
             client = sock.accept();
+            client.setOption(TCP_NODELAY, new Boolean(true));
             client_write = 0;
+            client_read = 0;
             client_writePrev = 0;
             if (Replay.isSeeking) Replay.paused = wasPaused;
             else Replay.paused = false;
@@ -397,11 +408,6 @@ public class ReplayServer implements Runnable {
       nextOutgoingPacket = outgoingPackets.get(++outgoingPacketsIndex);
     }
 
-    // Handle incoming packet logging
-    Logger.Opcode(
-        nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
-    readInput(nextIncomingPacket);
-
     // Handle seeking
     if (timestamp_new != Replay.TIMESTAMP_EOF) {
       Replay.timestamp = timestamp_input;
@@ -433,94 +439,103 @@ public class ReplayServer implements Runnable {
       }
     }
 
-    // Do nothing
-    if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
-      nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
-      return true;
-    }
+    while (nextIncomingPacket.timestamp == timestamp_input) {
+      // Handle incoming packet logging
+      Logger.Opcode(
+              nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
+      readInput(nextIncomingPacket);
 
-    ByteBuffer buffer = null;
+      // Do nothing
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_NOP) {
+        nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
+        return true;
+      }
 
-    // Login response/disconnect
-    if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
-      byte loginResponse = nextIncomingPacket.data[0];
-      buffer = ByteBuffer.allocate(1);
-      buffer.put(loginResponse);
+      ByteBuffer buffer = null;
 
-      // Handle disconnecting
-      if (!firstConnection) {
+      // Login response/disconnect
+      if (nextIncomingPacket.opcode == VIRTUAL_OPCODE_CONNECT) {
+        byte loginResponse = nextIncomingPacket.data[0];
+        buffer = ByteBuffer.allocate(1);
+        buffer.put(loginResponse);
+
+        // Handle disconnecting
+        if (!firstConnection) {
+          try {
+            Client.forceReconnect = true;
+            int oldTimeSlice = Replay.frame_time_slice;
+            boolean oldPaused = Replay.paused;
+            Replay.frame_time_slice = 1000 / 50;
+            Replay.paused = false;
+            Logger.Info("ReplayServer: Killing client connection");
+            client.close();
+            Logger.Info("ReplayServer: Reconnecting client");
+            client = sock.accept();
+            client.setOption(TCP_NODELAY, new Boolean(true));
+            client_write = 0;
+            client_read = 0;
+            client_writePrev = client_write;
+            Logger.Info("ReplayServer: Client reconnected");
+            Replay.frame_time_slice = oldTimeSlice;
+            Replay.paused = oldPaused;
+          } catch (Exception e) {
+            Logger.Error("ReplayServer: Error reconnecting client");
+            return false;
+          }
+        } else {
+          firstConnection = false;
+        }
+
+        isaac.reset();
+        isaac.setKeys(keys);
+      } else {
+        int packetLength = 1;
+        if (nextIncomingPacket.data != null) packetLength += nextIncomingPacket.data.length;
+
+        // Encode packet and send
+        int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
+        if (packetLength == 1) {
+          buffer = ByteBuffer.allocate(2);
+          buffer.put((byte) (packetLength));
+          buffer.put((byte) (encodedOpcode));
+        } else {
+          if (packetLength < 160) {
+            buffer = ByteBuffer.allocate(packetLength + 1);
+            int dataSize = packetLength - 1;
+            buffer.put((byte) (packetLength));
+            buffer.put((byte) (nextIncomingPacket.data[dataSize - 1]));
+            buffer.put((byte) (encodedOpcode));
+            if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
+          } else {
+            buffer = ByteBuffer.allocate(packetLength + 2);
+            buffer.put((byte) (packetLength / 256 + 160));
+            buffer.put((byte) (packetLength & 0xFF));
+            buffer.put((byte) (encodedOpcode));
+            buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
+          }
+        }
+      }
+
+      if (buffer != null) {
         try {
-          Client.forceReconnect = true;
-          int oldTimeSlice = Replay.frame_time_slice;
-          boolean oldPaused = Replay.paused;
-          Replay.frame_time_slice = 1000 / 50;
-          Replay.paused = false;
-          Logger.Info("ReplayServer: Killing client connection");
-          client.close();
-          Logger.Info("ReplayServer: Reconnecting client");
-          client = sock.accept();
-          client_write = 0;
-          client_writePrev = client_write;
-          Logger.Info("ReplayServer: Client reconnected");
-          Replay.frame_time_slice = oldTimeSlice;
-          Replay.paused = oldPaused;
+          buffer.flip();
+          int writeSize = client.write(buffer);
+          if (writeSize > 0) {
+            client_writePrev = client_write;
+            client_write += writeSize;
+            sync_with_client(parseOpcodes);
+          }
         } catch (Exception e) {
-          Logger.Error("ReplayServer: Error reconnecting client");
           return false;
         }
-      } else {
-        firstConnection = false;
       }
 
-      isaac.reset();
-      isaac.setKeys(keys);
-    } else {
-      int packetLength = 1;
-      if (nextIncomingPacket.data != null) packetLength += nextIncomingPacket.data.length;
+      // End of replay
+      if (incomingPacketsIndex == (incomingPacketsSizeCache - 1)) return false;
 
-      // Encode packet and send
-      int encodedOpcode = (nextIncomingPacket.opcode + isaac.getNextValue()) & 0xFF;
-      if (packetLength == 1) {
-        buffer = ByteBuffer.allocate(2);
-        buffer.put((byte) (packetLength));
-        buffer.put((byte) (encodedOpcode));
-      } else {
-        if (packetLength < 160) {
-          buffer = ByteBuffer.allocate(packetLength + 1);
-          int dataSize = packetLength - 1;
-          buffer.put((byte) (packetLength));
-          buffer.put((byte) (nextIncomingPacket.data[dataSize - 1]));
-          buffer.put((byte) (encodedOpcode));
-          if (dataSize > 1) buffer.put(nextIncomingPacket.data, 0, dataSize - 1);
-        } else {
-          buffer = ByteBuffer.allocate(packetLength + 2);
-          buffer.put((byte) (packetLength / 256 + 160));
-          buffer.put((byte) (packetLength & 0xFF));
-          buffer.put((byte) (encodedOpcode));
-          buffer.put(nextIncomingPacket.data, 0, nextIncomingPacket.data.length);
-        }
-      }
+      // Load next packet
+      nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
     }
-
-    if (buffer != null) {
-      try {
-        buffer.flip();
-        int writeSize = client.write(buffer);
-        if (writeSize > 0) {
-          client_writePrev = client_write;
-          client_write += writeSize;
-          sync_with_client();
-        }
-      } catch (Exception e) {
-        return false;
-      }
-    }
-
-    // End of replay
-    if (incomingPacketsIndex == (incomingPacketsSizeCache - 1)) return false;
-
-    // Load next packet
-    nextIncomingPacket = incomingPackets.get(++incomingPacketsIndex);
 
     return true;
   }
@@ -560,7 +575,9 @@ public class ReplayServer implements Runnable {
           client.close();
           Logger.Info("ReplayServer: Reconnecting client");
           client = sock.accept();
+          client.setOption(TCP_NODELAY, new Boolean(true));
           client_write = 0;
+          client_read = 0;
           client_writePrev = client_write;
           Logger.Info("ReplayServer: Client reconnected");
 
@@ -585,7 +602,9 @@ public class ReplayServer implements Runnable {
                   + timestamp_diff);
           client.close();
           client = sock.accept();
+          client.setOption(TCP_NODELAY, new Boolean(true));
           client_write = 0;
+          client_read = 0;
           client_writePrev = client_write;
           timestamp_diff -= 400;
           Replay.timestamp = timestamp_input - timestamp_diff;
@@ -631,7 +650,7 @@ public class ReplayServer implements Runnable {
           if (writeSize > 0) {
             client_writePrev = client_write;
             client_write += writeSize;
-            sync_with_client();
+            sync_with_client(parseOpcodes);
           }
         }
       } catch (Exception e) {
