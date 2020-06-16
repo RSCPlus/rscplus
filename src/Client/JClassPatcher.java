@@ -2802,17 +2802,18 @@ public class JClassPatcher {
 
           if (nextNode == null) break;
 
-          if (insnNode.getOpcode() == Opcodes.INVOKESTATIC && nextNode.getOpcode() == Opcodes.ATHROW) {
+          if (insnNode.getOpcode() == Opcodes.INVOKESTATIC
+              && nextNode.getOpcode() == Opcodes.ATHROW) {
             int index = ExceptionSignatures.size();
             ExceptionSignatures.add(node.name + "." + methodNode.name + methodNode.desc);
             methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, index));
             methodNode.instructions.insertBefore(
-                    nextNode,
-                    new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "Game/Client",
-                            "CrashFixRoutine",
-                            "(Ljava/lang/Throwable;I)V"));
+                nextNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "CrashFixRoutine",
+                    "(Ljava/lang/Throwable;I)V"));
             methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
             methodNode.instructions.remove(nextNode);
           }

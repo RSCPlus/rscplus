@@ -38,8 +38,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.SocketOption;
-import java.net.SocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -438,7 +436,7 @@ public class ReplayServer implements Runnable {
     while (nextIncomingPacket.timestamp == timestamp_input) {
       // Handle incoming packet logging
       Logger.Opcode(
-              nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
+          nextIncomingPacket.timestamp, " IN", nextIncomingPacket.opcode, nextIncomingPacket.data);
       readInput(nextIncomingPacket);
 
       // Do nothing
