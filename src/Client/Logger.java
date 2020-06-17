@@ -79,7 +79,7 @@ public class Logger {
 
   public static void Log(Type type, String message) {
     try {
-      if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile)) return;
+      if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile) || message == null) return;
 
       DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
       String msg = ansi().render(message).toString();
@@ -186,7 +186,7 @@ public class Logger {
       }
       if (type.equals(" IN")) {
         if (true) { // opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the
-                    // user
+          // user
           // to filter them... possibly a way to filter arbitrary opcodes
           Log(
               Type.OPCODE,
