@@ -78,54 +78,62 @@ public class Logger {
   }
 
   public static void Log(Type type, String message) {
-    if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile)) return;
-
-    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    String msg = ansi().render(message).toString();
-    String extra = "";
-
-    if (!Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
-      if (m_uncoloredMessage.length() > 0) {
-        msg = m_uncoloredMessage;
-        m_uncoloredMessage = "";
-      } else {
-        // Remove colorized text
-        msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
-      }
-    }
-
-    if ((type.showLevel || Settings.LOG_FORCE_LEVEL.get(Settings.currentProfile))
-        && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
-      // Uppercase and pad level for monospace fonts
-      String levelText = type.name.toUpperCase();
-      while (levelText.length() < levelFixedWidth) levelText = " " + levelText;
-
-      extra += "[" + levelText + "]";
-    }
-    if ((type.showTimestamp || Settings.LOG_FORCE_TIMESTAMPS.get(Settings.currentProfile))
-        && Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile)) {
-      extra += "[" + dateFormat.format(new Date()) + "]";
-    }
-
-    if (extra.length() > 0) msg = extra + " " + msg;
-
-    if (type != Type.ERROR) System.out.println(msg);
-    else System.err.println(msg);
-
     try {
-      if (m_uncoloredMessage.length() > 0) {
-        msg = m_uncoloredMessage;
-        m_uncoloredMessage = "";
-      } else {
-        // Remove colorized text
-        if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
+      if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile) || message == null) return;
+
+      DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+      String msg = ansi().render(message).toString();
+      String extra = "";
+
+      if (!Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile)) {
+        if (m_uncoloredMessage.length() > 0) {
+          msg = m_uncoloredMessage;
+          m_uncoloredMessage = "";
+        } else {
+          // Remove colorized text
           msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+        }
       }
 
-      // Output to log file
-      m_logWriter.write(msg + "\r\n");
-      m_logWriter.flush();
+      if ((type.showLevel || Settings.LOG_FORCE_LEVEL.get(Settings.currentProfile))
+          && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
+        // Uppercase and pad level for monospace fonts
+        String levelText = type.name.toUpperCase();
+        while (levelText.length() < levelFixedWidth) levelText = " " + levelText;
+
+        extra += "[" + levelText + "]";
+      }
+      if ((type.showTimestamp || Settings.LOG_FORCE_TIMESTAMPS.get(Settings.currentProfile))
+          && Settings.LOG_SHOW_TIMESTAMPS.get(Settings.currentProfile)) {
+        extra += "[" + dateFormat.format(new Date()) + "]";
+      }
+
+      if (extra.length() > 0) msg = extra + " " + msg;
+
+      if (type != Type.ERROR) System.out.println(msg);
+      else System.err.println(msg);
+
+      try {
+        if (m_uncoloredMessage.length() > 0) {
+          msg = m_uncoloredMessage;
+          m_uncoloredMessage = "";
+        } else {
+          // Remove colorized text
+          if (Settings.COLORIZE_CONSOLE_TEXT.get(Settings.currentProfile))
+            msg = msg.replaceAll("\u001B\\[[;\\d]*m", "");
+        }
+
+        // Output to log file
+        m_logWriter.write(msg + "\r\n");
+        m_logWriter.flush();
+      } catch (Exception e) {
+      }
     } catch (Exception e) {
+      try {
+        System.out.println("Logger died, heres the report:");
+        e.printStackTrace();
+      } catch (Exception e2) {
+      }
     }
   }
 
@@ -157,46 +165,54 @@ public class Logger {
   }
 
   public static void Opcode(int timestamp, String type, int opcode, byte[] data) {
+    try {
+      String data_length;
+      char[] hexChars;
+      // convert data to hex string
+      if (data != null) {
+        final char[] hexArray = "0123456789ABCDEF".toCharArray();
+        hexChars = new char[data.length * 3];
+        for (int j = 0; j < data.length; j++) {
+          int v = data[j] & 0xFF;
+          hexChars[j * 3] = hexArray[v >>> 4];
+          hexChars[j * 3 + 1] = hexArray[v & 0x0F];
+          hexChars[j * 3 + 2] = ' ';
+        }
 
-    String data_length;
-    char[] hexChars;
-    // convert data to hex string
-    if (data != null) {
-      final char[] hexArray = "0123456789ABCDEF".toCharArray();
-      hexChars = new char[data.length * 3];
-      for (int j = 0; j < data.length; j++) {
-        int v = data[j] & 0xFF;
-        hexChars[j * 3] = hexArray[v >>> 4];
-        hexChars[j * 3 + 1] = hexArray[v & 0x0F];
-        hexChars[j * 3 + 2] = ' ';
+        data_length = String.format("%d byte%s", data.length, data.length != 1 ? "s" : "");
+      } else {
+        data_length = "0";
+        hexChars = new char[20];
       }
-
-      data_length = String.format("%d byte%s", data.length, data.length != 1 ? "s" : "");
-    } else {
-      data_length = "0";
-      hexChars = new char[20];
-    }
-    if (type.equals(" IN")) {
-      if (true) { // opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the user
-        // to filter them... possibly a way to filter arbitrary opcodes
-        Log(
-            Type.OPCODE,
-            String.format(
-                    "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
-                    timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length)
-                + new String(hexChars));
+      if (type.equals(" IN")) {
+        if (true) { // opcode != 79 && opcode != 191) { //TODO unfilter these, add a way for the
+          // user
+          // to filter them... possibly a way to filter arbitrary opcodes
+          Log(
+              Type.OPCODE,
+              String.format(
+                      "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
+                      timestamp / 50.0, type, incomingOpcodeMap.get(opcode), opcode, data_length)
+                  + new String(hexChars));
+        }
+      } else if (type.equals("OUT")) {
+        if (true) { // opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
+          Log(
+              Type.OPCODE,
+              String.format(
+                      "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
+                      timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length)
+                  + new String(hexChars));
+        }
+      } else {
+        Log(Type.ERROR, "It's gotta be either \" IN\" or \"OUT\", man");
       }
-    } else if (type.equals("OUT")) {
-      if (true) { // opcode != 67) { //TODO unfilter this, add a way for the user to filter it.
-        Log(
-            Type.OPCODE,
-            String.format(
-                    "[@|red %.2f|@] %s_OP: @|red %s (%d)|@ data_len: @|red %s|@ data: ",
-                    timestamp / 50.0, type, outgoingOpcodeMap.get(opcode), opcode, data_length)
-                + new String(hexChars));
+    } catch (Exception e) {
+      try {
+        System.out.println("Opcode logger died, heres the report:");
+        e.printStackTrace();
+      } catch (Exception e2) {
       }
-    } else {
-      Log(Type.ERROR, "It's gotta be either \" IN\" or \"OUT\", man");
     }
   }
 }

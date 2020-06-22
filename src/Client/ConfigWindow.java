@@ -192,7 +192,8 @@ public class ConfigWindow {
   private JCheckBox overlayPanelUsePercentageCheckbox;
   private JCheckBox overlayPanelFoodHealingCheckbox;
   private JCheckBox overlayPanelHPRegenTimerCheckbox;
-  private JCheckBox overlayPanelDebugModeCheckbox;
+  private JCheckBox generalPanelDebugModeCheckbox;
+  private JCheckBox generalPanelExceptionHandlerCheckbox;
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
@@ -662,6 +663,14 @@ public class ConfigWindow {
     generalPanelLogForceLevelCheckbox.setToolTipText(
         "Forces display of the log level of output in the log");
 
+    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
+    generalPanelDebugModeCheckbox.setToolTipText(
+        "Shows debug overlays and enables debug text in the console");
+
+    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
+    generalPanelExceptionHandlerCheckbox.setToolTipText(
+        "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
+
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
@@ -676,7 +685,7 @@ public class ConfigWindow {
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(5, 0, 0, 0));
+    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -871,6 +880,7 @@ public class ConfigWindow {
     addSettingsHeader(overlayPanel, "Interface Overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
+    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -925,16 +935,13 @@ public class ConfigWindow {
     // TODO: Remove this line when the HP regen timer is implemented
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
 
-    overlayPanelDebugModeCheckbox = addCheckbox("Enable debug mode", overlayPanel);
-    overlayPanelDebugModeCheckbox.setToolTipText(
-        "Shows debug overlays and enables debug text in the console");
-
     /// XP Bar
     addSettingsHeader(overlayPanel, "XP Bar");
     overlayPanelXPBarCheckbox =
         addCheckbox("Show an XP bar for the last trained skill", overlayPanel);
     overlayPanelXPBarCheckbox.setToolTipText(
         "Show an XP bar for the last trained skill to the left of the wrench");
+    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelXPDropsCheckbox = addCheckbox("XP drops", overlayPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
@@ -995,6 +1002,7 @@ public class ConfigWindow {
         addCheckbox("Show hitboxes around NPCs, players, and items", overlayPanel);
     overlayPanelHitboxCheckbox.setToolTipText(
         "Shows the clickable areas on NPCs, players, and items");
+    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelPlayerNamesCheckbox =
         addCheckbox("Show player names over their heads", overlayPanel);
@@ -2211,7 +2219,9 @@ public class ConfigWindow {
     overlayPanelHPRegenTimerCheckbox.setSelected(
         Settings.SHOW_TIME_UNTIL_HP_REGEN.get(
             Settings.currentProfile)); // TODO: Implement this feature
-    overlayPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
+    generalPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
+    generalPanelExceptionHandlerCheckbox.setSelected(
+        Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
@@ -2401,7 +2411,9 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelHPRegenTimerCheckbox.isSelected());
     Settings.LAG_INDICATOR.put(
         Settings.currentProfile, overlayPanelLagIndicatorCheckbox.isSelected());
-    Settings.DEBUG.put(Settings.currentProfile, overlayPanelDebugModeCheckbox.isSelected());
+    Settings.DEBUG.put(Settings.currentProfile, generalPanelDebugModeCheckbox.isSelected());
+    Settings.EXCEPTION_HANDLER.put(
+        Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
     Settings.HIGHLIGHTED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(

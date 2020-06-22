@@ -20,6 +20,7 @@ package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
 
+import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
@@ -41,8 +42,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -53,6 +53,9 @@ public class Client {
 
   // Game's client instance
   public static Object instance;
+
+  public static Map<String, LinkedList<String>> tracerInstructions =
+      new LinkedHashMap<String, LinkedList<String>>();
 
   public static List<NPC> npc_list = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
@@ -131,6 +134,7 @@ public class Client {
   public static boolean show_welcome;
 
   public static boolean runReplayHook = false;
+  public static boolean runReplayCloseHook = false;
 
   public static int[] inventory_items;
 
@@ -199,6 +203,8 @@ public class Client {
   public static Object clientStream;
   public static Object writeBuffer;
   public static Object menuCommon;
+
+  public static final int TRACER_LINES = 100;
 
   // bank items and their count for each type, new bank items are first to get updated and indicate
   // bank
@@ -303,6 +309,107 @@ public class Client {
     }
   }
 
+  public static void CrashFixRoutine(Throwable e, int index) {
+    Logger.Error("A crash was prevented, here is some information about it.");
+    PrintException(e, index);
+  }
+
+  public static void PrintException(Throwable e, int index) {
+    String printMessage = "Caller: " + JClassPatcher.ExceptionSignatures.get(index) + "\n\n";
+    if (e.getMessage() != null) printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
+    StackTraceElement[] stacktrace = e.getStackTrace();
+    for (int i = 0; i < stacktrace.length; i++) {
+      StackTraceElement element = stacktrace[i];
+      printMessage += element.getClassName() + "." + element.getMethodName() + "(UNKNOWN)";
+      if (i != stacktrace.length - 1) printMessage += "\n";
+    }
+
+    // Add tracer information
+    Iterator tracerIterator = tracerInstructions.entrySet().iterator();
+    if (tracerIterator.hasNext()) {
+      printMessage += "\n\n";
+    }
+    while (tracerIterator.hasNext()) {
+      Map.Entry element = (Map.Entry) tracerIterator.next();
+      String name = (String) element.getKey();
+      String[] tracer = (String[]) ((LinkedList<String>) element.getValue()).toArray();
+      printMessage += "[" + name + "]\n";
+      for (int i = 0; i < tracer.length; i++) {
+        String instruction = (String) tracer[i];
+        if (instruction != null) {
+          printMessage += instruction;
+          if (i != tracer.length - 1) printMessage += "\n";
+        }
+      }
+
+      if (tracerIterator.hasNext()) printMessage += "\n\n";
+    }
+
+    Logger.Error("EXCEPTION\n" + printMessage);
+  }
+
+  public static Throwable HandleException(Throwable e, int index) {
+    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) return e;
+
+    PrintException(e, index);
+
+    return e;
+  }
+
+  public static void TracerHandler(int indexHigh, int indexLow) {
+    // Convert index
+    if (indexHigh < 0) indexHigh += Short.MAX_VALUE * 2;
+    if (indexLow < 0) indexLow += Short.MAX_VALUE * 2;
+    int index = (indexHigh << 16) | indexLow;
+
+    Thread thread = Thread.currentThread();
+    String threadName = thread.getName();
+
+    LinkedList<String> instructions;
+    if (tracerInstructions.containsKey(threadName)) {
+      instructions = tracerInstructions.get(threadName);
+    } else {
+      instructions =
+          new LinkedList<String>() {
+            private Object threadLock = new Object();
+
+            @Override
+            public boolean add(String object) {
+              boolean result;
+              if (this.size() >= TRACER_LINES) removeFirst();
+              synchronized (threadLock) {
+                result = super.add(object);
+              }
+              return result;
+            }
+
+            @Override
+            public String removeFirst() {
+              String result;
+              synchronized (threadLock) {
+                result = super.removeFirst();
+              }
+              return result;
+            }
+
+            @Override
+            public String[] toArray() {
+              String[] result;
+              synchronized (threadLock) {
+                result = new String[size()];
+                for (int i = 0; i < size(); i++) result[i] = get(i);
+              }
+              return result;
+            }
+          };
+      tracerInstructions.put(threadName, instructions);
+    }
+
+    // Add decoded instruction to tracer
+    String instruction = JClassPatcher.InstructionBytecode.get(index);
+    instructions.add(instruction);
+  }
+
   public static void init() {
 
     adaptStrings();
@@ -350,6 +457,9 @@ public class Client {
       inputFilterCharFontAddr[code] = index * 9;
     }
   }
+
+  public static boolean forceDisconnect = false;
+  public static boolean forceReconnect = false;
 
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
@@ -411,8 +521,40 @@ public class Client {
 
     Game.getInstance().updateTitle();
 
+    if (forceDisconnect) {
+      Client.closeConnection(false);
+      forceDisconnect = false;
+    }
+
+    if (forceReconnect) {
+      Client.loseConnection(false);
+      forceReconnect = false;
+    }
+
+    // Handle skipping to next replay
+    if (!Replay.isPlaying && Replay.replayServer != null && Replay.replayServer.isDone) {
+      if (ReplayQueue.currentIndex < ReplayQueue.queue.size()) {
+        if (!ReplayQueue.skipped) {
+          ReplayQueue.nextReplay();
+        }
+      }
+      ReplayQueue.skipped = false;
+    }
+
+    // Process playback actions for replays
+    Replay.processPlaybackAction();
+
+    // Process playback queue for replays
+    ReplayQueue.processPlaybackQueue();
+
+    // Close replay, order matters on these two!
+    if (runReplayCloseHook) {
+      Replay.handleReplayClosing();
+      runReplayCloseHook = false;
+    }
+
     // Login hook on this thread
-    if (runReplayHook) {
+    if (runReplayHook && state == STATE_LOGIN) {
       Renderer.replayOption = 2;
       runReplayHook = false;
       login_hook();

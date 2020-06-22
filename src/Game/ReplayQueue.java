@@ -175,7 +175,14 @@ public class ReplayQueue {
     queue.remove(index);
   }
 
-  private static void playFromQueue(int index) {
+  public static int playIndex = -1;
+
+  public static void processPlaybackQueue() {
+    if (playIndex == -1) return;
+
+    int index = playIndex;
+    playIndex = -1;
+
     if (index < 0) {
       index = 0;
     }
@@ -183,18 +190,7 @@ public class ReplayQueue {
       index = queue.size() - 1;
     }
 
-    if (Replay.isPlaying) {
-      Replay.controlPlayback("stop");
-      try {
-        // without this at all, client says user is still logged in lol
-        // through experimentation, I found that 700 is not long enough.
-        // this value works. shorter, and the replay server has trouble keeping its
-        // timestamps straight... TODO: eliminate need for this delay.
-        Thread.sleep(800);
-      } catch (Exception e) {
-        Logger.Debug(e.toString());
-      }
-    }
+    if (Replay.isPlaying) Client.runReplayCloseHook = true;
 
     currentReplayName = queue.get(index).getAbsolutePath();
     Logger.Info(
@@ -205,6 +201,10 @@ public class ReplayQueue {
             + "|@");
     Client.runReplayHook = true;
     QueueWindow.updatePlaying();
+  }
+
+  private static void playFromQueue(int index) {
+    playIndex = index;
   }
 
   public static void clearQueue() {

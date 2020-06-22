@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -51,6 +53,9 @@ public class JClassPatcher {
 
   // Singleton
   private static JClassPatcher instance = null;
+
+  public static List<String> ExceptionSignatures = new ArrayList<String>();
+  public static List<String> InstructionBytecode = new ArrayList<String>();
 
   private Printer printer = new Textifier();
   private TraceMethodVisitor mp = new TraceMethodVisitor(printer);
@@ -83,6 +88,10 @@ public class JClassPatcher {
       dumpClass(node);
     }
 
+    // Dev Bytecode tracer, do not leave these uncommented in live builds!
+    // if (node.name.equals("client")) patchTracer(node);
+    // if (node.name.equals("lb")) patchTracer(node);
+
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     node.accept(writer);
     return writer.toByteArray();
@@ -90,6 +99,7 @@ public class JClassPatcher {
 
   private void patchGeneric(ClassNode node) {
     Iterator<MethodNode> methodNodeList = node.methods.iterator();
+
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
@@ -110,6 +120,18 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.POP));
             methodNode.instructions.remove(insnNode);
           }
+        }
+        if (insnNode.getOpcode() == Opcodes.ATHROW) {
+          int index = ExceptionSignatures.size();
+          ExceptionSignatures.add(node.name + "." + methodNode.name + methodNode.desc);
+          methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, index));
+          methodNode.instructions.insertBefore(
+              insnNode,
+              new MethodInsnNode(
+                  Opcodes.INVOKESTATIC,
+                  "Game/Client",
+                  "HandleException",
+                  "(Ljava/lang/Throwable;I)Ljava/lang/Throwable;"));
         }
       }
 
@@ -868,6 +890,23 @@ public class JClassPatcher {
     Iterator<MethodNode> methodNodeList = node.methods.iterator();
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
+
+      // This fixes the rendering bug that happens during end of days replays.
+      // It resizes a few arrays with messages, teleport, and action bubbles to allow more data
+      Iterator<AbstractInsnNode> insnNodeList2 = methodNode.instructions.iterator();
+      while (insnNodeList2.hasNext()) {
+        AbstractInsnNode insnNode = insnNodeList2.next();
+        AbstractInsnNode nextNode = insnNode.getNext();
+        if ((insnNode.getOpcode() == Opcodes.BIPUSH || insnNode.getOpcode() == Opcodes.SIPUSH)
+            && (nextNode.getOpcode() == Opcodes.NEWARRAY
+                || nextNode.getOpcode() == Opcodes.ANEWARRAY)) {
+          IntInsnNode sizeNode = (IntInsnNode) insnNode;
+          if (sizeNode.operand == 50) {
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 200));
+            methodNode.instructions.remove(insnNode);
+          }
+        }
+      }
 
       // URL check removal at launch
       if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
@@ -2480,6 +2519,8 @@ public class JClassPatcher {
           }
         }
       }
+
+      // hookTracer(node, methodNode);
     }
   }
 
@@ -2734,6 +2775,17 @@ public class JClassPatcher {
     }
   }
 
+  private void patchTracer(ClassNode node) {
+    Logger.Info("Patching tracer (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      hookTracer(node, methodNode);
+    }
+  }
+
   private void patchRendererHelper(ClassNode node) {
     Logger.Info("Patching renderer helper (" + node.name + ".class)");
 
@@ -2752,8 +2804,18 @@ public class JClassPatcher {
 
           if (insnNode.getOpcode() == Opcodes.INVOKESTATIC
               && nextNode.getOpcode() == Opcodes.ATHROW) {
-            MethodInsnNode call = (MethodInsnNode) insnNode;
-            methodNode.instructions.insert(call, new InsnNode(Opcodes.RETURN));
+            int index = ExceptionSignatures.size();
+            ExceptionSignatures.add(node.name + "." + methodNode.name + methodNode.desc);
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, index));
+            methodNode.instructions.insertBefore(
+                nextNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "CrashFixRoutine",
+                    "(Ljava/lang/Throwable;I)V"));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
+            methodNode.instructions.remove(nextNode);
           }
         }
       }
@@ -2802,6 +2864,29 @@ public class JClassPatcher {
           }
         }
       }
+    }
+  }
+
+  private void hookTracer(ClassNode node, MethodNode methodNode) {
+    // Tracer function, called on every instruction
+    Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+    while (insnNodeList.hasNext()) {
+      AbstractInsnNode insnNode = insnNodeList.next();
+
+      if (insnNode.getType() == AbstractInsnNode.FRAME
+          || insnNode.getType() == AbstractInsnNode.LABEL) continue;
+
+      int index = InstructionBytecode.size();
+      String instruction = decodeInstruction(insnNode).replaceAll("\n", "").replaceAll("    ", "");
+      instruction = node.name + "." + methodNode.name + methodNode.desc + ": " + instruction;
+      InstructionBytecode.add(instruction);
+      methodNode.instructions.insertBefore(
+          insnNode, new IntInsnNode(Opcodes.SIPUSH, (index >> 16) & 0xFFFF));
+      methodNode.instructions.insertBefore(
+          insnNode, new IntInsnNode(Opcodes.SIPUSH, index & 0xFFFF));
+      methodNode.instructions.insertBefore(
+          insnNode,
+          new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "TracerHandler", "(II)V"));
     }
   }
 

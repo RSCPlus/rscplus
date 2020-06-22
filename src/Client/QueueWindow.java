@@ -381,8 +381,7 @@ public class QueueWindow {
             new ActionListener() {
               @Override
               public void actionPerformed(ActionEvent e) {
-                ReplayQueue.skipped = true;
-                ReplayQueue.previousReplay();
+                Replay.controlPlayback("prev");
               }
             });
     c.gridx = 0;
@@ -426,8 +425,7 @@ public class QueueWindow {
             new ActionListener() {
               @Override
               public void actionPerformed(ActionEvent e) {
-                ReplayQueue.skipped = true;
-                ReplayQueue.nextReplay();
+                Replay.controlPlayback("next");
               }
             });
     c.gridx = 4;
