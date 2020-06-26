@@ -130,33 +130,33 @@ public class QueueWindow {
     }
   }
 	
-	private static void controlsFontInit() {
-		String uppermostChar = "\uD83D\uDD00";
-		String currentFontName = "";
-		
-		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-		if (font.canDisplayUpTo(uppermostChar) < 0) {
-			controlsFont = font;
-			return;
-		}
+  private static void controlsFontInit() {
+    String uppermostChar = "\uD83D\uDD00";
+    String currentFontName = "";
 
-		// current font is not suitable, using our fallback
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		InputStream is = Settings.getResourceAsStream("/assets/Symbola_Hinted.ttf");
-		try {
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
-			font = new Font("Symbola", Font.PLAIN, 18);
-			controlsFont = font;
-			if (font.canDisplayUpTo(uppermostChar) < 0) {
-				controlsFont = font;
-				return;
-			} else {
-				controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-			}
-		} catch (FontFormatException | IOException e) {
-			controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-		}
-	}
+    Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
+    if (font.canDisplayUpTo(uppermostChar) < 0) {
+      controlsFont = font;
+      return;
+    }
+
+    // current font is not suitable, using our fallback
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    InputStream is = Settings.getResourceAsStream("/assets/Symbola_Hinted.ttf");
+    try {
+      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
+      font = new Font("Symbola", Font.PLAIN, 18);
+      controlsFont = font;
+      if (font.canDisplayUpTo(uppermostChar) < 0) {
+        controlsFont = font;
+        return;
+      } else {
+        controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
+      }
+    } catch (FontFormatException | IOException e) {
+      controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
+    }
+  }
 
   private static void runInit() {
     controlsFontInit();
@@ -813,9 +813,9 @@ public class QueueWindow {
 
       for (int j=0; j < getColumnCount(); j++) {
         if (getRowCount() >= i) {
-          thisRow[i] = getValueAt(i, j);
+          thisRow[j] = getValueAt(i, j);
         } else {
-          thisRow[i] = "";
+          thisRow[j] = "";
         }
       }
       return thisRow;
