@@ -319,7 +319,7 @@ public class Client {
     TODO: Figure out what unknown is
   */
   public static final void shadowSleep(int unknown, long ms) {
-    //if (unknown == 0) return;
+    // if (unknown == 0) return;
 
     try {
       Thread.sleep(ms);
