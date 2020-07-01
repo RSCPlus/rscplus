@@ -316,10 +316,14 @@ public class Client {
     shadowSleepCount is unused in the client, but is hooked and incremented properly anyway.
     According to "Hixk": https://github.com/RSCPlus/rscplus/pull/16#issuecomment-648823713
 
+    This function was recreated from the disassembly of the function, please leave the original
+    code commented out in the function and explain why it was removed!
+
     TODO: Figure out what unknown is
   */
   public static final void shadowSleep(int unknown, long ms) {
-    // if (unknown == 0) return;
+    /* Removing this increases stability according to the Hixk issue linked above */
+    // if (unknown != 0) return;
 
     try {
       Thread.sleep(ms);
