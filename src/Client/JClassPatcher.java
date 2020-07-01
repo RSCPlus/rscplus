@@ -108,6 +108,16 @@ public class JClassPatcher {
       while (insnNodeList.hasNext()) {
         AbstractInsnNode insnNode = insnNodeList.next();
 
+        if (insnNode.getOpcode() == Opcodes.INVOKESTATIC) {
+          MethodInsnNode call = (MethodInsnNode) insnNode;
+          if (call.owner.equals("u") && call.name.equals("a") && call.desc.equals("(IJ)V")) {
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "shadowSleep", "(IJ)V"));
+            methodNode.instructions.remove(insnNode);
+          }
+        }
+
         if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
           MethodInsnNode call = (MethodInsnNode) insnNode;
 
@@ -205,6 +215,7 @@ public class JClassPatcher {
       hookClassVariable(methodNode, "ba", "k", "I", "Game/Renderer", "height", "I", false, true);
       hookClassVariable(methodNode, "ba", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
+      hookStaticVariable(methodNode, "u", "e", "I", "Game/Client", "shadowSleepCount", "I");
       hookStaticVariable(methodNode, "n", "g", "I", "Game/Client", "friends_count", "I");
       hookStaticVariable(
           methodNode,

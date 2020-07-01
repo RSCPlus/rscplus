@@ -309,6 +309,26 @@ public class Client {
     }
   }
 
+  public static int shadowSleepCount;
+
+  /*
+    This method replaces u.a (IJ)
+    shadowSleepCount is unused in the client, but is hooked and incremented properly anyway.
+    According to "Hixk": https://github.com/RSCPlus/rscplus/pull/16#issuecomment-648823713
+
+    TODO: Figure out what unknown is, and maybe just call Thread.sleep(ms) and return
+  */
+  public static final void shadowSleep(int unknown, long ms) {
+    if (unknown == 0) return;
+
+    try {
+      Thread.sleep(ms);
+    } catch (Exception e) {
+    }
+
+    shadowSleepCount += 1;
+  }
+
   public static void CrashFixRoutine(Throwable e, int index) {
     Logger.Error("A crash was prevented, here is some information about it.");
     PrintException(e, index);
