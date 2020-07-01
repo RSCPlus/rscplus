@@ -316,10 +316,10 @@ public class Client {
     shadowSleepCount is unused in the client, but is hooked and incremented properly anyway.
     According to "Hixk": https://github.com/RSCPlus/rscplus/pull/16#issuecomment-648823713
 
-    TODO: Figure out what unknown is, and maybe just call Thread.sleep(ms) and return
+    TODO: Figure out what unknown is
   */
   public static final void shadowSleep(int unknown, long ms) {
-    if (unknown == 0) return;
+    //if (unknown == 0) return;
 
     try {
       Thread.sleep(ms);
