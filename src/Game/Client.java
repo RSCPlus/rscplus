@@ -826,7 +826,7 @@ public class Client {
     }
 
     line = processClientChatCommand(line);
-    line = processClientCommand(line);
+    processClientCommand(line);
 
     return line;
   }
