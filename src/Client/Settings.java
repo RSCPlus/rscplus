@@ -577,7 +577,7 @@ public class Settings {
     SHOW_LAST_MENU_ACTION.put("heavy", true);
     SHOW_LAST_MENU_ACTION.put("all", true);
     SHOW_LAST_MENU_ACTION.put(
-        "custom", getPropBoolean(props, "show_buffs", SHOW_LAST_MENU_ACTION.get("default")));
+        "custom", getPropBoolean(props, "show_last_menu_action", SHOW_LAST_MENU_ACTION.get("default")));
 
     SHOW_MOUSE_TOOLTIP.put("vanilla", false);
     SHOW_MOUSE_TOOLTIP.put("vanilla_resizable", false);

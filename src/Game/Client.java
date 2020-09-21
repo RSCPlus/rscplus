@@ -710,7 +710,7 @@ public class Client {
   // response 1 i don't know exactly what's for might be trying to connect in combat or something
   public static void login_attempt_hook(int response, boolean reconnecting, int[] xtea_keys) {
     // at this stage just close it
-    if (response != 64 && response != 1) {
+    if (response == 1 || ((response & 64) == 0)) {
       disconnect_hook();
     }
   }
