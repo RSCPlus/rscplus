@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20200717.093359;
+  public static final double VERSION_NUMBER = 20200921.014259;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -577,7 +577,8 @@ public class Settings {
     SHOW_LAST_MENU_ACTION.put("heavy", true);
     SHOW_LAST_MENU_ACTION.put("all", true);
     SHOW_LAST_MENU_ACTION.put(
-        "custom", getPropBoolean(props, "show_last_menu_action", SHOW_LAST_MENU_ACTION.get("default")));
+        "custom",
+        getPropBoolean(props, "show_last_menu_action", SHOW_LAST_MENU_ACTION.get("default")));
 
     SHOW_MOUSE_TOOLTIP.put("vanilla", false);
     SHOW_MOUSE_TOOLTIP.put("vanilla_resizable", false);
