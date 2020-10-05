@@ -133,13 +133,13 @@ public class Renderer {
     // Load fonts
     try {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-      InputStream is = Settings.getResourceAsStream("/assets/Helvetica-Bold.ttf");
+      InputStream is = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
       Font font = Font.createFont(Font.TRUETYPE_FONT, is);
       ge.registerFont(font);
       font_main = font.deriveFont(Font.PLAIN, 11.0f);
       font_big = font.deriveFont(Font.PLAIN, 22.0f);
 
-      is = Settings.getResourceAsStream("/assets/TimesRoman.ttf");
+      is = Launcher.getResourceAsStream("/assets/TimesRoman.ttf");
       ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
     } catch (Exception e) {
       e.printStackTrace();
@@ -147,10 +147,10 @@ public class Renderer {
 
     // Load images
     try {
-      image_border = ImageIO.read(Settings.getResource("/assets/border.png"));
-      image_bar_frame = ImageIO.read(Settings.getResource("/assets/bar.png"));
-      image_cursor = ImageIO.read(Settings.getResource("/assets/cursor.png"));
-      image_highlighted_item = ImageIO.read(Settings.getResource("/assets/highlighted_item.png"));
+      image_border = ImageIO.read(Launcher.getResource("/assets/border.png"));
+      image_bar_frame = ImageIO.read(Launcher.getResource("/assets/bar.png"));
+      image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
+      image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
     } catch (Exception e) {
       e.printStackTrace();
     }

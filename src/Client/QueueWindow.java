@@ -142,7 +142,7 @@ public class QueueWindow {
 
     // current font is not suitable, using our fallback
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    InputStream is = Settings.getResourceAsStream("/assets/Symbola_Hinted.ttf");
+    InputStream is = Launcher.getResourceAsStream("/assets/Symbola_Hinted.ttf");
     try {
       ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
       font = new Font("Symbola", Font.PLAIN, 18);
@@ -168,7 +168,7 @@ public class QueueWindow {
     frame.setBounds(100, 100, 800, 580);
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
-    URL iconURL = Settings.getResource("/assets/icon.png");
+    URL iconURL = Launcher.getResource("/assets/icon.png");
     if (iconURL != null) {
       ImageIcon icon = new ImageIcon(iconURL);
       frame.setIconImage(icon.getImage());

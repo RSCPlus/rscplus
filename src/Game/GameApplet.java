@@ -18,8 +18,8 @@
  */
 package Game;
 
-import Client.Settings;
 import java.net.URL;
+import Client.Launcher;
 
 public class GameApplet {
   public static URL cacheURLHook(URL url) {
@@ -28,7 +28,7 @@ public class GameApplet {
       file = "/contentcrcs";
     }
 
-    URL urlFile = Settings.getResource("/assets/content" + file);
+    URL urlFile = Launcher.getResource("/assets/content" + file);
     if (urlFile != null) return urlFile;
 
     return url;

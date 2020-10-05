@@ -134,7 +134,7 @@ public class NotificationsHandler {
 
     // 4
     iconLabel = new JLabel();
-    iconLabel.setIcon(new ImageIcon(Settings.getResource("/assets/icon.png")));
+    iconLabel.setIcon(new ImageIcon(Launcher.getResource("/assets/icon.png")));
     iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
     iconLabel.setVerticalAlignment(SwingConstants.CENTER);
     iconPanel.add(iconLabel, BorderLayout.CENTER);
@@ -167,9 +167,9 @@ public class NotificationsHandler {
           }
         });
     closeButton.setBounds(400, 5, 17, 17);
-    closeButton.setIcon(new ImageIcon(Settings.getResource("/assets/notification_close.png")));
+    closeButton.setIcon(new ImageIcon(Launcher.getResource("/assets/notification_close.png")));
     closeButton.setSelectedIcon(
-        new ImageIcon(Settings.getResource("/assets/notification_close_highlighted.png")));
+        new ImageIcon(Launcher.getResource("/assets/notification_close_highlighted.png")));
     closeButton.setBorder(BorderFactory.createEmptyBorder());
     closeButton.setContentAreaFilled(false);
     mainContentPanel.add(closeButton);
@@ -218,7 +218,7 @@ public class NotificationsHandler {
       JLabel backgroundImage = new JLabel("");
       ImageIcon img = null;
 
-      img = new ImageIcon(Settings.getResource("/assets/notification_background.png"));
+      img = new ImageIcon(Launcher.getResource("/assets/notification_background.png"));
       backgroundImage.setBounds(0, 0, 442, 104);
 
       backgroundImage.setIcon(img);
@@ -263,10 +263,10 @@ public class NotificationsHandler {
     try {
       Font font =
           Font.createFont(
-              Font.TRUETYPE_FONT, Settings.getResourceAsStream("/assets/OpenSans-Regular.ttf"));
+              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/OpenSans-Regular.ttf"));
       Font boldFont =
           Font.createFont(
-              Font.TRUETYPE_FONT, Settings.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
+              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
 
       notificationTitle.setFont(boldFont.deriveFont(Font.BOLD, 18f));
       notificationTextArea.setFont(font.deriveFont(Font.PLAIN, 16f));
@@ -593,7 +593,7 @@ public class NotificationsHandler {
     try {
       notificationAudioIn =
           AudioSystem.getAudioInputStream(
-              new BufferedInputStream(Settings.getResourceAsStream("/assets/notification.wav")));
+              new BufferedInputStream(Launcher.getResourceAsStream("/assets/notification.wav")));
       notificationSoundClip =
           (Clip)
               AudioSystem.getLine(new DataLine.Info(Clip.class, notificationAudioIn.getFormat()));

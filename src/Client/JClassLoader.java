@@ -40,7 +40,7 @@ public class JClassLoader extends ClassLoader {
     Logger.Info("Fetching Jar: " + jarURL);
 
     try {
-      JarInputStream in = new JarInputStream(Settings.getResourceAsStream(jarURL));
+      JarInputStream in = new JarInputStream(Launcher.getResourceAsStream(jarURL));
       Launcher.getInstance().setProgress(1, 1);
 
       JarEntry entry;

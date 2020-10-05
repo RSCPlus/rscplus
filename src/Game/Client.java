@@ -460,7 +460,7 @@ public class Client {
   }
 
   public static void init_extra() {
-    InputStream is = Settings.getResourceAsStream("/assets/fontdata.bin");
+    InputStream is = Launcher.getResourceAsStream("/assets/fontdata.bin");
     try {
       fontData = new byte[is.available()];
       is.read(fontData);

@@ -49,7 +49,7 @@ public class TrayHandler implements MouseListener {
     // Load images
     Image trayIconImage = null;
     try {
-      trayIconImage = ImageIO.read(Settings.getResource("/assets/icon-small.gif"));
+      trayIconImage = ImageIO.read(Launcher.getResource("/assets/icon-small.gif"));
     } catch (Exception e) {
       e.printStackTrace();
     }

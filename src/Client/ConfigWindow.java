@@ -323,7 +323,7 @@ public class ConfigWindow {
     frame.setBounds(100, 100, 800, 650);
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
-    URL iconURL = Settings.getResource("/assets/icon.png");
+    URL iconURL = Launcher.getResource("/assets/icon.png");
     if (iconURL != null) {
       ImageIcon icon = new ImageIcon(iconURL);
       frame.setIconImage(icon.getImage());
@@ -1767,7 +1767,7 @@ public class ConfigWindow {
     c.fill = GridBagConstraints.HORIZONTAL;
 
     try {
-      BufferedImage rscplusLogo = ImageIO.read(Settings.getResource("/assets/icon-large.png"));
+      BufferedImage rscplusLogo = ImageIO.read(Launcher.getResource("/assets/icon-large.png"));
       JLabel rscplusLogoJLabel =
           new JLabel(new ImageIcon(rscplusLogo.getScaledInstance(250, 250, Image.SCALE_DEFAULT)));
       rscplusLogoJLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 20, 40));
