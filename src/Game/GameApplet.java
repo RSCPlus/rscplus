@@ -18,8 +18,8 @@
  */
 package Game;
 
-import java.net.URL;
 import Client.Launcher;
+import java.net.URL;
 
 public class GameApplet {
   public static URL cacheURLHook(URL url) {

@@ -345,67 +345,67 @@ public class Launcher extends JFrame implements Runnable {
     return instance;
   }
 
-    /**
-     * Creates a URL object that points to a specified file relative to the codebase, which is
-     * typically either the jar or location of the package folders.
-     *
-     * @param fileName the file to parse as a URL
-     * @return a URL that points to the specified file
-     */
-    public static URL getResource(String fileName) {
-        URL url = null;
-        try {
-            url = Game.getInstance().getClass().getResource(fileName);
-        } catch (Exception e) {
-        }
-
-        // Try finding assets
-        if (url == null) {
-            try {
-                url = new URL("file://" + Util.findDirectoryReverse("/assets") + fileName);
-            } catch (Exception e) {
-            }
-        }
-
-        Logger.Info("Loading resource: " + fileName);
-
-        if (fileName.equals("/assets/content/content10_ffffffffa95e7195")) {
-            finishedLoading();
-        }
-
-        return url;
+  /**
+   * Creates a URL object that points to a specified file relative to the codebase, which is
+   * typically either the jar or location of the package folders.
+   *
+   * @param fileName the file to parse as a URL
+   * @return a URL that points to the specified file
+   */
+  public static URL getResource(String fileName) {
+    URL url = null;
+    try {
+      url = Game.getInstance().getClass().getResource(fileName);
+    } catch (Exception e) {
     }
 
-    /**
-     * Creates an InputStream object that streams the contents of a specified file relative to the
-     * codebase, which is typically either the jar or location of the package folders.
-     *
-     * @param fileName the file to open as an InputStream
-     * @return an InputStream that streams the contents of the specified file
-     */
-    public static InputStream getResourceAsStream(String fileName) {
-        InputStream stream = null;
-        try {
-            stream = Game.getInstance().getClass().getResourceAsStream(fileName);
-        } catch (Exception e) {
-        }
-
-        // Try finding assets
-        if (stream == null) {
-            try {
-                stream = new FileInputStream(Util.findDirectoryReverse("/assets") + fileName);
-            } catch (Exception e) {
-            }
-        }
-
-        Logger.Info("Loading resource as stream: " + fileName);
-
-        return stream;
+    // Try finding assets
+    if (url == null) {
+      try {
+        url = new URL("file://" + Util.findDirectoryReverse("/assets") + fileName);
+      } catch (Exception e) {
+      }
     }
+
+    Logger.Info("Loading resource: " + fileName);
+
+    if (fileName.equals("/assets/content/content10_ffffffffa95e7195")) {
+      finishedLoading();
+    }
+
+    return url;
+  }
+
+  /**
+   * Creates an InputStream object that streams the contents of a specified file relative to the
+   * codebase, which is typically either the jar or location of the package folders.
+   *
+   * @param fileName the file to open as an InputStream
+   * @return an InputStream that streams the contents of the specified file
+   */
+  public static InputStream getResourceAsStream(String fileName) {
+    InputStream stream = null;
+    try {
+      stream = Game.getInstance().getClass().getResourceAsStream(fileName);
+    } catch (Exception e) {
+    }
+
+    // Try finding assets
+    if (stream == null) {
+      try {
+        stream = new FileInputStream(Util.findDirectoryReverse("/assets") + fileName);
+      } catch (Exception e) {
+      }
+    }
+
+    Logger.Info("Loading resource as stream: " + fileName);
+
+    return stream;
+  }
 
   public static void finishedLoading() {
-      // Remember world setting
-      Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    // Remember world setting
+    Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
   }
 
   /** @return the window */
