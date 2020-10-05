@@ -1873,7 +1873,7 @@ public class Client {
     }
 
     if (blueMessage) { // this is one of the messages which we must overwrite expected color for
-      return "@|cyan,intensity_faint " + colorMessage + "|@";
+      return "@|cyan,intensity_faint " + colorReplace(colorMessage) + "|@";
     } else if (greenMessage) {
       return "@|green,intensity_bold " + colorReplace(colorMessage) + "|@";
     } else if (whiteMessage) {
