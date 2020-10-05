@@ -1100,6 +1100,15 @@ public class Replay {
         buffer.put(retained_bytes, retained_off, retained_bread);
         input_checksum.update(buffer.array());
         input.write(buffer.array());
+
+        /* Debug viewing entire input stream
+        System.out.print("Writing Input Stream: ");
+        for (byte h : buffer.array()) {
+            System.out.print(String.format("%d ",  Byte.toUnsignedInt(h)));
+        }
+        System.out.println();
+        */
+
         input.flush();
       } catch (Exception e) {
         e.printStackTrace();
@@ -1194,8 +1203,10 @@ public class Replay {
     timestamp_disconnect = timestamp;
   }
 
+  // Not sure that enc_opcode ever gets used & this might be an unused function
   public static void saveEncOpcode(int inopcode) {
     if (isRecording) {
+      // Logger.Debug(String.format("Encrypted Opcode: %d", inopcode)); // Debug Info
       enc_opcode = inopcode;
     }
   }
@@ -1205,6 +1216,7 @@ public class Replay {
 
     if (isRecording) {
       // received packet 182, set flag, do not dump bytes
+      // Logger.Debug(String.format("Decrypted opcode: %d", opcode)); // Debug Info
       if (opcode == 182) {
         // in here probably would need to check the position
         // don't care about the packet if 182, just rewrite it using the enc opcode
