@@ -999,19 +999,19 @@ public class Client {
                     : 0)
                 // prayer and mage
                 + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
-            + " @lre@A:@whi@ "
+            + " @lre@Att:@whi@ "
             + base_level[SKILL_ATTACK]
-            + " @lre@S:@whi@ "
+            + " @lre@Str:@whi@ "
             + base_level[SKILL_STRENGTH]
-            + " @lre@D:@whi@ "
+            + " @lre@Def:@whi@ "
             + base_level[SKILL_DEFENSE]
-            + " @lre@H:@whi@ "
+            + " @lre@Hits:@whi@ "
             + base_level[SKILL_HP]
-            + " @lre@R:@whi@ "
+            + " @lre@Ranged:@whi@ "
             + base_level[SKILL_RANGED]
-            + " @lre@P:@whi@ "
+            + " @lre@Prayer:@whi@ "
             + base_level[SKILL_PRAYER]
-            + " @lre@M:@whi@ "
+            + " @lre@Magic:@whi@ "
             + base_level[SKILL_MAGIC];
       } else if ("cmbnocolor"
           .equals(command)) { // this command stays within character limits and is safe.
