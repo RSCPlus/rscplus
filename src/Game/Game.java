@@ -94,6 +94,7 @@ public class Game extends JFrame
       Game.getInstance().resizeFrameWithContents();
     }
 
+    // Allows drag-n-dropping a replay onto the game window
     setDropTarget(ReplayQueue.dropReplays);
   }
 

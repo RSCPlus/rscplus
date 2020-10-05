@@ -402,12 +402,18 @@ public class Launcher extends JFrame implements Runnable {
 
         return stream;
     }
+
+  public static void finishedLoading() {
+      // Remember world setting
+      Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+  }
+
   /** @return the window */
   public static ConfigWindow getConfigWindow() {
     return configWindow;
   }
 
-  /** @param window the window to set */
+  /** @param configWindow the window to set */
   public static void setConfigWindow(ConfigWindow configWindow) {
     Launcher.configWindow = configWindow;
   }
@@ -417,7 +423,7 @@ public class Launcher extends JFrame implements Runnable {
     return queueWindow;
   }
 
-  /** @param window the window to set */
+  /** @param queueWindow the window to set */
   public static void setQueueWindow(QueueWindow queueWindow) {
     Launcher.queueWindow = queueWindow;
   }
