@@ -507,7 +507,7 @@ public class Settings {
     LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("lite", Logger.Type.WARN.id);
-    LOG_VERBOSITY.put("default", Logger.Type.GAME.id);
+    LOG_VERBOSITY.put("default", Logger.Type.INFO.id);
     LOG_VERBOSITY.put("heavy", Logger.Type.INFO.id);
     LOG_VERBOSITY.put("all", Logger.Type.DEBUG.id);
     LOG_VERBOSITY.put("custom", getPropInt(props, "log_verbosity", LOG_VERBOSITY.get("default")));
@@ -682,7 +682,7 @@ public class Settings {
     SHOW_PLAYER_POSITION.put("vanilla", false);
     SHOW_PLAYER_POSITION.put("vanilla_resizable", false);
     SHOW_PLAYER_POSITION.put("lite", false);
-    SHOW_PLAYER_POSITION.put("default", true);
+    SHOW_PLAYER_POSITION.put("default", false);
     SHOW_PLAYER_POSITION.put("heavy", true);
     SHOW_PLAYER_POSITION.put("all", true);
     SHOW_PLAYER_POSITION.put(
