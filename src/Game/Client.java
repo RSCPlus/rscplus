@@ -709,7 +709,7 @@ public class Client {
     }
 
     // Get keybind to open the config window so that we can tell the player how to open it
-    if (Settings.WELCOME_ENABLED.get(Settings.currentProfile)) {
+    if (Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile)) {
       String configWindowShortcut = "";
       for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
         if ("show_config_window".equals(kbs.getCommandName())) {
