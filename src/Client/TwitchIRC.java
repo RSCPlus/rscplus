@@ -123,7 +123,7 @@ public class TwitchIRC implements Runnable {
           m_writer.flush();
           // FIXME: Consider thread safety for applet GUI updates outside of its thread?
           Client.displayMessage(
-              "@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL + "]@yel@ Twitch chat",
+              "@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "]@yel@ Twitch chat",
               Client.CHAT_CHAT);
           Client.displayMessage(
               "@lre@Messages starting with @whi@/@lre@ are sent to Twitch.", Client.CHAT_CHAT);
@@ -166,12 +166,12 @@ public class TwitchIRC implements Runnable {
               && message.endsWith(Character.toString((char) 1))) {
             message = message.substring(7, message.length() - 1);
             Client.displayMessage(
-                "@red@[" + Settings.TWITCH_CHANNEL + "] " + username + " @lre@" + message,
+                "@red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] " + username + " @lre@" + message,
                 Client.CHAT_CHAT);
           } else {
             Client.displayMessage(
                 "@red@["
-                    + Settings.TWITCH_CHANNEL
+                    + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
                     + "] "
                     + username
                     + "@yel@: "
@@ -192,18 +192,21 @@ public class TwitchIRC implements Runnable {
     } catch (Exception e) {
     }
 
-    // Reconnect on disconnect
+
+    // warn user that twitch irc has lost connection
     if (active) {
       Client.displayMessage(
           "@yel@Disconnected from @red@["
               + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
-              + "] @yel@, reconnecting in 10 seconds...",
+              + "]@yel@, log back if you'd like to continue chatting.",
           Client.CHAT_CHAT);
+      /* Reconnect on disconnect
       try {
         Thread.sleep(10000);
       } catch (Exception e) {
       }
       connect();
+      */
     }
   }
 
@@ -258,6 +261,8 @@ public class TwitchIRC implements Runnable {
             Client.CHAT_CHAT);
       }
     } catch (Exception e) {
+      if (Settings.LOG_VERBOSITY.get(Settings.currentProfile) >= Logger.Type.DEBUG.id)
+        e.printStackTrace();
     }
   }
 

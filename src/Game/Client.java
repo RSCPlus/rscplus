@@ -678,8 +678,6 @@ public class Client {
     state = STATE_GAME;
     bank_active_page = 0;
     combat_timer = 0;
-
-    if (TwitchIRC.isUsing()) twitch.connect();
   }
 
   public static void login_hook() {
@@ -742,6 +740,7 @@ public class Client {
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
+    twitch.disconnect();
     Replay.closeReplayRecording();
   }
 
@@ -861,7 +860,7 @@ public class Client {
       } else {
         twitch.sendMessage(message, true);
       }
-      return "::";
+      return "::null";
     }
 
     line = processClientChatCommand(line);
