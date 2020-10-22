@@ -1153,6 +1153,16 @@ public class Replay {
         output_checksum.update(buffer.array());
         output.write(buffer.array());
         output.flush();
+
+        /*
+         // Debug viewing entire output stream
+        System.out.print("Writing Output Stream: ");
+        for (byte h : buffer.array()) {
+            System.out.print(String.format("%d ",  Byte.toUnsignedInt(h)));
+        }
+        System.out.println();
+        */
+
         return;
       }
 
@@ -1163,6 +1173,16 @@ public class Replay {
       output_checksum.update(buffer.array());
       output.write(buffer.array());
       output.flush();
+
+      /*
+      // Debug viewing entire output stream
+      System.out.print("Writing Output Stream: ");
+      for (byte h : buffer.array()) {
+        System.out.print(String.format("%d ",  Byte.toUnsignedInt(h)));
+      }
+      System.out.println();
+      */
+
     } catch (Exception e) {
       e.printStackTrace();
       shutdown_error();
