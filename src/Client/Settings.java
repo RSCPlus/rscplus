@@ -69,7 +69,7 @@ public class Settings {
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_X = new HashMap<String, Integer>();
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_Y = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> WELCOME_ENABLED = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> REMIND_HOW_TO_OPEN_SETTINGS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOAD_CHAT_HISTORY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMBAT_MENU_SHOWN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMBAT_MENU_HIDDEN = new HashMap<String, Boolean>();
@@ -261,14 +261,14 @@ public class Settings {
     CHECK_UPDATES.put(
         "custom", getPropBoolean(props, "check_updates", CHECK_UPDATES.get("default")));
 
-    WELCOME_ENABLED.put("vanilla", false);
-    WELCOME_ENABLED.put("vanilla_resizable", false);
-    WELCOME_ENABLED.put("lite", false);
-    WELCOME_ENABLED.put("default", true);
-    WELCOME_ENABLED.put("heavy", true);
-    WELCOME_ENABLED.put("all", true);
-    WELCOME_ENABLED.put(
-        "custom", getPropBoolean(props, "welcome_enabled", WELCOME_ENABLED.get("default")));
+    REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla", false);
+    REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla_resizable", false);
+    REMIND_HOW_TO_OPEN_SETTINGS.put("lite", false);
+    REMIND_HOW_TO_OPEN_SETTINGS.put("default", true);
+    REMIND_HOW_TO_OPEN_SETTINGS.put("heavy", true);
+    REMIND_HOW_TO_OPEN_SETTINGS.put("all", true);
+    REMIND_HOW_TO_OPEN_SETTINGS.put(
+        "custom", getPropBoolean(props, "welcome_enabled", REMIND_HOW_TO_OPEN_SETTINGS.get("default")));
 
     LOAD_CHAT_HISTORY.put("vanilla", false);
     LOAD_CHAT_HISTORY.put("vanilla_resizable", false);
@@ -1456,7 +1456,7 @@ public class Settings {
       props.setProperty("custom_client_size_x", Integer.toString(CUSTOM_CLIENT_SIZE_X.get(preset)));
       props.setProperty("custom_client_size_y", Integer.toString(CUSTOM_CLIENT_SIZE_Y.get(preset)));
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
-      props.setProperty("welcome_enabled", Boolean.toString(WELCOME_ENABLED.get(preset)));
+      props.setProperty("welcome_enabled", Boolean.toString(REMIND_HOW_TO_OPEN_SETTINGS.get(preset)));
       props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY.get(preset)));
       props.setProperty("combat_menu", Boolean.toString(COMBAT_MENU_SHOWN.get(preset)));
       props.setProperty("combat_menu_hidden", Boolean.toString(COMBAT_MENU_HIDDEN.get(preset)));

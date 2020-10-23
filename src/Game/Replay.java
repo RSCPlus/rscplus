@@ -1153,6 +1153,16 @@ public class Replay {
         output_checksum.update(buffer.array());
         output.write(buffer.array());
         output.flush();
+
+        /*
+         // Debug viewing entire output stream
+        System.out.print("Writing Output Stream: ");
+        for (byte h : buffer.array()) {
+            System.out.print(String.format("%d ",  Byte.toUnsignedInt(h)));
+        }
+        System.out.println();
+        */
+
         return;
       }
 
@@ -1163,6 +1173,16 @@ public class Replay {
       output_checksum.update(buffer.array());
       output.write(buffer.array());
       output.flush();
+
+      /*
+      // Debug viewing entire output stream
+      System.out.print("Writing Output Stream: ");
+      for (byte h : buffer.array()) {
+        System.out.print(String.format("%d ",  Byte.toUnsignedInt(h)));
+      }
+      System.out.println();
+      */
+
     } catch (Exception e) {
       e.printStackTrace();
       shutdown_error();
@@ -1212,12 +1232,14 @@ public class Replay {
   }
 
   public static void checkPoint(int opcode, int len) {
-    if (input == null) return;
+    if (opcode == 182) { // SERVER_OPCODE_SHOW_WELCOME
 
-    if (isRecording) {
-      // received packet 182, set flag, do not dump bytes
-      // Logger.Debug(String.format("Decrypted opcode: %d", opcode)); // Debug Info
-      if (opcode == 182) {
+      // getting opcode 182, we can tell that player very recently managed to log in successfully.
+      Client.allTheWayLoggedIn();
+
+      // received packet 182 while recording, set flag, do not dump bytes
+      if (input == null) return;
+      if (isRecording) {
         // in here probably would need to check the position
         // don't care about the packet if 182, just rewrite it using the enc opcode
         try {

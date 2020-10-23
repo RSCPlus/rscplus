@@ -160,9 +160,7 @@ public class ReplayServer implements Runnable {
       sock = ServerSocketChannel.open();
       // last attempt 10 + default port
       usePort = port == -1 ? Replay.DEFAULT_PORT + 10 : port;
-      if (usePort != Replay.DEFAULT_PORT) {
-        Replay.changePort(usePort);
-      }
+      Replay.changePort(usePort);
       sock.bind(new InetSocketAddress(usePort));
 
       // Let's connect our client

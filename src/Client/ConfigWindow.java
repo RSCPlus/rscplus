@@ -2102,7 +2102,7 @@ public class ConfigWindow {
     generalPanelClientSizeYSpinner.setValue(
         Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
-    generalPanelWelcomeEnabled.setSelected(Settings.WELCOME_ENABLED.get(Settings.currentProfile));
+    generalPanelWelcomeEnabled.setSelected(Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
     // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
@@ -2316,7 +2316,7 @@ public class ConfigWindow {
         Settings.currentProfile,
         ((SpinnerNumberModel) (generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
-    Settings.WELCOME_ENABLED.put(Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
+    Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
     // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
     // generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(

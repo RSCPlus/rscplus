@@ -701,6 +701,45 @@ public class Client {
     }
   }
 
+  // triggered on receiving Welcome screen; opcode 182
+  public static void allTheWayLoggedIn() {
+    if (Settings.FIRST_TIME.get(Settings.currentProfile)) {
+      Settings.FIRST_TIME.put(Settings.currentProfile, false);
+      Settings.save();
+    }
+
+    // Get keybind to open the config window so that we can tell the player how to open it
+    if (Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile)) {
+      String configWindowShortcut = "";
+      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+        if ("show_config_window".equals(kbs.getCommandName())) {
+          configWindowShortcut = kbs.getFormattedKeybindText();
+          break;
+        }
+      }
+      if ("".equals(configWindowShortcut)) {
+        Logger.Error("Could not find the keybind for the config window!");
+        configWindowShortcut = "<Keybind error>";
+      }
+
+      displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
+      displayMessage("@mag@Open the settings with @yel@"
+              + configWindowShortcut
+              + "@mag@ or @yel@right-click the tray icon",
+          CHAT_QUEST);
+    }
+
+    if (TwitchIRC.isUsing()) twitch.connect();
+
+    // Check for updates every login at most once per hour,
+    // so users are notified when an update is available
+    long currentTime = System.currentTimeMillis();
+    if (Settings.CHECK_UPDATES.get(Settings.currentProfile) && currentTime >= updateTimer) {
+      checkForUpdate(false);
+      updateTimer = currentTime + (60 * 60 * 1000);
+    }
+  }
+
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
     Replay.closeReplayRecording();
@@ -1657,45 +1696,6 @@ public class Client {
 
     if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
       if (username != null) lastpm_username = username;
-    }
-
-    if (message.startsWith("Welcome to RuneScape!")
-        && Settings.WELCOME_ENABLED.get(Settings.currentProfile)) {
-      // because this section of code is triggered when the "Welcome to RuneScape!" message first
-      // appears, we can use it to do some first time set up
-      if (Settings.FIRST_TIME.get(Settings.currentProfile)) {
-        Settings.FIRST_TIME.put(Settings.currentProfile, false);
-        Settings.save();
-      }
-
-      // Get keybind to open the config window
-      String configWindowShortcut = "";
-      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-        if ("show_config_window".equals(kbs.getCommandName())) {
-          configWindowShortcut = kbs.getFormattedKeybindText();
-          break;
-        }
-      }
-      if ("".equals(configWindowShortcut)) {
-        Logger.Error("Could not find the keybind for the config window!");
-        configWindowShortcut = "<Keybind error>";
-      }
-
-      // TODO: possibly put this in welcome screen or at least _after_ "Welcome to RuneScape"
-      displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
-      displayMessage(
-          "@mag@Open the settings with @yel@"
-              + configWindowShortcut
-              + "@mag@ or @yel@right-click the tray icon",
-          CHAT_QUEST);
-
-      // Check for updates every login in hour intervals, so users are notified when an update is
-      // available
-      long currentTime = System.currentTimeMillis();
-      if (Settings.CHECK_UPDATES.get(Settings.currentProfile) && currentTime >= updateTimer) {
-        checkForUpdate(false);
-        updateTimer = currentTime + (60 * 60 * 1000);
-      }
     }
 
     // Don't output private messages if option is turned on and replaying
