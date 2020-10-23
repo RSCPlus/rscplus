@@ -157,6 +157,9 @@ public class Camera {
   }
 
   public static void strafe(float speed) {
+    if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile) || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+      return;
+    }
     float rotation_degrees = ((float) rotation / 255.0f) * 360.0f + 90.0f;
     float xDiff = Util.lengthdir_x(64, rotation_degrees);
     float yDiff = Util.lengthdir_y(64, rotation_degrees);
@@ -164,6 +167,9 @@ public class Camera {
   }
 
   public static void move(float speed) {
+    if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile) || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+      return;
+    }
     float rotation_degrees = ((float) rotation / 255.0f) * 360.0f;
     float xDiff = Util.lengthdir_x(64, rotation_degrees);
     float yDiff = Util.lengthdir_y(64, rotation_degrees);

@@ -100,8 +100,9 @@ public class TwitchIRC implements Runnable {
    * @return If the client is currently configured to use Twitch
    */
   public static boolean isUsing() {
-    return Settings.TWITCH_CHANNEL.get(Settings.currentProfile).length()
-        > 0; // TODO maybe check for an OAUTH/password also?
+    return Settings.TWITCH_CHANNEL.get(Settings.currentProfile).length() > 0 &&
+        Settings.TWITCH_OAUTH.get(Settings.currentProfile).length() > 0 &&
+        Settings.TWITCH_CHAT_ENABLED.get(Settings.currentProfile);
   }
 
   /**
@@ -198,7 +199,7 @@ public class TwitchIRC implements Runnable {
       Client.displayMessage(
           "@yel@Disconnected from @red@["
               + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
-              + "]@yel@, log back if you'd like to continue chatting.",
+              + "]@yel@, log back in if you'd like to continue chatting.",
           Client.CHAT_CHAT);
       /* Reconnect on disconnect
       try {

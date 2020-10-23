@@ -1012,10 +1012,14 @@ public class Renderer {
       drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
 
       setAlpha(g2, 0.5f);
-      if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
-        g2.setColor(color_low);
+      if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+        g2.setColor(color_hp);
       } else {
-        g2.setColor(color_text);
+        if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
+          g2.setColor(color_low);
+        } else {
+          g2.setColor(color_text);
+        }
       }
       g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
@@ -1024,8 +1028,13 @@ public class Renderer {
         g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
 
+
       setAlpha(g2, 1.0f);
-      drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+      if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+        drawShadowText(g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+      } else {
+        drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+      }
       // Handle replay record selection click
       if (MouseHandler.x >= bounds.x
           && MouseHandler.x <= bounds.x + bounds.width

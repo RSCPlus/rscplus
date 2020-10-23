@@ -151,10 +151,12 @@ public class Item {
   }
 
   /**
-   * Patches quest only edible item commands specified by {@link Settings#COMMANDS_PATCH_TYPE}.
+   * Patches quest only edible item commands specified by Settings.COMMANDS_PATCH_TYPE.
    * Swaps around the option to eat/drink
    */
   public static boolean shouldPatch(int index) {
+    if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return false;
+
     int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
     // ids of giant Carp, chocolaty milk, Rock cake, nightshade
     int[] edible_quest_item_ids = {718, 770, 1061, 1086};
