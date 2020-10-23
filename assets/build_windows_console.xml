@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>console</headerType>
   <jar>rscplus.jar</jar>
-  <outfile>C:\Users\Wolf\Downloads\rscplus-windows\rscplus_console.exe</outfile>
+  <outfile>rscplus_console.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Users\Wolf\Downloads\rscplus-windows\jre\rscplus.ico</icon>
+  <icon>rscplus.ico</icon>
   <jre>
     <path>jre</path>
     <bundledJre64Bit>false</bundledJre64Bit>
