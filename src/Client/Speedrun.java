@@ -231,7 +231,7 @@ public class Speedrun {
         );
 
         // Header information
-        speedrunData.writeInt(1533546026); // unix timestamp that RSC was taken offline
+        speedrunData.writeInt(1533546026); // unix timestamp that RSC was taken offline (2018-08-06 9:00:26 UTC)
         speedrunData.writeBoolean(!endTheRUNNN);
         if (endTheRUNNN) {
           endTheRUNNN = false;
