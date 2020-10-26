@@ -100,9 +100,9 @@ public class TwitchIRC implements Runnable {
    * @return If the client is currently configured to use Twitch
    */
   public static boolean isUsing() {
-    return Settings.TWITCH_CHANNEL.get(Settings.currentProfile).length() > 0 &&
-        Settings.TWITCH_OAUTH.get(Settings.currentProfile).length() > 0 &&
-        Settings.TWITCH_CHAT_ENABLED.get(Settings.currentProfile);
+    return Settings.TWITCH_CHANNEL.get(Settings.currentProfile).length() > 0
+        && Settings.TWITCH_OAUTH.get(Settings.currentProfile).length() > 0
+        && Settings.TWITCH_CHAT_ENABLED.get(Settings.currentProfile);
   }
 
   /**
@@ -124,7 +124,9 @@ public class TwitchIRC implements Runnable {
           m_writer.flush();
           // FIXME: Consider thread safety for applet GUI updates outside of its thread?
           Client.displayMessage(
-              "@yel@Connected to @red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "]@yel@ Twitch chat",
+              "@yel@Connected to @red@["
+                  + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
+                  + "]@yel@ Twitch chat",
               Client.CHAT_CHAT);
           Client.displayMessage(
               "@lre@Messages starting with @whi@/@lre@ are sent to Twitch.", Client.CHAT_CHAT);
@@ -167,7 +169,12 @@ public class TwitchIRC implements Runnable {
               && message.endsWith(Character.toString((char) 1))) {
             message = message.substring(7, message.length() - 1);
             Client.displayMessage(
-                "@red@[" + Settings.TWITCH_CHANNEL.get(Settings.currentProfile) + "] " + username + " @lre@" + message,
+                "@red@["
+                    + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
+                    + "] "
+                    + username
+                    + " @lre@"
+                    + message,
                 Client.CHAT_CHAT);
           } else {
             Client.displayMessage(
@@ -192,7 +199,6 @@ public class TwitchIRC implements Runnable {
       }
     } catch (Exception e) {
     }
-
 
     // warn user that twitch irc has lost connection
     if (active) {

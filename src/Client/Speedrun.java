@@ -19,7 +19,6 @@
 package Client;
 
 import Game.Client;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +59,10 @@ public class Speedrun {
   }
 
   public enum messageGoal {
-    BLACK_KNIGHTS_FORTRESS(1, "Black Knight's Fortress", "Well done.You have completed the Black Knights fortress quest"),
+    BLACK_KNIGHTS_FORTRESS(
+        1,
+        "Black Knight's Fortress",
+        "Well done.You have completed the Black Knights fortress quest"),
     DRAGON_SLAYER(3, "Dragon Slayer", "Well done you have completed the dragon slayer quest");
 
     messageGoal(int id, String name, String systemMessage) {
@@ -73,6 +75,7 @@ public class Speedrun {
     public String name;
     public String systemMessage;
   }
+
   static int goalsDefined = messageGoal.values().length + coordinateGoal.values().length;
   static int[] completionTicks = new int[goalsDefined];
   static long[] completionTimes = new long[goalsDefined];
@@ -114,13 +117,17 @@ public class Speedrun {
         }
         loadResult = loadSpeedrun();
 
-        switch(loadResult) {
+        switch (loadResult) {
           case REASON_ALL_OK:
             Client.displayMessage("Successfully loaded previous run data.", Client.CHAT_QUEST);
             beginSpeedrun(timeCalled);
             break;
           case REASON_LAST_SPEEDRUN_FINISHED:
-            Client.displayMessage(String.format("Last speedrun (%s) finished. Starting new speedrun at %d", finishedSpeedrun, timeCalled), Client.CHAT_QUEST);
+            Client.displayMessage(
+                String.format(
+                    "Last speedrun (%s) finished. Starting new speedrun at %d",
+                    finishedSpeedrun, timeCalled),
+                Client.CHAT_QUEST);
             beginSpeedrun(timeCalled);
             break;
           case REASON_NO_PREVIOUS_FILES:
@@ -128,23 +135,38 @@ public class Speedrun {
             break;
           case REASON_DIFFERENT_ACCOUNT:
             resetSpeedrun();
-            Client.displayMessage("@red@Not logged into your existing speedrun's account, but speedrunner mode is active.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "@red@Not logged into your existing speedrun's account, but speedrunner mode is active.",
+                Client.CHAT_QUEST);
             Client.displayMessage("@ora@No new speedrun can begin.", Client.CHAT_QUEST);
-            Client.displayMessage("@yel@Rectify this by taking one of the following actions:", Client.CHAT_QUEST);
-            Client.displayMessage("1.) Delete your existing speedrun attempt from " + Settings.Dir.SPEEDRUN, Client.CHAT_QUEST);
-            Client.displayMessage("2.) Log back in to your speedrun account and finish the run.", Client.CHAT_QUEST);
-            Client.displayMessage("3.) Turn off speedrun mode in the config settings.", Client.CHAT_QUEST);
-            Client.displayMessage("4.) Ignore this message & just play but without speedrun timer features.", Client.CHAT_QUEST);
-            Client.displayMessage("@yel@Use <CTRL-O> or right click the tray icon to enter Settings.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "@yel@Rectify this by taking one of the following actions:", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "1.) Delete your existing speedrun attempt from " + Settings.Dir.SPEEDRUN,
+                Client.CHAT_QUEST);
+            Client.displayMessage(
+                "2.) Log back in to your speedrun account and finish the run.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "3.) Turn off speedrun mode in the config settings.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "4.) Ignore this message & just play but without speedrun timer features.",
+                Client.CHAT_QUEST);
+            Client.displayMessage(
+                "@yel@Use <CTRL-O> or right click the tray icon to enter Settings.",
+                Client.CHAT_QUEST);
             break;
           case REASON_INVALID_FILE:
             resetSpeedrun();
-            Client.displayMessage("@red@There is some garbage file in your speedruns folder. Please remove it.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "@red@There is some garbage file in your speedruns folder. Please remove it.",
+                Client.CHAT_QUEST);
             break;
           case REASON_UNEXPECTED:
           default:
             resetSpeedrun();
-            Client.displayMessage("@red@Exited from loadSpeedrun() in a strange way. Not starting speedrun.", Client.CHAT_QUEST);
+            Client.displayMessage(
+                "@red@Exited from loadSpeedrun() in a strange way. Not starting speedrun.",
+                Client.CHAT_QUEST);
             break;
         }
       }
@@ -165,7 +187,8 @@ public class Speedrun {
 
   public static void addStartTime(long startTime) {
     startTimes.add(startTime);
-    Client.displayMessage(String.format("Starting segment at millisecond %d!!", startTime), Client.CHAT_QUEST);
+    Client.displayMessage(
+        String.format("Starting segment at millisecond %d!!", startTime), Client.CHAT_QUEST);
   }
 
   public static void endTheRun() {
@@ -176,14 +199,18 @@ public class Speedrun {
 
   public static void addEndTime(long endTime) {
     endTimes.add(endTime);
-    Client.displayMessage(String.format("Ending segment at millisecond %d!!", endTime), Client.CHAT_QUEST);
+    Client.displayMessage(
+        String.format("Ending segment at millisecond %d!!", endTime), Client.CHAT_QUEST);
     printTimeSinceLastSegment(true);
     printTotalTicks();
   }
 
   public static void printGoalCompletion(String name, int ticks, long time) {
-    Client.displayMessage(String.format("Completed %s in %d ticks! (%d millis since last segment)",
-        name, ticks, calcTimeSinceLastSegment(time)), Client.CHAT_QUEST);
+    Client.displayMessage(
+        String.format(
+            "Completed %s in %d ticks! (%d millis since last segment)",
+            name, ticks, calcTimeSinceLastSegment(time)),
+        Client.CHAT_QUEST);
   }
 
   public static void printTimeSinceLastSegment(boolean referenceEndTimes) {
@@ -193,24 +220,23 @@ public class Speedrun {
     } else {
       timeDelta = calcTimeSinceLastSegment(System.currentTimeMillis());
     }
-    Client.displayMessage(String.format("Millis since last time segment: %d", timeDelta), Client.CHAT_QUEST);
+    Client.displayMessage(
+        String.format("Millis since last time segment: %d", timeDelta), Client.CHAT_QUEST);
   }
 
   public static long calcTimeSinceLastSegment(long millis) {
     int startSize = startTimes.size();
-    if (startSize >= 1)
-      return millis - startTimes.get(startSize - 1);
-    else
-      return millis;
+    if (startSize >= 1) return millis - startTimes.get(startSize - 1);
+    else return millis;
   }
 
   public static void incrementTicks() {
-    if (active)
-      totalTicks++;
+    if (active) totalTicks++;
   }
 
   public static void printTotalTicks() {
-    Client.displayMessage(String.format("Total ticks spent in speedrun: %d", totalTicks), Client.CHAT_QUEST);
+    Client.displayMessage(
+        String.format("Total ticks spent in speedrun: %d", totalTicks), Client.CHAT_QUEST);
   }
 
   public static void saveAndQuitSpeedrun() {
@@ -219,19 +245,20 @@ public class Speedrun {
       active = false;
       addEndTime(System.currentTimeMillis());
       try {
-        DataOutputStream speedrunData = new DataOutputStream(
-          new BufferedOutputStream(
-              new FileOutputStream(
-                  new File(
-                  Settings.Dir.SPEEDRUN + String.format(
-                      "/%d.%s.bin", startTimes.get(0), Client.username_login.replaceAll("[^a-zA-Z0-9]", ""))
-                  )
-              )
-          )
-        );
+        DataOutputStream speedrunData =
+            new DataOutputStream(
+                new BufferedOutputStream(
+                    new FileOutputStream(
+                        new File(
+                            Settings.Dir.SPEEDRUN
+                                + String.format(
+                                    "/%d.%s.bin",
+                                    startTimes.get(0),
+                                    Client.username_login.replaceAll("[^a-zA-Z0-9]", ""))))));
 
         // Header information
-        speedrunData.writeInt(1533546026); // unix timestamp that RSC was taken offline (2018-08-06 9:00:26 UTC)
+        speedrunData.writeInt(
+            1533546026); // unix timestamp that RSC was taken offline (2018-08-06 9:00:26 UTC)
         speedrunData.writeBoolean(!endTheRUNNN);
         if (endTheRUNNN) {
           endTheRUNNN = false;
@@ -241,8 +268,7 @@ public class Speedrun {
         speedrunData.writeInt(endTimes.size());
         speedrunData.writeInt(goalsDefined);
         speedrunData.writeInt(Client.username_login.length());
-        for (int i = 0; i < 32; i++)
-          speedrunData.writeInt(0); // reserved
+        for (int i = 0; i < 32; i++) speedrunData.writeInt(0); // reserved
 
         // Speedrun data
         for (long time : startTimes) {
@@ -269,11 +295,11 @@ public class Speedrun {
 
   public static int loadSpeedrun() {
     File[] fList = new File(Settings.Dir.SPEEDRUN).listFiles();
-    if (fList.length == 0)
-      return REASON_NO_PREVIOUS_FILES;
+    if (fList.length == 0) return REASON_NO_PREVIOUS_FILES;
     Arrays.sort(fList);
     File newestData = fList[fList.length - 1];
-    // This file can be "found" again later because the filename is based on startTimes[0], which will remain constant.
+    // This file can be "found" again later because the filename is based on startTimes[0], which
+    // will remain constant.
     Logger.Info("Attempting to load speedrun at " + newestData.getAbsolutePath());
     try {
       DataInputStream speedrunData =
@@ -293,8 +319,7 @@ public class Speedrun {
       int endTimesSize = speedrunData.readInt();
       int goalsDefined = speedrunData.readInt();
       int usernameLength = speedrunData.readInt();
-      for (int i = 0; i < 32; i++)
-        speedrunData.readInt(); // reserved
+      for (int i = 0; i < 32; i++) speedrunData.readInt(); // reserved
 
       startTimes.clear();
       for (int i = 0; i < startTimesSize; i++) {
@@ -310,8 +335,7 @@ public class Speedrun {
         completionTimes[i] = speedrunData.readLong();
       }
       char[] usernameArr = new char[usernameLength];
-      for (int i = 0; i < usernameLength; i++)
-        usernameArr[i] = speedrunData.readChar();
+      for (int i = 0; i < usernameLength; i++) usernameArr[i] = speedrunData.readChar();
       String loadedUsername = new String(usernameArr);
 
       if (Client.username_login.equalsIgnoreCase(loadedUsername)) {

@@ -151,8 +151,8 @@ public class Item {
   }
 
   /**
-   * Patches quest only edible item commands specified by Settings.COMMANDS_PATCH_TYPE.
-   * Swaps around the option to eat/drink
+   * Patches quest only edible item commands specified by Settings.COMMANDS_PATCH_TYPE. Swaps around
+   * the option to eat/drink
    */
   public static boolean shouldPatch(int index) {
     if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return false;

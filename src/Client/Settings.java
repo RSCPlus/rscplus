@@ -44,7 +44,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20201006.140203;
+  public static final double VERSION_NUMBER = 20201026.144615;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -69,7 +69,8 @@ public class Settings {
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_X = new HashMap<String, Integer>();
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_Y = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> REMIND_HOW_TO_OPEN_SETTINGS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> REMIND_HOW_TO_OPEN_SETTINGS =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOAD_CHAT_HISTORY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMBAT_MENU_SHOWN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMBAT_MENU_HIDDEN = new HashMap<String, Boolean>();
@@ -271,7 +272,8 @@ public class Settings {
     REMIND_HOW_TO_OPEN_SETTINGS.put("heavy", true);
     REMIND_HOW_TO_OPEN_SETTINGS.put("all", true);
     REMIND_HOW_TO_OPEN_SETTINGS.put(
-        "custom", getPropBoolean(props, "welcome_enabled", REMIND_HOW_TO_OPEN_SETTINGS.get("default")));
+        "custom",
+        getPropBoolean(props, "welcome_enabled", REMIND_HOW_TO_OPEN_SETTINGS.get("default")));
 
     LOAD_CHAT_HISTORY.put("vanilla", false);
     LOAD_CHAT_HISTORY.put("vanilla_resizable", false);
@@ -1490,7 +1492,8 @@ public class Settings {
       props.setProperty("custom_client_size_x", Integer.toString(CUSTOM_CLIENT_SIZE_X.get(preset)));
       props.setProperty("custom_client_size_y", Integer.toString(CUSTOM_CLIENT_SIZE_Y.get(preset)));
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
-      props.setProperty("welcome_enabled", Boolean.toString(REMIND_HOW_TO_OPEN_SETTINGS.get(preset)));
+      props.setProperty(
+          "welcome_enabled", Boolean.toString(REMIND_HOW_TO_OPEN_SETTINGS.get(preset)));
       props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY.get(preset)));
       props.setProperty("combat_menu", Boolean.toString(COMBAT_MENU_SHOWN.get(preset)));
       props.setProperty("combat_menu_hidden", Boolean.toString(COMBAT_MENU_HIDDEN.get(preset)));
@@ -1581,7 +1584,7 @@ public class Settings {
       props.setProperty("show_logindetails", Boolean.toString(SHOW_LOGIN_IP_ADDRESS.get(preset)));
       props.setProperty("save_logininfo", Boolean.toString(SAVE_LOGININFO.get(preset)));
       props.setProperty("speedrun_active", Boolean.toString(SPEEDRUNNER_MODE_ACTIVE.get(preset)));
-      //props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
+      // props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 
       //// replay
       props.setProperty("record_kb_mouse", Boolean.toString(RECORD_KB_MOUSE.get(preset)));
@@ -1855,8 +1858,7 @@ public class Settings {
   }
 
   public static void endSpeedrun() {
-    if (!SPEEDRUNNER_MODE_ACTIVE.get(currentProfile))
-      return;
+    if (!SPEEDRUNNER_MODE_ACTIVE.get(currentProfile)) return;
     Speedrun.endTheRun();
     save();
   }

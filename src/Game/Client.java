@@ -723,7 +723,8 @@ public class Client {
       }
 
       displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
-      displayMessage("@mag@Open the settings with @yel@"
+      displayMessage(
+          "@mag@Open the settings with @yel@"
               + configWindowShortcut
               + "@mag@ or @yel@right-click the tray icon",
           CHAT_QUEST);
@@ -1348,7 +1349,7 @@ public class Client {
 
   public static int attack_menu_hook(int cmpVar) {
     if (Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile)
-    && !Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+        && !Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
       return 10;
     } else {
       return cmpVar;

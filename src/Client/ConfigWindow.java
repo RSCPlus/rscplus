@@ -1207,7 +1207,8 @@ public class ConfigWindow {
 
     addSettingsHeader(streamingPanel, "Streaming & Privacy");
 
-    streamingPanelTwitchChatIntegrationEnabledCheckbox = addCheckbox("Enable Twitch chat integration", streamingPanel);
+    streamingPanelTwitchChatIntegrationEnabledCheckbox =
+        addCheckbox("Enable Twitch chat integration", streamingPanel);
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setToolTipText(
         "If this box is checked, and the 3 relevant text fields are filled out, you will connect to a chat channel on login.");
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(2, 0, 9, 0));
@@ -1225,8 +1226,7 @@ public class ConfigWindow {
     streamingPanelTwitchChannelNamePanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
     JLabel streamingPanelTwitchChannelNameLabel = new JLabel("Twitch channel to chat in: ");
-    streamingPanelTwitchChannelNameLabel.setToolTipText(
-        "The Twitch channel you want to chat in");
+    streamingPanelTwitchChannelNameLabel.setToolTipText("The Twitch channel you want to chat in");
     streamingPanelTwitchChannelNamePanel.add(streamingPanelTwitchChannelNameLabel);
     streamingPanelTwitchChannelNameLabel.setAlignmentY((float) 0.9);
 
@@ -1263,7 +1263,8 @@ public class ConfigWindow {
     streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
-    JLabel streamingPanelTwitchOAuthLabel = new JLabel("Your Twitch OAuth token (not your Stream key): ");
+    JLabel streamingPanelTwitchOAuthLabel =
+        new JLabel("Your Twitch OAuth token (not your Stream key): ");
     streamingPanelTwitchOAuthLabel.setToolTipText("Your Twitch OAuth token (not your Stream Key)");
     streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthLabel);
     streamingPanelTwitchOAuthLabel.setAlignmentY((float) 0.9);
@@ -1290,7 +1291,8 @@ public class ConfigWindow {
 
     addSettingsHeader(streamingPanel, "Speedrunner Mode");
     JLabel speedrunnerModeExplanation =
-        new JLabel("<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
+        new JLabel(
+            "<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
     speedrunnerModeExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
     streamingPanel.add(speedrunnerModeExplanation);
 
@@ -1298,7 +1300,8 @@ public class ConfigWindow {
     streamingPanelSpeedrunnerCheckbox.setToolTipText("Speedrunner Mode, see above explanation");
 
     JLabel speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation =
-        new JLabel("<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
+        new JLabel(
+            "<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
     streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
 
     /* shame to write all this code and then not need it...
@@ -2154,7 +2157,8 @@ public class ConfigWindow {
     generalPanelClientSizeYSpinner.setValue(
         Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
-    generalPanelWelcomeEnabled.setSelected(Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
+    generalPanelWelcomeEnabled.setSelected(
+        Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
     // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
@@ -2326,7 +2330,7 @@ public class ConfigWindow {
         Settings.SAVE_LOGININFO.get(Settings.currentProfile));
     streamingPanelSpeedrunnerCheckbox.setSelected(
         Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile));
-    //streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
+    // streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
 
     // Replay tab
     replayPanelRecordAutomaticallyCheckbox.setSelected(
@@ -2373,7 +2377,8 @@ public class ConfigWindow {
         Settings.currentProfile,
         ((SpinnerNumberModel) (generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
-    Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
+    Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
+        Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
     // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
     // generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(
@@ -2527,7 +2532,7 @@ public class ConfigWindow {
         Settings.currentProfile, streamingPanelSaveLoginCheckbox.isSelected());
     Settings.SPEEDRUNNER_MODE_ACTIVE.put(
         Settings.currentProfile, streamingPanelSpeedrunnerCheckbox.isSelected());
-    //Settings.SPEEDRUNNER_USERNAME.put(
+    // Settings.SPEEDRUNNER_USERNAME.put(
     //    Settings.currentProfile, streamingPanelSpeedrunnerUsernameTextField.getText());
 
     // Replay

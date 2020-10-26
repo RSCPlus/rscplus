@@ -1028,7 +1028,6 @@ public class Renderer {
         g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
 
-
       setAlpha(g2, 1.0f);
       if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
         drawShadowText(g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);

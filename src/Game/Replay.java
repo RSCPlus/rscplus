@@ -1272,7 +1272,8 @@ public class Replay {
       if (opcode == 234) {
         // Timing should only begin once the player actually exists in the world.
         // The first time they get a player update packet, we will consider them fully in the world.
-        // This allows time for character creation on tutorial island without counting against speedrun time.
+        // This allows time for character creation on tutorial island without counting against
+        // speedrun time.
         Speedrun.checkAndBeginSpeedrun();
       }
       // SERVER_OPCODE_PLAYER_COORDS
