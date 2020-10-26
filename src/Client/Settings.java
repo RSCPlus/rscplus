@@ -148,12 +148,15 @@ public class Settings {
   public static HashMap<String, Integer> FATIGUE_NOTIF_VALUE = new HashMap<String, Integer>();
 
   //// streaming
+  public static HashMap<String, Boolean> TWITCH_CHAT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> TWITCH_HIDE_CHAT = new HashMap<String, Boolean>();
   public static HashMap<String, String> TWITCH_CHANNEL = new HashMap<String, String>();
   public static HashMap<String, String> TWITCH_OAUTH = new HashMap<String, String>();
   public static HashMap<String, String> TWITCH_USERNAME = new HashMap<String, String>();
   public static HashMap<String, Boolean> SHOW_LOGIN_IP_ADDRESS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SAVE_LOGININFO = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SPEEDRUNNER_MODE_ACTIVE = new HashMap<String, Boolean>();
+  // public static HashMap<String, String> SPEEDRUNNER_USERNAME = new HashMap<String, String>();
 
   //// replay
   public static HashMap<String, Boolean> RECORD_KB_MOUSE = new HashMap<String, Boolean>();
@@ -902,6 +905,15 @@ public class Settings {
         "custom", getPropInt(props, "fatigue_notif_value", FATIGUE_NOTIF_VALUE.get("default")));
 
     //// streaming
+    TWITCH_CHAT_ENABLED.put("vanilla", false);
+    TWITCH_CHAT_ENABLED.put("vanilla_resizable", false);
+    TWITCH_CHAT_ENABLED.put("lite", true);
+    TWITCH_CHAT_ENABLED.put("default", true);
+    TWITCH_CHAT_ENABLED.put("heavy", true);
+    TWITCH_CHAT_ENABLED.put("all", true);
+    TWITCH_CHAT_ENABLED.put(
+        "custom", getPropBoolean(props, "twitch_enabled", TWITCH_CHAT_ENABLED.get("default")));
+
     TWITCH_HIDE_CHAT.put("vanilla", true);
     TWITCH_HIDE_CHAT.put("vanilla_resizable", true);
     TWITCH_HIDE_CHAT.put("lite", false);
@@ -954,6 +966,26 @@ public class Settings {
     SAVE_LOGININFO.put("all", true);
     SAVE_LOGININFO.put(
         "custom", getPropBoolean(props, "save_logininfo", SAVE_LOGININFO.get("default")));
+
+    SPEEDRUNNER_MODE_ACTIVE.put("vanilla", false);
+    SPEEDRUNNER_MODE_ACTIVE.put("vanilla_resizable", false);
+    SPEEDRUNNER_MODE_ACTIVE.put("lite", false);
+    SPEEDRUNNER_MODE_ACTIVE.put("default", false);
+    SPEEDRUNNER_MODE_ACTIVE.put("heavy", false);
+    SPEEDRUNNER_MODE_ACTIVE.put("all", true);
+    SPEEDRUNNER_MODE_ACTIVE.put(
+        "custom", getPropBoolean(props, "speedrun_active", SPEEDRUNNER_MODE_ACTIVE.get("default")));
+
+    /*
+    SPEEDRUNNER_USERNAME.put("vanilla", "");
+    SPEEDRUNNER_USERNAME.put("vanilla_resizable", "");
+    SPEEDRUNNER_USERNAME.put("lite", "");
+    SPEEDRUNNER_USERNAME.put("default", "");
+    SPEEDRUNNER_USERNAME.put("heavy", "");
+    SPEEDRUNNER_USERNAME.put("all", "");
+    SPEEDRUNNER_USERNAME.put(
+        "custom", getPropString(props, "speedrun_username", SPEEDRUNNER_USERNAME.get("default")));
+        */
 
     //// replay
     RECORD_KB_MOUSE.put("vanilla", false);
@@ -1235,6 +1267,8 @@ public class Settings {
     Util.makeDirectory(Dir.REPLAY);
     Dir.WORLDS = Dir.JAR + "/worlds";
     Util.makeDirectory(Dir.WORLDS);
+    Dir.SPEEDRUN = Dir.JAR + "/speedrun";
+    Util.makeDirectory(Dir.SPEEDRUN);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -1539,12 +1573,15 @@ public class Settings {
       props.setProperty("fatigue_notif_value", Integer.toString(FATIGUE_NOTIF_VALUE.get(preset)));
 
       //// streaming
+      props.setProperty("twitch_enabled", Boolean.toString(TWITCH_CHAT_ENABLED.get(preset)));
       props.setProperty("twitch_hide", Boolean.toString(TWITCH_HIDE_CHAT.get(preset)));
       props.setProperty("twitch_channel", TWITCH_CHANNEL.get(preset));
       props.setProperty("twitch_oauth", TWITCH_OAUTH.get(preset));
       props.setProperty("twitch_username", TWITCH_USERNAME.get(preset));
       props.setProperty("show_logindetails", Boolean.toString(SHOW_LOGIN_IP_ADDRESS.get(preset)));
       props.setProperty("save_logininfo", Boolean.toString(SAVE_LOGININFO.get(preset)));
+      props.setProperty("speedrun_active", Boolean.toString(SPEEDRUNNER_MODE_ACTIVE.get(preset)));
+      //props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 
       //// replay
       props.setProperty("record_kb_mouse", Boolean.toString(RECORD_KB_MOUSE.get(preset)));
@@ -1814,6 +1851,13 @@ public class Settings {
       Client.displayMessage("@cya@Object info now hidden", Client.CHAT_NONE);
     }
 
+    save();
+  }
+
+  public static void endSpeedrun() {
+    if (!SPEEDRUNNER_MODE_ACTIVE.get(currentProfile))
+      return;
+    Speedrun.endTheRun();
     save();
   }
 
@@ -2108,6 +2152,7 @@ public class Settings {
     public static String SCREENSHOT;
     public static String REPLAY;
     public static String WORLDS;
+    public static String SPEEDRUN;
   }
 
   /**
@@ -2171,6 +2216,9 @@ public class Settings {
         return true;
       case "toggle_ipdns":
         Settings.toggleShowLoginIpAddress();
+        return true;
+      case "endrun":
+        Settings.endSpeedrun();
         return true;
       case "toggle_item_overlay":
         Settings.toggleShowItemGroundOverlay();
@@ -2247,7 +2295,7 @@ public class Settings {
       case "prev":
         Replay.controlPlayback(commandName);
         return Replay.isPlaying;
-      case "show_xp_bar":
+      case "toggle_xp_bar":
         Settings.toggleXPBar();
         return true;
       case "show_seek_bar":

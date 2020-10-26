@@ -23,6 +23,7 @@ import Client.Launcher;
 import Client.Logger;
 import Client.QueueWindow;
 import Client.Settings;
+import Client.Speedrun;
 import Client.Util;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -1232,7 +1233,8 @@ public class Replay {
   }
 
   public static void checkPoint(int opcode, int len) {
-    if (opcode == 182) { // SERVER_OPCODE_SHOW_WELCOME
+    // SERVER_OPCODE_SHOW_WELCOME
+    if (opcode == 182) {
 
       // getting opcode 182, we can tell that player very recently managed to log in successfully.
       Client.allTheWayLoggedIn();
@@ -1262,6 +1264,21 @@ public class Replay {
         retained_timestamp = TIMESTAMP_EOF;
         // free memory
         retained_bytes = null;
+      }
+    }
+
+    if (!isPlaying && !isSeeking) {
+      // SERVER_OPCODE_PLAYER_UPDATE
+      if (opcode == 234) {
+        // Timing should only begin once the player actually exists in the world.
+        // The first time they get a player update packet, we will consider them fully in the world.
+        // This allows time for character creation on tutorial island without counting against speedrun time.
+        Speedrun.checkAndBeginSpeedrun();
+      }
+      // SERVER_OPCODE_PLAYER_COORDS
+      if (opcode == 191) {
+        Speedrun.incrementTicks();
+        Speedrun.checkCoordinateCompletions();
       }
     }
   }

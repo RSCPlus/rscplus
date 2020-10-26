@@ -217,11 +217,14 @@ public class ConfigWindow {
 
   //// Streaming & Privacy tab
   private JCheckBox streamingPanelTwitchChatCheckbox;
+  private JCheckBox streamingPanelTwitchChatIntegrationEnabledCheckbox;
   private JTextField streamingPanelTwitchChannelNameTextField;
   private JTextField streamingPanelTwitchOAuthTextField;
   private JTextField streamingPanelTwitchUserTextField;
   private JCheckBox streamingPanelIPAtLoginCheckbox;
   private JCheckBox streamingPanelSaveLoginCheckbox;
+  private JCheckBox streamingPanelSpeedrunnerCheckbox;
+  // private JTextField streamingPanelSpeedrunnerUsernameTextField;
 
   //// Replay tab
   private JCheckBox replayPanelRecordKBMouseCheckbox;
@@ -1204,6 +1207,11 @@ public class ConfigWindow {
 
     addSettingsHeader(streamingPanel, "Streaming & Privacy");
 
+    streamingPanelTwitchChatIntegrationEnabledCheckbox = addCheckbox("Enable Twitch chat integration", streamingPanel);
+    streamingPanelTwitchChatIntegrationEnabledCheckbox.setToolTipText(
+        "If this box is checked, and the 3 relevant text fields are filled out, you will connect to a chat channel on login.");
+    streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(2, 0, 9, 0));
+
     streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
     streamingPanelTwitchChatCheckbox.setToolTipText(
         "Don't show chat from other Twitch users, but still be able to send Twitch chat");
@@ -1216,9 +1224,9 @@ public class ConfigWindow {
     streamingPanelTwitchChannelNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     streamingPanelTwitchChannelNamePanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
-    JLabel streamingPanelTwitchChannelNameLabel = new JLabel("Twitch channel name: ");
+    JLabel streamingPanelTwitchChannelNameLabel = new JLabel("Twitch channel to chat in: ");
     streamingPanelTwitchChannelNameLabel.setToolTipText(
-        "The Twitch channel you want to chat in (leave empty to stop trying to connect to Twitch)");
+        "The Twitch channel you want to chat in");
     streamingPanelTwitchChannelNamePanel.add(streamingPanelTwitchChannelNameLabel);
     streamingPanelTwitchChannelNameLabel.setAlignmentY((float) 0.9);
 
@@ -1236,7 +1244,7 @@ public class ConfigWindow {
     streamingPanelTwitchUserPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     streamingPanelTwitchUserPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
-    JLabel streamingPanelTwitchUserLabel = new JLabel("Twitch username: ");
+    JLabel streamingPanelTwitchUserLabel = new JLabel("Your Twitch username: ");
     streamingPanelTwitchUserLabel.setToolTipText("The Twitch username you log into Twitch with");
     streamingPanelTwitchUserPanel.add(streamingPanelTwitchUserLabel);
     streamingPanelTwitchUserLabel.setAlignmentY((float) 0.9);
@@ -1255,7 +1263,7 @@ public class ConfigWindow {
     streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
-    JLabel streamingPanelTwitchOAuthLabel = new JLabel("Twitch OAuth token: ");
+    JLabel streamingPanelTwitchOAuthLabel = new JLabel("Your Twitch OAuth token (not your Stream key): ");
     streamingPanelTwitchOAuthLabel.setToolTipText("Your Twitch OAuth token (not your Stream Key)");
     streamingPanelTwitchOAuthPanel.add(streamingPanelTwitchOAuthLabel);
     streamingPanelTwitchOAuthLabel.setAlignmentY((float) 0.9);
@@ -1275,6 +1283,44 @@ public class ConfigWindow {
         addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
     streamingPanelSaveLoginCheckbox.setToolTipText(
         "Preserves login details between logins (Disable this if you're streaming)");
+
+    JLabel spacerLabel =
+        new JLabel("<html><head><style>p{font-size:10px;}</style></head><p>&nbsp;</p>");
+    streamingPanel.add(spacerLabel);
+
+    addSettingsHeader(streamingPanel, "Speedrunner Mode");
+    JLabel speedrunnerModeExplanation =
+        new JLabel("<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
+    speedrunnerModeExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
+    streamingPanel.add(speedrunnerModeExplanation);
+
+    streamingPanelSpeedrunnerCheckbox = addCheckbox("Activate Speedrunner Mode", streamingPanel);
+    streamingPanelSpeedrunnerCheckbox.setToolTipText("Speedrunner Mode, see above explanation");
+
+    JLabel speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation =
+        new JLabel("<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
+    streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
+
+    /* shame to write all this code and then not need it...
+    JPanel streamingPanelSpeedRunnerNamePanel = new JPanel();
+    streamingPanel.add(streamingPanelSpeedRunnerNamePanel);
+    streamingPanelSpeedRunnerNamePanel.setLayout(
+        new BoxLayout(streamingPanelSpeedRunnerNamePanel, BoxLayout.X_AXIS));
+    streamingPanelSpeedRunnerNamePanel.setPreferredSize(new Dimension(0, 37));
+    streamingPanelSpeedRunnerNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    streamingPanelSpeedRunnerNamePanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel streamingPanelSpeedRunnerUsernameLabel = new JLabel("Speedrunner username: ");
+    streamingPanelSpeedRunnerUsernameLabel.setToolTipText("Only apply speedrunner restrictions/enhancements if the username in this field matches.");
+    streamingPanelSpeedRunnerNamePanel.add(streamingPanelSpeedRunnerUsernameLabel);
+    streamingPanelSpeedRunnerUsernameLabel.setAlignmentY((float) 0.9);
+
+    streamingPanelSpeedrunnerUsernameTextField = new JTextField();
+    streamingPanelSpeedRunnerNamePanel.add(streamingPanelSpeedrunnerUsernameTextField);
+    streamingPanelSpeedrunnerUsernameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    streamingPanelSpeedrunnerUsernameTextField.setMinimumSize(new Dimension(100, 28));
+    streamingPanelSpeedrunnerUsernameTextField.setAlignmentY((float) 0.75);
+    */
 
     /*
      * Keybind tab
@@ -1470,6 +1516,12 @@ public class ConfigWindow {
         "toggle_ipdns",
         KeyModifier.CTRL,
         KeyEvent.VK_J);
+    addKeybindSet(
+        keybindContainerPanel,
+        "End your current speedrun",
+        "endrun",
+        KeyModifier.CTRL,
+        KeyEvent.VK_END);
     // TODO: Uncomment the following line if this feature no longer requires a restart
     // addKeybindSet(keybindContainerPanel, "Toggle save login information",
     // "toggle_save_login_info",
@@ -2259,6 +2311,8 @@ public class ConfigWindow {
         Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
 
     // Streaming & Privacy tab
+    streamingPanelTwitchChatIntegrationEnabledCheckbox.setSelected(
+        Settings.TWITCH_CHAT_ENABLED.get(Settings.currentProfile));
     streamingPanelTwitchChatCheckbox.setSelected(
         Settings.TWITCH_HIDE_CHAT.get(Settings.currentProfile));
     streamingPanelTwitchChannelNameTextField.setText(
@@ -2270,6 +2324,9 @@ public class ConfigWindow {
         Settings.SHOW_LOGIN_IP_ADDRESS.get(Settings.currentProfile));
     streamingPanelSaveLoginCheckbox.setSelected(
         Settings.SAVE_LOGININFO.get(Settings.currentProfile));
+    streamingPanelSpeedrunnerCheckbox.setSelected(
+        Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile));
+    //streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
 
     // Replay tab
     replayPanelRecordAutomaticallyCheckbox.setSelected(
@@ -2454,6 +2511,8 @@ public class ConfigWindow {
         Settings.currentProfile, notificationPanelNotifSoundAnyFocusButton.isSelected());
 
     // Streaming & Privacy
+    Settings.TWITCH_CHAT_ENABLED.put(
+        Settings.currentProfile, streamingPanelTwitchChatIntegrationEnabledCheckbox.isSelected());
     Settings.TWITCH_HIDE_CHAT.put(
         Settings.currentProfile, streamingPanelTwitchChatCheckbox.isSelected());
     Settings.TWITCH_CHANNEL.put(
@@ -2466,6 +2525,10 @@ public class ConfigWindow {
         Settings.currentProfile, streamingPanelIPAtLoginCheckbox.isSelected());
     Settings.SAVE_LOGININFO.put(
         Settings.currentProfile, streamingPanelSaveLoginCheckbox.isSelected());
+    Settings.SPEEDRUNNER_MODE_ACTIVE.put(
+        Settings.currentProfile, streamingPanelSpeedrunnerCheckbox.isSelected());
+    //Settings.SPEEDRUNNER_USERNAME.put(
+    //    Settings.currentProfile, streamingPanelSpeedrunnerUsernameTextField.getText());
 
     // Replay
     Settings.RECORD_AUTOMATICALLY.put(

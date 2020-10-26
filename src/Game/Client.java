@@ -28,6 +28,7 @@ import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
+import Client.Speedrun;
 import Client.TwitchIRC;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
@@ -678,8 +679,6 @@ public class Client {
     state = STATE_GAME;
     bank_active_page = 0;
     combat_timer = 0;
-
-    if (TwitchIRC.isUsing()) twitch.connect();
   }
 
   public static void login_hook() {
@@ -688,7 +687,8 @@ public class Client {
     if (Renderer.replayOption == 2) {
       if (!Replay.initializeReplayPlayback()) Renderer.replayOption = 0;
     } else if (Renderer.replayOption == 1
-        || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
+        || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)
+        || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
       Replay.initializeReplayRecording();
     }
 
@@ -742,7 +742,9 @@ public class Client {
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
+    twitch.disconnect();
     Replay.closeReplayRecording();
+    Speedrun.saveAndQuitSpeedrun();
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -861,7 +863,7 @@ public class Client {
       } else {
         twitch.sendMessage(message, true);
       }
-      return "::";
+      return "::null";
     }
 
     line = processClientChatCommand(line);
@@ -992,6 +994,9 @@ public class Client {
           } catch (Exception e) {
             Help.help(0, "help");
           }
+          break;
+        case "endrun":
+          Settings.endSpeedrun();
           break;
         default:
           if (commandArray[0] != null) {
@@ -1202,6 +1207,7 @@ public class Client {
 
   /** Send over the instruction of sleep, if player has sleeping bag with them */
   public static void sleep() {
+    if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return;
     if (Reflection.itemClick == null) return;
 
     try {
@@ -1341,7 +1347,8 @@ public class Client {
   }
 
   public static int attack_menu_hook(int cmpVar) {
-    if (Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile)) {
+    if (Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile)
+    && !Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
       return 10;
     } else {
       return cmpVar;
@@ -1655,6 +1662,11 @@ public class Client {
     if (message != null)
       // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
       message = message.replace("\u00A0", " ");
+
+    if (message != null && username != null) {
+      Speedrun.checkMessageCompletions(message);
+    }
+
     if (type == CHAT_NONE) {
       if (username == null && message != null) {
         if (message.contains("The spell fails! You may try again in 20 seconds"))
