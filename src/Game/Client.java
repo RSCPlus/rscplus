@@ -19,18 +19,6 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
-
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -43,8 +31,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -178,6 +182,7 @@ public class Client {
 
   public static int login_screen;
   public static String username_login;
+  public static String password_login;
   public static int autologin_timeout;
 
   public static Object player_object;
@@ -249,6 +254,7 @@ public class Client {
 
   public static BigInteger modulus;
   public static BigInteger exponent;
+  public static int maxRetries;
   public static byte[] fontData;
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
@@ -292,6 +298,24 @@ public class Client {
   public static int tileSize;
   public static long menu_timer;
   public static String lastAction;
+  
+  public static int login_delay;
+  public static String server_address;
+  public static int serverjag_port;
+  
+  public static Object panelWelcome;
+  public static Object panelLogin;
+  public static Object panelRegister;
+  public static int loginUserInput;
+  public static int loginPassInput;
+  public static int registerButton;
+  public static int controlRegister;
+  public static int chooseUserInput;
+  public static int choosePasswordInput;
+  public static int chooseConfirmPassInput;
+  public static int acceptTermsCheckbox;
+  public static int chooseSubmitRegisterButton;
+  public static int chooseCancelRegisterButton;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
