@@ -32,10 +32,25 @@ public class Panel {
 	public static boolean control_use_alt_color;
 	public static String control_text;
 	
+	public static void drawPanel(Object panelSource) {
+		if (Reflection.drawPanel == null) return;
+
+		try {
+			Reflection.drawPanel.invoke(panelSource, (byte)39);
+	    } catch (Exception e) {
+	    }
+	}
+	
+	/** rendering of new panel elements, use controlType 15 and onwards */
 	public static void draw_extra_hook(Object panelSource, int controlId, int controlType) {
 		int[] x, y, width, height;
 		try {
 			if (controlType == 15) {
+				/** DEPRECTATED - mudclient already has built in rendering method for checkbox, using control type 14
+				 * If mudclient didn't have a render method for checkbox the below would be needed.
+				 * Instead can use as POC on how to render a new element if there is a need (though very unlikely since
+				 * probably old panel element renderings from earlier mudclients are still there)
+				 */
 				// x = (int[]) Reflection.menuX.get(panelSource);
 		        // y = (int[]) Reflection.menuY.get(panelSource);
 		        // width = (int[]) Reflection.menuWidth.get(panelSource);
@@ -47,7 +62,7 @@ public class Panel {
 	      }
 	}
 	
-	// obsolete, checkbox is control type 14
+	// obsolete, checkbox is control type 14 and mudclient kept the rendering method intact
 	public static void drawCheckBox(Object panelSource, int id, int x, int y, int w, int h) {
 		if (Reflection.menuRenderer == null || Reflection.drawBox == null 
 				|| Reflection.drawLineHoriz == null || Reflection.drawLineVert == null) return;

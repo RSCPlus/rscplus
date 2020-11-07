@@ -1282,6 +1282,45 @@ public class Client {
     } catch (Exception e) {
     }
   }
+  
+  /** Gets a parameter defined from world config */
+  public static String getParameter(String parameter) {
+	  if (Reflection.getParameter == null) return null;
+	  String result = null;
+	  
+	  try {
+		  result = ((String)Reflection.getParameter.invoke(Client.instance, parameter));
+	  } catch (Exception e) {
+	  }
+	  return result;
+  }
+  
+  public static void clearScreen() {
+	  if (Reflection.clearScreen == null) return;
+	  
+	  try {
+		  Reflection.clearScreen.invoke(Renderer.instance, true);
+	  } catch (Exception e) {
+	  }
+  }
+  
+  public static void preGameDisplay() {
+	  if (Reflection.preGameDisplay == null) return;
+	  
+	  try {
+		  Reflection.preGameDisplay.invoke(Client.instance, 2540);
+	  } catch (Exception e) {
+	  }
+  }
+  
+  public static void resetTimings() {
+	  if (Reflection.resetTimings == null) return;
+	  
+	  try {
+		  Reflection.resetTimings.invoke(Client.instance, -28492);
+	  } catch (Exception e) {
+	  }
+  }
 
   /**
    * Fetches the value of {@link Settings#VERSION_NUMBER} in the master branch on GitHub.
@@ -1793,6 +1832,17 @@ public class Client {
       default:
         return Integer.toString(type);
     }
+  }
+  
+  public static String formatText(String inputText, int length) {
+	  if (Reflection.resetTimings == null) return null;
+	  String outputText = null;
+	  
+	  try {
+		  outputText = (String)Reflection.formatText.invoke(null, length, (byte)-5, inputText);
+	  } catch (Exception e) {
+	  }
+	  return outputText;
   }
 
   /**

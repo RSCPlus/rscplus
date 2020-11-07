@@ -18,7 +18,6 @@
  */
 package Game;
 
-import java.net.Socket;
 import Client.Logger;
 
 public class AccountManagement {
@@ -36,16 +35,14 @@ public class AccountManagement {
 			try {
 				Client.username_login = user;
 				Client.password_login = pass;
-				String formatPass = (String)Reflection.formatText.invoke(null, 20, (byte)-5, pass);
+				String formatPass = Client.formatText(pass, 20);
 				Client.setLoginMessage("Connecting to server", "Please wait...");
 				//int port = Client.autologin_timeout <= 1 ? Client.serverjag_port : Replay.connection_port;
 				int port = Replay.connection_port;
-				Socket connectionSocket = (Socket)Reflection.createSocket.invoke(Client.instance, -12, port, Client.server_address);
-				Reflection.clientStreamField.set(Client.instance, Reflection.stream.newInstance(connectionSocket, Client.instance));
-				Client.clientStream = Reflection.clientStreamField.get(Client.instance);
-				Reflection.maxRetriesField.set(Client.clientStream, Client.maxRetries);
+				StreamUtil.initializeStream(Client.server_address, port);
+				StreamUtil.setStreamMaxRetries(Client.maxRetries);
 				byte limit30 = 0;
-				String param = ((String)Reflection.getParameter.invoke(Client.instance, "limit30"));
+				String param = Client.getParameter("limit30");
 				if (param != null && param.equals("1")) {
 					limit30 = 1;
 				}
@@ -56,35 +53,35 @@ public class AccountManagement {
 						(int)(9.9999999E7 * Math.random()),
 						(int)(9.9999999E7 * Math.random())
 				};
-				Reflection.newPacket.invoke(Client.clientStream, 2, -12^-12);
-				Object buffer = Reflection.bufferField.get(Client.clientStream);
-				Reflection.putInt.invoke(buffer, -422797528, Client.version);
-				Object block = Reflection.buffer.newInstance(500);
-				Reflection.putByte.invoke(block, 11, -117); //register packet encrypted id
-				Reflection.putInt.invoke(block, -422797528, keys[0]); // isaac/xtea keys
-				Reflection.putInt.invoke(block, -422797528, keys[1]);
-				Reflection.putInt.invoke(block, -422797528, keys[2]);
-				Reflection.putInt.invoke(block, -422797528, keys[3]);
-				Reflection.putStr.invoke(block, (byte)-39, formatPass); // password
+				StreamUtil.newPacket(2);
+				Object buffer = StreamUtil.getStreamBuffer();
+				StreamUtil.putIntTo(buffer, Client.version);
+				Object block = StreamUtil.getNewBuffer(500);
+				StreamUtil.putByteTo(block, (byte)11); //register packet encrypted id
+				StreamUtil.putIntTo(block, keys[0]); // isaac/xtea keys
+				StreamUtil.putIntTo(block, keys[1]);
+				StreamUtil.putIntTo(block, keys[2]);
+				StreamUtil.putIntTo(block, keys[3]);
+				StreamUtil.putStrTo(block, formatPass); // password
 
                 for (int var10 = 0; var10 < 5; ++var10) {
-                	Reflection.putInt.invoke(block, -422797528, (int) (9.9999999E7D * Math.random())); // nonces
+                	StreamUtil.putIntTo(block, (int) (9.9999999E7D * Math.random())); // nonces
                 }
                 
-                Reflection.putInt3Byte.invoke(block, (int) (9.9999999E7D * Math.random()), (byte)-13); //nonce
-                Reflection.encrypt.invoke(block, Client.modulus, -118, Client.exponent); // encrypt the block
-                Reflection.putBytes.invoke(buffer, 0, -123, (int)Reflection.bufferOffset.get(block), (byte[])Reflection.bufferByteArray.get(buffer)); // add the block
-                Reflection.putShort.invoke(buffer, 393, 0); // xtea block offset holder
-                int xtea_start = (int)Reflection.bufferOffset.get(buffer);
-                Reflection.putByte.invoke(buffer, limit30, -12 + 50);
-                Reflection.padBuffer.invoke(null, (int)22607, buffer);
-                Reflection.putStr.invoke(buffer, (byte)-39, Client.username_login);
-                Reflection.xteaEncrypt.invoke(buffer, (byte)87, xtea_start, (int[])keys, (int)Reflection.bufferOffset.get(buffer));
-                Reflection.setBlockLength.invoke(buffer, (int)Reflection.bufferOffset.get(buffer) - xtea_start, 1);
-                Reflection.flushPacket.invoke(Client.clientStream, -6924);
-                Reflection.initIsaac.invoke(Client.clientStream, (byte)-119, (int[])keys);
+                StreamUtil.putInt3ByteTo(block, (int) (9.9999999E7D * Math.random())); //nonce
+                StreamUtil.encrypt(block, Client.exponent, Client.modulus); // encrypt the block
+                StreamUtil.putBytesTo(buffer, StreamUtil.getBufferByteArray(block), 0, StreamUtil.getBufferOffset(block)); // add the block
+                StreamUtil.putShortTo(buffer, (short)0); // xtea block offset holder
+                int xtea_start = StreamUtil.getBufferOffset(buffer);
+                StreamUtil.putByteTo(buffer, limit30);
+                StreamUtil.padBuffer(buffer);
+                StreamUtil.putStrTo(buffer, Client.username_login);
+                StreamUtil.xteaEncrypt(buffer, xtea_start, keys);
+                StreamUtil.setBufferLength(buffer, xtea_start);
+                StreamUtil.flushPacket();
+                StreamUtil.initIsaac(keys);
                 
-                int response = (int)Reflection.readResponse.invoke(Client.clientStream, true);				
+                int response = StreamUtil.readStream();				
 				Logger.Game("Newplayer response: " + response);
                 
 				if (response == 2) {
@@ -132,8 +129,8 @@ public class AccountManagement {
 			Client.resetLoginMessage();
 			Panel.setControlText(Client.panelLogin, Client.loginUserInput, user);
 			Panel.setControlText(Client.panelLogin, Client.loginPassInput, pass);
-			Reflection.preGameDisplay.invoke(Client.instance, 2540);
-			Reflection.resetTimings.invoke(Client.instance, -28492);
+			Client.preGameDisplay();
+			Client.resetTimings();
 			Client.login(false, user, pass);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,14 +138,12 @@ public class AccountManagement {
 	}
 	
 	public static void pregame_hook() {
-		if (Reflection.drawPanel == null || Reflection.clearScreen == null) return;
-				
 		try {
 			if (Client.login_screen == 1) {
-				Reflection.clearScreen.invoke(Renderer.instance, true);
-				Reflection.drawPanel.invoke(Client.panelRegister, (byte)39);
+				Client.clearScreen();
+				Panel.drawPanel(Client.panelRegister);
 			} else if (Client.login_screen == 3) {
-				Reflection.clearScreen.invoke(Renderer.instance, true);
+				Client.clearScreen();
 			}
 		} catch (Exception e) {
 	    	e.printStackTrace();
@@ -276,8 +271,8 @@ public class AccountManagement {
 						}
 						
 						Panel.setControlText(Client.panelRegister, Client.controlRegister, "Please wait... Creating new account");
-						Reflection.preGameDisplay.invoke(Client.instance, 2540);
-						Reflection.resetTimings.invoke(Client.instance, -28492);
+						Client.preGameDisplay();
+						Client.resetTimings();
 						String user, pass;
 						user = Panel.getControlText(Client.panelRegister, Client.chooseUserInput);
 						pass = Panel.getControlText(Client.panelRegister, Client.choosePasswordInput);

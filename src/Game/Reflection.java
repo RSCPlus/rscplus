@@ -21,6 +21,8 @@ package Game;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import Client.JClassLoader;
 import Client.Launcher;
 import Client.Logger;
@@ -198,8 +200,7 @@ public class Reflection {
   public static void Load() {
     try {
       JClassLoader classLoader = Launcher.getInstance().getClassLoader();
-      boolean found = false;
-      boolean found2 = false;
+      ArrayList<String> leftMethods = new ArrayList<String>(); //expected virtual methods to find in given class
 
       // Game Applet
       Class<?> c = classLoader.loadClass("e");
@@ -281,44 +282,53 @@ public class Reflection {
               Logger.Info("Found stream");
             }
       }
-      found = false;
-      //found2 = false;
-      while (c != null && !found) {
+
+      leftMethods.addAll(Arrays.asList(NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE));
+      while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
-          if (method.toGenericString().equals(NEWPACKET)) {
+          if (leftMethods.contains(NEWPACKET) && method.toGenericString().equals(NEWPACKET)) {
             newPacket = method;
             Logger.Info("Found newPacket");
-            found = true;
+            leftMethods.remove(NEWPACKET);
             continue;
           }
-          if (method.toGenericString().contains(LOSECONNECTION)) {
+          if (leftMethods.contains(LOSECONNECTION) && method.toGenericString().contains(LOSECONNECTION)) {
             loseConnection = method;
             Logger.Info("Found loseConnection");
-          }
-          if (method.toGenericString().equals(SENDPACKET)) {
-            sendPacket = method;
-            Logger.Info("Found sendPacket");
+            leftMethods.remove(LOSECONNECTION);
             continue;
           }
-          if (method.toGenericString().equals(FLUSHPACKET)) {
+          if (leftMethods.contains(SENDPACKET) && method.toGenericString().equals(SENDPACKET)) {
+            sendPacket = method;
+            Logger.Info("Found sendPacket");
+            leftMethods.remove(SENDPACKET);
+            continue;
+          }
+          if (leftMethods.contains(FLUSHPACKET) && method.toGenericString().equals(FLUSHPACKET)) {
         	  flushPacket = method;
               Logger.Info("Found flushPacket");
+              leftMethods.remove(FLUSHPACKET);
               continue;
           }
-          if (method.toGenericString().equals(INIT_ISAAC)) {
+          if (leftMethods.contains(INIT_ISAAC) && method.toGenericString().equals(INIT_ISAAC)) {
         	  initIsaac = method;
               Logger.Info("Found initIsaac");
+              leftMethods.remove(INIT_ISAAC);
               continue;
           }
-          if (method.toGenericString().equals(READ_RESPONSE)) {
+          if (leftMethods.contains(READ_RESPONSE) && method.toGenericString().equals(READ_RESPONSE)) {
         	  readResponse = method;
               Logger.Info("Found readResponse");
+              leftMethods.remove(READ_RESPONSE);
               continue;
           } 
         }
         c = c.getSuperclass();
       }
+      if (leftMethods.size() > 0) {
+      	System.out.println("Not found : " + leftMethods.size() + "methods for da class");  
+        }
 
       // Buffer field of clientStream
       c = classLoader.loadClass("b");
@@ -343,58 +353,69 @@ public class Reflection {
 
       // Write buffer
       c = classLoader.loadClass("ja");
-      found = false;
-      while (c != null & !found) {
+      leftMethods.addAll(Arrays.asList(PUTBYTE, PUTSHORT, PUTINT, PUTSTR, PUTINT3BYTE, PUTBYTES, SETBLOCKLENGTH, ENCRYPT, XTEA_ENCRYPT));
+      while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
-        	if (method.toGenericString().equals(PUTBYTE)) {
+        	if (leftMethods.contains(PUTBYTE) && method.toGenericString().equals(PUTBYTE)) {
                 putByte = method;
                 Logger.Info("Found putByte");
-                found = true;
+                leftMethods.remove(PUTBYTE);
                 continue;
               }
-          if (method.toGenericString().equals(PUTSHORT)) {
+          if (leftMethods.contains(PUTSHORT) && method.toGenericString().equals(PUTSHORT)) {
             putShort = method;
             Logger.Info("Found putShort");
+            leftMethods.remove(PUTSHORT);
             continue;
           }
-          if (method.toGenericString().equals(PUTINT)) {
+          if (leftMethods.contains(PUTINT) && method.toGenericString().equals(PUTINT)) {
               putInt = method;
               Logger.Info("Found putInt");
+              leftMethods.remove(PUTINT);
               continue;
             }
-          if (method.toGenericString().equals(PUTSTR)) {
+          if (leftMethods.contains(PUTSTR) && method.toGenericString().equals(PUTSTR)) {
         	  putStr = method;
               Logger.Info("Found putStr");
+              leftMethods.remove(PUTSTR);
               continue;
             }
-          if (method.toGenericString().equals(PUTINT3BYTE)) {
+          if (leftMethods.contains(PUTINT3BYTE) && method.toGenericString().equals(PUTINT3BYTE)) {
         	  putInt3Byte = method;
               Logger.Info("Found putInt3Byte");
+              leftMethods.remove(PUTINT3BYTE);
               continue;
             }
-          if (method.toGenericString().equals(PUTBYTES)) {
+          if (leftMethods.contains(PUTBYTES) && method.toGenericString().equals(PUTBYTES)) {
         	  putBytes = method;
               Logger.Info("Found putBytes");
+              leftMethods.remove(PUTBYTES);
               continue;
             }
-          if (method.toGenericString().equals(SETBLOCKLENGTH)) {
+          if (leftMethods.contains(SETBLOCKLENGTH) && method.toGenericString().equals(SETBLOCKLENGTH)) {
         	  setBlockLength = method;
               Logger.Info("Found setBlockLength");
+              leftMethods.remove(SETBLOCKLENGTH);
               continue;
             }
-          if (method.toGenericString().equals(ENCRYPT)) {
+          if (leftMethods.contains(ENCRYPT) && method.toGenericString().equals(ENCRYPT)) {
         	  encrypt = method;
               Logger.Info("Found encrypt");
+              leftMethods.remove(ENCRYPT);
               continue;
             }
-          if (method.toGenericString().equals(XTEA_ENCRYPT)) {
+          if (leftMethods.contains(XTEA_ENCRYPT) && method.toGenericString().equals(XTEA_ENCRYPT)) {
         	  xteaEncrypt = method;
               Logger.Info("Found xteaEncrypt");
+              leftMethods.remove(XTEA_ENCRYPT);
               continue;
             }
         }
         c = c.getSuperclass();
+      }
+      if (leftMethods.size() > 0) {
+    	System.out.println("Not found : " + leftMethods.size() + "methods for ja class");  
       }
       
       // Buffer block class?
