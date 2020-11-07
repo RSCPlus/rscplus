@@ -399,7 +399,6 @@ public class JClassPatcher {
           methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
       hookClassVariable(
           methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
-      //if (Settings.SAVE_LOGININFO.get(Settings.currentProfile))
         hookClassVariable(
             methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", true, true);
 
@@ -2436,7 +2435,7 @@ public class JClassPatcher {
           }
       }
       if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
-        // Login button press hook
+        // Login button press hook, from login panel
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 
         AbstractInsnNode findNode = null;
@@ -2479,6 +2478,28 @@ public class JClassPatcher {
             			insnNode,
                         new MethodInsnNode(
                             Opcodes.INVOKESTATIC, "Game/AccountManagement", "welcome_new_user_hook", "()V", false));
+            }
+        }
+        
+     // Login button press hook, from welcome screen (don't clear out if save login info)
+        insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+      	  AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+
+            if (nextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.PUTFIELD
+            	&& ((FieldInsnNode) insnNode).name.equals("Xd")
+            	&& Settings.SAVE_LOGININFO.get(Settings.currentProfile)) {
+            	
+            	methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.ICONST_0));
+            	methodNode.instructions.insertBefore(
+            			insnNode,
+                        new MethodInsnNode(
+                            Opcodes.INVOKESTATIC, "Game/Client", "keep_login_info_hook", "()V", false));
+                methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
             }
         }
         
@@ -2770,6 +2791,28 @@ public class JClassPatcher {
             break;
           }
         }
+      }
+      if (methodNode.name.equals("e") && methodNode.desc.equals("(B)V")) {
+    	  // reset login screen vars method
+    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+
+            if (nextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.PUTFIELD
+                && ((FieldInsnNode) insnNode).owner.equals("client")
+                && ((FieldInsnNode) insnNode).name.equals("wh")) {
+
+            	FieldInsnNode call = (FieldInsnNode) insnNode.getNext();
+              
+              methodNode.instructions.insertBefore(
+                      call,
+                      new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "resetLoginHook", "()V", false));
+              break;
+            }
+          }
       }
 
       // hookTracer(node, methodNode);

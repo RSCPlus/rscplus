@@ -29,8 +29,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -478,10 +480,29 @@ public class Client {
     // Initialize login
     init_login();
 
-    // Skip first login screen and don't wipe user info
-    login_screen = 2;
-
     init_extra();
+  }
+  
+  /** Method that gets called when starting game, normally would go to Welcome screen
+   *  but if no world configured (using RSC+ for replay mode) skip directly to login for replays
+   */
+  public static void resetLoginHook() {
+	  if (Settings.noWorldsConfigured || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
+	    	String curWorldURL = Settings.WORLD_URLS.get(1);
+	    	boolean skipToLogin = true;
+	    	try {
+				String address = InetAddress.getByName(curWorldURL).toString();
+				if (!address.contains("localhost") && !address.contains("127.0.0.1")) {
+					// some configured world, show login screen
+					skipToLogin = false;
+				}
+			} catch (UnknownHostException e) {
+			}
+	    	
+	    	if (skipToLogin) {
+	    		login_screen = 2;
+	    	}
+	    }
   }
 
   public static void init_extra() {
@@ -789,6 +810,15 @@ public class Client {
     if (s.toLowerCase().equals("crash")) {
       disconnect_hook();
     }
+  }
+  
+  /**
+   * Called if Profile SAVE_LOGIN_INFO set, to not clear login info when selecting click here to login
+   */
+  public static void keep_login_info_hook() {
+	  Client.login_screen = 2;
+	  setLoginMessage("Please enter your username and password", "");
+	  Panel.setFocus(Client.panelLogin, Client.loginUserInput);
   }
 
   /**
