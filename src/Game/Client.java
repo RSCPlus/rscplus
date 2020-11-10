@@ -483,26 +483,32 @@ public class Client {
     init_extra();
   }
   
+  public static boolean skipToLogin() {
+	  boolean skipToLogin = false;
+	  
+	  if (Settings.noWorldsConfigured || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
+	    	String curWorldURL = Settings.WORLD_URLS.get(1);
+	    	try {
+				String address = InetAddress.getByName(curWorldURL).toString();
+				if (address.contains("localhost") || address.contains("127.0.0.1")) {
+					// no configured world or localhost only
+					skipToLogin = true;
+				}
+			} catch (UnknownHostException e) {
+				skipToLogin = true;
+			}
+	    }
+	  
+	  return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+  
   /** Method that gets called when starting game, normally would go to Welcome screen
    *  but if no world configured (using RSC+ for replay mode) skip directly to login for replays
    */
   public static void resetLoginHook() {
-	  if (Settings.noWorldsConfigured || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
-	    	String curWorldURL = Settings.WORLD_URLS.get(1);
-	    	boolean skipToLogin = true;
-	    	try {
-				String address = InetAddress.getByName(curWorldURL).toString();
-				if (!address.contains("localhost") && !address.contains("127.0.0.1")) {
-					// some configured world, show login screen
-					skipToLogin = false;
-				}
-			} catch (UnknownHostException e) {
-			}
-	    	
-	    	if (skipToLogin) {
-	    		login_screen = 2;
-	    	}
-	    }
+	  if (skipToLogin()) {
+		  login_screen = 2;
+	  }
   }
 
   public static void init_extra() {
@@ -701,13 +707,17 @@ public class Client {
 
   public static void init_login() {
     for (int i = 0; i < xpdrop_state.length; i++) xpdrop_state[i] = 0.0f;
-
+    
     Camera.init();
     state = STATE_LOGIN;
     isGameLoaded = false;
     Renderer.replayOption = 0;
 
     twitch.disconnect();
+    
+    if (skipToLogin()) {
+    	login_screen = 2;
+    }
 
     resetLoginMessage();
     Replay.closeReplayPlayback();
@@ -741,6 +751,8 @@ public class Client {
         && Settings.WORLD.get(Settings.currentProfile) != 0
         && !Replay.isPlaying) {
       closeConnection(false);
+      // make sure to set to login screen here
+      Client.login_screen = 2;
       loginMessageHandlerThread = new Thread(new LoginMessageHandler());
       loginMessageHandlerThread.start();
     }
