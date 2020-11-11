@@ -18,7 +18,10 @@
  */
 package Game;
 
+import java.math.BigInteger;
+import Client.CRC16;
 import Client.Logger;
+import Client.Util;
 
 public class AccountManagement {
 	
@@ -41,45 +44,28 @@ public class AccountManagement {
 				int port = Replay.connection_port;
 				StreamUtil.initializeStream(Client.server_address, port);
 				StreamUtil.setStreamMaxRetries(Client.maxRetries);
-				byte limit30 = 0;
-				String param = Client.getParameter("limit30");
-				if (param != null && param.equals("1")) {
-					limit30 = 1;
-				}
 				
-				int[] keys = new int[]{
-						(int)(9.9999999E7 * Math.random()),
-						(int)(9.9999999E7 * Math.random()),
-						(int)(9.9999999E7 * Math.random()),
-						(int)(9.9999999E7 * Math.random())
-				};
 				StreamUtil.newPacket(2);
-				Object buffer = StreamUtil.getStreamBuffer();
-				StreamUtil.putIntTo(buffer, Client.version);
-				Object block = StreamUtil.getNewBuffer(500);
-				StreamUtil.putByteTo(block, (byte)11); //register packet encrypted id
-				StreamUtil.putIntTo(block, keys[0]); // isaac/xtea keys
-				StreamUtil.putIntTo(block, keys[1]);
-				StreamUtil.putIntTo(block, keys[2]);
-				StreamUtil.putIntTo(block, keys[3]);
-				StreamUtil.putStrTo(block, formatPass); // password
+                Object buffer = StreamUtil.getStreamBuffer();
+                StreamUtil.putShortTo(buffer, (short)(Client.version & 0xFFFF));
 
-                for (int var10 = 0; var10 < 5; ++var10) {
-                	StreamUtil.putIntTo(block, (int) (9.9999999E7D * Math.random())); // nonces
-                }
-                
-                StreamUtil.putInt3ByteTo(block, (int) (9.9999999E7D * Math.random())); //nonce
-                StreamUtil.encrypt(block, Client.exponent, Client.modulus); // encrypt the block
-                StreamUtil.putBytesTo(buffer, StreamUtil.getBufferByteArray(block), 0, StreamUtil.getBufferOffset(block)); // add the block
-                StreamUtil.putShortTo(buffer, (short)0); // xtea block offset holder
-                int xtea_start = StreamUtil.getBufferOffset(buffer);
-                StreamUtil.putByteTo(buffer, limit30);
-                StreamUtil.padBuffer(buffer);
-                StreamUtil.putStrTo(buffer, Client.username_login);
-                StreamUtil.xteaEncrypt(buffer, xtea_start, keys);
-                StreamUtil.setBufferLength(buffer, xtea_start);
+                // Put Username
+                long formatUser = Util.username2hash(Client.username_login);
+                StreamUtil.putLongTo(buffer, formatUser);
+
+                // Put Password
+                enc_cred_put(buffer, formatPass, 0);
+
+                // In 235 putRandom of "random.dat" is 24 bytes, but for 127 is expected 4 bytes.
+                Object randBlock = StreamUtil.getNewBuffer(24);
+                StreamUtil.putRandom(randBlock);
+                byte[] randArr = StreamUtil.getBufferByteArray(randBlock);
+                CRC16 sum = new CRC16();
+                sum.update(randArr);
+                int rand = (int)sum.getValue();
+                StreamUtil.putIntTo(buffer, rand);
+
                 StreamUtil.flushPacket();
-                StreamUtil.initIsaac(keys);
                 
                 int response = StreamUtil.readStream();				
 				Logger.Game("Newplayer response: " + response);
@@ -118,6 +104,40 @@ public class AccountManagement {
 			}
 		}
 	}
+	
+	public static void enc_cred_put(Object buffer, String str, int sessionId) {
+	    byte[] data = str.getBytes();
+	    int len = data.length;
+	    byte[] block = new byte[15];
+
+	    for (int i = 0; i < len; i += 7) {
+	      block[0] = (byte) ((int) (1.0D + Math.random() * 127.0D));
+	      block[1] = (byte) ((int) (Math.random() * 256.0D));
+	      block[2] = (byte) ((int) (Math.random() * 256.0D));
+	      block[3] = (byte) ((int) (Math.random() * 256.0D));
+
+
+	      StreamUtil.putIntTo(buffer, sessionId); // n = RSC127 session ID
+
+	      for (int var9 = 0; var9 < 7; ++var9) {
+	        if (i + var9 < len) {
+	          block[8 + var9] = data[i + var9];
+	        } else {
+	          block[8 + var9] = 32;
+	        }
+	      }
+
+	      BigInteger _block = new BigInteger(1, block);
+	      BigInteger _enc = _block.modPow(Client.exponent, Client.modulus);
+	      byte[] enc = _enc.toByteArray();
+
+	      StreamUtil.putByteTo(buffer, (byte) enc.length);
+
+	      for (int j = 0; j < enc.length; ++j) {
+	        StreamUtil.putByteTo(buffer, enc[j]);
+	      }
+	    }
+	  }
 	
 	// § SECTION hook between screen and renderers §
 	

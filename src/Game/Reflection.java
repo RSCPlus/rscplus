@@ -112,7 +112,7 @@ public class Reflection {
   public static Method preGameDisplay = null;
   public static Method resetTimings = null;
   public static Method formatText = null;
-  public static Method padBuffer = null;
+  public static Method putRandom = null;
   
   public static Method addButtonBack = null;
   public static Method addCenterText = null;
@@ -182,7 +182,7 @@ public class Reflection {
   private static final String RESET_TIMINGS = "final void e.c(int)";
   
   private static final String FORMAT_TEXT = "static final java.lang.String b.a(int,byte,java.lang.String)";
-  private static final String PAD_BUFFER = "static final void f.a(int,tb)";
+  private static final String PUTRANDOM = "static final void f.a(int,tb)";
   
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
   private static final String ADDCENTERTEXT = "final int qa.a(boolean,byte,int,int,java.lang.String,int)";
@@ -443,9 +443,9 @@ public class Reflection {
       c = classLoader.loadClass("f");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
-        if (method.toGenericString().equals(PAD_BUFFER)) {
-          padBuffer = method;
-          Logger.Info("Found padBuffer");
+        if (method.toGenericString().equals(PUTRANDOM)) {
+          putRandom = method;
+          Logger.Info("Found putRandom");
         }
       }
 
@@ -666,7 +666,7 @@ public class Reflection {
       if (preGameDisplay != null) preGameDisplay.setAccessible(true);
       if (resetTimings != null) resetTimings.setAccessible(true);
       if (formatText != null) formatText.setAccessible(true);
-      if (padBuffer != null) padBuffer.setAccessible(true);
+      if (putRandom != null) putRandom.setAccessible(true);
       if (addButtonBack != null) addButtonBack.setAccessible(true);
       if (addCenterText != null) addCenterText.setAccessible(true);
       if (addButton != null) addButton.setAccessible(true);

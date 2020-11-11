@@ -86,11 +86,11 @@ public class StreamUtil {
 		return buffer;
 	}
 	
-	public static void padBuffer(Object buffer) {
-		if (Reflection.padBuffer == null) return;
+	public static void putRandom(Object buffer) {
+		if (Reflection.putRandom == null) return;
 		
 		try {
-			Reflection.padBuffer.invoke(null, (int)22607, buffer);
+			Reflection.putRandom.invoke(null, (int)22607, buffer);
 		} catch (Exception e) {
 	    }
 	}
@@ -192,6 +192,11 @@ public class StreamUtil {
 			Reflection.putInt3Byte.invoke(buffer, n, (byte)-13);
 	    } catch (Exception e) {
 	    }
+	}
+	
+	public static void putLongTo(Object buffer, long l) {
+		putIntTo(buffer, (int) (l >> 32));
+		putIntTo(buffer, (int) (l & -1L));
 	}
 	
 	public static void putStrTo(Object buffer, String st) {
