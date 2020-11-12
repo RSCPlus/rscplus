@@ -45,6 +45,8 @@ public class AccountManagement {
 				StreamUtil.initializeStream(Client.server_address, port);
 				StreamUtil.setStreamMaxRetries(Client.maxRetries);
 				
+				int session_id = 0; // TODO: should read session ID here, triggered by TCP handshake
+				
 				StreamUtil.newPacket(2);
                 Object buffer = StreamUtil.getStreamBuffer();
                 StreamUtil.putShortTo(buffer, (short)(Client.version & 0xFFFF));
@@ -54,7 +56,7 @@ public class AccountManagement {
                 StreamUtil.putLongTo(buffer, formatUser);
 
                 // Put Password
-                enc_cred_put(buffer, formatPass, 0);
+                enc_cred_put(buffer, formatPass, session_id);
 
                 // In 235 putRandom of "random.dat" is 24 bytes, but for 127 is expected 4 bytes.
                 Object randBlock = StreamUtil.getNewBuffer(24);
@@ -67,6 +69,7 @@ public class AccountManagement {
 
                 StreamUtil.flushPacket();
                 
+                StreamUtil.readStream(); // Unknown what data this contained, client doesn't use it.
                 int response = StreamUtil.readStream();				
 				Logger.Game("Newplayer response: " + response);
                 
@@ -117,7 +120,8 @@ public class AccountManagement {
 	      block[3] = (byte) ((int) (Math.random() * 256.0D));
 
 
-	      StreamUtil.putIntTo(buffer, sessionId); // n = RSC127 session ID
+	      // Put session ID
+	      Util.int_put(block, 4, sessionId);
 
 	      for (int var9 = 0; var9 < 7; ++var9) {
 	        if (i + var9 < len) {

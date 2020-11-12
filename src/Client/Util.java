@@ -366,6 +366,7 @@ public class Util {
     }
   }
   
+  /** Used for RSC127 */
   public static long username2hash(String s) {
       String s1 = "";
       for (int i = 0; i < s.length(); i++) {
@@ -396,6 +397,7 @@ public class Util {
       return hash;
   }
 
+  /** Used for RSC127 */
   public static String hash2username(long hash) {
       if (hash < 0L)
           return "invalidName";
@@ -416,4 +418,12 @@ public class Util {
       }
       return s;
   }
+  
+  /** RSC127 - put an int into buffer at specific offset */
+  public static void int_put(byte[] buffer, int offset, int num) {
+	  buffer[offset] = (byte) (num >> 24);
+	  buffer[offset + 1] = (byte) (num >> 16);
+	  buffer[offset + 2] = (byte) (num >> 8);
+	  buffer[offset + 3] = (byte) num;
+	}
 }
