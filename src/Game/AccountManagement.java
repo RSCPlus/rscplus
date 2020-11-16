@@ -21,6 +21,7 @@ package Game;
 import java.math.BigInteger;
 import Client.CRC16;
 import Client.Logger;
+import Client.Settings;
 import Client.Util;
 
 public class AccountManagement {
@@ -208,9 +209,11 @@ public class AccountManagement {
 	
 	public static void panel_welcome_hook(int n) {
 	    try {
-	      Panel.addButtonBackTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
-	      Panel.addCenterTextTo(Client.panelWelcome, 86, 40 + 250, "Signup", 5, false);
-	      Client.registerButton = Panel.addButtonTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
+	    	if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+	    		Panel.addButtonBackTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
+	  	      Panel.addCenterTextTo(Client.panelWelcome, 86, 40 + 250, "Signup", 5, false);
+	  	      Client.registerButton = Panel.addButtonTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
+	    	}
 	      
 	      int var1 = 70;
 	      Client.controlRegister = Panel.addCenterTextTo(Client.panelRegister, 256, var1 + 8, "To create an account please enter all the requested details", 4, true);
