@@ -2814,6 +2814,59 @@ public class JClassPatcher {
             }
           }
       }
+      if (methodNode.name.equals("t") && methodNode.desc.equals("(I)V")) {
+    	  //appearance panel
+    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode findNode;
+
+            if (nextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.GETSTATIC
+                && ((FieldInsnNode) insnNode).name.equals("il")
+                && nextNode.getOpcode() == Opcodes.BIPUSH
+                && ((IntInsnNode)nextNode).operand == 91) {
+            	
+            	findNode = nextNode;
+            	
+            	for (int i=0; i<3; i++) {
+            		//node of iload3 (ypos)
+            		findNode = findNode.getNext();
+            	}
+            	
+            	AbstractInsnNode call = (MethodInsnNode) findNode;
+            	int offset = Settings.PATCH_GENDER.get(Settings.currentProfile) ? -8 : 0;
+            	
+            	methodNode.instructions.insertBefore(call, new IntInsnNode(Opcodes.BIPUSH, offset));
+                methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
+            	
+            	while (findNode.getOpcode() != Opcodes.POP) {
+            		// in case of patch need one additional addText, see below
+            		findNode = findNode.getNext();
+            	}
+            	
+            	call = (VarInsnNode) findNode.getNext();
+            	
+            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            	methodNode.instructions.insertBefore(
+            			call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Af", "Lqa;"));
+            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
+            	methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.INEG));
+            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+            	methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
+            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
+            	
+            	// see if addTextTo should be added, i.e. "gender" is patched
+            	methodNode.instructions.insertBefore(
+            			call,
+                        new MethodInsnNode(
+                            Opcodes.INVOKESTATIC, "Game/Client", "patch_gender_hook", "(Ljava/lang/Object;II)V", false));
+            	
+            }
+          }
+      }
 
       // hookTracer(node, methodNode);
     }

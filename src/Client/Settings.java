@@ -84,6 +84,7 @@ public class Settings {
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> COMMAND_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
@@ -94,6 +95,7 @@ public class Settings {
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> START_SEARCHEDBANK = new HashMap<String, Boolean>();
   public static HashMap<String, String> SEARCH_BANK_WORD = new HashMap<String, String>();
   public static HashMap<String, Integer> LOG_VERBOSITY = new HashMap<String, Integer>();
@@ -404,6 +406,15 @@ public class Settings {
     ATTACK_ALWAYS_LEFT_CLICK.put("all", true);
     ATTACK_ALWAYS_LEFT_CLICK.put(
         "custom", getPropBoolean(props, "bypass_attack", ATTACK_ALWAYS_LEFT_CLICK.get("default")));
+    
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla", false);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla_resizable", false);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("lite", true);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("default", true);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("heavy", true);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("all", true);
+    KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
+        "custom", getPropBoolean(props, "keep_scrollbar_pos_magic_prayer", KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get("default")));
 
     HIDE_ROOFS.put("vanilla", false);
     HIDE_ROOFS.put("vanilla_resizable", false);
@@ -492,6 +503,15 @@ public class Settings {
     AUTO_SCREENSHOT.put("all", true);
     AUTO_SCREENSHOT.put(
         "custom", getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
+    
+    PATCH_GENDER.put("vanilla", false);
+    PATCH_GENDER.put("vanilla_resizable", false);
+    PATCH_GENDER.put("lite", false);
+    PATCH_GENDER.put("default", true);
+    PATCH_GENDER.put("heavy", true);
+    PATCH_GENDER.put("all", true);
+    PATCH_GENDER.put(
+        "custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
 
     START_SEARCHEDBANK.put("vanilla", false);
     START_SEARCHEDBANK.put("vanilla_resizable", false);
@@ -1527,6 +1547,7 @@ public class Settings {
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
       props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
+      props.setProperty("keep_scrollbar_pos_magic_prayer", Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
@@ -1538,6 +1559,7 @@ public class Settings {
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
+      props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
       props.setProperty("start_searched_bank", Boolean.toString(START_SEARCHEDBANK.get(preset)));
       props.setProperty("search_bank_word", SEARCH_BANK_WORD.get(preset));
       props.setProperty("log_verbosity", Integer.toString(LOG_VERBOSITY.get(preset)));
