@@ -152,6 +152,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
   private JSlider generalPanelCommandPatchModeSlider;
   private JCheckBox generalPanelBypassAttackCheckbox;
+  private JCheckBox generalPanelKeepMagicPrayerCursorCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelCameraRotatableCheckbox;
@@ -162,6 +163,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JSlider generalPanelViewDistanceSlider;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
+  private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelStartSearchedBankCheckbox;
   private JTextField generalPanelSearchBankWordTextField;
 
@@ -707,6 +709,10 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
+    
+    generalPanelKeepMagicPrayerCursorCheckbox = addCheckbox("Keep Magic & Prayer cursor", generalPanel);
+    generalPanelKeepMagicPrayerCursorCheckbox.setToolTipText(
+        "Keeps the magic & prayers list cursor when switching between tabs");
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
@@ -852,6 +858,11 @@ public class ConfigWindow {
             }
           }
         });
+    
+    generalPanelPatchGenderCheckbox =
+            addCheckbox("Correct gender to body type in appearance screen (Requires restart)", generalPanel);
+    generalPanelPatchGenderCheckbox.setToolTipText(
+            "When selected places body type instead of gender in the appearance screen");
 
     generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
     generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
@@ -2186,6 +2197,8 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+    generalPanelKeepMagicPrayerCursorCheckbox.setSelected(
+            Settings.KEEP_MAGIC_PRAYER_TAB_CURSOR.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
@@ -2210,6 +2223,8 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
+    generalPanelPatchGenderCheckbox.setSelected(
+            Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelStartSearchedBankCheckbox.setSelected(
         Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
     generalPanelSearchBankWordTextField.setText(
@@ -2429,6 +2444,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+    Settings.KEEP_MAGIC_PRAYER_TAB_CURSOR.put(
+            Settings.currentProfile, generalPanelKeepMagicPrayerCursorCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
@@ -2446,6 +2463,8 @@ public class ConfigWindow {
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
+    Settings.PATCH_GENDER.put(
+            Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
     Settings.START_SEARCHEDBANK.put(
         Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
     Settings.SEARCH_BANK_WORD.put(

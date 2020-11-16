@@ -481,6 +481,13 @@ public class Client {
     init_login();
 
     init_extra();
+    
+    // check if "Gender" of appearance panel should be patched
+    // first is of the string to "Body" then in 
+    // patch_gender_hook adds text "Type"
+    if (Settings.PATCH_GENDER.get(Settings.currentProfile)) {
+    	strings[91] = "Body";
+    }
   }
   
   public static boolean skipToLogin() {
@@ -847,6 +854,19 @@ public class Client {
     }
 
     return tooltipMessage;
+  }
+  
+  /**
+   * If Profile PATCH_GENDER is set, changes the Appearance Panel text from "Gender" to "Body Type"
+   * 
+   * @param panelAppearance
+   * @param xPos
+   * @param yPos
+   */
+  public static void patch_gender_hook(Object panelAppearance, int xPos, int yPos) {
+	  if (Settings.PATCH_GENDER.get(Settings.currentProfile)) {
+		  Panel.addCenterTextTo(panelAppearance, xPos, yPos + 8, "Type", 1, true);  
+	  }
   }
 
   /**
