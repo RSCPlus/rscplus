@@ -152,7 +152,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
   private JSlider generalPanelCommandPatchModeSlider;
   private JCheckBox generalPanelBypassAttackCheckbox;
-  private JCheckBox generalPanelKeepMagicPrayerCursorCheckbox;
+  private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelCameraRotatableCheckbox;
@@ -710,9 +710,9 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
     
-    generalPanelKeepMagicPrayerCursorCheckbox = addCheckbox("Keep Magic & Prayer cursor", generalPanel);
-    generalPanelKeepMagicPrayerCursorCheckbox.setToolTipText(
-        "Keeps the magic & prayers list cursor when switching between tabs");
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox = addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
+        "Keeps the magic & prayers scrollbar position when switching between tabs");
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
@@ -1315,7 +1315,7 @@ public class ConfigWindow {
     addSettingsHeader(streamingPanel, "Speedrunner Mode");
     JLabel speedrunnerModeExplanation =
         new JLabel(
-            "<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
+            "<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Prayer & Magic scrollbars will reset to the top when switching between those tabs</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
     speedrunnerModeExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
     streamingPanel.add(speedrunnerModeExplanation);
 
@@ -2197,8 +2197,8 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
-    generalPanelKeepMagicPrayerCursorCheckbox.setSelected(
-            Settings.KEEP_MAGIC_PRAYER_TAB_CURSOR.get(Settings.currentProfile));
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
+            Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
@@ -2444,8 +2444,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
-    Settings.KEEP_MAGIC_PRAYER_TAB_CURSOR.put(
-            Settings.currentProfile, generalPanelKeepMagicPrayerCursorCheckbox.isSelected());
+    Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
+            Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());

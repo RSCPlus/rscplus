@@ -89,7 +89,7 @@ public class Menu {
       try {
     	  int[] scroll = (int[]) Reflection.menuScroll.get(spell_menu);
     	  
-    	  if (Settings.KEEP_MAGIC_PRAYER_TAB_CURSOR.get(Settings.currentProfile)
+    	  if (Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile)
      			 && !Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
     		// Swap scroll values
   	        spell_swap_scroll[spell_swap_idx] = scroll[spell_handle];
