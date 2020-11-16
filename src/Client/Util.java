@@ -18,16 +18,20 @@
  */
 package Client;
 
-import Game.Replay;
-import Game.ReplayQueue;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
+import Game.Replay;
+import Game.ReplayQueue;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -361,4 +365,65 @@ public class Util {
       }
     }
   }
+  
+  /** Used for RSC127 */
+  public static long username2hash(String s) {
+      String s1 = "";
+      for (int i = 0; i < s.length(); i++) {
+          char c = s.charAt(i);
+          if (c >= 'a' && c <= 'z')
+              s1 = s1 + c;
+          else if (c >= 'A' && c <= 'Z')
+              s1 = s1 + (char) ((c + 97) - 65);
+          else if (c >= '0' && c <= '9')
+              s1 = s1 + c;
+          else
+              s1 = s1 + ' ';
+      }
+
+      s1 = s1.trim();
+      if (s1.length() > 12)
+          s1 = s1.substring(0, 12);
+      long hash = 0L;
+      for (int j = 0; j < s1.length(); j++) {
+          char c1 = s1.charAt(j);
+          hash *= 37L;
+          if (c1 >= 'a' && c1 <= 'z')
+              hash += (1 + c1) - 97;
+          else if (c1 >= '0' && c1 <= '9')
+              hash += (27 + c1) - 48;
+      }
+
+      return hash;
+  }
+
+  /** Used for RSC127 */
+  public static String hash2username(long hash) {
+      if (hash < 0L)
+          return "invalidName";
+      String s = "";
+      while (hash != 0L) {
+          int i = (int) (hash % 37L);
+          hash /= 37L;
+          if (i == 0)
+              s = " " + s;
+          else if (i < 27) {
+              if (hash % 37L == 0L)
+                  s = (char) ((i + 65) - 1) + s;
+              else
+                  s = (char) ((i + 97) - 1) + s;
+          } else {
+              s = (char) ((i + 48) - 27) + s;
+          }
+      }
+      return s;
+  }
+  
+  /** RSC127 - put an int into buffer at specific offset */
+  public static void int_put(byte[] buffer, int offset, int num) {
+	  buffer[offset] = (byte) (num >> 24);
+	  buffer[offset + 1] = (byte) (num >> 16);
+	  buffer[offset + 2] = (byte) (num >> 8);
+	  buffer[offset + 3] = (byte) num;
+	}
 }

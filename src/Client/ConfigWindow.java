@@ -18,12 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -82,6 +76,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -223,6 +223,8 @@ public class ConfigWindow {
   private JTextField streamingPanelTwitchUserTextField;
   private JCheckBox streamingPanelIPAtLoginCheckbox;
   private JCheckBox streamingPanelSaveLoginCheckbox;
+  private JCheckBox streamingPanelStartLoginCheckbox;
+  private JCheckBox streamingPanelAccountSecurityCheckbox;
   private JCheckBox streamingPanelSpeedrunnerCheckbox;
   // private JTextField streamingPanelSpeedrunnerUsernameTextField;
 
@@ -1284,6 +1286,16 @@ public class ConfigWindow {
         addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
     streamingPanelSaveLoginCheckbox.setToolTipText(
         "Preserves login details between logins (Disable this if you're streaming)");
+    
+    streamingPanelStartLoginCheckbox =
+            addCheckbox("Start game at login screen", streamingPanel);
+    streamingPanelStartLoginCheckbox.setToolTipText(
+            "Starts the game at the login screen and return to it on logout");
+    
+    streamingPanelAccountSecurityCheckbox =
+            addCheckbox("Show Account Creation and Security Settings (Requires restart)", streamingPanel);
+    streamingPanelAccountSecurityCheckbox.setToolTipText(
+            "Makes old RSC account creation, password recovery and in-game security settings");
 
     JLabel spacerLabel =
         new JLabel("<html><head><style>p{font-size:10px;}</style></head><p>&nbsp;</p>");
@@ -2328,6 +2340,10 @@ public class ConfigWindow {
         Settings.SHOW_LOGIN_IP_ADDRESS.get(Settings.currentProfile));
     streamingPanelSaveLoginCheckbox.setSelected(
         Settings.SAVE_LOGININFO.get(Settings.currentProfile));
+    streamingPanelStartLoginCheckbox.setSelected(
+            Settings.START_LOGINSCREEN.get(Settings.currentProfile));
+    streamingPanelAccountSecurityCheckbox.setSelected(
+            Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
     streamingPanelSpeedrunnerCheckbox.setSelected(
         Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile));
     // streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
@@ -2530,6 +2546,10 @@ public class ConfigWindow {
         Settings.currentProfile, streamingPanelIPAtLoginCheckbox.isSelected());
     Settings.SAVE_LOGININFO.put(
         Settings.currentProfile, streamingPanelSaveLoginCheckbox.isSelected());
+    Settings.START_LOGINSCREEN.put(
+            Settings.currentProfile, streamingPanelStartLoginCheckbox.isSelected());
+    Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
+            Settings.currentProfile, streamingPanelAccountSecurityCheckbox.isSelected());
     Settings.SPEEDRUNNER_MODE_ACTIVE.put(
         Settings.currentProfile, streamingPanelSpeedrunnerCheckbox.isSelected());
     // Settings.SPEEDRUNNER_USERNAME.put(

@@ -18,13 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Renderer;
-import Game.Replay;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -36,6 +29,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
+import Game.Replay;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -156,6 +156,8 @@ public class Settings {
   public static HashMap<String, String> TWITCH_USERNAME = new HashMap<String, String>();
   public static HashMap<String, Boolean> SHOW_LOGIN_IP_ADDRESS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SAVE_LOGININFO = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> START_LOGINSCREEN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SPEEDRUNNER_MODE_ACTIVE = new HashMap<String, Boolean>();
   // public static HashMap<String, String> SPEEDRUNNER_USERNAME = new HashMap<String, String>();
 
@@ -968,6 +970,24 @@ public class Settings {
     SAVE_LOGININFO.put("all", true);
     SAVE_LOGININFO.put(
         "custom", getPropBoolean(props, "save_logininfo", SAVE_LOGININFO.get("default")));
+    
+    START_LOGINSCREEN.put("vanilla", false);
+    START_LOGINSCREEN.put("vanilla_resizable", false);
+    START_LOGINSCREEN.put("lite", true);
+    START_LOGINSCREEN.put("default", true);
+    START_LOGINSCREEN.put("heavy", true);
+    START_LOGINSCREEN.put("all", true);
+    START_LOGINSCREEN.put(
+        "custom", getPropBoolean(props, "start_loginscreen", START_LOGINSCREEN.get("default")));
+    
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla", false);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla_resizable", false);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("lite", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("default", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("heavy", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("all", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put(
+        "custom", getPropBoolean(props, "show_account_security_settings", SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
 
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla", false);
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla_resizable", false);
@@ -1583,6 +1603,8 @@ public class Settings {
       props.setProperty("twitch_username", TWITCH_USERNAME.get(preset));
       props.setProperty("show_logindetails", Boolean.toString(SHOW_LOGIN_IP_ADDRESS.get(preset)));
       props.setProperty("save_logininfo", Boolean.toString(SAVE_LOGININFO.get(preset)));
+      props.setProperty("start_loginscreen", Boolean.toString(START_LOGINSCREEN.get(preset)));
+      props.setProperty("show_account_security_settings", Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
       props.setProperty("speedrun_active", Boolean.toString(SPEEDRUNNER_MODE_ACTIVE.get(preset)));
       // props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 

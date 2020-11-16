@@ -19,7 +19,27 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
-
+import java.applet.Applet;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
 import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
@@ -31,20 +51,6 @@ import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
 import Replay.game.constants.Game.ItemAction;
-import java.applet.Applet;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
-import javax.swing.JOptionPane;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -178,6 +184,7 @@ public class Client {
 
   public static int login_screen;
   public static String username_login;
+  public static String password_login;
   public static int autologin_timeout;
 
   public static Object player_object;
@@ -249,6 +256,7 @@ public class Client {
 
   public static BigInteger modulus;
   public static BigInteger exponent;
+  public static int maxRetries;
   public static byte[] fontData;
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
@@ -292,6 +300,24 @@ public class Client {
   public static int tileSize;
   public static long menu_timer;
   public static String lastAction;
+  
+  public static int login_delay;
+  public static String server_address;
+  public static int serverjag_port;
+  
+  public static Object panelWelcome;
+  public static Object panelLogin;
+  public static Object panelRegister;
+  public static int loginUserInput;
+  public static int loginPassInput;
+  public static int registerButton;
+  public static int controlRegister;
+  public static int chooseUserInput;
+  public static int choosePasswordInput;
+  public static int chooseConfirmPassInput;
+  public static int acceptTermsCheckbox;
+  public static int chooseSubmitRegisterButton;
+  public static int chooseCancelRegisterButton;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -454,10 +480,35 @@ public class Client {
     // Initialize login
     init_login();
 
-    // Skip first login screen and don't wipe user info
-    login_screen = 2;
-
     init_extra();
+  }
+  
+  public static boolean skipToLogin() {
+	  boolean skipToLogin = false;
+	  
+	  if (Settings.noWorldsConfigured || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
+	    	String curWorldURL = Settings.WORLD_URLS.get(1);
+	    	try {
+				String address = InetAddress.getByName(curWorldURL).toString();
+				if (address.contains("localhost") || address.contains("127.0.0.1")) {
+					// no configured world or localhost only
+					skipToLogin = true;
+				}
+			} catch (UnknownHostException e) {
+				skipToLogin = true;
+			}
+	    }
+	  
+	  return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+  
+  /** Method that gets called when starting game, normally would go to Welcome screen
+   *  but if no world configured (using RSC+ for replay mode) skip directly to login for replays
+   */
+  public static void resetLoginHook() {
+	  if (skipToLogin()) {
+		  login_screen = 2;
+	  }
   }
 
   public static void init_extra() {
@@ -656,13 +707,17 @@ public class Client {
 
   public static void init_login() {
     for (int i = 0; i < xpdrop_state.length; i++) xpdrop_state[i] = 0.0f;
-
+    
     Camera.init();
     state = STATE_LOGIN;
     isGameLoaded = false;
     Renderer.replayOption = 0;
 
     twitch.disconnect();
+    
+    if (skipToLogin()) {
+    	login_screen = 2;
+    }
 
     resetLoginMessage();
     Replay.closeReplayPlayback();
@@ -696,6 +751,8 @@ public class Client {
         && Settings.WORLD.get(Settings.currentProfile) != 0
         && !Replay.isPlaying) {
       closeConnection(false);
+      // make sure to set to login screen here
+      Client.login_screen = 2;
       loginMessageHandlerThread = new Thread(new LoginMessageHandler());
       loginMessageHandlerThread.start();
     }
@@ -765,6 +822,15 @@ public class Client {
     if (s.toLowerCase().equals("crash")) {
       disconnect_hook();
     }
+  }
+  
+  /**
+   * Called if Profile SAVE_LOGIN_INFO set, to not clear login info when selecting click here to login
+   */
+  public static void keep_login_info_hook() {
+	  Client.login_screen = 2;
+	  setLoginMessage("Please enter your username and password", "");
+	  Panel.setFocus(Client.panelLogin, Client.loginUserInput);
   }
 
   /**
@@ -1257,6 +1323,45 @@ public class Client {
       Reflection.logout.invoke(Client.instance, 0);
     } catch (Exception e) {
     }
+  }
+  
+  /** Gets a parameter defined from world config */
+  public static String getParameter(String parameter) {
+	  if (Reflection.getParameter == null) return null;
+	  String result = null;
+	  
+	  try {
+		  result = ((String)Reflection.getParameter.invoke(Client.instance, parameter));
+	  } catch (Exception e) {
+	  }
+	  return result;
+  }
+  
+  public static void clearScreen() {
+	  if (Reflection.clearScreen == null) return;
+	  
+	  try {
+		  Reflection.clearScreen.invoke(Renderer.instance, true);
+	  } catch (Exception e) {
+	  }
+  }
+  
+  public static void preGameDisplay() {
+	  if (Reflection.preGameDisplay == null) return;
+	  
+	  try {
+		  Reflection.preGameDisplay.invoke(Client.instance, 2540);
+	  } catch (Exception e) {
+	  }
+  }
+  
+  public static void resetTimings() {
+	  if (Reflection.resetTimings == null) return;
+	  
+	  try {
+		  Reflection.resetTimings.invoke(Client.instance, -28492);
+	  } catch (Exception e) {
+	  }
   }
 
   /**
@@ -1769,6 +1874,17 @@ public class Client {
       default:
         return Integer.toString(type);
     }
+  }
+  
+  public static String formatText(String inputText, int length) {
+	  if (Reflection.resetTimings == null) return null;
+	  String outputText = null;
+	  
+	  try {
+		  outputText = (String)Reflection.formatText.invoke(null, length, (byte)-5, inputText);
+	  } catch (Exception e) {
+	  }
+	  return outputText;
   }
 
   /**
