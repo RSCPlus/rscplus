@@ -150,7 +150,7 @@ public class AccountManagement {
 		try {
 			String user = Panel.getControlText(Client.panelRegister, Client.chooseUserInput);
 			String pass = Panel.getControlText(Client.panelRegister, Client.choosePasswordInput);
-			Client.login_screen = 2;
+			Client.login_screen = Client.SCREEN_USERNAME_PASSWORD_LOGIN;
 			Client.resetLoginMessage();
 			Panel.setControlText(Client.panelLogin, Client.loginUserInput, user);
 			Panel.setControlText(Client.panelLogin, Client.loginPassInput, pass);
@@ -164,10 +164,10 @@ public class AccountManagement {
 	
 	public static void pregame_hook() {
 		try {
-			if (Client.login_screen == 1) {
+			if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
 				Client.clearScreen();
 				Panel.drawPanel(Client.panelRegister);
-			} else if (Client.login_screen == 3) {
+			} else if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
 				Client.clearScreen();
 			}
 		} catch (Exception e) {
@@ -177,11 +177,11 @@ public class AccountManagement {
 	
 	public static void response_display_hook(String text1, String text2) {
 		try {
-			if (Client.login_screen == 1) {
+			if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
 				Panel.setControlText(Client.panelRegister, Client.controlRegister, text1 + " " + text2);
 			}
 			
-			if (Client.login_screen == 3) {
+			if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
 				
 			}
 			
@@ -194,7 +194,7 @@ public class AccountManagement {
 	public static void welcome_new_user_hook() {
 		try {
 			if (Panel.isSelected(Client.panelWelcome, Client.registerButton)) {
-				Client.login_screen = 1;
+				Client.login_screen = Client.SCREEN_REGISTER_NEW_ACCOUNT;
 				Panel.setControlText(Client.panelRegister, Client.chooseUserInput, "");
 				Panel.setControlText(Client.panelRegister, Client.choosePasswordInput, "");
 				Panel.setControlText(Client.panelRegister, Client.chooseConfirmPassInput, "");
@@ -251,7 +251,7 @@ public class AccountManagement {
 	
 	public static void account_panels_key_hook(int a, int key) {
 		try {
-			if (Client.login_screen == 1) {
+			if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
 				Panel.handleKey(Client.panelRegister, key);
 			}
 		} catch (Exception e) {
@@ -261,7 +261,7 @@ public class AccountManagement {
 	
 	public static void account_panels_input_hook(int n1, int mouseY, int a, int n3, int mouseX) {
 		try {
-			if (Client.login_screen == 1) {
+			if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
 				Panel.handleMouse(Client.panelRegister, n1, mouseY, n3, mouseX);
 				if (Panel.isSelected(Client.panelRegister, Client.chooseUserInput)) {
 					Panel.setFocus(Client.panelRegister, Client.choosePasswordInput);
@@ -276,7 +276,7 @@ public class AccountManagement {
 				}
 
 				if (Panel.isSelected(Client.panelRegister, Client.chooseCancelRegisterButton)) {
-					Client.login_screen = 0;
+					Client.login_screen = Client.SCREEN_CLICK_TO_LOGIN;
 				}
 				
 				if (Panel.isSelected(Client.panelRegister, Client.chooseSubmitRegisterButton)) {

@@ -92,6 +92,11 @@ public class Client {
   public static final int STATE_LOGIN = 1;
   public static final int STATE_GAME = 2;
 
+  public static final int SCREEN_CLICK_TO_LOGIN = 0; // also is this value while logged in
+  public static final int SCREEN_REGISTER_NEW_ACCOUNT = 1;
+  public static final int SCREEN_USERNAME_PASSWORD_LOGIN = 2;
+  public static final int SCREEN_PASSWORD_RECOVERY = 3;
+
   public static final int MENU_NONE = 0;
   public static final int MENU_INVENTORY = 1;
   public static final int MENU_MINIMAP = 2;
@@ -514,7 +519,7 @@ public class Client {
    */
   public static void resetLoginHook() {
 	  if (skipToLogin()) {
-		  login_screen = 2;
+		  login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
 	  }
   }
 
@@ -723,7 +728,7 @@ public class Client {
     twitch.disconnect();
     
     if (skipToLogin()) {
-    	login_screen = 2;
+    	login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
     }
 
     resetLoginMessage();
@@ -759,7 +764,7 @@ public class Client {
         && !Replay.isPlaying) {
       closeConnection(false);
       // make sure to set to login screen here
-      Client.login_screen = 2;
+      Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
       loginMessageHandlerThread = new Thread(new LoginMessageHandler());
       loginMessageHandlerThread.start();
     }
@@ -807,7 +812,6 @@ public class Client {
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
-    twitch.disconnect();
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
   }
@@ -835,7 +839,7 @@ public class Client {
    * Called if Profile SAVE_LOGIN_INFO set, to not clear login info when selecting click here to login
    */
   public static void keep_login_info_hook() {
-	  Client.login_screen = 2;
+	  Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
 	  setLoginMessage("Please enter your username and password", "");
 	  Panel.setFocus(Client.panelLogin, Client.loginUserInput);
   }

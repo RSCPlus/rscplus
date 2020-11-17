@@ -202,18 +202,25 @@ public class TwitchIRC implements Runnable {
 
     // warn user that twitch irc has lost connection
     if (active) {
-      Client.displayMessage(
-          "@yel@Disconnected from @red@["
-              + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
-              + "]@yel@, log back in if you'd like to continue chatting.",
-          Client.CHAT_CHAT);
-      /* Reconnect on disconnect
-      try {
-        Thread.sleep(10000);
-      } catch (Exception e) {
+      // Reconnect on disconnect
+      if (Client.state == Client.STATE_GAME) {
+        Client.displayMessage(
+            "@yel@Lost connection to twitch chat @red@["
+                + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
+                + "]@yel@, attempting to reconnect in 4 seconds.",
+            Client.CHAT_CHAT);
+        try {
+          Thread.sleep(4000);
+        } catch (Exception e) {
+        }
+        connect();
+      } else {
+        Client.displayMessage(
+            "@yel@Disconnected from @red@["
+                + Settings.TWITCH_CHANNEL.get(Settings.currentProfile)
+                + "]@yel@, log back in if you'd like to continue chatting.",
+            Client.CHAT_CHAT);
       }
-      connect();
-      */
     }
   }
 

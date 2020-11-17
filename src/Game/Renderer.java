@@ -1007,68 +1007,84 @@ public class Renderer {
         }
       }
 
-      // TODO: This will need to be adjusted when the login screen is resizable
-      Rectangle bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
-      drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
-
-      setAlpha(g2, 0.5f);
-      if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
-        g2.setColor(color_hp);
-      } else {
-        if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
-          g2.setColor(color_low);
+      // draw server replay buttons
+      boolean wantToDrawServerReplayButtons =
+          Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN ||
+          Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN;
+      if (wantToDrawServerReplayButtons) {
+        // TODO: This will need to be adjusted when the login screen is resizable
+        Rectangle bounds;
+        if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+          bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+        } else if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
+          bounds = new Rectangle(512 - 140, 288, 48, 16);
         } else {
-          g2.setColor(color_text);
+          Logger.Error("Specify -server replay- bounds for this screen!");
+          // original bounds, underneath the Cancel button
+          bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
         }
-      }
-      g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-      if (Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
-        g2.setColor(color_text);
-        g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-      }
+        drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
 
-      setAlpha(g2, 1.0f);
-      if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
-        drawShadowText(g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
-      } else {
-        drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
-      }
-      // Handle replay record selection click
-      if (MouseHandler.x >= bounds.x
-          && MouseHandler.x <= bounds.x + bounds.width
-          && MouseHandler.y >= bounds.y
-          && MouseHandler.y <= bounds.y + bounds.height
-          && MouseHandler.mouseClicked) {
-        Client.showRecordAlwaysDialogue = true;
-
-        if (replayOption == 1) {
-          replayOption = 0;
+        setAlpha(g2, 0.5f);
+        if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+          g2.setColor(color_hp);
         } else {
-          replayOption = 1;
-        }
-      }
-      bounds = new Rectangle(bounds.x + bounds.width + 4, bounds.y, 48, bounds.height);
-      setAlpha(g2, 0.5f);
-      if (replayOption == 2) g2.setColor(color_low);
-      else g2.setColor(color_text);
-      g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-      setAlpha(g2, 1.0f);
-      drawShadowText(g2, "play", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
-      // Handle replay play selection click
-      if (MouseHandler.x >= bounds.x
-          && MouseHandler.x <= bounds.x + bounds.width
-          && MouseHandler.y >= bounds.y
-          && MouseHandler.y <= bounds.y + bounds.height
-          && MouseHandler.mouseClicked) {
-        if (replayOption == 2) {
-          replayOption = 0;
-        } else {
-          if (ReplayQueue.replayFileSelectAdd()) {
-            Renderer.replayOption = 2;
-            ReplayQueue.nextReplay();
+          if (replayOption == 1 || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
+            g2.setColor(color_low);
           } else {
-            Renderer.replayOption = 0;
+            g2.setColor(color_text);
+          }
+        }
+        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+        if (Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
+          g2.setColor(color_text);
+          g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+
+        setAlpha(g2, 1.0f);
+        if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+          drawShadowText(g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+        } else {
+          drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+        }
+        // Handle replay record selection click
+        if (MouseHandler.x >= bounds.x
+            && MouseHandler.x <= bounds.x + bounds.width
+            && MouseHandler.y >= bounds.y
+            && MouseHandler.y <= bounds.y + bounds.height
+            && MouseHandler.mouseClicked) {
+          Client.showRecordAlwaysDialogue = true;
+
+          if (replayOption == 1) {
+            replayOption = 0;
+          } else {
+            replayOption = 1;
+          }
+        }
+        bounds = new Rectangle(bounds.x + bounds.width + 4, bounds.y, 48, bounds.height);
+        setAlpha(g2, 0.5f);
+        if (replayOption == 2) g2.setColor(color_low);
+        else g2.setColor(color_text);
+        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        setAlpha(g2, 1.0f);
+        drawShadowText(g2, "play", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+        // Handle replay play selection click
+        if (MouseHandler.x >= bounds.x
+            && MouseHandler.x <= bounds.x + bounds.width
+            && MouseHandler.y >= bounds.y
+            && MouseHandler.y <= bounds.y + bounds.height
+            && MouseHandler.mouseClicked) {
+          if (replayOption == 2) {
+            replayOption = 0;
+          } else {
+            if (ReplayQueue.replayFileSelectAdd()) {
+              Renderer.replayOption = 2;
+              ReplayQueue.nextReplay();
+            } else {
+              Renderer.replayOption = 0;
+            }
           }
         }
       }
