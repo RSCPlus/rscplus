@@ -812,7 +812,6 @@ public class Client {
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
-    twitch.disconnect();
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
   }
