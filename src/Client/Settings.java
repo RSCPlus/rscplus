@@ -18,6 +18,13 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
+import Game.Replay;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -29,13 +36,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Renderer;
-import Game.Replay;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -44,7 +44,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20201026.144615;
+  public static final double VERSION_NUMBER = 20201117.171330;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -84,7 +84,8 @@ public class Settings {
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> COMMAND_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
@@ -159,7 +160,8 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_LOGIN_IP_ADDRESS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SAVE_LOGININFO = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> START_LOGINSCREEN = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SPEEDRUNNER_MODE_ACTIVE = new HashMap<String, Boolean>();
   // public static HashMap<String, String> SPEEDRUNNER_USERNAME = new HashMap<String, String>();
 
@@ -406,7 +408,7 @@ public class Settings {
     ATTACK_ALWAYS_LEFT_CLICK.put("all", true);
     ATTACK_ALWAYS_LEFT_CLICK.put(
         "custom", getPropBoolean(props, "bypass_attack", ATTACK_ALWAYS_LEFT_CLICK.get("default")));
-    
+
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla", false);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla_resizable", false);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("lite", true);
@@ -414,7 +416,11 @@ public class Settings {
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("heavy", true);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("all", true);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
-        "custom", getPropBoolean(props, "keep_scrollbar_pos_magic_prayer", KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get("default")));
+        "custom",
+        getPropBoolean(
+            props,
+            "keep_scrollbar_pos_magic_prayer",
+            KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get("default")));
 
     HIDE_ROOFS.put("vanilla", false);
     HIDE_ROOFS.put("vanilla_resizable", false);
@@ -503,15 +509,14 @@ public class Settings {
     AUTO_SCREENSHOT.put("all", true);
     AUTO_SCREENSHOT.put(
         "custom", getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
-    
+
     PATCH_GENDER.put("vanilla", false);
     PATCH_GENDER.put("vanilla_resizable", false);
     PATCH_GENDER.put("lite", false);
     PATCH_GENDER.put("default", true);
     PATCH_GENDER.put("heavy", true);
     PATCH_GENDER.put("all", true);
-    PATCH_GENDER.put(
-        "custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
+    PATCH_GENDER.put("custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
 
     START_SEARCHEDBANK.put("vanilla", false);
     START_SEARCHEDBANK.put("vanilla_resizable", false);
@@ -990,7 +995,7 @@ public class Settings {
     SAVE_LOGININFO.put("all", true);
     SAVE_LOGININFO.put(
         "custom", getPropBoolean(props, "save_logininfo", SAVE_LOGININFO.get("default")));
-    
+
     START_LOGINSCREEN.put("vanilla", false);
     START_LOGINSCREEN.put("vanilla_resizable", false);
     START_LOGINSCREEN.put("lite", true);
@@ -999,7 +1004,7 @@ public class Settings {
     START_LOGINSCREEN.put("all", true);
     START_LOGINSCREEN.put(
         "custom", getPropBoolean(props, "start_loginscreen", START_LOGINSCREEN.get("default")));
-    
+
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla", false);
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla_resizable", false);
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("lite", true);
@@ -1007,7 +1012,11 @@ public class Settings {
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("heavy", true);
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("all", true);
     SHOW_ACCOUNT_SECURITY_SETTINGS.put(
-        "custom", getPropBoolean(props, "show_account_security_settings", SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
+        "custom",
+        getPropBoolean(
+            props,
+            "show_account_security_settings",
+            SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
 
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla", false);
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla_resizable", false);
@@ -1547,7 +1556,9 @@ public class Settings {
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
       props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
-      props.setProperty("keep_scrollbar_pos_magic_prayer", Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
+      props.setProperty(
+          "keep_scrollbar_pos_magic_prayer",
+          Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
@@ -1626,7 +1637,9 @@ public class Settings {
       props.setProperty("show_logindetails", Boolean.toString(SHOW_LOGIN_IP_ADDRESS.get(preset)));
       props.setProperty("save_logininfo", Boolean.toString(SAVE_LOGININFO.get(preset)));
       props.setProperty("start_loginscreen", Boolean.toString(START_LOGINSCREEN.get(preset)));
-      props.setProperty("show_account_security_settings", Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
+      props.setProperty(
+          "show_account_security_settings",
+          Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
       props.setProperty("speedrun_active", Boolean.toString(SPEEDRUNNER_MODE_ACTIVE.get(preset)));
       // props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 

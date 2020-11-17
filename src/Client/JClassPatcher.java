@@ -18,6 +18,7 @@
  */
 package Client;
 
+import Client.Settings.Dir;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -46,7 +47,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import Client.Settings.Dir;
 
 /** Singleton class which hooks variables and patches classes. */
 public class JClassPatcher {
@@ -289,9 +289,17 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "fc", "I", "Game/Replay", "connection_port", "I", true, true);
       hookClassVariable(
-              methodNode, "client", "Dh", "Ljava/lang/String;", "Game/Client", "server_address", "Ljava/lang/String;", true, true);
+          methodNode,
+          "client",
+          "Dh",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "server_address",
+          "Ljava/lang/String;",
+          true,
+          true);
       hookClassVariable(
-              methodNode, "client", "xd", "I", "Game/Client", "serverjag_port", "I", true, true);
+          methodNode, "client", "xd", "I", "Game/Client", "serverjag_port", "I", true, true);
 
       hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
@@ -399,8 +407,8 @@ public class JClassPatcher {
           methodNode, "client", "vg", "I", "Game/Client", "fatigue", "I", true, false);
       hookClassVariable(
           methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
-        hookClassVariable(
-            methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", true, true);
+      hookClassVariable(
+          methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", true, true);
 
       hookClassVariable(
           methodNode,
@@ -464,15 +472,15 @@ public class JClassPatcher {
           true,
           true);
       hookClassVariable(
-              methodNode,
-              "client",
-              "wh",
-              "Ljava/lang/String;",
-              "Game/Client",
-              "password_login",
-              "Ljava/lang/String;",
-              true,
-              true);
+          methodNode,
+          "client",
+          "wh",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "password_login",
+          "Ljava/lang/String;",
+          true,
+          true);
       hookClassVariable(
           methodNode, "client", "Vh", "I", "Game/Client", "autologin_timeout", "I", true, true);
 
@@ -650,7 +658,7 @@ public class JClassPatcher {
           "Game/Client",
           "modulus",
           "Ljava/math/BigInteger;");
-      
+
       // Max retries for stream
       hookStaticVariable(methodNode, "d", "l", "I", "Game/Client", "maxRetries", "I");
 
@@ -703,39 +711,38 @@ public class JClassPatcher {
           methodNode, "client", "sj", "I", "Game/Client", "selectedItem", "I", true, false);
       hookClassVariable(
           methodNode, "client", "Rd", "I", "Game/Client", "selectedItemSlot", "I", true, false);
-      
-      
+
       //// Panel UI Manipulation
       hookClassVariable(
-              methodNode,
-              "client",
-              "ge",
-              "Lqa;",
-              "Game/Client",
-              "panelWelcome",
-              "Ljava/lang/Object;",
-              true,
-              false);
-      
+          methodNode,
+          "client",
+          "ge",
+          "Lqa;",
+          "Game/Client",
+          "panelWelcome",
+          "Ljava/lang/Object;",
+          true,
+          false);
+
       hookClassVariable(
-              methodNode,
-              "client",
-              "yi",
-              "Lqa;",
-              "Game/Client",
-              "panelLogin",
-              "Ljava/lang/Object;",
-              true,
-              false);
-      
+          methodNode,
+          "client",
+          "yi",
+          "Lqa;",
+          "Game/Client",
+          "panelLogin",
+          "Ljava/lang/Object;",
+          true,
+          false);
+
       hookClassVariable(
-              methodNode, "client", "ng", "I", "Game/Client", "loginUserInput", "I", true, false);
-      
+          methodNode, "client", "ng", "I", "Game/Client", "loginUserInput", "I", true, false);
+
       hookClassVariable(
-              methodNode, "client", "Ih", "I", "Game/Client", "loginPassInput", "I", true, false);
-      
+          methodNode, "client", "Ih", "I", "Game/Client", "loginPassInput", "I", true, false);
+
       hookClassVariable(
-              methodNode, "client", "Zb", "I", "Game/Client", "login_delay", "I", true, false);
+          methodNode, "client", "Zb", "I", "Game/Client", "login_delay", "I", true, false);
     }
   }
 
@@ -762,32 +769,38 @@ public class JClassPatcher {
       }
       // drawPanel
       if (methodNode.name.equals("a") && methodNode.desc.equals("(B)V")) {
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 
-          while (insnNodeList.hasNext()) {
-        	  AbstractInsnNode insnNode = insnNodeList.next();
-              AbstractInsnNode nextNode = insnNode.getNext();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
 
-              if (nextNode == null) break;
+          if (nextNode == null) break;
 
-              if (insnNode.getOpcode() == Opcodes.BIPUSH
-                  && ((IntInsnNode)insnNode).operand == 14
-                  && nextNode.getOpcode() == Opcodes.ALOAD
-                  && ((VarInsnNode)nextNode).var == 0) {
-            	  methodNode.instructions.insertBefore(
-            			  insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client", "panelRegister", "Ljava/lang/Object;"));
-          	        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
-            	  methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-            	  methodNode.instructions.insertBefore(
-            	            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "qa", "U", "[I"));
-            	        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
-            	        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
-            	  methodNode.instructions.insertBefore(
-            			  insnNode,
-                          new MethodInsnNode(
-                              Opcodes.INVOKESTATIC, "Game/Panel", "draw_extra_hook", "(Ljava/lang/Object;II)V", false));
-              	}
-             }
+          if (insnNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) insnNode).operand == 14
+              && nextNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) nextNode).var == 0) {
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Game/Client", "panelRegister", "Ljava/lang/Object;"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "qa", "U", "[I"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Panel",
+                    "draw_extra_hook",
+                    "(Ljava/lang/Object;II)V",
+                    false));
+          }
+        }
       }
     }
   }
@@ -2328,111 +2341,125 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("p") && methodNode.desc.equals("(I)V")) {
-    	  // Login panel hook
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        // Login panel hook
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode prevNode = insnNode.getPrevious();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode prevNode = insnNode.getPrevious();
 
-            if (prevNode == null) continue;
+          if (prevNode == null) continue;
 
-            if (insnNode.getOpcode() == Opcodes.ILOAD
-                && ((VarInsnNode) insnNode).var == 1
-                && prevNode.getOpcode() == Opcodes.GETFIELD
-                && ((FieldInsnNode) prevNode).owner.equals("client")
-                && ((FieldInsnNode) prevNode).name.equals("ge")) {
-            	methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ALOAD, 0));
-          	  methodNode.instructions.insertBefore(prevNode, new TypeInsnNode(Opcodes.NEW, "qa"));
-          	  methodNode.instructions.insertBefore(prevNode, new InsnNode(Opcodes.DUP));
-          	  methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ALOAD, 0));
-          	  methodNode.instructions.insertBefore(
-          			prevNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "li", "Lba;"));
-          	  methodNode.instructions.insertBefore(prevNode, new IntInsnNode(Opcodes.BIPUSH, 50));
-          	  methodNode.instructions.insertBefore(
-          			prevNode,
-          	            new MethodInsnNode(
-          	                Opcodes.INVOKESPECIAL, "qa", "<init>", "(Lua;I)V", false));
-          	  methodNode.instructions.insertBefore(
-          			prevNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "panelRegister", "Ljava/lang/Object;"));
-          	methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ILOAD, 1));
-            	methodNode.instructions.insertBefore(
-                        prevNode,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/AccountManagement", "panel_welcome_hook", "(I)V", false));
-              break;
-            }
+          if (insnNode.getOpcode() == Opcodes.ILOAD
+              && ((VarInsnNode) insnNode).var == 1
+              && prevNode.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) prevNode).owner.equals("client")
+              && ((FieldInsnNode) prevNode).name.equals("ge")) {
+            methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(prevNode, new TypeInsnNode(Opcodes.NEW, "qa"));
+            methodNode.instructions.insertBefore(prevNode, new InsnNode(Opcodes.DUP));
+            methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                prevNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "li", "Lba;"));
+            methodNode.instructions.insertBefore(prevNode, new IntInsnNode(Opcodes.BIPUSH, 50));
+            methodNode.instructions.insertBefore(
+                prevNode,
+                new MethodInsnNode(Opcodes.INVOKESPECIAL, "qa", "<init>", "(Lua;I)V", false));
+            methodNode.instructions.insertBefore(
+                prevNode,
+                new FieldInsnNode(
+                    Opcodes.PUTSTATIC, "Game/Client", "panelRegister", "Ljava/lang/Object;"));
+            methodNode.instructions.insertBefore(prevNode, new VarInsnNode(Opcodes.ILOAD, 1));
+            methodNode.instructions.insertBefore(
+                prevNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "panel_welcome_hook",
+                    "(I)V",
+                    false));
+            break;
           }
+        }
       }
       if (methodNode.name.equals("k") && methodNode.desc.equals("(I)V")) {
-    	  //pre-game display hook
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        // pre-game display hook
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 
-          while (insnNodeList.hasNext()) {
-        	  AbstractInsnNode insnNode = insnNodeList.next();
-              AbstractInsnNode nextNode = insnNode.getNext();
-              AbstractInsnNode twoNextNodes = nextNode.getNext();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNodes = nextNode.getNext();
 
-              if (nextNode == null || twoNextNodes == null) break;
+          if (nextNode == null || twoNextNodes == null) break;
 
-              if (insnNode.getOpcode() == Opcodes.ICONST_2
-                  && nextNode.getOpcode() == Opcodes.ALOAD
-                  && ((VarInsnNode) nextNode).var == 0
-                  && twoNextNodes.getOpcode() == Opcodes.GETFIELD
-                  && ((FieldInsnNode)twoNextNodes).name.equals("Xd")) {
-            	  methodNode.instructions.insertBefore(
-            			  insnNode,
-                          new MethodInsnNode(
-                              Opcodes.INVOKESTATIC, "Game/AccountManagement", "pregame_hook", "()V", false));
-              	}
-             }
-      }
-      if (methodNode.name.equals("b") && methodNode.desc.equals("(BLjava/lang/String;Ljava/lang/String;)V")) {
-    	  // show server response status text
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-
-          while (insnNodeList.hasNext()) {
-        	  AbstractInsnNode insnNode = insnNodeList.next();
-              AbstractInsnNode nextNode = insnNode.getNext();
-
-              if (nextNode == null) break;
-
-              if (insnNode.getOpcode() == Opcodes.ICONST_2
-                      && nextNode.getOpcode() == Opcodes.ALOAD
-                      && ((VarInsnNode) nextNode).var == 0) {
-            	  methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 3));
-            	  methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 2));
-            	  methodNode.instructions.insertBefore(
-                			insnNode,
-                            new MethodInsnNode(
-                                Opcodes.INVOKESTATIC, "Game/AccountManagement", "response_display_hook", "(Ljava/lang/String;Ljava/lang/String;)V", false));
-              }
+          if (insnNode.getOpcode() == Opcodes.ICONST_2
+              && nextNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) nextNode).var == 0
+              && twoNextNodes.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) twoNextNodes).name.equals("Xd")) {
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/AccountManagement", "pregame_hook", "()V", false));
           }
+        }
+      }
+      if (methodNode.name.equals("b")
+          && methodNode.desc.equals("(BLjava/lang/String;Ljava/lang/String;)V")) {
+        // show server response status text
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.ICONST_2
+              && nextNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) nextNode).var == 0) {
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 3));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 2));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "response_display_hook",
+                    "(Ljava/lang/String;Ljava/lang/String;)V",
+                    false));
+          }
+        }
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(BI)V")) {
-    	  // Handle key press hook (not logged in)
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        // Handle key press hook (not logged in)
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
 
-          while (insnNodeList.hasNext()) {
-        	  AbstractInsnNode insnNode = insnNodeList.next();
-              AbstractInsnNode nextNode = insnNode.getNext();
-              AbstractInsnNode twoNextNode = nextNode.getNext();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNode = nextNode.getNext();
 
-              if (nextNode == null || twoNextNode == null) break;
+          if (nextNode == null || twoNextNode == null) break;
 
-              if (insnNode.getOpcode() == Opcodes.ALOAD
-                  && ((VarInsnNode)insnNode).var == 0
-                  && nextNode.getOpcode() == Opcodes.GETFIELD
-                  && ((FieldInsnNode) nextNode).name.equals("Xd")
-                  && twoNextNode.getOpcode() == Opcodes.ICONST_M1) {
-            	  methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -12));
-            	  methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
-              	methodNode.instructions.insertBefore(
-              			insnNode,
-                          new MethodInsnNode(
-                              Opcodes.INVOKESTATIC, "Game/AccountManagement", "account_panels_key_hook", "(II)V", false));
-              }
+          if (insnNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) insnNode).var == 0
+              && nextNode.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) nextNode).name.equals("Xd")
+              && twoNextNode.getOpcode() == Opcodes.ICONST_M1) {
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -12));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 2));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "account_panels_key_hook",
+                    "(II)V",
+                    false));
           }
+        }
       }
       if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
         // Login button press hook, from login panel
@@ -2457,82 +2484,90 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(
             findNode,
             new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "login_hook", "()V", false));
-        
+
         // Register button press hook
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
-      	  AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode twoNextNode = nextNode.getNext();
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNode = nextNode.getNext();
 
-            if (nextNode == null || twoNextNode == null) break;
+          if (nextNode == null || twoNextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.ALOAD
-                && ((VarInsnNode)insnNode).var == 0
-                && nextNode.getOpcode() == Opcodes.GETFIELD
-                && ((FieldInsnNode) nextNode).name.equals("ge")
-                && twoNextNode.getOpcode() == Opcodes.BIPUSH
-                && ((IntInsnNode)twoNextNode).operand == -98) {
-            	methodNode.instructions.insertBefore(
-            			insnNode,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/AccountManagement", "welcome_new_user_hook", "()V", false));
-            }
+          if (insnNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) insnNode).var == 0
+              && nextNode.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) nextNode).name.equals("ge")
+              && twoNextNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) twoNextNode).operand == -98) {
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "welcome_new_user_hook",
+                    "()V",
+                    false));
+          }
         }
-        
-     // Login button press hook, from welcome screen (don't clear out if save login info)
+
+        // Login button press hook, from welcome screen (don't clear out if save login info)
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
-      	  AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
 
-            if (nextNode == null) break;
+          if (nextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.PUTFIELD
-            	&& ((FieldInsnNode) insnNode).name.equals("Xd")
-            	&& Settings.SAVE_LOGININFO.get(Settings.currentProfile)) {
-            	
-            	methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.ICONST_0));
-            	methodNode.instructions.insertBefore(
-            			insnNode,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/Client", "keep_login_info_hook", "()V", false));
-                methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
-            }
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).name.equals("Xd")
+              && Settings.SAVE_LOGININFO.get(Settings.currentProfile)) {
+
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "keep_login_info_hook", "()V", false));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
+          }
         }
-        
-        // Non welcome screen hook 
+
+        // Non welcome screen hook
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
-      	  AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
 
-            if (nextNode == null) break;
+          if (nextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.IADD
-                && nextNode.getOpcode() == Opcodes.PUTSTATIC
-                && ((FieldInsnNode)nextNode).name.equals("Zi")) {
-            	methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-            	methodNode.instructions.insertBefore(
-            			  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Bb", "I"));
-            	methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-            	methodNode.instructions.insertBefore(
-            			  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "xb", "I"));
-            	methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, -9989));
-            	methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-          	  	methodNode.instructions.insertBefore(
-          			  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Qb", "I"));
-          	  	methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-          		methodNode.instructions.insertBefore(
-      			  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "I", "I"));
-            	methodNode.instructions.insertBefore(
-            			insnNode,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/AccountManagement", "account_panels_input_hook", "(IIIII)V", false));
-            }
+          if (insnNode.getOpcode() == Opcodes.IADD
+              && nextNode.getOpcode() == Opcodes.PUTSTATIC
+              && ((FieldInsnNode) nextNode).name.equals("Zi")) {
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Bb", "I"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "xb", "I"));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, -9989));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Qb", "I"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "I", "I"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "account_panels_input_hook",
+                    "(IIIII)V",
+                    false));
+          }
         }
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
@@ -2793,79 +2828,83 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("e") && methodNode.desc.equals("(B)V")) {
-    	  // reset login screen vars method
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
+        // reset login screen vars method
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
 
-            if (nextNode == null) break;
+          if (nextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.PUTFIELD
-                && ((FieldInsnNode) insnNode).owner.equals("client")
-                && ((FieldInsnNode) insnNode).name.equals("wh")) {
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).owner.equals("client")
+              && ((FieldInsnNode) insnNode).name.equals("wh")) {
 
-            	FieldInsnNode call = (FieldInsnNode) insnNode.getNext();
-              
-              methodNode.instructions.insertBefore(
-                      call,
-                      new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "resetLoginHook", "()V", false));
-              break;
-            }
+            FieldInsnNode call = (FieldInsnNode) insnNode.getNext();
+
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "resetLoginHook", "()V", false));
+            break;
           }
+        }
       }
       if (methodNode.name.equals("t") && methodNode.desc.equals("(I)V")) {
-    	  //appearance panel
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode findNode;
+        // appearance panel
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode findNode;
 
-            if (nextNode == null) break;
+          if (nextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.GETSTATIC
-                && ((FieldInsnNode) insnNode).name.equals("il")
-                && nextNode.getOpcode() == Opcodes.BIPUSH
-                && ((IntInsnNode)nextNode).operand == 91) {
-            	
-            	findNode = nextNode;
-            	
-            	for (int i=0; i<3; i++) {
-            		//node of iload3 (ypos)
-            		findNode = findNode.getNext();
-            	}
-            	
-            	AbstractInsnNode call = (MethodInsnNode) findNode;
-            	int offset = Settings.PATCH_GENDER.get(Settings.currentProfile) ? -8 : 0;
-            	
-            	methodNode.instructions.insertBefore(call, new IntInsnNode(Opcodes.BIPUSH, offset));
-                methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
-            	
-            	while (findNode.getOpcode() != Opcodes.POP) {
-            		// in case of patch need one additional addText, see below
-            		findNode = findNode.getNext();
-            	}
-            	
-            	call = (VarInsnNode) findNode.getNext();
-            	
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-            	methodNode.instructions.insertBefore(
-            			call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Af", "Lqa;"));
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
-            	methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.INEG));
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
-            	methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
-            	
-            	// see if addTextTo should be added, i.e. "gender" is patched
-            	methodNode.instructions.insertBefore(
-            			call,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC, "Game/Client", "patch_gender_hook", "(Ljava/lang/Object;II)V", false));
-            	
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) nextNode).operand == 91) {
+
+            findNode = nextNode;
+
+            for (int i = 0; i < 3; i++) {
+              // node of iload3 (ypos)
+              findNode = findNode.getNext();
             }
+
+            AbstractInsnNode call = (MethodInsnNode) findNode;
+            int offset = Settings.PATCH_GENDER.get(Settings.currentProfile) ? -8 : 0;
+
+            methodNode.instructions.insertBefore(call, new IntInsnNode(Opcodes.BIPUSH, offset));
+            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
+
+            while (findNode.getOpcode() != Opcodes.POP) {
+              // in case of patch need one additional addText, see below
+              findNode = findNode.getNext();
+            }
+
+            call = (VarInsnNode) findNode.getNext();
+
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Af", "Lqa;"));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.INEG));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.IADD));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
+
+            // see if addTextTo should be added, i.e. "gender" is patched
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "patch_gender_hook",
+                    "(Ljava/lang/Object;II)V",
+                    false));
           }
+        }
       }
 
       // hookTracer(node, methodNode);

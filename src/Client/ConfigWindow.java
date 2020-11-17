@@ -18,6 +18,12 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -76,12 +82,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -709,8 +709,9 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
-    
-    generalPanelKeepScrollbarPosMagicPrayerCheckbox = addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
+
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox =
+        addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
         "Keeps the magic & prayers scrollbar position when switching between tabs");
 
@@ -858,11 +859,12 @@ public class ConfigWindow {
             }
           }
         });
-    
+
     generalPanelPatchGenderCheckbox =
-            addCheckbox("Correct gender to body type in appearance screen (Requires restart)", generalPanel);
+        addCheckbox(
+            "Correct gender to body type in appearance screen (Requires restart)", generalPanel);
     generalPanelPatchGenderCheckbox.setToolTipText(
-            "When selected places body type instead of gender in the appearance screen");
+        "When selected places body type instead of gender in the appearance screen");
 
     generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
     generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
@@ -1297,16 +1299,16 @@ public class ConfigWindow {
         addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
     streamingPanelSaveLoginCheckbox.setToolTipText(
         "Preserves login details between logins (Disable this if you're streaming)");
-    
-    streamingPanelStartLoginCheckbox =
-            addCheckbox("Start game at login screen", streamingPanel);
+
+    streamingPanelStartLoginCheckbox = addCheckbox("Start game at login screen", streamingPanel);
     streamingPanelStartLoginCheckbox.setToolTipText(
-            "Starts the game at the login screen and return to it on logout");
-    
+        "Starts the game at the login screen and return to it on logout");
+
     streamingPanelAccountSecurityCheckbox =
-            addCheckbox("Show Account Creation and Security Settings (Requires restart)", streamingPanel);
+        addCheckbox(
+            "Show Account Creation and Security Settings (Requires restart)", streamingPanel);
     streamingPanelAccountSecurityCheckbox.setToolTipText(
-            "Makes old RSC account creation, password recovery and in-game security settings");
+        "Makes old RSC account creation, password recovery and in-game security settings");
 
     JLabel spacerLabel =
         new JLabel("<html><head><style>p{font-size:10px;}</style></head><p>&nbsp;</p>");
@@ -2198,7 +2200,7 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
-            Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
+        Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
@@ -2223,8 +2225,7 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
-    generalPanelPatchGenderCheckbox.setSelected(
-            Settings.PATCH_GENDER.get(Settings.currentProfile));
+    generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelStartSearchedBankCheckbox.setSelected(
         Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
     generalPanelSearchBankWordTextField.setText(
@@ -2356,9 +2357,9 @@ public class ConfigWindow {
     streamingPanelSaveLoginCheckbox.setSelected(
         Settings.SAVE_LOGININFO.get(Settings.currentProfile));
     streamingPanelStartLoginCheckbox.setSelected(
-            Settings.START_LOGINSCREEN.get(Settings.currentProfile));
+        Settings.START_LOGINSCREEN.get(Settings.currentProfile));
     streamingPanelAccountSecurityCheckbox.setSelected(
-            Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
+        Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
     streamingPanelSpeedrunnerCheckbox.setSelected(
         Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile));
     // streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
@@ -2445,7 +2446,7 @@ public class ConfigWindow {
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
-            Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
+        Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
@@ -2464,7 +2465,7 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.PATCH_GENDER.put(
-            Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
+        Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
     Settings.START_SEARCHEDBANK.put(
         Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
     Settings.SEARCH_BANK_WORD.put(
@@ -2566,9 +2567,9 @@ public class ConfigWindow {
     Settings.SAVE_LOGININFO.put(
         Settings.currentProfile, streamingPanelSaveLoginCheckbox.isSelected());
     Settings.START_LOGINSCREEN.put(
-            Settings.currentProfile, streamingPanelStartLoginCheckbox.isSelected());
+        Settings.currentProfile, streamingPanelStartLoginCheckbox.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
-            Settings.currentProfile, streamingPanelAccountSecurityCheckbox.isSelected());
+        Settings.currentProfile, streamingPanelAccountSecurityCheckbox.isSelected());
     Settings.SPEEDRUNNER_MODE_ACTIVE.put(
         Settings.currentProfile, streamingPanelSpeedrunnerCheckbox.isSelected());
     // Settings.SPEEDRUNNER_USERNAME.put(

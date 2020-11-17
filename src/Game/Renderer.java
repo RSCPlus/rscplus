@@ -1009,8 +1009,8 @@ public class Renderer {
 
       // draw server replay buttons
       boolean wantToDrawServerReplayButtons =
-          Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN ||
-          Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN;
+          Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN
+              || Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN;
       if (wantToDrawServerReplayButtons) {
         // TODO: This will need to be adjusted when the login screen is resizable
         Rectangle bounds;
@@ -1045,9 +1045,11 @@ public class Renderer {
 
         setAlpha(g2, 1.0f);
         if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
-          drawShadowText(g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+          drawShadowText(
+              g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
         } else {
-          drawShadowText(g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+          drawShadowText(
+              g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
         }
         // Handle replay record selection click
         if (MouseHandler.x >= bounds.x

@@ -19,6 +19,18 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
+
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,17 +52,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -305,11 +306,11 @@ public class Client {
   public static int tileSize;
   public static long menu_timer;
   public static String lastAction;
-  
+
   public static int login_delay;
   public static String server_address;
   public static int serverjag_port;
-  
+
   public static Object panelWelcome;
   public static Object panelLogin;
   public static Object panelRegister;
@@ -486,41 +487,43 @@ public class Client {
     init_login();
 
     init_extra();
-    
+
     // check if "Gender" of appearance panel should be patched
-    // first is of the string to "Body" then in 
+    // first is of the string to "Body" then in
     // patch_gender_hook adds text "Type"
     if (Settings.PATCH_GENDER.get(Settings.currentProfile)) {
-    	strings[91] = "Body";
+      strings[91] = "Body";
     }
   }
-  
+
   public static boolean skipToLogin() {
-	  boolean skipToLogin = false;
-	  
-	  if (Settings.noWorldsConfigured || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
-	    	String curWorldURL = Settings.WORLD_URLS.get(1);
-	    	try {
-				String address = InetAddress.getByName(curWorldURL).toString();
-				if (address.contains("localhost") || address.contains("127.0.0.1")) {
-					// no configured world or localhost only
-					skipToLogin = true;
-				}
-			} catch (UnknownHostException e) {
-				skipToLogin = true;
-			}
-	    }
-	  
-	  return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+    boolean skipToLogin = false;
+
+    if (Settings.noWorldsConfigured
+        || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
+      String curWorldURL = Settings.WORLD_URLS.get(1);
+      try {
+        String address = InetAddress.getByName(curWorldURL).toString();
+        if (address.contains("localhost") || address.contains("127.0.0.1")) {
+          // no configured world or localhost only
+          skipToLogin = true;
+        }
+      } catch (UnknownHostException e) {
+        skipToLogin = true;
+      }
+    }
+
+    return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
   }
-  
-  /** Method that gets called when starting game, normally would go to Welcome screen
-   *  but if no world configured (using RSC+ for replay mode) skip directly to login for replays
+
+  /**
+   * Method that gets called when starting game, normally would go to Welcome screen but if no world
+   * configured (using RSC+ for replay mode) skip directly to login for replays
    */
   public static void resetLoginHook() {
-	  if (skipToLogin()) {
-		  login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
-	  }
+    if (skipToLogin()) {
+      login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
+    }
   }
 
   public static void init_extra() {
@@ -719,16 +722,16 @@ public class Client {
 
   public static void init_login() {
     for (int i = 0; i < xpdrop_state.length; i++) xpdrop_state[i] = 0.0f;
-    
+
     Camera.init();
     state = STATE_LOGIN;
     isGameLoaded = false;
     Renderer.replayOption = 0;
 
     twitch.disconnect();
-    
+
     if (skipToLogin()) {
-    	login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
+      login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
     }
 
     resetLoginMessage();
@@ -834,14 +837,15 @@ public class Client {
       disconnect_hook();
     }
   }
-  
+
   /**
-   * Called if Profile SAVE_LOGIN_INFO set, to not clear login info when selecting click here to login
+   * Called if Profile SAVE_LOGIN_INFO set, to not clear login info when selecting click here to
+   * login
    */
   public static void keep_login_info_hook() {
-	  Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
-	  setLoginMessage("Please enter your username and password", "");
-	  Panel.setFocus(Client.panelLogin, Client.loginUserInput);
+    Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
+    setLoginMessage("Please enter your username and password", "");
+    Panel.setFocus(Client.panelLogin, Client.loginUserInput);
   }
 
   /**
@@ -859,18 +863,18 @@ public class Client {
 
     return tooltipMessage;
   }
-  
+
   /**
    * If Profile PATCH_GENDER is set, changes the Appearance Panel text from "Gender" to "Body Type"
-   * 
+   *
    * @param panelAppearance
    * @param xPos
    * @param yPos
    */
   public static void patch_gender_hook(Object panelAppearance, int xPos, int yPos) {
-	  if (Settings.PATCH_GENDER.get(Settings.currentProfile)) {
-		  Panel.addCenterTextTo(panelAppearance, xPos, yPos + 8, "Type", 1, true);  
-	  }
+    if (Settings.PATCH_GENDER.get(Settings.currentProfile)) {
+      Panel.addCenterTextTo(panelAppearance, xPos, yPos + 8, "Type", 1, true);
+    }
   }
 
   /**
@@ -1348,44 +1352,44 @@ public class Client {
     } catch (Exception e) {
     }
   }
-  
+
   /** Gets a parameter defined from world config */
   public static String getParameter(String parameter) {
-	  if (Reflection.getParameter == null) return null;
-	  String result = null;
-	  
-	  try {
-		  result = ((String)Reflection.getParameter.invoke(Client.instance, parameter));
-	  } catch (Exception e) {
-	  }
-	  return result;
+    if (Reflection.getParameter == null) return null;
+    String result = null;
+
+    try {
+      result = ((String) Reflection.getParameter.invoke(Client.instance, parameter));
+    } catch (Exception e) {
+    }
+    return result;
   }
-  
+
   public static void clearScreen() {
-	  if (Reflection.clearScreen == null) return;
-	  
-	  try {
-		  Reflection.clearScreen.invoke(Renderer.instance, true);
-	  } catch (Exception e) {
-	  }
+    if (Reflection.clearScreen == null) return;
+
+    try {
+      Reflection.clearScreen.invoke(Renderer.instance, true);
+    } catch (Exception e) {
+    }
   }
-  
+
   public static void preGameDisplay() {
-	  if (Reflection.preGameDisplay == null) return;
-	  
-	  try {
-		  Reflection.preGameDisplay.invoke(Client.instance, 2540);
-	  } catch (Exception e) {
-	  }
+    if (Reflection.preGameDisplay == null) return;
+
+    try {
+      Reflection.preGameDisplay.invoke(Client.instance, 2540);
+    } catch (Exception e) {
+    }
   }
-  
+
   public static void resetTimings() {
-	  if (Reflection.resetTimings == null) return;
-	  
-	  try {
-		  Reflection.resetTimings.invoke(Client.instance, -28492);
-	  } catch (Exception e) {
-	  }
+    if (Reflection.resetTimings == null) return;
+
+    try {
+      Reflection.resetTimings.invoke(Client.instance, -28492);
+    } catch (Exception e) {
+    }
   }
 
   /**
@@ -1899,16 +1903,16 @@ public class Client {
         return Integer.toString(type);
     }
   }
-  
+
   public static String formatText(String inputText, int length) {
-	  if (Reflection.resetTimings == null) return null;
-	  String outputText = null;
-	  
-	  try {
-		  outputText = (String)Reflection.formatText.invoke(null, length, (byte)-5, inputText);
-	  } catch (Exception e) {
-	  }
-	  return outputText;
+    if (Reflection.resetTimings == null) return null;
+    String outputText = null;
+
+    try {
+      outputText = (String) Reflection.formatText.invoke(null, length, (byte) -5, inputText);
+    } catch (Exception e) {
+    }
+    return outputText;
   }
 
   /**

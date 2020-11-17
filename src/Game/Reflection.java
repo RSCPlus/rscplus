@@ -18,22 +18,22 @@
  */
 package Game;
 
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
-	
-	public static Field gameReference = null;
-	
-	public static Constructor stream = null;
-	public static Constructor buffer = null;
+
+  public static Field gameReference = null;
+
+  public static Constructor stream = null;
+  public static Constructor buffer = null;
 
   public static Field characterName = null;
   public static Field characterDisplayName = null;
@@ -107,13 +107,13 @@ public class Reflection {
 
   public static Method getNpc = null;
   public static Method getPlayer = null;
-  
+
   public static Method clearScreen = null;
   public static Method preGameDisplay = null;
   public static Method resetTimings = null;
   public static Method formatText = null;
   public static Method putRandom = null;
-  
+
   public static Method addButtonBack = null;
   public static Method addCenterText = null;
   public static Method addButton = null;
@@ -132,9 +132,10 @@ public class Reflection {
   // Constructor descriptions
   private static final String STREAM = "da(java.net.Socket,e) throws java.io.IOException";
   private static final String BUFFER = "tb(int)";
-  
+
   // Method descriptions
-  private static final String GETPARAMETER = "public final java.lang.String e.getParameter(java.lang.String)";
+  private static final String GETPARAMETER =
+      "public final java.lang.String e.getParameter(java.lang.String)";
   private static final String DISPLAYMESSAGE =
       "private final void client.a(boolean,java.lang.String,int,java.lang.String,int,int,java.lang.String,java.lang.String)";
   private static final String SETCAMERASIZE = "final void lb.a(int,boolean,int,int,int,int,int)";
@@ -152,10 +153,8 @@ public class Reflection {
   private static final String DRAWBOX = "final void ua.a(int,byte,int,int,int,int)";
   private static final String DRAWSTRING =
       "final void ua.a(java.lang.String,int,int,int,boolean,int)";
-  private static final String DRAWLINEHORIZ =
-	      "final void ua.b(int,int,int,int,byte)";
-  private static final String DRAWLINEVERT =
-	      "final void ua.b(int,int,int,int,int)";
+  private static final String DRAWLINEHORIZ = "final void ua.b(int,int,int,int,byte)";
+  private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
 
   private static final String NEWPACKET = "final void b.b(int,int)";
   private static final String PUTBYTE = "final void tb.c(int,int)";
@@ -163,7 +162,8 @@ public class Reflection {
   private static final String PUTINT = "final void tb.b(int,int)";
   private static final String PUTSTR = "final void tb.a(byte,java.lang.String)";
   private static final String PUTINT3BYTE = "final void tb.b(int,byte)";
-  private static final String ENCRYPT = "final void tb.a(java.math.BigInteger,int,java.math.BigInteger)";
+  private static final String ENCRYPT =
+      "final void tb.a(java.math.BigInteger,int,java.math.BigInteger)";
   private static final String XTEA_ENCRYPT = "final void tb.a(byte,int,int[],int)";
   private static final String PUTBYTES = "final void tb.a(int,int,int,byte[])";
   private static final String SETBLOCKLENGTH = "final void tb.d(int,int)";
@@ -171,23 +171,27 @@ public class Reflection {
   private static final String FLUSHPACKET = "final void b.a(int) throws java.io.IOException";
   private static final String INIT_ISAAC = "final void b.a(byte,int[])";
   private static final String READ_RESPONSE = "final int da.b(boolean) throws java.io.IOException";
-  private static final String CREATE_SOCKET = "private final java.net.Socket client.a(int,int,java.lang.String) throws java.io.IOException";
+  private static final String CREATE_SOCKET =
+      "private final java.net.Socket client.a(int,int,java.lang.String) throws java.io.IOException";
 
   private static final String GETNPC = "private final ta client.b(int,byte)";
   private static final String GETPLAYER = "private final ta client.d(int,int)";
-  
-  private static final String CLEARSCREEN= "final void ua.a(boolean)";
-  
+
+  private static final String CLEARSCREEN = "final void ua.a(boolean)";
+
   private static final String PREGAME_DISPLAY = "private final void client.k(int)";
   private static final String RESET_TIMINGS = "final void e.c(int)";
-  
-  private static final String FORMAT_TEXT = "static final java.lang.String b.a(int,byte,java.lang.String)";
+
+  private static final String FORMAT_TEXT =
+      "static final java.lang.String b.a(int,byte,java.lang.String)";
   private static final String PUTRANDOM = "static final void f.a(int,tb)";
-  
+
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
-  private static final String ADDCENTERTEXT = "final int qa.a(boolean,byte,int,int,java.lang.String,int)";
+  private static final String ADDCENTERTEXT =
+      "final int qa.a(boolean,byte,int,int,java.lang.String,int)";
   private static final String ADDBUTTON = "final int qa.d(int,int,int,int,int)";
-  private static final String ADDINPUT = "final int qa.a(int,int,int,boolean,int,int,int,boolean,int)";
+  private static final String ADDINPUT =
+      "final int qa.a(int,int,int,boolean,int,int,int,boolean,int)";
   private static final String DRAWPANEL = "final void qa.a(byte)";
   private static final String SETFOCUS = "final void qa.d(int,int)";
   private static final String ISSELECTED = "final boolean qa.a(byte,int)";
@@ -200,21 +204,22 @@ public class Reflection {
   public static void Load() {
     try {
       JClassLoader classLoader = Launcher.getInstance().getClassLoader();
-      ArrayList<String> leftMethods = new ArrayList<String>(); //expected virtual methods to find in given class
+      ArrayList<String> leftMethods =
+          new ArrayList<String>(); // expected virtual methods to find in given class
 
       // Game Applet
       Class<?> c = classLoader.loadClass("e");
       Method[] methods = c.getDeclaredMethods();
       for (Method method : methods) {
-    	  if (method.toGenericString().equals(RESET_TIMINGS)) {
-              resetTimings = method;
-              Logger.Info("Found resetTimings");
-            } else if (method.toGenericString().equals(GETPARAMETER)) {
-                getParameter = method;
-                Logger.Info("Found getParameter");
-              }
+        if (method.toGenericString().equals(RESET_TIMINGS)) {
+          resetTimings = method;
+          Logger.Info("Found resetTimings");
+        } else if (method.toGenericString().equals(GETPARAMETER)) {
+          getParameter = method;
+          Logger.Info("Found getParameter");
+        }
       }
-      
+
       // Client
       c = classLoader.loadClass("client");
       clientStreamField = c.getDeclaredField("Jh");
@@ -245,13 +250,12 @@ public class Reflection {
           getPlayer = method;
           Logger.Info("Found getPlayer");
         } else if (method.toGenericString().equals(PREGAME_DISPLAY)) {
-            preGameDisplay = method;
-            Logger.Info("Found preGameDisplay");
-          }
-        else if (method.toGenericString().equals(CREATE_SOCKET)) {
-            createSocket = method;
-            Logger.Info("Found createSocket");
-          }
+          preGameDisplay = method;
+          Logger.Info("Found preGameDisplay");
+        } else if (method.toGenericString().equals(CREATE_SOCKET)) {
+          createSocket = method;
+          Logger.Info("Found createSocket");
+        }
       }
 
       // Game Applet
@@ -277,13 +281,15 @@ public class Reflection {
       c = classLoader.loadClass("da");
       Constructor[] constructors = c.getDeclaredConstructors();
       for (Constructor constructor : constructors) {
-    	  if (constructor.toGenericString().equals(STREAM)) {
-              stream = constructor;
-              Logger.Info("Found stream");
-            }
+        if (constructor.toGenericString().equals(STREAM)) {
+          stream = constructor;
+          Logger.Info("Found stream");
+        }
       }
 
-      leftMethods.addAll(Arrays.asList(NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE));
+      leftMethods.addAll(
+          Arrays.asList(
+              NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE));
       while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
@@ -293,7 +299,8 @@ public class Reflection {
             leftMethods.remove(NEWPACKET);
             continue;
           }
-          if (leftMethods.contains(LOSECONNECTION) && method.toGenericString().contains(LOSECONNECTION)) {
+          if (leftMethods.contains(LOSECONNECTION)
+              && method.toGenericString().contains(LOSECONNECTION)) {
             loseConnection = method;
             Logger.Info("Found loseConnection");
             leftMethods.remove(LOSECONNECTION);
@@ -306,29 +313,30 @@ public class Reflection {
             continue;
           }
           if (leftMethods.contains(FLUSHPACKET) && method.toGenericString().equals(FLUSHPACKET)) {
-        	  flushPacket = method;
-              Logger.Info("Found flushPacket");
-              leftMethods.remove(FLUSHPACKET);
-              continue;
+            flushPacket = method;
+            Logger.Info("Found flushPacket");
+            leftMethods.remove(FLUSHPACKET);
+            continue;
           }
           if (leftMethods.contains(INIT_ISAAC) && method.toGenericString().equals(INIT_ISAAC)) {
-        	  initIsaac = method;
-              Logger.Info("Found initIsaac");
-              leftMethods.remove(INIT_ISAAC);
-              continue;
+            initIsaac = method;
+            Logger.Info("Found initIsaac");
+            leftMethods.remove(INIT_ISAAC);
+            continue;
           }
-          if (leftMethods.contains(READ_RESPONSE) && method.toGenericString().equals(READ_RESPONSE)) {
-        	  readResponse = method;
-              Logger.Info("Found readResponse");
-              leftMethods.remove(READ_RESPONSE);
-              continue;
-          } 
+          if (leftMethods.contains(READ_RESPONSE)
+              && method.toGenericString().equals(READ_RESPONSE)) {
+            readResponse = method;
+            Logger.Info("Found readResponse");
+            leftMethods.remove(READ_RESPONSE);
+            continue;
+          }
         }
         c = c.getSuperclass();
       }
       if (leftMethods.size() > 0) {
-      	System.out.println("Not found : " + leftMethods.size() + "methods for da class");  
-        }
+        System.out.println("Not found : " + leftMethods.size() + "methods for da class");
+      }
 
       // Buffer field of clientStream
       c = classLoader.loadClass("b");
@@ -339,9 +347,9 @@ public class Reflection {
           Logger.Info("Found bufferField");
         }
         if (field.getName().equals("d")) {
-            maxRetriesField = field;
-            Logger.Info("Found maxRetriesField");
-          } 
+          maxRetriesField = field;
+          Logger.Info("Found maxRetriesField");
+        }
       }
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
@@ -353,16 +361,26 @@ public class Reflection {
 
       // Write buffer
       c = classLoader.loadClass("ja");
-      leftMethods.addAll(Arrays.asList(PUTBYTE, PUTSHORT, PUTINT, PUTSTR, PUTINT3BYTE, PUTBYTES, SETBLOCKLENGTH, ENCRYPT, XTEA_ENCRYPT));
+      leftMethods.addAll(
+          Arrays.asList(
+              PUTBYTE,
+              PUTSHORT,
+              PUTINT,
+              PUTSTR,
+              PUTINT3BYTE,
+              PUTBYTES,
+              SETBLOCKLENGTH,
+              ENCRYPT,
+              XTEA_ENCRYPT));
       while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
-        	if (leftMethods.contains(PUTBYTE) && method.toGenericString().equals(PUTBYTE)) {
-                putByte = method;
-                Logger.Info("Found putByte");
-                leftMethods.remove(PUTBYTE);
-                continue;
-              }
+          if (leftMethods.contains(PUTBYTE) && method.toGenericString().equals(PUTBYTE)) {
+            putByte = method;
+            Logger.Info("Found putByte");
+            leftMethods.remove(PUTBYTE);
+            continue;
+          }
           if (leftMethods.contains(PUTSHORT) && method.toGenericString().equals(PUTSHORT)) {
             putShort = method;
             Logger.Info("Found putShort");
@@ -370,62 +388,63 @@ public class Reflection {
             continue;
           }
           if (leftMethods.contains(PUTINT) && method.toGenericString().equals(PUTINT)) {
-              putInt = method;
-              Logger.Info("Found putInt");
-              leftMethods.remove(PUTINT);
-              continue;
-            }
+            putInt = method;
+            Logger.Info("Found putInt");
+            leftMethods.remove(PUTINT);
+            continue;
+          }
           if (leftMethods.contains(PUTSTR) && method.toGenericString().equals(PUTSTR)) {
-        	  putStr = method;
-              Logger.Info("Found putStr");
-              leftMethods.remove(PUTSTR);
-              continue;
-            }
+            putStr = method;
+            Logger.Info("Found putStr");
+            leftMethods.remove(PUTSTR);
+            continue;
+          }
           if (leftMethods.contains(PUTINT3BYTE) && method.toGenericString().equals(PUTINT3BYTE)) {
-        	  putInt3Byte = method;
-              Logger.Info("Found putInt3Byte");
-              leftMethods.remove(PUTINT3BYTE);
-              continue;
-            }
+            putInt3Byte = method;
+            Logger.Info("Found putInt3Byte");
+            leftMethods.remove(PUTINT3BYTE);
+            continue;
+          }
           if (leftMethods.contains(PUTBYTES) && method.toGenericString().equals(PUTBYTES)) {
-        	  putBytes = method;
-              Logger.Info("Found putBytes");
-              leftMethods.remove(PUTBYTES);
-              continue;
-            }
-          if (leftMethods.contains(SETBLOCKLENGTH) && method.toGenericString().equals(SETBLOCKLENGTH)) {
-        	  setBlockLength = method;
-              Logger.Info("Found setBlockLength");
-              leftMethods.remove(SETBLOCKLENGTH);
-              continue;
-            }
+            putBytes = method;
+            Logger.Info("Found putBytes");
+            leftMethods.remove(PUTBYTES);
+            continue;
+          }
+          if (leftMethods.contains(SETBLOCKLENGTH)
+              && method.toGenericString().equals(SETBLOCKLENGTH)) {
+            setBlockLength = method;
+            Logger.Info("Found setBlockLength");
+            leftMethods.remove(SETBLOCKLENGTH);
+            continue;
+          }
           if (leftMethods.contains(ENCRYPT) && method.toGenericString().equals(ENCRYPT)) {
-        	  encrypt = method;
-              Logger.Info("Found encrypt");
-              leftMethods.remove(ENCRYPT);
-              continue;
-            }
+            encrypt = method;
+            Logger.Info("Found encrypt");
+            leftMethods.remove(ENCRYPT);
+            continue;
+          }
           if (leftMethods.contains(XTEA_ENCRYPT) && method.toGenericString().equals(XTEA_ENCRYPT)) {
-        	  xteaEncrypt = method;
-              Logger.Info("Found xteaEncrypt");
-              leftMethods.remove(XTEA_ENCRYPT);
-              continue;
-            }
+            xteaEncrypt = method;
+            Logger.Info("Found xteaEncrypt");
+            leftMethods.remove(XTEA_ENCRYPT);
+            continue;
+          }
         }
         c = c.getSuperclass();
       }
       if (leftMethods.size() > 0) {
-    	System.out.println("Not found : " + leftMethods.size() + "methods for ja class");  
+        System.out.println("Not found : " + leftMethods.size() + "methods for ja class");
       }
-      
+
       // Buffer block class?
       c = classLoader.loadClass("tb");
       constructors = c.getDeclaredConstructors();
       for (Constructor constructor : constructors) {
-    	  if (constructor.toGenericString().equals(BUFFER)) {
-              buffer = constructor;
-              Logger.Info("Found buffer");
-            }
+        if (constructor.toGenericString().equals(BUFFER)) {
+          buffer = constructor;
+          Logger.Info("Found buffer");
+        }
       }
       fields = c.getDeclaredFields();
       for (Field field : fields) {
@@ -434,11 +453,11 @@ public class Reflection {
           Logger.Info("Found bufferOffset");
         }
         if (field.getName().equals("F")) {
-            bufferByteArray = field;
-            Logger.Info("Found bufferByteArray");
-          }
+          bufferByteArray = field;
+          Logger.Info("Found bufferByteArray");
+        }
       }
-      
+
       // Helper class for buffer block?
       c = classLoader.loadClass("f");
       methods = c.getDeclaredMethods();
@@ -468,25 +487,25 @@ public class Reflection {
           Logger.Info("Found setGameBounds");
         }
         if (method.toGenericString().equals(CLEARSCREEN)) {
-            clearScreen = method;
-            Logger.Info("Found clearScreen");
-          }
+          clearScreen = method;
+          Logger.Info("Found clearScreen");
+        }
         if (method.toGenericString().equals(DRAWBOX)) {
-            drawBox = method;
-            Logger.Info("Found drawBox");
-          }
+          drawBox = method;
+          Logger.Info("Found drawBox");
+        }
         if (method.toGenericString().equals(DRAWSTRING)) {
           drawString = method;
           Logger.Info("Found drawString");
         }
         if (method.toGenericString().equals(DRAWLINEHORIZ)) {
-            drawLineHoriz = method;
-            Logger.Info("Found drawLineHoriz");
-          }
+          drawLineHoriz = method;
+          Logger.Info("Found drawLineHoriz");
+        }
         if (method.toGenericString().equals(DRAWLINEVERT)) {
-            drawLineVert = method;
-            Logger.Info("Found drawLineVert");
-          }
+          drawLineVert = method;
+          Logger.Info("Found drawLineVert");
+        }
       }
 
       // Character
@@ -542,49 +561,49 @@ public class Reflection {
           Logger.Info("Found addButtonBack");
         }
         if (method.toGenericString().equals(ADDCENTERTEXT)) {
-            addCenterText = method;
-            Logger.Info("Found addText");
-          }
+          addCenterText = method;
+          Logger.Info("Found addText");
+        }
         if (method.toGenericString().equals(ADDBUTTON)) {
-            addButton = method;
-            Logger.Info("Found addButton");
-          }
+          addButton = method;
+          Logger.Info("Found addButton");
+        }
         if (method.toGenericString().equals(ADDINPUT)) {
-            addInput = method;
-            Logger.Info("Found addInput");
-          }
+          addInput = method;
+          Logger.Info("Found addInput");
+        }
         if (method.toGenericString().equals(DRAWPANEL)) {
-            drawPanel = method;
-            Logger.Info("Found drawPanel");
-          }
+          drawPanel = method;
+          Logger.Info("Found drawPanel");
+        }
         if (method.toGenericString().equals(SETFOCUS)) {
-            setFocus = method;
-            Logger.Info("Found setFocus");
-          }
+          setFocus = method;
+          Logger.Info("Found setFocus");
+        }
         if (method.toGenericString().equals(ISSELECTED)) {
-            isSelected = method;
-            Logger.Info("Found isSelected");
-          }
+          isSelected = method;
+          Logger.Info("Found isSelected");
+        }
         if (method.toGenericString().equals(ISTOGGLE)) {
-            isToggle = method;
-            Logger.Info("Found isToggle");
-          }
+          isToggle = method;
+          Logger.Info("Found isToggle");
+        }
         if (method.toGenericString().equals(SETCONTROLTEXT)) {
-            setControlText = method;
-            Logger.Info("Found setControlText");
-          }
+          setControlText = method;
+          Logger.Info("Found setControlText");
+        }
         if (method.toGenericString().equals(GETCONTROLTEXT)) {
-            getControlText = method;
-            Logger.Info("Found getControlText");
-          }
+          getControlText = method;
+          Logger.Info("Found getControlText");
+        }
         if (method.toGenericString().equals(HANDLEMOUSE)) {
-            handleMouse = method;
-            Logger.Info("Found handleMouse");
-          }
+          handleMouse = method;
+          Logger.Info("Found handleMouse");
+        }
         if (method.toGenericString().equals(HANDLEKEY)) {
-            handleKey = method;
-            Logger.Info("Found handleKey");
-          }
+          handleKey = method;
+          Logger.Info("Found handleKey");
+        }
       }
 
       c = classLoader.loadClass("wb");
@@ -595,7 +614,7 @@ public class Reflection {
           Logger.Info("Found menuGen");
         }
       }
-      
+
       c = classLoader.loadClass("kb");
       fields = c.getDeclaredFields();
       for (Field field : fields) {
