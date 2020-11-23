@@ -18,12 +18,6 @@
  */
 package Game;
 
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Util;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,16 +44,24 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.imageio.ImageIO;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Util;
 
 /** Handles rendering overlays and client adjustments based on window size */
 public class Renderer {
 
   public static Object instance = null;
+  public static Graphics graphicsInstance = null;
 
   public static int width;
   public static int height;
   public static int height_client;
   public static int[] pixels;
+  public static int sprite_media;
 
   public static int fps;
   public static float alpha_time;
@@ -1015,7 +1017,8 @@ public class Renderer {
         // TODO: This will need to be adjusted when the login screen is resizable
         Rectangle bounds;
         if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
-          bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+        	bounds = new Rectangle(512 - 100, 216, 48, 16);
+        	//bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
         } else if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
           bounds = new Rectangle(512 - 140, 288, 48, 16);
         } else {
@@ -1802,6 +1805,51 @@ public class Renderer {
         Logger.Debug("drawPlayerControlShape given invalid shape");
     }
   }
+
+  public static void drawBox(int x, int y, int w, int h, int color) {
+    if (Reflection.drawBox == null) return;
+
+    try {
+      Reflection.drawBox.invoke(instance, x, (byte) -127, color, y, h, w);
+    } catch (Exception e) {
+    }
+  }
+
+  public static void drawBoxBorder(int x, int y, int w, int h, int color) {
+    if (Reflection.drawBoxBorder == null) return;
+
+    try {
+      Reflection.drawBoxBorder.invoke(instance, x, w, y, 27785, h, color);
+    } catch (Exception e) {
+    }
+  }
+
+  public static void drawString(String text, int x, int y, int font, int color) {
+    if (Reflection.drawString == null) return;
+
+    try {
+      Reflection.drawString.invoke(instance, text, x, y, color, false, font);
+    } catch (Exception e) {
+    }
+  }
+
+  public static void drawStringCenter(String text, int x, int y, int font, int color) {
+    if (Reflection.drawStringCenter == null) return;
+
+    try {
+      Reflection.drawStringCenter.invoke(instance, x, text, color, 0, font, y);
+    } catch (Exception e) {
+    }
+  }
+  
+  public static void drawSprite(int x, int y, int id) {
+	    if (Reflection.drawSprite == null) return;
+
+	    try {
+	      Reflection.drawSprite.invoke(instance, -1, id, y, x);
+	    } catch (Exception e) {
+	    }
+	  }
 
   public static void takeScreenshot(boolean quiet) {
     quietScreenshot = quiet;

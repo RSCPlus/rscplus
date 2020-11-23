@@ -18,20 +18,21 @@
  */
 package Game;
 
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
 
   public static Field gameReference = null;
 
+  public static Constructor panel = null;
   public static Constructor stream = null;
   public static Constructor buffer = null;
 
@@ -81,9 +82,12 @@ public class Reflection {
   public static Method itemClick = null;
   public static Method menuGen = null;
   public static Method drawBox = null;
+  public static Method drawBoxBorder = null;
   public static Method drawString = null;
+  public static Method drawStringCenter = null;
   public static Method drawLineHoriz = null;
   public static Method drawLineVert = null;
+  public static Method drawSprite = null;
 
   public static Method newPacket = null;
   public static Method putByte = null;
@@ -99,6 +103,7 @@ public class Reflection {
   public static Method flushPacket = null;
   public static Method initIsaac = null;
   public static Method readResponse = null;
+  public static Method readBytes = null;
   public static Field maxRetriesField = null;
   public static Field bufferField = null;
   public static Field bufferOffset = null;
@@ -108,7 +113,9 @@ public class Reflection {
   public static Method getNpc = null;
   public static Method getPlayer = null;
 
+  public static Field interlace = null;
   public static Method clearScreen = null;
+  public static Method drawGraphics = null;
   public static Method preGameDisplay = null;
   public static Method resetTimings = null;
   public static Method formatText = null;
@@ -130,6 +137,7 @@ public class Reflection {
   public static Method handleKey = null;
 
   // Constructor descriptions
+  private static final String PANEL = "qa(ua,int)";
   private static final String STREAM = "da(java.net.Socket,e) throws java.io.IOException";
   private static final String BUFFER = "tb(int)";
 
@@ -151,10 +159,14 @@ public class Reflection {
   private static final String MENUGEN =
       "final void wb.a(int,int,boolean,java.lang.String,java.lang.String)";
   private static final String DRAWBOX = "final void ua.a(int,byte,int,int,int,int)";
+  private static final String DRAWBOXBORDER = "final void ua.e(int,int,int,int,int,int)";
   private static final String DRAWSTRING =
       "final void ua.a(java.lang.String,int,int,int,boolean,int)";
+  private static final String DRAWSTRINGCENTER =
+      "final void ua.a(int,java.lang.String,int,int,int,int)";
   private static final String DRAWLINEHORIZ = "final void ua.b(int,int,int,int,byte)";
   private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
+  private static final String DRAWSPRITE = "final void ua.b(int,int,int,int)";
 
   private static final String NEWPACKET = "final void b.b(int,int)";
   private static final String PUTBYTE = "final void tb.c(int,int)";
@@ -171,6 +183,7 @@ public class Reflection {
   private static final String FLUSHPACKET = "final void b.a(int) throws java.io.IOException";
   private static final String INIT_ISAAC = "final void b.a(byte,int[])";
   private static final String READ_RESPONSE = "final int da.b(boolean) throws java.io.IOException";
+  private static final String READ_BYTES = "final void da.a(byte[],int,int,int) throws java.io.IOException";
   private static final String CREATE_SOCKET =
       "private final java.net.Socket client.a(int,int,java.lang.String) throws java.io.IOException";
 
@@ -178,6 +191,7 @@ public class Reflection {
   private static final String GETPLAYER = "private final ta client.d(int,int)";
 
   private static final String CLEARSCREEN = "final void ua.a(boolean)";
+  private static final String DRAWGRAPHICS = "final void ua.a(java.awt.Graphics,int,int,int)";
 
   private static final String PREGAME_DISPLAY = "private final void client.k(int)";
   private static final String RESET_TIMINGS = "final void e.c(int)";
@@ -289,7 +303,7 @@ public class Reflection {
 
       leftMethods.addAll(
           Arrays.asList(
-              NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE));
+              NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE, READ_BYTES));
       while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
@@ -331,6 +345,13 @@ public class Reflection {
             leftMethods.remove(READ_RESPONSE);
             continue;
           }
+          if (leftMethods.contains(READ_BYTES)
+                  && method.toGenericString().equals(READ_BYTES)) {
+                readBytes = method;
+                Logger.Info("Found readBytes");
+                leftMethods.remove(READ_BYTES);
+                continue;
+              }
         }
         c = c.getSuperclass();
       }
@@ -480,6 +501,7 @@ public class Reflection {
 
       // Renderer
       c = classLoader.loadClass("ua");
+      interlace = c.getDeclaredField("i");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
         if (method.toGenericString().equals(SETGAMEBOUNDS)) {
@@ -490,13 +512,25 @@ public class Reflection {
           clearScreen = method;
           Logger.Info("Found clearScreen");
         }
+        if (method.toGenericString().equals(DRAWGRAPHICS)) {
+            drawGraphics = method;
+            Logger.Info("Found drawGraphics");
+          }
         if (method.toGenericString().equals(DRAWBOX)) {
           drawBox = method;
           Logger.Info("Found drawBox");
         }
+        if (method.toGenericString().equals(DRAWBOXBORDER)) {
+          drawBoxBorder = method;
+          Logger.Info("Found drawBoxBorder");
+        }
         if (method.toGenericString().equals(DRAWSTRING)) {
           drawString = method;
           Logger.Info("Found drawString");
+        }
+        if (method.toGenericString().equals(DRAWSTRINGCENTER)) {
+          drawStringCenter = method;
+          Logger.Info("Found drawStringCenter");
         }
         if (method.toGenericString().equals(DRAWLINEHORIZ)) {
           drawLineHoriz = method;
@@ -506,6 +540,10 @@ public class Reflection {
           drawLineVert = method;
           Logger.Info("Found drawLineVert");
         }
+        if (method.toGenericString().equals(DRAWSPRITE)) {
+            drawSprite = method;
+            Logger.Info("Found drawSprite");
+          }
       }
 
       // Character
@@ -605,6 +643,13 @@ public class Reflection {
           Logger.Info("Found handleKey");
         }
       }
+      constructors = c.getDeclaredConstructors();
+      for (Constructor constructor : constructors) {
+        if (constructor.toGenericString().equals(PANEL)) {
+          panel = constructor;
+          Logger.Info("Found panel");
+        }
+      }
 
       c = classLoader.loadClass("wb");
       methods = c.getDeclaredMethods();
@@ -655,9 +700,12 @@ public class Reflection {
       if (itemClick != null) itemClick.setAccessible(true);
       if (menuGen != null) menuGen.setAccessible(true);
       if (drawBox != null) drawBox.setAccessible(true);
+      if (drawBoxBorder != null) drawBoxBorder.setAccessible(true);
       if (drawString != null) drawString.setAccessible(true);
+      if (drawStringCenter != null) drawStringCenter.setAccessible(true);
       if (drawLineHoriz != null) drawLineHoriz.setAccessible(true);
       if (drawLineVert != null) drawLineVert.setAccessible(true);
+      if (drawSprite != null) drawSprite.setAccessible(true);
       if (stream != null) stream.setAccessible(true);
       if (newPacket != null) newPacket.setAccessible(true);
       if (putByte != null) putByte.setAccessible(true);
@@ -673,6 +721,7 @@ public class Reflection {
       if (flushPacket != null) flushPacket.setAccessible(true);
       if (initIsaac != null) initIsaac.setAccessible(true);
       if (readResponse != null) readResponse.setAccessible(true);
+      if (readBytes != null) readBytes.setAccessible(true);
       if (bufferField != null) bufferField.setAccessible(true);
       if (bufferOffset != null) bufferOffset.setAccessible(true);
       if (bufferByteArray != null) bufferByteArray.setAccessible(true);
@@ -681,11 +730,14 @@ public class Reflection {
       if (buffer != null) buffer.setAccessible(true);
       if (getNpc != null) getNpc.setAccessible(true);
       if (getPlayer != null) getPlayer.setAccessible(true);
+      if (interlace != null) interlace.setAccessible(true);
       if (clearScreen != null) clearScreen.setAccessible(true);
+      if (drawGraphics != null) drawGraphics.setAccessible(true);
       if (preGameDisplay != null) preGameDisplay.setAccessible(true);
       if (resetTimings != null) resetTimings.setAccessible(true);
       if (formatText != null) formatText.setAccessible(true);
       if (putRandom != null) putRandom.setAccessible(true);
+      if (panel != null) panel.setAccessible(true);
       if (addButtonBack != null) addButtonBack.setAccessible(true);
       if (addCenterText != null) addCenterText.setAccessible(true);
       if (addButton != null) addButton.setAccessible(true);

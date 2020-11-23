@@ -19,18 +19,6 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
-
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -52,6 +40,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -185,6 +184,8 @@ public class Client {
   public static String pm_text;
   public static String pm_enteredText;
   public static String lastpm_username = null;
+  public static String modal_text;
+  public static String modal_enteredText;
 
   public static String mouseText = "";
 
@@ -310,12 +311,18 @@ public class Client {
   public static int login_delay;
   public static String server_address;
   public static int serverjag_port;
+  public static int session_id;
+  public static boolean failedRecovery = false;
 
   public static Object panelWelcome;
   public static Object panelLogin;
   public static Object panelRegister;
+  public static Object panelRecovery;
+  public static Object panelRecoveryQuestions;
+  public static Object panelContactDetails;
   public static int loginUserInput;
   public static int loginPassInput;
+  public static int loginLostPasswordButton;
   public static int registerButton;
   public static int controlRegister;
   public static int chooseUserInput;
@@ -324,6 +331,30 @@ public class Client {
   public static int acceptTermsCheckbox;
   public static int chooseSubmitRegisterButton;
   public static int chooseCancelRegisterButton;
+  public static int controlRecovery1;
+  public static int controlRecovery2;
+  public static int controlRecoveryQuestion[] = new int[5];
+  public static int controlRecoveryInput[] = new int[5];
+  public static int recoverOldPassInput;
+  public static int recoverNewPassInput;
+  public static int recoverConfirmPassInput;
+  public static int chooseSubmitRecoveryButton;
+  public static int chooseCancelRecoveryButton;
+  public static int controlRecoveryQuestions;
+  public static String controlRecoveryText[] = new String[5];
+  public static int controlRecoveryIns[] = new int[5];
+  public static int controlAnswerInput[] = new int[5];
+  public static int controlQuestion[] = new int[5];
+  public static int controlCustomQuestion[] = new int[5];
+  public static int chooseFinishSetRecoveryButton;
+  public static int controlContactDetails;
+  public static int fullNameInput;
+  public static int zipCodeInput;
+  public static int countryInput;
+  public static int emailInput;
+  public static int chooseSubmitContactDetailsButton;
+  public static boolean showRecoveryQuestions;
+  public static boolean showContactDetails;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -514,6 +545,16 @@ public class Client {
     }
 
     return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+
+  /**
+   * Reference for JClassPatcher and any other required. Indicates if should show account and
+   * security settings
+   *
+   * @return
+   */
+  public static boolean showSecuritySettings() {
+    return Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile);
   }
 
   /**
@@ -894,6 +935,55 @@ public class Client {
         worldY = localRegionY + regionY;
       }
     }
+  }
+  
+  /**
+   * General extra check for new received opcodes
+   * Send false if has finished processing
+   * @param opcode - Packet opcode
+   * @param psize - Packet size
+   * @return false to indicate no more processing is needed
+   */
+  public static boolean newOpcodeReceivedHook(int opcode, int psize) {
+	  boolean couldNotProcess = true;
+	  
+	  if (AccountManagement.processPacket(opcode, psize)) {
+		  couldNotProcess = false;
+	  }
+	  
+	  return couldNotProcess;
+  }
+  
+  /**
+   * General in game input hook for new added elements
+   * return false to indicate continue checking conditions in the original gameInput() method
+   */
+  public static boolean gameInputHook(int n1, int mouseY, int n3, int mouseX) {
+	  boolean continueFlow = true;
+	  
+	  if (Client.showRecoveryQuestions) {
+		  AccountManagement.recovery_questions_input(n1, mouseY, n3, mouseX);
+		  continueFlow = false;
+	  } else if (Client.showContactDetails) {
+		  AccountManagement.contact_details_input(n1, mouseY, n3, mouseX);
+		  continueFlow = false;
+	  }
+	  
+	  return continueFlow;
+  }
+  
+  public static void loginOtherButtonCheckHook() {
+	  AccountManagement.processForgotPassword();
+  }
+  
+  public static boolean drawGameHook() {
+	  boolean continueFlow = true;
+	  
+	  if (AccountManagement.pending_render()) {
+		  continueFlow = false;
+	  }
+	  
+	  return continueFlow;
   }
 
   public static void resetLoginMessage() {
@@ -1373,6 +1463,24 @@ public class Client {
     } catch (Exception e) {
     }
   }
+  
+  public static void setInterlace(boolean value) {
+	  if (Reflection.interlace == null) return;
+	  
+	  try {
+		  Reflection.interlace.set(Renderer.instance, value);
+	  } catch (Exception e) {
+	  }
+  }
+  
+  public static void drawGraphics() {
+	  if (Reflection.drawGraphics == null) return;
+
+	    try {
+	      Reflection.drawGraphics.invoke(Renderer.instance, Renderer.graphicsInstance, 0, 256, 0);
+	    } catch (Exception e) {
+	    }
+  }
 
   public static void preGameDisplay() {
     if (Reflection.preGameDisplay == null) return;
@@ -1478,6 +1586,12 @@ public class Client {
       } catch (Exception e) {
       }
     }
+  }
+  
+  public static void initCreateExtraPanelsHook() {
+	  AccountManagement.create_account_recovery();
+	  AccountManagement.create_recovery_questions();
+	  AccountManagement.create_contact_details();
   }
 
   public static int attack_menu_hook(int cmpVar) {
