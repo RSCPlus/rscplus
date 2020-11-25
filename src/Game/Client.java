@@ -353,6 +353,7 @@ public class Client {
   public static int countryInput;
   public static int emailInput;
   public static int chooseSubmitContactDetailsButton;
+  public static boolean showAppearanceChange;
   public static boolean showRecoveryQuestions;
   public static boolean showContactDetails;
 
@@ -2451,7 +2452,10 @@ public class Client {
         || show_duelconfirm
         || show_report != 0
         || show_friends != 0
-        || show_sleeping;
+        || show_sleeping
+        || showAppearanceChange
+        || showRecoveryQuestions
+        || showContactDetails;
   }
 
   /**

@@ -798,6 +798,9 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "Zb", "I", "Game/Client", "login_delay", "I", true, false);
+      
+      hookClassVariable(
+              methodNode, "client", "Kg", "Z", "Game/Client", "showAppearanceChange", "Z", true, false);
     }
   }
 

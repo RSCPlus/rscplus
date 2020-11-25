@@ -438,14 +438,14 @@ public class AccountManagement {
 	            n += 25;
 	            Renderer.drawStringCenter(Client.pm_enteredText + "*", 256, n, 4, 16777215);
 	        }
-		  //Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 23);
+		  Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 22);
 		  Client.drawGraphics();
 		  processed = true;
 	  } else if (Client.showContactDetails) {
 		  Client.setInterlace(false);
 		  Client.clearScreen();
 		  Panel.drawPanel(Client.panelContactDetails);
-		  //Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 23);
+		  Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 22);
 		  Client.drawGraphics();
 		  processed = true;
 	  }
