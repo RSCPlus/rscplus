@@ -18,13 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Renderer;
-import Game.Replay;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -36,6 +29,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
+import Game.Replay;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -69,6 +69,8 @@ public class Settings {
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_X = new HashMap<String, Integer>();
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_Y = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS =
+	      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> REMIND_HOW_TO_OPEN_SETTINGS =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOAD_CHAT_HISTORY = new HashMap<String, Boolean>();
@@ -160,8 +162,6 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_LOGIN_IP_ADDRESS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SAVE_LOGININFO = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> START_LOGINSCREEN = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS =
-      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SPEEDRUNNER_MODE_ACTIVE = new HashMap<String, Boolean>();
   // public static HashMap<String, String> SPEEDRUNNER_USERNAME = new HashMap<String, String>();
 
@@ -270,6 +270,19 @@ public class Settings {
     CHECK_UPDATES.put("all", true);
     CHECK_UPDATES.put(
         "custom", getPropBoolean(props, "check_updates", CHECK_UPDATES.get("default")));
+    
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla", false);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla_resizable", false);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("lite", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("default", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("heavy", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put("all", true);
+    SHOW_ACCOUNT_SECURITY_SETTINGS.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "show_account_security_settings",
+            SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
 
     REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla", false);
     REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla_resizable", false);
@@ -1005,19 +1018,6 @@ public class Settings {
     START_LOGINSCREEN.put(
         "custom", getPropBoolean(props, "start_loginscreen", START_LOGINSCREEN.get("default")));
 
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla", false);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla_resizable", false);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("lite", true);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("default", true);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("heavy", true);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put("all", true);
-    SHOW_ACCOUNT_SECURITY_SETTINGS.put(
-        "custom",
-        getPropBoolean(
-            props,
-            "show_account_security_settings",
-            SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
-
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla", false);
     SPEEDRUNNER_MODE_ACTIVE.put("vanilla_resizable", false);
     SPEEDRUNNER_MODE_ACTIVE.put("lite", false);
@@ -1542,6 +1542,9 @@ public class Settings {
       props.setProperty("custom_client_size_y", Integer.toString(CUSTOM_CLIENT_SIZE_Y.get(preset)));
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
       props.setProperty(
+              "show_account_security_settings",
+              Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
+      props.setProperty(
           "welcome_enabled", Boolean.toString(REMIND_HOW_TO_OPEN_SETTINGS.get(preset)));
       props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY.get(preset)));
       props.setProperty("combat_menu", Boolean.toString(COMBAT_MENU_SHOWN.get(preset)));
@@ -1637,9 +1640,6 @@ public class Settings {
       props.setProperty("show_logindetails", Boolean.toString(SHOW_LOGIN_IP_ADDRESS.get(preset)));
       props.setProperty("save_logininfo", Boolean.toString(SAVE_LOGININFO.get(preset)));
       props.setProperty("start_loginscreen", Boolean.toString(START_LOGINSCREEN.get(preset)));
-      props.setProperty(
-          "show_account_security_settings",
-          Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
       props.setProperty("speedrun_active", Boolean.toString(SPEEDRUNNER_MODE_ACTIVE.get(preset)));
       // props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 

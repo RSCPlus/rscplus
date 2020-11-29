@@ -316,7 +316,7 @@ public class AccountManagement {
   
   public static boolean processPacket(int opcode, int psize) {
 	  boolean processed = false;
-	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile) || (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) {
 		  if (opcode == 224) {
 			  Client.showRecoveryQuestions = true;
 			  for (int idx = 0; idx < 5; ++idx) {

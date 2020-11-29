@@ -946,18 +946,18 @@ public class Client {
    * @return false to indicate no more processing is needed
    */
   public static boolean newOpcodeReceivedHook(int opcode, int psize) {
-	  boolean couldNotProcess = true;
+	  boolean needsProcess = true;
 	  
 	  if (AccountManagement.processPacket(opcode, psize)) {
-		  couldNotProcess = false;
+		  needsProcess = false;
 	  }
 	  
-	  return couldNotProcess;
+	  return needsProcess;
   }
   
   /**
    * General in game input hook for new added elements
-   * return false to indicate continue checking conditions in the original gameInput() method
+   * return true to indicate continue checking conditions in the original gameInput() method
    */
   public static boolean gameInputHook(int n1, int mouseY, int n3, int mouseX) {
 	  boolean continueFlow = true;
@@ -977,6 +977,10 @@ public class Client {
 	  AccountManagement.processForgotPassword();
   }
   
+  /**
+   * General drawGame hook for new added panels
+   * return true to indicate continue checking conditions in the original drawGame() method
+   */
   public static boolean drawGameHook() {
 	  boolean continueFlow = true;
 	  
