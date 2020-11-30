@@ -246,6 +246,11 @@ public class StreamUtil {
     putIntTo(buffer, (int) (l & -1L));
   }
 
+  /**
+   * Put a string terminated by '\0'
+   * @param buffer
+   * @param st
+   */
   public static void putStrTo(Object buffer, String st) {
     if (Reflection.putStr == null) return;
 
@@ -253,6 +258,16 @@ public class StreamUtil {
       Reflection.putStr.invoke(buffer, (byte) -39, st);
     } catch (Exception e) {
     }
+  }
+  
+  /**
+   * Put a regular string and not terminate it with '\0'
+   * @param buffer
+   * @param st
+   */
+  public static void putRegStrTo(Object buffer, String st) {
+	  byte[] stringArray = st.getBytes();
+	  putBytesTo(buffer, stringArray, 0, stringArray.length);
   }
 
   public static void encrypt(Object buffer, BigInteger exponent, BigInteger modulus) {

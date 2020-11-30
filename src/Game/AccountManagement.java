@@ -287,7 +287,7 @@ public class AccountManagement {
           answer = Util.formatString(answer, 50);
           
           StreamUtil.putByteTo(buffer, (byte)question.length());
-          StreamUtil.putStrTo(buffer, question);
+          StreamUtil.putRegStrTo(buffer, question);
           /** In RSC127 it would have sent an encrypted "hash" like of answers, but seems in later revisions
       	 * incl. up to RSC175 was changed to just send the encrypted answers, probably due to collisions
       	 * in RSC127 hasher function */
@@ -303,13 +303,13 @@ public class AccountManagement {
       Object buffer = StreamUtil.getStreamBuffer();
       
       StreamUtil.putByteTo(buffer, (byte)fullName.length());
-      StreamUtil.putStrTo(buffer, fullName);
+      StreamUtil.putRegStrTo(buffer, fullName);
       StreamUtil.putByteTo(buffer, (byte)zipCode.length());
-      StreamUtil.putStrTo(buffer, zipCode);
+      StreamUtil.putRegStrTo(buffer, zipCode);
       StreamUtil.putByteTo(buffer, (byte)country.length());
-      StreamUtil.putStrTo(buffer, country);
+      StreamUtil.putRegStrTo(buffer, country);
       StreamUtil.putByteTo(buffer, (byte)email.length());
-      StreamUtil.putStrTo(buffer, email);
+      StreamUtil.putRegStrTo(buffer, email);
       
       StreamUtil.sendPacket();
   }
