@@ -40,18 +40,18 @@ public class AccountManagement {
   /** Intended to be RSC127 compatible */
   public static void register(String user, String pass) {
     if (Client.login_delay > 0) {
-      Client.setLoginMessage("Connecting to server", "Please wait...");
+      Client.setResponseMessage("Connecting to server", "Please wait...");
       try {
         Client.shadowSleep(11200, 2000L);
       } catch (Exception e) {
       }
-      Client.setLoginMessage("Please try again later", "Sorry! The server is currently full.");
+      Client.setResponseMessage("Please try again later", "Sorry! The server is currently full.");
     } else {
       try {
         Client.username_login = user;
         Client.password_login = pass;
         String formatPass = Client.formatText(pass, 20);
-        Client.setLoginMessage("Connecting to server", "Please wait...");
+        Client.setResponseMessage("Connecting to server", "Please wait...");
         // int port = Client.autologin_timeout <= 1 ? Client.serverjag_port :
         // Replay.connection_port;
         int port = Replay.connection_port;
@@ -91,37 +91,37 @@ public class AccountManagement {
         if (response == 2) {
           AccountManagement.success_register();
         } else if (response == 3) {
-          Client.setLoginMessage("Please choose another username", "Username already taken.");
+          Client.setResponseMessage("Please choose another username", "Username already taken.");
         } else if (response == 4) {
-          Client.setLoginMessage("Wait 60 seconds then retry", "That username is already in use.");
+          Client.setResponseMessage("Wait 60 seconds then retry", "That username is already in use.");
         } else if (response == 5) {
-          Client.setLoginMessage("Please reload this page", "The client has been updated.");
+          Client.setResponseMessage("Please reload this page", "The client has been updated.");
         } else if (response == 6) {
-          Client.setLoginMessage(
+          Client.setResponseMessage(
               "Your ip-address is already in use", "You may only use 1 character at once.");
         } else if (response == 7) {
-          Client.setLoginMessage("Please try again in 5 minutes", "Login attempts exceeded!");
+          Client.setResponseMessage("Please try again in 5 minutes", "Login attempts exceeded!");
         } else if (response == 11) {
-          Client.setLoginMessage("for cheating or abuse", "Account has been temporarily disabled");
+          Client.setResponseMessage("for cheating or abuse", "Account has been temporarily disabled");
         } else if (response == 12) {
-          Client.setLoginMessage("for cheating or abuse", "Account has been permanently disabled");
+          Client.setResponseMessage("for cheating or abuse", "Account has been permanently disabled");
         } else if (response == 13) {
-          Client.setLoginMessage("Please choose another username", "Username already taken.");
+          Client.setResponseMessage("Please choose another username", "Username already taken.");
         } else if (response == 14) {
-          Client.setLoginMessage("Please try again later", "Sorry! The server is currently full.");
+          Client.setResponseMessage("Please try again later", "Sorry! The server is currently full.");
           Client.login_delay = 1500;
         } else if (response == 15) {
-          Client.setLoginMessage("to login to this server", "You need a members account");
+          Client.setResponseMessage("to login to this server", "You need a members account");
         } else if (response == 16) {
-          Client.setLoginMessage(
+          Client.setResponseMessage(
               "to access member-only features", "Please login to a members server");
         } else {
-          Client.setLoginMessage(
+          Client.setResponseMessage(
               "Check your internet settings", "Sorry! Unable to connect to server.");
         }
       } catch (Exception e) {
         Logger.Game(String.valueOf(e));
-        Client.setLoginMessage(
+        Client.setResponseMessage(
             "Check your internet settings", "Sorry! Unable to connect to server.");
       }
     }
@@ -130,7 +130,7 @@ public class AccountManagement {
   /** Intended to be RSC175 compatible. It keeps block of reading questions generated from RSC127 ("~:")
     * In order to render them "properly" */
   public static void forgotPass(String user) {
-	  Client.setLoginMessage("Connecting to server", "Please wait...");
+	  Client.setResponseMessage("Connecting to server", "Please wait...");
 
 		try {
 			int port = Replay.connection_port;
@@ -148,7 +148,7 @@ public class AccountManagement {
 			int response = StreamUtil.readStream();
 			Logger.Game("Getpq response: " + response);
 			if (response == 0) {
-				Client.setLoginMessage("", "Sorry, the recovery questions for this user have not been set");
+				Client.setResponseMessage("", "Sorry, the recovery questions for this user have not been set");
 				return;
 			}
 
@@ -160,6 +160,7 @@ public class AccountManagement {
                 StreamUtil.readBytes(arr, length);
                 question = new String(arr, 0, length);
                 
+             // This 'if' section is for parsing questions set in RSC127
                 if (question.startsWith("~:")) {
                 	question = question.substring(2);
 					idx = 0;
@@ -175,14 +176,14 @@ public class AccountManagement {
 			}
 
 			if (Client.failedRecovery) {
-				Client.setLoginMessage("", "Sorry, you have already attempted 1 recovery, try again later");
+				Client.setResponseMessage("", "Sorry, you have already attempted 1 recovery, try again later");
 				return;
 			}
 
 			Client.login_screen = Client.SCREEN_PASSWORD_RECOVERY;
-			Panel.setControlText(Client.panelRecovery, Client.controlRecovery1,
+			Panel.setControlText(Client.panelRecovery, Client.controlRecoveryTop,
 					"@yel@To prove this is your account please provide the answers to");
-			Panel.setControlText(Client.panelRecovery, Client.controlRecovery2,
+			Panel.setControlText(Client.panelRecovery, Client.controlRecoveryBottom,
 					"@yel@your security questions. You will then be able to reset your password");
 
 			for (int i = 0; i < 5; ++i) {
@@ -194,14 +195,14 @@ public class AccountManagement {
 			Panel.setControlText(Client.panelRecovery, Client.recoverConfirmPassInput, "");
 			return;
 		} catch (Exception e) {
-			Client.setLoginMessage("Check your internet settings", "Sorry! Unable to connect to server.");
+			Client.setResponseMessage("Check your internet settings", "Sorry! Unable to connect to server.");
 			return;
 		}
   }
   
   /** Intended to be RSC175 compatible. Different from RSC127 */
   public static void recover() {
-	  Client.setLoginMessage("Connecting to server", "Please wait...");
+	  Client.setResponseMessage("Connecting to server", "Please wait...");
 
 		try {
 			int port = Replay.connection_port;
@@ -245,23 +246,23 @@ public class AccountManagement {
 			Logger.Game("Recover response: " + response);
 			if (response == 0) {
 				Client.login_screen = Client.SCREEN_USERNAME_PASSWORD_LOGIN;
-				Client.setLoginMessage("", "Sorry, recovery failed. You may try again in 1 hour");
+				Client.setResponseMessage("", "Sorry, recovery failed. You may try again in 1 hour");
 				Client.failedRecovery = true;
 				return;
 			}
 
 			if (response == 1) {
 				Client.login_screen = Client.SCREEN_USERNAME_PASSWORD_LOGIN;
-				Client.setLoginMessage("", "Your pass has been reset. You may now use the new pass to login");
+				Client.setResponseMessage("", "Your pass has been reset. You may now use the new pass to login");
 				return;
 			}
 
 			Client.login_screen = Client.SCREEN_USERNAME_PASSWORD_LOGIN;
-			Client.setLoginMessage("", "Recovery failed! Attempts exceeded?");
+			Client.setResponseMessage("", "Recovery failed! Attempts exceeded?");
 			return;
 		} catch (Exception e) {
 			e.printStackTrace();
-			Client.setLoginMessage("Check your internet settings", "Sorry! Unable to connect to server.");
+			Client.setResponseMessage("Check your internet settings", "Sorry! Unable to connect to server.");
 		}
   }
   
@@ -422,8 +423,8 @@ public class AccountManagement {
       }
 
       if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
-    	  Panel.setControlText(Client.panelRecovery, Client.controlRecovery1, text1);
-    	  Panel.setControlText(Client.panelRecovery, Client.controlRecovery2, text2);
+    	  Panel.setControlText(Client.panelRecovery, Client.controlRecoveryTop, text1);
+    	  Panel.setControlText(Client.panelRecovery, Client.controlRecoveryBottom, text2);
       }
 
       // continue checking if == 2 (login screen) with existing code
@@ -557,9 +558,9 @@ public class AccountManagement {
 	  try {
 		  Client.panelRecovery = Panel.createPanel(100);
 	        int yPos = 10;
-	        Client.controlRecovery1 = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@To prove this is your account please provide the answers to", 1, true);
+	        Client.controlRecoveryTop = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@To prove this is your account please provide the answers to", 1, true);
 	        yPos += 15;
-	        Client.controlRecovery2 = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@your security questions. You will then be able to reset your password", 1, true);
+	        Client.controlRecoveryBottom = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@your security questions. You will then be able to reset your password", 1, true);
 	        yPos += 35;
 	        
 	        for (int i = 0; i < 5; ++i) {
@@ -668,9 +669,9 @@ public class AccountManagement {
 	        Panel.addCenterTextTo(
                     Client.panelContactDetails,255, yPos, "websites, and for this reason we take our users privacy very seriously.", 1, true);
 	        yPos += 15;
-	        yPos += 40;
 	        Panel.addCenterTextTo(
                     Client.panelContactDetails,256, yPos, "For our full policy please click the relevant link below this game window", 1, true);
+	        yPos += 40;
 	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, boxWidth, 30);
 	        Panel.addCenterTextTo(
                     Client.panelContactDetails,xPos, yPos - 7, "Full name", 1, true);
@@ -705,7 +706,7 @@ public class AccountManagement {
     short uiWidth = 196;
     int currYPos = yPos;
     if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) { //Security settings -> Change password,  recovery questions, Change contact details from RSC175
-      currYPos += 5;
+      //currYPos += 5; //this is not needed since was generally patched to line up options panel correctly
       Renderer.drawString("Security settings", xPos, currYPos, 1, 0);
       currYPos += 15;
       int textColor = 0xFFFFFF;
@@ -735,9 +736,7 @@ public class AccountManagement {
       }
       Renderer.drawString("Change contact details", xPos, currYPos, 1, textColor);
       currYPos += 15;
-      // currYPos += 5; //originally had this extra space but makes moves privacy settings and
-      // subsequent block
-      // a bit down with respect to when SHOW_ACCOUNT_SECURITY_SETTINGS is not enabled
+      currYPos += 5;
     }
     return currYPos - yPos;
   }
@@ -746,7 +745,7 @@ public class AccountManagement {
       int xPos, int yPos, int mouseX, int mouseY, int mouseButtonClick) {
     short uiWidth = 196;
     int currYPos = yPos;
-    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) { //Security settings -> Change password,  recovery questions, Change contact details from RSC175
       currYPos += 15;
       currYPos += 20;
       if (mouseX > xPos
@@ -777,10 +776,7 @@ public class AccountManagement {
         StreamUtil.sendPacket();
       }
       currYPos += 15;
-      currYPos +=
-          30; // originally was += 35 but with the skip tutorial added, clicking logout doesn't do
-              // it as
-      // well with the 5 extra spaces.
+      currYPos += 35;
     }
     return currYPos - yPos;
   }
@@ -898,7 +894,7 @@ public class AccountManagement {
 		  if (Panel.isSelected(Client.panelLogin, Client.loginLostPasswordButton)) {
 			  String user = Panel.getControlText(Client.panelLogin, Client.loginUserInput);
 				if (user.trim().length() == 0) {
-					Client.setLoginMessage("", "You must enter your username to recover your password");
+					Client.setResponseMessage("", "You must enter your username to recover your password");
 					return;
 				}
 
@@ -1041,12 +1037,12 @@ public class AccountManagement {
 				String newPass = Panel.getControlText(Client.panelRecovery, Client.recoverNewPassInput);
 				String confirmPass = Panel.getControlText(Client.panelRecovery, Client.recoverConfirmPassInput);
 				if (!newPass.equalsIgnoreCase(confirmPass)) {
-					Client.setLoginMessage("", "@yel@The two new passwords entered are not the same as each other!");
+					Client.setResponseMessage("", "@yel@The two new passwords entered are not the same as each other!");
 					return;
 				}
 
 				if (newPass.length() < 5) {
-					Client.setLoginMessage("", "@yel@Your new password must be at least 5 letters long");
+					Client.setResponseMessage("", "@yel@Your new password must be at least 5 letters long");
 					return;
 				}
 
@@ -1123,7 +1119,7 @@ public class AccountManagement {
 								}
 							}
 
-							sendRecoveryQuestions();
+							sendRecoveryQuestions(); //this generates & sends RSC175 opcode 208
 
 							for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
 								recoveryIndices[questionIndex] = questionIndex;
@@ -1167,13 +1163,15 @@ public class AccountManagement {
 	        if (Panel.isSelected(Client.panelContactDetails, Client.emailInput)) {
 	        	Panel.setFocus(Client.panelContactDetails, Client.fullNameInput);
 	        }
-	        if (!Panel.isSelected(Client.panelContactDetails, Client.chooseSubmitContactDetailsButton)) return;
+	        if (!Panel.isSelected(Client.panelContactDetails, Client.chooseSubmitContactDetailsButton)) {
+	        	return;
+	        }
 	        String name = Panel.getControlText(Client.panelContactDetails, Client.fullNameInput);
 	        String zipcode = Panel.getControlText(Client.panelContactDetails, Client.zipCodeInput);
 	        String country = Panel.getControlText(Client.panelContactDetails, Client.countryInput);
 	        String email = Panel.getControlText(Client.panelContactDetails, Client.emailInput);
 	        if (name != null && name.length() != 0 && zipcode != null && zipcode.length() != 0 && country != null && country.length() != 0 && email != null && email.length() != 0) {
-	        	sendContactDetails(name, zipcode, country, email);
+	        	sendContactDetails(name, zipcode, country, email);  //this generates & sends RSC175 opcode 253
 	            Client.clearScreen();
 	            Client.showContactDetails = false;
 	            return;

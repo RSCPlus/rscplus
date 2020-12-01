@@ -801,6 +801,12 @@ public class JClassPatcher {
       
       hookClassVariable(
               methodNode, "client", "Kg", "Z", "Game/Client", "showAppearanceChange", "Z", true, false);
+      
+      hookClassVariable(
+              methodNode, "client", "Qi", "I", "Game/Client", "controlLoginTop", "I", true, false);
+
+          hookClassVariable(
+              methodNode, "client", "td", "I", "Game/Client", "controlLoginBottom", "I", true, false);
     }
   }
 
@@ -1090,7 +1096,7 @@ public class JClassPatcher {
           if (insnNode.getOpcode() == Opcodes.INVOKESPECIAL
                   && ((MethodInsnNode) insnNode).name.equals("t")
                   && ((MethodInsnNode) insnNode).desc.equals("(I)V")) {
-        	  //draw any extra panels when stating game
+        	  //draw any extra panels when starting game
         	  VarInsnNode call = (VarInsnNode) insnNode.getNext();
               methodNode.instructions.insertBefore(
                   call,
@@ -2826,8 +2832,101 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IZ)V")) {
+    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+    	  // move down original text "to change your contact details, etc" since should be 5 px down
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode twoNextNode = nextNode.getNext();
+
+            if (nextNode == null || twoNextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.GETSTATIC
+                    && ((FieldInsnNode) insnNode).name.equals("il")
+                    && nextNode.getOpcode() == Opcodes.SIPUSH
+                    && ((IntInsnNode) nextNode).operand == 145) {
+            	methodNode.instructions.insertBefore(insnNode.getPrevious().getPrevious(), new IincInsnNode(7, 5));
+            	break;
+            }
+          }
+          
+          insnNodeList = methodNode.instructions.iterator();
+
+          // correct the offset of clicking with previous text correction
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode twoNextNode = nextNode.getNext();
+
+            if (nextNode == null || twoNextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) insnNode).var == 7
+                && ((IincInsnNode) insnNode).incr == 15
+                && nextNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) nextNode).var == 7
+                && ((IincInsnNode) nextNode).incr == 15
+                && twoNextNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) twoNextNode).var == 7
+                && ((IincInsnNode) twoNextNode).incr == 15) {
+            	methodNode.instructions.insertBefore(insnNode, new IincInsnNode(7, 5));
+            	break;
+            }
+          }
+          
+          insnNodeList = methodNode.instructions.iterator();
+       // move up text "always logout when you finish" if in tutorial island
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode targetNode;
+
+            if (nextNode == null) break;
+
+            if (insnNode.getOpcode() == Opcodes.GETSTATIC
+                    && ((FieldInsnNode) insnNode).name.equals("il")
+                    && nextNode.getOpcode() == Opcodes.SIPUSH
+                    && ((IntInsnNode) nextNode).operand == 134) {
+            	targetNode = nextNode;
+            	while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+                      // find the part of the += 15 jump inside skip tutorial
+                      targetNode = targetNode.getNext();
+                    }
+            	//
+            	targetNode = targetNode.getNext();
+            	methodNode.instructions.insertBefore(targetNode, new IincInsnNode(7, -5));
+            	break;
+            }
+          }
+          
+          insnNodeList = methodNode.instructions.iterator();
+       // move up click pos "always logout when you finish" if in tutorial island
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode targetNode;
+
+            if (insnNode.getOpcode() == Opcodes.IINC
+                    && ((IincInsnNode) insnNode).incr == 35) {
+            	targetNode = insnNode;
+            	while (targetNode.getOpcode() != Opcodes.IINC
+            			 && ((IincInsnNode) insnNode).incr == 5) {
+                      // start section of click for skip tutorial
+                      targetNode = targetNode.getNext();
+                    }
+            	
+            	while (targetNode.getOpcode() != Opcodes.IINC
+           			 && ((IincInsnNode) insnNode).incr == 15) {
+                     // end section of click for skip tutorial
+                     targetNode = targetNode.getNext();
+                   }
+            	methodNode.instructions.insertBefore(targetNode, new IincInsnNode(7, -5));
+            	break;
+            }
+          }
+    	  
         // Options menu hook
-        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -2910,7 +3009,7 @@ public class JClassPatcher {
               && ((IincInsnNode) twoNextNode).incr == 15) {
             // start part of for clicking "To change your contact details,password, recovery
             // questions, etc..please select 'account management'"
-            startNode = targetNode = insnNode;
+            startNode = targetNode = insnNode.getPrevious(); //at this point got corrected with the 5px offset
 
             while (targetNode.getOpcode() != Opcodes.IINC
                 || ((IincInsnNode) targetNode).incr != 35

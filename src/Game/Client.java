@@ -320,6 +320,8 @@ public class Client {
   public static Object panelRecovery;
   public static Object panelRecoveryQuestions;
   public static Object panelContactDetails;
+  public static int controlLoginTop;
+  public static int controlLoginBottom;
   public static int loginUserInput;
   public static int loginPassInput;
   public static int loginLostPasswordButton;
@@ -331,8 +333,8 @@ public class Client {
   public static int acceptTermsCheckbox;
   public static int chooseSubmitRegisterButton;
   public static int chooseCancelRegisterButton;
-  public static int controlRecovery1;
-  public static int controlRecovery2;
+  public static int controlRecoveryTop;
+  public static int controlRecoveryBottom;
   public static int controlRecoveryQuestion[] = new int[5];
   public static int controlRecoveryInput[] = new int[5];
   public static int recoverOldPassInput;
@@ -886,7 +888,7 @@ public class Client {
    */
   public static void keep_login_info_hook() {
     Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
-    setLoginMessage("Please enter your username and password", "");
+    setResponseMessage("Please enter your username and password", "");
     Panel.setFocus(Client.panelLogin, Client.loginUserInput);
   }
 
@@ -992,7 +994,7 @@ public class Client {
   }
 
   public static void resetLoginMessage() {
-    setLoginMessage("Please enter your username and password", "");
+    setResponseMessage("Please enter your username and password", "");
   }
 
   /** Stores the user's display name in {@link #player_name}. */
@@ -1356,16 +1358,35 @@ public class Client {
   }
 
   /**
-   * Sets the client text above the login information on the login screen.
+   * Sets the client text response status.
+   * In the login screen this is the information shown above the login controls
+   * In the register and recover screens is the replacement of control text in the
+   * respective panels
    *
    * @param line1 the bottom line of text
-   * @param line2 the top line of text
+   * @param line2 the top part of text
    */
-  public static void setLoginMessage(String line1, String line2) {
+  public static void setResponseMessage(String line1, String line2) {
     if (Reflection.setLoginText == null) return;
 
     try {
-      Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
+    	if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+    		if (line1 == null || line1.length() == 0) {
+       		 Panel.setControlText(
+   			            Client.panelLogin, Client.controlLoginTop, "");
+       		 Panel.setControlText(
+   			            Client.panelLogin, Client.controlLoginBottom, line2);
+	       	} else {
+	       		Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
+	       	}
+    	} else if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
+    		Panel.setControlText(
+			            Client.panelRecovery, Client.controlRecoveryTop, line2);
+   		 	Panel.setControlText(
+			            Client.panelRecovery, Client.controlRecoveryBottom, line1);
+    	} else if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
+    		Panel.setControlText(Client.panelRegister, Client.controlRegister, line2 + " " + line1);
+    	}
     } catch (Exception e) {
     }
   }
@@ -2519,7 +2540,7 @@ class LoginMessageHandler implements Runnable {
   public void run() {
     try {
       Thread.sleep(5);
-      Client.setLoginMessage(Client.loginMessageBottom, Client.loginMessageTop);
+      Client.setResponseMessage(Client.loginMessageBottom, Client.loginMessageTop);
     } catch (InterruptedException e) {
       Logger.Error(
           "The login message thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
