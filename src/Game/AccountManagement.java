@@ -784,20 +784,21 @@ public class AccountManagement {
   public static void draw_change_pass_hook(int mouseX, int mouseY, int mouseButtonClick) {
     if (mouseButtonClick != 0) {
       mouseButtonClick = 0;
-      if (mouseX < 106 || mouseY < 150 || mouseX > 406 || mouseY > 210) {
+      if (mouseX < Renderer.width / 2 - 150 || mouseY < Renderer.height / 2 - 32 
+    		  || mouseX > Renderer.width / 2 + 150 || mouseY > Renderer.height / 2 + 28) {
         panelPasswordChangeMode = 0;
         return;
       }
     }
 
-    int yPos = 150;
-    Renderer.drawBox(106, yPos, 300, 60, 0);
-    Renderer.drawBoxBorder(106, yPos, 300, 60, 0xFFFFFF);
+    int yPos = Renderer.height / 2 - 32;
+    Renderer.drawBox(Renderer.width / 2 - 150, yPos, 300, 60, 0);
+    Renderer.drawBoxBorder(Renderer.width / 2 - 150, yPos, 300, 60, 0xFFFFFF);
     yPos += 22;
     String displayString;
     int i;
     if (panelPasswordChangeMode == 6) {
-      Renderer.drawStringCenter("Please enter your current password", 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter("Please enter your current password", Renderer.width / 2, yPos, 4, 0xFFFFFF);
       yPos += 25;
       displayString = "*";
 
@@ -805,7 +806,7 @@ public class AccountManagement {
         displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter(displayString, Renderer.width / 2, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         oldPassword = Client.modal_text;
         Client.modal_enteredText = "";
@@ -814,7 +815,7 @@ public class AccountManagement {
         return;
       }
     } else if (panelPasswordChangeMode == 1) {
-      Renderer.drawStringCenter("Please enter your new password", 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter("Please enter your new password", Renderer.width / 2, yPos, 4, 0xFFFFFF);
       yPos += 25;
       displayString = "*";
 
@@ -822,7 +823,7 @@ public class AccountManagement {
         displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter(displayString, Renderer.width / 2, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         newPassword = Client.modal_text;
         Client.modal_enteredText = "";
@@ -839,7 +840,7 @@ public class AccountManagement {
         return;
       }
     } else if (panelPasswordChangeMode == 2) {
-      Renderer.drawStringCenter("Enter password again to confirm", 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter("Enter password again to confirm", Renderer.width / 2, yPos, 4, 0xFFFFFF);
       yPos += 25;
       displayString = "*";
 
@@ -847,7 +848,7 @@ public class AccountManagement {
         displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
+      Renderer.drawStringCenter(displayString, Renderer.width / 2, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         if (Client.modal_text.equalsIgnoreCase(newPassword)) {
           panelPasswordChangeMode = 4;
@@ -860,30 +861,30 @@ public class AccountManagement {
       }
     } else {
       if (panelPasswordChangeMode == 3) {
-        Renderer.drawStringCenter("Passwords do not match!", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("Passwords do not match!", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         yPos += 25;
-        Renderer.drawStringCenter("Press any key to close", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("Press any key to close", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         return;
       }
 
       if (panelPasswordChangeMode == 4) {
-        Renderer.drawStringCenter("Ok, your request has been sent", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("Ok, your request has been sent", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         yPos += 25;
-        Renderer.drawStringCenter("Press any key to close", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("Press any key to close", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         return;
       }
 
       if (panelPasswordChangeMode == 5) {
-        Renderer.drawStringCenter("Password must be at", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("Password must be at", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         yPos += 25;
-        Renderer.drawStringCenter("least 5 letters long", 256, yPos, 4, 0xFFFFFF);
+        Renderer.drawStringCenter("least 5 letters long", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         return;
       }
       
       if (panelPasswordChangeMode == 7) {
-          Renderer.drawStringCenter("Your password must not be", 256, yPos, 4, 0xFFFFFF);
+          Renderer.drawStringCenter("Your password must not be", Renderer.width / 2, yPos, 4, 0xFFFFFF);
           yPos += 25;
-          Renderer.drawStringCenter("the same as your username", 256, yPos, 4, 0xFFFFFF);
+          Renderer.drawStringCenter("the same as your username", Renderer.width / 2, yPos, 4, 0xFFFFFF);
           return;
         }
     }
