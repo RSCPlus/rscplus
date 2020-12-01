@@ -154,7 +154,7 @@ public class AccountManagement {
 
 			String question;
 			int idx;
-			for (int var12 = 0; var12 < 5; ++var12) {
+			for (int i = 0; i < 5; ++i) {
 				int length = StreamUtil.readStream();
                 byte[] arr = new byte[5000];
                 StreamUtil.readBytes(arr, length);
@@ -166,12 +166,12 @@ public class AccountManagement {
 
 					try {
 						idx = Integer.parseInt(question);
-					} catch (Exception var8) { }
+					} catch (Exception ex) { }
 
 					question = recoveryQuestions[idx];
 				}
                 
-                Panel.setControlText(Client.panelRecovery, Client.controlRecoveryQuestion[var12], question);
+                Panel.setControlText(Client.panelRecovery, Client.controlRecoveryQuestion[i], question);
 			}
 
 			if (Client.failedRecovery) {
@@ -328,13 +328,13 @@ public class AccountManagement {
 	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile) || (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) {
 		  if (opcode == 224) { // Opcode is intended to be RSC175 compatible. The RSC127 would have appended "~:" to recoveryQuestions[recoveryIndices[idx]] and adapted accordingly the control text
 			  Client.showRecoveryQuestions = true;
-			  for (int idx = 0; idx < 5; ++idx) {
-					recoveryIndices[idx] = idx;
-	                Client.controlRecoveryText[idx] = recoveryQuestions[recoveryIndices[idx]];
+			  for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
+					recoveryIndices[questionIndex] = questionIndex;
+	                Client.controlRecoveryText[questionIndex] = recoveryQuestions[recoveryIndices[questionIndex]];
 	                Panel.setControlText(
-				            Client.panelRecoveryQuestions,Client.controlAnswerInput[idx], "");
+				            Client.panelRecoveryQuestions,Client.controlAnswerInput[questionIndex], "");
 	                Panel.setControlText(
-				            Client.panelRecoveryQuestions,Client.controlRecoveryIns[idx], idx + 1 + ": " + Client.controlRecoveryText[idx]);
+				            Client.panelRecoveryQuestions,Client.controlRecoveryIns[questionIndex], questionIndex + 1 + ": " + Client.controlRecoveryText[questionIndex]);
 				}
 			  processed = true;
 		  } else if (opcode == 232) { //Opcode is intended to be RSC175 compatible. Not present in RSC127
@@ -363,11 +363,11 @@ public class AccountManagement {
       // Put session ID
       Util.int_put(block, 4, sessionId);
 
-      for (int var9 = 0; var9 < 7; ++var9) {
-        if (i + var9 < len) {
-          block[8 + var9] = data[i + var9];
+      for (int j = 0; j < 7; ++j) {
+        if (i + j < len) {
+          block[8 + j] = data[i + j];
         } else {
-          block[8 + var9] = 32;
+          block[8 + j] = 32;
         }
       }
 
@@ -439,22 +439,22 @@ public class AccountManagement {
 		  Client.clearScreen();
 		  Panel.drawPanel(Client.panelRecoveryQuestions);
 		  if (customQuestionEntry != -1) {
-	            int n = 150;
-	            Renderer.drawBox(26, n, 460, 60, 0);
-	            Renderer.drawBoxBorder(26, n, 460, 60, 16777215);
-	            n += 22;
-	            Renderer.drawStringCenter("Please enter your question", 256, n, 4, 16777215);
-	            n += 25;
-	            Renderer.drawStringCenter(Client.pm_enteredText + "*", 256, n, 4, 16777215);
+	            int yPos = 150;
+	            Renderer.drawBox(26, yPos, 460, 60, 0);
+	            Renderer.drawBoxBorder(26, yPos, 460, 60, 0xFFFFFF);
+	            yPos += 22;
+	            Renderer.drawStringCenter("Please enter your question", 256, yPos, 4, 0xFFFFFF);
+	            yPos += 25;
+	            Renderer.drawStringCenter(Client.pm_enteredText + "*", 256, yPos, 4, 0xFFFFFF);
 	        }
-		  Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 22);
+		  Renderer.drawSprite(0, Renderer.height_client, Renderer.sprite_media + 22);
 		  Client.drawGraphics();
 		  processed = true;
 	  } else if (Client.showContactDetails) {
 		  Client.setInterlace(false);
 		  Client.clearScreen();
 		  Panel.drawPanel(Client.panelContactDetails);
-		  Renderer.drawSprite(0, Renderer.height_client - 4, Renderer.sprite_media + 22);
+		  Renderer.drawSprite(0, Renderer.height_client, Renderer.sprite_media + 22);
 		  Client.drawGraphics();
 		  processed = true;
 	  }
@@ -489,64 +489,64 @@ public class AccountManagement {
       }
 
       Client.panelRegister = Panel.createPanel(50);
-      int var1 = 70;
+      int startingYPos = 70;
       Client.controlRegister =
           Panel.addCenterTextTo(
               Client.panelRegister,
               256,
-              var1 + 8,
+              startingYPos + 8,
               "To create an account please enter all the requested details",
               4,
               true);
-      int var2 = var1 + 25;
-      Panel.addButtonBackTo(Client.panelRegister, 256, var2 + 17, 250, 34);
-      Panel.addCenterTextTo(Client.panelRegister, 256, var2 + 8, "Choose a Username", 4, false);
+      int yPos = startingYPos + 25;
+      Panel.addButtonBackTo(Client.panelRegister, 256, yPos + 17, 250, 34);
+      Panel.addCenterTextTo(Client.panelRegister, 256, yPos + 8, "Choose a Username", 4, false);
       Client.chooseUserInput =
-          Panel.addInputTo(Client.panelRegister, 256, var2 + 25, 200, 40, 4, 320, false, false);
+          Panel.addInputTo(Client.panelRegister, 256, yPos + 25, 200, 40, 4, 320, false, false);
       Panel.setFocus(Client.panelRegister, Client.chooseUserInput);
-      var2 += 40;
-      Panel.addButtonBackTo(Client.panelRegister, 141, var2 + 17, 220, 34);
-      Panel.addCenterTextTo(Client.panelRegister, 141, var2 + 8, "Choose a Password", 4, false);
+      yPos += 40;
+      Panel.addButtonBackTo(Client.panelRegister, 141, yPos + 17, 220, 34);
+      Panel.addCenterTextTo(Client.panelRegister, 141, yPos + 8, "Choose a Password", 4, false);
       Client.choosePasswordInput =
-          Panel.addInputTo(Client.panelRegister, 141, var2 + 25, 220, 40, 4, 20, true, false);
-      Panel.addButtonBackTo(Client.panelRegister, 371, var2 + 17, 220, 34);
-      Panel.addCenterTextTo(Client.panelRegister, 371, var2 + 8, "Confirm Password", 4, false);
+          Panel.addInputTo(Client.panelRegister, 141, yPos + 25, 220, 40, 4, 20, true, false);
+      Panel.addButtonBackTo(Client.panelRegister, 371, yPos + 17, 220, 34);
+      Panel.addCenterTextTo(Client.panelRegister, 371, yPos + 8, "Confirm Password", 4, false);
       Client.chooseConfirmPassInput =
-          Panel.addInputTo(Client.panelRegister, 371, var2 + 25, 220, 40, 4, 20, true, false);
-      var2 += 40;
-      var2 += 20;
-      Client.acceptTermsCheckbox = Panel.addCheckboxTo(Client.panelRegister, 60, var2, 14);
+          Panel.addInputTo(Client.panelRegister, 371, yPos + 25, 220, 40, 4, 20, true, false);
+      yPos += 40;
+      yPos += 20;
+      Client.acceptTermsCheckbox = Panel.addCheckboxTo(Client.panelRegister, 60, yPos, 14);
       Panel.addTextTo(
           Client.panelRegister,
           75,
-          var2,
+          yPos,
           "I have read and agree to the terms+conditions listed at:",
           4,
           true);
-      var2 += 15;
+      yPos += 15;
       Panel.addCenterTextTo(
-          Client.panelRegister, 256, var2, "http://www.runescape.com/runeterms.html", 4, true);
-      var2 += 20;
-      Panel.addButtonBackTo(Client.panelRegister, 156, var2 + 17, 150, 34);
-      Panel.addCenterTextTo(Client.panelRegister, 156, var2 + 17, "Submit", 5, false);
+          Client.panelRegister, 256, yPos, "http://www.runescape.com/runeterms.html", 4, true);
+      yPos += 20;
+      Panel.addButtonBackTo(Client.panelRegister, 156, yPos + 17, 150, 34);
+      Panel.addCenterTextTo(Client.panelRegister, 156, yPos + 17, "Submit", 5, false);
       Client.chooseSubmitRegisterButton =
-          Panel.addButtonTo(Client.panelRegister, 156, var2 + 17, 150, 34);
-      Panel.addButtonBackTo(Client.panelRegister, 356, var2 + 17, 150, 34);
-      Panel.addCenterTextTo(Client.panelRegister, 356, var2 + 17, "Cancel", 5, false);
+          Panel.addButtonTo(Client.panelRegister, 156, yPos + 17, 150, 34);
+      Panel.addButtonBackTo(Client.panelRegister, 356, yPos + 17, 150, 34);
+      Panel.addCenterTextTo(Client.panelRegister, 356, yPos + 17, "Cancel", 5, false);
       Client.chooseCancelRegisterButton =
-          Panel.addButtonTo(Client.panelRegister, 356, var2 + 17, 150, 34);
+          Panel.addButtonTo(Client.panelRegister, 356, yPos + 17, 150, 34);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
   
-  public static void panel_login_hook(int n, int yPos) {
+  public static void panel_login_hook(int n, int startingYPos) {
 	  try {
 	      if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
-	    	int var2 = yPos + 30;
-	    	Panel.addButtonBackTo(Client.panelLogin, 410, var2, 160, 25);
-	    	Panel.addCenterTextTo(Client.panelLogin, 410, var2, "I've lost my password", 4, false);
-	    	Client.loginLostPasswordButton = Panel.addButtonTo(Client.panelLogin, 410, var2, 160, 25);
+	    	int yPos = startingYPos + 30;
+	    	Panel.addButtonBackTo(Client.panelLogin, 410, yPos, 160, 25);
+	    	Panel.addCenterTextTo(Client.panelLogin, 410, yPos, "I've lost my password", 4, false);
+	    	Client.loginLostPasswordButton = Panel.addButtonTo(Client.panelLogin, 410, yPos, 160, 25);
 	      }
 	  } catch (Exception e) {
 	      e.printStackTrace();
@@ -556,37 +556,37 @@ public class AccountManagement {
   public static void create_account_recovery() {
 	  try {
 		  Client.panelRecovery = Panel.createPanel(100);
-	        int var1_1 = 10;
-	        Client.controlRecovery1 = Panel.addCenterTextTo(Client.panelRecovery, 256, var1_1, "@yel@To prove this is your account please provide the answers to", 1, true);
-	        var1_1 += 15;
-	        Client.controlRecovery2 = Panel.addCenterTextTo(Client.panelRecovery, 256, var1_1, "@yel@your security questions. You will then be able to reset your password", 1, true);
-	        var1_1 += 35;
+	        int yPos = 10;
+	        Client.controlRecovery1 = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@To prove this is your account please provide the answers to", 1, true);
+	        yPos += 15;
+	        Client.controlRecovery2 = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos, "@yel@your security questions. You will then be able to reset your password", 1, true);
+	        yPos += 35;
 	        
-	        for (int var2_2 = 0; var2_2 < 5; ++var2_2) {
-	        	Panel.addButtonBackTo(Client.panelRecovery, 256, var1_1, 410, 30);
-	            Client.controlRecoveryQuestion[var2_2] = Panel.addCenterTextTo(Client.panelRecovery, 256, var1_1 - 7, var2_2 + 1 + ": question?", 1, true);
-	            Client.controlRecoveryInput[var2_2] = Panel.addInputTo(Client.panelRecovery, 256, var1_1 + 7, 310, 30, 1, 80, true, true);
-	            var1_1 += 35;
+	        for (int i = 0; i < 5; ++i) {
+	        	Panel.addButtonBackTo(Client.panelRecovery, 256, yPos, 410, 30);
+	            Client.controlRecoveryQuestion[i] = Panel.addCenterTextTo(Client.panelRecovery, 256, yPos - 7, i + 1 + ": question?", 1, true);
+	            Client.controlRecoveryInput[i] = Panel.addInputTo(Client.panelRecovery, 256, yPos + 7, 310, 30, 1, 80, true, true);
+	            yPos += 35;
 			}
 	        
 	        Panel.setFocus(Client.panelRecovery, Client.controlRecoveryInput[0]);
-	        Panel.addButtonBackTo(Client.panelRecovery, 256, var1_1, 410, 30);
-	        Panel.addCenterTextTo(Client.panelRecovery, 256, var1_1 - 7, "If you know it, enter a previous password used on this account", 1, true);
-	        Client.recoverOldPassInput = Panel.addInputTo(Client.panelRecovery, 256, var1_1 + 7, 310, 30, 1, 80, true, true);
-	        var1_1 += 35;
-	        Panel.addButtonBackTo(Client.panelRecovery, 151, var1_1, 200, 30);
-	        Panel.addCenterTextTo(Client.panelRecovery, 151, var1_1 - 7, "Choose a NEW password", 1, true);
-	        Client.recoverNewPassInput = Panel.addInputTo(Client.panelRecovery, 146, var1_1 + 7, 200, 30, 1, 80, true, true);
-	        Panel.addButtonBackTo(Client.panelRecovery, 361, var1_1, 200, 30);
-	        Panel.addCenterTextTo(Client.panelRecovery, 361, var1_1 - 7, "Confirm new password", 1, true);
-	        Client.recoverConfirmPassInput = Panel.addInputTo(Client.panelRecovery, 366, var1_1 + 7, 200, 30, 1, 80, true, true);
-	        var1_1 += 35;
-	        Panel.addButtonBackTo(Client.panelRecovery, 201, var1_1, 100, 30);
-	        Panel.addCenterTextTo(Client.panelRecovery, 201, var1_1, "Submit", 4, true);
-	        Client.chooseSubmitRecoveryButton = Panel.addButtonTo(Client.panelRecovery, 201, var1_1, 100, 30);
-	        Panel.addButtonBackTo(Client.panelRecovery, 311, var1_1, 100, 30);
-	        Panel.addCenterTextTo(Client.panelRecovery, 311, var1_1, "Cancel", 4, true);
-	        Client.chooseCancelRecoveryButton = Panel.addButtonTo(Client.panelRecovery, 311, var1_1, 100, 30);
+	        Panel.addButtonBackTo(Client.panelRecovery, 256, yPos, 410, 30);
+	        Panel.addCenterTextTo(Client.panelRecovery, 256, yPos - 7, "If you know it, enter a previous password used on this account", 1, true);
+	        Client.recoverOldPassInput = Panel.addInputTo(Client.panelRecovery, 256, yPos + 7, 310, 30, 1, 80, true, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelRecovery, 151, yPos, 200, 30);
+	        Panel.addCenterTextTo(Client.panelRecovery, 151, yPos - 7, "Choose a NEW password", 1, true);
+	        Client.recoverNewPassInput = Panel.addInputTo(Client.panelRecovery, 146, yPos + 7, 200, 30, 1, 80, true, true);
+	        Panel.addButtonBackTo(Client.panelRecovery, 361, yPos, 200, 30);
+	        Panel.addCenterTextTo(Client.panelRecovery, 361, yPos - 7, "Confirm new password", 1, true);
+	        Client.recoverConfirmPassInput = Panel.addInputTo(Client.panelRecovery, 366, yPos + 7, 200, 30, 1, 80, true, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelRecovery, 201, yPos, 100, 30);
+	        Panel.addCenterTextTo(Client.panelRecovery, 201, yPos, "Submit", 4, true);
+	        Client.chooseSubmitRecoveryButton = Panel.addButtonTo(Client.panelRecovery, 201, yPos, 100, 30);
+	        Panel.addButtonBackTo(Client.panelRecovery, 311, yPos, 100, 30);
+	        Panel.addCenterTextTo(Client.panelRecovery, 311, yPos, "Cancel", 4, true);
+	        Client.chooseCancelRecoveryButton = Panel.addButtonTo(Client.panelRecovery, 311, yPos, 100, 30);
 	  } catch (Exception e) {
 		  e.printStackTrace();
 	  }
@@ -595,51 +595,51 @@ public class AccountManagement {
   public static void create_recovery_questions() {
 	  try {
 		  Client.panelRecoveryQuestions = Panel.createPanel(100);
-	        int var1_1 = 8;
+	        int yPos = 8;
 	        Client.controlRecoveryQuestions = Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "@yel@Please provide 5 security questions in case you lose your password", 1, true);
-	        var1_1 += 22;
+                    Client.panelRecoveryQuestions,256, yPos, "@yel@Please provide 5 security questions in case you lose your password", 1, true);
+	        yPos += 22;
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "If you ever lose your password, you will need these to prove you own your account.", 1, true);
-	        var1_1 += 13;
+                    Client.panelRecoveryQuestions,256, yPos, "If you ever lose your password, you will need these to prove you own your account.", 1, true);
+	        yPos += 13;
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "Your answers are encrypted and are ONLY used for password recovery purposes.", 1, true);
-	        var1_1 += 22;
+                    Client.panelRecoveryQuestions,256, yPos, "Your answers are encrypted and are ONLY used for password recovery purposes.", 1, true);
+	        yPos += 22;
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "@ora@IMPORTANT:@whi@ To recover your password you must give the EXACT same answers you", 1, true);
-	        var1_1 += 13;
+                    Client.panelRecoveryQuestions,256, yPos, "@ora@IMPORTANT:@whi@ To recover your password you must give the EXACT same answers you", 1, true);
+	        yPos += 13;
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "give here. If you think you might forget an answer, or someone else could guess the", 1, true);
-	        var1_1 += 13;
+                    Client.panelRecoveryQuestions,256, yPos, "give here. If you think you might forget an answer, or someone else could guess the", 1, true);
+	        yPos += 13;
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "answer, then press the 'different question' button to get a better question.", 1, true);
-	        var1_1 += 35;
-	        for (int idx = 0; idx < 5; ++idx) {
-	        	Panel.addButtonBackTo(Client.panelRecoveryQuestions,170, var1_1, 310, 30);
-	            Client.controlRecoveryText[idx] = recoveryQuestions[recoveryIndices[idx]];
-	            Client.controlRecoveryIns[idx] = Panel.addCenterTextTo(
-	                    Client.panelRecoveryQuestions,170, var1_1 - 7, idx + 1 + ": " + recoveryQuestions[recoveryIndices[idx]], 1, true);
-	            Client.controlAnswerInput[idx] =  Panel.addInputTo(Client.panelRecoveryQuestions, 170, var1_1 + 7, 310, 30, 1, 80, false, true);
-	            Panel.addButtonBackTo(Client.panelRecoveryQuestions,370, var1_1, 80, 30);
+                    Client.panelRecoveryQuestions,256, yPos, "answer, then press the 'different question' button to get a better question.", 1, true);
+	        yPos += 35;
+	        for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
+	        	Panel.addButtonBackTo(Client.panelRecoveryQuestions,170, yPos, 310, 30);
+	            Client.controlRecoveryText[questionIndex] = recoveryQuestions[recoveryIndices[questionIndex]];
+	            Client.controlRecoveryIns[questionIndex] = Panel.addCenterTextTo(
+	                    Client.panelRecoveryQuestions,170, yPos - 7, questionIndex + 1 + ": " + recoveryQuestions[recoveryIndices[questionIndex]], 1, true);
+	            Client.controlAnswerInput[questionIndex] =  Panel.addInputTo(Client.panelRecoveryQuestions, 170, yPos + 7, 310, 30, 1, 80, false, true);
+	            Panel.addButtonBackTo(Client.panelRecoveryQuestions,370, yPos, 80, 30);
 	            Panel.addCenterTextTo(
-	                    Client.panelRecoveryQuestions,370, var1_1 - 7, "Different", 1, true);
+	                    Client.panelRecoveryQuestions,370, yPos - 7, "Different", 1, true);
 	            Panel.addCenterTextTo(
-	                    Client.panelRecoveryQuestions,370, var1_1 + 7, "Question", 1, true);
-	            Client.controlQuestion[idx] = Panel.addButtonTo(Client.panelRecoveryQuestions,370, var1_1, 80, 30);
-	            Panel.addButtonBackTo(Client.panelRecoveryQuestions,455, var1_1, 80, 30);
+	                    Client.panelRecoveryQuestions,370, yPos + 7, "Question", 1, true);
+	            Client.controlQuestion[questionIndex] = Panel.addButtonTo(Client.panelRecoveryQuestions,370, yPos, 80, 30);
+	            Panel.addButtonBackTo(Client.panelRecoveryQuestions,455, yPos, 80, 30);
 	            Panel.addCenterTextTo(
-	                    Client.panelRecoveryQuestions,455, var1_1 - 7, "Enter own", 1, true);
+	                    Client.panelRecoveryQuestions,455, yPos - 7, "Enter own", 1, true);
 	            Panel.addCenterTextTo(
-	                    Client.panelRecoveryQuestions,455, var1_1 + 7, "Question", 1, true);
-	            Client.controlCustomQuestion[idx] = Panel.addButtonTo(Client.panelRecoveryQuestions,455, var1_1, 80, 30);
-	            var1_1 += 35;
+	                    Client.panelRecoveryQuestions,455, yPos + 7, "Question", 1, true);
+	            Client.controlCustomQuestion[questionIndex] = Panel.addButtonTo(Client.panelRecoveryQuestions,455, yPos, 80, 30);
+	            yPos += 35;
 	        }
 	        Panel.setFocus(Client.panelRecoveryQuestions, Client.controlAnswerInput[0]);
-	        var1_1 += 10;
-	        Panel.addButtonBackTo(Client.panelRecoveryQuestions,256, var1_1, 250, 30);
+	        yPos += 10;
+	        Panel.addButtonBackTo(Client.panelRecoveryQuestions,256, yPos, 250, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelRecoveryQuestions,256, var1_1, "Click here when finished", 4, true);
-	        Client.chooseFinishSetRecoveryButton = Panel.addButtonTo(Client.panelRecoveryQuestions,256, var1_1, 250, 30);
+                    Client.panelRecoveryQuestions,256, yPos, "Click here when finished", 4, true);
+	        Client.chooseFinishSetRecoveryButton = Panel.addButtonTo(Client.panelRecoveryQuestions,256, yPos, 250, 30);
 
 	  } catch (Exception e) {
 		  e.printStackTrace();
@@ -649,51 +649,52 @@ public class AccountManagement {
   public static void create_contact_details() {
 	  try {
 		  Client.panelContactDetails = Panel.createPanel(100);
-	        int n = 256;
-	        int n2 = 400;
-	        int n3 = 25;
+	        int xPos = 256;
+	        int boxWidth = 400;
+	        int yPos = 25;
 	        Client.controlContactDetails =
 	                Panel.addCenterTextTo(
-	                    Client.panelContactDetails,256, n3, "@yel@Please supply your contact details", 5, true);
-	        n3 += 30;
+	                    Client.panelContactDetails,256, yPos, "@yel@Please supply your contact details", 5, true);
+	        yPos += 30;
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,256, n3, "We need this information to provide an efficient customer support service ", 1, true);
-	        n3 += 15;
+                    Client.panelContactDetails,256, yPos, "We need this information to provide an efficient customer support service ", 1, true);
+	        yPos += 15;
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,256, n3, "and also to work out where to locate future RuneScape servers.", 1, true);
-	        n3 += 25;
+                    Client.panelContactDetails,256, yPos, "and also to work out where to locate future RuneScape servers.", 1, true);
+	        yPos += 25;
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,256, n3, "We know some people are concerned about entering their email address on", 1, true);
-	        n3 += 15;
+                    Client.panelContactDetails,256, yPos, "We know some people are concerned about entering their email address on", 1, true);
+	        yPos += 15;
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,255, n3, "websites, and for this reason we take our users privacy very seriously.", 1, true);
-	        n3 += 15;
+                    Client.panelContactDetails,255, yPos, "websites, and for this reason we take our users privacy very seriously.", 1, true);
+	        yPos += 15;
+	        yPos += 40;
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,256, n3, "For our full policy please click the relevant link below this game window", 1, true);
-	        Panel.addButtonBackTo(Client.panelContactDetails,n, n3 += 40, n2, 30);
+                    Client.panelContactDetails,256, yPos, "For our full policy please click the relevant link below this game window", 1, true);
+	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, boxWidth, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,n, n3 - 7, "Full name", 1, true);
-	        Client.fullNameInput = Panel.addInputTo(Client.panelContactDetails,n, n3 + 7, n2, 30, 1, 80, false, true);
-	        n3 += 35;
-	        Panel.addButtonBackTo(Client.panelContactDetails,n, n3, n2, 30);
+                    Client.panelContactDetails,xPos, yPos - 7, "Full name", 1, true);
+	        Client.fullNameInput = Panel.addInputTo(Client.panelContactDetails,xPos, yPos + 7, boxWidth, 30, 1, 80, false, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, boxWidth, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,n, n3 - 7, "Postcode/Zipcode", 1, true);
-	        Client.zipCodeInput = Panel.addInputTo(Client.panelContactDetails,n, n3 + 7, n2, 30, 1, 80, false, true);
-	        n3 += 35;
-	        Panel.addButtonBackTo(Client.panelContactDetails,n, n3, n2, 30);
+                    Client.panelContactDetails,xPos, yPos - 7, "Postcode/Zipcode", 1, true);
+	        Client.zipCodeInput = Panel.addInputTo(Client.panelContactDetails,xPos, yPos + 7, boxWidth, 30, 1, 80, false, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, boxWidth, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,n, n3 - 7, "Country", 1, true);
-	        Client.countryInput = Panel.addInputTo(Client.panelContactDetails,n, n3 + 7, n2, 30, 1, 80, false, true);
-	        n3 += 35;
-	        Panel.addButtonBackTo(Client.panelContactDetails,n, n3, n2, 30);
+                    Client.panelContactDetails,xPos, yPos - 7, "Country", 1, true);
+	        Client.countryInput = Panel.addInputTo(Client.panelContactDetails,xPos, yPos + 7, boxWidth, 30, 1, 80, false, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, boxWidth, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,n, n3 - 7, "Email address", 1, true);
-	        Client.emailInput = Panel.addInputTo(Client.panelContactDetails,n, n3 + 7, n2, 30, 1, 80, false, true);
-	        n3 += 35;
-	        Panel.addButtonBackTo(Client.panelContactDetails,n, n3, 100, 30);
+                    Client.panelContactDetails,xPos, yPos - 7, "Email address", 1, true);
+	        Client.emailInput = Panel.addInputTo(Client.panelContactDetails,xPos, yPos + 7, boxWidth, 30, 1, 80, false, true);
+	        yPos += 35;
+	        Panel.addButtonBackTo(Client.panelContactDetails,xPos, yPos, 100, 30);
 	        Panel.addCenterTextTo(
-                    Client.panelContactDetails,n, n3, "Submit", 4, true);
-	        Client.chooseSubmitContactDetailsButton = Panel.addButtonTo(Client.panelContactDetails,n, n3, 100, 30);
+                    Client.panelContactDetails,xPos, yPos, "Submit", 4, true);
+	        Client.chooseSubmitContactDetailsButton = Panel.addButtonTo(Client.panelContactDetails,xPos, yPos, 100, 30);
 	        Panel.setFocus(Client.panelContactDetails,Client.fullNameInput);
 	  } catch (Exception e) {
 		  e.printStackTrace();
@@ -703,34 +704,34 @@ public class AccountManagement {
   public static int options_security_hook(int xPos, int yPos, int mouseX, int mouseY) {
     short uiWidth = 196;
     int currYPos = yPos;
-    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) { //Security settings -> Change password,  recovery questions, Change contact details from RSC175
       currYPos += 5;
       Renderer.drawString("Security settings", xPos, currYPos, 1, 0);
       currYPos += 15;
-      int textColor = 16777215;
+      int textColor = 0xFFFFFF;
       if (mouseX > xPos
           && mouseX < xPos + uiWidth
           && mouseY > currYPos - 12
           && mouseY < currYPos + 4) {
-        textColor = 16776960;
+        textColor = 0xFFFF00; // yellow
       }
       Renderer.drawString("Change password", xPos, currYPos, 1, textColor);
       currYPos += 15;
-      textColor = 16777215;
+      textColor = 0xFFFFFF;
       if (mouseX > xPos
           && mouseX < xPos + uiWidth
           && mouseY > currYPos - 12
           && mouseY < currYPos + 4) {
-        textColor = 16776960;
+        textColor = 0xFFFF00; // yellow
       }
       Renderer.drawString("Change recovery questions", xPos, currYPos, 1, textColor);
       currYPos += 15;
-      textColor = 16777215;
+      textColor = 0xFFFFFF;
       if (mouseX > xPos
           && mouseX < xPos + uiWidth
           && mouseY > currYPos - 12
           && mouseY < currYPos + 4) {
-        textColor = 16776960;
+        textColor = 0xFFFF00; // yellow
       }
       Renderer.drawString("Change contact details", xPos, currYPos, 1, textColor);
       currYPos += 15;
@@ -763,7 +764,7 @@ public class AccountManagement {
           && mouseY > currYPos - 12
           && mouseY < currYPos + 4
           && mouseButtonClick == 1) {
-        StreamUtil.newPacket(197);
+        StreamUtil.newPacket(197); // this opcode is "Change recovery questions" as found in RSC175
         StreamUtil.sendPacket();
       }
       currYPos += 15;
@@ -772,7 +773,7 @@ public class AccountManagement {
           && mouseY > currYPos - 12
           && mouseY < currYPos + 4
           && mouseButtonClick == 1) {
-        StreamUtil.newPacket(247);
+        StreamUtil.newPacket(247); // this opcode is "Change contact details" as found in RSC175
         StreamUtil.sendPacket();
       }
       currYPos += 15;
@@ -793,22 +794,22 @@ public class AccountManagement {
       }
     }
 
-    short var1 = 150;
-    Renderer.drawBox(106, var1, 300, 60, 0);
-    Renderer.drawBoxBorder(106, var1, 300, 60, 16777215);
-    int var4 = var1 + 22;
-    String var2;
-    int var3;
+    short startingYPos = 150;
+    Renderer.drawBox(106, startingYPos, 300, 60, 0);
+    Renderer.drawBoxBorder(106, startingYPos, 300, 60, 0xFFFFFF);
+    int yPos = startingYPos + 22;
+    String displayString;
+    int i;
     if (panelPasswordChangeMode == 6) {
-      Renderer.drawStringCenter("Please enter your current password", 256, var4, 4, 16777215);
-      var4 += 25;
-      var2 = "*";
+      Renderer.drawStringCenter("Please enter your current password", 256, yPos, 4, 0xFFFFFF);
+      yPos += 25;
+      displayString = "*";
 
-      for (var3 = 0; var3 < Client.modal_enteredText.length(); ++var3) {
-        var2 = "X" + var2;
+      for (i = 0; i < Client.modal_enteredText.length(); ++i) {
+        displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(var2, 256, var4, 4, 16777215);
+      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         oldPassword = Client.modal_text;
         Client.modal_enteredText = "";
@@ -817,15 +818,15 @@ public class AccountManagement {
         return;
       }
     } else if (panelPasswordChangeMode == 1) {
-      Renderer.drawStringCenter("Please enter your new password", 256, var4, 4, 16777215);
-      var4 += 25;
-      var2 = "*";
+      Renderer.drawStringCenter("Please enter your new password", 256, yPos, 4, 0xFFFFFF);
+      yPos += 25;
+      displayString = "*";
 
-      for (var3 = 0; var3 < Client.modal_enteredText.length(); ++var3) {
-        var2 = "X" + var2;
+      for (i = 0; i < Client.modal_enteredText.length(); ++i) {
+        displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(var2, 256, var4, 4, 16777215);
+      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         newPassword = Client.modal_text;
         Client.modal_enteredText = "";
@@ -842,15 +843,15 @@ public class AccountManagement {
         return;
       }
     } else if (panelPasswordChangeMode == 2) {
-      Renderer.drawStringCenter("Enter password again to confirm", 256, var4, 4, 16777215);
-      var4 += 25;
-      var2 = "*";
+      Renderer.drawStringCenter("Enter password again to confirm", 256, yPos, 4, 0xFFFFFF);
+      yPos += 25;
+      displayString = "*";
 
-      for (var3 = 0; var3 < Client.modal_enteredText.length(); ++var3) {
-        var2 = "X" + var2;
+      for (i = 0; i < Client.modal_enteredText.length(); ++i) {
+        displayString = "X" + displayString;
       }
 
-      Renderer.drawStringCenter(var2, 256, var4, 4, 16777215);
+      Renderer.drawStringCenter(displayString, 256, yPos, 4, 0xFFFFFF);
       if (Client.modal_text.length() > 0) {
         if (Client.modal_text.equalsIgnoreCase(newPassword)) {
           panelPasswordChangeMode = 4;
@@ -863,30 +864,30 @@ public class AccountManagement {
       }
     } else {
       if (panelPasswordChangeMode == 3) {
-        Renderer.drawStringCenter("Passwords do not match!", 256, var4, 4, 16777215);
-        var4 += 25;
-        Renderer.drawStringCenter("Press any key to close", 256, var4, 4, 16777215);
+        Renderer.drawStringCenter("Passwords do not match!", 256, yPos, 4, 0xFFFFFF);
+        yPos += 25;
+        Renderer.drawStringCenter("Press any key to close", 256, yPos, 4, 0xFFFFFF);
         return;
       }
 
       if (panelPasswordChangeMode == 4) {
-        Renderer.drawStringCenter("Ok, your request has been sent", 256, var4, 4, 16777215);
-        var4 += 25;
-        Renderer.drawStringCenter("Press any key to close", 256, var4, 4, 16777215);
+        Renderer.drawStringCenter("Ok, your request has been sent", 256, yPos, 4, 0xFFFFFF);
+        yPos += 25;
+        Renderer.drawStringCenter("Press any key to close", 256, yPos, 4, 0xFFFFFF);
         return;
       }
 
       if (panelPasswordChangeMode == 5) {
-        Renderer.drawStringCenter("Password must be at", 256, var4, 4, 16777215);
-        var4 += 25;
-        Renderer.drawStringCenter("least 5 letters long", 256, var4, 4, 16777215);
+        Renderer.drawStringCenter("Password must be at", 256, yPos, 4, 0xFFFFFF);
+        yPos += 25;
+        Renderer.drawStringCenter("least 5 letters long", 256, yPos, 4, 0xFFFFFF);
         return;
       }
       
       if (panelPasswordChangeMode == 7) {
-          Renderer.drawStringCenter("Your password must not be", 256, var4, 4, 16777215);
-          var4 += 25;
-          Renderer.drawStringCenter("the same as your username", 256, var4, 4, 16777215);
+          Renderer.drawStringCenter("Your password must not be", 256, yPos, 4, 0xFFFFFF);
+          yPos += 25;
+          Renderer.drawStringCenter("the same as your username", 256, yPos, 4, 0xFFFFFF);
           return;
         }
     }
@@ -1037,14 +1038,14 @@ public class AccountManagement {
       if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
     	  Panel.handleMouse(Client.panelRecovery, n1, mouseY, n3, mouseX);
 			if (Panel.isSelected(Client.panelRecovery, Client.chooseSubmitRecoveryButton)) {
-				String var1 = Panel.getControlText(Client.panelRecovery, Client.recoverNewPassInput);
-				String var2 = Panel.getControlText(Client.panelRecovery, Client.recoverConfirmPassInput);
-				if (!var1.equalsIgnoreCase(var2)) {
+				String newPass = Panel.getControlText(Client.panelRecovery, Client.recoverNewPassInput);
+				String confirmPass = Panel.getControlText(Client.panelRecovery, Client.recoverConfirmPassInput);
+				if (!newPass.equalsIgnoreCase(confirmPass)) {
 					Client.setLoginMessage("", "@yel@The two new passwords entered are not the same as each other!");
 					return;
 				}
 
-				if (var1.length() < 5) {
+				if (newPass.length() < 5) {
 					Client.setLoginMessage("", "@yel@Your new password must be at least 5 letters long");
 					return;
 				}
@@ -1075,25 +1076,25 @@ public class AccountManagement {
 		  } else {
 			  Panel.handleMouse(Client.panelRecoveryQuestions, n1, mouseY, n3, mouseX);
 			  
-			  int currSetIdx;
-				for (int idx = 0; idx < 5; ++idx) {
-					if (Panel.isSelected(Client.panelRecoveryQuestions, Client.controlQuestion[idx])) {
-						boolean var2_3 = false;
+			  int cursorIndex;
+				for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
+					if (Panel.isSelected(Client.panelRecoveryQuestions, Client.controlQuestion[questionIndex])) {
+						boolean hasDistinctQuestions = false;
 
-						while (!var2_3) {
-							recoveryIndices[idx] = (recoveryIndices[idx] + 1) % recoveryQuestions.length;
-							var2_3 = true;
+						while (!hasDistinctQuestions) {
+							recoveryIndices[questionIndex] = (recoveryIndices[questionIndex] + 1) % recoveryQuestions.length;
+							hasDistinctQuestions = true;
 
-							for (currSetIdx = 0; currSetIdx < 5; ++currSetIdx) {
-								if (currSetIdx != idx && recoveryIndices[currSetIdx] == recoveryIndices[idx]) {
-									var2_3 = false;
+							for (cursorIndex = 0; cursorIndex < 5; ++cursorIndex) {
+								if (cursorIndex != questionIndex && recoveryIndices[cursorIndex] == recoveryIndices[questionIndex]) {
+									hasDistinctQuestions = false;
 								}
 							}
 						}
 						
-						Client.controlRecoveryText[idx] = recoveryQuestions[recoveryIndices[idx]];
-			            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryIns[idx], idx + 1 + ": " + recoveryQuestions[recoveryIndices[idx]]);
-			            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlAnswerInput[idx], "");
+						Client.controlRecoveryText[questionIndex] = recoveryQuestions[recoveryIndices[questionIndex]];
+			            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryIns[questionIndex], questionIndex + 1 + ": " + recoveryQuestions[recoveryIndices[questionIndex]]);
+			            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlAnswerInput[questionIndex], "");
 					}
 				}
 				
@@ -1106,16 +1107,16 @@ public class AccountManagement {
 				}
 				
 				if (Panel.isSelected(Client.panelRecoveryQuestions,Client.chooseFinishSetRecoveryButton)) {
-					currSetIdx = 0;
+					cursorIndex = 0;
 					
 					while (true) {
-						if (currSetIdx >= 5) {
+						if (cursorIndex >= 5) {
 							for (int outerIdx = 0; outerIdx < 5; ++outerIdx) {
-								String var5_7 = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[outerIdx]);
+								String checkedAnswer = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[outerIdx]);
 
 								for (int innerIdx = 0; innerIdx < outerIdx; ++innerIdx) {
-									String var7_12 = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[innerIdx]);
-									if (var5_7.equalsIgnoreCase(var7_12)) {
+									String questionAnswer = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[innerIdx]);
+									if (checkedAnswer.equalsIgnoreCase(questionAnswer)) {
 										Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryQuestions, "@yel@Each question must have a different answer");
 										return;
 									}
@@ -1124,11 +1125,11 @@ public class AccountManagement {
 
 							sendRecoveryQuestions();
 
-							for (int i = 0; i < 5; ++i) {
-								recoveryIndices[i] = i;
-					            Client.controlRecoveryText[i] = recoveryQuestions[recoveryIndices[i]];
-					            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlAnswerInput[i], "");
-					            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryIns[i], i + 1 + ": " + Client.controlRecoveryText[i]);
+							for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
+								recoveryIndices[questionIndex] = questionIndex;
+					            Client.controlRecoveryText[questionIndex] = recoveryQuestions[recoveryIndices[questionIndex]];
+					            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlAnswerInput[questionIndex], "");
+					            Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryIns[questionIndex], questionIndex + 1 + ": " + Client.controlRecoveryText[questionIndex]);
 							}
 
 							Client.clearScreen();
@@ -1136,13 +1137,13 @@ public class AccountManagement {
 							break;
 						}
 
-						String chkAnswer = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[currSetIdx]);
+						String chkAnswer = Panel.getControlText(Client.panelRecoveryQuestions, Client.controlAnswerInput[cursorIndex]);
 						if (chkAnswer == null || chkAnswer.length() < 3) {
-			                Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryQuestions, "@yel@Please provide a longer answer to question: " + (currSetIdx + 1));
+			                Panel.setControlText(Client.panelRecoveryQuestions,Client.controlRecoveryQuestions, "@yel@Please provide a longer answer to question: " + (cursorIndex + 1));
 			                return;
 			            }
 
-						++currSetIdx;
+						++cursorIndex;
 					}
 				}
 		  }
