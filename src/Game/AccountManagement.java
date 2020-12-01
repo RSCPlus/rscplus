@@ -37,6 +37,7 @@ public class AccountManagement {
 
   // § SECTION stream IO interaction §
 
+  /** Intended to be RSC127 compatible */
   public static void register(String user, String pass) {
     if (Client.login_delay > 0) {
       Client.setLoginMessage("Connecting to server", "Please wait...");
@@ -66,6 +67,8 @@ public class AccountManagement {
         // Put Username
         long formatUser = Util.username2hash(Client.username_login);
         StreamUtil.putLongTo(buffer, formatUser);
+        
+        /** If we wanted a RSC175 would need to get added just below a putShort based on refererid / limit30 */
 
         // Put Password
         enc_cred_put(buffer, formatPass, Client.session_id);
@@ -124,6 +127,8 @@ public class AccountManagement {
     }
   }
   
+  /** Intended to be RSC175 compatible. It keeps block of reading questions generated from RSC127 ("~:")
+    * In order to render them "properly" */
   public static void forgotPass(String user) {
 	  Client.setLoginMessage("Connecting to server", "Please wait...");
 
@@ -194,6 +199,7 @@ public class AccountManagement {
 		}
   }
   
+  /** Intended to be RSC175 compatible. Different from RSC127 */
   public static void recover() {
 	  Client.setLoginMessage("Connecting to server", "Please wait...");
 
@@ -259,6 +265,7 @@ public class AccountManagement {
 		}
   }
   
+  /** Intended to be RSC175 compatible. Can be also used under RSC127 */
   public static void sendPassChange(String oldPwd, String newPwd) {
 	  String oldPass = Client.formatText(oldPwd, 20); 
 	  String newPass = Client.formatText(newPwd, 20);
@@ -271,6 +278,7 @@ public class AccountManagement {
 	  StreamUtil.sendPacket();
   }
   
+  /** Intended to be RSC175 compatible. Different from RSC127 */
   public static void sendRecoveryQuestions() {
 	  StreamUtil.newPacket(208);
       Object buffer = StreamUtil.getStreamBuffer();
@@ -298,6 +306,7 @@ public class AccountManagement {
 		StreamUtil.sendPacket();
   }
   
+  /** Intended to be RSC175 compatible. Not present in RSC127 */
   public static void sendContactDetails(String fullName, String zipCode, String country, String email) {
 	  StreamUtil.newPacket(253);
       Object buffer = StreamUtil.getStreamBuffer();
@@ -317,7 +326,7 @@ public class AccountManagement {
   public static boolean processPacket(int opcode, int psize) {
 	  boolean processed = false;
 	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile) || (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) {
-		  if (opcode == 224) {
+		  if (opcode == 224) { // Opcode is intended to be RSC175 compatible. The RSC127 would have appended "~:" to recoveryQuestions[recoveryIndices[idx]] and adapted accordingly the control text
 			  Client.showRecoveryQuestions = true;
 			  for (int idx = 0; idx < 5; ++idx) {
 					recoveryIndices[idx] = idx;
@@ -328,7 +337,7 @@ public class AccountManagement {
 				            Client.panelRecoveryQuestions,Client.controlRecoveryIns[idx], idx + 1 + ": " + Client.controlRecoveryText[idx]);
 				}
 			  processed = true;
-		  } else if (opcode == 232) {
+		  } else if (opcode == 232) { //Opcode is intended to be RSC175 compatible. Not present in RSC127
 			  Client.showContactDetails = true;
 			  Panel.setControlText(Client.controlContactDetails, Client.fullNameInput, "");
 			  Panel.setControlText(Client.controlContactDetails, Client.zipCodeInput, "");
