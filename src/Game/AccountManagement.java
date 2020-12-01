@@ -489,16 +489,16 @@ public class AccountManagement {
       }
 
       Client.panelRegister = Panel.createPanel(50);
-      int startingYPos = 70;
+      int yPos = 70;
       Client.controlRegister =
           Panel.addCenterTextTo(
               Client.panelRegister,
               256,
-              startingYPos + 8,
+              yPos + 8,
               "To create an account please enter all the requested details",
               4,
               true);
-      int yPos = startingYPos + 25;
+      yPos += 25;
       Panel.addButtonBackTo(Client.panelRegister, 256, yPos + 17, 250, 34);
       Panel.addCenterTextTo(Client.panelRegister, 256, yPos + 8, "Choose a Username", 4, false);
       Client.chooseUserInput =
@@ -794,10 +794,10 @@ public class AccountManagement {
       }
     }
 
-    short startingYPos = 150;
-    Renderer.drawBox(106, startingYPos, 300, 60, 0);
-    Renderer.drawBoxBorder(106, startingYPos, 300, 60, 0xFFFFFF);
-    int yPos = startingYPos + 22;
+    int yPos = 150;
+    Renderer.drawBox(106, yPos, 300, 60, 0);
+    Renderer.drawBoxBorder(106, yPos, 300, 60, 0xFFFFFF);
+    yPos += 22;
     String displayString;
     int i;
     if (panelPasswordChangeMode == 6) {
