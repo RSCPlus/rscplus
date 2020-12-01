@@ -2910,13 +2910,13 @@ public class JClassPatcher {
                     && ((IincInsnNode) insnNode).incr == 35) {
             	targetNode = insnNode;
             	while (targetNode.getOpcode() != Opcodes.IINC
-            			 && ((IincInsnNode) insnNode).incr == 5) {
+            			 || ((IincInsnNode) targetNode).incr != 5) {
                       // start section of click for skip tutorial
                       targetNode = targetNode.getNext();
                     }
             	
             	while (targetNode.getOpcode() != Opcodes.IINC
-           			 && ((IincInsnNode) insnNode).incr == 15) {
+           			 || ((IincInsnNode) targetNode).incr != 15) {
                      // end section of click for skip tutorial
                      targetNode = targetNode.getNext();
                    }
