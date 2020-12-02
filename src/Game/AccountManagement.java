@@ -891,7 +891,7 @@ public class AccountManagement {
   }
   
   public static void processForgotPassword() {
-	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+	  if (Client.loginLostPasswordButton != 0) {
 		  if (Panel.isSelected(Client.panelLogin, Client.loginLostPasswordButton)) {
 			  String user = Panel.getControlText(Client.panelLogin, Client.loginUserInput);
 				if (user.trim().length() == 0) {
