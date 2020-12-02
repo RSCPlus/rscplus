@@ -18,14 +18,14 @@
  */
 package Game;
 
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
@@ -183,7 +183,8 @@ public class Reflection {
   private static final String FLUSHPACKET = "final void b.a(int) throws java.io.IOException";
   private static final String INIT_ISAAC = "final void b.a(byte,int[])";
   private static final String READ_RESPONSE = "final int da.b(boolean) throws java.io.IOException";
-  private static final String READ_BYTES = "final void da.a(byte[],int,int,int) throws java.io.IOException";
+  private static final String READ_BYTES =
+      "final void da.a(byte[],int,int,int) throws java.io.IOException";
   private static final String CREATE_SOCKET =
       "private final java.net.Socket client.a(int,int,java.lang.String) throws java.io.IOException";
 
@@ -303,7 +304,13 @@ public class Reflection {
 
       leftMethods.addAll(
           Arrays.asList(
-              NEWPACKET, LOSECONNECTION, SENDPACKET, FLUSHPACKET, INIT_ISAAC, READ_RESPONSE, READ_BYTES));
+              NEWPACKET,
+              LOSECONNECTION,
+              SENDPACKET,
+              FLUSHPACKET,
+              INIT_ISAAC,
+              READ_RESPONSE,
+              READ_BYTES));
       while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
@@ -345,13 +352,12 @@ public class Reflection {
             leftMethods.remove(READ_RESPONSE);
             continue;
           }
-          if (leftMethods.contains(READ_BYTES)
-                  && method.toGenericString().equals(READ_BYTES)) {
-                readBytes = method;
-                Logger.Info("Found readBytes");
-                leftMethods.remove(READ_BYTES);
-                continue;
-              }
+          if (leftMethods.contains(READ_BYTES) && method.toGenericString().equals(READ_BYTES)) {
+            readBytes = method;
+            Logger.Info("Found readBytes");
+            leftMethods.remove(READ_BYTES);
+            continue;
+          }
         }
         c = c.getSuperclass();
       }
@@ -513,9 +519,9 @@ public class Reflection {
           Logger.Info("Found clearScreen");
         }
         if (method.toGenericString().equals(DRAWGRAPHICS)) {
-            drawGraphics = method;
-            Logger.Info("Found drawGraphics");
-          }
+          drawGraphics = method;
+          Logger.Info("Found drawGraphics");
+        }
         if (method.toGenericString().equals(DRAWBOX)) {
           drawBox = method;
           Logger.Info("Found drawBox");
@@ -541,9 +547,9 @@ public class Reflection {
           Logger.Info("Found drawLineVert");
         }
         if (method.toGenericString().equals(DRAWSPRITE)) {
-            drawSprite = method;
-            Logger.Info("Found drawSprite");
-          }
+          drawSprite = method;
+          Logger.Info("Found drawSprite");
+        }
       }
 
       // Character

@@ -19,6 +19,18 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
+
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,17 +52,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -939,58 +940,58 @@ public class Client {
       }
     }
   }
-  
+
   /**
-   * General extra check for new received opcodes
-   * Send false if has finished processing
+   * General extra check for new received opcodes Send false if has finished processing
+   *
    * @param opcode - Packet opcode
    * @param psize - Packet size
    * @return false to indicate no more processing is needed
    */
   public static boolean newOpcodeReceivedHook(int opcode, int psize) {
-	  boolean needsProcess = true;
-	  
-	  if (AccountManagement.processPacket(opcode, psize)) {
-		  needsProcess = false;
-	  }
-	  
-	  return needsProcess;
+    boolean needsProcess = true;
+
+    if (AccountManagement.processPacket(opcode, psize)) {
+      needsProcess = false;
+    }
+
+    return needsProcess;
   }
-  
+
   /**
-   * General in game input hook for new added elements
-   * return true to indicate continue checking conditions in the original gameInput() method
+   * General in game input hook for new added elements return true to indicate continue checking
+   * conditions in the original gameInput() method
    */
   public static boolean gameInputHook(int n1, int mouseY, int n3, int mouseX) {
-	  boolean continueFlow = true;
-	  
-	  if (Client.showRecoveryQuestions) {
-		  AccountManagement.recovery_questions_input(n1, mouseY, n3, mouseX);
-		  continueFlow = false;
-	  } else if (Client.showContactDetails) {
-		  AccountManagement.contact_details_input(n1, mouseY, n3, mouseX);
-		  continueFlow = false;
-	  }
-	  
-	  return continueFlow;
+    boolean continueFlow = true;
+
+    if (Client.showRecoveryQuestions) {
+      AccountManagement.recovery_questions_input(n1, mouseY, n3, mouseX);
+      continueFlow = false;
+    } else if (Client.showContactDetails) {
+      AccountManagement.contact_details_input(n1, mouseY, n3, mouseX);
+      continueFlow = false;
+    }
+
+    return continueFlow;
   }
-  
+
   public static void loginOtherButtonCheckHook() {
-	  AccountManagement.processForgotPassword();
+    AccountManagement.processForgotPassword();
   }
-  
+
   /**
-   * General drawGame hook for new added panels
-   * return true to indicate continue checking conditions in the original drawGame() method
+   * General drawGame hook for new added panels return true to indicate continue checking conditions
+   * in the original drawGame() method
    */
   public static boolean drawGameHook() {
-	  boolean continueFlow = true;
-	  
-	  if (AccountManagement.pending_render()) {
-		  continueFlow = false;
-	  }
-	  
-	  return continueFlow;
+    boolean continueFlow = true;
+
+    if (AccountManagement.pending_render()) {
+      continueFlow = false;
+    }
+
+    return continueFlow;
   }
 
   public static void resetLoginMessage() {
@@ -1358,10 +1359,9 @@ public class Client {
   }
 
   /**
-   * Sets the client text response status.
-   * In the login screen this is the information shown above the login controls
-   * In the register and recover screens is the replacement of control text in the
-   * respective panels
+   * Sets the client text response status. In the login screen this is the information shown above
+   * the login controls In the register and recover screens is the replacement of control text in
+   * the respective panels
    *
    * @param line1 the bottom line of text
    * @param line2 the top part of text
@@ -1370,23 +1370,19 @@ public class Client {
     if (Reflection.setLoginText == null) return;
 
     try {
-    	if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
-    		if (line1 == null || line1.length() == 0) {
-       		 Panel.setControlText(
-   			            Client.panelLogin, Client.controlLoginTop, "");
-       		 Panel.setControlText(
-   			            Client.panelLogin, Client.controlLoginBottom, line2);
-	       	} else {
-	       		Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
-	       	}
-    	} else if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
-    		Panel.setControlText(
-			            Client.panelRecovery, Client.controlRecoveryTop, line2);
-   		 	Panel.setControlText(
-			            Client.panelRecovery, Client.controlRecoveryBottom, line1);
-    	} else if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
-    		Panel.setControlText(Client.panelRegister, Client.controlRegister, line2 + " " + line1);
-    	}
+      if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+        if (line1 == null || line1.length() == 0) {
+          Panel.setControlText(Client.panelLogin, Client.controlLoginTop, "");
+          Panel.setControlText(Client.panelLogin, Client.controlLoginBottom, line2);
+        } else {
+          Reflection.setLoginText.invoke(Client.instance, (byte) -49, line2, line1);
+        }
+      } else if (Client.login_screen == Client.SCREEN_PASSWORD_RECOVERY) {
+        Panel.setControlText(Client.panelRecovery, Client.controlRecoveryTop, line2);
+        Panel.setControlText(Client.panelRecovery, Client.controlRecoveryBottom, line1);
+      } else if (Client.login_screen == Client.SCREEN_REGISTER_NEW_ACCOUNT) {
+        Panel.setControlText(Client.panelRegister, Client.controlRegister, line2 + " " + line1);
+      }
     } catch (Exception e) {
     }
   }
@@ -1489,23 +1485,23 @@ public class Client {
     } catch (Exception e) {
     }
   }
-  
-  public static void setInterlace(boolean value) {
-	  if (Reflection.interlace == null) return;
-	  
-	  try {
-		  Reflection.interlace.set(Renderer.instance, value);
-	  } catch (Exception e) {
-	  }
-  }
-  
-  public static void drawGraphics() {
-	  if (Reflection.drawGraphics == null) return;
 
-	    try {
-	      Reflection.drawGraphics.invoke(Renderer.instance, Renderer.graphicsInstance, 0, 256, 0);
-	    } catch (Exception e) {
-	    }
+  public static void setInterlace(boolean value) {
+    if (Reflection.interlace == null) return;
+
+    try {
+      Reflection.interlace.set(Renderer.instance, value);
+    } catch (Exception e) {
+    }
+  }
+
+  public static void drawGraphics() {
+    if (Reflection.drawGraphics == null) return;
+
+    try {
+      Reflection.drawGraphics.invoke(Renderer.instance, Renderer.graphicsInstance, 0, 256, 0);
+    } catch (Exception e) {
+    }
   }
 
   public static void preGameDisplay() {
@@ -1613,11 +1609,11 @@ public class Client {
       }
     }
   }
-  
+
   public static void initCreateExtraPanelsHook() {
-	  AccountManagement.create_account_recovery();
-	  AccountManagement.create_recovery_questions();
-	  AccountManagement.create_contact_details();
+    AccountManagement.create_account_recovery();
+    AccountManagement.create_recovery_questions();
+    AccountManagement.create_contact_details();
   }
 
   public static int attack_menu_hook(int cmpVar) {

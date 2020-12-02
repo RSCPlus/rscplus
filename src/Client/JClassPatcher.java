@@ -18,6 +18,7 @@
  */
 package Client;
 
+import Client.Settings.Dir;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -47,7 +48,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import Client.Settings.Dir;
 
 /** Singleton class which hooks variables and patches classes. */
 public class JClassPatcher {
@@ -200,47 +200,47 @@ public class JClassPatcher {
           "Ljava/lang/String;",
           true,
           true);
-      
+
       hookClassVariable(
-              methodNode,
-              "e",
-              "e",
-              "Ljava/lang/String;",
-              "Game/Client",
-              "modal_enteredText",
-              "Ljava/lang/String;",
-              true,
-              true);
-          hookClassVariable(
-              methodNode,
-              "client",
-              "e",
-              "Ljava/lang/String;",
-              "Game/Client",
-              "modal_enteredText",
-              "Ljava/lang/String;",
-              true,
-              true);
-          hookClassVariable(
-              methodNode,
-              "e",
-              "Cb",
-              "Ljava/lang/String;",
-              "Game/Client",
-              "modal_text",
-              "Ljava/lang/String;",
-              true,
-              true);
-          hookClassVariable(
-              methodNode,
-              "client",
-              "Cb",
-              "Ljava/lang/String;",
-              "Game/Client",
-              "modal_text",
-              "Ljava/lang/String;",
-              true,
-              true);
+          methodNode,
+          "e",
+          "e",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "modal_enteredText",
+          "Ljava/lang/String;",
+          true,
+          true);
+      hookClassVariable(
+          methodNode,
+          "client",
+          "e",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "modal_enteredText",
+          "Ljava/lang/String;",
+          true,
+          true);
+      hookClassVariable(
+          methodNode,
+          "e",
+          "Cb",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "modal_text",
+          "Ljava/lang/String;",
+          true,
+          true);
+      hookClassVariable(
+          methodNode,
+          "client",
+          "Cb",
+          "Ljava/lang/String;",
+          "Game/Client",
+          "modal_text",
+          "Ljava/lang/String;",
+          true,
+          true);
 
       hookClassVariable(
           methodNode,
@@ -252,17 +252,17 @@ public class JClassPatcher {
           "Ljava/lang/Object;",
           true,
           false);
-      
+
       hookClassVariable(
-              methodNode,
-              "client",
-              "Xb",
-              "Ljava/awt/Graphics;",
-              "Game/Renderer",
-              "graphicsInstance",
-              "Ljava/awt/Graphics;",
-              true,
-              false);
+          methodNode,
+          "client",
+          "Xb",
+          "Ljava/awt/Graphics;",
+          "Game/Renderer",
+          "graphicsInstance",
+          "Ljava/awt/Graphics;",
+          true,
+          false);
 
       hookClassVariable(methodNode, "ba", "u", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(methodNode, "ba", "k", "I", "Game/Renderer", "height", "I", false, true);
@@ -335,7 +335,7 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "Oi", "I", "Game/Renderer", "height_client", "I", false, true);
       hookClassVariable(
-              methodNode, "client", "tg", "I", "Game/Renderer", "sprite_media", "I", true, false);
+          methodNode, "client", "tg", "I", "Game/Renderer", "sprite_media", "I", true, false);
 
       hookClassVariable(methodNode, "e", "m", "I", "Game/Renderer", "width", "I", false, true);
       hookClassVariable(methodNode, "e", "a", "I", "Game/Renderer", "height", "I", false, true);
@@ -798,15 +798,15 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "Zb", "I", "Game/Client", "login_delay", "I", true, false);
-      
-      hookClassVariable(
-              methodNode, "client", "Kg", "Z", "Game/Client", "showAppearanceChange", "Z", true, false);
-      
-      hookClassVariable(
-              methodNode, "client", "Qi", "I", "Game/Client", "controlLoginTop", "I", true, false);
 
-          hookClassVariable(
-              methodNode, "client", "td", "I", "Game/Client", "controlLoginBottom", "I", true, false);
+      hookClassVariable(
+          methodNode, "client", "Kg", "Z", "Game/Client", "showAppearanceChange", "Z", true, false);
+
+      hookClassVariable(
+          methodNode, "client", "Qi", "I", "Game/Client", "controlLoginTop", "I", true, false);
+
+      hookClassVariable(
+          methodNode, "client", "td", "I", "Game/Client", "controlLoginBottom", "I", true, false);
     }
   }
 
@@ -1089,23 +1089,23 @@ public class JClassPatcher {
             break;
           }
         }
-        
+
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
           if (insnNode.getOpcode() == Opcodes.INVOKESPECIAL
-                  && ((MethodInsnNode) insnNode).name.equals("t")
-                  && ((MethodInsnNode) insnNode).desc.equals("(I)V")) {
-        	  //draw any extra panels when starting game
-        	  VarInsnNode call = (VarInsnNode) insnNode.getNext();
-              methodNode.instructions.insertBefore(
-                  call,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC,
-                      "Game/Client",
-                      "initCreateExtraPanelsHook",
-                      "()V",
-                      false));
+              && ((MethodInsnNode) insnNode).name.equals("t")
+              && ((MethodInsnNode) insnNode).desc.equals("(I)V")) {
+            // draw any extra panels when starting game
+            VarInsnNode call = (VarInsnNode) insnNode.getNext();
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "initCreateExtraPanelsHook",
+                    "()V",
+                    false));
             break;
           }
         }
@@ -1325,7 +1325,7 @@ public class JClassPatcher {
             }
           }
         }
-        
+
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
@@ -1338,29 +1338,29 @@ public class JClassPatcher {
           if (insnNode.getOpcode() == Opcodes.ICONST_0
               && nextNode.getOpcode() == Opcodes.ISTORE
               && ((VarInsnNode) nextNode).var == 2) {
-        	  LabelNode label = new LabelNode();
-        	  InsnNode call = (InsnNode) insnNode;
-              
-        	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-              methodNode.instructions.insertBefore(
-            		  call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Bb", "I"));
-              methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-              methodNode.instructions.insertBefore(
-            		  call, new FieldInsnNode(Opcodes.GETFIELD, "client", "xb", "I"));
-              methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-              methodNode.instructions.insertBefore(
-            		  call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Qb", "I"));
-              methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-              methodNode.instructions.insertBefore(
-            		  call, new FieldInsnNode(Opcodes.GETFIELD, "client", "I", "I"));
-              methodNode.instructions.insertBefore(
-                  call,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC, "Game/Client", "gameInputHook", "(IIII)Z", false));
-              methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFGT, label));
-              methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.RETURN));
-              methodNode.instructions.insertBefore(call, label);
-        	  break;
+            LabelNode label = new LabelNode();
+            InsnNode call = (InsnNode) insnNode;
+
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Bb", "I"));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "xb", "I"));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Qb", "I"));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "I", "I"));
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "gameInputHook", "(IIII)Z", false));
+            methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFGT, label));
+            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.RETURN));
+            methodNode.instructions.insertBefore(call, label);
+            break;
           }
         }
 
@@ -1893,8 +1893,8 @@ public class JClassPatcher {
             break;
           }
         }
-        
-        //conditionally render any new panels?
+
+        // conditionally render any new panels?
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -1904,16 +1904,16 @@ public class JClassPatcher {
               && ((VarInsnNode) insnNode).var == 0
               && nextNode.getOpcode() == Opcodes.GETFIELD
               && ((FieldInsnNode) nextNode).name.equals("Qk")) {
-        	  LabelNode label = new LabelNode();
-        	  VarInsnNode call = (VarInsnNode) insnNode;
-        	  
-              methodNode.instructions.insertBefore(
-                  call,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC, "Game/Client", "drawGameHook", "()Z", false));
-              methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFGT, label));
-              methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.RETURN));
-              methodNode.instructions.insertBefore(call, label);
+            LabelNode label = new LabelNode();
+            VarInsnNode call = (VarInsnNode) insnNode;
+
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "drawGameHook", "()Z", false));
+            methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFGT, label));
+            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.RETURN));
+            methodNode.instructions.insertBefore(call, label);
             break;
           }
         }
@@ -2386,9 +2386,8 @@ public class JClassPatcher {
                     "([Ljava/lang/String;I)V"));
           }
         }
-        
-        
-        //hook onto some "other" opcode received
+
+        // hook onto some "other" opcode received
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -2397,11 +2396,11 @@ public class JClassPatcher {
 
           if (nextNode == null) continue;
           if (insnNode.getOpcode() == Opcodes.LDC
-                  && insnNode instanceof LdcInsnNode
-                  && ((LdcInsnNode) insnNode).cst instanceof Integer
-                  && ((Integer) ((LdcInsnNode) insnNode).cst).equals(2097151)
+              && insnNode instanceof LdcInsnNode
+              && ((LdcInsnNode) insnNode).cst instanceof Integer
+              && ((Integer) ((LdcInsnNode) insnNode).cst).equals(2097151)
               && nextNode.getOpcode() == Opcodes.ACONST_NULL) {
-        	  LdcInsnNode call = (LdcInsnNode) insnNode;
+            LdcInsnNode call = (LdcInsnNode) insnNode;
             methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 1));
             methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
             methodNode.instructions.insertBefore(
@@ -2541,7 +2540,7 @@ public class JClassPatcher {
             break;
           }
         }
-        
+
         // Another hook to get added "I've lost my password"
         insnNodeList = methodNode.instructions.iterator();
 
@@ -2555,11 +2554,11 @@ public class JClassPatcher {
               && nextNode.getOpcode() == Opcodes.PUTFIELD
               && ((FieldInsnNode) nextNode).owner.equals("client")
               && ((FieldInsnNode) nextNode).name.equals("Xi")) {
-        	  AbstractInsnNode call = nextNode.getNext();
+            AbstractInsnNode call = nextNode.getNext();
             methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 1));
             methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
             methodNode.instructions.insertBefore(
-            		call,
+                call,
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "Game/AccountManagement",
@@ -2649,51 +2648,52 @@ public class JClassPatcher {
             break;
           }
         }
-        
+
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode twoNextNode = nextNode.getNext();
-            AbstractInsnNode findNode, nextFindNode, call;
-            LabelNode labelNode, exitNode;
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNode = nextNode.getNext();
+          AbstractInsnNode findNode, nextFindNode, call;
+          LabelNode labelNode, exitNode;
 
-            if (nextNode == null || twoNextNode == null) break;
+          if (nextNode == null || twoNextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.ALOAD
-                && ((VarInsnNode) insnNode).var == 0
-                && nextNode.getOpcode() == Opcodes.GETFIELD
-                && ((FieldInsnNode) nextNode).name.equals("qg")
-                && twoNextNode.getOpcode() == Opcodes.ICONST_M1) {
-            	
-            	findNode = twoNextNode;
-            	while (findNode.getOpcode() != Opcodes.IF_ICMPEQ) {
-                      // find part of checking is logged in
-            		findNode = findNode.getNext();
-                }
-            	nextFindNode = findNode.getNext();
-            	
-            	labelNode = ((JumpInsnNode)findNode).label;
-            	exitNode = ((JumpInsnNode)nextFindNode).label;
-            	call = insnNode.getPrevious();
-            	
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
-            	methodNode.instructions.insertBefore(
-            			call, new FieldInsnNode(Opcodes.GETFIELD, "client", "qg", "I"));
-            	methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
-            	methodNode.instructions.insertBefore(
-                        call,
-                        new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "Game/AccountManagement",
-                            "ingame_keyhandler_hook",
-                            "(II)I"));
-            	methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFNE, exitNode));
-            	
-              break;
+          if (insnNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) insnNode).var == 0
+              && nextNode.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) nextNode).name.equals("qg")
+              && twoNextNode.getOpcode() == Opcodes.ICONST_M1) {
+
+            findNode = twoNextNode;
+            while (findNode.getOpcode() != Opcodes.IF_ICMPEQ) {
+              // find part of checking is logged in
+              findNode = findNode.getNext();
             }
+            nextFindNode = findNode.getNext();
+
+            labelNode = ((JumpInsnNode) findNode).label;
+            exitNode = ((JumpInsnNode) nextFindNode).label;
+            call = insnNode.getPrevious();
+
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETFIELD, "client", "qg", "I"));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 2));
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/AccountManagement",
+                    "ingame_keyhandler_hook",
+                    "(II)I"));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFNE, exitNode));
+
+            break;
           }
+        }
       }
       if (methodNode.name.equals("x") && methodNode.desc.equals("(I)V")) {
         // Login button press hook, from login panel
@@ -2718,9 +2718,8 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(
             findNode,
             new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "login_hook", "()V", false));
-        
-        
-     // Lost password press hook, from login panel
+
+        // Lost password press hook, from login panel
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
@@ -2736,16 +2735,19 @@ public class JClassPatcher {
               && nextNode.getOpcode() == Opcodes.BIPUSH
               && ((IntInsnNode) nextNode).operand == -88
               && twoNextNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-            
-        	  FrameNode call = (FrameNode) (twoNextNode.getNext().getNext());
-              methodNode.instructions.insertBefore(
-                  call,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC, "Game/Client", "loginOtherButtonCheckHook", "()V", false));
-              break;
+
+            FrameNode call = (FrameNode) (twoNextNode.getNext().getNext());
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "loginOtherButtonCheckHook",
+                    "()V",
+                    false));
+            break;
           }
         }
-        
 
         // Register button press hook
         insnNodeList = methodNode.instructions.iterator();
@@ -2832,111 +2834,111 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IZ)V")) {
-    	  // move down original text "to change your contact details, etc" since should be 5 px down
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode twoNextNode = nextNode.getNext();
+        // move down original text "to change your contact details, etc" since should be 5 px down
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNode = nextNode.getNext();
 
-            if (nextNode == null || twoNextNode == null) break;
+          if (nextNode == null || twoNextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.GETSTATIC
-                    && ((FieldInsnNode) insnNode).name.equals("il")
-                    && nextNode.getOpcode() == Opcodes.SIPUSH
-                    && ((IntInsnNode) nextNode).operand == 145) {
-            	methodNode.instructions.insertBefore(insnNode.getPrevious().getPrevious(), new IincInsnNode(7, 5));
-            	break;
-            }
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.SIPUSH
+              && ((IntInsnNode) nextNode).operand == 145) {
+            methodNode.instructions.insertBefore(
+                insnNode.getPrevious().getPrevious(), new IincInsnNode(7, 5));
+            break;
           }
+        }
 
-          // correct the offset of clicking with previous text correction
-          insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode twoNextNode = nextNode.getNext();
+        // correct the offset of clicking with previous text correction
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNode = nextNode.getNext();
 
-            if (nextNode == null || twoNextNode == null) break;
+          if (nextNode == null || twoNextNode == null) break;
 
-            if (insnNode.getOpcode() == Opcodes.IINC
-                && ((IincInsnNode) insnNode).var == 7
-                && ((IincInsnNode) insnNode).incr == 15
-                && nextNode.getOpcode() == Opcodes.IINC
-                && ((IincInsnNode) nextNode).var == 7
-                && ((IincInsnNode) nextNode).incr == 15
-                && twoNextNode.getOpcode() == Opcodes.IINC
-                && ((IincInsnNode) twoNextNode).var == 7
-                && ((IincInsnNode) twoNextNode).incr == 15) {
-            	methodNode.instructions.insertBefore(insnNode, new IincInsnNode(7, 5));
-            	break;
-            }
+          if (insnNode.getOpcode() == Opcodes.IINC
+              && ((IincInsnNode) insnNode).var == 7
+              && ((IincInsnNode) insnNode).incr == 15
+              && nextNode.getOpcode() == Opcodes.IINC
+              && ((IincInsnNode) nextNode).var == 7
+              && ((IincInsnNode) nextNode).incr == 15
+              && twoNextNode.getOpcode() == Opcodes.IINC
+              && ((IincInsnNode) twoNextNode).var == 7
+              && ((IincInsnNode) twoNextNode).incr == 15) {
+            methodNode.instructions.insertBefore(insnNode, new IincInsnNode(7, 5));
+            break;
           }
-          
-       // move up text "always logout when you finish" if in tutorial island
-          insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-            AbstractInsnNode targetNode;
+        }
 
-            if (nextNode == null) break;
+        // move up text "always logout when you finish" if in tutorial island
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode targetNode;
 
-            if (insnNode.getOpcode() == Opcodes.GETSTATIC
-                    && ((FieldInsnNode) insnNode).name.equals("il")
-                    && nextNode.getOpcode() == Opcodes.SIPUSH
-                    && ((IntInsnNode) nextNode).operand == 134) {
-            	targetNode = nextNode;
-            	while (targetNode.getOpcode() != Opcodes.IINC
-              			 || ((IincInsnNode) targetNode).incr != 15) {
-                      // find the part of the += 15 jump inside skip tutorial
-                      targetNode = targetNode.getNext();
-                    }
-            	((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
-            	break;
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.SIPUSH
+              && ((IntInsnNode) nextNode).operand == 134) {
+            targetNode = nextNode;
+            while (targetNode.getOpcode() != Opcodes.IINC
+                || ((IincInsnNode) targetNode).incr != 15) {
+              // find the part of the += 15 jump inside skip tutorial
+              targetNode = targetNode.getNext();
             }
+            ((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
+            break;
           }
-          
-       // move up click pos "always logout when you finish" if in tutorial island
-          insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode targetNode;
+        }
 
-            if (insnNode.getOpcode() == Opcodes.IINC
-                    && ((IincInsnNode) insnNode).incr == 35) {
-            	targetNode = insnNode;
-            	while (targetNode.getOpcode() != Opcodes.IINC
-            			 || ((IincInsnNode) targetNode).incr != 5) {
-                      // start section of click for skip tutorial
-                      targetNode = targetNode.getNext();
-                    }
-            	
-            	while (targetNode.getOpcode() != Opcodes.IINC
-           			 || ((IincInsnNode) targetNode).incr != 15) {
-                     // end section of click for skip tutorial
-                     targetNode = targetNode.getNext();
-                   }
-            	((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
-            	break;
-            }
-          }
-          
-       // bigger "Ypos" click area for options menu because when player in tutorial island, the menu goes further down and wasn't
-          // adapted since it was introduced
-          insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            IntInsnNode targetNode;
+        // move up click pos "always logout when you finish" if in tutorial island
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode targetNode;
 
-            if (insnNode.getOpcode() == Opcodes.SIPUSH
-                    && ((IntInsnNode) insnNode).operand == -266) {
-            	targetNode = (IntInsnNode)insnNode;
-            	targetNode.operand = -286;
-            	break;
+          if (insnNode.getOpcode() == Opcodes.IINC && ((IincInsnNode) insnNode).incr == 35) {
+            targetNode = insnNode;
+            while (targetNode.getOpcode() != Opcodes.IINC
+                || ((IincInsnNode) targetNode).incr != 5) {
+              // start section of click for skip tutorial
+              targetNode = targetNode.getNext();
             }
+
+            while (targetNode.getOpcode() != Opcodes.IINC
+                || ((IincInsnNode) targetNode).incr != 15) {
+              // end section of click for skip tutorial
+              targetNode = targetNode.getNext();
+            }
+            ((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
+            break;
           }
-    	  
+        }
+
+        // bigger "Ypos" click area for options menu because when player in tutorial island, the
+        // menu goes further down and wasn't
+        // adapted since it was introduced
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          IntInsnNode targetNode;
+
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == -266) {
+            targetNode = (IntInsnNode) insnNode;
+            targetNode.operand = -286;
+            break;
+          }
+        }
+
         // Options menu hook
         insnNodeList = methodNode.instructions.iterator();
 
@@ -2998,7 +3000,7 @@ public class JClassPatcher {
           }
         }
 
-     // Options menu click hook
+        // Options menu click hook
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
@@ -3022,7 +3024,9 @@ public class JClassPatcher {
               && ((IincInsnNode) twoNextNode).incr == 15) {
             // start part of for clicking "To change your contact details,password, recovery
             // questions, etc..please select 'account management'"
-            startNode = targetNode = insnNode.getPrevious(); //at this point got corrected with the 5px offset
+            startNode =
+                targetNode =
+                    insnNode.getPrevious(); // at this point got corrected with the 5px offset
 
             while (targetNode.getOpcode() != Opcodes.IINC
                 || ((IincInsnNode) targetNode).incr != 35

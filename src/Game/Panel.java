@@ -31,18 +31,18 @@ public class Panel {
   public static int control_text_size;
   public static boolean control_use_alt_color;
   public static String control_text;
-  
-  public static Object createPanel(int maxElements) {
-	    if (Reflection.panel == null) return null;
 
-	    Object result = null;
-	    try {
-	      result = Reflection.panel.newInstance(Renderer.instance, maxElements);
-	    } catch (Exception e) {
-	    }
-	    
-	    return result;
-	  }
+  public static Object createPanel(int maxElements) {
+    if (Reflection.panel == null) return null;
+
+    Object result = null;
+    try {
+      result = Reflection.panel.newInstance(Renderer.instance, maxElements);
+    } catch (Exception e) {
+    }
+
+    return result;
+  }
 
   public static void drawPanel(Object panelSource) {
     if (Reflection.drawPanel == null) return;

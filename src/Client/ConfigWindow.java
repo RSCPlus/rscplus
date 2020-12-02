@@ -18,6 +18,12 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -76,12 +82,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -557,12 +557,13 @@ public class ConfigWindow {
         addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
     generalPanelCheckUpdates.setToolTipText(
         "When enabled, rscplus will check for client updates before launching the game and install them when prompted");
-    
+
     generalPanelAccountSecurityCheckbox =
-            addCheckbox(
-                "Show Account Creation and Security Settings (Requires restart for Account Creation and Recovery)", generalPanel);
-        generalPanelAccountSecurityCheckbox.setToolTipText(
-            "Makes old RSC account creation, password recovery and in-game security settings");
+        addCheckbox(
+            "Show Account Creation and Security Settings (Requires restart for Account Creation and Recovery)",
+            generalPanel);
+    generalPanelAccountSecurityCheckbox.setToolTipText(
+        "Makes old RSC account creation, password recovery and in-game security settings");
 
     generalPanelWelcomeEnabled =
         addCheckbox("Remind you how to open the Settings every time you log in", generalPanel);
@@ -2183,7 +2184,7 @@ public class ConfigWindow {
         Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
-            Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
+        Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
         Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
     // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
@@ -2410,7 +2411,7 @@ public class ConfigWindow {
         ((SpinnerNumberModel) (generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
-            Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
+        Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
         Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
     // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
