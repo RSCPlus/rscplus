@@ -57,6 +57,15 @@ public class StreamUtil {
     }
   }
 
+  public static void sendPacket() {
+    if (Reflection.sendPacket == null) return;
+
+    try {
+      Reflection.sendPacket.invoke(Client.clientStream, 21294);
+    } catch (Exception e) {
+    }
+  }
+
   public static void initIsaac(int[] keys) {
     if (Reflection.initIsaac == null) return;
 
@@ -152,6 +161,40 @@ public class StreamUtil {
 
     return response;
   }
+  
+  public static int readByte() {
+	  if (Reflection.readResponse == null) return -1;
+		return readStream();
+	}
+
+	public static int readShort() {
+		if (Reflection.readResponse == null) return -1;
+		int i = readByte();
+		int j = readByte();
+		return i * 256 + j;
+	}
+
+	public static int readInt() {
+		if (Reflection.readResponse == null) return -1;
+		int i = readShort();
+		int j = readShort();
+		return i * 65536 + j;
+	}
+  
+  public static void readBytes(byte[] byteArr, int length) {
+	  readBytes(byteArr, 0, length);
+  }
+  
+  public static void readBytes(byte[] byteArr, int offset, int length) {
+	    if (Reflection.readBytes == null) return;
+	    int response = -1;
+
+	    try {
+	      Reflection.readBytes.invoke(Client.clientStream, byteArr, length, offset, 123);
+	    } catch (Exception e) {
+	    }
+	    
+	  }
 
   public static void putBytesTo(Object buffer, byte[] block, int start, int offset) {
     if (Reflection.putBytes == null) return;
@@ -203,6 +246,11 @@ public class StreamUtil {
     putIntTo(buffer, (int) (l & -1L));
   }
 
+  /**
+   * Put a string terminated by '\0'
+   * @param buffer
+   * @param st
+   */
   public static void putStrTo(Object buffer, String st) {
     if (Reflection.putStr == null) return;
 
@@ -210,6 +258,16 @@ public class StreamUtil {
       Reflection.putStr.invoke(buffer, (byte) -39, st);
     } catch (Exception e) {
     }
+  }
+  
+  /**
+   * Put a regular string and not terminate it with '\0'
+   * @param buffer
+   * @param st
+   */
+  public static void putRegStrTo(Object buffer, String st) {
+	  byte[] stringArray = st.getBytes();
+	  putBytesTo(buffer, stringArray, 0, stringArray.length);
   }
 
   public static void encrypt(Object buffer, BigInteger exponent, BigInteger modulus) {

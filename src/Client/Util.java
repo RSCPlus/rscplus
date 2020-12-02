@@ -18,8 +18,6 @@
  */
 package Client;
 
-import Game.Replay;
-import Game.ReplayQueue;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -32,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
+import Game.Replay;
+import Game.ReplayQueue;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -414,5 +414,18 @@ public class Util {
     buffer[offset + 1] = (byte) (num >> 16);
     buffer[offset + 2] = (byte) (num >> 8);
     buffer[offset + 3] = (byte) num;
+  }
+  
+  /** RSC175 - format a string to only have letters and numbers, with maxlength */
+  public static String formatString(String s, int maxLen) {
+	  String lowerString = s.toLowerCase();
+      String res = "";
+      for (int i = 0; i < lowerString.length() && i < maxLen; ++i) {
+    	  char ch = lowerString.charAt(i);
+    	  if (ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9') {
+              res = String.valueOf(res) + ch;
+          }
+      }
+      return res;
   }
 }
