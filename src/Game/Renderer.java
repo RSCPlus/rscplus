@@ -1014,20 +1014,38 @@ public class Renderer {
           Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN
               || Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN;
       if (wantToDrawServerReplayButtons) {
-        // TODO: This will need to be adjusted when the login screen is resizable
-        Rectangle bounds;
-        if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
-        	bounds = new Rectangle(512 - 100, 216, 48, 16);
-        	//bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
-        } else if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
-          bounds = new Rectangle(512 - 140, 288, 48, 16);
-        } else {
-          Logger.Error("Specify -server replay- bounds for this screen!");
-          // original bounds, underneath the Cancel button
-          bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
-        }
+          // TODO: This will need to be adjusted when the login screen is resizable
+          Rectangle recordButtonBounds;
 
-        drawShadowText(g2, "-server replay-", bounds.x + 48, bounds.y - 10, color_fatigue, true);
+          // TODO: if Lost Password button can be toggled separately, this should be changed
+          boolean longForm = true;
+
+          if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
+              longForm = true;
+          } else if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+              longForm = Client.loginLostPasswordButton == 0;
+          }
+        if (longForm) {
+          if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+              recordButtonBounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+          } else if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
+              recordButtonBounds = new Rectangle(512 - 140, 288, 48, 16);
+          } else {
+              Logger.Error("Specify -server replay- bounds for this screen!");
+              // original bounds, underneath the Cancel button
+              recordButtonBounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+          }
+          drawShadowText(g2, "-server replay-", recordButtonBounds.x + 48, recordButtonBounds.y - 10, color_fatigue, true);
+        } else {
+            if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+                recordButtonBounds = new Rectangle(512 - 33, 250 - 12, 25, 25);
+                //bounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+            } else {
+                Logger.Error("Specify tiny -server replay- bounds for this screen!");
+                // original bounds, underneath the Cancel button
+                recordButtonBounds = new Rectangle(512 - 148, 346 - 36, 48, 16);
+            }
+        }
 
         setAlpha(g2, 0.5f);
         if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
@@ -1039,26 +1057,45 @@ public class Renderer {
             g2.setColor(color_text);
           }
         }
-        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        if (longForm) {
+            g2.fillRect(recordButtonBounds.x, recordButtonBounds.y, recordButtonBounds.width, recordButtonBounds.height);
+        } else {
+            g2.fillOval(recordButtonBounds.x, recordButtonBounds.y, recordButtonBounds.width, recordButtonBounds.height);
+        }
 
         if (Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)) {
           g2.setColor(color_text);
-          g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+          if (longForm) {
+              g2.drawRect(recordButtonBounds.x, recordButtonBounds.y, recordButtonBounds.width, recordButtonBounds.height);
+          } else {
+              g2.drawOval(recordButtonBounds.x, recordButtonBounds.y, recordButtonBounds.width, recordButtonBounds.height);
+          }
         }
-
         setAlpha(g2, 1.0f);
-        if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
-          drawShadowText(
-              g2, "speedy", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+        String recordButtonText = "";
+        if (longForm) {
+            if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+                recordButtonText = "speedy";
+            } else {
+                recordButtonText = "record";
+            }
         } else {
-          drawShadowText(
-              g2, "record", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+            // smaller buttons, less room for text
+            if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+                recordButtonText = "run";
+            } else {
+                recordButtonText = "rec";
+            }
+
         }
+        drawShadowText(
+              g2, recordButtonText, recordButtonBounds.x + (recordButtonBounds.width / 2) + 1, recordButtonBounds.y + (longForm ? 6 : 10), color_text, true);
+
         // Handle replay record selection click
-        if (MouseHandler.x >= bounds.x
-            && MouseHandler.x <= bounds.x + bounds.width
-            && MouseHandler.y >= bounds.y
-            && MouseHandler.y <= bounds.y + bounds.height
+        if (MouseHandler.x >= recordButtonBounds.x
+            && MouseHandler.x <= recordButtonBounds.x + recordButtonBounds.width
+            && MouseHandler.y >= recordButtonBounds.y
+            && MouseHandler.y <= recordButtonBounds.y + recordButtonBounds.height
             && MouseHandler.mouseClicked) {
           Client.showRecordAlwaysDialogue = true;
 
@@ -1068,18 +1105,24 @@ public class Renderer {
             replayOption = 1;
           }
         }
-        bounds = new Rectangle(bounds.x + bounds.width + 4, bounds.y, 48, bounds.height);
+        Rectangle playButtonBounds;
+        if (longForm) {
+            playButtonBounds = new Rectangle(recordButtonBounds.x + recordButtonBounds.width + 4, recordButtonBounds.y, 48, recordButtonBounds.height);
+        } else {
+            playButtonBounds = new Rectangle(recordButtonBounds.x - 4, recordButtonBounds.y + 33, 32, 19);
+        }
         setAlpha(g2, 0.5f);
         if (replayOption == 2) g2.setColor(color_low);
         else g2.setColor(color_text);
-        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        g2.fillRect(playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
         setAlpha(g2, 1.0f);
-        drawShadowText(g2, "play", bounds.x + (bounds.width / 2), bounds.y + 6, color_text, true);
+        drawShadowText(g2, "play", playButtonBounds.x + (playButtonBounds.width / 2) + 1, playButtonBounds.y + (longForm ? 6 : 7), color_text, true);
+
         // Handle replay play selection click
-        if (MouseHandler.x >= bounds.x
-            && MouseHandler.x <= bounds.x + bounds.width
-            && MouseHandler.y >= bounds.y
-            && MouseHandler.y <= bounds.y + bounds.height
+        if (MouseHandler.x >= playButtonBounds.x
+            && MouseHandler.x <= playButtonBounds.x + playButtonBounds.width
+            && MouseHandler.y >= playButtonBounds.y
+            && MouseHandler.y <= playButtonBounds.y + playButtonBounds.height
             && MouseHandler.mouseClicked) {
           if (replayOption == 2) {
             replayOption = 0;
