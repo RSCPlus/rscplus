@@ -2832,9 +2832,8 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IZ)V")) {
-    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-
     	  // move down original text "to change your contact details, etc" since should be 5 px down
+    	  Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
           while (insnNodeList.hasNext()) {
             AbstractInsnNode insnNode = insnNodeList.next();
             AbstractInsnNode nextNode = insnNode.getNext();
@@ -2850,10 +2849,9 @@ public class JClassPatcher {
             	break;
             }
           }
-          
-          insnNodeList = methodNode.instructions.iterator();
 
           // correct the offset of clicking with previous text correction
+          insnNodeList = methodNode.instructions.iterator();
           while (insnNodeList.hasNext()) {
             AbstractInsnNode insnNode = insnNodeList.next();
             AbstractInsnNode nextNode = insnNode.getNext();
@@ -2875,8 +2873,8 @@ public class JClassPatcher {
             }
           }
           
-          insnNodeList = methodNode.instructions.iterator();
        // move up text "always logout when you finish" if in tutorial island
+          insnNodeList = methodNode.instructions.iterator();
           while (insnNodeList.hasNext()) {
             AbstractInsnNode insnNode = insnNodeList.next();
             AbstractInsnNode nextNode = insnNode.getNext();
@@ -2889,19 +2887,18 @@ public class JClassPatcher {
                     && nextNode.getOpcode() == Opcodes.SIPUSH
                     && ((IntInsnNode) nextNode).operand == 134) {
             	targetNode = nextNode;
-            	while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+            	while (targetNode.getOpcode() != Opcodes.IINC
+              			 || ((IincInsnNode) targetNode).incr != 15) {
                       // find the part of the += 15 jump inside skip tutorial
                       targetNode = targetNode.getNext();
                     }
-            	//
-            	targetNode = targetNode.getNext();
-            	methodNode.instructions.insertBefore(targetNode, new IincInsnNode(7, -5));
+            	((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
             	break;
             }
           }
           
-          insnNodeList = methodNode.instructions.iterator();
        // move up click pos "always logout when you finish" if in tutorial island
+          insnNodeList = methodNode.instructions.iterator();
           while (insnNodeList.hasNext()) {
             AbstractInsnNode insnNode = insnNodeList.next();
             AbstractInsnNode targetNode;
@@ -2920,7 +2917,22 @@ public class JClassPatcher {
                      // end section of click for skip tutorial
                      targetNode = targetNode.getNext();
                    }
-            	methodNode.instructions.insertBefore(targetNode, new IincInsnNode(7, -5));
+            	((IincInsnNode) targetNode).incr = 10; // should have been 10 instead of 15
+            	break;
+            }
+          }
+          
+       // bigger "Ypos" click area for options menu because when player in tutorial island, the menu goes further down and wasn't
+          // adapted since it was introduced
+          insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            IntInsnNode targetNode;
+
+            if (insnNode.getOpcode() == Opcodes.SIPUSH
+                    && ((IntInsnNode) insnNode).operand == -266) {
+            	targetNode = (IntInsnNode)insnNode;
+            	targetNode.operand = -286;
             	break;
             }
           }
@@ -2986,6 +2998,7 @@ public class JClassPatcher {
           }
         }
 
+     // Options menu click hook
         insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
