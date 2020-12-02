@@ -1023,8 +1023,7 @@ public class Renderer {
           if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
               longForm = true;
           } else if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
-              longForm = !(Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)
-                         || Client.loginLostPasswordButton != 0);
+              longForm = Client.loginLostPasswordButton == 0;
           }
         if (longForm) {
           if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
