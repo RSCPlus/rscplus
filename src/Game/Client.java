@@ -19,18 +19,6 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
-
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -52,6 +40,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -314,6 +313,7 @@ public class Client {
   public static int serverjag_port;
   public static int session_id;
   public static boolean failedRecovery = false;
+  public static int recoveryChangeDays;
 
   public static Object panelWelcome;
   public static Object panelLogin;
@@ -992,6 +992,33 @@ public class Client {
     }
 
     return continueFlow;
+  }
+  
+  public static int welcome_screen_size(int oldSize) {
+	  int newSize = oldSize;
+	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+		  if (Client.recoveryChangeDays == 200) { //RSC235 recovery not set
+			  newSize -= 15;
+		  } else { //Between 0 and 200 (normally 0 and 13 to allow cancel recovery)
+			  newSize += 15;
+		  }
+	  }
+	  return newSize;
+  }
+  
+  /** Determines if client should "Click here to close window" at welcome screen */
+  public static boolean showWelcomeClickToClose() {
+	  boolean shouldShow = true;
+	  
+	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+		  //In RSC235 200 is questions not set, 201 is questions set
+		  //RecoveryChangeDays should normally between 0 and 13 to allow cancel recovery
+		  if (Client.recoveryChangeDays < 200) {
+			  shouldShow = false;
+		  }
+	  }
+	  
+	  return shouldShow;
   }
 
   public static void resetLoginMessage() {

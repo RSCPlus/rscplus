@@ -18,7 +18,6 @@
  */
 package Client;
 
-import Client.Settings.Dir;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +47,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import Client.Settings.Dir;
 
 /** Singleton class which hooks variables and patches classes. */
 public class JClassPatcher {
@@ -807,6 +807,9 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "td", "I", "Game/Client", "controlLoginBottom", "I", true, false);
+      
+      hookClassVariable(
+              methodNode, "client", "Sb", "I", "Game/Client", "recoveryChangeDays", "I", true, false);
     }
   }
 
@@ -2035,6 +2038,144 @@ public class JClassPatcher {
               methodNode.instructions.insert(insnNode, new IntInsnNode(Opcodes.SIPUSH, 150));
               methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
             }
+          }
+        }
+        
+        // dynamic size welcome box with show recovery
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode callNode;
+
+          if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode) insnNode).operand == 65) {
+        	  callNode = insnNode.getNext().getNext();
+        	  methodNode.instructions.insertBefore(callNode, new VarInsnNode(Opcodes.ILOAD, 2));
+        	  methodNode.instructions.insertBefore(
+        			  callNode,
+                      new MethodInsnNode(
+                          Opcodes.INVOKESTATIC, "Game/Client", "welcome_screen_size", "(I)I", false));
+        	  methodNode.instructions.insertBefore(callNode, new VarInsnNode(Opcodes.ISTORE, 2));
+        	  break;
+          }
+        }
+        
+        // recovery questions not set 
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode startNode, targetNode;
+
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 663) {
+        	  startNode = insnNode;
+        	  while (startNode.getOpcode() != Opcodes.IINC
+                      || ((IincInsnNode) startNode).incr != 15) {
+                    // find incr += 15 before Do this from the 'account management' area on our front webpage
+        		  startNode = startNode.getPrevious();
+                  }
+                  targetNode = insnNode;
+                  while (targetNode.getOpcode() != Opcodes.IINC
+                          || ((IincInsnNode) targetNode).incr != 15) {
+                        // find incr += 15 after Do this from the 'account management' area on our front webpage
+                	  targetNode = targetNode.getNext();
+                      }
+
+                  LabelNode label = new LabelNode();
+
+                  methodNode.instructions.insertBefore(
+                      startNode,
+                      new MethodInsnNode(
+                          Opcodes.INVOKESTATIC, "Game/Client", "showSecuritySettings", "()Z"));
+                  methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFGT, label));
+
+                  methodNode.instructions.insertBefore(targetNode, label);
+                  break;
+          }
+        }
+        
+        // recovery questions recently set or changed 
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode startNode, targetNode;
+
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 666) {
+        	  startNode = insnNode;
+        	  while (startNode.getOpcode() != Opcodes.ALOAD
+                      || ((VarInsnNode) startNode).var != 0) {
+                    // find start section of "you changed your recovery questions"
+        		  startNode = startNode.getPrevious();
+                  }
+        	  targetNode = insnNode;
+        	  while (targetNode.getOpcode() != Opcodes.SIPUSH
+                      || ((IntInsnNode) targetNode).operand != 663) {
+                    // find near end section of "Do this from the 'account management' area on our front webpage"
+        		  targetNode = targetNode.getNext();
+                  }
+        	  
+        	  while (targetNode.getOpcode() != Opcodes.IINC
+                      || ((IincInsnNode) targetNode).incr != 15) {
+                    // find incr += 15 after Do this from the 'account management' area on our front webpage
+            	  targetNode = targetNode.getNext();
+                  }
+        	  targetNode = targetNode.getNext();
+        	  
+        	  LabelNode label = new LabelNode();
+
+              methodNode.instructions.insertBefore(
+                  startNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC, "Game/Client", "showSecuritySettings", "()Z"));
+              methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFGT, label));
+
+              methodNode.instructions.insertBefore(targetNode, label);
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 2));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 3));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  targetNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "I", "I"));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  targetNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "xb", "I"));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  targetNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Cf", "I"));
+              methodNode.instructions.insertBefore(
+                  targetNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/AccountManagement",
+                      "welcome_changed_recent_recovery_hook",
+                      "(IIIII)I"));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 3));
+              methodNode.instructions.insertBefore(targetNode, new InsnNode(Opcodes.IADD));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ISTORE, 3));
+              break;
+          }
+        }
+        
+        // have the "Click here to close window" not shown if showSecuritySettings
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode targetNode;
+
+          if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode) insnNode).operand == 126) {
+        	  targetNode = insnNode;
+        	  while (targetNode.getOpcode() != Opcodes.ALOAD
+                      || ((VarInsnNode) targetNode).var != 0) {
+                    // find start section of "Click here to close window"
+        		  targetNode = targetNode.getPrevious();
+                  }
+        	  LabelNode label = new LabelNode();
+
+              methodNode.instructions.insertBefore(
+            		  targetNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC, "Game/Client", "showWelcomeClickToClose", "()Z"));
+              methodNode.instructions.insertBefore(targetNode, new JumpInsnNode(Opcodes.IFGT, label));
+              methodNode.instructions.insertBefore(targetNode, new InsnNode(Opcodes.RETURN));
+              methodNode.instructions.insertBefore(targetNode, label);
+              break;
           }
         }
       }

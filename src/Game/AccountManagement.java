@@ -18,11 +18,11 @@
  */
 package Game;
 
+import java.math.BigInteger;
 import Client.CRC16;
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
-import java.math.BigInteger;
 
 public class AccountManagement {
 
@@ -375,6 +375,11 @@ public class AccountManagement {
     StreamUtil.putRegStrTo(buffer, email);
 
     StreamUtil.sendPacket();
+  }
+  
+  public static void sendCancelRecoveryChange() {
+	  StreamUtil.newPacket(196);
+	  StreamUtil.sendPacket();
   }
 
   public static boolean processPacket(int opcode, int psize) {
@@ -1084,6 +1089,57 @@ public class AccountManagement {
         forgotPass(user);
       }
     }
+  }
+  
+  public static int welcome_changed_recent_recovery_hook(
+	      int xPos, int yPos, int mouseX, int mouseY, int mouseButtonClick) {
+	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(
+		        Settings
+	            .currentProfile)) {
+		//xPos is stub, not used in parent
+		  int currYPos = yPos;
+		  
+		  int daysToActivate = 14 - Client.recoveryChangeDays;
+		  String daysText;
+		  if (daysToActivate == 14) {
+			  daysText = "Earlier today";
+	      } else if (daysToActivate == 13) {
+	    	  daysText = "Yesterday";
+	      } else {
+	    	  daysText = Client.recoveryChangeDays + " days ago"; //should be at most 13 days
+	      }
+		  
+		  Renderer.drawStringCenter(daysText + " you changed your recovery questions", Renderer.width / 2, currYPos, 1, 0xFF8000);
+		  currYPos += 15;
+		  Renderer.drawStringCenter("If you do not remember making this change then", Renderer.width / 2, currYPos, 1, 0xFF8000);
+		  currYPos += 15;
+		  Renderer.drawStringCenter("cancel it and change your password immediately!", Renderer.width / 2, currYPos, 1, 0xFF8000);
+		  currYPos += 15;
+		  currYPos += 15;
+		  int textColor = 0xFFFFFF;
+		  if (mouseY > currYPos - 12 && mouseY <= currYPos && mouseX > Renderer.width / 2 - 150
+					&& mouseX < Renderer.width / 2 + 150) {
+			  textColor = 0xFF0000;
+			}
+		  Renderer.drawStringCenter("No that wasn't me - Cancel the request!", Renderer.width / 2, currYPos, 1, textColor);
+	      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
+	    	  sendCancelRecoveryChange();
+	    	  Client.show_welcome = false;
+	      }
+	      currYPos += 15;
+	      textColor = 0xFFFFFF;
+	      if (mouseY > currYPos - 12 && mouseY <= currYPos && mouseX > Renderer.width / 2 - 150
+					&& mouseX < Renderer.width / 2 + 150) {
+			  textColor = 0xFF0000;
+			}
+	      Renderer.drawStringCenter("That's ok, activate the new questions in " + daysToActivate + " days time.", Renderer.width / 2, currYPos, 1, textColor);
+	      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
+	    	  Client.show_welcome = false;
+	      }
+	      
+	      return 75;  
+	  }
+	  return 0;
   }
 
   // § SECTION hook key and mouse consumption §
