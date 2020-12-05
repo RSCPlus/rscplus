@@ -314,6 +314,7 @@ public class Client {
   public static int session_id;
   public static boolean failedRecovery = false;
   public static int recoveryChangeDays;
+  public static int tipOfDay = -1;
 
   public static Object panelWelcome;
   public static Object panelLogin;
@@ -862,6 +863,7 @@ public class Client {
     // ::lostcon or closeConnection
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
+    Client.tipOfDay = -1;
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -999,14 +1001,19 @@ public class Client {
 	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
 		  if (Client.recoveryChangeDays == 200) { //RSC235 recovery not set
 			  newSize -= 15;
-		  } else { //Between 0 and 200 (normally 0 and 13 to allow cancel recovery)
+		  } else if (Client.recoveryChangeDays < 200) { //Between 0 and 200 (normally 0 and 13 to allow cancel recovery)
 			  newSize += 15;
+		  }
+	  }
+	  if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
+		  if (Client.recoveryChangeDays == 201) { //questions set, security tip of day
+			  newSize += 74;
 		  }
 	  }
 	  return newSize;
   }
   
-  /** Determines if client should "Click here to close window" at welcome screen */
+  /** Determines if client should display "Click here to close window" at welcome screen */
   public static boolean showWelcomeClickToClose() {
 	  boolean shouldShow = true;
 	  
@@ -1015,6 +1022,19 @@ public class Client {
 		  //RecoveryChangeDays should normally between 0 and 13 to allow cancel recovery
 		  if (Client.recoveryChangeDays < 200) {
 			  shouldShow = false;
+		  }
+	  }
+	  
+	  return shouldShow;
+  }
+  
+  /** Determines if client should display the security tip of day at welcome screen */
+  public static boolean showSecurityTipOfDay() {
+	  boolean shouldShow = false;
+	  
+	  if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
+		  if (Client.recoveryChangeDays == 201) {
+			  shouldShow = true;
 		  }
 	  }
 	  

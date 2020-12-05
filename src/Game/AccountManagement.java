@@ -1093,11 +1093,11 @@ public class AccountManagement {
   
   public static int welcome_changed_recent_recovery_hook(
 	      int xPos, int yPos, int mouseX, int mouseY, int mouseButtonClick) {
+	//xPos is stub, not used in parent
+	  int currYPos = yPos;
 	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(
 		        Settings
 	            .currentProfile)) {
-		//xPos is stub, not used in parent
-		  int currYPos = yPos;
 		  
 		  int daysToActivate = 14 - Client.recoveryChangeDays;
 		  String daysText;
@@ -1137,9 +1137,69 @@ public class AccountManagement {
 	    	  Client.show_welcome = false;
 	      }
 	      
-	      return 75;  
 	  }
-	  return 0;
+	  return currYPos - yPos;
+  }
+  
+  public static int welcome_security_tip_day_hook(int xPos, int yPos) {
+	//xPos is stub, not used in parent
+	  int currYPos = yPos;
+	  if (Settings.SHOW_SECURITY_TIP_DAY.get(
+		        Settings
+	            .currentProfile)) {
+		
+		  if (Client.show_welcome && Client.tipOfDay == -1) {
+			  Client.tipOfDay = (int) (Math.random() * 6.0D);
+		  }
+		  currYPos += 7;
+		  Renderer.drawStringCenter("Security tip of the day", Renderer.width / 2, currYPos, 1, 0xFF0000);
+		  currYPos += 15;
+		  if (Client.tipOfDay == 0) {
+			  Renderer.drawStringCenter("Don't tell ANYONE your password or recovery questions!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("Not even people claiming to be Jagex staff.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  if (Client.tipOfDay == 1) {
+			  Renderer.drawStringCenter("Never enter your password or recovery questions into ANY", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("website other than this one - Not even if it looks similar.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  if (Client.tipOfDay == 2) {
+			  Renderer.drawStringCenter("Don't use RuneScape cheats, helpers, or automaters.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("These programs WILL steal your password.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  if (Client.tipOfDay == 3) {
+			  Renderer.drawStringCenter("Watch out for fake emails, and fake staff. Real staff", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("will NEVER ask you for your password or recovery questions!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  if (Client.tipOfDay == 4) {
+			  Renderer.drawStringCenter("Use a password your friends won't guess. Do NOT use your name!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("Choose a unique password which you haven't used anywhere else", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  if (Client.tipOfDay == 5) {
+			  Renderer.drawStringCenter("If possible only play runescape from your own computer", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+			  Renderer.drawStringCenter("Other machines could have been tampered with to steal your pass", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+			  currYPos += 15;
+		  }
+		  
+		  currYPos += 22;
+
+	  }
+	  return currYPos - yPos;
   }
 
   // § SECTION hook key and mouse consumption §

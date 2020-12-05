@@ -2154,6 +2154,7 @@ public class JClassPatcher {
         }
         
         // have the "Click here to close window" not shown if showSecuritySettings
+        // plus security tips
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -2161,12 +2162,14 @@ public class JClassPatcher {
 
           if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode) insnNode).operand == 126) {
         	  targetNode = insnNode;
-        	  while (targetNode.getOpcode() != Opcodes.ALOAD
-                      || ((VarInsnNode) targetNode).var != 0) {
+        	  while (targetNode.getOpcode() != Opcodes.LDC
+                      || !((LdcInsnNode) targetNode).cst.equals(16777215)) {
                     // find start section of "Click here to close window"
         		  targetNode = targetNode.getPrevious();
                   }
+        	  targetNode = targetNode.getNext().getNext(); // after istore5
         	  LabelNode label = new LabelNode();
+        	  LabelNode label2 = new LabelNode();
 
               methodNode.instructions.insertBefore(
             		  targetNode,
@@ -2175,6 +2178,24 @@ public class JClassPatcher {
               methodNode.instructions.insertBefore(targetNode, new JumpInsnNode(Opcodes.IFGT, label));
               methodNode.instructions.insertBefore(targetNode, new InsnNode(Opcodes.RETURN));
               methodNode.instructions.insertBefore(targetNode, label);
+              methodNode.instructions.insertBefore(
+            		  targetNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC, "Game/Client", "showSecurityTipOfDay", "()Z"));
+              methodNode.instructions.insertBefore(targetNode, new JumpInsnNode(Opcodes.IFLE, label2));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 2));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 3));
+              methodNode.instructions.insertBefore(
+                  targetNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/AccountManagement",
+                      "welcome_security_tip_day_hook",
+                      "(II)I"));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ILOAD, 3));
+              methodNode.instructions.insertBefore(targetNode, new InsnNode(Opcodes.IADD));
+              methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ISTORE, 3));
+              methodNode.instructions.insertBefore(targetNode, label2);
               break;
           }
         }
