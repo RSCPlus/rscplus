@@ -1275,6 +1275,11 @@ public class Replay {
         // This allows time for character creation on tutorial island without counting against
         // speedrun time.
         Speedrun.checkAndBeginSpeedrun();
+
+        if (!Client.knowWhoIAm) {
+            Client.knowWhoIAm = true;
+            Client.resetFatigueXPDrops(true);
+        }
       }
       // SERVER_OPCODE_PLAYER_COORDS
       if (opcode == 191) {

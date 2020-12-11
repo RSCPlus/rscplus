@@ -414,7 +414,6 @@ public class Renderer {
           }
         }
 
-        Client.processFatigueXPDrops();
       }
 
       if (!Client.isSleeping()) {
@@ -664,6 +663,7 @@ public class Renderer {
       // Clear npc list for the next frame
       Client.npc_list.clear();
 
+      Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
       Client.xpbar.draw(g2);
 

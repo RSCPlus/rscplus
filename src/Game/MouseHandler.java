@@ -41,14 +41,17 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   private float m_rotateX = 0.0f;
 
   public static boolean inBounds(Rectangle bounds) {
+    if (XPBar.hoveringOverMenu || XPBar.hoveringOverBar()) {
+      return true;
+    }
     if (bounds == null) return false;
-    if (Replay.isPlaying && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)) {
+    if (Replay.isPlaying && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile) && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile)) {
       return MouseHandler.x >= bounds.x
           && MouseHandler.x <= bounds.x + bounds.width
           && MouseHandler.y >= bounds.y
           && MouseHandler.y <= bounds.y + bounds.height;
     }
-    return false; // add handling for buttons that aren't playback related here
+    return false;
   }
 
   public boolean inConsumableButton() {

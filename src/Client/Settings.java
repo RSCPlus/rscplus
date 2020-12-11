@@ -25,6 +25,7 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+import Game.XPBar;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -44,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20201202.021116;
+  public static final double VERSION_NUMBER = 20201211.234544;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1361,6 +1362,29 @@ public class Settings {
         kbs.modifier = getKeyModifierFromString(keybindCombo);
         kbs.key = Integer.parseInt(keybindCombo.substring(2));
       }
+
+      // XP
+      int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
+      String[] goalerUsernames = new String[numberOfGoalers];
+      for (int usernameID = 0; usernameID < numberOfGoalers; usernameID++) {
+          goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
+          Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
+          Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
+          for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+              Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
+                  getPropInt(props, String.format("xpGoal%02d%03d", skill,  usernameID), 0);
+              try {
+                  Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
+                      Float.parseFloat(getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
+              } catch (Exception e1) {
+                  Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
+                  Logger.Warn("Couldn't parse settings key " + String.format("lvlGoal%02d%03d", skill, usernameID));
+              }
+          }
+      }
+        XPBar.pinnedBar = getPropBoolean(props,"pinXPBar", false);
+        XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1687,10 +1711,38 @@ public class Settings {
             Integer.toString(getPropIntForKeyModifier(kbs)) + "*" + kbs.key);
       }
 
+      // XP Goals
+      int usernameID = 0;
+      for (String username : Client.xpGoals.keySet()) {
+          for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+              int skillgoal = 0;
+              try {
+                  skillgoal = Client.xpGoals.get(username)[skill];
+              } catch (Exception noGoal) {}
+
+              float lvlgoal = (float)0;
+              try {
+                  lvlgoal = Client.lvlGoals.get(username)[skill];
+              } catch (Exception noGoal) {}
+
+              props.setProperty(String.format("xpGoal%02d%03d", skill,  usernameID),
+                  Integer.toString(skillgoal));
+              props.setProperty(String.format("lvlGoal%02d%03d", skill,  usernameID),
+                  Float.toString(lvlgoal));
+          }
+          props.setProperty(String.format("username%d", usernameID), username);
+          usernameID++;
+      }
+      props.setProperty("numberOfGoalers", String.format("%d", usernameID));
+
+      props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
+      props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");
       out.close();
     } catch (Exception e) {
+        e.printStackTrace();
       Logger.Error("Unable to save settings");
     }
   }

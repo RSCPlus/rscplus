@@ -30,6 +30,7 @@ import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
+import Client.Util;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
@@ -45,12 +46,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -59,7 +55,7 @@ import javax.swing.JOptionPane;
  */
 public class Client {
 
-  // Game's client instance
+    // Game's client instance
   public static Object instance;
 
   public static Map<String, LinkedList<String>> tracerInstructions =
@@ -197,6 +193,8 @@ public class Client {
 
   public static Object player_object;
   public static String player_name = "";
+  public static String xpUsername = "";
+  public static boolean knowWhoIAm = false;
   public static int player_posX = -1;
   public static int player_posY = -1;
   public static int player_height = -1;
@@ -250,7 +248,7 @@ public class Client {
   private static TwitchIRC twitch = new TwitchIRC();
   public static MouseHandler handler_mouse;
   public static KeyboardHandler handler_keyboard;
-  private static float[] xpdrop_state = new float[18];
+
   private static long updateTimer = 0;
   private static long last_time = 0;
 
@@ -275,6 +273,8 @@ public class Client {
   public static String loginMessageBottom =
       "Hit @gre@Ctrl-O@whi@ to access Settings and select the \"World List\" tab.";
 
+  public static final int NUM_SKILLS = 18;
+
   /**
    * A boolean array that stores if the XP per hour should be shown for a given skill when hovering
    * on the XP bar.
@@ -282,10 +282,10 @@ public class Client {
    * <p>This should only be false for a skill if there has been less than 2 XP drops during the
    * current tracking session, since there is not enough data to calculate the XP per hour.
    */
-  private static boolean[] showXpPerHour = new boolean[18];
+  private static HashMap<String, Boolean[]> showXpPerHour = new HashMap<String, Boolean[]>();
 
   /** An array to store the XP per hour for a given skill */
-  private static double[] xpPerHour = new double[18];
+  private static HashMap<String, Double[]> xpPerHour = new HashMap<String, Double[]>();
 
   /**
    * A multi-dimensional array that stores the last time XP was gained for a given skill.
@@ -298,7 +298,21 @@ public class Client {
    * - [2] the time of the first XP drop in a given skill within the sample period,<br>
    * - [3] and the total number of XP drops recorded within the sample period, plus 1.
    */
-  private static double[][] lastXpGain = new double[18][4];
+  private static final int TOTAL_XP_GAIN = 0;
+  private static final int TIME_OF_LAST_XP_DROP = 1;
+  private static final int TIME_OF_FIRST_XP_DROP = 2;
+  private static final int TOTAL_XP_DROPS = 3;
+  private static final int LAST_XP_GAIN = 4;
+  private static HashMap<String, Double[][]> lastXpGain = new HashMap<String, Double[][]>();
+
+  // holds players XP since last processing xp drops
+  private static HashMap<String, Float[]> xpLast = new HashMap<String, Float[]>();
+
+  public static HashMap<String, Integer[]> xpGoals = new HashMap<String, Integer[]>();
+  public static HashMap<String, Float[]> lvlGoals = new HashMap<String, Float[]>();
+
+  private static float[] xpGain = new float[18];
+
 
   /** The client version */
   public static int version;
@@ -705,41 +719,52 @@ public class Client {
     }
   }
 
-  public static void processFatigueXPDrops() {
-    // Process XP drops
-    boolean dropXP = xpdrop_state[SKILL_HP] > 0.0f; // TODO: Declare dropXP outside of this method
-    for (int i = 0; i < xpdrop_state.length; i++) {
-      float xpGain = getXP(i) - xpdrop_state[i]; // TODO: Declare xpGain outside of this method
-      xpdrop_state[i] += xpGain;
 
-      if (xpGain > 0.0f && dropXP) {
+
+  public static void processFatigueXPDrops() {
+      if (xpUsername.equals("") || !knowWhoIAm) {
+          return;
+      }
+
+    // Process XP drops
+    for (int i = 0; i < NUM_SKILLS; i++) {
+
+       xpGain[i] = getXP(i) - xpLast.get(xpUsername)[i];
+        xpLast.get(xpUsername)[i] += xpGain[i];
+
+      if (xpGain[i] > 0.0f) {
         if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
-          xpdrop_handler.add("+" + xpGain + " (" + skill_name[i] + ")", Renderer.color_text);
+          xpdrop_handler.add("+" + xpGain[i] + " (" + skill_name[i] + ")", Renderer.color_text);
 
         // XP/hr calculations
-        // TODO: After 5-10 minutes of tracking XP, make it display a rolling average instead of a
-        // session
-        // average
-        if ((System.currentTimeMillis() - lastXpGain[i][1]) <= 180000) {
-          // < 3 minutes since last XP drop
-          lastXpGain[i][0] = xpGain + lastXpGain[i][0];
-          xpPerHour[i] =
-              3600 * (lastXpGain[i][0]) / ((System.currentTimeMillis() - lastXpGain[i][2]) / 1000);
-          lastXpGain[i][3]++;
-          showXpPerHour[i] = true;
-          lastXpGain[i][1] = System.currentTimeMillis();
-        } else {
-          lastXpGain[i][0] = xpGain;
-          lastXpGain[i][1] = lastXpGain[i][2] = System.currentTimeMillis();
-          lastXpGain[i][3] = 0;
-          showXpPerHour[i] = false;
-        }
+
+      // calc last xp gain
+      lastXpGain.get(xpUsername)[i][LAST_XP_GAIN] = new Double(xpGain[i]);
+
+      // calc total xp gain
+      lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN] = xpGain[i] + lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN];
+
+      // calc xp/hr
+      xpPerHour.get(xpUsername)[i] =
+          3600 * (lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN]) / ((System.currentTimeMillis() - lastXpGain.get(xpUsername)[i][TIME_OF_FIRST_XP_DROP]) / 1000);
+
+      // increment xp drops
+      lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS]++;
+
+      // display xp/hr or not
+      if (lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS] > 1) {
+          showXpPerHour.get(xpUsername)[i] = true;
+      }
+
+      // update time since last xp drop
+      lastXpGain.get(xpUsername)[i][TIME_OF_LAST_XP_DROP] = (double)System.currentTimeMillis();
 
         if (i == SKILL_HP && xpbar.current_skill != -1) continue;
 
         xpbar.setSkill(i);
       }
     }
+
     // Process fatigue drops
     if (Settings.SHOW_FATIGUEDROPS.get(Settings.currentProfile)) {
       final float actualFatigue = getActualFatigue();
@@ -764,10 +789,50 @@ public class Client {
       current_fatigue_units = fatigue;
     }
   }
+  public static void resetFatigueXPDrops(boolean resetSession) {
+      if (username_login.equals("")) {
+          return;
+      }
+
+      xpUsername = Util.formatString(username_login, 50);
+      if (lastXpGain.get(xpUsername) == null) {
+          lastXpGain.put(xpUsername, new Double[NUM_SKILLS][5]);
+          showXpPerHour.put(xpUsername, new Boolean[NUM_SKILLS]);
+          xpPerHour.put(xpUsername, new Double[NUM_SKILLS]);
+          xpLast.put(xpUsername, new Float[NUM_SKILLS]);
+          for (int i = 0; i < NUM_SKILLS; i++) {
+              lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN] = new Double(0);
+              lastXpGain.get(xpUsername)[i][TIME_OF_FIRST_XP_DROP] =
+                  lastXpGain.get(xpUsername)[i][TIME_OF_LAST_XP_DROP] = new Double(System.currentTimeMillis());
+              lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS] = new Double(0);
+
+              showXpPerHour.get(xpUsername)[i] = false;
+              xpPerHour.get(xpUsername)[i] = new Double(0);
+          }
+      }
+      if (xpGoals.get(xpUsername) == null) {
+          xpGoals.put(xpUsername, new Integer[NUM_SKILLS]);
+          lvlGoals.put(xpUsername, new Float[NUM_SKILLS]);
+      }
+
+
+      for (int skill = 0; skill < NUM_SKILLS; skill++) {
+          xpLast.get(xpUsername)[skill] = getXP(skill);
+
+          if (resetSession) {
+
+              lastXpGain.get(xpUsername)[skill][TOTAL_XP_GAIN] = new Double(0);
+              lastXpGain.get(xpUsername)[skill][TIME_OF_FIRST_XP_DROP] =
+                  lastXpGain.get(xpUsername)[skill][TIME_OF_LAST_XP_DROP] = (double) System.currentTimeMillis();
+              lastXpGain.get(xpUsername)[skill][TOTAL_XP_DROPS] = new Double(0);
+              showXpPerHour.get(xpUsername)[skill] = false;
+          }
+      }
+
+
+  }
 
   public static void init_login() {
-    for (int i = 0; i < xpdrop_state.length; i++) xpdrop_state[i] = 0.0f;
-
     Camera.init();
     state = STATE_LOGIN;
     isGameLoaded = false;
@@ -856,12 +921,16 @@ public class Client {
       checkForUpdate(false);
       updateTimer = currentTime + (60 * 60 * 1000);
     }
+
+    resetFatigueXPDrops(false);
   }
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
+    player_name = "";
+    knowWhoIAm = false;
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -1318,7 +1387,7 @@ public class Client {
         return subline;
 
       } else if (command.startsWith("next_")) {
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < NUM_SKILLS; i++) {
           if (command.equals("next_" + skill_name[i].toLowerCase())) {
             final float neededXp =
                 base_level[i] == 99 ? 0 : getXPforLevel(base_level[i] + 1) - getXP(i);
@@ -1333,7 +1402,7 @@ public class Client {
         }
       }
 
-      for (int i = 0; i < 18; i++) {
+      for (int i = 0; i < NUM_SKILLS; i++) {
         if (command.equalsIgnoreCase(skill_name[i]))
           return "My " + skill_name[i] + " level is " + base_level[i] + " (" + getXP(i) + " xp).";
       }
@@ -2298,6 +2367,22 @@ public class Client {
     return xp;
   }
 
+  public static float getLevelFromXP(float xp) {
+      float lvl = 1;
+      // 136.53725 is the maximum level you can reach in RSC before XP rolls over negative
+      for (; lvl <= 137 && getXPforLevel((int)lvl) <= xp; lvl++) {}
+
+      float xpToLevel = (float)Math.floor(getXPforLevel((int)lvl) - xp);
+      if (xpToLevel > 0) {
+          lvl--;
+          float xpIntoLevel = (float)Math.floor(xp - getXPforLevel((int)lvl));
+          float xpBetweenLevels = (getXPforLevel((int)lvl + 1) - getXPforLevel((int)lvl));
+          return lvl + (xpIntoLevel / xpBetweenLevels);
+      } else {
+          return lvl;
+      }
+  }
+
   /**
    * Returns the minimum XP required until the user reaches the next level in a specified skill.
    *
@@ -2308,6 +2393,11 @@ public class Client {
     float xpNextLevel = getXPforLevel(base_level[skill] + 1);
     return xpNextLevel - getXP(skill);
   }
+
+
+    public static float getXPUntilGoal(int skill) {
+        return xpGoals.get(xpUsername)[skill] - getXP(skill);
+    }
 
   /**
    * Returns the user's current level in a specified skill. This number is affected by skills boosts
@@ -2328,7 +2418,7 @@ public class Client {
    */
   public static int getTotalLevel() {
     int total = 0;
-    for (int i = 0; i < 18; i++) total += Client.base_level[i];
+    for (int i = 0; i < NUM_SKILLS; i++) total += Client.base_level[i];
     return total;
   }
 
@@ -2339,7 +2429,7 @@ public class Client {
    */
   public static float getTotalXP() {
     float xp = 0;
-    for (int i = 0; i < 18; i++) xp += getXP(i);
+    for (int i = 0; i < NUM_SKILLS; i++) xp += getXP(i);
     return xp;
   }
 
@@ -2517,16 +2607,16 @@ public class Client {
     }
   }
 
-  public static boolean[] getShowXpPerHour() {
-    return showXpPerHour;
+  public static Boolean[] getShowXpPerHour() {
+    return showXpPerHour.get(xpUsername);
   }
 
-  public static double[] getXpPerHour() {
-    return xpPerHour;
+  public static Double[] getXpPerHour() {
+    return xpPerHour.get(xpUsername);
   }
 
-  public static double[][] getLastXpGain() {
-    return lastXpGain;
+  public static Double getLastXpGain(int skill) {
+    return lastXpGain.get(xpUsername)[skill][LAST_XP_GAIN];
   }
 }
 
