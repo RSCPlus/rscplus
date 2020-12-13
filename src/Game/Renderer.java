@@ -886,8 +886,10 @@ public class Renderer {
         y = Renderer.height - 19;
         int offset = 0;
         if (Client.is_in_wild) offset += 70;
-        if ((!screenshot && Replay.isPlaying && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
-            || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
+        if (Replay.isPlaying) {
+            if ((!screenshot && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
+                || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
+        }
         if ((!Replay.isPlaying || screenshot)
             && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) offset += 70;
         drawShadowText(
