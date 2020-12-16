@@ -810,6 +810,9 @@ public class JClassPatcher {
       
       hookClassVariable(
               methodNode, "client", "Sb", "I", "Game/Client", "recoveryChangeDays", "I", true, false);
+      
+      hookClassVariable(
+              methodNode, "client", "Cf", "I", "Game/Client", "mouse_click", "I", true, true);
     }
   }
 
@@ -3232,6 +3235,44 @@ public class JClassPatcher {
             break;
           }
         }
+      }
+      if (methodNode.name.equals("c") && methodNode.desc.equals("(B)V")) {
+          // Hook inputPopupType >= 9 for drawInputPopup
+          Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+              AbstractInsnNode insnNode = insnNodeList.next();
+              AbstractInsnNode nextNode = insnNode.getNext();
+              AbstractInsnNode cmpNode = nextNode;
+              for (int i = 0; i<3; i++) {
+            	  if (cmpNode == null) break;
+            	  cmpNode = cmpNode.getNext();
+              }
+              AbstractInsnNode targetNode;
+
+              if (nextNode == null || cmpNode == null) break;
+
+              if (insnNode.getOpcode() == Opcodes.ALOAD
+                  && ((VarInsnNode) insnNode).var == 0
+                  && nextNode.getOpcode() == Opcodes.GETFIELD
+                  && ((FieldInsnNode) nextNode).name.equals("gc")
+                  && cmpNode.getOpcode() == Opcodes.BIPUSH
+                  && ((IntInsnNode) cmpNode).operand == -10) {
+            	  //point after this.inputPopupType == 9 check
+                targetNode = cmpNode.getNext().getNext();
+                
+            	methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 0));
+                methodNode.instructions.insertBefore(
+                        targetNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "gc", "I"));
+                methodNode.instructions.insertBefore(
+                        targetNode,
+                        new MethodInsnNode(
+                            Opcodes.INVOKESTATIC,
+                            "Game/Client",
+                            "drawInputPopupHook",
+                            "(I)V"));
+                break;
+              }
+            }
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
         // Disconnect hook (::closecon)

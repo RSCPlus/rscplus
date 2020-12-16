@@ -53,6 +53,7 @@ public class AccountManagement {
         "What is your favourite movie?"
       };
   public static int recoveryIndices[] = new int[] {0, 1, 2, 3, 4};
+  public static String confirmCancelRecovery[] = new String[]{"Are you sure you wish to cancel your", "most recent recovery question request?"};
 
   // § SECTION stream IO interaction §
 
@@ -1123,7 +1124,20 @@ public class AccountManagement {
 			}
 		  Renderer.drawStringCenter("No that wasn't me - Cancel the request!", Renderer.width / 2, currYPos, 1, textColor);
 	      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
-	    	  sendCancelRecoveryChange();
+	    	  if (Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(
+	    		        Settings
+	    		            .currentProfile)) {
+	    		  try {
+		    		  Reflection.showInputPopup.invoke(Client.instance, confirmCancelRecovery, 12, 10, false);
+		    		  Client.mouse_click = 0;
+		    	  } catch (Exception e) {
+		    		  //fallback - notify user of command
+		    		  Client.displayMessage("@mag@Type @yel@::cancelrecoveryrequest@mag@ if you wish to confirm the cancellation", Client.CHAT_QUEST);
+		    		  Client.displayMessage("@mag@of your recovery questions", Client.CHAT_QUEST);
+		    	  }  
+	    	  } else {
+	    		  sendCancelRecoveryChange();
+	    	  }
 	    	  Client.show_welcome = false;
 	      }
 	      currYPos += 15;
@@ -1200,6 +1214,17 @@ public class AccountManagement {
 
 	  }
 	  return currYPos - yPos;
+  }
+  
+  public static boolean processInputPopup(int popupType) {
+	  boolean processed = false;
+	  
+	  if (popupType == 10) {
+		  // created to have confirm if doing "cancel recovery question"
+		  sendCancelRecoveryChange();
+	  }
+	  
+	  return processed;
   }
 
   // § SECTION hook key and mouse consumption §

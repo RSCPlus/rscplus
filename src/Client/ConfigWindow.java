@@ -139,6 +139,7 @@ public class ConfigWindow {
   private JSpinner generalPanelClientSizeYSpinner;
   private JCheckBox generalPanelCheckUpdates;
   private JCheckBox generalPanelAccountSecurityCheckbox;
+  private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
   private JCheckBox generalPanelShowSecurityTipsAtLoginCheckbox;
   private JCheckBox generalPanelWelcomeEnabled;
   // private JCheckBox generalPanelChatHistoryCheckbox;
@@ -565,6 +566,13 @@ public class ConfigWindow {
             generalPanel);
     generalPanelAccountSecurityCheckbox.setToolTipText(
         "Makes old RSC account creation, password recovery and in-game security settings");
+    
+    generalPanelConfirmCancelRecoveryChangeCheckbox =
+            addCheckbox(
+                "Show Cancel Recovery Change Confirmation Box",
+                generalPanel);
+    generalPanelConfirmCancelRecoveryChangeCheckbox.setToolTipText(
+            "Displays a confirmation dialog box when clicking cancel recovery question change of welcome screen");
     
     generalPanelShowSecurityTipsAtLoginCheckbox =
             addCheckbox("Show Security tip of the day at login welcome screen", generalPanel);
@@ -2191,6 +2199,8 @@ public class ConfigWindow {
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
         Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
+    generalPanelConfirmCancelRecoveryChangeCheckbox.setSelected(
+            Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(Settings.currentProfile));
     generalPanelShowSecurityTipsAtLoginCheckbox.setSelected(
             Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
@@ -2420,6 +2430,8 @@ public class ConfigWindow {
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
         Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
+    Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.put(
+            Settings.currentProfile, generalPanelConfirmCancelRecoveryChangeCheckbox.isSelected());
     Settings.SHOW_SECURITY_TIP_DAY.put(
             Settings.currentProfile, generalPanelShowSecurityTipsAtLoginCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(

@@ -360,6 +360,8 @@ public class Client {
   public static boolean showAppearanceChange;
   public static boolean showRecoveryQuestions;
   public static boolean showContactDetails;
+  
+  public static int mouse_click;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -1040,6 +1042,14 @@ public class Client {
 	  
 	  return shouldShow;
   }
+  
+  public static void drawInputPopupHook(int popupType) {
+	  boolean needsProcess = true;
+	  
+	  if (AccountManagement.processInputPopup(popupType)) {
+		  needsProcess = false;
+	  }
+  }
 
   public static void resetLoginMessage() {
     setResponseMessage("Please enter your username and password", "");
@@ -1238,6 +1248,9 @@ public class Client {
         case "endrun":
           Settings.endSpeedrun();
           break;
+        case "cancelrecoveryrequest":
+      	  AccountManagement.sendCancelRecoveryChange();
+      	  break;
         default:
           if (commandArray[0] != null) {
             return "::";
