@@ -2162,6 +2162,7 @@ public class JClassPatcher {
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
           AbstractInsnNode targetNode;
+          AbstractInsnNode jumpToNode;
 
           if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode) insnNode).operand == 126) {
         	  targetNode = insnNode;
@@ -2171,15 +2172,30 @@ public class JClassPatcher {
         		  targetNode = targetNode.getPrevious();
                   }
         	  targetNode = targetNode.getNext().getNext(); // after istore5
+        	  jumpToNode = targetNode;
+        	  while (jumpToNode.getOpcode() != Opcodes.BIPUSH
+                      || ((IntInsnNode) jumpToNode).operand != 126) {
+                    // find label "Click here to close window"
+        		  jumpToNode = jumpToNode.getNext();
+                  }
+        	  while (jumpToNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+                    // find where "Click here to close window" is actually drawn to jump past
+        		  jumpToNode = jumpToNode.getNext();
+                  }
+        	  jumpToNode = jumpToNode.getNext();
         	  LabelNode label = new LabelNode();
         	  LabelNode label2 = new LabelNode();
+        	  LabelNode label3 = new LabelNode();
 
+        	  methodNode.instructions.insertBefore(jumpToNode, label3);
+        	  
               methodNode.instructions.insertBefore(
             		  targetNode,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC, "Game/Client", "showWelcomeClickToClose", "()Z"));
               methodNode.instructions.insertBefore(targetNode, new JumpInsnNode(Opcodes.IFGT, label));
-              methodNode.instructions.insertBefore(targetNode, new InsnNode(Opcodes.RETURN));
+              methodNode.instructions.insertBefore(
+            		  targetNode, new JumpInsnNode(Opcodes.GOTO, label3));
               methodNode.instructions.insertBefore(targetNode, label);
               methodNode.instructions.insertBefore(
             		  targetNode,
