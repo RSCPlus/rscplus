@@ -46,6 +46,7 @@ public class Settings {
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
   public static final double VERSION_NUMBER = 20201217.175602;
+  public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1350,7 +1351,7 @@ public class Settings {
   }
 
   /** Loads properties from config.ini for use with definePresets */
-  public static void initSettings() {
+  public static Properties initSettings() {
     // Load settings
     try {
       String versionText = System.getProperty("java.version");
@@ -1363,31 +1364,18 @@ public class Settings {
     }
 
     try {
-      Properties props = new Properties();
-
-      File configFile = new File(Dir.JAR + "/config.ini");
-      if (!configFile.isDirectory()) {
-        if (!configFile.exists()) {
-          definePresets(props);
-          save("custom");
-        }
-      }
-
-      FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
-      props.load(in);
-      in.close();
+      Properties props = loadProps();
 
       currentProfile = getPropString(props, "current_profile", "custom");
       definePresets(props);
       updateInjectedVariables(); // TODO remove this function
 
       // Keybinds
-      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-        String keybindCombo =
-            getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
-        kbs.modifier = getKeyModifierFromString(keybindCombo);
-        kbs.key = Integer.parseInt(keybindCombo.substring(2));
-      }
+        if (KeyboardHandler.keybindSetList.size() == 0) {
+            Logger.Debug("No keybinds defined yet, config window not initialized");
+        } else {
+            loadKeybinds(props);
+        }
 
       // XP
       int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
@@ -1411,9 +1399,47 @@ public class Settings {
         XPBar.pinnedBar = getPropBoolean(props,"pinXPBar", false);
         XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
 
+        Logger.Info("Loaded settings");
+        return props;
+
     } catch (Exception e) {
       e.printStackTrace();
     }
+    return null;
+  }
+
+  public static Properties loadProps() {
+      Properties props = new Properties();
+
+      try {
+          File configFile = new File(Dir.JAR + "/config.ini");
+          if (!configFile.isDirectory()) {
+              if (!configFile.exists()) {
+                  definePresets(props);
+                  save("custom");
+              }
+          }
+
+          FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
+          props.load(in);
+          in.close();
+      } catch (Exception e) {
+          Logger.Warn("Error loading config.ini");
+          e.printStackTrace();
+      }
+      return props;
+  }
+
+  public static void loadKeybinds(Properties props) {
+      if (props == null) {
+          props = loadProps();
+      }
+      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+          String keybindCombo =
+              getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+          kbs.modifier = getKeyModifierFromString(keybindCombo);
+          kbs.key = Integer.parseInt(keybindCombo.substring(2));
+      }
   }
 
   public static void initWorlds() {
@@ -1581,6 +1607,10 @@ public class Settings {
   }
 
   public static void save(String preset) {
+    if (!successfullyInitted) {
+        Logger.Warn("Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
+      return;
+    }
     try {
       Properties props = new Properties();
 
