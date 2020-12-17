@@ -19,6 +19,18 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
+
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,17 +52,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -360,7 +361,7 @@ public class Client {
   public static boolean showAppearanceChange;
   public static boolean showRecoveryQuestions;
   public static boolean showContactDetails;
-  
+
   public static int mouse_click;
 
   /**
@@ -997,58 +998,59 @@ public class Client {
 
     return continueFlow;
   }
-  
+
   public static int welcome_screen_size(int oldSize) {
-	  int newSize = oldSize;
-	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
-		  if (Client.recoveryChangeDays == 200) { //RSC235 recovery not set
-			  newSize -= 15;
-		  } else if (Client.recoveryChangeDays < 200) { //Between 0 and 200 (normally 0 and 13 to allow cancel recovery)
-			  newSize += 15;
-		  }
-	  }
-	  if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
-		  if (Client.recoveryChangeDays == 201) { //questions set, security tip of day
-			  newSize += 74;
-		  }
-	  }
-	  return newSize;
+    int newSize = oldSize;
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+      if (Client.recoveryChangeDays == 200) { // RSC235 recovery not set
+        newSize -= 15;
+      } else if (Client.recoveryChangeDays
+          < 200) { // Between 0 and 200 (normally 0 and 13 to allow cancel recovery)
+        newSize += 15;
+      }
+    }
+    if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
+      if (Client.recoveryChangeDays == 201) { // questions set, security tip of day
+        newSize += 74;
+      }
+    }
+    return newSize;
   }
-  
+
   /** Determines if client should display "Click here to close window" at welcome screen */
   public static boolean showWelcomeClickToClose() {
-	  boolean shouldShow = true;
-	  
-	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
-		  //In RSC235 200 is questions not set, 201 is questions set
-		  //RecoveryChangeDays should normally between 0 and 13 to allow cancel recovery
-		  if (Client.recoveryChangeDays < 200) {
-			  shouldShow = false;
-		  }
-	  }
-	  
-	  return shouldShow;
+    boolean shouldShow = true;
+
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+      // In RSC235 200 is questions not set, 201 is questions set
+      // RecoveryChangeDays should normally between 0 and 13 to allow cancel recovery
+      if (Client.recoveryChangeDays < 200) {
+        shouldShow = false;
+      }
+    }
+
+    return shouldShow;
   }
-  
+
   /** Determines if client should display the security tip of day at welcome screen */
   public static boolean showSecurityTipOfDay() {
-	  boolean shouldShow = false;
-	  
-	  if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
-		  if (Client.recoveryChangeDays == 201) {
-			  shouldShow = true;
-		  }
-	  }
-	  
-	  return shouldShow;
+    boolean shouldShow = false;
+
+    if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
+      if (Client.recoveryChangeDays == 201) {
+        shouldShow = true;
+      }
+    }
+
+    return shouldShow;
   }
-  
+
   public static void drawInputPopupHook(int popupType) {
-	  boolean needsProcess = true;
-	  
-	  if (AccountManagement.processInputPopup(popupType)) {
-		  needsProcess = false;
-	  }
+    boolean needsProcess = true;
+
+    if (AccountManagement.processInputPopup(popupType)) {
+      needsProcess = false;
+    }
   }
 
   public static void resetLoginMessage() {
@@ -1249,8 +1251,8 @@ public class Client {
           Settings.endSpeedrun();
           break;
         case "cancelrecoveryrequest":
-      	  AccountManagement.sendCancelRecoveryChange();
-      	  break;
+          AccountManagement.sendCancelRecoveryChange();
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";

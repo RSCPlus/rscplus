@@ -18,14 +18,14 @@
  */
 package Game;
 
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
@@ -169,7 +169,7 @@ public class Reflection {
   private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
   private static final String DRAWSPRITE = "final void ua.b(int,int,int,int)";
   private static final String SHOW_INPUT_POPUP =
-	      "private final void client.a(java.lang.String[],int,int,boolean)";
+      "private final void client.a(java.lang.String[],int,int,boolean)";
 
   private static final String NEWPACKET = "final void b.b(int,int)";
   private static final String PUTBYTE = "final void tb.c(int,int)";
@@ -274,8 +274,8 @@ public class Reflection {
           createSocket = method;
           Logger.Info("Found createSocket");
         } else if (method.toGenericString().equals(SHOW_INPUT_POPUP)) {
-        	showInputPopup = method;
-        	Logger.Info("Found showInputPopup");
+          showInputPopup = method;
+          Logger.Info("Found showInputPopup");
         }
       }
 

@@ -18,11 +18,11 @@
  */
 package Game;
 
-import java.math.BigInteger;
 import Client.CRC16;
 import Client.Logger;
 import Client.Settings;
 import Client.Util;
+import java.math.BigInteger;
 
 public class AccountManagement {
 
@@ -53,7 +53,10 @@ public class AccountManagement {
         "What is your favourite movie?"
       };
   public static int recoveryIndices[] = new int[] {0, 1, 2, 3, 4};
-  public static String confirmCancelRecovery[] = new String[]{"Are you sure you wish to cancel your", "most recent recovery question request?"};
+  public static String confirmCancelRecovery[] =
+      new String[] {
+        "Are you sure you wish to cancel your", "most recent recovery question request?"
+      };
 
   // § SECTION stream IO interaction §
 
@@ -377,10 +380,10 @@ public class AccountManagement {
 
     StreamUtil.sendPacket();
   }
-  
+
   public static void sendCancelRecoveryChange() {
-	  StreamUtil.newPacket(196);
-	  StreamUtil.sendPacket();
+    StreamUtil.newPacket(196);
+    StreamUtil.sendPacket();
   }
 
   public static boolean processPacket(int opcode, int psize) {
@@ -389,8 +392,8 @@ public class AccountManagement {
         || (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) {
       if (opcode
           == 224) { // Opcode is intended to be RSC175 compatible. The RSC127 would have appended
-                    // "~:" to recoveryQuestions[recoveryIndices[idx]] and adapted accordingly the
-                    // control text
+        // "~:" to recoveryQuestions[recoveryIndices[idx]] and adapted accordingly the
+        // control text
         Client.showRecoveryQuestions = true;
         for (int questionIndex = 0; questionIndex < 5; ++questionIndex) {
           recoveryIndices[questionIndex] = questionIndex;
@@ -877,7 +880,7 @@ public class AccountManagement {
     if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(
         Settings
             .currentProfile)) { // Security settings -> Change password,  recovery questions, Change
-                                // contact details from RSC175
+      // contact details from RSC175
       // currYPos += 5; //this is not needed since was generally patched to line up options panel
       // correctly
       Renderer.drawString("Security settings", xPos, currYPos, 1, 0);
@@ -921,7 +924,7 @@ public class AccountManagement {
     if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(
         Settings
             .currentProfile)) { // Security settings -> Change password,  recovery questions, Change
-                                // contact details from RSC175
+      // contact details from RSC175
       currYPos += 15;
       currYPos += 20;
       if (mouseX > xPos
@@ -1091,140 +1094,216 @@ public class AccountManagement {
       }
     }
   }
-  
-  public static int welcome_changed_recent_recovery_hook(
-	      int xPos, int yPos, int mouseX, int mouseY, int mouseButtonClick) {
-	//xPos is stub, not used in parent
-	  int currYPos = yPos;
-	  if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(
-		        Settings
-	            .currentProfile)) {
-		  
-		  int daysToActivate = 14 - Client.recoveryChangeDays;
-		  String daysText;
-		  if (daysToActivate == 14) {
-			  daysText = "Earlier today";
-	      } else if (daysToActivate == 13) {
-	    	  daysText = "Yesterday";
-	      } else {
-	    	  daysText = Client.recoveryChangeDays + " days ago"; //should be at most 13 days
-	      }
-		  
-		  Renderer.drawStringCenter(daysText + " you changed your recovery questions", Renderer.width / 2, currYPos, 1, 0xFF8000);
-		  currYPos += 15;
-		  Renderer.drawStringCenter("If you do not remember making this change then", Renderer.width / 2, currYPos, 1, 0xFF8000);
-		  currYPos += 15;
-		  Renderer.drawStringCenter("cancel it and change your password immediately!", Renderer.width / 2, currYPos, 1, 0xFF8000);
-		  currYPos += 15;
-		  currYPos += 15;
-		  int textColor = 0xFFFFFF;
-		  if (mouseY > currYPos - 12 && mouseY <= currYPos && mouseX > Renderer.width / 2 - 150
-					&& mouseX < Renderer.width / 2 + 150) {
-			  textColor = 0xFF0000;
-			}
-		  Renderer.drawStringCenter("No that wasn't me - Cancel the request!", Renderer.width / 2, currYPos, 1, textColor);
-	      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
-	    	  if (Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(
-	    		        Settings
-	    		            .currentProfile)) {
-	    		  try {
-		    		  Reflection.showInputPopup.invoke(Client.instance, confirmCancelRecovery, 12, 10, false);
-		    		  Client.mouse_click = 0;
-		    	  } catch (Exception e) {
-		    		  //fallback - notify user of command
-		    		  Client.displayMessage("@mag@Type @yel@::cancelrecoveryrequest@mag@ if you wish to confirm the cancellation", Client.CHAT_QUEST);
-		    		  Client.displayMessage("@mag@of your recovery questions", Client.CHAT_QUEST);
-		    	  }  
-	    	  } else {
-	    		  sendCancelRecoveryChange();
-	    	  }
-	    	  Client.show_welcome = false;
-	      }
-	      currYPos += 15;
-	      textColor = 0xFFFFFF;
-	      if (mouseY > currYPos - 12 && mouseY <= currYPos && mouseX > Renderer.width / 2 - 150
-					&& mouseX < Renderer.width / 2 + 150) {
-			  textColor = 0xFF0000;
-			}
-	      Renderer.drawStringCenter("That's ok, activate the new questions in " + daysToActivate + " days time.", Renderer.width / 2, currYPos, 1, textColor);
-	      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
-	    	  Client.show_welcome = false;
-	      }
-	      
-	  }
-	  return currYPos - yPos;
-  }
-  
-  public static int welcome_security_tip_day_hook(int xPos, int yPos) {
-	//xPos is stub, not used in parent
-	  int currYPos = yPos;
-	  if (Settings.SHOW_SECURITY_TIP_DAY.get(
-		        Settings
-	            .currentProfile)) {
-		
-		  if (Client.show_welcome && Client.tipOfDay == -1) {
-			  Client.tipOfDay = (int) (Math.random() * 6.0D);
-		  }
-		  currYPos += 7;
-		  Renderer.drawStringCenter("Security tip of the day", Renderer.width / 2, currYPos, 1, 0xFF0000);
-		  currYPos += 15;
-		  if (Client.tipOfDay == 0) {
-			  Renderer.drawStringCenter("Don't tell ANYONE your password or recovery questions!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("Not even people claiming to be Jagex staff.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  if (Client.tipOfDay == 1) {
-			  Renderer.drawStringCenter("Never enter your password or recovery questions into ANY", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("website other than this one - Not even if it looks similar.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  if (Client.tipOfDay == 2) {
-			  Renderer.drawStringCenter("Don't use RuneScape cheats, helpers, or automaters.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("These programs WILL steal your password.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  if (Client.tipOfDay == 3) {
-			  Renderer.drawStringCenter("Watch out for fake emails, and fake staff. Real staff", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("will NEVER ask you for your password or recovery questions!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  if (Client.tipOfDay == 4) {
-			  Renderer.drawStringCenter("Use a password your friends won't guess. Do NOT use your name!", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("Choose a unique password which you haven't used anywhere else", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  if (Client.tipOfDay == 5) {
-			  Renderer.drawStringCenter("If possible only play runescape from your own computer", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-			  Renderer.drawStringCenter("Other machines could have been tampered with to steal your pass", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
-			  currYPos += 15;
-		  }
-		  
-		  currYPos += 22;
 
-	  }
-	  return currYPos - yPos;
+  public static int welcome_changed_recent_recovery_hook(
+      int xPos, int yPos, int mouseX, int mouseY, int mouseButtonClick) {
+    // xPos is stub, not used in parent
+    int currYPos = yPos;
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+
+      int daysToActivate = 14 - Client.recoveryChangeDays;
+      String daysText;
+      if (daysToActivate == 14) {
+        daysText = "Earlier today";
+      } else if (daysToActivate == 13) {
+        daysText = "Yesterday";
+      } else {
+        daysText = Client.recoveryChangeDays + " days ago"; // should be at most 13 days
+      }
+
+      Renderer.drawStringCenter(
+          daysText + " you changed your recovery questions",
+          Renderer.width / 2,
+          currYPos,
+          1,
+          0xFF8000);
+      currYPos += 15;
+      Renderer.drawStringCenter(
+          "If you do not remember making this change then",
+          Renderer.width / 2,
+          currYPos,
+          1,
+          0xFF8000);
+      currYPos += 15;
+      Renderer.drawStringCenter(
+          "cancel it and change your password immediately!",
+          Renderer.width / 2,
+          currYPos,
+          1,
+          0xFF8000);
+      currYPos += 15;
+      currYPos += 15;
+      int textColor = 0xFFFFFF;
+      if (mouseY > currYPos - 12
+          && mouseY <= currYPos
+          && mouseX > Renderer.width / 2 - 150
+          && mouseX < Renderer.width / 2 + 150) {
+        textColor = 0xFF0000;
+      }
+      Renderer.drawStringCenter(
+          "No that wasn't me - Cancel the request!", Renderer.width / 2, currYPos, 1, textColor);
+      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
+        if (Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(Settings.currentProfile)) {
+          try {
+            Reflection.showInputPopup.invoke(Client.instance, confirmCancelRecovery, 12, 10, false);
+            Client.mouse_click = 0;
+          } catch (Exception e) {
+            // fallback - notify user of command
+            Client.displayMessage(
+                "@mag@Type @yel@::cancelrecoveryrequest@mag@ if you wish to confirm the cancellation",
+                Client.CHAT_QUEST);
+            Client.displayMessage("@mag@of your recovery questions", Client.CHAT_QUEST);
+          }
+        } else {
+          sendCancelRecoveryChange();
+        }
+        Client.show_welcome = false;
+      }
+      currYPos += 15;
+      textColor = 0xFFFFFF;
+      if (mouseY > currYPos - 12
+          && mouseY <= currYPos
+          && mouseX > Renderer.width / 2 - 150
+          && mouseX < Renderer.width / 2 + 150) {
+        textColor = 0xFF0000;
+      }
+      Renderer.drawStringCenter(
+          "That's ok, activate the new questions in " + daysToActivate + " days time.",
+          Renderer.width / 2,
+          currYPos,
+          1,
+          textColor);
+      if (textColor == 0xFF0000 && mouseButtonClick == 1) {
+        Client.show_welcome = false;
+      }
+    }
+    return currYPos - yPos;
   }
-  
+
+  public static int welcome_security_tip_day_hook(int xPos, int yPos) {
+    // xPos is stub, not used in parent
+    int currYPos = yPos;
+    if (Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile)) {
+
+      if (Client.show_welcome && Client.tipOfDay == -1) {
+        Client.tipOfDay = (int) (Math.random() * 6.0D);
+      }
+      currYPos += 7;
+      Renderer.drawStringCenter(
+          "Security tip of the day", Renderer.width / 2, currYPos, 1, 0xFF0000);
+      currYPos += 15;
+      if (Client.tipOfDay == 0) {
+        Renderer.drawStringCenter(
+            "Don't tell ANYONE your password or recovery questions!",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "Not even people claiming to be Jagex staff.",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+      }
+
+      if (Client.tipOfDay == 1) {
+        Renderer.drawStringCenter(
+            "Never enter your password or recovery questions into ANY",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "website other than this one - Not even if it looks similar.",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+      }
+
+      if (Client.tipOfDay == 2) {
+        Renderer.drawStringCenter(
+            "Don't use RuneScape cheats, helpers, or automaters.",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "These programs WILL steal your password.", Renderer.width / 2, currYPos, 1, 0xFFFFFF);
+        currYPos += 15;
+      }
+
+      if (Client.tipOfDay == 3) {
+        Renderer.drawStringCenter(
+            "Watch out for fake emails, and fake staff. Real staff",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "will NEVER ask you for your password or recovery questions!",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+      }
+
+      if (Client.tipOfDay == 4) {
+        Renderer.drawStringCenter(
+            "Use a password your friends won't guess. Do NOT use your name!",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "Choose a unique password which you haven't used anywhere else",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+      }
+
+      if (Client.tipOfDay == 5) {
+        Renderer.drawStringCenter(
+            "If possible only play runescape from your own computer",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+        Renderer.drawStringCenter(
+            "Other machines could have been tampered with to steal your pass",
+            Renderer.width / 2,
+            currYPos,
+            1,
+            0xFFFFFF);
+        currYPos += 15;
+      }
+
+      currYPos += 22;
+    }
+    return currYPos - yPos;
+  }
+
   public static boolean processInputPopup(int popupType) {
-	  boolean processed = false;
-	  
-	  if (popupType == 10) {
-		  // created to have confirm if doing "cancel recovery question"
-		  sendCancelRecoveryChange();
-	  }
-	  
-	  return processed;
+    boolean processed = false;
+
+    if (popupType == 10) {
+      // created to have confirm if doing "cancel recovery question"
+      sendCancelRecoveryChange();
+    }
+
+    return processed;
   }
 
   // § SECTION hook key and mouse consumption §
