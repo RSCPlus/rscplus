@@ -1277,8 +1277,8 @@ public class Replay {
         Speedrun.checkAndBeginSpeedrun();
 
         if (!Client.knowWhoIAm) {
-            Client.knowWhoIAm = true;
-            Client.resetFatigueXPDrops(true);
+          Client.knowWhoIAm = true;
+          Client.resetFatigueXPDrops(true);
         }
       }
       // SERVER_OPCODE_PLAYER_COORDS

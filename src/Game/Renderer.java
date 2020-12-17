@@ -413,7 +413,6 @@ public class Renderer {
             last_item = item; // Done with item this loop, can save it as last_item
           }
         }
-
       }
 
       if (!Client.isSleeping()) {
@@ -887,8 +886,8 @@ public class Renderer {
         int offset = 0;
         if (Client.is_in_wild) offset += 70;
         if (Replay.isPlaying) {
-            if ((!screenshot && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
-                || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
+          if ((!screenshot && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
+              || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
         }
         if ((!Replay.isPlaying || screenshot)
             && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) offset += 70;

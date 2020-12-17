@@ -1371,36 +1371,39 @@ public class Settings {
       updateInjectedVariables(); // TODO remove this function
 
       // Keybinds
-        if (KeyboardHandler.keybindSetList.size() == 0) {
-            Logger.Debug("No keybinds defined yet, config window not initialized");
-        } else {
-            loadKeybinds(props);
-        }
+      if (KeyboardHandler.keybindSetList.size() == 0) {
+        Logger.Debug("No keybinds defined yet, config window not initialized");
+      } else {
+        loadKeybinds(props);
+      }
 
       // XP
       int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
       String[] goalerUsernames = new String[numberOfGoalers];
       for (int usernameID = 0; usernameID < numberOfGoalers; usernameID++) {
-          goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
-          Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
-          Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
-          for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
-              Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
-                  getPropInt(props, String.format("xpGoal%02d%03d", skill,  usernameID), 0);
-              try {
-                  Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
-                      Float.parseFloat(getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
-              } catch (Exception e1) {
-                  Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
-                  Logger.Warn("Couldn't parse settings key " + String.format("lvlGoal%02d%03d", skill, usernameID));
-              }
+        goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
+        Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
+        Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
+        for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+          Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
+              getPropInt(props, String.format("xpGoal%02d%03d", skill, usernameID), 0);
+          try {
+            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
+                Float.parseFloat(
+                    getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
+          } catch (Exception e1) {
+            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
+            Logger.Warn(
+                "Couldn't parse settings key "
+                    + String.format("lvlGoal%02d%03d", skill, usernameID));
           }
+        }
       }
-        XPBar.pinnedBar = getPropBoolean(props,"pinXPBar", false);
-        XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
+      XPBar.pinnedBar = getPropBoolean(props, "pinXPBar", false);
+      XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
 
-        Logger.Info("Loaded settings");
-        return props;
+      Logger.Info("Loaded settings");
+      return props;
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -1409,37 +1412,37 @@ public class Settings {
   }
 
   public static Properties loadProps() {
-      Properties props = new Properties();
+    Properties props = new Properties();
 
-      try {
-          File configFile = new File(Dir.JAR + "/config.ini");
-          if (!configFile.isDirectory()) {
-              if (!configFile.exists()) {
-                  definePresets(props);
-                  save("custom");
-              }
-          }
-
-          FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
-          props.load(in);
-          in.close();
-      } catch (Exception e) {
-          Logger.Warn("Error loading config.ini");
-          e.printStackTrace();
+    try {
+      File configFile = new File(Dir.JAR + "/config.ini");
+      if (!configFile.isDirectory()) {
+        if (!configFile.exists()) {
+          definePresets(props);
+          save("custom");
+        }
       }
-      return props;
+
+      FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
+      props.load(in);
+      in.close();
+    } catch (Exception e) {
+      Logger.Warn("Error loading config.ini");
+      e.printStackTrace();
+    }
+    return props;
   }
 
   public static void loadKeybinds(Properties props) {
-      if (props == null) {
-          props = loadProps();
-      }
-      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-          String keybindCombo =
-              getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
-          kbs.modifier = getKeyModifierFromString(keybindCombo);
-          kbs.key = Integer.parseInt(keybindCombo.substring(2));
-      }
+    if (props == null) {
+      props = loadProps();
+    }
+    for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+      String keybindCombo =
+          getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+      kbs.modifier = getKeyModifierFromString(keybindCombo);
+      kbs.key = Integer.parseInt(keybindCombo.substring(2));
+    }
   }
 
   public static void initWorlds() {
@@ -1608,7 +1611,8 @@ public class Settings {
 
   public static void save(String preset) {
     if (!successfullyInitted) {
-        Logger.Warn("Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
+      Logger.Warn(
+          "Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
       return;
     }
     try {
@@ -1775,24 +1779,26 @@ public class Settings {
       // XP Goals
       int usernameID = 0;
       for (String username : Client.xpGoals.keySet()) {
-          for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
-              int skillgoal = 0;
-              try {
-                  skillgoal = Client.xpGoals.get(username)[skill];
-              } catch (Exception noGoal) {}
-
-              float lvlgoal = (float)0;
-              try {
-                  lvlgoal = Client.lvlGoals.get(username)[skill];
-              } catch (Exception noGoal) {}
-
-              props.setProperty(String.format("xpGoal%02d%03d", skill,  usernameID),
-                  Integer.toString(skillgoal));
-              props.setProperty(String.format("lvlGoal%02d%03d", skill,  usernameID),
-                  Float.toString(lvlgoal));
+        for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+          int skillgoal = 0;
+          try {
+            skillgoal = Client.xpGoals.get(username)[skill];
+          } catch (Exception noGoal) {
           }
-          props.setProperty(String.format("username%d", usernameID), username);
-          usernameID++;
+
+          float lvlgoal = (float) 0;
+          try {
+            lvlgoal = Client.lvlGoals.get(username)[skill];
+          } catch (Exception noGoal) {
+          }
+
+          props.setProperty(
+              String.format("xpGoal%02d%03d", skill, usernameID), Integer.toString(skillgoal));
+          props.setProperty(
+              String.format("lvlGoal%02d%03d", skill, usernameID), Float.toString(lvlgoal));
+        }
+        props.setProperty(String.format("username%d", usernameID), username);
+        usernameID++;
       }
       props.setProperty("numberOfGoalers", String.format("%d", usernameID));
 
@@ -1803,7 +1809,7 @@ public class Settings {
       props.store(out, "---rscplus config---");
       out.close();
     } catch (Exception e) {
-        e.printStackTrace();
+      e.printStackTrace();
       Logger.Error("Unable to save settings");
     }
   }

@@ -42,11 +42,13 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   public static boolean inBounds(Rectangle bounds) {
     if (XPBar.hoveringOverMenu || XPBar.hoveringOverBar()) {
-        XPBar.hoveringOverMenu = false;
+      XPBar.hoveringOverMenu = false;
       return true;
     }
     if (bounds == null) return false;
-    if (Replay.isPlaying && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile) && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile)) {
+    if (Replay.isPlaying
+        && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)
+        && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile)) {
       return MouseHandler.x >= bounds.x
           && MouseHandler.x <= bounds.x + bounds.width
           && MouseHandler.y >= bounds.y

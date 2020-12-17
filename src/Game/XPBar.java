@@ -19,17 +19,16 @@
 package Game;
 
 import Client.Settings;
-
 import java.awt.*;
 import java.text.NumberFormat;
 
 /** Handles rendering the XP bar and hover information */
 public class XPBar {
-    public static boolean showingMenu = false;
-    public static boolean hoveringOverMenu = false;
-    private static float alpha;
-    public static boolean pinnedBar = false;
-    public static int pinnedSkill = -1;
+  public static boolean showingMenu = false;
+  public static boolean hoveringOverMenu = false;
+  private static float alpha;
+  public static boolean pinnedBar = false;
+  public static int pinnedSkill = -1;
 
   public static Dimension bounds = new Dimension(110, 16);
   public static Dimension menuBounds = new Dimension(110, 56);
@@ -69,26 +68,24 @@ public class XPBar {
       current_skill = -1;
       return;
     }
-      if (pinnedSkill > 0) {
-          current_skill = pinnedSkill;
-      }
+    if (pinnedSkill > 0) {
+      current_skill = pinnedSkill;
+    }
 
     if (current_skill == -1) return;
 
     long delta = m_timer - Renderer.time;
     alpha = 1.0f;
-      if (!pinnedBar) {
-          // Don't fade in if XP bar is already displayed
-          if (delta >= TIMER_LENGTH - 250 && last_timer_finished) {
-              // Fade in over 1/4th second
-              alpha = (float) (TIMER_LENGTH - delta) / 250.0f;
-          } else if (delta < TIMER_FADEOUT) {
-              // Less than TIMER_FADEOUT milliseconds left to display the XP bar
-              alpha = (float) delta / TIMER_FADEOUT;
-          }
+    if (!pinnedBar) {
+      // Don't fade in if XP bar is already displayed
+      if (delta >= TIMER_LENGTH - 250 && last_timer_finished) {
+        // Fade in over 1/4th second
+        alpha = (float) (TIMER_LENGTH - delta) / 250.0f;
+      } else if (delta < TIMER_FADEOUT) {
+        // Less than TIMER_FADEOUT milliseconds left to display the XP bar
+        alpha = (float) delta / TIMER_FADEOUT;
       }
-
-
+    }
 
     int skill_current_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill));
     int skill_next_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill) + 1);
@@ -141,291 +138,265 @@ public class XPBar {
         Renderer.color_text,
         true);
 
-
     // Draw additional menus
-      hoveringOverMenu = (MouseHandler.x >= x &&
-          MouseHandler.x <= x + menuBounds.width &&
-          MouseHandler.y > y &&
-          MouseHandler.y < y + bounds.height + menuBounds.height &&
-          showingMenu);
+    hoveringOverMenu =
+        (MouseHandler.x >= x
+            && MouseHandler.x <= x + menuBounds.width
+            && MouseHandler.y > y
+            && MouseHandler.y < y + bounds.height + menuBounds.height
+            && showingMenu);
 
     if (hoveringOverBar()) {
-        if (MouseHandler.mouseClicked) {
-            showingMenu = true;
-        } else {
-            if (!showingMenu) {
-                drawInfoBox(g, x, y, current_skill, post99xp);
-            }
+      if (MouseHandler.mouseClicked) {
+        showingMenu = true;
+      } else {
+        if (!showingMenu) {
+          drawInfoBox(g, x, y, current_skill, post99xp);
         }
+      }
       // Don't allow XP bar to disappear while user is still interacting with it.
       if (delta < TIMER_FADEOUT + 100) {
         m_timer += TIMER_FADEOUT + 1500;
         last_timer_finished = false;
       }
     } else {
-        if (!hoveringOverMenu) {
-            showingMenu = false;
-        } else {
-            if (delta < TIMER_FADEOUT + 100) {
-                m_timer += TIMER_FADEOUT + 1500;
-                last_timer_finished = false;
-            }
+      if (!hoveringOverMenu) {
+        showingMenu = false;
+      } else {
+        if (delta < TIMER_FADEOUT + 100) {
+          m_timer += TIMER_FADEOUT + 1500;
+          last_timer_finished = false;
         }
+      }
     }
 
-    if (showingMenu)
-        drawMenu(g, x, y);
+    if (showingMenu) drawMenu(g, x, y);
 
     Renderer.setAlpha(g, 1.0f);
   }
 
-
   static boolean hoveringOverBar() {
-      return MouseHandler.x >= xp_bar_x
-          && MouseHandler.x <= xp_bar_x + bounds.width
-          && MouseHandler.y > xp_bar_y
-          && MouseHandler.y < xp_bar_y + bounds.height
-          && alpha > 0.01;
+    return MouseHandler.x >= xp_bar_x
+        && MouseHandler.x <= xp_bar_x + bounds.width
+        && MouseHandler.y > xp_bar_y
+        && MouseHandler.y < xp_bar_y + bounds.height
+        && alpha > 0.01;
   }
 
   private void drawMenu(Graphics2D g, int x, int y) {
-      x = xp_bar_x;
-      y = xp_bar_y + bounds.height;
+    x = xp_bar_x;
+    y = xp_bar_y + bounds.height;
 
-      g.setColor(Renderer.color_gray);
-      Renderer.setAlpha(g, 0.7f);
-      g.fillRect(x, y, menuBounds.width, menuBounds.height);
+    g.setColor(Renderer.color_gray);
+    Renderer.setAlpha(g, 0.7f);
+    g.fillRect(x, y, menuBounds.width, menuBounds.height);
 
-      Renderer.setAlpha(g, 1.0f);
+    Renderer.setAlpha(g, 1.0f);
 
-      x += 8;
-      Color textColour;
+    x += 8;
+    Color textColour;
 
-      int offset = 2;
-      int textHeight = 12 + offset;
+    int offset = 2;
+    int textHeight = 12 + offset;
 
-      // Option 0
-      if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-          textColour = Renderer.color_yellow;
-          if (MouseHandler.mouseClicked) {
-              resetXPGainStart();
-          }
-      } else {
-          textColour = Renderer.color_text;
+    // Option 0
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        resetXPGainStart();
       }
-      y += 12;
-      Renderer.drawShadowText(
-          g, "Reset XP period",
-          x,
-          y,
-          textColour,
-          false);
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(g, "Reset XP period", x, y, textColour, false);
 
-      // Option 1
-      if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-          textColour = Renderer.color_yellow;
-          if (MouseHandler.mouseClicked) {
-              setXPGoal();
-          }
-      } else {
-          textColour = Renderer.color_text;
+    // Option 1
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        setXPGoal();
       }
-      y += 12;
-      Renderer.drawShadowText(
-          g, hasGoalForSkill(current_skill) ? "Clear Goal": "Set Goal",
-          x,
-          y,
-          textColour,
-          false);
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(
+        g, hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal", x, y, textColour, false);
 
-      // Option 2
-      if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-          textColour = Renderer.color_yellow;
-          if (MouseHandler.mouseClicked) {
-              pinSkill();
-          }
-      } else {
-          textColour = Renderer.color_text;
+    // Option 2
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        pinSkill();
       }
-      y += 12;
-      Renderer.drawShadowText(
-          g, pinnedSkill > 0 ? "Use recent skill" : "Keep this skill",
-          x,
-          y,
-          textColour,
-          false);
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(
+        g, pinnedSkill > 0 ? "Use recent skill" : "Keep this skill", x, y, textColour, false);
 
-      // Option 3
-      if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-          textColour = Renderer.color_yellow;
-          if (MouseHandler.mouseClicked) {
-              togglePinnedBar();
-          }
-      } else {
-          textColour = Renderer.color_text;
+    // Option 3
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        togglePinnedBar();
       }
-      y += 12;
-      Renderer.drawShadowText(
-          g, pinnedBar ? "Unpin bar" :"Pin bar",
-          x,
-          y,
-          textColour,
-          false);
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(g, pinnedBar ? "Unpin bar" : "Pin bar", x, y, textColour, false);
   }
 
   private void pinSkill() {
-      if (pinnedSkill > 0) {
-        pinnedSkill = -1;
-      } else {
-        pinnedSkill = current_skill;
-      }
-
+    if (pinnedSkill > 0) {
+      pinnedSkill = -1;
+    } else {
+      pinnedSkill = current_skill;
+    }
   }
 
   private void resetXPGainStart() {
-      Client.resetFatigueXPDrops(true);
+    Client.resetFatigueXPDrops(true);
   }
 
   private void setXPGoal() {
-      if (hasGoalForSkill(current_skill)) {
-          Client.xpGoals.get(Client.xpUsername)[current_skill] = 0;
-      } else {
-          Client.modal_enteredText = "";
-          Client.modal_text = "";
-          AccountManagement.panelPasswordChangeMode = 8;
-      }
+    if (hasGoalForSkill(current_skill)) {
+      Client.xpGoals.get(Client.xpUsername)[current_skill] = 0;
+    } else {
+      Client.modal_enteredText = "";
+      Client.modal_text = "";
+      AccountManagement.panelPasswordChangeMode = 8;
+    }
   }
 
   public void setXpGoal(int xpGoal) {
-      if (xpGoal <= 120) {
-          // assume it's a level, translate to XP
-          xpGoal = (int)Client.getXPforLevel(xpGoal);
-      }
-      Client.xpGoals.get(Client.xpUsername)[current_skill] = xpGoal;
-      Client.lvlGoals.get(Client.xpUsername)[current_skill] = Client.getLevelFromXP(xpGoal);
-      Settings.save();
+    if (xpGoal <= 120) {
+      // assume it's a level, translate to XP
+      xpGoal = (int) Client.getXPforLevel(xpGoal);
+    }
+    Client.xpGoals.get(Client.xpUsername)[current_skill] = xpGoal;
+    Client.lvlGoals.get(Client.xpUsername)[current_skill] = Client.getLevelFromXP(xpGoal);
+    Settings.save();
   }
 
   private void togglePinnedBar() {
-      pinnedBar = !pinnedBar;
+    pinnedBar = !pinnedBar;
   }
 
   private static void drawInfoBox(Graphics2D g, int x, int y, int current_skill, boolean post99xp) {
-      // Draw info box
-      x = MouseHandler.x;
-      y = MouseHandler.y + 24;
-      g.setColor(Renderer.color_gray);
-      Renderer.setAlpha(g, 0.7f);
+    // Draw info box
+    x = MouseHandler.x;
+    y = MouseHandler.y + 24;
+    g.setColor(Renderer.color_gray);
+    Renderer.setAlpha(g, 0.7f);
 
-      int height = 50;
+    int height = 50;
 
+    if (Client.getShowXpPerHour()[current_skill]) {
+      height += 12;
+    }
+    if (!post99xp) {
+      height += 20;
       if (Client.getShowXpPerHour()[current_skill]) {
-          height += 12;
+        height += 12;
       }
-      if (!post99xp) {
-         height += 20;
-          if (Client.getShowXpPerHour()[current_skill]) {
-              height += 12;
-          }
-      }
-      if (hasGoalForSkill(current_skill)) {
-          height += 32;
-          if (Client.getShowXpPerHour()[current_skill]) {
-             height += 12;
-          }
-      }
-
-      // Draw new rect
-      g.fillRect(x - 100, y, 200, height);
-
-      Renderer.setAlpha(g, 1.0f);
-      y += 12;
-
-      Renderer.drawShadowText(
-          g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
-      y += 12;
+    }
+    if (hasGoalForSkill(current_skill)) {
+      height += 32;
       if (Client.getShowXpPerHour()[current_skill]) {
-          Renderer.drawShadowText(
-              g,
-              "XP/Hr: " + formatXP(Client.getXpPerHour()[current_skill]),
-              x,
-              y,
-              Renderer.color_text,
-              true);
-          y += 12;
+        height += 12;
       }
+    }
 
-      y += 8;
+    // Draw new rect
+    g.fillRect(x - 100, y, 200, height);
 
+    Renderer.setAlpha(g, 1.0f);
+    y += 12;
 
-      if (!post99xp) {
-          Renderer.drawShadowText(
-              g,
-              "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
-              x,
-              y,
-              Renderer.color_text,
-              true);
-          y += 12;
-          if (Client.getShowXpPerHour()[current_skill]) {
-              Renderer.drawShadowText(
-                  g,
-                  "Actions until Level: "
-                      + formatXP(Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
-                  x,
-                  y,
-                  Renderer.color_text,
-                  true);
-              y += 12;
-          }
-          y += 8;
-      }
-
-      if (hasGoalForSkill(current_skill)) {
-          Renderer.drawShadowText(
-              g,
-              "XP until Goal: " + formatXP(Client.getXPUntilGoal(current_skill)),
-              x,
-              y,
-              Renderer.color_text,
-              true);
-          y += 12;
-          if (Client.getShowXpPerHour()[current_skill]) {
-              Renderer.drawShadowText(
-                  g,
-                  "Actions until Goal: "
-                      + formatXP(Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
-                  x,
-                  y,
-                  Renderer.color_text,
-                  true);
-              y += 12;
-          }
-          Renderer.drawShadowText(
-              g,
-              "Current Goal Level: " + Client.lvlGoals.get(Client.xpUsername)[current_skill],
-              x,
-              y,
-              Renderer.color_text,
-              true);
-          y += 12;
-          y += 8;
-      }
+    Renderer.drawShadowText(
+        g, "XP: " + formatXP(Client.getXP(current_skill)), x, y, Renderer.color_text, true);
+    y += 12;
+    if (Client.getShowXpPerHour()[current_skill]) {
       Renderer.drawShadowText(
           g,
-          "Right-click for more options",
+          "XP/Hr: " + formatXP(Client.getXpPerHour()[current_skill]),
           x,
           y,
           Renderer.color_text,
           true);
+      y += 12;
+    }
+
+    y += 8;
+
+    if (!post99xp) {
+      Renderer.drawShadowText(
+          g,
+          "XP until Level: " + formatXP(Client.getXPUntilLevel(current_skill)),
+          x,
+          y,
+          Renderer.color_text,
+          true);
+      y += 12;
+      if (Client.getShowXpPerHour()[current_skill]) {
+        Renderer.drawShadowText(
+            g,
+            "Actions until Level: "
+                + formatXP(
+                    Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
+            x,
+            y,
+            Renderer.color_text,
+            true);
+        y += 12;
+      }
+      y += 8;
+    }
+
+    if (hasGoalForSkill(current_skill)) {
+      Renderer.drawShadowText(
+          g,
+          "XP until Goal: " + formatXP(Client.getXPUntilGoal(current_skill)),
+          x,
+          y,
+          Renderer.color_text,
+          true);
+      y += 12;
+      if (Client.getShowXpPerHour()[current_skill]) {
+        Renderer.drawShadowText(
+            g,
+            "Actions until Goal: "
+                + formatXP(
+                    Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
+            x,
+            y,
+            Renderer.color_text,
+            true);
+        y += 12;
+      }
+      Renderer.drawShadowText(
+          g,
+          "Current Goal Level: " + Client.lvlGoals.get(Client.xpUsername)[current_skill],
+          x,
+          y,
+          Renderer.color_text,
+          true);
+      y += 12;
+      y += 8;
+    }
+    Renderer.drawShadowText(g, "Right-click for more options", x, y, Renderer.color_text, true);
   }
 
   public static boolean hasGoalForSkill(int skill) {
-      try {
-          return Client.xpGoals.get(Client.xpUsername)[skill] > 0;
-      } catch (Exception e) {
-          return false;
-      }
+    try {
+      return Client.xpGoals.get(Client.xpUsername)[skill] > 0;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   /**

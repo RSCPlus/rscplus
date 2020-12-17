@@ -1046,7 +1046,7 @@ public class AccountManagement {
         panelPasswordChangeMode = 3;
         return;
       }
-    } else if (panelPasswordChangeMode < 8){
+    } else if (panelPasswordChangeMode < 8) {
       if (panelPasswordChangeMode == 3) {
         Renderer.drawStringCenter("Passwords do not match!", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         yPos += 25;
@@ -1078,55 +1078,64 @@ public class AccountManagement {
         return;
       }
     } else {
-        // TODO: this is bad practice, but I'm putting XPBar code in this file
-        // so that I don't have to reimplement this input box.
-        // If we're going to do this, this entire method should be put in some other file, possibly its own class
-        if (panelPasswordChangeMode == 8) {
-            Renderer.drawStringCenter(
-                "Please enter your XP or level goal", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-            yPos += 25;
+      // TODO: this is bad practice, but I'm putting XPBar code in this file
+      // so that I don't have to reimplement this input box.
+      // If we're going to do this, this entire method should be put in some other file, possibly
+      // its own class
+      if (panelPasswordChangeMode == 8) {
+        Renderer.drawStringCenter(
+            "Please enter your XP or level goal", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+        yPos += 25;
 
-            Renderer.drawStringCenter(Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-            if (Client.modal_text.length() > 0) {
-                int goal = -1;
-                try {
-                    goal = Integer.parseInt(Client.modal_text);
-                } catch (NumberFormatException e ) {
-                    panelPasswordChangeMode = 9;
-                    return;
-                }
+        Renderer.drawStringCenter(
+            Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+        if (Client.modal_text.length() > 0) {
+          int goal = -1;
+          try {
+            goal = Integer.parseInt(Client.modal_text);
+          } catch (NumberFormatException e) {
+            panelPasswordChangeMode = 9;
+            return;
+          }
 
-                Client.xpbar.setXpGoal(goal);
-                Client.modal_enteredText = "";
-                Client.modal_text = "";
-                panelPasswordChangeMode = 0;
-                return;
-            }
-
-        } else if (panelPasswordChangeMode == 9) {
-            Renderer.drawStringCenter(
-                "Numbers only, please", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-            yPos += 25;
-
-            Renderer.drawStringCenter(Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-            if (Client.modal_text.length() > 0) {
-                int goal = -1;
-                try {
-                    goal = Integer.parseInt(Client.modal_text);
-                } catch (NumberFormatException e ) {
-                    panelPasswordChangeMode = 9;
-                    return;
-                }
-
-                Client.xpbar.setXpGoal(goal);
-                Client.modal_enteredText = "";
-                Client.modal_text = "";
-                panelPasswordChangeMode = 0;
-                return;
-            }
-
+          Client.xpbar.setXpGoal(goal);
+          Client.modal_enteredText = "";
+          Client.modal_text = "";
+          panelPasswordChangeMode = 0;
+          return;
         }
+
+      } else if (panelPasswordChangeMode == 9) {
+        Renderer.drawStringCenter("Numbers only, please", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+        yPos += 25;
+
+        Renderer.drawStringCenter(
+            Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+        if (Client.modal_text.length() > 0) {
+          int goal = -1;
+          try {
+            goal = Integer.parseInt(Client.modal_text);
+          } catch (NumberFormatException e) {
+            panelPasswordChangeMode = 9;
+            return;
+          }
+
+          Client.xpbar.setXpGoal(goal);
+          Client.modal_enteredText = "";
+          Client.modal_text = "";
+          panelPasswordChangeMode = 0;
+          return;
+        }
+      }
     }
+  }
+
+  public static boolean shouldShowPassChange() {
+    return panelPasswordChangeMode > 0;
+  }
+
+  public static boolean shouldConsumeKey() {
+    return Client.showRecoveryQuestions || Client.showContactDetails || panelPasswordChangeMode > 0;
   }
 
   public static void processForgotPassword() {
@@ -1366,8 +1375,6 @@ public class AccountManagement {
    * For any other non-zero password change state, non-zero response given
    */
   public static int ingame_keyhandler_hook(int loggedIn, int key) {
-    if (loggedIn != 1) return 0;
-
     if (Client.showRecoveryQuestions) {
       if (customQuestionEntry != -1) return 1;
       Panel.handleKey(Client.panelRecoveryQuestions, key);
