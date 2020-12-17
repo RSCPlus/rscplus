@@ -2431,15 +2431,17 @@ public class Client {
   }
 
   public static float getLevelFromXP(float xp) {
-      float lvl = 1;
-      // 136.53725 is the maximum level you can reach in RSC before XP rolls over negative
-      for (; lvl <= 137 && getXPforLevel((int)lvl) <= xp; lvl++) {}
 
-      float xpToLevel = (float)Math.floor(getXPforLevel((int)lvl) - xp);
+      // 136.53725 is the maximum level you can reach in RSC before XP rolls over negative
+      int lvl = 1;
+      while (lvl <= 137 && getXPforLevel(lvl) <= xp) {
+          lvl++;
+      }
+      float xpToLevel = (float)Math.floor(getXPforLevel(lvl) - xp);
       if (xpToLevel > 0) {
           lvl--;
-          float xpIntoLevel = (float)Math.floor(xp - getXPforLevel((int)lvl));
-          float xpBetweenLevels = (getXPforLevel((int)lvl + 1) - getXPforLevel((int)lvl));
+          float xpIntoLevel = (float)Math.floor(xp - getXPforLevel(lvl));
+          float xpBetweenLevels = (getXPforLevel(lvl + 1) - getXPforLevel(lvl));
           return lvl + (xpIntoLevel / xpBetweenLevels);
       } else {
           return lvl;
