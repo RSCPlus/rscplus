@@ -42,6 +42,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   public static boolean inBounds(Rectangle bounds) {
     if (XPBar.hoveringOverMenu || XPBar.hoveringOverBar()) {
+        XPBar.hoveringOverMenu = false;
       return true;
     }
     if (bounds == null) return false;

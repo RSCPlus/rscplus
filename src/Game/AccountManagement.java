@@ -81,8 +81,8 @@ public class AccountManagement {
         StreamUtil.initializeStream(Client.server_address, port);
         StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-        Client.session_id =
-            0; // TODO: should read int to get session ID here, triggered by TCP handshake
+        // TODO: should read an int to get session ID here, triggered by TCP handshake
+        Client.session_id = 0;
 
         StreamUtil.newPacket(2);
         Object buffer = StreamUtil.getStreamBuffer();
@@ -170,8 +170,8 @@ public class AccountManagement {
       StreamUtil.initializeStream(Client.server_address, port);
       StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-      Client.session_id =
-          0; // TODO: should read int to get session ID here, triggered by TCP handshake
+      // TODO: should read an int to get session ID here, triggered by TCP handshake
+      Client.session_id = 0;
 
       StreamUtil.newPacket(4);
       Object buffer = StreamUtil.getStreamBuffer();
@@ -251,8 +251,8 @@ public class AccountManagement {
       StreamUtil.initializeStream(Client.server_address, port);
       StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-      Client.session_id =
-          0; // TODO: should read int to get session ID here, triggered by TCP handshake
+      // TODO: should read an int to get session ID here, triggered by TCP handshake
+      Client.session_id = 0;
 
       String oldPass =
           Client.formatText(

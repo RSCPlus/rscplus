@@ -560,6 +560,11 @@ public class ConfigWindow {
     generalPanelCheckUpdates.setToolTipText(
         "When enabled, rscplus will check for client updates before launching the game and install them when prompted");
 
+      generalPanelWelcomeEnabled =
+          addCheckbox("Remind you how to open the Settings every time you log in", generalPanel);
+      generalPanelWelcomeEnabled.setToolTipText(
+          "When enabled, rscplus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
+
     generalPanelAccountSecurityCheckbox =
         addCheckbox(
             "Show Account Creation and Security Settings (Requires restart for Account Creation and Recovery)",
@@ -576,15 +581,6 @@ public class ConfigWindow {
         addCheckbox("Show Security tip of the day at login welcome screen", generalPanel);
     generalPanelShowSecurityTipsAtLoginCheckbox.setToolTipText(
         "Displays old RSC Security tip of the day at welcome screen if player has recovery questions permanently set");
-
-    generalPanelWelcomeEnabled =
-        addCheckbox("Remind you how to open the Settings every time you log in", generalPanel);
-    generalPanelWelcomeEnabled.setToolTipText(
-        "When enabled, rscplus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
-
-    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
-    generalPanelColoredTextCheckbox.setToolTipText(
-        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
 
     generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
     generalPanelCustomCursorCheckbox.setToolTipText(
@@ -688,6 +684,10 @@ public class ConfigWindow {
     generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
     generalPanelLogForceLevelCheckbox.setToolTipText(
         "Forces display of the log level of output in the log");
+
+      generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+      generalPanelColoredTextCheckbox.setToolTipText(
+          "When running the client from a console, chat messages in the console will reflect the colors they are in game");
 
     generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
     generalPanelDebugModeCheckbox.setToolTipText(
