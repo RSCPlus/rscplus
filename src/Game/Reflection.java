@@ -70,6 +70,7 @@ public class Reflection {
   public static Field menuText = null;
   public static Field menuCount = null;
 
+  public static Method showInputPopup = null;
   public static Method getParameter = null;
   public static Method displayMessage = null;
   public static Method setCameraSize = null;
@@ -167,6 +168,8 @@ public class Reflection {
   private static final String DRAWLINEHORIZ = "final void ua.b(int,int,int,int,byte)";
   private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
   private static final String DRAWSPRITE = "final void ua.b(int,int,int,int)";
+  private static final String SHOW_INPUT_POPUP =
+      "private final void client.a(java.lang.String[],int,int,boolean)";
 
   private static final String NEWPACKET = "final void b.b(int,int)";
   private static final String PUTBYTE = "final void tb.c(int,int)";
@@ -270,6 +273,9 @@ public class Reflection {
         } else if (method.toGenericString().equals(CREATE_SOCKET)) {
           createSocket = method;
           Logger.Info("Found createSocket");
+        } else if (method.toGenericString().equals(SHOW_INPUT_POPUP)) {
+          showInputPopup = method;
+          Logger.Info("Found showInputPopup");
         }
       }
 
@@ -758,6 +764,7 @@ public class Reflection {
       if (handleMouse != null) handleMouse.setAccessible(true);
       if (handleKey != null) handleKey.setAccessible(true);
       if (gameReference != null) gameReference.setAccessible(true);
+      if (showInputPopup != null) showInputPopup.setAccessible(true);
 
     } catch (Exception e) {
       e.printStackTrace();

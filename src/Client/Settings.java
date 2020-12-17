@@ -45,7 +45,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20201211.234544;
+  public static final double VERSION_NUMBER = 20201217.175602;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -72,6 +72,9 @@ public class Settings {
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CONFIRM_CANCEL_RECOVERY_CHANGE =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_SECURITY_TIP_DAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> REMIND_HOW_TO_OPEN_SETTINGS =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOAD_CHAT_HISTORY = new HashMap<String, Boolean>();
@@ -284,6 +287,29 @@ public class Settings {
             props,
             "show_account_security_settings",
             SHOW_ACCOUNT_SECURITY_SETTINGS.get("default")));
+
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("vanilla", false);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("vanilla_resizable", false);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("lite", true);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("default", true);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("heavy", true);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put("all", true);
+    CONFIRM_CANCEL_RECOVERY_CHANGE.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "confirm_cancel_recovery_change",
+            CONFIRM_CANCEL_RECOVERY_CHANGE.get("default")));
+
+    SHOW_SECURITY_TIP_DAY.put("vanilla", false);
+    SHOW_SECURITY_TIP_DAY.put("vanilla_resizable", false);
+    SHOW_SECURITY_TIP_DAY.put("lite", true);
+    SHOW_SECURITY_TIP_DAY.put("default", true);
+    SHOW_SECURITY_TIP_DAY.put("heavy", true);
+    SHOW_SECURITY_TIP_DAY.put("all", true);
+    SHOW_SECURITY_TIP_DAY.put(
+        "custom",
+        getPropBoolean(props, "show_security_tip_day", SHOW_SECURITY_TIP_DAY.get("default")));
 
     REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla", false);
     REMIND_HOW_TO_OPEN_SETTINGS.put("vanilla_resizable", false);
@@ -1568,6 +1594,11 @@ public class Settings {
       props.setProperty(
           "show_account_security_settings",
           Boolean.toString(SHOW_ACCOUNT_SECURITY_SETTINGS.get(preset)));
+      props.setProperty(
+          "confirm_cancel_recovery_change",
+          Boolean.toString(CONFIRM_CANCEL_RECOVERY_CHANGE.get(preset)));
+      props.setProperty(
+          "show_security_tip_day", Boolean.toString(SHOW_SECURITY_TIP_DAY.get(preset)));
       props.setProperty(
           "welcome_enabled", Boolean.toString(REMIND_HOW_TO_OPEN_SETTINGS.get(preset)));
       props.setProperty("load_chat_history", Boolean.toString(LOAD_CHAT_HISTORY.get(preset)));
