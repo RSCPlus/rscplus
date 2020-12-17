@@ -731,41 +731,41 @@ public class Client {
       }
 
     // Process XP drops
-    for (int i = 0; i < NUM_SKILLS; i++) {
+    for (int skill = 0; skill < NUM_SKILLS; skill++) {
 
-       xpGain[i] = getXP(i) - xpLast.get(xpUsername)[i];
-        xpLast.get(xpUsername)[i] += xpGain[i];
+       xpGain[skill] = getXP(skill) - xpLast.get(xpUsername)[skill];
+        xpLast.get(xpUsername)[skill] += xpGain[skill];
 
-      if (xpGain[i] > 0.0f) {
+      if (xpGain[skill] > 0.0f) {
         if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
-          xpdrop_handler.add("+" + xpGain[i] + " (" + skill_name[i] + ")", Renderer.color_text);
+          xpdrop_handler.add("+" + xpGain[skill] + " (" + skill_name[skill] + ")", Renderer.color_text);
 
         // XP/hr calculations
 
       // calc last xp gain
-      lastXpGain.get(xpUsername)[i][LAST_XP_GAIN] = new Double(xpGain[i]);
+      lastXpGain.get(xpUsername)[skill][LAST_XP_GAIN] = new Double(xpGain[skill]);
 
       // calc total xp gain
-      lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN] = xpGain[i] + lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN];
+      lastXpGain.get(xpUsername)[skill][TOTAL_XP_GAIN] = xpGain[skill] + lastXpGain.get(xpUsername)[skill][TOTAL_XP_GAIN];
 
       // calc xp/hr
-      xpPerHour.get(xpUsername)[i] =
-          3600 * (lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN]) / ((System.currentTimeMillis() - lastXpGain.get(xpUsername)[i][TIME_OF_FIRST_XP_DROP]) / 1000);
+      xpPerHour.get(xpUsername)[skill] =
+          3600 * (lastXpGain.get(xpUsername)[skill][TOTAL_XP_GAIN]) / ((System.currentTimeMillis() - lastXpGain.get(xpUsername)[skill][TIME_OF_FIRST_XP_DROP]) / 1000);
 
       // increment xp drops
-      lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS]++;
+      lastXpGain.get(xpUsername)[skill][TOTAL_XP_DROPS]++;
 
       // display xp/hr or not
-      if (lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS] > 1) {
-          showXpPerHour.get(xpUsername)[i] = true;
+      if (lastXpGain.get(xpUsername)[skill][TOTAL_XP_DROPS] > 1) {
+          showXpPerHour.get(xpUsername)[skill] = true;
       }
 
       // update time since last xp drop
-      lastXpGain.get(xpUsername)[i][TIME_OF_LAST_XP_DROP] = (double)System.currentTimeMillis();
+      lastXpGain.get(xpUsername)[skill][TIME_OF_LAST_XP_DROP] = (double)System.currentTimeMillis();
 
-        if (i == SKILL_HP && xpbar.current_skill != -1) continue;
+        if (skill == SKILL_HP && xpbar.current_skill != -1) continue;
 
-        xpbar.setSkill(i);
+        xpbar.setSkill(skill);
       }
     }
 
@@ -804,14 +804,14 @@ public class Client {
           showXpPerHour.put(xpUsername, new Boolean[NUM_SKILLS]);
           xpPerHour.put(xpUsername, new Double[NUM_SKILLS]);
           xpLast.put(xpUsername, new Float[NUM_SKILLS]);
-          for (int i = 0; i < NUM_SKILLS; i++) {
-              lastXpGain.get(xpUsername)[i][TOTAL_XP_GAIN] = new Double(0);
-              lastXpGain.get(xpUsername)[i][TIME_OF_FIRST_XP_DROP] =
-                  lastXpGain.get(xpUsername)[i][TIME_OF_LAST_XP_DROP] = new Double(System.currentTimeMillis());
-              lastXpGain.get(xpUsername)[i][TOTAL_XP_DROPS] = new Double(0);
+          for (int skill = 0; skill < NUM_SKILLS; skill++) {
+              lastXpGain.get(xpUsername)[skill][TOTAL_XP_GAIN] = new Double(0);
+              lastXpGain.get(xpUsername)[skill][TIME_OF_FIRST_XP_DROP] =
+                  lastXpGain.get(xpUsername)[skill][TIME_OF_LAST_XP_DROP] = new Double(System.currentTimeMillis());
+              lastXpGain.get(xpUsername)[skill][TOTAL_XP_DROPS] = new Double(0);
 
-              showXpPerHour.get(xpUsername)[i] = false;
-              xpPerHour.get(xpUsername)[i] = new Double(0);
+              showXpPerHour.get(xpUsername)[skill] = false;
+              xpPerHour.get(xpUsername)[skill] = new Double(0);
           }
       }
       if (xpGoals.get(xpUsername) == null) {
@@ -1450,24 +1450,24 @@ public class Client {
         return subline;
 
       } else if (command.startsWith("next_")) {
-        for (int i = 0; i < NUM_SKILLS; i++) {
-          if (command.equals("next_" + skill_name[i].toLowerCase())) {
+        for (int skill = 0; skill < NUM_SKILLS; skill++) {
+          if (command.equals("next_" + skill_name[skill].toLowerCase())) {
             final float neededXp =
-                base_level[i] == 99 ? 0 : getXPforLevel(base_level[i] + 1) - getXP(i);
+                base_level[skill] == 99 ? 0 : getXPforLevel(base_level[skill] + 1) - getXP(skill);
             return "I need "
                 + neededXp
                 + " more xp for "
-                + (base_level[i] == 99 ? 99 : base_level[i] + 1)
+                + (base_level[skill] == 99 ? 99 : base_level[skill] + 1)
                 + " "
-                + skill_name[i]
+                + skill_name[skill]
                 + ".";
           }
         }
       }
 
-      for (int i = 0; i < NUM_SKILLS; i++) {
-        if (command.equalsIgnoreCase(skill_name[i]))
-          return "My " + skill_name[i] + " level is " + base_level[i] + " (" + getXP(i) + " xp).";
+      for (int skill = 0; skill < NUM_SKILLS; skill++) {
+        if (command.equalsIgnoreCase(skill_name[skill]))
+          return "My " + skill_name[skill] + " level is " + base_level[skill] + " (" + getXP(skill) + " xp).";
       }
     }
 
@@ -2483,7 +2483,7 @@ public class Client {
    */
   public static int getTotalLevel() {
     int total = 0;
-    for (int i = 0; i < NUM_SKILLS; i++) total += Client.base_level[i];
+    for (int skill = 0; skill < NUM_SKILLS; skill++) total += Client.base_level[skill];
     return total;
   }
 
@@ -2494,7 +2494,7 @@ public class Client {
    */
   public static float getTotalXP() {
     float xp = 0;
-    for (int i = 0; i < NUM_SKILLS; i++) xp += getXP(i);
+    for (int skill = 0; skill < NUM_SKILLS; skill++) xp += getXP(skill);
     return xp;
   }
 
