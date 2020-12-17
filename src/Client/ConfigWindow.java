@@ -18,12 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -82,6 +76,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -139,6 +139,8 @@ public class ConfigWindow {
   private JSpinner generalPanelClientSizeYSpinner;
   private JCheckBox generalPanelCheckUpdates;
   private JCheckBox generalPanelAccountSecurityCheckbox;
+  private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
+  private JCheckBox generalPanelShowSecurityTipsAtLoginCheckbox;
   private JCheckBox generalPanelWelcomeEnabled;
   // private JCheckBox generalPanelChatHistoryCheckbox;
   private JCheckBox generalPanelCombatXPMenuCheckbox;
@@ -564,6 +566,18 @@ public class ConfigWindow {
             generalPanel);
     generalPanelAccountSecurityCheckbox.setToolTipText(
         "Makes old RSC account creation, password recovery and in-game security settings");
+    
+    generalPanelConfirmCancelRecoveryChangeCheckbox =
+            addCheckbox(
+                "Show Cancel Recovery Change Confirmation Box",
+                generalPanel);
+    generalPanelConfirmCancelRecoveryChangeCheckbox.setToolTipText(
+            "Displays a confirmation dialog box when clicking cancel recovery question change of welcome screen");
+    
+    generalPanelShowSecurityTipsAtLoginCheckbox =
+            addCheckbox("Show Security tip of the day at login welcome screen", generalPanel);
+    generalPanelShowSecurityTipsAtLoginCheckbox.setToolTipText(
+            "Displays old RSC Security tip of the day at welcome screen if player has recovery questions permanently set");
 
     generalPanelWelcomeEnabled =
         addCheckbox("Remind you how to open the Settings every time you log in", generalPanel);
@@ -2185,6 +2199,10 @@ public class ConfigWindow {
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
         Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
+    generalPanelConfirmCancelRecoveryChangeCheckbox.setSelected(
+            Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(Settings.currentProfile));
+    generalPanelShowSecurityTipsAtLoginCheckbox.setSelected(
+            Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
         Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
     // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
@@ -2412,6 +2430,10 @@ public class ConfigWindow {
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
         Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
+    Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.put(
+            Settings.currentProfile, generalPanelConfirmCancelRecoveryChangeCheckbox.isSelected());
+    Settings.SHOW_SECURITY_TIP_DAY.put(
+            Settings.currentProfile, generalPanelShowSecurityTipsAtLoginCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
         Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
     // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
