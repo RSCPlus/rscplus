@@ -29,6 +29,7 @@ public class XPBar {
   private static float alpha;
   public static boolean pinnedBar = false;
   public static int pinnedSkill = -1;
+  public static int drawGoalInputState = 0;
 
   public static Dimension bounds = new Dimension(110, 16);
   public static Dimension menuBounds = new Dimension(110, 56);
@@ -268,7 +269,7 @@ public class XPBar {
     } else {
       Client.modal_enteredText = "";
       Client.modal_text = "";
-      AccountManagement.panelPasswordChangeMode = 8;
+      drawGoalInputState = 8;
     }
   }
 
@@ -408,5 +409,85 @@ public class XPBar {
    */
   public static String formatXP(double number) {
     return NumberFormat.getIntegerInstance().format(Math.ceil(number));
+  }
+
+  /*
+   *   Goal Input code below this line
+   * ===================================
+   */
+
+  public static boolean shouldShowGoalInput() {
+    return drawGoalInputState != 0;
+  }
+
+  public static boolean shouldConsumeKey() {
+    return shouldShowGoalInput();
+  }
+
+  public static int keyHandler() {
+    return (shouldConsumeKey() ? 1 : 0);
+  }
+
+  public static void drawGoalXPInput(int mouseX, int mouseY, int mouseButtonClick) {
+    if (mouseButtonClick != 0) {
+      mouseButtonClick = 0;
+      if (mouseX < Renderer.width / 2 - 150
+          || mouseY < Renderer.height / 2 - 32
+          || mouseX > Renderer.width / 2 + 150
+          || mouseY > Renderer.height / 2 + 28) {
+        drawGoalInputState = 0;
+        return;
+      }
+    }
+    int yPos = Renderer.height / 2 - 32;
+    Renderer.drawBox(Renderer.width / 2 - 150, yPos, 300, 60, 0);
+    Renderer.drawBoxBorder(Renderer.width / 2 - 150, yPos, 300, 60, 0xFFFFFF);
+    yPos += 22;
+
+    if (drawGoalInputState == 8) {
+      Renderer.drawStringCenter(
+          "Please enter your XP or level goal", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+      yPos += 25;
+
+      Renderer.drawStringCenter(
+          Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+      if (Client.modal_text.length() > 0) {
+        int goal = -1;
+        try {
+          goal = Integer.parseInt(Client.modal_text);
+        } catch (NumberFormatException e) {
+          drawGoalInputState = 9;
+          return;
+        }
+
+        Client.xpbar.setXpGoal(goal);
+        Client.modal_enteredText = "";
+        Client.modal_text = "";
+        drawGoalInputState = 0;
+        return;
+      }
+
+    } else if (drawGoalInputState == 9) {
+      Renderer.drawStringCenter("Numbers only, please", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+      yPos += 25;
+
+      Renderer.drawStringCenter(
+          Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
+      if (Client.modal_text.length() > 0) {
+        int goal = -1;
+        try {
+          goal = Integer.parseInt(Client.modal_text);
+        } catch (NumberFormatException e) {
+          drawGoalInputState = 9;
+          return;
+        }
+
+        Client.xpbar.setXpGoal(goal);
+        Client.modal_enteredText = "";
+        Client.modal_text = "";
+        drawGoalInputState = 0;
+        return;
+      }
+    }
   }
 }

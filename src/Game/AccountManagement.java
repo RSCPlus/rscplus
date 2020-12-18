@@ -960,7 +960,7 @@ public class AccountManagement {
     return currYPos - yPos;
   }
 
-  public static void draw_change_pass_hook(int mouseX, int mouseY, int mouseButtonClick) {
+  public static void drawChangePassInput(int mouseX, int mouseY, int mouseButtonClick) {
     if (mouseButtonClick != 0) {
       mouseButtonClick = 0;
       if (mouseX < Renderer.width / 2 - 150
@@ -1076,56 +1076,6 @@ public class AccountManagement {
         Renderer.drawStringCenter(
             "the same as your username", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         return;
-      }
-    } else {
-      // TODO: this is bad practice, but I'm putting XPBar code in this file
-      // so that I don't have to reimplement this input box.
-      // If we're going to do this, this entire method should be put in some other file, possibly
-      // its own class
-      if (panelPasswordChangeMode == 8) {
-        Renderer.drawStringCenter(
-            "Please enter your XP or level goal", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-        yPos += 25;
-
-        Renderer.drawStringCenter(
-            Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-        if (Client.modal_text.length() > 0) {
-          int goal = -1;
-          try {
-            goal = Integer.parseInt(Client.modal_text);
-          } catch (NumberFormatException e) {
-            panelPasswordChangeMode = 9;
-            return;
-          }
-
-          Client.xpbar.setXpGoal(goal);
-          Client.modal_enteredText = "";
-          Client.modal_text = "";
-          panelPasswordChangeMode = 0;
-          return;
-        }
-
-      } else if (panelPasswordChangeMode == 9) {
-        Renderer.drawStringCenter("Numbers only, please", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-        yPos += 25;
-
-        Renderer.drawStringCenter(
-            Client.modal_enteredText + "*", Renderer.width / 2, yPos, 4, 0xFFFFFF);
-        if (Client.modal_text.length() > 0) {
-          int goal = -1;
-          try {
-            goal = Integer.parseInt(Client.modal_text);
-          } catch (NumberFormatException e) {
-            panelPasswordChangeMode = 9;
-            return;
-          }
-
-          Client.xpbar.setXpGoal(goal);
-          Client.modal_enteredText = "";
-          Client.modal_text = "";
-          panelPasswordChangeMode = 0;
-          return;
-        }
       }
     }
   }
@@ -1374,7 +1324,7 @@ public class AccountManagement {
    * response is given to break out of trying to consume key on other panels
    * For any other non-zero password change state, non-zero response given
    */
-  public static int ingame_keyhandler_hook(int loggedIn, int key) {
+  public static int keyHandler(int key) {
     if (Client.showRecoveryQuestions) {
       if (customQuestionEntry != -1) return 1;
       Panel.handleKey(Client.panelRecoveryQuestions, key);

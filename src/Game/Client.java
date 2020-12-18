@@ -1081,11 +1081,13 @@ public class Client {
 
   /**
    * Extensible method hooking to draw other dialog boxes and consuming mouse method. Branching
-   * should match conditions inside showOtherDialog()
+   * should match conditions inside showTextInputDialog()
    */
-  public static void drawOtherDialogMouseHook(int mouseX, int mouseY, int mouseButtonClick) {
+  public static void drawTextInputDialogMouseHook(int mouseX, int mouseY, int mouseButtonClick) {
     if (AccountManagement.shouldShowPassChange()) {
-      AccountManagement.draw_change_pass_hook(mouseX, mouseY, mouseButtonClick);
+      AccountManagement.drawChangePassInput(mouseX, mouseY, mouseButtonClick);
+    } else if (XPBar.shouldShowGoalInput()) {
+      XPBar.drawGoalXPInput(mouseX, mouseY, mouseButtonClick);
     }
   }
 
@@ -1097,7 +1099,9 @@ public class Client {
     if (loggedIn != 1) {
       return 0;
     } else if (AccountManagement.shouldConsumeKey()) {
-      return AccountManagement.ingame_keyhandler_hook(loggedIn, key);
+      return AccountManagement.keyHandler(key);
+    } else if (XPBar.shouldConsumeKey()) {
+      return XPBar.keyHandler();
     }
     return 0;
   }
@@ -1148,9 +1152,9 @@ public class Client {
     return shouldShow;
   }
 
-  /** Return true if there is pending render to show other box dialog */
-  public static boolean showOtherDialog() {
-    return AccountManagement.shouldShowPassChange();
+  /** Return true if there is pending render to show the text-input-box dialog */
+  public static boolean shouldShowTextInputDialog() {
+    return AccountManagement.shouldShowPassChange() || XPBar.shouldShowGoalInput();
   }
 
   public static void drawInputPopupHook(int popupType) {

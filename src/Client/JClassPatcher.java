@@ -3655,7 +3655,8 @@ public class JClassPatcher {
 
             methodNode.instructions.insertBefore(
                 labelNode,
-                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "showOtherDialog", "()Z"));
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "shouldShowTextInputDialog", "()Z"));
             methodNode.instructions.insertBefore(
                 labelNode, new JumpInsnNode(Opcodes.IFEQ, labelNode));
             methodNode.instructions.insertBefore(labelNode, new VarInsnNode(Opcodes.ALOAD, 0));
@@ -3672,7 +3673,7 @@ public class JClassPatcher {
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "Game/Client",
-                    "drawOtherDialogMouseHook",
+                    "drawTextInputDialogMouseHook",
                     "(III)V",
                     false));
             methodNode.instructions.insertBefore(
