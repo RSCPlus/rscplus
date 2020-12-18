@@ -266,6 +266,7 @@ public class XPBar {
   private void setXPGoal() {
     if (hasGoalForSkill(current_skill)) {
       Client.xpGoals.get(Client.xpUsername)[current_skill] = 0;
+      Settings.save();
     } else {
       Client.modal_enteredText = "";
       Client.modal_text = "";
