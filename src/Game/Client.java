@@ -305,7 +305,6 @@ public class Client {
    * - [3] and the total number of XP drops recorded within the sample period, plus 1.
    */
   private static final int TOTAL_XP_GAIN = 0;
-
   private static final int TIME_OF_LAST_XP_DROP = 1;
   private static final int TIME_OF_FIRST_XP_DROP = 2;
   private static final int TOTAL_XP_DROPS = 3;
