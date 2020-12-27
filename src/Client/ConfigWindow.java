@@ -18,12 +18,6 @@
  */
 package Client;
 
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -82,6 +76,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -256,6 +256,7 @@ public class ConfigWindow {
 
   //// World List tab
   private HashMap<Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldTypesJTextFields = new HashMap<Integer, JTextField>();
   private HashMap<Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
   private HashMap<Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
   private HashMap<Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
@@ -2653,6 +2654,13 @@ public class ConfigWindow {
       Settings.WORLD_NAMES.put(
           i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
+      
+      String serverTypeString = worldTypesJTextFields.get(i).getText();
+      if (serverTypeString.equals("")) {
+          Settings.WORLD_SERVER_TYPES.put(i, 1);
+        } else {
+          Settings.WORLD_PORTS.put(i, Integer.parseInt(serverTypeString));
+        }
 
       String portString = worldPortsJTextFields.get(i).getText();
       if (portString.equals("")) {
@@ -2751,6 +2759,20 @@ public class ConfigWindow {
     worldNamesJTextFields.get(i).setPreferredSize(new Dimension(200, 28));
     worldNamesJTextFields.get(i).setAlignmentY((float) 0.75);
     worldListTitleTextFieldContainers.get(i).add(worldNamesJTextFields.get(i), cR);
+    
+    cR.weightx = 0.2;
+    cR.gridwidth = 2;
+    
+    JLabel worldTypeJLabel = new JLabel(String.format("<html><b>ServerType</b></html>", i));
+    worldNumberJLabel.setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldTypeJLabel, cR);
+
+    worldTypesJTextFields.put(i, new HintTextField("Type of World"));
+    worldTypesJTextFields.get(i).setMinimumSize(new Dimension(80, 28));
+    worldTypesJTextFields.get(i).setMaximumSize(new Dimension(120, 28));
+    worldTypesJTextFields.get(i).setPreferredSize(new Dimension(100, 28));
+    worldTypesJTextFields.get(i).setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldTypesJTextFields.get(i), cR);
 
     cR.weightx = 0.3;
     cR.gridwidth = 1;
@@ -2879,6 +2901,7 @@ public class ConfigWindow {
     for (int i = 1; (i <= numberOfWorldsEver) || (i <= Settings.WORLDS_TO_DISPLAY); i++) {
       if (i <= Settings.WORLDS_TO_DISPLAY) {
         worldNamesJTextFields.get(i).setText(Settings.WORLD_NAMES.get(i));
+        worldTypesJTextFields.get(i).setText("" + Settings.WORLD_SERVER_TYPES.getOrDefault(i, 1));
         worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
         try {
           worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());

@@ -18,7 +18,6 @@
  */
 package Client;
 
-import Client.Settings.Dir;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +47,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import Client.Settings.Dir;
 
 /** Singleton class which hooks variables and patches classes. */
 public class JClassPatcher {
@@ -813,6 +813,23 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "Cf", "I", "Game/Client", "mouse_click", "I", true, true);
+      
+      hookClassVariable(
+              methodNode, "client", "Pg", "Z", "Game/Client", "members", "Z", true, true);
+      
+      hookClassVariable(
+              methodNode, "client", "cf", "Z", "Game/Client", "veterans", "Z", true, true);
+      
+      hookClassVariable(
+              methodNode,
+              "client",
+              "Hh",
+              "Lk;",
+              "Game/Client",
+              "worldInstance",
+              "Ljava/lang/Object;",
+              true,
+              false);
     }
   }
 
@@ -2750,6 +2767,63 @@ public class JClassPatcher {
                     "(II)V",
                     false));
             break;
+          }
+        }
+        
+        // Add text if server is free and non veterans
+        insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode call;
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.ACONST_NULL
+              && nextNode.getOpcode() == Opcodes.ALOAD
+              && ((VarInsnNode) nextNode).var == 3) {
+        	  call = insnNode;
+        	  
+        	  LabelNode label = new LabelNode();
+
+        	  methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+        	  methodNode.instructions.insertBefore(
+        			  call, new FieldInsnNode(Opcodes.GETFIELD, "client", "Pg", "Z"));
+              methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFNE, label));
+              methodNode.instructions.insertBefore(call, new LdcInsnNode("You need an account to use this server"));
+              methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ASTORE, 3));
+              methodNode.instructions.insertBefore(call, label);
+                      	  
+        	  break;
+          }
+        }
+        
+        // Hook reference of control text of server type
+        insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode targetNode;
+          AbstractInsnNode call;
+
+          if (insnNode.getOpcode() == Opcodes.ACONST_NULL) {
+        	  
+        	  targetNode = insnNode;
+              while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL
+                  || !((MethodInsnNode) targetNode).desc.equals("(ZBIILjava/lang/String;I)I")) {
+                // find the method of addText
+                targetNode = targetNode.getNext();
+              }
+              targetNode = targetNode.getNext();
+              
+              methodNode.instructions.insert(
+                      targetNode,
+                      new FieldInsnNode(
+                          Opcodes.PUTSTATIC, "Game/Client", "controlServerType", "I"));
+              methodNode.instructions.insertBefore(targetNode, new IntInsnNode(Opcodes.BIPUSH, 0));
+                      	  
+        	  break;
           }
         }
       }

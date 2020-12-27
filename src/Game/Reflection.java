@@ -18,14 +18,14 @@
  */
 package Game;
 
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
@@ -69,6 +69,10 @@ public class Reflection {
   public static Field menuTextSize = null;
   public static Field menuText = null;
   public static Field menuCount = null;
+  
+  public static Field memberMapPack = null;
+  public static Field memberLandscapePack = null;
+  public static Field memberSoundPack = null;
 
   public static Method showInputPopup = null;
   public static Method getParameter = null;
@@ -121,6 +125,11 @@ public class Reflection {
   public static Method resetTimings = null;
   public static Method formatText = null;
   public static Method putRandom = null;
+  
+  public static Method loadGameConfig = null;
+  public static Method loadEntities = null;
+  public static Method loadMaps = null;
+  public static Method loadSounds = null;
 
   public static Method addButtonBack = null;
   public static Method addCenterText = null;
@@ -203,6 +212,11 @@ public class Reflection {
   private static final String FORMAT_TEXT =
       "static final java.lang.String b.a(int,byte,java.lang.String)";
   private static final String PUTRANDOM = "static final void f.a(int,tb)";
+  
+  private static final String LOAD_GAME_CONFIG = "private final void client.f(boolean)";
+  private static final String LOAD_ENTITIES = "private final void client.c(boolean)";
+  private static final String LOAD_MAPS = "private final void client.m(int)";
+  private static final String LOAD_SOUNDS = "private final void client.E(int)";
 
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
   private static final String ADDCENTERTEXT =
@@ -241,6 +255,7 @@ public class Reflection {
       // Client
       c = classLoader.loadClass("client");
       clientStreamField = c.getDeclaredField("Jh");
+      memberSoundPack = c.getDeclaredField("Uh");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
         if (method.toGenericString().equals(DISPLAYMESSAGE)) {
@@ -276,6 +291,18 @@ public class Reflection {
         } else if (method.toGenericString().equals(SHOW_INPUT_POPUP)) {
           showInputPopup = method;
           Logger.Info("Found showInputPopup");
+        } else if (method.toGenericString().equals(LOAD_GAME_CONFIG)) {
+        	loadGameConfig = method;
+        	Logger.Info("Found loadGameConfig");
+        } else if (method.toGenericString().equals(LOAD_ENTITIES)) {
+        	loadEntities = method;
+        	Logger.Info("Found loadEntities");
+        } else if (method.toGenericString().equals(LOAD_MAPS)) {
+        	loadMaps = method;
+        	Logger.Info("Found loadMaps");
+        } else if (method.toGenericString().equals(LOAD_SOUNDS)) {
+        	loadSounds = method;
+        	Logger.Info("Found loadSounds");
         }
       }
 
@@ -680,6 +707,19 @@ public class Reflection {
           Logger.Info("Found gameReference");
         }
       }
+      
+      c = classLoader.loadClass("k");
+      fields = c.getDeclaredFields();
+      for (Field field : fields) {
+        if (field.getName().equals("m")) {
+        	memberMapPack = field;
+          Logger.Info("Found memberMapPack");
+        }
+        if (field.getName().equals("I")) {
+        	memberLandscapePack = field;
+          Logger.Info("Found memberLandscapePack");
+        }
+      }
 
       // Set all accessible
       if (clientStreamField != null) clientStreamField.setAccessible(true);
@@ -765,6 +805,13 @@ public class Reflection {
       if (handleKey != null) handleKey.setAccessible(true);
       if (gameReference != null) gameReference.setAccessible(true);
       if (showInputPopup != null) showInputPopup.setAccessible(true);
+      if (loadGameConfig != null) loadGameConfig.setAccessible(true);
+      if (loadEntities != null) loadEntities.setAccessible(true);
+      if (loadMaps != null) loadMaps.setAccessible(true);
+      if (loadSounds != null) loadSounds.setAccessible(true);
+      if (memberMapPack != null) memberMapPack.setAccessible(true);
+      if (memberLandscapePack != null) memberLandscapePack.setAccessible(true);
+      if (memberSoundPack != null) memberSoundPack.setAccessible(true);
 
     } catch (Exception e) {
       e.printStackTrace();
