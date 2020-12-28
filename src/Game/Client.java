@@ -367,6 +367,7 @@ public class Client {
   public static boolean members;
   public static boolean veterans;
   public static Object worldInstance;
+  public static int lastHeightOffset;
   
   public static Boolean lastIsMembers = null;
 
@@ -1500,6 +1501,10 @@ public class Client {
 		  Reflection.loadMaps.invoke(Client.instance, 5359);
 		  if (members) {
 			  Reflection.loadSounds.invoke(Client.instance, -90);
+		  }
+		  if (lastHeightOffset == planeIndex) {
+			  // force re-render of game world terrain
+			  lastHeightOffset = (planeIndex + 1) % 2;
 		  }
 	  } catch(Exception e) {  
 	  }

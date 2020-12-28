@@ -830,6 +830,9 @@ public class JClassPatcher {
               "Ljava/lang/Object;",
               true,
               false);
+      
+      hookClassVariable(
+              methodNode, "client", "yj", "I", "Game/Client", "lastHeightOffset", "I", true, true);
     }
   }
 
