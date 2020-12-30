@@ -32,7 +32,7 @@ public class XPBar {
   public static int drawGoalInputState = 0;
 
   // when replay is initialized, client.username_login will be set to this
-  public final static String excludeUsername = "excludemefromxpbartracking";
+  public static final String excludeUsername = "excludemefromxpbartracking";
 
   public static Dimension bounds = new Dimension(110, 16);
   public static Dimension menuBounds = new Dimension(110, 56);

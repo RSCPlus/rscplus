@@ -1287,13 +1287,13 @@ public class Replay {
         Speedrun.checkCoordinateCompletions();
       }
     } else {
-        // in a replay, just make sure knowWhoIAm is set
-        if (opcode == 234) {
-            if (!Client.knowWhoIAm) {
-                Client.knowWhoIAm = true;
-                Client.resetFatigueXPDrops(true);
-            }
+      // in a replay, just make sure knowWhoIAm is set
+      if (opcode == 234) {
+        if (!Client.knowWhoIAm) {
+          Client.knowWhoIAm = true;
+          Client.resetFatigueXPDrops(true);
         }
+      }
     }
   }
 

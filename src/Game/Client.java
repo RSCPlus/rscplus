@@ -293,22 +293,19 @@ public class Client {
   /** An array to store the XP per hour for a given skill */
   private static HashMap<String, Double[]> xpPerHour = new HashMap<String, Double[]>();
 
-  /**
-   * A multi-dimensional array that stores the last time XP was gained for a given skill.
-   *
-   * <p>The first dimension stores the skill index corresponding to the constants defined in the
-   * client class ( {@link #SKILL_ATTACK}, etc.)<br>
-   * The second dimension stores:<br>
-   * - [0] the total XP gained in a given skill within the sample period,<br>
-   * - [1] the time of the last XP drop in a given skill,<br>
-   * - [2] the time of the first XP drop in a given skill within the sample period,<br>
-   * - [3] and the total number of XP drops recorded within the sample period, plus 1.
-   */
+  // the total XP gained in a given skill within the sample period
   private static final int TOTAL_XP_GAIN = 0;
+  // the time of the last XP drop in a given skill
   private static final int TIME_OF_LAST_XP_DROP = 1;
+  // the time of the first XP drop in a given skill within the sample period
   private static final int TIME_OF_FIRST_XP_DROP = 2;
+  // the total number of XP drops recorded within the sample period, plus 1
   private static final int TOTAL_XP_DROPS = 3;
+  // the amount of XP gained since last processed
   private static final int LAST_XP_GAIN = 4;
+
+  // first dimension of this array is skill ID.
+  // second dimension is the constants in block above.
   private static HashMap<String, Double[][]> lastXpGain = new HashMap<String, Double[][]>();
 
   // holds players XP since last processing xp drops
