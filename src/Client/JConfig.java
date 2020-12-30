@@ -18,6 +18,7 @@
  */
 package Client;
 
+import Game.Replay;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -26,7 +27,6 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import Game.Replay;
 
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
@@ -173,7 +173,7 @@ public class JConfig {
     parameters.put("nodeid", "" + (5000 + world));
     // TODO: This might have meant veteran world
     // if (world == 1) parameters.put("servertype", "" + 3);
-    //parameters.put("servertype", "" + 1);
+    // parameters.put("servertype", "" + 1);
     int servertype = Settings.WORLD_SERVER_TYPES.getOrDefault(world, 1);
     parameters.put("servertype", "" + servertype);
 
@@ -193,13 +193,13 @@ public class JConfig {
     if (!curWorldURL.equals("")) {
       Settings.noWorldsConfigured = false;
     }
-    
+
     Game.Client.setServerType(servertype);
     boolean isMembers = (servertype & 1) != 0;
-    
+
     if (Game.Client.lastIsMembers != null && Game.Client.lastIsMembers != isMembers) {
-    	Game.Client.lastIsMembers = isMembers;
-    	Game.Client.softReloadCache(isMembers);
+      Game.Client.lastIsMembers = isMembers;
+      Game.Client.softReloadCache(isMembers);
     }
 
     // Update settings

@@ -18,14 +18,14 @@
  */
 package Game;
 
+import Client.JClassLoader;
+import Client.Launcher;
+import Client.Logger;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import Client.JClassLoader;
-import Client.Launcher;
-import Client.Logger;
 
 /** Loads and sets fields and methods found in the vanilla RSC jar's classes */
 public class Reflection {
@@ -69,7 +69,7 @@ public class Reflection {
   public static Field menuTextSize = null;
   public static Field menuText = null;
   public static Field menuCount = null;
-  
+
   public static Field memberMapPack = null;
   public static Field memberLandscapePack = null;
   public static Field memberSoundPack = null;
@@ -125,7 +125,7 @@ public class Reflection {
   public static Method resetTimings = null;
   public static Method formatText = null;
   public static Method putRandom = null;
-  
+
   public static Method loadGameConfig = null;
   public static Method loadEntities = null;
   public static Method loadMaps = null;
@@ -212,7 +212,7 @@ public class Reflection {
   private static final String FORMAT_TEXT =
       "static final java.lang.String b.a(int,byte,java.lang.String)";
   private static final String PUTRANDOM = "static final void f.a(int,tb)";
-  
+
   private static final String LOAD_GAME_CONFIG = "private final void client.f(boolean)";
   private static final String LOAD_ENTITIES = "private final void client.c(boolean)";
   private static final String LOAD_MAPS = "private final void client.m(int)";
@@ -292,17 +292,17 @@ public class Reflection {
           showInputPopup = method;
           Logger.Info("Found showInputPopup");
         } else if (method.toGenericString().equals(LOAD_GAME_CONFIG)) {
-        	loadGameConfig = method;
-        	Logger.Info("Found loadGameConfig");
+          loadGameConfig = method;
+          Logger.Info("Found loadGameConfig");
         } else if (method.toGenericString().equals(LOAD_ENTITIES)) {
-        	loadEntities = method;
-        	Logger.Info("Found loadEntities");
+          loadEntities = method;
+          Logger.Info("Found loadEntities");
         } else if (method.toGenericString().equals(LOAD_MAPS)) {
-        	loadMaps = method;
-        	Logger.Info("Found loadMaps");
+          loadMaps = method;
+          Logger.Info("Found loadMaps");
         } else if (method.toGenericString().equals(LOAD_SOUNDS)) {
-        	loadSounds = method;
-        	Logger.Info("Found loadSounds");
+          loadSounds = method;
+          Logger.Info("Found loadSounds");
         }
       }
 
@@ -707,16 +707,16 @@ public class Reflection {
           Logger.Info("Found gameReference");
         }
       }
-      
+
       c = classLoader.loadClass("k");
       fields = c.getDeclaredFields();
       for (Field field : fields) {
         if (field.getName().equals("m")) {
-        	memberMapPack = field;
+          memberMapPack = field;
           Logger.Info("Found memberMapPack");
         }
         if (field.getName().equals("I")) {
-        	memberLandscapePack = field;
+          memberLandscapePack = field;
           Logger.Info("Found memberLandscapePack");
         }
       }

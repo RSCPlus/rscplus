@@ -18,6 +18,13 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Renderer;
+import Game.Replay;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -29,13 +36,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Renderer;
-import Game.Replay;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -1420,7 +1420,8 @@ public class Settings {
             WORLD_NAMES.put(i, worldProps.getProperty("name"));
             WORLD_URLS.put(i, worldProps.getProperty("url"));
             WORLD_PORTS.put(i, Integer.parseInt(worldProps.getProperty("port")));
-            WORLD_SERVER_TYPES.put(i, Integer.parseInt((String)worldProps.getOrDefault("servertype", "1")));
+            WORLD_SERVER_TYPES.put(
+                i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
             WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
             WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
 

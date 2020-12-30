@@ -19,6 +19,18 @@
 package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
+
+import Client.JClassPatcher;
+import Client.JConfig;
+import Client.KeybindSet;
+import Client.Launcher;
+import Client.Logger;
+import Client.NotificationsHandler;
+import Client.NotificationsHandler.NotifType;
+import Client.Settings;
+import Client.Speedrun;
+import Client.TwitchIRC;
+import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,17 +52,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import Client.JClassPatcher;
-import Client.JConfig;
-import Client.KeybindSet;
-import Client.Launcher;
-import Client.Logger;
-import Client.NotificationsHandler;
-import Client.NotificationsHandler.NotifType;
-import Client.Settings;
-import Client.Speedrun;
-import Client.TwitchIRC;
-import Replay.game.constants.Game.ItemAction;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -368,7 +369,7 @@ public class Client {
   public static boolean veterans;
   public static Object worldInstance;
   public static int lastHeightOffset;
-  
+
   public static Boolean lastIsMembers = null;
 
   /**
@@ -1455,59 +1456,60 @@ public class Client {
     } catch (Exception e) {
     }
   }
-  
-  /** Sets the account type needed in the welcome screen, based on the server type
-   *  0 = Free
-   *  1 = Members
-   *  2 = Free (Veterans)
-   *  3 = Members (Veterans)
-   *  */
+
+  /**
+   * Sets the account type needed in the welcome screen, based on the server type 0 = Free 1 =
+   * Members 2 = Free (Veterans) 3 = Members (Veterans)
+   */
   public static void setServerType(int servertype) {
-	  try {
-		  if ((servertype & 1) != 0) { //members
-			  Client.members = true;
-			  if ((servertype & 2) != 0) { //members + veterans
-				  // "You need a veteran Classic members account to use this server"
-				  Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[233]);
-				  Client.veterans = true;
-			  } else {
-				  // "You need a members account to use this server"
-				  Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[230]);
-				  Client.veterans = false;
-			  }
-		  } else { //free
-			  Client.members = false;
-			  if ((servertype & 2) != 0) { //free + veterans
-				  // "You need a veteran Classic account to use this server"
-				  Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[238]);
-				  Client.veterans = true;
-			  } else {
-				  // "You need an account to use this server"
-				  Panel.setControlText(Client.panelWelcome, Client.controlServerType, "You need an account to use this server");
-				  Client.veterans = false;
-			  }
-		  }
-	  } catch (Exception e) {
-	  }
+    try {
+      if ((servertype & 1) != 0) { // members
+        Client.members = true;
+        if ((servertype & 2) != 0) { // members + veterans
+          // "You need a veteran Classic members account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[233]);
+          Client.veterans = true;
+        } else {
+          // "You need a members account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[230]);
+          Client.veterans = false;
+        }
+      } else { // free
+        Client.members = false;
+        if ((servertype & 2) != 0) { // free + veterans
+          // "You need a veteran Classic account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[238]);
+          Client.veterans = true;
+        } else {
+          // "You need an account to use this server"
+          Panel.setControlText(
+              Client.panelWelcome,
+              Client.controlServerType,
+              "You need an account to use this server");
+          Client.veterans = false;
+        }
+      }
+    } catch (Exception e) {
+    }
   }
-  
+
   public static void softReloadCache(boolean members) {
-	  try {
-		  Reflection.memberMapPack.set(Client.worldInstance, null);
-		  Reflection.memberLandscapePack.set(Client.worldInstance, null);
-		  
-		  Reflection.loadGameConfig.invoke(Client.instance, false);
-		  Reflection.loadEntities.invoke(Client.instance, true);
-		  Reflection.loadMaps.invoke(Client.instance, 5359);
-		  if (members) {
-			  Reflection.loadSounds.invoke(Client.instance, -90);
-		  }
-		  if (lastHeightOffset == planeIndex) {
-			  // force re-render of game world terrain
-			  lastHeightOffset = (planeIndex + 1) % 2;
-		  }
-	  } catch(Exception e) {  
-	  }
+    try {
+      Reflection.memberMapPack.set(Client.worldInstance, null);
+      Reflection.memberLandscapePack.set(Client.worldInstance, null);
+
+      Reflection.loadGameConfig.invoke(Client.instance, false);
+      Reflection.loadEntities.invoke(Client.instance, true);
+      Reflection.loadMaps.invoke(Client.instance, 5359);
+      if (members) {
+        Reflection.loadSounds.invoke(Client.instance, -90);
+      }
+      if (lastHeightOffset == planeIndex) {
+        // force re-render of game world terrain
+        lastHeightOffset = (planeIndex + 1) % 2;
+      }
+    } catch (Exception e) {
+    }
   }
 
   public static void closeConnection(boolean sendPacket31) {

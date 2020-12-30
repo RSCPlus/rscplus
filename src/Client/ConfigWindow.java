@@ -18,6 +18,12 @@
  */
 package Client;
 
+import Client.KeybindSet.KeyModifier;
+import Game.Camera;
+import Game.Client;
+import Game.Game;
+import Game.KeyboardHandler;
+import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -76,12 +82,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import Client.KeybindSet.KeyModifier;
-import Game.Camera;
-import Game.Client;
-import Game.Game;
-import Game.KeyboardHandler;
-import Game.Replay;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -2654,13 +2654,13 @@ public class ConfigWindow {
       Settings.WORLD_NAMES.put(
           i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
-      
+
       String serverTypeString = worldTypesJTextFields.get(i).getText();
       if (serverTypeString.equals("")) {
-          Settings.WORLD_SERVER_TYPES.put(i, 1);
-        } else {
-          Settings.WORLD_PORTS.put(i, Integer.parseInt(serverTypeString));
-        }
+        Settings.WORLD_SERVER_TYPES.put(i, 1);
+      } else {
+        Settings.WORLD_PORTS.put(i, Integer.parseInt(serverTypeString));
+      }
 
       String portString = worldPortsJTextFields.get(i).getText();
       if (portString.equals("")) {
@@ -2759,10 +2759,10 @@ public class ConfigWindow {
     worldNamesJTextFields.get(i).setPreferredSize(new Dimension(200, 28));
     worldNamesJTextFields.get(i).setAlignmentY((float) 0.75);
     worldListTitleTextFieldContainers.get(i).add(worldNamesJTextFields.get(i), cR);
-    
+
     cR.weightx = 0.2;
     cR.gridwidth = 2;
-    
+
     JLabel worldTypeJLabel = new JLabel(String.format("<html><b>ServerType</b></html>", i));
     worldNumberJLabel.setAlignmentY((float) 0.75);
     worldListTitleTextFieldContainers.get(i).add(worldTypeJLabel, cR);
