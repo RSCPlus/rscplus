@@ -1779,6 +1779,7 @@ public class Settings {
       // XP Goals
       int usernameID = 0;
       for (String username : Client.xpGoals.keySet()) {
+        if (username.equals(XPBar.excludeUsername)) continue;
         for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
           int skillgoal = 0;
           try {

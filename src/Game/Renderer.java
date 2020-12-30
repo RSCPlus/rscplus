@@ -403,11 +403,9 @@ public class Renderer {
                 drawHighlighImage(g2, itemText, x, y);
               }
 
-              // TODO: it would be nice if for items like Coins or Runes, we showed how many of the
-              // item were on the ground instead of how many times you have to click to pick them
-              // all up.
-              // Currently will just show "Coins (2)" if there are two stacks of coins on the
-              // ground.
+              // Note that it is not possible to show how many of a
+              //   stackable item are in a stack on the ground.
+              // That information is not transmitted in RSC, just that the item ID is there.
               drawShadowText(g2, itemText, x, y, itemColor, true);
             }
             last_item = item; // Done with item this loop, can save it as last_item

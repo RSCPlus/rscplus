@@ -271,7 +271,7 @@ public class Replay {
       while (!replayServer.isReady) Thread.sleep(1);
     } catch (Exception e) {
     }
-    Client.login(false, "Replay", "");
+    Client.login(false, XPBar.excludeUsername, "");
     updateFrameTimeSlice();
     return true;
   }
@@ -1286,6 +1286,14 @@ public class Replay {
         Speedrun.incrementTicks();
         Speedrun.checkCoordinateCompletions();
       }
+    } else {
+        // in a replay, just make sure knowWhoIAm is set
+        if (opcode == 234) {
+            if (!Client.knowWhoIAm) {
+                Client.knowWhoIAm = true;
+                Client.resetFatigueXPDrops(true);
+            }
+        }
     }
   }
 
