@@ -48,36 +48,10 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.*;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -256,7 +230,7 @@ public class ConfigWindow {
 
   //// World List tab
   private HashMap<Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
-  private HashMap<Integer, JTextField> worldTypesJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JComboBox> worldTypesJComboBoxes = new HashMap<Integer, JComboBox>();
   private HashMap<Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
   private HashMap<Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
   private HashMap<Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
@@ -2655,12 +2629,7 @@ public class ConfigWindow {
           i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
 
-      String serverTypeString = worldTypesJTextFields.get(i).getText();
-      if (serverTypeString.equals("")) {
-        Settings.WORLD_SERVER_TYPES.put(i, 1);
-      } else {
-        Settings.WORLD_PORTS.put(i, Integer.parseInt(serverTypeString));
-      }
+      Settings.WORLD_SERVER_TYPES.put(i, (Integer) worldTypesJComboBoxes.get(i).getSelectedIndex());
 
       String portString = worldPortsJTextFields.get(i).getText();
       if (portString.equals("")) {
@@ -2760,31 +2729,34 @@ public class ConfigWindow {
     worldNamesJTextFields.get(i).setAlignmentY((float) 0.75);
     worldListTitleTextFieldContainers.get(i).add(worldNamesJTextFields.get(i), cR);
 
-    cR.weightx = 0.2;
-    cR.gridwidth = 2;
-
-    JLabel worldTypeJLabel = new JLabel(String.format("<html><b>ServerType</b></html>", i));
-    worldNumberJLabel.setAlignmentY((float) 0.75);
-    worldListTitleTextFieldContainers.get(i).add(worldTypeJLabel, cR);
-
-    worldTypesJTextFields.put(i, new HintTextField("Type of World"));
-    worldTypesJTextFields.get(i).setMinimumSize(new Dimension(80, 28));
-    worldTypesJTextFields.get(i).setMaximumSize(new Dimension(120, 28));
-    worldTypesJTextFields.get(i).setPreferredSize(new Dimension(100, 28));
-    worldTypesJTextFields.get(i).setAlignmentY((float) 0.75);
-    worldListTitleTextFieldContainers.get(i).add(worldTypesJTextFields.get(i), cR);
-
-    cR.weightx = 0.3;
+    cR.weightx = 0.1;
     cR.gridwidth = 1;
     cR.anchor = GridBagConstraints.LINE_END;
 
-    JLabel spacingJLabel = new JLabel("");
-    worldNumberJLabel.setAlignmentY((float) 0.75);
-    worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
+    /*
+          JLabel spacingJLabel = new JLabel("");
+          worldNumberJLabel.setAlignmentY((float) 0.75);
+          worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
+    */
+
+    String[] worldTypes = {"F2P", "Members", "F2P (Veteran)", "Members (Veteran)"};
+    JComboBox worldTypeComboBox = new JComboBox(worldTypes);
+
+    worldTypesJComboBoxes.put(i, worldTypeComboBox);
+    worldTypesJComboBoxes.get(i).setMinimumSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setMaximumSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setPreferredSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldTypesJComboBoxes.get(i), cR);
+
+    cR.weightx = 0.3;
+    cR.gridwidth = 1;
 
     worldDeleteJButtons.put(i, new JButton("Delete World"));
     worldDeleteJButtons.get(i).setAlignmentY((float) 0.80);
     worldDeleteJButtons.get(i).setPreferredSize(new Dimension(50, 28));
+    worldTypesJComboBoxes.get(i).setMinimumSize(new Dimension(50, 28));
+    worldTypesJComboBoxes.get(i).setMaximumSize(new Dimension(50, 28));
     worldDeleteJButtons.get(i).setActionCommand(String.format("%d", i));
     worldDeleteJButtons
         .get(i)
@@ -2901,7 +2873,9 @@ public class ConfigWindow {
     for (int i = 1; (i <= numberOfWorldsEver) || (i <= Settings.WORLDS_TO_DISPLAY); i++) {
       if (i <= Settings.WORLDS_TO_DISPLAY) {
         worldNamesJTextFields.get(i).setText(Settings.WORLD_NAMES.get(i));
-        worldTypesJTextFields.get(i).setText("" + Settings.WORLD_SERVER_TYPES.getOrDefault(i, 1));
+        worldTypesJComboBoxes
+            .get(i)
+            .setSelectedIndex(Settings.WORLD_SERVER_TYPES.getOrDefault(i, 1));
         worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
         try {
           worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());
