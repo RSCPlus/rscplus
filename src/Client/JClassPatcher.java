@@ -2868,10 +2868,7 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(
                 call,
                 new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    "Game/AccountManagement",
-                    "ingame_keyhandler_hook",
-                    "(II)I"));
+                    Opcodes.INVOKESTATIC, "Game/Client", "gameKeyPressHook", "(II)I"));
             methodNode.instructions.insertBefore(
                 insnNode, new JumpInsnNode(Opcodes.IFNE, exitNode));
 
@@ -3658,8 +3655,8 @@ public class JClassPatcher {
 
             methodNode.instructions.insertBefore(
                 labelNode,
-                new FieldInsnNode(
-                    Opcodes.GETSTATIC, "Game/AccountManagement", "panelPasswordChangeMode", "I"));
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "shouldShowTextInputDialog", "()Z"));
             methodNode.instructions.insertBefore(
                 labelNode, new JumpInsnNode(Opcodes.IFEQ, labelNode));
             methodNode.instructions.insertBefore(labelNode, new VarInsnNode(Opcodes.ALOAD, 0));
@@ -3675,8 +3672,8 @@ public class JClassPatcher {
                 labelNode,
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
-                    "Game/AccountManagement",
-                    "draw_change_pass_hook",
+                    "Game/Client",
+                    "drawTextInputDialogMouseHook",
                     "(III)V",
                     false));
             methodNode.instructions.insertBefore(
