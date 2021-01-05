@@ -365,12 +365,17 @@ public class Client {
 
   public static int mouse_click;
   public static boolean firstTime = true;
-  public static boolean members;
-  public static boolean veterans;
   public static Object worldInstance;
   public static int lastHeightOffset;
 
   public static Boolean lastIsMembers = null;
+
+  // used in original client
+  public static boolean members;
+  public static boolean veterans;
+  // used to distinguish live world, in replay there are two similar variables
+  public static boolean worldMembers;
+  public static boolean worldVeterans;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -1560,6 +1565,27 @@ public class Client {
       }
     } catch (Exception e) {
 
+    }
+  }
+
+  /**
+   * Switches direction of live game to replay. True - to change to replay. False - to change to
+   * live
+   */
+  public static void switchLiveToReplay(boolean direction) {
+    int currentType = (Client.veterans ? 1 : 0 << 1) + (Client.members ? 1 : 0);
+    int serverType;
+    if (direction) {
+      serverType = (Replay.replayVeterans ? 1 : 0 << 1) + (Replay.replayMembers ? 1 : 0);
+    } else {
+      serverType = (Client.worldVeterans ? 1 : 0 << 1) + (Client.worldMembers ? 1 : 0);
+    }
+
+    if (currentType != serverType) {
+      Client.setServerType(serverType);
+      if ((serverType & 1) != (currentType & 1)) {
+        Client.softReloadCache((serverType & 1) != 0);
+      }
     }
   }
 

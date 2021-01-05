@@ -180,7 +180,7 @@ public class JConfig {
     // Set world URL & port
     String curWorldURL = Settings.WORLD_URLS.get(world);
     m_data.put("codebase", "http://" + curWorldURL + "/");
-    Replay.connection_port = Settings.WORLD_PORTS.get(world);
+    Replay.connection_port = Settings.WORLD_PORTS.getOrDefault(world, Replay.DEFAULT_PORT);
     SERVER_RSA_EXPONENT = Settings.WORLD_RSA_EXPONENTS.get(world);
     SERVER_RSA_MODULUS = Settings.WORLD_RSA_PUB_KEYS.get(world);
     if (SERVER_RSA_EXPONENT.equals("")) {

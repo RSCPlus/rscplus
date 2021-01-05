@@ -105,6 +105,11 @@ public class Replay {
   public static int prevPlayerX;
   public static int prevPlayerY;
 
+  // TODO: these will be needed to be added as metadata for existing replays
+  // and stored for new ones
+  public static boolean replayMembers = true;
+  public static boolean replayVeterans = false;
+
   public static int timestamp;
   public static int timestamp_disconnect;
   public static int timestamp_client;
@@ -259,6 +264,7 @@ public class Replay {
     replayThread = new Thread(replayServer);
     replayThread.start();
     ignoreFirstMovement = true;
+
     // if (Client.strings[662].startsWith("from:")) {
     // Client.strings[662] = "@bla@from:";
     // }
@@ -271,6 +277,7 @@ public class Replay {
       while (!replayServer.isReady) Thread.sleep(1);
     } catch (Exception e) {
     }
+    Client.switchLiveToReplay(true);
     Client.login(false, "Replay", "");
     updateFrameTimeSlice();
     return true;
@@ -325,7 +332,8 @@ public class Replay {
     isSeeking = false;
     resetFrameTimeSlice();
     Client.closeConnection(false);
-    resetPort();
+    Client.switchLiveToReplay(false);
+    // resetPort();
     // fpsPlayMultiplier = 1.0f;
     resetPatchClient();
     isPlaying = false;

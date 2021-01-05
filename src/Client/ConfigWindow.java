@@ -48,10 +48,37 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -2739,7 +2766,7 @@ public class ConfigWindow {
           worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
     */
 
-    String[] worldTypes = {"F2P", "Members", "F2P (Veteran)", "Members (Veteran)"};
+    String[] worldTypes = {"Free", "Members", "Free (Veteran)", "Members (Veteran)"};
     JComboBox worldTypeComboBox = new JComboBox(worldTypes);
 
     worldTypesJComboBoxes.put(i, worldTypeComboBox);
