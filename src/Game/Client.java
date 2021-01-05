@@ -1609,8 +1609,8 @@ public class Client {
         }
       }
       if (switchingWorld) {
-          Client.worldMembers = Client.members;
-          Client.worldVeterans = Client.veterans;
+        Client.worldMembers = Client.members;
+        Client.worldVeterans = Client.veterans;
       }
     } catch (Exception e) {
     }

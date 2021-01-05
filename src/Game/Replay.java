@@ -158,7 +158,9 @@ public class Replay {
     paused = false;
     closeDialogue = false;
     replayDirectory = directory;
-    replayMembers = ((int)Replay.readMetadata(directory)[4] & (1 << 31)) == 0; // first bit of user settings is true if replay is F2P
+    replayMembers =
+        ((int) Replay.readMetadata(directory)[4] & (1 << 31))
+            == 0; // first bit of user settings is true if replay is F2P
   }
 
   public static int getServerLag() {
@@ -470,7 +472,7 @@ public class Replay {
         // "User settings", 1st bit is used to denote if replay was on F2P or Members world.
         // Rest of the 31 bits are not implemented for any purpose at this time
         if (!Client.members) {
-            userSettings |= 1 << 31;
+          userSettings |= 1 << 31;
         }
         metadata.writeInt(userSettings);
 
@@ -808,7 +810,9 @@ public class Replay {
         metadata.writeByte(ipAddressMetadata[i]);
       }
       metadata.writeByte(0); // conversion settings, none used in this case
-      metadata.writeInt(0); // "User settings", 1st bit is F2P or Members. Since metadata.bin doesn't exist, probably members
+      metadata.writeInt(
+          0); // "User settings", 1st bit is F2P or Members. Since metadata.bin doesn't exist,
+              // probably members
       metadata.flush();
       metadata.close();
     } catch (IOException e) {
