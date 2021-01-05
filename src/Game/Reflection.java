@@ -73,6 +73,7 @@ public class Reflection {
   public static Field memberMapPack = null;
   public static Field memberLandscapePack = null;
   public static Field memberSoundPack = null;
+  public static Field soundBuffer = null;
 
   public static Method showInputPopup = null;
   public static Method getParameter = null;
@@ -256,6 +257,7 @@ public class Reflection {
       c = classLoader.loadClass("client");
       clientStreamField = c.getDeclaredField("Jh");
       memberSoundPack = c.getDeclaredField("Uh");
+      soundBuffer = c.getDeclaredField("hk");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
         if (method.toGenericString().equals(DISPLAYMESSAGE)) {
@@ -812,6 +814,7 @@ public class Reflection {
       if (memberMapPack != null) memberMapPack.setAccessible(true);
       if (memberLandscapePack != null) memberLandscapePack.setAccessible(true);
       if (memberSoundPack != null) memberSoundPack.setAccessible(true);
+      if (soundBuffer != null) soundBuffer.setAccessible(true);
 
     } catch (Exception e) {
       e.printStackTrace();
