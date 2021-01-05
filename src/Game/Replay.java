@@ -812,7 +812,7 @@ public class Replay {
       metadata.writeByte(0); // conversion settings, none used in this case
       metadata.writeInt(
           0); // "User settings", 1st bit is F2P or Members. Since metadata.bin doesn't exist,
-              // probably members
+      // probably members
       metadata.flush();
       metadata.close();
     } catch (IOException e) {
@@ -828,59 +828,61 @@ public class Replay {
     int userField = 0;
 
     File metadataFile = new File(replayFolder + "/metadata.bin");
-    try {
-      DataInputStream metadata =
-          new DataInputStream(new BufferedInputStream(new FileInputStream(metadataFile)));
-      replayLength = metadata.readInt();
-      dateModified = metadata.readLong();
-      if (metadataFile.length() > 12) {
-        int ipAddress1 = metadata.readInt();
-        int ipAddress2 = metadata.readInt();
-        int ipAddress3 = metadata.readInt();
-        int ipAddress4 = metadata.readInt();
+    if (metadataFile != null && metadataFile.exists()) {
+      try {
+        DataInputStream metadata =
+            new DataInputStream(new BufferedInputStream(new FileInputStream(metadataFile)));
+        replayLength = metadata.readInt();
+        dateModified = metadata.readLong();
+        if (metadataFile.length() > 12) {
+          int ipAddress1 = metadata.readInt();
+          int ipAddress2 = metadata.readInt();
+          int ipAddress3 = metadata.readInt();
+          int ipAddress4 = metadata.readInt();
 
-        if (ipAddress1 == 0 && ipAddress2 == 0 && ipAddress3 == 0xFFFF) { // true if ipv4
-          switch (ipAddress4) {
-            case -643615488: // Unknown Jagex World IP: 217.163.53.0
-              world = "Jagex";
-              break;
-            case -643615310: // World 1: IP address 217.163.53.178
-              world = "Jagex 1";
-              break;
-            case -643615309: // World 2: IP address 217.163.53.179
-              world = "Jagex 2";
-              break;
-            case -643615308: // World 3: IP address 217.163.53.180
-              world = "Jagex 3";
-              break;
-            case -643615307: // World 4: IP address 217.163.53.181
-              world = "Jagex 4";
-              break;
-            case -643615306: // World 5: IP address 217.163.53.182
-              world = "Jagex 5";
-              break;
-            default:
-              world =
-                  String.format(
-                      "%d.%d.%d.%d",
-                      (ipAddress4 >> 24) & 0xFF,
-                      (ipAddress4 >> 16) & 0xFF,
-                      (ipAddress4 >> 8) & 0xFF,
-                      (ipAddress4) & 0xFF);
-              break;
+          if (ipAddress1 == 0 && ipAddress2 == 0 && ipAddress3 == 0xFFFF) { // true if ipv4
+            switch (ipAddress4) {
+              case -643615488: // Unknown Jagex World IP: 217.163.53.0
+                world = "Jagex";
+                break;
+              case -643615310: // World 1: IP address 217.163.53.178
+                world = "Jagex 1";
+                break;
+              case -643615309: // World 2: IP address 217.163.53.179
+                world = "Jagex 2";
+                break;
+              case -643615308: // World 3: IP address 217.163.53.180
+                world = "Jagex 3";
+                break;
+              case -643615307: // World 4: IP address 217.163.53.181
+                world = "Jagex 4";
+                break;
+              case -643615306: // World 5: IP address 217.163.53.182
+                world = "Jagex 5";
+                break;
+              default:
+                world =
+                    String.format(
+                        "%d.%d.%d.%d",
+                        (ipAddress4 >> 24) & 0xFF,
+                        (ipAddress4 >> 16) & 0xFF,
+                        (ipAddress4 >> 8) & 0xFF,
+                        (ipAddress4) & 0xFF);
+                break;
+            }
+          } else { // ipv6
+            // TODO: this is not a properly formatted ipv6 address
+            world =
+                String.format("ipv6: %d:%d:%d:%d", ipAddress1, ipAddress2, ipAddress3, ipAddress4);
           }
-        } else { // ipv6
-          // TODO: this is not a properly formatted ipv6 address
-          world =
-              String.format("ipv6: %d:%d:%d:%d", ipAddress1, ipAddress2, ipAddress3, ipAddress4);
-        }
 
-        conversionSettings = metadata.readByte();
-        userField = metadata.readInt();
+          conversionSettings = metadata.readByte();
+          userField = metadata.readInt();
+        }
+        metadata.close();
+      } catch (IOException e) {
+        Logger.Error("Couldn't read metadata.bin!");
       }
-      metadata.close();
-    } catch (IOException e) {
-      Logger.Error("Couldn't read metadata.bin!");
     }
     return new Object[] {replayLength, dateModified, world, conversionSettings, userField};
   }
