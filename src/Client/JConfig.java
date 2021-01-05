@@ -194,7 +194,7 @@ public class JConfig {
       Settings.noWorldsConfigured = false;
     }
 
-    Game.Client.setServerType(servertype);
+    Game.Client.setServertype(servertype, true);
     boolean isMembers = (servertype & 1) != 0;
 
     if (Game.Client.lastIsMembers != null && Game.Client.lastIsMembers != isMembers) {

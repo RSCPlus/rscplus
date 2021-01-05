@@ -1580,7 +1580,7 @@ public class Client {
    * Sets the account type needed in the welcome screen, based on the server type 0 = Free 1 =
    * Members 2 = Free (Veterans) 3 = Members (Veterans)
    */
-  public static void setServerType(int servertype) {
+  public static void setServertype(int servertype, boolean switchingWorld) {
     try {
       if ((servertype & 1) != 0) { // members
         Client.members = true;
@@ -1607,6 +1607,10 @@ public class Client {
               "You need an account to use this server");
           Client.veterans = false;
         }
+      }
+      if (switchingWorld) {
+          Client.worldMembers = Client.members;
+          Client.worldVeterans = Client.veterans;
       }
     } catch (Exception e) {
     }
@@ -1687,18 +1691,18 @@ public class Client {
    * live
    */
   public static void switchLiveToReplay(boolean direction) {
-    int currentType = (Client.veterans ? 1 : 0 << 1) + (Client.members ? 1 : 0);
-    int serverType;
+    int currentType = ((Client.veterans ? 1 : 0) << 1) + (Client.members ? 1 : 0);
+    int servertype;
     if (direction) {
-      serverType = (Replay.replayVeterans ? 1 : 0 << 1) + (Replay.replayMembers ? 1 : 0);
+      servertype = ((Replay.replayVeterans ? 1 : 0) << 1) + (Replay.replayMembers ? 1 : 0);
     } else {
-      serverType = (Client.worldVeterans ? 1 : 0 << 1) + (Client.worldMembers ? 1 : 0);
+      servertype = ((Client.worldVeterans ? 1 : 0) << 1) + (Client.worldMembers ? 1 : 0);
     }
 
-    if (currentType != serverType) {
-      Client.setServerType(serverType);
-      if ((serverType & 1) != (currentType & 1)) {
-        Client.softReloadCache((serverType & 1) != 0);
+    if (currentType != servertype) {
+      Client.setServertype(servertype, !direction);
+      if ((servertype & 1) != (currentType & 1)) {
+        Client.softReloadCache((servertype & 1) != 0);
       }
     }
   }

@@ -1744,7 +1744,7 @@ public class ConfigWindow {
     replayPanelShowConversionSettingsCheckbox.setToolTipText(
         "Chat Stripping, Private Chat Stripping, Whether or not it has been converted, etc.");
     replayPanelShowUserFieldCheckbox =
-        addCheckbox("Show \"User Field\" Column (Most likely unused)", replayPanel);
+        addCheckbox("Show \"User Field\" Column (1st bit used for F2P)", replayPanel);
     replayPanelShowUserFieldCheckbox.setToolTipText(
         "This int field when introduced did absolutely nothing and acts as \"Reserved Bits\" for the metadata.bin format. Users may feel free to use it for whatever they can think of.");
 
