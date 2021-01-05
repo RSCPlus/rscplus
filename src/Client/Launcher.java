@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -316,7 +317,7 @@ public class Launcher extends JFrame implements Runnable {
   public static void main(String[] args) {
     Logger.start();
     Settings.initDir();
-    Settings.initSettings();
+    Properties props = Settings.initSettings();
 
     if (Settings.javaVersion >= 9) {
       Logger.Warn(
@@ -330,6 +331,8 @@ public class Launcher extends JFrame implements Runnable {
     }
 
     setConfigWindow(new ConfigWindow());
+    Settings.loadKeybinds(props);
+    Settings.successfullyInitted = true;
     setQueueWindow(new QueueWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();

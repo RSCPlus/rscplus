@@ -25,6 +25,7 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+import Game.XPBar;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -45,6 +46,7 @@ public class Settings {
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
   public static final double VERSION_NUMBER = 20201217.175602;
+  public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -1350,7 +1352,7 @@ public class Settings {
   }
 
   /** Loads properties from config.ini for use with definePresets */
-  public static void initSettings() {
+  public static Properties initSettings() {
     // Load settings
     try {
       String versionText = System.getProperty("java.version");
@@ -1363,8 +1365,57 @@ public class Settings {
     }
 
     try {
-      Properties props = new Properties();
+      Properties props = loadProps();
 
+      currentProfile = getPropString(props, "current_profile", "custom");
+      definePresets(props);
+      updateInjectedVariables(); // TODO remove this function
+
+      // Keybinds
+      if (KeyboardHandler.keybindSetList.size() == 0) {
+        Logger.Debug("No keybinds defined yet, config window not initialized");
+      } else {
+        loadKeybinds(props);
+      }
+
+      // XP
+      int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
+      String[] goalerUsernames = new String[numberOfGoalers];
+      for (int usernameID = 0; usernameID < numberOfGoalers; usernameID++) {
+        goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
+        Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
+        Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
+        for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+          Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
+              getPropInt(props, String.format("xpGoal%02d%03d", skill, usernameID), 0);
+          try {
+            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
+                Float.parseFloat(
+                    getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
+          } catch (Exception e1) {
+            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
+            Logger.Warn(
+                "Couldn't parse settings key "
+                    + String.format("lvlGoal%02d%03d", skill, usernameID));
+          }
+        }
+      }
+      XPBar.pinnedBar = getPropBoolean(props, "pinXPBar", false);
+      XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
+
+      Logger.Info("Loaded settings");
+      return props;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public static Properties loadProps() {
+    Properties props = new Properties();
+
+    try {
       File configFile = new File(Dir.JAR + "/config.ini");
       if (!configFile.isDirectory()) {
         if (!configFile.exists()) {
@@ -1376,20 +1427,22 @@ public class Settings {
       FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
       props.load(in);
       in.close();
-
-      currentProfile = getPropString(props, "current_profile", "custom");
-      definePresets(props);
-      updateInjectedVariables(); // TODO remove this function
-
-      // Keybinds
-      for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-        String keybindCombo =
-            getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
-        kbs.modifier = getKeyModifierFromString(keybindCombo);
-        kbs.key = Integer.parseInt(keybindCombo.substring(2));
-      }
     } catch (Exception e) {
+      Logger.Warn("Error loading config.ini");
       e.printStackTrace();
+    }
+    return props;
+  }
+
+  public static void loadKeybinds(Properties props) {
+    if (props == null) {
+      props = loadProps();
+    }
+    for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+      String keybindCombo =
+          getPropString(props, "key_" + kbs.commandName, "" + kbs.modifier + "*" + kbs.key);
+      kbs.modifier = getKeyModifierFromString(keybindCombo);
+      kbs.key = Integer.parseInt(keybindCombo.substring(2));
     }
   }
 
@@ -1565,6 +1618,11 @@ public class Settings {
   }
 
   public static void save(String preset) {
+    if (!successfullyInitted) {
+      Logger.Warn(
+          "Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
+      return;
+    }
     try {
       Properties props = new Properties();
 
@@ -1726,10 +1784,41 @@ public class Settings {
             Integer.toString(getPropIntForKeyModifier(kbs)) + "*" + kbs.key);
       }
 
+      // XP Goals
+      int usernameID = 0;
+      for (String username : Client.xpGoals.keySet()) {
+        if (username.equals(XPBar.excludeUsername)) continue;
+        for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+          int skillgoal = 0;
+          try {
+            skillgoal = Client.xpGoals.get(username)[skill];
+          } catch (Exception noGoal) {
+          }
+
+          float lvlgoal = (float) 0;
+          try {
+            lvlgoal = Client.lvlGoals.get(username)[skill];
+          } catch (Exception noGoal) {
+          }
+
+          props.setProperty(
+              String.format("xpGoal%02d%03d", skill, usernameID), Integer.toString(skillgoal));
+          props.setProperty(
+              String.format("lvlGoal%02d%03d", skill, usernameID), Float.toString(lvlgoal));
+        }
+        props.setProperty(String.format("username%d", usernameID), username);
+        usernameID++;
+      }
+      props.setProperty("numberOfGoalers", String.format("%d", usernameID));
+
+      props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
+      props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");
       out.close();
     } catch (Exception e) {
+      e.printStackTrace();
       Logger.Error("Unable to save settings");
     }
   }

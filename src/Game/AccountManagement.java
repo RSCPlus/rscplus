@@ -81,8 +81,8 @@ public class AccountManagement {
         StreamUtil.initializeStream(Client.server_address, port);
         StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-        Client.session_id =
-            0; // TODO: should read int to get session ID here, triggered by TCP handshake
+        // TODO: should read an int to get session ID here, triggered by TCP handshake
+        Client.session_id = 0;
 
         StreamUtil.newPacket(2);
         Object buffer = StreamUtil.getStreamBuffer();
@@ -170,8 +170,8 @@ public class AccountManagement {
       StreamUtil.initializeStream(Client.server_address, port);
       StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-      Client.session_id =
-          0; // TODO: should read int to get session ID here, triggered by TCP handshake
+      // TODO: should read an int to get session ID here, triggered by TCP handshake
+      Client.session_id = 0;
 
       StreamUtil.newPacket(4);
       Object buffer = StreamUtil.getStreamBuffer();
@@ -251,8 +251,8 @@ public class AccountManagement {
       StreamUtil.initializeStream(Client.server_address, port);
       StreamUtil.setStreamMaxRetries(Client.maxRetries);
 
-      Client.session_id =
-          0; // TODO: should read int to get session ID here, triggered by TCP handshake
+      // TODO: should read an int to get session ID here, triggered by TCP handshake
+      Client.session_id = 0;
 
       String oldPass =
           Client.formatText(
@@ -960,7 +960,7 @@ public class AccountManagement {
     return currYPos - yPos;
   }
 
-  public static void draw_change_pass_hook(int mouseX, int mouseY, int mouseButtonClick) {
+  public static void drawChangePassInput(int mouseX, int mouseY, int mouseButtonClick) {
     if (mouseButtonClick != 0) {
       mouseButtonClick = 0;
       if (mouseX < Renderer.width / 2 - 150
@@ -1046,7 +1046,7 @@ public class AccountManagement {
         panelPasswordChangeMode = 3;
         return;
       }
-    } else {
+    } else if (panelPasswordChangeMode < 8) {
       if (panelPasswordChangeMode == 3) {
         Renderer.drawStringCenter("Passwords do not match!", Renderer.width / 2, yPos, 4, 0xFFFFFF);
         yPos += 25;
@@ -1078,6 +1078,14 @@ public class AccountManagement {
         return;
       }
     }
+  }
+
+  public static boolean shouldShowPassChange() {
+    return panelPasswordChangeMode > 0;
+  }
+
+  public static boolean shouldConsumeKey() {
+    return Client.showRecoveryQuestions || Client.showContactDetails || panelPasswordChangeMode > 0;
   }
 
   public static void processForgotPassword() {
@@ -1316,9 +1324,7 @@ public class AccountManagement {
    * response is given to break out of trying to consume key on other panels
    * For any other non-zero password change state, non-zero response given
    */
-  public static int ingame_keyhandler_hook(int loggedIn, int key) {
-    if (loggedIn != 1) return 0;
-
+  public static int keyHandler(int key) {
     if (Client.showRecoveryQuestions) {
       if (customQuestionEntry != -1) return 1;
       Panel.handleKey(Client.panelRecoveryQuestions, key);

@@ -403,18 +403,14 @@ public class Renderer {
                 drawHighlighImage(g2, itemText, x, y);
               }
 
-              // TODO: it would be nice if for items like Coins or Runes, we showed how many of the
-              // item were on the ground instead of how many times you have to click to pick them
-              // all up.
-              // Currently will just show "Coins (2)" if there are two stacks of coins on the
-              // ground.
+              // Note that it is not possible to show how many of a
+              //   stackable item are in a stack on the ground.
+              // That information is not transmitted in RSC, just that the item ID is there.
               drawShadowText(g2, itemText, x, y, itemColor, true);
             }
             last_item = item; // Done with item this loop, can save it as last_item
           }
         }
-
-        Client.processFatigueXPDrops();
       }
 
       if (!Client.isSleeping()) {
@@ -664,6 +660,7 @@ public class Renderer {
       // Clear npc list for the next frame
       Client.npc_list.clear();
 
+      Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
       Client.xpbar.draw(g2);
 
@@ -886,8 +883,10 @@ public class Renderer {
         y = Renderer.height - 19;
         int offset = 0;
         if (Client.is_in_wild) offset += 70;
-        if ((!screenshot && Replay.isPlaying && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
-            || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
+        if (Replay.isPlaying) {
+          if ((!screenshot && Settings.SHOW_SEEK_BAR.get(Settings.currentProfile))
+              || Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) y -= 12;
+        }
         if ((!Replay.isPlaying || screenshot)
             && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) offset += 70;
         drawShadowText(
