@@ -173,12 +173,14 @@ public class JConfig {
     parameters.put("nodeid", "" + (5000 + world));
     // TODO: This might have meant veteran world
     // if (world == 1) parameters.put("servertype", "" + 3);
-    parameters.put("servertype", "" + 1);
+    // parameters.put("servertype", "" + 1);
+    int servertype = Settings.WORLD_SERVER_TYPES.getOrDefault(world, 1);
+    parameters.put("servertype", "" + servertype);
 
     // Set world URL & port
     String curWorldURL = Settings.WORLD_URLS.get(world);
     m_data.put("codebase", "http://" + curWorldURL + "/");
-    Replay.connection_port = Settings.WORLD_PORTS.get(world);
+    Replay.connection_port = Settings.WORLD_PORTS.getOrDefault(world, Replay.DEFAULT_PORT);
     SERVER_RSA_EXPONENT = Settings.WORLD_RSA_EXPONENTS.get(world);
     SERVER_RSA_MODULUS = Settings.WORLD_RSA_PUB_KEYS.get(world);
     if (SERVER_RSA_EXPONENT.equals("")) {
@@ -190,6 +192,14 @@ public class JConfig {
 
     if (!curWorldURL.equals("")) {
       Settings.noWorldsConfigured = false;
+    }
+
+    Game.Client.setServertype(servertype, true);
+    boolean isMembers = (servertype & 1) != 0;
+
+    if (Game.Client.lastIsMembers != null && Game.Client.lastIsMembers != isMembers) {
+      Game.Client.lastIsMembers = isMembers;
+      Game.Client.softReloadCache(isMembers);
     }
 
     // Update settings

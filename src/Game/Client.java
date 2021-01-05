@@ -339,6 +339,7 @@ public class Client {
   public static Object panelRecovery;
   public static Object panelRecoveryQuestions;
   public static Object panelContactDetails;
+  public static int controlServerType;
   public static int controlLoginTop;
   public static int controlLoginBottom;
   public static int loginUserInput;
@@ -379,6 +380,18 @@ public class Client {
   public static boolean showContactDetails;
 
   public static int mouse_click;
+  public static boolean firstTime = true;
+  public static Object worldInstance;
+  public static int lastHeightOffset;
+
+  public static Boolean lastIsMembers = null;
+
+  // used in original client
+  public static boolean members;
+  public static boolean veterans;
+  // used to distinguish live world, in replay there are two similar variables
+  public static boolean worldMembers;
+  public static boolean worldVeterans;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -1563,6 +1576,65 @@ public class Client {
     }
   }
 
+  /**
+   * Sets the account type needed in the welcome screen, based on the server type 0 = Free 1 =
+   * Members 2 = Free (Veterans) 3 = Members (Veterans)
+   */
+  public static void setServertype(int servertype, boolean switchingWorld) {
+    try {
+      if ((servertype & 1) != 0) { // members
+        Client.members = true;
+        if ((servertype & 2) != 0) { // members + veterans
+          // "You need a veteran Classic members account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[233]);
+          Client.veterans = true;
+        } else {
+          // "You need a members account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[230]);
+          Client.veterans = false;
+        }
+      } else { // free
+        Client.members = false;
+        if ((servertype & 2) != 0) { // free + veterans
+          // "You need a veteran Classic account to use this server"
+          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[238]);
+          Client.veterans = true;
+        } else {
+          // "You need an account to use this server"
+          Panel.setControlText(
+              Client.panelWelcome,
+              Client.controlServerType,
+              "You need an account to use this server");
+          Client.veterans = false;
+        }
+      }
+      if (switchingWorld) {
+          Client.worldMembers = Client.members;
+          Client.worldVeterans = Client.veterans;
+      }
+    } catch (Exception e) {
+    }
+  }
+
+  public static void softReloadCache(boolean members) {
+    try {
+      Reflection.memberMapPack.set(Client.worldInstance, null);
+      Reflection.memberLandscapePack.set(Client.worldInstance, null);
+
+      Reflection.loadGameConfig.invoke(Client.instance, false);
+      Reflection.loadEntities.invoke(Client.instance, true);
+      Reflection.loadMaps.invoke(Client.instance, 5359);
+      if (members) {
+        Reflection.loadSounds.invoke(Client.instance, -90);
+      }
+      if (lastHeightOffset == planeIndex) {
+        // force re-render of game world terrain
+        lastHeightOffset = (planeIndex + 1) % 2;
+      }
+    } catch (Exception e) {
+    }
+  }
+
   public static void closeConnection(boolean sendPacket31) {
     if (Reflection.closeConnection == null) return;
 
@@ -1611,6 +1683,27 @@ public class Client {
       }
     } catch (Exception e) {
 
+    }
+  }
+
+  /**
+   * Switches direction of live game to replay. True - to change to replay. False - to change to
+   * live
+   */
+  public static void switchLiveToReplay(boolean direction) {
+    int currentType = ((Client.veterans ? 1 : 0) << 1) + (Client.members ? 1 : 0);
+    int servertype;
+    if (direction) {
+      servertype = ((Replay.replayVeterans ? 1 : 0) << 1) + (Replay.replayMembers ? 1 : 0);
+    } else {
+      servertype = ((Client.worldVeterans ? 1 : 0) << 1) + (Client.worldMembers ? 1 : 0);
+    }
+
+    if (currentType != servertype) {
+      Client.setServertype(servertype, !direction);
+      if ((servertype & 1) != (currentType & 1)) {
+        Client.softReloadCache((servertype & 1) != 0);
+      }
     }
   }
 

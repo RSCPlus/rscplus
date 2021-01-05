@@ -192,6 +192,7 @@ public class Settings {
   public static HashMap<Integer, String> WORLD_URLS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_NAMES = new HashMap<Integer, String>();
   public static HashMap<Integer, Integer> WORLD_PORTS = new HashMap<Integer, Integer>();
+  public static HashMap<Integer, Integer> WORLD_SERVER_TYPES = new HashMap<Integer, Integer>();
   public static HashMap<Integer, String> WORLD_RSA_PUB_KEYS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_RSA_EXPONENTS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_FILE_PATHS = new HashMap<Integer, String>();
@@ -1472,6 +1473,8 @@ public class Settings {
             WORLD_NAMES.put(i, worldProps.getProperty("name"));
             WORLD_URLS.put(i, worldProps.getProperty("url"));
             WORLD_PORTS.put(i, Integer.parseInt(worldProps.getProperty("port")));
+            WORLD_SERVER_TYPES.put(
+                i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
             WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
             WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
 
@@ -1502,6 +1505,7 @@ public class Settings {
       worldProps.setProperty("name", WORLD_NAMES.get(i));
       worldProps.setProperty("url", WORLD_URLS.get(i));
       worldProps.setProperty("port", WORLD_PORTS.get(i).toString());
+      worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(i).toString());
       worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(i));
       worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(i));
 
@@ -1531,6 +1535,7 @@ public class Settings {
     WORLD_NAMES.put(worldNum, String.format("World %d", worldNum));
     WORLD_URLS.put(worldNum, "");
     WORLD_PORTS.put(worldNum, Replay.DEFAULT_PORT);
+    WORLD_SERVER_TYPES.put(worldNum, 1);
     WORLD_RSA_PUB_KEYS.put(worldNum, "");
     WORLD_RSA_EXPONENTS.put(worldNum, "");
 
@@ -1542,6 +1547,7 @@ public class Settings {
     worldProps.setProperty("name", WORLD_NAMES.get(worldNum));
     worldProps.setProperty("url", WORLD_URLS.get(worldNum));
     worldProps.setProperty("port", WORLD_PORTS.get(worldNum).toString());
+    worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(worldNum).toString());
     worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(worldNum));
     worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(worldNum));
 
@@ -1570,6 +1576,7 @@ public class Settings {
       WORLD_NAMES.put(i - 1, WORLD_NAMES.remove(i));
       WORLD_URLS.put(i - 1, WORLD_URLS.remove(i));
       WORLD_PORTS.put(i - 1, WORLD_PORTS.remove(i));
+      WORLD_SERVER_TYPES.put(i - 1, WORLD_SERVER_TYPES.remove(i));
       WORLD_RSA_PUB_KEYS.put(i - 1, WORLD_RSA_PUB_KEYS.remove(i));
       WORLD_RSA_EXPONENTS.put(i - 1, WORLD_RSA_EXPONENTS.remove(i));
       WORLD_FILE_PATHS.put(i - 1, WORLD_FILE_PATHS.remove(i));
@@ -1577,6 +1584,7 @@ public class Settings {
     WORLD_NAMES.remove(initialSize);
     WORLD_URLS.remove(initialSize);
     WORLD_PORTS.remove(initialSize);
+    WORLD_SERVER_TYPES.remove(initialSize);
     WORLD_RSA_PUB_KEYS.remove(initialSize);
     WORLD_RSA_EXPONENTS.remove(initialSize);
     WORLD_FILE_PATHS.remove(initialSize);

@@ -105,6 +105,11 @@ public class Replay {
   public static int prevPlayerX;
   public static int prevPlayerY;
 
+  // TODO: these will be needed to be added as metadata for existing replays
+  // and stored for new ones
+  public static boolean replayMembers = true;
+  public static boolean replayVeterans = false;
+
   public static int timestamp;
   public static int timestamp_disconnect;
   public static int timestamp_client;
@@ -153,6 +158,7 @@ public class Replay {
     paused = false;
     closeDialogue = false;
     replayDirectory = directory;
+    replayMembers = ((int)Replay.readMetadata(directory)[4] & (1 << 31)) == 0; // first bit of user settings is true if replay is F2P
   }
 
   public static int getServerLag() {
@@ -259,6 +265,7 @@ public class Replay {
     replayThread = new Thread(replayServer);
     replayThread.start();
     ignoreFirstMovement = true;
+
     // if (Client.strings[662].startsWith("from:")) {
     // Client.strings[662] = "@bla@from:";
     // }
@@ -271,6 +278,7 @@ public class Replay {
       while (!replayServer.isReady) Thread.sleep(1);
     } catch (Exception e) {
     }
+    Client.switchLiveToReplay(true);
     Client.login(false, XPBar.excludeUsername, "");
     updateFrameTimeSlice();
     return true;
@@ -325,7 +333,8 @@ public class Replay {
     isSeeking = false;
     resetFrameTimeSlice();
     Client.closeConnection(false);
-    resetPort();
+    Client.switchLiveToReplay(false);
+    // resetPort();
     // fpsPlayMultiplier = 1.0f;
     resetPatchClient();
     isPlaying = false;
@@ -454,8 +463,17 @@ public class Replay {
         for (int i = 0; i < ipAddressMetadata.length; i++) {
           metadata.writeByte(ipAddressMetadata[i]);
         }
-        metadata.writeByte(0); // conversion settings, none used in this case
-        metadata.writeInt(0); // User settings, not implemented for any purpose at this time
+
+        metadata.writeByte(0); // rscminus conversion settings, none used in this case
+
+        int userSettings = 0;
+        // "User settings", 1st bit is used to denote if replay was on F2P or Members world.
+        // Rest of the 31 bits are not implemented for any purpose at this time
+        if (!Client.members) {
+            userSettings |= 1 << 31;
+        }
+        metadata.writeInt(userSettings);
+
         metadata.flush();
         metadata.close();
       } catch (IOException e) {
@@ -790,7 +808,7 @@ public class Replay {
         metadata.writeByte(ipAddressMetadata[i]);
       }
       metadata.writeByte(0); // conversion settings, none used in this case
-      metadata.writeInt(0); // User settings, not implemented for any purpose at this time
+      metadata.writeInt(0); // "User settings", 1st bit is F2P or Members. Since metadata.bin doesn't exist, probably members
       metadata.flush();
       metadata.close();
     } catch (IOException e) {

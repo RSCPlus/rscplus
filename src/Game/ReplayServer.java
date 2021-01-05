@@ -242,6 +242,7 @@ public class ReplayServer implements Runnable {
       input.close();
 
       Logger.Debug("ReplayServer: Replay ended");
+      Client.switchLiveToReplay(false);
 
       if (ReplayQueue.currentIndex >= ReplayQueue.queue.size())
         Logger.Info("ReplayServer: Playback has finished");

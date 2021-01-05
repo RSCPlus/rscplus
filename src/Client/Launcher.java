@@ -372,7 +372,13 @@ public class Launcher extends JFrame implements Runnable {
 
     Logger.Info("Loading resource: " + fileName);
 
-    if (fileName.equals("/assets/content/content10_ffffffffa95e7195")) {
+    if (fileName.equals("/assets/content/content10_ffffffffa95e7195") && Client.firstTime) {
+      // members
+      finishedLoading();
+    } else if (fileName.equals("/assets/content/content6_ffffffffe997514b")
+        && !Client.members
+        && Client.firstTime) {
+      // free
       finishedLoading();
     }
 
@@ -408,7 +414,11 @@ public class Launcher extends JFrame implements Runnable {
 
   public static void finishedLoading() {
     // Remember world setting
+    Client.lastIsMembers = Client.members;
     Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    if (Client.firstTime) {
+      Client.firstTime = false;
+    }
   }
 
   /** @return the window */

@@ -60,6 +60,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -256,6 +257,7 @@ public class ConfigWindow {
 
   //// World List tab
   private HashMap<Integer, JTextField> worldNamesJTextFields = new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JComboBox> worldTypesJComboBoxes = new HashMap<Integer, JComboBox>();
   private HashMap<Integer, JButton> worldDeleteJButtons = new HashMap<Integer, JButton>();
   private HashMap<Integer, JTextField> worldUrlsJTextFields = new HashMap<Integer, JTextField>();
   private HashMap<Integer, JTextField> worldPortsJTextFields = new HashMap<Integer, JTextField>();
@@ -1742,7 +1744,7 @@ public class ConfigWindow {
     replayPanelShowConversionSettingsCheckbox.setToolTipText(
         "Chat Stripping, Private Chat Stripping, Whether or not it has been converted, etc.");
     replayPanelShowUserFieldCheckbox =
-        addCheckbox("Show \"User Field\" Column (Most likely unused)", replayPanel);
+        addCheckbox("Show \"User Field\" Column (1st bit used for F2P)", replayPanel);
     replayPanelShowUserFieldCheckbox.setToolTipText(
         "This int field when introduced did absolutely nothing and acts as \"Reserved Bits\" for the metadata.bin format. Users may feel free to use it for whatever they can think of.");
 
@@ -2654,6 +2656,8 @@ public class ConfigWindow {
           i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
 
+      Settings.WORLD_SERVER_TYPES.put(i, (Integer) worldTypesJComboBoxes.get(i).getSelectedIndex());
+
       String portString = worldPortsJTextFields.get(i).getText();
       if (portString.equals("")) {
         Settings.WORLD_PORTS.put(i, Replay.DEFAULT_PORT);
@@ -2752,17 +2756,34 @@ public class ConfigWindow {
     worldNamesJTextFields.get(i).setAlignmentY((float) 0.75);
     worldListTitleTextFieldContainers.get(i).add(worldNamesJTextFields.get(i), cR);
 
-    cR.weightx = 0.3;
+    cR.weightx = 0.1;
     cR.gridwidth = 1;
     cR.anchor = GridBagConstraints.LINE_END;
 
-    JLabel spacingJLabel = new JLabel("");
-    worldNumberJLabel.setAlignmentY((float) 0.75);
-    worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
+    /*
+          JLabel spacingJLabel = new JLabel("");
+          worldNumberJLabel.setAlignmentY((float) 0.75);
+          worldListTitleTextFieldContainers.get(i).add(spacingJLabel, cR);
+    */
+
+    String[] worldTypes = {"Free", "Members", "Free (Veteran)", "Members (Veteran)"};
+    JComboBox worldTypeComboBox = new JComboBox(worldTypes);
+
+    worldTypesJComboBoxes.put(i, worldTypeComboBox);
+    worldTypesJComboBoxes.get(i).setMinimumSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setMaximumSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setPreferredSize(new Dimension(120, 28));
+    worldTypesJComboBoxes.get(i).setAlignmentY((float) 0.75);
+    worldListTitleTextFieldContainers.get(i).add(worldTypesJComboBoxes.get(i), cR);
+
+    cR.weightx = 0.3;
+    cR.gridwidth = 1;
 
     worldDeleteJButtons.put(i, new JButton("Delete World"));
     worldDeleteJButtons.get(i).setAlignmentY((float) 0.80);
     worldDeleteJButtons.get(i).setPreferredSize(new Dimension(50, 28));
+    worldTypesJComboBoxes.get(i).setMinimumSize(new Dimension(50, 28));
+    worldTypesJComboBoxes.get(i).setMaximumSize(new Dimension(50, 28));
     worldDeleteJButtons.get(i).setActionCommand(String.format("%d", i));
     worldDeleteJButtons
         .get(i)
@@ -2879,6 +2900,9 @@ public class ConfigWindow {
     for (int i = 1; (i <= numberOfWorldsEver) || (i <= Settings.WORLDS_TO_DISPLAY); i++) {
       if (i <= Settings.WORLDS_TO_DISPLAY) {
         worldNamesJTextFields.get(i).setText(Settings.WORLD_NAMES.get(i));
+        worldTypesJComboBoxes
+            .get(i)
+            .setSelectedIndex(Settings.WORLD_SERVER_TYPES.getOrDefault(i, 1));
         worldUrlsJTextFields.get(i).setText(Settings.WORLD_URLS.get(i));
         try {
           worldPortsJTextFields.get(i).setText(Settings.WORLD_PORTS.get(i).toString());
