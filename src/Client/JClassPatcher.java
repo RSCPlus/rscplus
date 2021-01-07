@@ -78,6 +78,7 @@ public class JClassPatcher {
     else if (node.name.equals("f")) patchRandom(node);
     else if (node.name.equals("da")) patchGameApplet(node);
     else if (node.name.equals("lb")) patchRendererHelper(node);
+    else if (node.name.equals("sa")) patchSoundHelper(node);
 
     // Patch applied to all classes
     patchGeneric(node);
@@ -4054,6 +4055,44 @@ public class JClassPatcher {
                     "(Ljava/lang/Throwable;I)V"));
             methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.RETURN));
             methodNode.instructions.remove(nextNode);
+          }
+        }
+      }
+    }
+  }
+
+  private void patchSoundHelper(ClassNode node) {
+    Logger.Info("Patching sound helper (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      if (methodNode.name.equals("a")
+          && methodNode.desc.equals("(Lc;Ljava/awt/Component;II)Lsa;")) {
+        // Hook loadSounds to keep same gameContainer reference when called on subsequent loadSound
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC) {
+            AbstractInsnNode call = insnNode;
+
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ALOAD, 1));
+
+            methodNode.instructions.insertBefore(
+                call,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "getAndSetSoundGameContainer",
+                    "(Ljava/awt/Component;)Ljava/awt/Component;",
+                    false));
+            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ASTORE, 1));
+
+            break;
           }
         }
       }

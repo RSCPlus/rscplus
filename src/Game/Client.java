@@ -33,6 +33,7 @@ import Client.TwitchIRC;
 import Client.Util;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -392,6 +393,8 @@ public class Client {
   // used to distinguish live world, in replay there are two similar variables
   public static boolean worldMembers;
   public static boolean worldVeterans;
+  public static Object soundSub = null;
+  public static Object gameContainer = null;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -1624,8 +1627,32 @@ public class Client {
       Reflection.loadGameConfig.invoke(Client.instance, false);
       Reflection.loadEntities.invoke(Client.instance, true);
       Reflection.loadMaps.invoke(Client.instance, 5359);
+
+      Object soundBuf = Reflection.soundBuffer.get(Client.instance);
+      if (soundSub == null && soundBuf != null) {
+        // keep reference of buffer
+        soundSub = soundBuf;
+      }
+
       if (members) {
-        Reflection.loadSounds.invoke(Client.instance, -90);
+        // sound loading routine not done
+        if (soundSub == null && soundBuf == null) {
+          Reflection.loadSounds.invoke(Client.instance, -90);
+        }
+        // from free to memb and loading routine already done sometime before
+        // is just needed to load the sound data and setting back the buffer
+        else if (soundBuf == null) {
+          // strings[345] = "Sound effects"
+          byte[] soundData =
+              (byte[]) Reflection.loadDataFile.invoke(Client.instance, strings[345], 90, 10, 66);
+          Reflection.memberSoundPack.set(Client.instance, soundData);
+          Reflection.soundBuffer.set(Client.instance, soundSub);
+        }
+      } else {
+        // nullify the sound buffer disallow playing sound
+        Reflection.soundBuffer.set(Client.instance, null);
+        // and sound data to save some memory
+        Reflection.memberSoundPack.set(Client.instance, null);
       }
       if (lastHeightOffset == planeIndex) {
         // force re-render of game world terrain
@@ -2039,6 +2066,13 @@ public class Client {
         // TODO Auto-generated catch block
       }
     }
+  }
+
+  public static Component getAndSetSoundGameContainer(Component gameContainer) {
+    if (Client.gameContainer == null) {
+      Client.gameContainer = gameContainer;
+    }
+    return (Component) Client.gameContainer;
   }
 
   /**
