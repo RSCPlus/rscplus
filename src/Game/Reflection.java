@@ -131,6 +131,7 @@ public class Reflection {
   public static Method loadEntities = null;
   public static Method loadMaps = null;
   public static Method loadSounds = null;
+  public static Method loadDataFile = null;
 
   public static Method addButtonBack = null;
   public static Method addCenterText = null;
@@ -218,6 +219,7 @@ public class Reflection {
   private static final String LOAD_ENTITIES = "private final void client.c(boolean)";
   private static final String LOAD_MAPS = "private final void client.m(int)";
   private static final String LOAD_SOUNDS = "private final void client.E(int)";
+  private static final String LOAD_DATA_FILE = "final byte[] e.a(java.lang.String,int,int,int)";
 
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
   private static final String ADDCENTERTEXT =
@@ -250,6 +252,9 @@ public class Reflection {
         } else if (method.toGenericString().equals(GETPARAMETER)) {
           getParameter = method;
           Logger.Info("Found getParameter");
+        } else if (method.toGenericString().equals(LOAD_DATA_FILE)) {
+          loadDataFile = method;
+          Logger.Info("Found loadDataFile");
         }
       }
 
@@ -811,6 +816,7 @@ public class Reflection {
       if (loadEntities != null) loadEntities.setAccessible(true);
       if (loadMaps != null) loadMaps.setAccessible(true);
       if (loadSounds != null) loadSounds.setAccessible(true);
+      if (loadDataFile != null) loadDataFile.setAccessible(true);
       if (memberMapPack != null) memberMapPack.setAccessible(true);
       if (memberLandscapePack != null) memberLandscapePack.setAccessible(true);
       if (memberSoundPack != null) memberSoundPack.setAccessible(true);

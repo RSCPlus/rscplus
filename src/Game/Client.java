@@ -394,7 +394,6 @@ public class Client {
   public static boolean worldMembers;
   public static boolean worldVeterans;
   public static Object soundSub = null;
-  public static byte[] soundData = null;
   public static Object gameContainer = null;
 
   /**
@@ -1630,10 +1629,9 @@ public class Client {
       Reflection.loadMaps.invoke(Client.instance, 5359);
 
       Object soundBuf = Reflection.soundBuffer.get(Client.instance);
-      byte[] soundD = (byte[]) Reflection.memberSoundPack.get(Client.instance);
       if (soundSub == null && soundBuf != null) {
+        // keep reference of buffer
         soundSub = soundBuf;
-        soundData = soundD;
       }
 
       if (members) {
@@ -1642,7 +1640,11 @@ public class Client {
           Reflection.loadSounds.invoke(Client.instance, -90);
         }
         // from free to memb and loading routine already done sometime before
+        // is just needed to load the sound data and setting back the buffer
         else if (soundBuf == null) {
+          // strings[345] = "Sound effects"
+          byte[] soundData =
+              (byte[]) Reflection.loadDataFile.invoke(Client.instance, strings[345], 90, 10, 66);
           Reflection.memberSoundPack.set(Client.instance, soundData);
           Reflection.soundBuffer.set(Client.instance, soundSub);
         }
