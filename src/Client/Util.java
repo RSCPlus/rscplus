@@ -428,4 +428,18 @@ public class Util {
     }
     return res;
   }
+
+  public static int parseUnsignedShort(String num) throws NumberFormatException {
+    int result;
+    try {
+      result = Integer.parseInt(num);
+      if (result >= 0 && result <= (Short.MAX_VALUE - Short.MIN_VALUE)) {
+        return result;
+      } else {
+        throw new NumberFormatException("Value out of range. Value:\"" + num + "\" Radix:10");
+      }
+    } catch (NumberFormatException nfe) {
+      throw nfe;
+    }
+  }
 }

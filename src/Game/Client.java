@@ -385,6 +385,10 @@ public class Client {
   public static Object worldInstance;
   public static int lastHeightOffset;
 
+  // BELOW VARIABLE USED IN THE REMOVE X RESIZABLE BUG-FIX WHEN TRADING
+  public static String[] items_remove_message =
+      new String[] {"Enter number of items to remove and press enter"};
+
   public static Boolean lastIsMembers = null;
 
   // used in original client
