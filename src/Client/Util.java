@@ -428,4 +428,21 @@ public class Util {
     }
     return res;
   }
+
+  public static int boundUnsignedShort(String num) throws NumberFormatException {
+    int result;
+    int limit = Short.MAX_VALUE - Short.MIN_VALUE;
+    try {
+      result = Integer.parseInt(num);
+      if (result < 0) {
+        return 0;
+      } else if (result >= 0 && result <= limit) {
+        return result;
+      } else {
+        return limit;
+      }
+    } catch (NumberFormatException nfe) {
+      throw nfe;
+    }
+  }
 }

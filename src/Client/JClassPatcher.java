@@ -3363,6 +3363,106 @@ public class JClassPatcher {
             break;
           }
         }
+        // limit buy and sell x to 65535
+        // 221 and 236 are the seeked on opcodes
+        insnNodeList = methodNode.instructions.iterator();
+        int[] opcodes = {221, 236};
+        boolean exited = false;
+        for (int i = 0; i < 2; i++) {
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode peekedNode, callNode;
+
+            if (nextNode == null
+                || ((peekedNode = nextNode.getNext().getNext().getNext()) == null)) {
+              exited = true;
+              break;
+            }
+
+            if (insnNode.getOpcode() == Opcodes.INVOKESTATIC
+                && ((MethodInsnNode) insnNode).name.equals("parseInt")
+                && ((MethodInsnNode) insnNode).desc.equals("(Ljava/lang/String;)I")
+                && nextNode.getOpcode() == Opcodes.ISTORE
+                && peekedNode.getOpcode() == Opcodes.SIPUSH
+                && (((IntInsnNode) peekedNode).operand == opcodes[0]
+                    || ((IntInsnNode) peekedNode).operand == opcodes[1])) {
+              callNode = nextNode.getNext();
+              methodNode.instructions.insertBefore(callNode, new VarInsnNode(Opcodes.ALOAD, 2));
+              methodNode.instructions.insertBefore(
+                  callNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Util",
+                      "boundUnsignedShort",
+                      "(Ljava/lang/String;)I"));
+              methodNode.instructions.insertBefore(callNode, new VarInsnNode(Opcodes.ISTORE, 4));
+              continue;
+            }
+          }
+          if (exited) {
+            break;
+          }
+        }
+
+        // fix the ArrayOutOfBounds exception that happens if shopindex = -1 (i.e. item focus lost)
+        // and player tries the Buy or Sell X
+        // 221 and 236 are the seeked on opcodes
+        insnNodeList = methodNode.instructions.iterator();
+        exited = false;
+        for (int i = 0; i < 2; i++) {
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode currNode, targetNode, startNode;
+
+            if (nextNode == null) {
+              exited = true;
+              break;
+            }
+
+            if (insnNode.getOpcode() == Opcodes.GETFIELD
+                && ((FieldInsnNode) insnNode).name.equals("Jh")
+                && ((FieldInsnNode) insnNode).desc.equals("Lda;")
+                && nextNode.getOpcode() == Opcodes.SIPUSH
+                && (((IntInsnNode) nextNode).operand == opcodes[0]
+                    || ((IntInsnNode) nextNode).operand == opcodes[1])) {
+              currNode = insnNode.getNext();
+
+              while (currNode.getOpcode() != Opcodes.ILOAD || ((VarInsnNode) currNode).var != 3) {
+                // find iload3, to insert jump to if the shopindex is -1
+                currNode = currNode.getPrevious();
+              }
+              targetNode = currNode;
+
+              while (currNode.getOpcode() != Opcodes.GETFIELD
+                  || !((FieldInsnNode) currNode).owner.equals("client")
+                  || !((FieldInsnNode) currNode).name.equals("Rj")) {
+                // find client.Rj:int[]
+                currNode = currNode.getPrevious();
+              }
+              currNode = currNode.getPrevious();
+              startNode = currNode;
+
+              LabelNode label = new LabelNode();
+
+              methodNode.instructions.insertBefore(startNode, new InsnNode(Opcodes.ICONST_M1));
+              methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ISTORE, 3));
+              methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  startNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Di", "I"));
+              methodNode.instructions.insertBefore(
+                  startNode, new JumpInsnNode(Opcodes.IFLT, label));
+
+              methodNode.instructions.insertBefore(targetNode, label);
+
+              continue;
+            }
+          }
+          if (exited) {
+            break;
+          }
+        }
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(ZI)V")) {
         // Disconnect hook (::closecon)
@@ -3755,6 +3855,44 @@ public class JClassPatcher {
                     false));
             methodNode.instructions.insertBefore(
                 labelNode, new JumpInsnNode(Opcodes.GOTO, targetNode));
+          }
+        }
+      }
+
+      if (methodNode.name.equals("n") && methodNode.desc.equals("(B)V")) {
+        // bug-fix of remove-x in resizable
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode call;
+          LabelNode altNode, contNode;
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).owner.equals("ua")
+              && ((FieldInsnNode) insnNode).name.equals("Kb")) {
+            call = insnNode.getNext();
+
+            altNode = new LabelNode();
+            contNode = new LabelNode();
+
+            methodNode.instructions.insertBefore(call, altNode);
+            methodNode.instructions.insertBefore(
+                call,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC,
+                    "Game/Client",
+                    "items_remove_message",
+                    "[Ljava/lang/String;"));
+            methodNode.instructions.insertBefore(call, contNode);
+
+            // new reference to add in patch
+            call = insnNode.getNext();
+            methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.IFNULL, altNode));
+            methodNode.instructions.insertBefore(
+                call, new FieldInsnNode(Opcodes.GETSTATIC, "ua", "Kb", "[Ljava/lang/String;"));
+            methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.GOTO, contNode));
+            break;
           }
         }
       }
