@@ -429,14 +429,17 @@ public class Util {
     return res;
   }
 
-  public static int parseUnsignedShort(String num) throws NumberFormatException {
+  public static int boundUnsignedShort(String num) throws NumberFormatException {
     int result;
+    int limit = Short.MAX_VALUE - Short.MIN_VALUE;
     try {
       result = Integer.parseInt(num);
-      if (result >= 0 && result <= (Short.MAX_VALUE - Short.MIN_VALUE)) {
+      if (result < 0) {
+        return 0;
+      } else if (result >= 0 && result <= limit) {
         return result;
       } else {
-        throw new NumberFormatException("Value out of range. Value:\"" + num + "\" Radix:10");
+        return limit;
       }
     } catch (NumberFormatException nfe) {
       throw nfe;

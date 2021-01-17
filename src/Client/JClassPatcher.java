@@ -3394,7 +3394,7 @@ public class JClassPatcher {
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
                       "Client/Util",
-                      "parseUnsignedShort",
+                      "boundUnsignedShort",
                       "(Ljava/lang/String;)I"));
               methodNode.instructions.insertBefore(callNode, new VarInsnNode(Opcodes.ISTORE, 4));
               continue;
