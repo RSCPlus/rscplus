@@ -123,6 +123,9 @@ public class Renderer {
   private static int shapeHeight;
   private static int shapeX;
 
+  private static int sleepTimer = 0;
+  private static boolean lastInterlace = false;
+
   public static void init() {
     // patch copyright to match the year that jagex took down RSC
     shellStrings[23] = shellStrings[23].replaceAll("2015", "2018");
@@ -750,6 +753,10 @@ public class Renderer {
         y = 32;
         drawShadowText(
             g2, "FPS: " + fps + " (" + Client.updatesPerSecond + ")", x, y, color_text, false);
+        y += 16;
+        drawShadowText(g2,"FPS Sleepiness: " + sleepTimer, x, y, color_text, false);
+        y += 16;
+        drawShadowText(g2,"Interlace: " + Client.getInterlace(), x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false);
         y += 16;
@@ -1583,6 +1590,70 @@ public class Renderer {
     g.drawImage(game_image, 0, 0, null);
 
     frames++;
+
+    if (Settings.FPS_LIMIT_ENABLED.get(Settings.currentProfile)) {
+      int targetFPS = Settings.FPS_LIMIT.get(Settings.currentProfile);
+
+      // pretend that interlacing helps fps while frame limiting
+      if (Client.getInterlace()) {
+        targetFPS *= 2;
+      }
+      if (Client.getInterlace() != lastInterlace) {
+        if (lastInterlace) {
+          sleepTimer *= 2;
+          if (sleepTimer > 1250) {
+            sleepTimer = 1250;
+          }
+        } else {
+          sleepTimer /= 2;
+        }
+      }
+      lastInterlace = Client.getInterlace();
+
+      // sleep the renderer thread to achieve target FPS
+      if (frames > targetFPS / 2 && sleepTimer < 1250) {
+        // maximum time to sleep is about 1.25 seconds. Would not like to sleep longer than that ever.
+        if (sleepTimer > 500) {
+          // we must accelerate the sleep timer incrementation because at sub-3 fps
+          // we can't increase it fast enough to reach target of 1 fps
+          sleepTimer += 30;
+        }
+        if (sleepTimer > 300) {
+          sleepTimer += 10;
+        }
+        if (sleepTimer > 200) {
+          sleepTimer += 5;
+        }
+        if (sleepTimer > 100) {
+          sleepTimer += 2;
+        }
+        sleepTimer++;
+
+      } else if (frames < targetFPS / 2 && sleepTimer > 0) {
+        if (sleepTimer > 500) {
+          // would like to leave this state quickly
+          sleepTimer -= 50;
+        }
+        if (sleepTimer > 300) {
+          sleepTimer -= 10;
+        }
+        if (sleepTimer > 200) {
+          sleepTimer -= 5;
+        }
+        if (sleepTimer > 100) {
+          sleepTimer -= 2;
+        }
+        sleepTimer--;
+      }
+
+      try {
+        // sleeping the renderer thread lowers the FPS
+        Thread.sleep(sleepTimer);
+      } catch (Exception e) {
+      }
+    }
+
+    // calculate FPS
     time = System.currentTimeMillis();
     if (time > fps_timer) {
       fps = frames;
@@ -1590,6 +1661,7 @@ public class Renderer {
       fps_timer = time + 1000;
     }
 
+    // handle resize
     if (width != new_size.width || height != new_size.height) handle_resize();
     if (Settings.fovUpdateRequired) {
       Camera.setFoV(Settings.FOV.get(Settings.currentProfile));

@@ -100,6 +100,8 @@ public class Settings {
   public static HashMap<String, Boolean> CAMERA_MOVABLE_RELATIVE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COLORIZE_CONSOLE_TEXT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FOV = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
@@ -525,6 +527,22 @@ public class Settings {
     FOV.put("heavy", 9);
     FOV.put("all", 9);
     FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
+
+    FPS_LIMIT_ENABLED.put("vanilla", false);
+    FPS_LIMIT_ENABLED.put("vanilla_resizable", false);
+    FPS_LIMIT_ENABLED.put("lite", false);
+    FPS_LIMIT_ENABLED.put("default", false);
+    FPS_LIMIT_ENABLED.put("heavy", false);
+    FPS_LIMIT_ENABLED.put("all", true);
+    FPS_LIMIT_ENABLED.put("custom", getPropBoolean(props, "fps_limit_enabled", FPS_LIMIT_ENABLED.get("default")));
+
+    FPS_LIMIT.put("vanilla", 10);
+    FPS_LIMIT.put("vanilla_resizable", 10);
+    FPS_LIMIT.put("lite", 10);
+    FPS_LIMIT.put("default", 10);
+    FPS_LIMIT.put("heavy", 10);
+    FPS_LIMIT.put("all", 10);
+    FPS_LIMIT.put("custom", getPropInt(props, "fps_limit", FPS_LIMIT.get("default")));
 
     SOFTWARE_CURSOR.put("vanilla", false);
     SOFTWARE_CURSOR.put("vanilla_resizable", false);
@@ -1669,6 +1687,8 @@ public class Settings {
           "camera_movable_relative", Boolean.toString(CAMERA_MOVABLE_RELATIVE.get(preset)));
       props.setProperty("colorize", Boolean.toString(COLORIZE_CONSOLE_TEXT.get(preset)));
       props.setProperty("fov", Integer.toString(FOV.get(preset)));
+      props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
+      props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));

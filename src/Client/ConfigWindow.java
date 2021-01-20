@@ -166,6 +166,8 @@ public class ConfigWindow {
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JSlider generalPanelViewDistanceSlider;
+  private JCheckBox generalPanelLimitFPSCheckbox;
+  private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelStartSearchedBankCheckbox;
@@ -635,6 +637,35 @@ public class ConfigWindow {
     generalPanelViewDistanceLabelTable.put(new Integer(20000), new JLabel("20,000"));
     generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
     generalPanelViewDistanceSlider.setPaintLabels(true);
+
+    //////
+    JPanel generalPanelLimitFPSPanel = new JPanel();
+    generalPanel.add(generalPanelLimitFPSPanel);
+    generalPanelLimitFPSPanel.setLayout(
+      new BoxLayout(generalPanelLimitFPSPanel, BoxLayout.X_AXIS));
+    generalPanelLimitFPSPanel.setPreferredSize(new Dimension(0, 37));
+    generalPanelLimitFPSPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelLimitFPSCheckbox =
+      addCheckbox("FPS limit (doubled while F1 interlaced):", generalPanelLimitFPSPanel);
+    generalPanelLimitFPSCheckbox.setToolTipText("Limit FPS for a more 2001 feeling (or to save battery)");
+
+    generalPanelLimitFPSSpinner = new JSpinner();
+    generalPanelLimitFPSPanel.add(generalPanelLimitFPSSpinner);
+    generalPanelLimitFPSSpinner.setMaximumSize(new Dimension(45, 22));
+    generalPanelLimitFPSSpinner.setMinimumSize(new Dimension(45, 22));
+    generalPanelLimitFPSSpinner.setAlignmentY((float) 0.75);
+    generalPanelLimitFPSSpinner.setToolTipText("Target FPS");
+    generalPanelLimitFPSSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
+    // Sanitize JSpinner value
+    SpinnerNumberModel spinnerLimitFpsModel = new SpinnerNumberModel();
+    spinnerLimitFpsModel.setMinimum(1);
+    spinnerLimitFpsModel.setMaximum(50);
+    spinnerLimitFpsModel.setValue(10);
+    spinnerLimitFpsModel.setStepSize(1);
+    generalPanelLimitFPSSpinner.setModel(spinnerLimitFpsModel);
+    //////
 
     JPanel generalPanelLogVerbosityPanel = new JPanel();
     generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -2241,6 +2272,10 @@ public class ConfigWindow {
     generalPanelLogForceTimestampsCheckbox.setSelected(
         Settings.LOG_FORCE_TIMESTAMPS.get(Settings.currentProfile));
     generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
+    generalPanelLimitFPSCheckbox.setSelected(
+      Settings.FPS_LIMIT_ENABLED.get(Settings.currentProfile));
+    generalPanelLimitFPSSpinner.setValue(
+      Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
     generalPanelCustomCursorCheckbox.setSelected(
@@ -2489,6 +2524,11 @@ public class ConfigWindow {
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
+    Settings.FPS_LIMIT_ENABLED.put(
+      Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
+    Settings.FPS_LIMIT.put(
+      Settings.currentProfile,
+      ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
     Settings.PATCH_GENDER.put(
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
     Settings.START_SEARCHEDBANK.put(

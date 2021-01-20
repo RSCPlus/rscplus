@@ -1794,6 +1794,12 @@ public class Client {
     } catch (Exception e) {
     }
   }
+  public static boolean getInterlace() {
+    try {
+      return (boolean)Reflection.interlace.get(Renderer.instance);
+    } catch (Exception e) {}
+    return false;
+  }
 
   public static void drawGraphics() {
     if (Reflection.drawGraphics == null) return;
