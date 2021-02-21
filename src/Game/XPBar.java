@@ -18,8 +18,8 @@
  */
 package Game;
 
-import Client.Settings;
 import Client.Logger;
+import Client.Settings;
 import java.awt.*;
 import java.text.NumberFormat;
 

@@ -770,9 +770,9 @@ public class Renderer {
         drawShadowText(
             g2, "FPS: " + fps + " (" + Client.updatesPerSecond + ")", x, y, color_text, false);
         y += 16;
-        drawShadowText(g2,"FPS Sleepiness: " + sleepTimer, x, y, color_text, false);
+        drawShadowText(g2, "FPS Sleepiness: " + sleepTimer, x, y, color_text, false);
         y += 16;
-        drawShadowText(g2,"Interlace: " + Client.getInterlace(), x, y, color_text, false);
+        drawShadowText(g2, "Interlace: " + Client.getInterlace(), x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Game Size: " + width + "x" + height, x, y, color_text, false);
         y += 16;
@@ -1206,11 +1206,10 @@ public class Renderer {
         g2.setColor(color_replay);
         Rectangle settingsButtonBounds = new Rectangle(512 - 140, 346 - 35, 100, 16);
         g2.fillRect(
-          settingsButtonBounds.x,
-          settingsButtonBounds.y,
-          settingsButtonBounds.width,
-          settingsButtonBounds.height);
-
+            settingsButtonBounds.x,
+            settingsButtonBounds.y,
+            settingsButtonBounds.width,
+            settingsButtonBounds.height);
       }
 
       // TODO: Uncomment this information when we can provide it again
@@ -1234,7 +1233,6 @@ public class Renderer {
       String daysString = "RuneScape Classic has been taken offline";
       drawShadowText(g2, daysString, width / 2, 24, Renderer.color_fatigue, true);
       //*/
-
 
       // Draw version information
       drawShadowText(
@@ -1642,7 +1640,8 @@ public class Renderer {
 
       // sleep the renderer thread to achieve target FPS
       if (frames > targetFPS / 2 && sleepTimer < 1250) {
-        // maximum time to sleep is about 1.25 seconds. Would not like to sleep longer than that ever.
+        // maximum time to sleep is about 1.25 seconds. Would not like to sleep longer than that
+        // ever.
         if (sleepTimer > 500) {
           // we must accelerate the sleep timer incrementation because at sub-3 fps
           // we can't increase it fast enough to reach target of 1 fps

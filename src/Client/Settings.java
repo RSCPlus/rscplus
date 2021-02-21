@@ -535,7 +535,8 @@ public class Settings {
     FPS_LIMIT_ENABLED.put("default", false);
     FPS_LIMIT_ENABLED.put("heavy", false);
     FPS_LIMIT_ENABLED.put("all", true);
-    FPS_LIMIT_ENABLED.put("custom", getPropBoolean(props, "fps_limit_enabled", FPS_LIMIT_ENABLED.get("default")));
+    FPS_LIMIT_ENABLED.put(
+        "custom", getPropBoolean(props, "fps_limit_enabled", FPS_LIMIT_ENABLED.get("default")));
 
     FPS_LIMIT.put("vanilla", 10);
     FPS_LIMIT.put("vanilla_resizable", 10);

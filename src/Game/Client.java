@@ -224,6 +224,7 @@ public class Client {
   public static Object clientStream;
   public static Object writeBuffer;
   public static Object menuCommon;
+  public static Object packetsIncoming;
 
   public static final int TRACER_LINES = 100;
 
@@ -237,6 +238,7 @@ public class Client {
   public static int[] new_bank_items_count;
   public static int[] new_bank_items;
   public static int bank_active_page;
+  public static int bank_items_max;
 
   // these two variables, they indicate distinct bank items count
   public static int new_count_items_bank;
@@ -1043,6 +1045,24 @@ public class Client {
   }
 
   /**
+   * General check for existing game received hooks, useful to reroute logic Send false if has
+   * finished processing
+   *
+   * @param opcode - Packet opcode
+   * @param psize - Packet size
+   * @return false to indicate no more processing is needed
+   */
+  public static boolean gameOpcodeReceivedHook(int opcode, int psize) {
+    boolean needsProcess = true;
+
+    if (Bank.processPacket(opcode, psize)) {
+      needsProcess = false;
+    }
+
+    return needsProcess;
+  }
+
+  /**
    * General extra check for new received opcodes Send false if has finished processing
    *
    * @param opcode - Packet opcode
@@ -1794,10 +1814,12 @@ public class Client {
     } catch (Exception e) {
     }
   }
+
   public static boolean getInterlace() {
     try {
-      return (boolean)Reflection.interlace.get(Renderer.instance);
-    } catch (Exception e) {}
+      return (boolean) Reflection.interlace.get(Renderer.instance);
+    } catch (Exception e) {
+    }
     return false;
   }
 
@@ -1905,13 +1927,13 @@ public class Client {
         if (Client.is_in_wild) offset = 70;
         try {
           Reflection.drawString.invoke(
-            surfaceInstance,
-            "Fps: " + Renderer.fps,
-            Renderer.width - 62 - offset,
-            Renderer.height - 19,
-            0xffff00,
-            false,
-            1);
+              surfaceInstance,
+              "Fps: " + Renderer.fps,
+              Renderer.width - 62 - offset,
+              Renderer.height - 19,
+              0xffff00,
+              false,
+              1);
         } catch (Exception e) {
         }
       }

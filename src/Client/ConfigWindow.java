@@ -641,14 +641,14 @@ public class ConfigWindow {
     //////
     JPanel generalPanelLimitFPSPanel = new JPanel();
     generalPanel.add(generalPanelLimitFPSPanel);
-    generalPanelLimitFPSPanel.setLayout(
-      new BoxLayout(generalPanelLimitFPSPanel, BoxLayout.X_AXIS));
+    generalPanelLimitFPSPanel.setLayout(new BoxLayout(generalPanelLimitFPSPanel, BoxLayout.X_AXIS));
     generalPanelLimitFPSPanel.setPreferredSize(new Dimension(0, 37));
     generalPanelLimitFPSPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     generalPanelLimitFPSCheckbox =
-      addCheckbox("FPS limit (doubled while F1 interlaced):", generalPanelLimitFPSPanel);
-    generalPanelLimitFPSCheckbox.setToolTipText("Limit FPS for a more 2001 feeling (or to save battery)");
+        addCheckbox("FPS limit (doubled while F1 interlaced):", generalPanelLimitFPSPanel);
+    generalPanelLimitFPSCheckbox.setToolTipText(
+        "Limit FPS for a more 2001 feeling (or to save battery)");
 
     generalPanelLimitFPSSpinner = new JSpinner();
     generalPanelLimitFPSPanel.add(generalPanelLimitFPSSpinner);
@@ -2273,9 +2273,8 @@ public class ConfigWindow {
         Settings.LOG_FORCE_TIMESTAMPS.get(Settings.currentProfile));
     generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
     generalPanelLimitFPSCheckbox.setSelected(
-      Settings.FPS_LIMIT_ENABLED.get(Settings.currentProfile));
-    generalPanelLimitFPSSpinner.setValue(
-      Settings.FPS_LIMIT.get(Settings.currentProfile));
+        Settings.FPS_LIMIT_ENABLED.get(Settings.currentProfile));
+    generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
     generalPanelCustomCursorCheckbox.setSelected(
@@ -2525,10 +2524,10 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.FPS_LIMIT_ENABLED.put(
-      Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
+        Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
     Settings.FPS_LIMIT.put(
-      Settings.currentProfile,
-      ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
+        Settings.currentProfile,
+        ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
     Settings.PATCH_GENDER.put(
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
     Settings.START_SEARCHEDBANK.put(

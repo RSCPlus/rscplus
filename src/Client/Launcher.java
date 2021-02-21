@@ -90,7 +90,6 @@ public class Launcher extends JFrame implements Runnable {
       icon_warn = new ImageIcon(iconURL);
     }
 
-
     iconURL = getResource("/assets/filter.png");
     if (iconURL != null) {
       icon_filter_text = new ImageIcon(iconURL);
@@ -144,7 +143,6 @@ public class Launcher extends JFrame implements Runnable {
     if (iconURL != null) {
       icon_user_custom = new ImageIcon(iconURL);
     }
-
 
     // Set size
     getContentPane().setPreferredSize(new Dimension(280, 32));
