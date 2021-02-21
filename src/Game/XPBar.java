@@ -19,6 +19,7 @@
 package Game;
 
 import Client.Settings;
+import Client.Logger;
 import java.awt.*;
 import java.text.NumberFormat;
 
@@ -68,6 +69,11 @@ public class XPBar {
    * @param g the Graphics2D object
    */
   void draw(Graphics2D g) {
+    if (Client.show_bank || Client.show_sleeping) {
+      // looks ugly & covers text, must hide.
+      return;
+    }
+
     if (Renderer.time > m_timer && !pinnedBar) {
       current_skill = -1;
       return;
@@ -282,8 +288,14 @@ public class XPBar {
       // assume it's a level, translate to XP
       xpGoal = (int) Client.getXPforLevel(xpGoal);
     }
-    Client.xpGoals.get(Client.xpUsername)[current_skill] = xpGoal;
-    Client.lvlGoals.get(Client.xpUsername)[current_skill] = Client.getLevelFromXP(xpGoal);
+    try {
+      Client.xpGoals.get(Client.xpUsername)[current_skill] = xpGoal;
+      Client.lvlGoals.get(Client.xpUsername)[current_skill] = Client.getLevelFromXP(xpGoal);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      e.printStackTrace();
+      Logger.Error("Could not set XP goal! Please report this.");
+      Logger.Error("username: " + Client.xpUsername + " current_skill: " + current_skill);
+    }
     Settings.save();
   }
 

@@ -1896,7 +1896,7 @@ public class JClassPatcher {
           }
         }
 
-        // Retro FPS overlay
+        // Retro FPS overlay, Native Text draw method
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -1913,7 +1913,7 @@ public class JClassPatcher {
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "Game/Client",
-                    "retroFPSHook",
+                    "drawNativeTextHook",
                     "(Ljava/lang/Object;)V",
                     false));
             break;

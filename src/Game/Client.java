@@ -1794,6 +1794,12 @@ public class Client {
     } catch (Exception e) {
     }
   }
+  public static boolean getInterlace() {
+    try {
+      return (boolean)Reflection.interlace.get(Renderer.instance);
+    } catch (Exception e) {}
+    return false;
+  }
 
   public static void drawGraphics() {
     if (Reflection.drawGraphics == null) return;
@@ -1892,12 +1898,13 @@ public class Client {
   }
 
   // hook to display retro fps on the client, early 2001 style
-  public static void retroFPSHook(Object surfaceInstance) {
-    if (surfaceInstance != null && Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
-      int offset = 0;
-      if (Client.is_in_wild) offset = 70;
-      try {
-        Reflection.drawString.invoke(
+  public static void drawNativeTextHook(Object surfaceInstance) {
+    if (surfaceInstance != null) {
+      if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
+        int offset = 0;
+        if (Client.is_in_wild) offset = 70;
+        try {
+          Reflection.drawString.invoke(
             surfaceInstance,
             "Fps: " + Renderer.fps,
             Renderer.width - 62 - offset,
@@ -1905,7 +1912,8 @@ public class Client {
             0xffff00,
             false,
             1);
-      } catch (Exception e) {
+        } catch (Exception e) {
+        }
       }
     }
   }

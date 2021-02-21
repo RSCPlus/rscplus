@@ -47,6 +47,23 @@ public class Launcher extends JFrame implements Runnable {
   public static ImageIcon icon = null;
   public static ImageIcon icon_warn = null;
 
+  // bank filter/sort icons
+  public static ImageIcon icon_satchel = null;
+  public static ImageIcon icon_runes_weapons_armour = null;
+  public static ImageIcon icon_lobster_potion = null;
+  public static ImageIcon icon_resources_tools = null;
+  public static ImageIcon icon_banksearch = null;
+  public static ImageIcon icon_filter_reset = null;
+  public static ImageIcon icon_release = null;
+  public static ImageIcon icon_item_value = null;
+  public static ImageIcon icon_alphabetical = null;
+  public static ImageIcon icon_efficient = null;
+  public static ImageIcon icon_user_custom = null;
+  // TODO: if we can draw native text on top of other elements drawn by RSC+,
+  // then we won't need to cheat by loading images of text like this
+  public static ImageIcon icon_filter_text = null;
+  public static ImageIcon icon_sort_text = null;
+
   private JProgressBar m_progressBar;
   private JClassLoader m_classLoader;
 
@@ -72,6 +89,62 @@ public class Launcher extends JFrame implements Runnable {
     if (iconURL != null) {
       icon_warn = new ImageIcon(iconURL);
     }
+
+
+    iconURL = getResource("/assets/filter.png");
+    if (iconURL != null) {
+      icon_filter_text = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/satchel.png");
+    if (iconURL != null) {
+      icon_satchel = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/runes.weapons.armour.png");
+    if (iconURL != null) {
+      icon_runes_weapons_armour = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/lobster.potion.png");
+    if (iconURL != null) {
+      icon_lobster_potion = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/resources.tools.png");
+    if (iconURL != null) {
+      icon_resources_tools = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/magnifying.lens.png");
+    if (iconURL != null) {
+      icon_banksearch = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/bank.filter.sort.reset.png");
+    if (iconURL != null) {
+      icon_filter_reset = new ImageIcon(iconURL);
+    }
+
+    iconURL = getResource("/assets/sort.png");
+    if (iconURL != null) {
+      icon_sort_text = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/release.png");
+    if (iconURL != null) {
+      icon_release = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/item.value.png");
+    if (iconURL != null) {
+      icon_item_value = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/alphabetical.png");
+    if (iconURL != null) {
+      icon_alphabetical = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/efficient.png");
+    if (iconURL != null) {
+      icon_efficient = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/user.config.png");
+    if (iconURL != null) {
+      icon_user_custom = new ImageIcon(iconURL);
+    }
+
 
     // Set size
     getContentPane().setPreferredSize(new Dimension(280, 32));

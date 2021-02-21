@@ -64,7 +64,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
         || inBounds(Renderer.fastForwardBounds)
         || inBounds(Renderer.nextBounds)
         || inBounds(Renderer.queueBounds)
-        || inBounds(Renderer.stopBounds);
+        || inBounds(Renderer.stopBounds)
+        || Bank.shouldConsume();
   }
 
   @Override
