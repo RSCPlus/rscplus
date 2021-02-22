@@ -170,8 +170,8 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelPatchGenderCheckbox;
-  private JCheckBox generalPanelStartSearchedBankCheckbox;
-  private JTextField generalPanelSearchBankWordTextField;
+  private JCheckBox generalPanelDebugModeCheckbox;
+  private JCheckBox generalPanelExceptionHandlerCheckbox;
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -200,12 +200,16 @@ public class ConfigWindow {
   private JCheckBox overlayPanelUsePercentageCheckbox;
   private JCheckBox overlayPanelFoodHealingCheckbox;
   private JCheckBox overlayPanelHPRegenTimerCheckbox;
-  private JCheckBox generalPanelDebugModeCheckbox;
-  private JCheckBox generalPanelExceptionHandlerCheckbox;
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
 
+  //// Bank tab
+  private JCheckBox bankPanelStartSearchedBankCheckbox;
+  private JTextField bankPanelSearchBankWordTextField;
+  private JCheckBox bankPanelCalculateBankValueCheckbox;
+  private JCheckBox bankPanelSortFilterAugmentCheckbox;
+  
   //// Notifications tab
   private JCheckBox notificationPanelPMNotifsCheckbox;
   private JCheckBox notificationPanelTradeNotifsCheckbox;
@@ -354,6 +358,7 @@ public class ConfigWindow {
     JScrollPane presetsScrollPane = new JScrollPane();
     JScrollPane generalScrollPane = new JScrollPane();
     JScrollPane overlayScrollPane = new JScrollPane();
+    JScrollPane bankScrollPane = new JScrollPane();
     JScrollPane notificationScrollPane = new JScrollPane();
     JScrollPane streamingScrollPane = new JScrollPane();
     JScrollPane keybindScrollPane = new JScrollPane();
@@ -364,6 +369,7 @@ public class ConfigWindow {
     JPanel presetsPanel = new JPanel();
     JPanel generalPanel = new JPanel();
     JPanel overlayPanel = new JPanel();
+    JPanel bankPanel = new JPanel();
     JPanel notificationPanel = new JPanel();
     JPanel streamingPanel = new JPanel();
     JPanel keybindPanel = new JPanel();
@@ -377,6 +383,7 @@ public class ConfigWindow {
     tabbedPane.addTab("Presets", null, presetsScrollPane, null);
     tabbedPane.addTab("General", null, generalScrollPane, null);
     tabbedPane.addTab("Overlays", null, overlayScrollPane, null);
+    tabbedPane.addTab("Bank", null, bankScrollPane, null);
     tabbedPane.addTab("Notifications", null, notificationScrollPane, null);
     tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null);
     tabbedPane.addTab("Keybinds", null, keybindScrollPane, null);
@@ -387,6 +394,7 @@ public class ConfigWindow {
     presetsScrollPane.setViewportView(presetsPanel);
     generalScrollPane.setViewportView(generalPanel);
     overlayScrollPane.setViewportView(overlayPanel);
+    bankScrollPane.setViewportView(bankPanel);
     notificationScrollPane.setViewportView(notificationPanel);
     streamingScrollPane.setViewportView(streamingPanel);
     keybindScrollPane.setViewportView(keybindPanel);
@@ -399,6 +407,7 @@ public class ConfigWindow {
     presetsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     overlayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    bankPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     notificationPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     streamingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     keybindPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -409,6 +418,7 @@ public class ConfigWindow {
     setScrollSpeed(presetsScrollPane, 20, 15);
     setScrollSpeed(generalScrollPane, 20, 15);
     setScrollSpeed(overlayScrollPane, 20, 15);
+    setScrollSpeed(bankScrollPane, 20, 15);
     setScrollSpeed(notificationScrollPane, 20, 15);
     setScrollSpeed(streamingScrollPane, 20, 15);
     setScrollSpeed(keybindScrollPane, 20, 15);
@@ -918,27 +928,6 @@ public class ConfigWindow {
     generalPanelPatchGenderCheckbox.setToolTipText(
         "When selected places body type instead of gender in the appearance screen");
 
-    generalPanelStartSearchedBankCheckbox = addCheckbox("Start with Searched Bank", generalPanel);
-    generalPanelStartSearchedBankCheckbox.setToolTipText("Always start with a searched bank");
-
-    JPanel searchBankPanel = new JPanel();
-    generalPanel.add(searchBankPanel);
-    searchBankPanel.setLayout(new BoxLayout(searchBankPanel, BoxLayout.X_AXIS));
-    searchBankPanel.setPreferredSize(new Dimension(0, 37));
-    searchBankPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
-
-    JLabel searchBankPanelLabel = new JLabel("Search term used on bank: ");
-    searchBankPanelLabel.setToolTipText("The search term that will be used on bank start");
-    searchBankPanel.add(searchBankPanelLabel);
-    searchBankPanelLabel.setAlignmentY((float) 0.9);
-
-    generalPanelSearchBankWordTextField = new JTextField();
-    searchBankPanel.add(generalPanelSearchBankWordTextField);
-    generalPanelSearchBankWordTextField.setMinimumSize(new Dimension(100, 28));
-    generalPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
-    generalPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
-
     /*
      * Overlays tab
      */
@@ -1135,6 +1124,44 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+
+    /*
+     * Bank tab
+     */
+
+    bankPanel.setLayout(new BoxLayout(bankPanel, BoxLayout.Y_AXIS));
+
+    /// "Client settings" are settings related to just setting up how the client behaves
+    /// Not really anything related to gameplay, just being able to set up the client
+    /// the way the user wants it
+    addSettingsHeader(bankPanel, "Bank settings");
+
+    bankPanelCalculateBankValueCheckbox = addCheckbox("Show Bank Value", bankPanel);
+    bankPanelCalculateBankValueCheckbox.setToolTipText("Calculates the value of your bank and displays it in the bank interface");
+
+    bankPanelSortFilterAugmentCheckbox = addCheckbox("Sort or Filter your Bank!!", bankPanel);
+    bankPanelSortFilterAugmentCheckbox.setToolTipText("Displays the RSC+ Sort and Filtering interface! Authentic!");
+
+    bankPanelStartSearchedBankCheckbox = addCheckbox("Remember Filter/Sort", bankPanel);
+    bankPanelStartSearchedBankCheckbox.setToolTipText("Always start with your last filtered/sorted bank settings");
+
+    JPanel searchBankPanel = new JPanel();
+    bankPanel.add(searchBankPanel);
+    searchBankPanel.setLayout(new BoxLayout(searchBankPanel, BoxLayout.X_AXIS));
+    searchBankPanel.setPreferredSize(new Dimension(0, 37));
+    searchBankPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel searchBankPanelLabel = new JLabel("Item Search (supports CSV): ");
+    searchBankPanelLabel.setToolTipText("List of phrases that occur in item names that you would like to see in your bank");
+    searchBankPanel.add(searchBankPanelLabel);
+    searchBankPanelLabel.setAlignmentY((float) 0.9);
+
+    bankPanelSearchBankWordTextField = new JTextField();
+    searchBankPanel.add(bankPanelSearchBankWordTextField);
+    bankPanelSearchBankWordTextField.setMinimumSize(new Dimension(100, 28));
+    bankPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    bankPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
 
     /*
      * Notifications tab
@@ -2281,10 +2308,6 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
-    generalPanelStartSearchedBankCheckbox.setSelected(
-        Settings.START_SEARCHEDBANK.get(Settings.currentProfile));
-    generalPanelSearchBankWordTextField.setText(
-        Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
 
     // Sets the text associated with the name patch slider.
     switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -2364,6 +2387,16 @@ public class ConfigWindow {
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
+
+    // Bank tab
+    bankPanelCalculateBankValueCheckbox.setSelected(
+      Settings.SHOW_BANK_VALUE.get(Settings.currentProfile));
+    bankPanelSortFilterAugmentCheckbox.setSelected(
+      Settings.SORT_FILTER_BANK.get(Settings.currentProfile));
+    bankPanelStartSearchedBankCheckbox.setSelected(
+      Settings.START_REMEMBERED_FILTER_SORT.get(Settings.currentProfile));
+    bankPanelSearchBankWordTextField.setText(
+      Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
 
     // Notifications tab
     notificationPanelPMNotifsCheckbox.setSelected(
@@ -2530,11 +2563,6 @@ public class ConfigWindow {
         ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
     Settings.PATCH_GENDER.put(
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
-    Settings.START_SEARCHEDBANK.put(
-        Settings.currentProfile, generalPanelStartSearchedBankCheckbox.isSelected());
-    Settings.SEARCH_BANK_WORD.put(
-        Settings.currentProfile,
-        generalPanelSearchBankWordTextField.getText().trim().toLowerCase());
 
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
@@ -2580,6 +2608,17 @@ public class ConfigWindow {
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+
+    // Bank options
+    Settings.SHOW_BANK_VALUE.put(
+      Settings.currentProfile, bankPanelCalculateBankValueCheckbox.isSelected());
+    Settings.SORT_FILTER_BANK.put(
+      Settings.currentProfile, bankPanelSortFilterAugmentCheckbox.isSelected());
+    Settings.START_REMEMBERED_FILTER_SORT.put(
+      Settings.currentProfile, bankPanelStartSearchedBankCheckbox.isSelected());
+    Settings.SEARCH_BANK_WORD.put(
+      Settings.currentProfile,
+      bankPanelSearchBankWordTextField.getText().trim().toLowerCase());
 
     // Notifications options
     Settings.PM_NOTIFICATIONS.put(

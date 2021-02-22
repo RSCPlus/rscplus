@@ -2435,65 +2435,9 @@ public class JClassPatcher {
           }
         }
       }
-      if (false && methodNode.name.equals("C") && methodNode.desc.equals("(I)V")) {
-        // Hook updateBankItems
-        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode prevNode = insnNode.getPrevious();
 
-          if (prevNode == null) continue;
-
-          if (insnNode.getOpcode() == Opcodes.ISTORE && prevNode.getOpcode() == Opcodes.GETSTATIC) {
-            VarInsnNode call = (VarInsnNode) insnNode;
-            methodNode.instructions.insert(
-                call,
-                new MethodInsnNode(
-                    Opcodes.INVOKESTATIC, "Game/Bank", "updateBankItemsHook", "()V"));
-            break;
-          }
-        }
-        // plus hook final bank items
-        insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode prevNode = insnNode.getPrevious();
-
-          if (prevNode == null) continue;
-
-          if (insnNode.getOpcode() == Opcodes.ISTORE && prevNode.getOpcode() == Opcodes.IDIV) {
-            VarInsnNode call = (VarInsnNode) insnNode;
-            methodNode.instructions.insert(
-                call,
-                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Bank", "finalBankItemsHook", "()V"));
-            break;
-          }
-        }
-      }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IBI)V")) {
         Iterator<AbstractInsnNode> insnNodeList;
-        boolean doAction = false;
-        // was in 2018 for bank search, prob will become deprecated
-        if (doAction) {
-          // hook first time opened bank interface
-          insnNodeList = methodNode.instructions.iterator();
-          while (insnNodeList.hasNext()) {
-            AbstractInsnNode insnNode = insnNodeList.next();
-            AbstractInsnNode nextNode = insnNode.getNext();
-
-            if (nextNode == null) continue;
-            if (insnNode.getOpcode() == Opcodes.ICONST_1
-                && nextNode.getOpcode() == Opcodes.PUTFIELD
-                && ((FieldInsnNode) nextNode).name.equals("Fe")) {
-              InsnNode call = (InsnNode) insnNode;
-              methodNode.instructions.insertBefore(
-                  call,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC, "Game/Bank", "openedBankInterfaceHook", "()V"));
-              break;
-            }
-          }
-        }
 
         // hook onto npc attack info
         insnNodeList = methodNode.instructions.iterator();
