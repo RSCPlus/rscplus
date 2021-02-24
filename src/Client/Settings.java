@@ -19,6 +19,7 @@
 package Client;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -45,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20210117.021116;
+  public static final double VERSION_NUMBER = 20210224.213745;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -144,7 +145,8 @@ public class Settings {
       new HashMap<String, ArrayList<String>>();
 
   //// bank
-  public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT =
+      new HashMap<String, Boolean>();
   public static HashMap<String, String> SEARCH_BANK_WORD = new HashMap<String, String>();
   public static HashMap<String, Boolean> SORT_FILTER_BANK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_BANK_VALUE = new HashMap<String, Boolean>();
@@ -215,6 +217,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DISASSEMBLE = new HashMap<String, Boolean>();
   public static HashMap<String, String> DISASSEMBLE_DIRECTORY = new HashMap<String, String>();
+  public static HashMap<String, Integer[]> USER_BANK_SORT = new HashMap<String, Integer[]>();
 
   // these are variables that are injected with JClassPatcher
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
@@ -868,7 +871,8 @@ public class Settings {
     START_REMEMBERED_FILTER_SORT.put("heavy", true);
     START_REMEMBERED_FILTER_SORT.put("all", true);
     START_REMEMBERED_FILTER_SORT.put(
-      "custom", getPropBoolean(props, "start_searched_bank", START_REMEMBERED_FILTER_SORT.get("default")));
+        "custom",
+        getPropBoolean(props, "start_searched_bank", START_REMEMBERED_FILTER_SORT.get("default")));
 
     SEARCH_BANK_WORD.put("vanilla", "");
     SEARCH_BANK_WORD.put("vanilla_resizable", "");
@@ -877,17 +881,16 @@ public class Settings {
     SEARCH_BANK_WORD.put("heavy", "");
     SEARCH_BANK_WORD.put("all", "");
     SEARCH_BANK_WORD.put(
-      "custom", getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
+        "custom", getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
 
     SHOW_BANK_VALUE.put("vanilla", false);
     SHOW_BANK_VALUE.put("vanilla_resizable", false);
     SHOW_BANK_VALUE.put("lite", false);
-    SHOW_BANK_VALUE.put("default", true);
+    SHOW_BANK_VALUE.put("default", false);
     SHOW_BANK_VALUE.put("heavy", true);
     SHOW_BANK_VALUE.put("all", true);
     SHOW_BANK_VALUE.put(
-      "custom",
-      getPropBoolean(props, "show_bank_value", SHOW_BANK_VALUE.get("default")));
+        "custom", getPropBoolean(props, "show_bank_value", SHOW_BANK_VALUE.get("default")));
 
     SORT_FILTER_BANK.put("vanilla", false);
     SORT_FILTER_BANK.put("vanilla_resizable", false);
@@ -896,8 +899,7 @@ public class Settings {
     SORT_FILTER_BANK.put("heavy", true);
     SORT_FILTER_BANK.put("all", true);
     SORT_FILTER_BANK.put(
-      "custom",
-      getPropBoolean(props, "sort_filter_bank", SORT_FILTER_BANK.get("default")));
+        "custom", getPropBoolean(props, "sort_filter_bank", SORT_FILTER_BANK.get("default")));
 
     SORT_BANK_REMEMBER.put("vanilla", "000000000000");
     SORT_BANK_REMEMBER.put("vanilla_resizable", "000000000000");
@@ -905,7 +907,12 @@ public class Settings {
     SORT_BANK_REMEMBER.put("default", "000000000000");
     SORT_BANK_REMEMBER.put("heavy", "000000000000");
     SORT_BANK_REMEMBER.put("all", "000000000000");
-    SORT_BANK_REMEMBER.put("custom", getPropString(props, "sort_bank", SORT_BANK_REMEMBER.get("default")));
+    SORT_BANK_REMEMBER.put(
+        "custom", getPropString(props, "sort_bank", SORT_BANK_REMEMBER.get("default")));
+
+    if (SORT_FILTER_BANK.get(currentProfile)) {
+      Bank.loadButtonMode(SORT_BANK_REMEMBER.get(currentProfile));
+    }
 
     //// notifications
     TRAY_NOTIFS.put("vanilla", false);
@@ -1402,6 +1409,8 @@ public class Settings {
     Util.makeDirectory(Dir.WORLDS);
     Dir.SPEEDRUN = Dir.JAR + "/speedrun";
     Util.makeDirectory(Dir.SPEEDRUN);
+    Dir.BANK = Dir.JAR + "/bank";
+    Util.makeDirectory(Dir.BANK);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -1769,9 +1778,10 @@ public class Settings {
       //// bank
       props.setProperty("show_bank_value", Boolean.toString(SHOW_BANK_VALUE.get(preset)));
       props.setProperty("sort_filter_bank", Boolean.toString(SORT_FILTER_BANK.get(preset)));
-      props.setProperty("start_searched_bank", Boolean.toString(START_REMEMBERED_FILTER_SORT.get(preset)));
+      props.setProperty(
+          "start_searched_bank", Boolean.toString(START_REMEMBERED_FILTER_SORT.get(preset)));
       props.setProperty("search_bank_word", SEARCH_BANK_WORD.get(preset));
-      props.setProperty("sort_bank", SORT_BANK_REMEMBER.get(preset));
+      props.setProperty("sort_bank", Bank.getButtonModeString());
 
       //// notifications
       props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS.get(preset)));
@@ -2126,10 +2136,12 @@ public class Settings {
     // Settings.SEARCH_BANK_WORD should be trimmed
     if (SEARCH_BANK_WORD.get("custom").trim().equals("") && searchWord.trim().equals("")) {
       if (START_REMEMBERED_FILTER_SORT.get(currentProfile)) {
-        START_REMEMBERED_FILTER_SORT.put(currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
+        START_REMEMBERED_FILTER_SORT.put(
+            currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
       }
     } else {
-      START_REMEMBERED_FILTER_SORT.put(currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
+      START_REMEMBERED_FILTER_SORT.put(
+          currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
       // check if search word should be updated
       if (replaceSavedWord
           && !searchWord.trim().equals("")
@@ -2402,6 +2414,7 @@ public class Settings {
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;
+    public static String BANK;
   }
 
   /**

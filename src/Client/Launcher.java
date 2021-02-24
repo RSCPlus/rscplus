@@ -49,14 +49,21 @@ public class Launcher extends JFrame implements Runnable {
 
   // bank filter/sort icons
   public static ImageIcon icon_satchel = null;
+  public static ImageIcon icon_satchel_time = null;
   public static ImageIcon icon_runes_weapons_armour = null;
   public static ImageIcon icon_lobster_potion = null;
+  public static ImageIcon icon_herblaw = null;
   public static ImageIcon icon_resources_tools = null;
+  public static ImageIcon icon_tools = null;
+  public static ImageIcon icon_resources = null;
   public static ImageIcon icon_banksearch = null;
   public static ImageIcon icon_filter_reset = null;
   public static ImageIcon icon_release = null;
+  public static ImageIcon icon_release_desc = null;
   public static ImageIcon icon_item_value = null;
+  public static ImageIcon icon_item_value_rev = null;
   public static ImageIcon icon_alphabetical = null;
+  public static ImageIcon icon_alphabetical_rev = null;
   public static ImageIcon icon_efficient = null;
   public static ImageIcon icon_user_custom = null;
   // TODO: if we can draw native text on top of other elements drawn by RSC+,
@@ -98,6 +105,10 @@ public class Launcher extends JFrame implements Runnable {
     if (iconURL != null) {
       icon_satchel = new ImageIcon(iconURL);
     }
+    iconURL = getResource("/assets/satchel.time.png");
+    if (iconURL != null) {
+      icon_satchel_time = new ImageIcon(iconURL);
+    }
     iconURL = getResource("/assets/runes.weapons.armour.png");
     if (iconURL != null) {
       icon_runes_weapons_armour = new ImageIcon(iconURL);
@@ -106,15 +117,27 @@ public class Launcher extends JFrame implements Runnable {
     if (iconURL != null) {
       icon_lobster_potion = new ImageIcon(iconURL);
     }
+    iconURL = getResource("/assets/herblaw.png");
+    if (iconURL != null) {
+      icon_herblaw = new ImageIcon(iconURL);
+    }
     iconURL = getResource("/assets/resources.tools.png");
     if (iconURL != null) {
       icon_resources_tools = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/tools.png");
+    if (iconURL != null) {
+      icon_tools = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/resources.png");
+    if (iconURL != null) {
+      icon_resources = new ImageIcon(iconURL);
     }
     iconURL = getResource("/assets/magnifying.lens.png");
     if (iconURL != null) {
       icon_banksearch = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/bank.filter.sort.reset.png");
+    iconURL = getResource("/assets/reset.png");
     if (iconURL != null) {
       icon_filter_reset = new ImageIcon(iconURL);
     }
@@ -127,13 +150,25 @@ public class Launcher extends JFrame implements Runnable {
     if (iconURL != null) {
       icon_release = new ImageIcon(iconURL);
     }
+    iconURL = getResource("/assets/release.desc.png");
+    if (iconURL != null) {
+      icon_release_desc = new ImageIcon(iconURL);
+    }
     iconURL = getResource("/assets/item.value.png");
     if (iconURL != null) {
       icon_item_value = new ImageIcon(iconURL);
     }
+    iconURL = getResource("/assets/item.value.rev.png");
+    if (iconURL != null) {
+      icon_item_value_rev = new ImageIcon(iconURL);
+    }
     iconURL = getResource("/assets/alphabetical.png");
     if (iconURL != null) {
       icon_alphabetical = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/alphabetical.rev.png");
+    if (iconURL != null) {
+      icon_alphabetical_rev = new ImageIcon(iconURL);
     }
     iconURL = getResource("/assets/efficient.png");
     if (iconURL != null) {

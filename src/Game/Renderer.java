@@ -671,10 +671,17 @@ public class Renderer {
       Client.xpbar.draw(g2);
 
       // Make the reset buttons for filter & sort flash red a few frames when clicked
-      if (Bank.buttonActive[5] || Bank.buttonActive[11]) {
+      if (Bank.buttonActive[5]
+          || Bank.buttonActive[11]
+          || (Bank.buttonActive[10] || Bank.disableUserButton)) {
         if (bankResetTimer > 3) {
-          Bank.buttonActive[5] = false;
-          Bank.buttonActive[11] = false;
+          if (Bank.disableUserButton) {
+            Bank.buttonActive[10] = false;
+            Bank.disableUserButton = false;
+          } else {
+            Bank.buttonActive[5] = false;
+            Bank.buttonActive[11] = false;
+          }
           bankResetTimer = 0;
         } else {
           ++bankResetTimer;

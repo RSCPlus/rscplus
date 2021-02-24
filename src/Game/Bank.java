@@ -23,6 +23,12 @@ import Client.Logger;
 import Client.Settings;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 
 public class Bank {
   private static int[] bankItemsActual = new int[256];
@@ -34,10 +40,26 @@ public class Bank {
   private static int[] tmpNewBankItemsCount = new int[256];
   private static int tmpNewBankCount = 0;
 
-  private static int searchableResults = 0;
   private static int[] sideBarDimensions = new int[8];
   private static boolean[] hoveringOverButton = new boolean[12];
+  public static boolean disableUserButton = false;
   public static boolean[] buttonActive = new boolean[12];
+  public static int[] buttonMode = new int[12];
+  private static final int[] buttonModeLimits = // how many sort settings are enabled in one button
+      {
+    2, // inventory filter
+    1, // melee filter
+    2, // food/potions filter
+    3, // tools/resources filter
+    1, // magnifying glass
+    1, // reset filter
+    2, // release date sort
+    2, // item value sort
+    2, // alphabetical sort
+    1, // "efficient" sort
+    1, // user settings sort
+    1 // reset sort
+  };
 
   private static String bankValue = "";
 
@@ -49,7 +71,8 @@ public class Bank {
   static boolean processPacket(int opcode, int psize) {
     boolean processed = false;
     if (opcode == SHOW_BANK || opcode == UPDATE_BANK_ITEM) {
-      // Take over reading the packets. Always done no matter the user settings, so don't change those functions...!
+      // Take over reading the packets.
+      // Always done no matter the user settings, so don't change those functions...!
       if (opcode == SHOW_BANK) {
         readShowBankPacket();
       } else { // UPDATE_BANK_ITEM
@@ -84,14 +107,17 @@ public class Bank {
         calculateBankValue();
       }
     } else {
-      // This is why I have the comments to not mess with readShowBankPacket() & readUpdateBankItemPacket()
-      // When SORT_FILTER_BANK is off, we still handle the bank behaviour, identical to the original.
+      // This is why I have the comments to not mess with
+      // readShowBankPacket() & readUpdateBankItemPacket()
+      // When SORT_FILTER_BANK is off, we still handle the bank behaviour,
+      // identical to the original client code's behaviour.
       Client.new_count_items_bank = bankNumberOfItemsActual;
       Client.new_bank_items = bankItemsActual.clone();
       Client.new_bank_items_count = bankItemCountsActual.clone();
       try {
         // This is currently equivalent to "resetSearch(); writeInventoryToEndOfBank();",
-        // but it's better to call the original function in case someone has changed those functions.
+        // but it's better to call the original function
+        // in case someone has changed those functions.
         Reflection.updateBankItems.invoke(Client.instance, -1129);
       } catch (Exception e) {
       }
@@ -105,28 +131,55 @@ public class Bank {
       boolean shouldInclude = false;
       int filterCount = 0;
       if (buttonActive[1]) { // runes/weapons/armour
-        shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.runesWeaponsArmourSorted);
+        switch (buttonMode[1]) {
+          case 1:
+            shouldInclude |=
+                intInOrderedArray(bankItemsActual[i], BankSorters.runesWeaponsArmourSorted);
+            break;
+        }
+
         shouldWriteInventory = false;
         ++filterCount;
       }
       if (buttonActive[2]) { // food/potions
-        shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.foodPotionsSorted);
+        switch (buttonMode[2]) {
+          case 1:
+            shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.foodPotionsSorted);
+            break;
+          case 2:
+            shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.herblawSorted);
+            break;
+        }
         shouldWriteInventory = false;
         ++filterCount;
       }
       if (buttonActive[3]) { // resources/tools
-        shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.toolsResourcesSorted);
+        switch (buttonMode[3]) {
+          case 1:
+            shouldInclude |=
+                intInOrderedArray(bankItemsActual[i], BankSorters.toolsResourcesSorted);
+            break;
+          case 2:
+            shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.toolsSorted);
+            break;
+          case 3:
+            shouldInclude |= intInOrderedArray(bankItemsActual[i], BankSorters.resourcesSorted);
+            break;
+        }
         shouldWriteInventory = false;
         ++filterCount;
       }
       if (buttonActive[4]) { // search term
         // TODO: could search for e.g. "salarin" and get items for that?
+        // TODO: could add new filter that makes this a blacklist instead of a whitelist
         if (!Settings.SEARCH_BANK_WORD.get("custom").equals("")) {
           String[] searchTerms = Settings.SEARCH_BANK_WORD.get("custom").split(",");
           for (String searchTerm : searchTerms) {
             if (!searchTerm.equals("")) {
               shouldInclude |=
-                Item.item_name[bankItemsActual[i]].toLowerCase().contains(searchTerm.trim().toLowerCase());
+                  Item.item_name[bankItemsActual[i]]
+                      .toLowerCase()
+                      .contains(searchTerm.trim().toLowerCase());
             }
           }
           shouldWriteInventory = false;
@@ -134,18 +187,23 @@ public class Bank {
         }
       }
       if (buttonActive[0]) { // inventory
-        boolean showRecentItems = false; // TODO: click again to toggle to this mode
-        if (showRecentItems) {
-          shouldInclude |= intInArray(bankItemsActual[i], Client.inventory_items);
-        } else {
-          for (int invIdx = 0; invIdx < Client.inventory_count; invIdx++) {
-            if (bankItemsActual[i] == Client.inventory_items[invIdx]) {
-              shouldInclude = true;
-              break;
+        switch (buttonMode[0]) {
+          case 1:
+            for (int invIdx = 0; invIdx < Client.inventory_count; invIdx++) {
+              if (bankItemsActual[i] == Client.inventory_items[invIdx]) {
+                shouldInclude = true;
+                break;
+              }
             }
-          }
+            break;
+          case 2:
+            // TODO: this is a bit unpredictable & could be made better.
+            shouldInclude |= intInArray(bankItemsActual[i], Client.inventory_items);
+            break;
         }
-        shouldWriteInventory = true; // set back to true if this filter is active & another filter turned it off
+        // set back to true if this filter is active & another filter turned it off
+        shouldWriteInventory = true;
+
         ++filterCount;
       }
 
@@ -166,46 +224,99 @@ public class Bank {
     boolean sortedBank = false;
 
     if (buttonActive[6]) {
-      // release date sort
-      // TODO: this is technically just item ID sort.
-      // A few exceptions do exist to the Item ID = Release Date rule.
-      for (int itemId = 0; itemId < 1290; itemId++) {
-        for (int i = 0; i < bankNumberOfItemsActual; i++) {
-          if (bankItemsActual[i] == itemId && bankItemsShown[i]) {
-            tmpNewBankItems[idx] = bankItemsActual[i];
-            tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
-            ++idx;
-            break;
+      switch (buttonMode[6]) {
+        case 1:
+          // release date sort
+          // TODO: this is technically just item ID sort.
+          // A few exceptions do exist to the Item ID = Release Date rule.
+          for (int itemId = 0; itemId < 1290; itemId++) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == itemId && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
           }
-        }
+          break;
+        case 2:
+          // item id sort rev
+          for (int itemId = 1289; itemId >= 0; itemId--) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == itemId && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
+          }
+          break;
       }
       sortedBank = true;
     } else if (buttonActive[7]) {
-      // alch value sort
-      for (int valueIdx = 0; valueIdx < BankSorters.mostValuableItems.length; valueIdx++) {
-        for (int i = 0; i < bankNumberOfItemsActual; i++) {
-          if (bankItemsActual[i] == BankSorters.mostValuableItems[valueIdx]
-              && bankItemsShown[i]) {
-            tmpNewBankItems[idx] = bankItemsActual[i];
-            tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
-            ++idx;
-            break;
+      switch (buttonMode[7]) {
+        case 1:
+          // alch value sort
+          for (int valueIdx = 0; valueIdx < BankSorters.mostValuableItems.length; valueIdx++) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == BankSorters.mostValuableItems[valueIdx]
+                  && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
           }
-        }
+          break;
+        case 2:
+          // alch value sort rev
+          for (int valueIdx = BankSorters.mostValuableItems.length - 1; valueIdx >= 0; valueIdx--) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == BankSorters.mostValuableItems[valueIdx]
+                  && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
+          }
+          break;
       }
       sortedBank = true;
     } else if (buttonActive[8]) {
-      // Alphabetical sort
-      for (int valueIdx = 0; valueIdx < BankSorters.itemsAlphabetical.length; valueIdx++) {
-        for (int i = 0; i < bankNumberOfItemsActual; i++) {
-          if (bankItemsActual[i] == BankSorters.itemsAlphabetical[valueIdx]
-              && bankItemsShown[i]) {
-            tmpNewBankItems[idx] = bankItemsActual[i];
-            tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
-            ++idx;
-            break;
+      switch (buttonMode[8]) {
+        case 1:
+          // Alphabetical sort
+          for (int valueIdx = 0; valueIdx < BankSorters.itemsAlphabetical.length; valueIdx++) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == BankSorters.itemsAlphabetical[valueIdx]
+                  && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
           }
-        }
+          break;
+        case 2:
+          // Reverse Alphabetical sort
+          for (int valueIdx = BankSorters.itemsAlphabetical.length - 1; valueIdx >= 0; valueIdx--) {
+            for (int i = 0; i < bankNumberOfItemsActual; i++) {
+              if (bankItemsActual[i] == BankSorters.itemsAlphabetical[valueIdx]
+                  && bankItemsShown[i]) {
+                tmpNewBankItems[idx] = bankItemsActual[i];
+                tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+                ++idx;
+                break;
+              }
+            }
+          }
+          break;
       }
       sortedBank = true;
     } else if (buttonActive[9]) {
@@ -229,9 +340,7 @@ public class Bank {
       // add any items that exist in bank and don't have a defined order
       for (int itemId = 0; itemId < 1290; itemId++) {
         for (int i = 0; i < bankNumberOfItemsActual; i++) {
-          if (bankItemsActual[i] == itemId
-              && bankItemsShown[i]
-              && !addedToSortedBank[itemId]) {
+          if (bankItemsActual[i] == itemId && bankItemsShown[i] && !addedToSortedBank[itemId]) {
             tmpNewBankItems[idx] = bankItemsActual[i];
             tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
             ++idx;
@@ -243,9 +352,48 @@ public class Bank {
       sortedBank = true;
     } else if (buttonActive[10]) {
       // User defined order
-      // TODO: implement a good way for users to define & import their bank,
-      // Use a modified https://github.com/thelegendofbrian/rsc-bank-organizer most likely
-      sortedBank = true;
+      boolean[] addedToSortedBank = new boolean[1290];
+      Integer[] userBankSort = Settings.USER_BANK_SORT.get(Client.player_name);
+      if (userBankSort == null) {
+        importBankCsv(null);
+        userBankSort = Settings.USER_BANK_SORT.get(Client.player_name);
+      }
+      if (userBankSort != null) {
+        for (int i = 0; i < userBankSort.length && userBankSort[i] != null; i++) {
+          for (int j = 0; j < bankNumberOfItemsActual; j++) {
+            if (bankItemsActual[j] == userBankSort[i]
+                && bankItemsShown[j]
+                && !addedToSortedBank[userBankSort[i]]) {
+              tmpNewBankItems[idx] = bankItemsActual[j];
+              tmpNewBankItemsCount[idx] = bankItemCountsActual[j];
+              addedToSortedBank[userBankSort[i]] = true;
+              ++idx;
+              break;
+            }
+          }
+        }
+
+        // add any items that exist in bank and don't have a defined order
+        for (int itemId = 0; itemId < 1290; itemId++) {
+          for (int i = 0; i < bankNumberOfItemsActual; i++) {
+            if (bankItemsActual[i] == itemId && bankItemsShown[i] && !addedToSortedBank[itemId]) {
+              tmpNewBankItems[idx] = bankItemsActual[i];
+              tmpNewBankItemsCount[idx] = bankItemCountsActual[i];
+              ++idx;
+              break;
+            }
+          }
+        }
+
+        sortedBank = true;
+      } else {
+        Client.displayMessage(
+            "@lre@You don't have any user bank sort settings defined.", Client.CHAT_QUEST);
+        Client.displayMessage(
+            "@whi@To use this button, open the settings with @mag@<ctrl-o> @whi@and then navigate to the @lre@\"Bank\"@whi@ tab.",
+            Client.CHAT_QUEST);
+        disableUserButton = true;
+      }
     }
 
     // still apply filter even if no sort is applied
@@ -262,11 +410,13 @@ public class Bank {
   }
 
   private static void writeInventoryToEndOfBank() {
-    for (int inventoryIdx = 0; inventoryIdx < Client.inventory_count
-        && Client.count_items_bank < Client.bank_items_max; ++inventoryIdx) {
+    for (int inventoryIdx = 0;
+        inventoryIdx < Client.inventory_count && Client.count_items_bank < Client.bank_items_max;
+        ++inventoryIdx) {
 
       int inventoryItemId = Client.inventory_items[inventoryIdx];
-      // Logger.Info(inventoryIdx + ". Looking for " + Item.item_name[Client.inventory_items[inventoryIdx]]);
+      // Logger.Info(inventoryIdx + ". Looking for " +
+      // Item.item_name[Client.inventory_items[inventoryIdx]]);
       boolean bankHasItem = false;
 
       for (int bankIdx = 0; bankIdx < Client.count_items_bank; ++bankIdx) {
@@ -316,6 +466,218 @@ public class Bank {
     Client.count_items_bank = Client.new_count_items_bank = bankNumberOfItemsActual;
   }
 
+  public static String exportBank() {
+    if (!Client.show_bank) {
+      // technically not true, just what we are enforcing.
+      // must have actually opened bank at least one time to export.
+      return "You must have your bank open to export!";
+    }
+
+    StringBuilder csvData = new StringBuilder();
+    try {
+      for (int i = 0; i < Client.count_items_bank; i++) {
+        csvData.append(
+            String.format(
+                "%d%s", Client.bank_items[i], i == Client.count_items_bank - 1 ? "\n" : ","));
+      }
+      for (int i = 0; i < Client.count_items_bank; i++) {
+        csvData.append(
+            String.format(
+                "%d%s", Client.bank_items_count[i], i == Client.count_items_bank - 1 ? "\n" : ","));
+      }
+    } catch (Exception e) {
+      return "Error reading bank info";
+    }
+
+    if (Replay.isPlaying) {
+      String replayFolder = ReplayQueue.queue.get(ReplayQueue.currentIndex - 1).getAbsolutePath();
+      Object[] metadata = Replay.readMetadata(replayFolder);
+      csvData.append((long) metadata[1]).append(","); // replay date modified (accurate enough)
+      csvData.append("\"");
+      csvData.append(replayFolder);
+      csvData.append("\"");
+    } else {
+      csvData.append(System.currentTimeMillis()).append(","); // current time
+
+      int world = Settings.WORLD.get(Settings.currentProfile);
+      String curWorldURL = Settings.WORLD_URLS.get(world);
+      int port = Settings.WORLD_PORTS.getOrDefault(world, Replay.DEFAULT_PORT);
+      csvData.append("\"");
+      csvData.append(curWorldURL);
+      csvData.append(":");
+      csvData.append(port);
+      csvData.append("\"");
+    }
+    // original player name, even if imported somewhere else
+    csvData.append(",");
+    csvData.append(Client.player_name);
+
+    File file = new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+    int attempts = 1;
+    while (file.exists()) {
+      if (attempts > 256) {
+        return "Too many files exported for this user";
+      }
+      file =
+          new File(
+              Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank_" + attempts + ".csv");
+      attempts++;
+    }
+
+    try {
+      DataOutputStream os = new DataOutputStream(new FileOutputStream(file));
+      os.write(csvData.toString().getBytes());
+      os.close();
+      return "Exported to " + file.getAbsolutePath();
+    } catch (Exception e) {
+      return "Unable to write file";
+    }
+  }
+
+  public static String importBank() {
+    if (Client.player_name.equals("")) {
+      return "Not logged in yet...";
+    }
+
+    JFileChooser j;
+    try {
+      j = new JFileChooser(Settings.Dir.BANK);
+    } catch (Exception e) {
+      return "Could not open Settings.Dir.BANK directory!";
+    }
+
+    j.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    FileFilter bankFiles =
+        new FileFilter() {
+          public boolean accept(File file) {
+            return file.getName().endsWith(".csv") && file.getName().contains("rscplus_bank");
+          }
+
+          @Override
+          public String getDescription() {
+            return "rscplus bank files";
+          }
+        };
+    j.setFileFilter(bankFiles);
+    int response = j.showDialog(Game.getInstance().getApplet(), "Select bank csv");
+
+    File selection = j.getSelectedFile();
+    if (selection != null && response != JFileChooser.CANCEL_OPTION) {
+      List<File> selectionArr = new ArrayList<File>();
+      selectionArr.add(selection);
+      if (selectionArr.size() == 1) {
+        return importBankCsv(selection);
+      } else {
+        return "Please select exactly 1 file.";
+      }
+    }
+    if (response == JFileChooser.CANCEL_OPTION) {
+      return "User cancelled";
+    }
+    return "Error, unable to import bank for some unknown reason.";
+  }
+
+  public static String importBankCsv(File file) {
+    boolean needsCopy = true;
+    String returnMe;
+    if (file == null) {
+      if (Client.player_name.equals("")) {
+        returnMe =
+            "importBankCsv called when player_name is not yet set!"; // should not be able to happen
+        Logger.Error(returnMe);
+        return returnMe;
+      }
+      file = new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+      needsCopy = false;
+    }
+    if (file.exists()) {
+      Integer[] sortOrder = new Integer[256];
+      try {
+        BufferedReader csvReader = new BufferedReader(new FileReader(file));
+        String[] csvOrder = csvReader.readLine().split(",");
+        csvReader.close();
+        for (int i = 0; i < csvOrder.length; i++) {
+          try {
+            sortOrder[i] = Integer.parseInt(csvOrder[i]);
+          } catch (Exception e) {
+            if (!csvOrder[i].equals("blank")) {
+              returnMe = "Non-numeric csv value in " + file.getName();
+              Logger.Warn(returnMe);
+              return returnMe;
+            }
+          }
+        }
+        Settings.USER_BANK_SORT.put(Client.player_name, sortOrder);
+        if (needsCopy) {
+          File moveTo =
+              new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+          if (moveTo.exists()) {
+            int attempts = 1;
+            File moveOldTo =
+                new File(
+                    Settings.Dir.BANK
+                        + "/"
+                        + Client.player_name
+                        + "_rscplus_bank_old_"
+                        + attempts
+                        + ".csv");
+            while (moveOldTo.exists()) {
+              if (attempts > 256) {
+                returnMe =
+                    "Imported for this session, but error saving settings permanently because too many files exist";
+                Logger.Warn(returnMe);
+                return returnMe;
+              }
+              moveOldTo =
+                  new File(
+                      Settings.Dir.BANK
+                          + "/"
+                          + Client.player_name
+                          + "_rscplus_bank_old_"
+                          + attempts
+                          + ".csv");
+              attempts++;
+            }
+            boolean moved = moveTo.renameTo(moveOldTo);
+            if (!moved) {
+              returnMe =
+                  "Imported for this session, but error saving settings permanently because we could not safely move the old rscplus_bank.csv file";
+              Logger.Warn(returnMe);
+              return returnMe;
+            }
+            moveTo =
+                new File(
+                    Settings.Dir.BANK
+                        + "/"
+                        + Client.player_name
+                        + "_rscplus_bank.csv"); // ready to move there now
+          }
+
+          try {
+            Files.copy(file.toPath(), moveTo.toPath());
+          } catch (Exception e) {
+            returnMe =
+                "Imported for this session, but error saving settings permanently due to copy error";
+            Logger.Warn(returnMe);
+            return returnMe;
+          }
+        }
+        if (Client.show_bank && buttonActive[10]) {
+          doFilterSort();
+        }
+        return "Successfully imported " + file.getName() + "!"; // the only success...
+      } catch (Exception e) {
+        returnMe = "Error reading file " + file.getName();
+        Logger.Warn(returnMe);
+        return returnMe;
+      }
+    } else {
+      // either not defined yet or file was deleted
+      returnMe = "No user sort settings for current user";
+      return returnMe;
+    }
+  }
+
   // Draws extra buttons on the side of the bank to control filtering
   public static void drawBankAugmentations(Graphics2D g2) {
     if (Client.show_bank) {
@@ -342,9 +704,9 @@ public class Bank {
         int buttonWidth = 48;
 
         // top left of new background
+        // TODO: adjust once bank is resizable
         int x = bankWidth + sideSpacing;
         int y = heightFromTop + 12; // bank authentically starts render 12 px down
-                                    // TODO: adjust once bank is resizable
 
         // draw a background for our buttons to go on
         g2.fillRect(x, y, width, height);
@@ -358,7 +720,7 @@ public class Bank {
         y += 8;
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_filter_text.getImage(), x + 3 + (buttonWidth - 28) / 2, y, 28, 10, null);
+            Launcher.icon_filter_text.getImage(), x + 3 + (buttonWidth - 28) / 2, y, 28, 10, null);
         y += 6 + 10;
 
         int i = 0;
@@ -370,12 +732,20 @@ public class Bank {
         }
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(Launcher.icon_satchel.getImage(), x + (buttonWidth - 32) / 2, y, 32, 32, null);
+        if (buttonMode[0] != 2) {
+          // might possibly want to draw this 3 pixels to the left, to line up with the other icon,
+          // but maybe not.
+          g2.drawImage(
+              Launcher.icon_satchel.getImage(), x + (buttonWidth - 32) / 2, y, 32, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_satchel_time.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        }
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
         y += buttonHeight + buttonSpacing;
         Renderer.setAlpha(g2, 0.625f); // 160/256
@@ -387,17 +757,69 @@ public class Bank {
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_runes_weapons_armour.getImage(),
-          x + (buttonWidth - 48) / 2,
-          y,
-          48,
-          32,
-          null);
+            Launcher.icon_runes_weapons_armour.getImage(),
+            x + (buttonWidth - 48) / 2,
+            y,
+            48,
+            32,
+            null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
+
+        y += buttonHeight + buttonSpacing;
+        Renderer.setAlpha(g2, 0.625f); // 160/256
+        if (buttonActive[i]) {
+          g2.setColor(bankItemActiveColour);
+        } else {
+          g2.setColor(bankBackgroundColour);
+        }
+        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        Renderer.setAlpha(g2, 1.0f);
+        if (buttonMode[2] != 2) {
+          g2.drawImage(
+              Launcher.icon_lobster_potion.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_herblaw.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        }
+        hoveringOverButton[i++] =
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
+
+        y += buttonHeight + buttonSpacing;
+        Renderer.setAlpha(g2, 0.625f); // 160/256
+        if (buttonActive[i]) {
+          g2.setColor(bankItemActiveColour);
+        } else {
+          g2.setColor(bankBackgroundColour);
+        }
+        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        Renderer.setAlpha(g2, 1.0f);
+        if (buttonMode[3] == 2) {
+          g2.drawImage(Launcher.icon_tools.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else if (buttonMode[3] == 3) {
+          g2.drawImage(
+              Launcher.icon_resources.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_resources_tools.getImage(),
+              x + (buttonWidth - 48) / 2,
+              y,
+              48,
+              32,
+              null);
+        }
+
+        hoveringOverButton[i++] =
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
         y += buttonHeight + buttonSpacing;
         Renderer.setAlpha(g2, 0.625f); // 160/256
@@ -409,63 +831,29 @@ public class Bank {
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_lobster_potion.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+            Launcher.icon_banksearch.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
-        y += buttonHeight + buttonSpacing;
+        y += buttonHeight + 7;
         Renderer.setAlpha(g2, 0.625f); // 160/256
         if (buttonActive[i]) {
           g2.setColor(bankItemActiveColour);
         } else {
           g2.setColor(bankBackgroundColour);
         }
-        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        g2.fillRect(x + 8, y, 40, 32);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_resources_tools.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+            Launcher.icon_filter_reset.getImage(), x + 4 + (buttonWidth - 40) / 2, y, 40, 32, null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
-
-        y += buttonHeight + buttonSpacing;
-        Renderer.setAlpha(g2, 0.625f); // 160/256
-        if (buttonActive[i]) {
-          g2.setColor(bankItemActiveColour);
-        } else {
-          g2.setColor(bankBackgroundColour);
-        }
-        g2.fillRect(x, y, buttonWidth, buttonHeight);
-        Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(
-          Launcher.icon_banksearch.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
-        hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
-
-        y += buttonHeight + buttonSpacing;
-        Renderer.setAlpha(g2, 0.625f); // 160/256
-        if (buttonActive[i]) {
-          g2.setColor(bankItemActiveColour);
-        } else {
-          g2.setColor(bankBackgroundColour);
-        }
-        g2.fillRect(x, y, buttonWidth, 16);
-        Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(
-          Launcher.icon_filter_reset.getImage(), x + (buttonWidth - 48) / 2, y + 1, 48, 14, null);
-        hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + 16);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + 40
+                && MouseHandler.y > y
+                && MouseHandler.y < y + 32);
 
         // Draw Sort panel
         x -= bankWidth + sideSpacing - 8;
@@ -482,7 +870,7 @@ public class Bank {
         y += 8;
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_sort_text.getImage(), x + 3 + (buttonWidth - 28) / 2, y, 24, 10, null);
+            Launcher.icon_sort_text.getImage(), x + 3 + (buttonWidth - 28) / 2, y, 24, 10, null);
         y += 6 + 10;
 
         Renderer.setAlpha(g2, 0.625f); // 160/256
@@ -493,12 +881,67 @@ public class Bank {
         }
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(Launcher.icon_release.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        if (buttonMode[6] != 2) {
+          g2.drawImage(
+              Launcher.icon_release.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_release_desc.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        }
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
+
+        y += buttonHeight + buttonSpacing;
+        Renderer.setAlpha(g2, 0.625f); // 160/256
+        if (buttonActive[i]) {
+          g2.setColor(bankItemActiveColour);
+        } else {
+          g2.setColor(bankBackgroundColour);
+        }
+        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        Renderer.setAlpha(g2, 1.0f);
+        if (buttonMode[7] != 2) {
+          g2.drawImage(
+              Launcher.icon_item_value.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_item_value_rev.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        }
+        hoveringOverButton[i++] =
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
+
+        y += buttonHeight + buttonSpacing;
+        Renderer.setAlpha(g2, 0.625f); // 160/256
+        if (buttonActive[i]) {
+          g2.setColor(bankItemActiveColour);
+        } else {
+          g2.setColor(bankBackgroundColour);
+        }
+        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        Renderer.setAlpha(g2, 1.0f);
+        if (buttonMode[8] != 2) {
+          g2.drawImage(
+              Launcher.icon_alphabetical.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else {
+          g2.drawImage(
+              Launcher.icon_alphabetical_rev.getImage(),
+              x + (buttonWidth - 48) / 2,
+              y,
+              48,
+              32,
+              null);
+        }
+        hoveringOverButton[i++] =
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
         y += buttonHeight + buttonSpacing;
         Renderer.setAlpha(g2, 0.625f); // 160/256
@@ -510,12 +953,12 @@ public class Bank {
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_item_value.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+            Launcher.icon_efficient.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
         y += buttonHeight + buttonSpacing;
         Renderer.setAlpha(g2, 0.625f); // 160/256
@@ -527,73 +970,51 @@ public class Bank {
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_alphabetical.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+            Launcher.icon_user_custom.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + buttonWidth
+                && MouseHandler.y > y
+                && MouseHandler.y < y + buttonHeight);
 
-        y += buttonHeight + buttonSpacing;
+        y += buttonHeight + 7;
         Renderer.setAlpha(g2, 0.625f); // 160/256
         if (buttonActive[i]) {
           g2.setColor(bankItemActiveColour);
         } else {
           g2.setColor(bankBackgroundColour);
         }
-        g2.fillRect(x, y, buttonWidth, buttonHeight);
-        Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(Launcher.icon_efficient.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
-        hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
-
-        y += buttonHeight + buttonSpacing;
-        Renderer.setAlpha(g2, 0.625f); // 160/256
-        if (buttonActive[i]) {
-          g2.setColor(bankItemActiveColour);
-        } else {
-          g2.setColor(bankBackgroundColour);
-        }
-        g2.fillRect(x, y, buttonWidth, buttonHeight);
+        g2.fillRect(x, y, 40, 32);
         Renderer.setAlpha(g2, 1.0f);
         g2.drawImage(
-          Launcher.icon_user_custom.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+            Launcher.icon_filter_reset.getImage(), x - 4 + (buttonWidth - 40) / 2, y, 40, 32, null);
         hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + buttonHeight);
-
-        y += buttonHeight + buttonSpacing;
-        Renderer.setAlpha(g2, 0.625f); // 160/256
-        if (buttonActive[i]) {
-          g2.setColor(bankItemActiveColour);
-        } else {
-          g2.setColor(bankBackgroundColour);
-        }
-        g2.fillRect(x, y, buttonWidth, 16);
-        Renderer.setAlpha(g2, 1.0f);
-        g2.drawImage(
-          Launcher.icon_filter_reset.getImage(), x + (buttonWidth - 48) / 2, y + 1, 48, 14, null);
-        hoveringOverButton[i++] =
-          (MouseHandler.x >= x
-            && MouseHandler.x <= x + buttonWidth
-            && MouseHandler.y > y
-            && MouseHandler.y < y + 16);
+            (MouseHandler.x >= x
+                && MouseHandler.x <= x + 40
+                && MouseHandler.y > y
+                && MouseHandler.y < y + 32);
 
         // Handle button presses
         if (MouseHandler.mouseClicked && shouldConsume()) {
           for (i = 0; i < 12; i++) {
             if (hoveringOverButton[i]) {
-              buttonActive[i] = !buttonActive[i];
+              if (i != 5 && i != 11) {
+                ++buttonMode[i];
+                if (buttonMode[i] > buttonModeLimits[i]) {
+                  buttonMode[i] = 0;
+                  buttonActive[i] = false;
+                } else {
+                  buttonActive[i] = true;
+                }
+              } else {
+                buttonActive[i] = !buttonActive[i];
+              }
               if (buttonActive[i]) {
                 if (i >= 6) {
                   // only one sort can be active at once, disable others when one is clicked
                   for (int j = 6; j < 11; j++) {
                     if (j != i) {
+                      buttonMode[j] = 0;
                       buttonActive[j] = false;
                     }
                   }
@@ -601,6 +1022,7 @@ public class Bank {
                   // multiple filters can work together additively, only disable if reset is pressed
                   if (i == 5) {
                     for (int j = 0; j < 5; j++) {
+                      buttonMode[j] = 0;
                       buttonActive[j] = false;
                     }
                   }
@@ -616,16 +1038,17 @@ public class Bank {
           }
 
           doFilterSort();
+          Settings.save(); // to save buttonMode array
         }
       }
       if (Settings.SHOW_BANK_VALUE.get(Settings.currentProfile)) {
         Renderer.drawShadowText(
-          g2,
-          bankValue,
-          270, // TODO: this will have to be adjusted once the bank is resizable
-          21,
-          Renderer.color_yellow,
-          true);
+            g2,
+            bankValue,
+            269, // TODO: this will have to be adjusted once the bank is resizable
+            21,
+            Renderer.color_yellow,
+            true);
       }
     }
   }
@@ -675,8 +1098,8 @@ public class Bank {
     if (search.trim().equals("") || help) {
       Client.displayMessage("@whi@::banksearch is a searchable bank mode", Client.CHAT_QUEST);
       Client.displayMessage(
-        "@whi@Type \"::banksearch [aString]\" to search banked items with query string aString",
-        Client.CHAT_QUEST);
+          "@whi@Type \"::banksearch [aString]\" to search banked items with query string aString",
+          Client.CHAT_QUEST);
       Client.displayMessage("@whi@Bank is updated to show only matched items.", Client.CHAT_QUEST);
       Client.displayMessage("@whi@The command stores the query string used", Client.CHAT_QUEST);
       Client.displayMessage("@whi@To exit the mode, speak to the banker again.", Client.CHAT_QUEST);
@@ -684,7 +1107,7 @@ public class Bank {
       // not in bank, display notice
       if (!Client.show_bank) {
         Client.displayMessage(
-          "@whi@::banksearch is only available when bank interface is open", Client.CHAT_QUEST);
+            "@whi@::banksearch is only available when bank interface is open", Client.CHAT_QUEST);
       } else {
         if (search.trim().equals("reset")) {
           resetSearch();
@@ -753,7 +1176,6 @@ public class Bank {
     }
   }
 
-
   private static boolean intInArray(int id, int[] array) {
     for (int i = 0; i < array.length; i++) {
       if (id == array[i]) {
@@ -777,7 +1199,32 @@ public class Bank {
     else return count + " pcs";
   }
 
+  public static void loadButtonMode(String modes) {
+    Logger.Debug("reading from: " + modes);
+    for (int i = 0; i < modes.length(); i++) {
+      buttonMode[i] = modes.charAt(i) - 48; // ascii character 48 is "0"
+
+      if (buttonMode[i] < 0) {
+        buttonMode[i] = 0;
+      }
+      if (buttonMode[i] > buttonModeLimits[i]) {
+        buttonMode[i] = buttonModeLimits[i];
+      }
+
+      buttonActive[i] = buttonMode[i] > 0;
+    }
+  }
+
+  public static String getButtonModeString() {
+    char[] buttonModeChar = new char[buttonMode.length];
+    for (int i = 0; i < buttonMode.length; i++) {
+      buttonModeChar[i] = (char) (buttonMode[i] + 48); // ascii character 48 is "0"
+    }
+    return new String(buttonModeChar);
+  }
+
   // Needed because packet order removes item from inventory AFTER updating bank. (authentic)
+  // without this, "items in inventory" erroneously contains our recently removed item.
   private static void fixFilterWhenItemRemovedFromInventory(int opcode) {
     if (catchMeNextOpcode) {
       doFilterSort();
@@ -833,5 +1280,4 @@ public class Bank {
       }
     }
   }
-
 }

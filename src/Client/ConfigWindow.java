@@ -19,6 +19,7 @@
 package Client;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -209,7 +210,9 @@ public class ConfigWindow {
   private JTextField bankPanelSearchBankWordTextField;
   private JCheckBox bankPanelCalculateBankValueCheckbox;
   private JCheckBox bankPanelSortFilterAugmentCheckbox;
-  
+  private JLabel bankPanelImportLabel;
+  private JLabel bankPanelExportLabel;
+
   //// Notifications tab
   private JCheckBox notificationPanelPMNotifsCheckbox;
   private JCheckBox notificationPanelTradeNotifsCheckbox;
@@ -939,7 +942,7 @@ public class ConfigWindow {
     addSettingsHeader(overlayPanel, "Interface Overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
-    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -996,13 +999,11 @@ public class ConfigWindow {
 
     /// XP Bar
     addSettingsHeader(overlayPanel, "XP Bar");
-    overlayPanelXPBarCheckbox =
-        addCheckbox("Show an XP bar for the last trained skill", overlayPanel);
-    overlayPanelXPBarCheckbox.setToolTipText(
-        "Show an XP bar for the last trained skill to the left of the wrench");
-    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    overlayPanelXPBarCheckbox = addCheckbox("Show an XP bar", overlayPanel);
+    overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar to the left of the wrench");
+    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
 
-    overlayPanelXPDropsCheckbox = addCheckbox("XP drops", overlayPanel);
+    overlayPanelXPDropsCheckbox = addCheckbox("Show XP drops", overlayPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
         "Show the XP gained as an overlay each time XP is received");
 
@@ -1017,7 +1018,7 @@ public class ConfigWindow {
     XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
     XPAlignButtonGroup.add(overlayPanelXPCenterAlignFocusButton);
 
-    overlayPanelFatigueDropsCheckbox = addCheckbox("Fatigue drops", overlayPanel);
+    overlayPanelFatigueDropsCheckbox = addCheckbox("Show Fatigue drops", overlayPanel);
     overlayPanelFatigueDropsCheckbox.setToolTipText(
         "Show the fatigue gained as an overlay each time fatigue is received");
 
@@ -1061,7 +1062,7 @@ public class ConfigWindow {
         addCheckbox("Show hitboxes around NPCs, players, and items", overlayPanel);
     overlayPanelHitboxCheckbox.setToolTipText(
         "Shows the clickable areas on NPCs, players, and items");
-    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
 
     overlayPanelPlayerNamesCheckbox =
         addCheckbox("Show player names over their heads", overlayPanel);
@@ -1137,13 +1138,17 @@ public class ConfigWindow {
     addSettingsHeader(bankPanel, "Bank settings");
 
     bankPanelCalculateBankValueCheckbox = addCheckbox("Show Bank Value", bankPanel);
-    bankPanelCalculateBankValueCheckbox.setToolTipText("Calculates the value of your bank and displays it in the bank interface");
+    bankPanelCalculateBankValueCheckbox.setToolTipText(
+        "Calculates the value of your bank and displays it in the bank interface");
+    bankPanelCalculateBankValueCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
 
     bankPanelSortFilterAugmentCheckbox = addCheckbox("Sort or Filter your Bank!!", bankPanel);
-    bankPanelSortFilterAugmentCheckbox.setToolTipText("Displays the RSC+ Sort and Filtering interface! Authentic!");
+    bankPanelSortFilterAugmentCheckbox.setToolTipText(
+        "Displays the RSC+ Sort and Filtering interface! Authentic!");
 
     bankPanelStartSearchedBankCheckbox = addCheckbox("Remember Filter/Sort", bankPanel);
-    bankPanelStartSearchedBankCheckbox.setToolTipText("Always start with your last filtered/sorted bank settings");
+    bankPanelStartSearchedBankCheckbox.setToolTipText(
+        "Always start with your last filtered/sorted bank settings");
 
     JPanel searchBankPanel = new JPanel();
     bankPanel.add(searchBankPanel);
@@ -1153,7 +1158,8 @@ public class ConfigWindow {
     searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
 
     JLabel searchBankPanelLabel = new JLabel("Item Search (supports CSV): ");
-    searchBankPanelLabel.setToolTipText("List of phrases that occur in item names that you would like to see in your bank");
+    searchBankPanelLabel.setToolTipText(
+        "List of phrases that occur in item names that you would like to see in your bank");
     searchBankPanel.add(searchBankPanelLabel);
     searchBankPanelLabel.setAlignmentY((float) 0.9);
 
@@ -1162,6 +1168,96 @@ public class ConfigWindow {
     bankPanelSearchBankWordTextField.setMinimumSize(new Dimension(100, 28));
     bankPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     bankPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
+
+    addSettingsHeader(bankPanel, "Custom bank order");
+    JLabel exportExplanation =
+        new JLabel(
+            "<html><head><style>p{font-size:10px;}</style></head><p>"
+                + "You can define your own preferred bank sort order here!<br/>"
+                + "This is where the User button at the bottom left of the bank is defined when \"Sort or Filter your Bank!!\" is enabled.<br/>"
+                + "The sort order is applied per-username.<br/>"
+                + "<br/><strong>Instructions:</strong><br/>Open your bank, click some buttons (or don't) then click <strong>Export Current Bank</strong> below.<br/>"
+                + "Your bank as it is currently displayed will be exported to a file."
+                + "</p><br/></html>");
+    exportExplanation.setBorder(new EmptyBorder(0, 0, 0, 0));
+    bankPanel.add(exportExplanation);
+
+    JPanel exportPanel = new JPanel();
+    JButton bankExportButton = new JButton("Export Current Bank");
+    bankExportButton.setAlignmentY((float) 0.80);
+    bankExportButton.setPreferredSize(new Dimension(200, 28));
+    bankExportButton.setMinimumSize(new Dimension(200, 28));
+    bankExportButton.setMaximumSize(new Dimension(200, 28));
+    bankExportButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            String result = Bank.exportBank();
+            Logger.Info(result);
+            bankPanelExportLabel.setText(
+                "<html><head><style>p{font-size:10px;padding-left:7px;}</style></head><p><strong>Status:</strong>&nbsp;"
+                    + result.replace(" ", "&nbsp;") // non-breaking space prevents newline
+                    + "</p></html>");
+          }
+        });
+
+    bankPanel.add(exportPanel);
+    exportPanel.setLayout(new BoxLayout(exportPanel, BoxLayout.X_AXIS));
+    exportPanel.setPreferredSize(new Dimension(0, 37));
+    exportPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    exportPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+    exportPanel.add(bankExportButton);
+    bankPanelExportLabel = new JLabel("");
+    bankPanelExportLabel.setAlignmentY((float) 0.7);
+    bankPanelExportLabel.setBorder(new EmptyBorder(0, 0, 7, 0));
+    exportPanel.add(bankPanelExportLabel);
+
+    JLabel importExplanation =
+        new JLabel(
+            "<html><head><style>p{font-size:10px;}</style></head><p>"
+                + "<br/>Once you have that file, go to <strong>https://rsc.plus/bank-organizer</strong><br/>"
+                + "From there, you can import the file. Click \"Import from RSC+ .csv file\" under the Controls section.<br/>"
+                + "It's a really nice HTML bank organizer which you can use to rearrange your bank<br/>"
+                + "or add new item \"Place Holders\" for when you acquire an item later.<br/>"
+                + "When you're done, click the \"Save to RSC+ .csv file\" button.<br/><br/>"
+                + "You can either use the <strong>Import</strong> button below,<br/>or simply drag-and-drop your downloaded file<br/>"
+                + "onto the main RSC+ window while you are logged in and have the bank open."
+                + "</p><br/></html>");
+    importExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
+    bankPanel.add(importExplanation);
+
+    JButton bankImportButton = new JButton("Import Bank Order");
+    bankImportButton.setAlignmentY((float) 0.80);
+    bankImportButton.setPreferredSize(new Dimension(200, 28));
+    bankImportButton.setMinimumSize(new Dimension(200, 28));
+    bankImportButton.setMaximumSize(new Dimension(200, 28));
+    bankImportButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            String result = Bank.importBank();
+            bankPanelImportLabel.setText(
+                "<html><head><style>p{font-size:10px;padding-left:7px;}</style></head><p><strong>Status:</strong>&nbsp;"
+                    + result.replace(" ", "&nbsp;") // non-breaking space prevents newline
+                    + "</p></html>");
+          }
+        });
+
+    bankPanel.add(bankImportButton);
+
+    JPanel importPanel = new JPanel();
+    bankPanel.add(importPanel);
+    importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.X_AXIS));
+    importPanel.setPreferredSize(new Dimension(0, 37));
+    importPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    importPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+
+    importPanel.add(bankImportButton);
+    bankPanelImportLabel = new JLabel("");
+    bankPanelImportLabel.setAlignmentY((float) 0.7);
+    bankPanelImportLabel.setBorder(new EmptyBorder(0, 0, 7, 0));
+    importPanel.add(bankPanelImportLabel);
 
     /*
      * Notifications tab
@@ -1213,6 +1309,7 @@ public class ConfigWindow {
     addSettingsHeader(notificationPanel, "Notifications");
 
     notificationPanelPMNotifsCheckbox = addCheckbox("Enable PM notifications", notificationPanel);
+    notificationPanelPMNotifsCheckbox.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
     notificationPanelPMNotifsCheckbox.setToolTipText(
         "Shows a system notification when a PM is received");
 
@@ -1305,7 +1402,7 @@ public class ConfigWindow {
         addCheckbox("Enable Twitch chat integration", streamingPanel);
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setToolTipText(
         "If this box is checked, and the 3 relevant text fields are filled out, you will connect to a chat channel on login.");
-    streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(2, 0, 9, 0));
+    streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(0, 0, 7, 0));
 
     streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
     streamingPanelTwitchChatCheckbox.setToolTipText(
@@ -1317,7 +1414,7 @@ public class ConfigWindow {
         new BoxLayout(streamingPanelTwitchChannelNamePanel, BoxLayout.X_AXIS));
     streamingPanelTwitchChannelNamePanel.setPreferredSize(new Dimension(0, 37));
     streamingPanelTwitchChannelNamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    streamingPanelTwitchChannelNamePanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    streamingPanelTwitchChannelNamePanel.setBorder(new EmptyBorder(0, 0, 7, 0));
 
     JLabel streamingPanelTwitchChannelNameLabel = new JLabel("Twitch channel to chat in: ");
     streamingPanelTwitchChannelNameLabel.setToolTipText("The Twitch channel you want to chat in");
@@ -1336,7 +1433,7 @@ public class ConfigWindow {
         new BoxLayout(streamingPanelTwitchUserPanel, BoxLayout.X_AXIS));
     streamingPanelTwitchUserPanel.setPreferredSize(new Dimension(0, 37));
     streamingPanelTwitchUserPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    streamingPanelTwitchUserPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    streamingPanelTwitchUserPanel.setBorder(new EmptyBorder(0, 0, 7, 0));
 
     JLabel streamingPanelTwitchUserLabel = new JLabel("Your Twitch username: ");
     streamingPanelTwitchUserLabel.setToolTipText("The Twitch username you log into Twitch with");
@@ -1355,7 +1452,7 @@ public class ConfigWindow {
         new BoxLayout(streamingPanelTwitchOAuthPanel, BoxLayout.X_AXIS));
     streamingPanelTwitchOAuthPanel.setPreferredSize(new Dimension(0, 37));
     streamingPanelTwitchOAuthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    streamingPanelTwitchOAuthPanel.setBorder(new EmptyBorder(0, 0, 7, 0));
 
     JLabel streamingPanelTwitchOAuthLabel =
         new JLabel("Your Twitch OAuth token (not your Stream key): ");
@@ -2390,13 +2487,13 @@ public class ConfigWindow {
 
     // Bank tab
     bankPanelCalculateBankValueCheckbox.setSelected(
-      Settings.SHOW_BANK_VALUE.get(Settings.currentProfile));
+        Settings.SHOW_BANK_VALUE.get(Settings.currentProfile));
     bankPanelSortFilterAugmentCheckbox.setSelected(
-      Settings.SORT_FILTER_BANK.get(Settings.currentProfile));
+        Settings.SORT_FILTER_BANK.get(Settings.currentProfile));
     bankPanelStartSearchedBankCheckbox.setSelected(
-      Settings.START_REMEMBERED_FILTER_SORT.get(Settings.currentProfile));
+        Settings.START_REMEMBERED_FILTER_SORT.get(Settings.currentProfile));
     bankPanelSearchBankWordTextField.setText(
-      Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
+        Settings.SEARCH_BANK_WORD.get(Settings.currentProfile));
 
     // Notifications tab
     notificationPanelPMNotifsCheckbox.setSelected(
@@ -2611,14 +2708,13 @@ public class ConfigWindow {
 
     // Bank options
     Settings.SHOW_BANK_VALUE.put(
-      Settings.currentProfile, bankPanelCalculateBankValueCheckbox.isSelected());
+        Settings.currentProfile, bankPanelCalculateBankValueCheckbox.isSelected());
     Settings.SORT_FILTER_BANK.put(
-      Settings.currentProfile, bankPanelSortFilterAugmentCheckbox.isSelected());
+        Settings.currentProfile, bankPanelSortFilterAugmentCheckbox.isSelected());
     Settings.START_REMEMBERED_FILTER_SORT.put(
-      Settings.currentProfile, bankPanelStartSearchedBankCheckbox.isSelected());
+        Settings.currentProfile, bankPanelStartSearchedBankCheckbox.isSelected());
     Settings.SEARCH_BANK_WORD.put(
-      Settings.currentProfile,
-      bankPanelSearchBankWordTextField.getText().trim().toLowerCase());
+        Settings.currentProfile, bankPanelSearchBankWordTextField.getText().trim().toLowerCase());
 
     // Notifications options
     Settings.PM_NOTIFICATIONS.put(
