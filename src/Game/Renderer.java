@@ -1208,6 +1208,8 @@ public class Renderer {
         }
       }
 
+
+      /* TODO: add button to main screen to open settings.
       // draw button to open settings
       if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
         g2.setColor(color_replay);
@@ -1218,6 +1220,7 @@ public class Renderer {
             settingsButtonBounds.width,
             settingsButtonBounds.height);
       }
+      */
 
       // TODO: Uncomment this information when we can provide it again
       /*drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
