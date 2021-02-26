@@ -130,6 +130,9 @@ public class Client {
 
   public static int state = STATE_LOGIN;
 
+  public static final int POPUP_CANCEL_RECOVERY = 10;
+  public static final int POPUP_BANK_SEARCH = 11;
+
   public static int max_inventory;
   public static int inventory_count;
   public static long magic_timer = 0L;
@@ -1193,16 +1196,35 @@ public class Client {
     return AccountManagement.shouldShowPassChange() || XPBar.shouldShowGoalInput();
   }
 
-  public static void drawInputPopupHook(int popupType) {
+  public static void drawInputPopupHook(int popupType, String popupInput) {
     boolean needsProcess = true;
 
-    if (AccountManagement.processInputPopup(popupType)) {
+    if (AccountManagement.processInputPopup(popupType, popupInput)) {
+      needsProcess = false;
+    } else if (Bank.processInputPopup(popupType, popupInput)) {
       needsProcess = false;
     }
   }
 
   public static void resetLoginMessage() {
     setResponseMessage("Please enter your username and password", "");
+  }
+
+  /**
+   * Displays a native in-game input popup such as enter the items to deposit. For popup types 9 and
+   * onwards it isn't restricted to digits only but if a future popup requires it, method may need
+   * tweak and hooks added.
+   *
+   * @return true if the call to the native showInputPopup was possible
+   */
+  public static boolean showNativeInputPopup(int type, String[] text, boolean hasInput) {
+    boolean displayed = true;
+    try {
+      Reflection.showInputPopup.invoke(Client.instance, text, 12, type, hasInput);
+    } catch (Exception e) {
+      displayed = false;
+    }
+    return displayed;
   }
 
   /** Stores the user's display name in {@link #player_name}. */

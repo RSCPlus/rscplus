@@ -3314,7 +3314,7 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("c") && methodNode.desc.equals("(B)V")) {
-        // Hook inputPopupType >= 9 for drawInputPopup
+        // Hook inputPopupType >= 10 for drawInputPopup
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -3340,10 +3340,14 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 0));
             methodNode.instructions.insertBefore(
                 targetNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "gc", "I"));
+            methodNode.instructions.insertBefore(targetNode, new VarInsnNode(Opcodes.ALOAD, 2));
             methodNode.instructions.insertBefore(
                 targetNode,
                 new MethodInsnNode(
-                    Opcodes.INVOKESTATIC, "Game/Client", "drawInputPopupHook", "(I)V"));
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "drawInputPopupHook",
+                    "(ILjava/lang/String;)V"));
             break;
           }
         }

@@ -23,11 +23,15 @@ import Client.Logger;
 import Client.Settings;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 public class Bank {
@@ -68,6 +72,9 @@ public class Bank {
   private static final int REMOVE_INVENTORY_SLOT = 123;
   private static boolean catchMeNextOpcode = false;
 
+  public static String bankSearchText[] =
+      new String[] {"Please enter the name of the item to search for", "and press enter"};
+
   static boolean processPacket(int opcode, int psize) {
     boolean processed = false;
     if (opcode == SHOW_BANK || opcode == UPDATE_BANK_ITEM) {
@@ -91,6 +98,17 @@ public class Bank {
     }
 
     fixFilterWhenItemRemovedFromInventory(opcode);
+
+    return processed;
+  }
+
+  public static boolean processInputPopup(int popupType, String popupInput) {
+    boolean processed = false;
+    String input = popupInput;
+    if (popupType == Client.POPUP_BANK_SEARCH) {
+      bankSearch(input, false);
+      processed = true;
+    }
 
     return processed;
   }
@@ -1034,6 +1052,18 @@ public class Bank {
           if (MouseHandler.mouseClicked && shouldConsume()) {
             if (buttonActive[5] || buttonActive[11]) {
               resetSearch();
+            } else if (buttonActive[4]) {
+              if (Client.showNativeInputPopup(
+                  Client.POPUP_BANK_SEARCH, Bank.bankSearchText, true)) {
+                // any additional logic after showing popup
+                // none at the moment
+              } else {
+                // fallback - notify user of command
+                Client.displayMessage("@mag@Using last bank search filter", Client.CHAT_QUEST);
+                Client.displayMessage(
+                    "@mag@Type @yel@::banksearch [aString]@mag@ to search banked items with query string aString",
+                    Client.CHAT_QUEST);
+              }
             }
           }
 
