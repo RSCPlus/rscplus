@@ -105,15 +105,26 @@ public class ReplayQueue {
                       JOptionPane.ERROR_MESSAGE,
                       Launcher.icon_warn);
                 } else {
-                  // nothing that even looks like a replay was found
-                  JOptionPane.showMessageDialog(
-                      Game.getInstance().getApplet(),
-                      "The folder you dropped onto the client is not a replay, nor does it contain replay folders.\n"
-                          + "\n"
-                          + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.",
-                      "rscplus",
-                      JOptionPane.ERROR_MESSAGE,
-                      Launcher.icon_warn);
+                  boolean importedBank = false;
+                  if (Client.show_bank && droppedFiles.size() == 1) {
+                    if (droppedFiles.get(0).getName().contains("rscplus_bank")) {
+                      // TODO: should use int return
+                      String returnMes = Bank.importBankCsv(droppedFiles.get(0));
+                      importedBank = returnMes.contains("Successfully imported");
+                      Client.displayMessage(returnMes, Client.CHAT_QUEST);
+                    }
+                  }
+                  if (!importedBank) {
+                    // nothing that even looks like a replay was found
+                    JOptionPane.showMessageDialog(
+                        Game.getInstance().getApplet(),
+                        "The folder you dropped onto the client is not a replay, nor does it contain replay folders.\n"
+                            + "\n"
+                            + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.",
+                        "rscplus",
+                        JOptionPane.ERROR_MESSAGE,
+                        Launcher.icon_warn);
+                  }
                 }
                 return;
               } else {

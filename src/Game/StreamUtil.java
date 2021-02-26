@@ -204,6 +204,42 @@ public class StreamUtil {
     }
   }
 
+  public static int getUnsignedByte(Object buffer) {
+    if (Reflection.getUnsignedByte == null) return -1;
+    int response = -1;
+
+    try {
+      response = (int) Reflection.getUnsignedByte.invoke(buffer, (byte) 104);
+    } catch (Exception e) {
+    }
+
+    return response;
+  }
+
+  public static int getUnsignedShort(Object buffer) {
+    if (Reflection.getUnsignedShort == null) return -1;
+    int response = -1;
+
+    try {
+      response = (int) Reflection.getUnsignedShort.invoke(buffer, 255);
+    } catch (Exception e) {
+    }
+
+    return response;
+  }
+
+  public static int getUnsignedInt3(Object buffer) {
+    if (Reflection.getUnsignedInt3 == null) return -1;
+    int response = -1;
+
+    try {
+      response = (int) Reflection.getUnsignedInt3.invoke(buffer, 103);
+    } catch (Exception e) {
+    }
+
+    return response;
+  }
+
   public static void putByteTo(Object buffer, byte n) {
     if (Reflection.putByte == null) return;
 

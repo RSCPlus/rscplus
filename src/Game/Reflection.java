@@ -50,6 +50,7 @@ public class Reflection {
   public static Field lastMouseAction = null;
 
   public static Field maxInventory = null;
+  public static Field showBank = null;
 
   public static Field clientStreamField = null;
   public static Field menuRenderer = null;
@@ -96,6 +97,9 @@ public class Reflection {
   public static Method drawSprite = null;
 
   public static Method newPacket = null;
+  public static Method getUnsignedByte = null;
+  public static Method getUnsignedShort = null;
+  public static Method getUnsignedInt3 = null;
   public static Method putByte = null;
   public static Method putShort = null;
   public static Method putInt = null;
@@ -148,6 +152,8 @@ public class Reflection {
   public static Method handleMouse = null;
   public static Method handleKey = null;
 
+  public static Method updateBankItems = null;
+
   // Constructor descriptions
   private static final String PANEL = "qa(ua,int)";
   private static final String STREAM = "da(java.net.Socket,e) throws java.io.IOException";
@@ -183,6 +189,9 @@ public class Reflection {
       "private final void client.a(java.lang.String[],int,int,boolean)";
 
   private static final String NEWPACKET = "final void b.b(int,int)";
+  private static final String GET_UNSIGNEDBYTE = "final int tb.a(byte)";
+  private static final String GET_UNSIGNEDSHORT = "final int tb.f(int)";
+  private static final String GET_UNSIGNEDINT3 = "final int tb.c(int)";
   private static final String PUTBYTE = "final void tb.c(int,int)";
   private static final String PUTSHORT = "final void tb.e(int,int)";
   private static final String PUTINT = "final void tb.b(int,int)";
@@ -235,6 +244,8 @@ public class Reflection {
   private static final String GETCONTROLTEXT = "final java.lang.String qa.g(int,int)";
   private static final String HANDLEMOUSE = "final void qa.b(int,int,int,int,int)";
   private static final String HANDLEKEY = "final void qa.a(int,int)";
+
+  private static final String UPDATE_BANK_ITEMS = "private final void client.C(int)";
 
   public static void Load() {
     try {
@@ -310,6 +321,9 @@ public class Reflection {
         } else if (method.toGenericString().equals(LOAD_SOUNDS)) {
           loadSounds = method;
           Logger.Info("Found loadSounds");
+        } else if (method.toGenericString().equals(UPDATE_BANK_ITEMS)) {
+          updateBankItems = method;
+          Logger.Info("Found updateBankItems");
         }
       }
 
@@ -331,6 +345,9 @@ public class Reflection {
       // Maximum inventory (30)
       maxInventory = c.getDeclaredField("cl");
       if (maxInventory != null) maxInventory.setAccessible(true);
+      // Show bank
+      showBank = c.getDeclaredField("Fe");
+      if (showBank != null) showBank.setAccessible(true);
 
       // Client Stream
       c = classLoader.loadClass("da");
@@ -430,6 +447,9 @@ public class Reflection {
       c = classLoader.loadClass("ja");
       leftMethods.addAll(
           Arrays.asList(
+              GET_UNSIGNEDBYTE,
+              GET_UNSIGNEDSHORT,
+              GET_UNSIGNEDINT3,
               PUTBYTE,
               PUTSHORT,
               PUTINT,
@@ -442,6 +462,27 @@ public class Reflection {
       while (c != null && leftMethods.size() > 0) {
         methods = c.getDeclaredMethods();
         for (Method method : methods) {
+          if (leftMethods.contains(GET_UNSIGNEDBYTE)
+              && method.toGenericString().equals(GET_UNSIGNEDBYTE)) {
+            getUnsignedByte = method;
+            Logger.Info("Found getUnsignedByte");
+            leftMethods.remove(GET_UNSIGNEDBYTE);
+            continue;
+          }
+          if (leftMethods.contains(GET_UNSIGNEDSHORT)
+              && method.toGenericString().equals(GET_UNSIGNEDSHORT)) {
+            getUnsignedShort = method;
+            Logger.Info("Found getUnsignedShort");
+            leftMethods.remove(GET_UNSIGNEDSHORT);
+            continue;
+          }
+          if (leftMethods.contains(GET_UNSIGNEDINT3)
+              && method.toGenericString().equals(GET_UNSIGNEDINT3)) {
+            getUnsignedInt3 = method;
+            Logger.Info("Found getUnsignedInt3");
+            leftMethods.remove(GET_UNSIGNEDINT3);
+            continue;
+          }
           if (leftMethods.contains(PUTBYTE) && method.toGenericString().equals(PUTBYTE)) {
             putByte = method;
             Logger.Info("Found putByte");
@@ -767,6 +808,9 @@ public class Reflection {
       if (drawSprite != null) drawSprite.setAccessible(true);
       if (stream != null) stream.setAccessible(true);
       if (newPacket != null) newPacket.setAccessible(true);
+      if (getUnsignedByte != null) getUnsignedByte.setAccessible(true);
+      if (getUnsignedShort != null) getUnsignedShort.setAccessible(true);
+      if (getUnsignedInt3 != null) getUnsignedInt3.setAccessible(true);
       if (putByte != null) putByte.setAccessible(true);
       if (putShort != null) putShort.setAccessible(true);
       if (putInt != null) putInt.setAccessible(true);
@@ -821,6 +865,7 @@ public class Reflection {
       if (memberLandscapePack != null) memberLandscapePack.setAccessible(true);
       if (memberSoundPack != null) memberSoundPack.setAccessible(true);
       if (soundBuffer != null) soundBuffer.setAccessible(true);
+      if (updateBankItems != null) updateBankItems.setAccessible(true);
 
     } catch (Exception e) {
       e.printStackTrace();

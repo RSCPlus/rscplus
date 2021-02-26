@@ -19,6 +19,7 @@
 package Client;
 
 import Client.KeybindSet.KeyModifier;
+import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
@@ -45,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20210117.021116;
+  public static final double VERSION_NUMBER = 20210226.015634;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -100,12 +101,12 @@ public class Settings {
   public static HashMap<String, Boolean> CAMERA_MOVABLE_RELATIVE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COLORIZE_CONSOLE_TEXT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FOV = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> START_SEARCHEDBANK = new HashMap<String, Boolean>();
-  public static HashMap<String, String> SEARCH_BANK_WORD = new HashMap<String, String>();
   public static HashMap<String, Integer> LOG_VERBOSITY = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
@@ -142,6 +143,14 @@ public class Settings {
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+
+  //// bank
+  public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, String> SEARCH_BANK_WORD = new HashMap<String, String>();
+  public static HashMap<String, Boolean> SORT_FILTER_BANK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_BANK_VALUE = new HashMap<String, Boolean>();
+  public static HashMap<String, String> SORT_BANK_REMEMBER = new HashMap<String, String>();
 
   //// notifications
   public static HashMap<String, Boolean> TRAY_NOTIFS = new HashMap<String, Boolean>();
@@ -208,6 +217,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DISASSEMBLE = new HashMap<String, Boolean>();
   public static HashMap<String, String> DISASSEMBLE_DIRECTORY = new HashMap<String, String>();
+  public static HashMap<String, Integer[]> USER_BANK_SORT = new HashMap<String, Integer[]>();
 
   // these are variables that are injected with JClassPatcher
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
@@ -526,6 +536,23 @@ public class Settings {
     FOV.put("all", 9);
     FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
 
+    FPS_LIMIT_ENABLED.put("vanilla", false);
+    FPS_LIMIT_ENABLED.put("vanilla_resizable", false);
+    FPS_LIMIT_ENABLED.put("lite", false);
+    FPS_LIMIT_ENABLED.put("default", false);
+    FPS_LIMIT_ENABLED.put("heavy", false);
+    FPS_LIMIT_ENABLED.put("all", true);
+    FPS_LIMIT_ENABLED.put(
+        "custom", getPropBoolean(props, "fps_limit_enabled", FPS_LIMIT_ENABLED.get("default")));
+
+    FPS_LIMIT.put("vanilla", 10);
+    FPS_LIMIT.put("vanilla_resizable", 10);
+    FPS_LIMIT.put("lite", 10);
+    FPS_LIMIT.put("default", 10);
+    FPS_LIMIT.put("heavy", 10);
+    FPS_LIMIT.put("all", 10);
+    FPS_LIMIT.put("custom", getPropInt(props, "fps_limit", FPS_LIMIT.get("default")));
+
     SOFTWARE_CURSOR.put("vanilla", false);
     SOFTWARE_CURSOR.put("vanilla_resizable", false);
     SOFTWARE_CURSOR.put("lite", false);
@@ -559,24 +586,6 @@ public class Settings {
     PATCH_GENDER.put("heavy", true);
     PATCH_GENDER.put("all", true);
     PATCH_GENDER.put("custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
-
-    START_SEARCHEDBANK.put("vanilla", false);
-    START_SEARCHEDBANK.put("vanilla_resizable", false);
-    START_SEARCHEDBANK.put("lite", false);
-    START_SEARCHEDBANK.put("default", false);
-    START_SEARCHEDBANK.put("heavy", false);
-    START_SEARCHEDBANK.put("all", true);
-    START_SEARCHEDBANK.put(
-        "custom", getPropBoolean(props, "start_searched_bank", START_SEARCHEDBANK.get("default")));
-
-    SEARCH_BANK_WORD.put("vanilla", "");
-    SEARCH_BANK_WORD.put("vanilla_resizable", "");
-    SEARCH_BANK_WORD.put("lite", "");
-    SEARCH_BANK_WORD.put("default", "");
-    SEARCH_BANK_WORD.put("heavy", "");
-    SEARCH_BANK_WORD.put("all", "");
-    SEARCH_BANK_WORD.put(
-        "custom", getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
 
     LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
@@ -853,6 +862,57 @@ public class Settings {
     BLOCKED_ITEMS.put("all", new ArrayList<String>());
     BLOCKED_ITEMS.put(
         "custom", getPropArrayListString(props, "blocked_items", BLOCKED_ITEMS.get("default")));
+
+    //// bank
+    START_REMEMBERED_FILTER_SORT.put("vanilla", false);
+    START_REMEMBERED_FILTER_SORT.put("vanilla_resizable", false);
+    START_REMEMBERED_FILTER_SORT.put("lite", false);
+    START_REMEMBERED_FILTER_SORT.put("default", true);
+    START_REMEMBERED_FILTER_SORT.put("heavy", true);
+    START_REMEMBERED_FILTER_SORT.put("all", true);
+    START_REMEMBERED_FILTER_SORT.put(
+        "custom",
+        getPropBoolean(props, "start_searched_bank", START_REMEMBERED_FILTER_SORT.get("default")));
+
+    SEARCH_BANK_WORD.put("vanilla", "");
+    SEARCH_BANK_WORD.put("vanilla_resizable", "");
+    SEARCH_BANK_WORD.put("lite", "");
+    SEARCH_BANK_WORD.put("default", "");
+    SEARCH_BANK_WORD.put("heavy", "");
+    SEARCH_BANK_WORD.put("all", "");
+    SEARCH_BANK_WORD.put(
+        "custom", getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
+
+    SHOW_BANK_VALUE.put("vanilla", false);
+    SHOW_BANK_VALUE.put("vanilla_resizable", false);
+    SHOW_BANK_VALUE.put("lite", false);
+    SHOW_BANK_VALUE.put("default", false);
+    SHOW_BANK_VALUE.put("heavy", true);
+    SHOW_BANK_VALUE.put("all", true);
+    SHOW_BANK_VALUE.put(
+        "custom", getPropBoolean(props, "show_bank_value", SHOW_BANK_VALUE.get("default")));
+
+    SORT_FILTER_BANK.put("vanilla", false);
+    SORT_FILTER_BANK.put("vanilla_resizable", false);
+    SORT_FILTER_BANK.put("lite", false);
+    SORT_FILTER_BANK.put("default", false);
+    SORT_FILTER_BANK.put("heavy", true);
+    SORT_FILTER_BANK.put("all", true);
+    SORT_FILTER_BANK.put(
+        "custom", getPropBoolean(props, "sort_filter_bank", SORT_FILTER_BANK.get("default")));
+
+    SORT_BANK_REMEMBER.put("vanilla", "000000000000");
+    SORT_BANK_REMEMBER.put("vanilla_resizable", "000000000000");
+    SORT_BANK_REMEMBER.put("lite", "000000000000");
+    SORT_BANK_REMEMBER.put("default", "000000000000");
+    SORT_BANK_REMEMBER.put("heavy", "000000000000");
+    SORT_BANK_REMEMBER.put("all", "000000000000");
+    SORT_BANK_REMEMBER.put(
+        "custom", getPropString(props, "sort_bank", SORT_BANK_REMEMBER.get("default")));
+
+    if (SORT_FILTER_BANK.get(currentProfile)) {
+      Bank.loadButtonMode(SORT_BANK_REMEMBER.get(currentProfile));
+    }
 
     //// notifications
     TRAY_NOTIFS.put("vanilla", false);
@@ -1349,6 +1409,8 @@ public class Settings {
     Util.makeDirectory(Dir.WORLDS);
     Dir.SPEEDRUN = Dir.JAR + "/speedrun";
     Util.makeDirectory(Dir.SPEEDRUN);
+    Dir.BANK = Dir.JAR + "/bank";
+    Util.makeDirectory(Dir.BANK);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -1669,12 +1731,12 @@ public class Settings {
           "camera_movable_relative", Boolean.toString(CAMERA_MOVABLE_RELATIVE.get(preset)));
       props.setProperty("colorize", Boolean.toString(COLORIZE_CONSOLE_TEXT.get(preset)));
       props.setProperty("fov", Integer.toString(FOV.get(preset)));
+      props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
+      props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
-      props.setProperty("start_searched_bank", Boolean.toString(START_SEARCHEDBANK.get(preset)));
-      props.setProperty("search_bank_word", SEARCH_BANK_WORD.get(preset));
       props.setProperty("log_verbosity", Integer.toString(LOG_VERBOSITY.get(preset)));
       props.setProperty("log_show_timestamps", Boolean.toString(LOG_SHOW_TIMESTAMPS.get(preset)));
       props.setProperty("log_show_level", Boolean.toString(LOG_SHOW_LEVEL.get(preset)));
@@ -1712,6 +1774,14 @@ public class Settings {
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
+
+      //// bank
+      props.setProperty("show_bank_value", Boolean.toString(SHOW_BANK_VALUE.get(preset)));
+      props.setProperty("sort_filter_bank", Boolean.toString(SORT_FILTER_BANK.get(preset)));
+      props.setProperty(
+          "start_searched_bank", Boolean.toString(START_REMEMBERED_FILTER_SORT.get(preset)));
+      props.setProperty("search_bank_word", SEARCH_BANK_WORD.get(preset));
+      props.setProperty("sort_bank", Bank.getButtonModeString());
 
       //// notifications
       props.setProperty("tray_notifs", Boolean.toString(TRAY_NOTIFS.get(preset)));
@@ -2065,18 +2135,20 @@ public class Settings {
   public static void toggleStartSearchedBank(String searchWord, boolean replaceSavedWord) {
     // Settings.SEARCH_BANK_WORD should be trimmed
     if (SEARCH_BANK_WORD.get("custom").trim().equals("") && searchWord.trim().equals("")) {
-      if (START_SEARCHEDBANK.get(currentProfile)) {
-        START_SEARCHEDBANK.put(currentProfile, !START_SEARCHEDBANK.get(currentProfile));
+      if (START_REMEMBERED_FILTER_SORT.get(currentProfile)) {
+        START_REMEMBERED_FILTER_SORT.put(
+            currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
       }
     } else {
-      START_SEARCHEDBANK.put(currentProfile, !START_SEARCHEDBANK.get(currentProfile));
+      START_REMEMBERED_FILTER_SORT.put(
+          currentProfile, !START_REMEMBERED_FILTER_SORT.get(currentProfile));
       // check if search word should be updated
       if (replaceSavedWord
           && !searchWord.trim().equals("")
           && !searchWord.trim().toLowerCase().equals(SEARCH_BANK_WORD.get("custom"))) {
         SEARCH_BANK_WORD.put("custom", searchWord.trim().toLowerCase());
       }
-      if (START_SEARCHEDBANK.get(currentProfile)) {
+      if (START_REMEMBERED_FILTER_SORT.get(currentProfile)) {
         Client.displayMessage(
             "@cya@Your bank will start searched with keyword '"
                 + SEARCH_BANK_WORD.get("custom")
@@ -2342,6 +2414,7 @@ public class Settings {
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;
+    public static String BANK;
   }
 
   /**
@@ -2522,7 +2595,7 @@ public class Settings {
     FOV = 9;
     SOFTWARE_CURSOR = false;
     VIEW_DISTANCE = 10000;
-    START_SEARCHEDBANK = false;
+    START_REMEMBERED_FILTER_SORT = false;
     SEARCH_BANK_WORD = "";
           */
     // TODO
