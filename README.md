@@ -13,7 +13,9 @@ Join our Discord server ([Invite link](https://discord.gg/92gG87h))
 
 - No longer contact RuneScape.com to get world total counts
 - Toggleable buttons to control Replay playback
-- Queued recordings
+- Queued replay recordings
+- Bank filter / sorting
+- Many more!
 
 ## Features
 - Game resolution changing (about 80% complete)

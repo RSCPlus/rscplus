@@ -1208,7 +1208,6 @@ public class Renderer {
         }
       }
 
-
       /* TODO: add button to main screen to open settings.
       // draw button to open settings
       if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
