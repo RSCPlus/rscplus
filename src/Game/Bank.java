@@ -106,7 +106,9 @@ public class Bank {
     boolean processed = false;
     String input = popupInput;
     if (popupType == Client.POPUP_BANK_SEARCH) {
-      bankSearch(input, false);
+      if (!input.trim().equals("")) {
+        bankSearch(input, false);
+      }
       processed = true;
     }
 
@@ -1018,7 +1020,9 @@ public class Bank {
             if (hoveringOverButton[i]) {
               if (i != 5 && i != 11) {
                 ++buttonMode[i];
-                if (buttonMode[i] > buttonModeLimits[i]) {
+                if (i == 4 && buttonActive[i] && MouseHandler.rightClick) {
+                  // maintain right click search if active
+                } else if (buttonMode[i] > buttonModeLimits[i]) {
                   buttonMode[i] = 0;
                   buttonActive[i] = false;
                 } else {
@@ -1043,6 +1047,24 @@ public class Bank {
                       buttonMode[j] = 0;
                       buttonActive[j] = false;
                     }
+                  } else if (i == 4) {
+                    if (Client.singleButtonMode || MouseHandler.rightClick) {
+                      // right click bank search opens popup
+                      if (Client.showNativeInputPopup(
+                          Client.POPUP_BANK_SEARCH, Bank.bankSearchText, true)) {
+                        // any additional logic after showing popup
+                        // none at the moment
+                      } else {
+                        // fallback - notify user of command
+                        Client.displayMessage(
+                            "@mag@Type @yel@::banksearch [aString]@mag@ to search banked items with query string aString",
+                            Client.CHAT_QUEST);
+                      }
+                    } else if (Settings.SEARCH_BANK_WORD.get("custom").equals("")) {
+                      Client.displayMessage(
+                          "@mag@Right click the magnifying glass to start a new search",
+                          Client.CHAT_QUEST);
+                    }
                   }
                 }
               }
@@ -1052,18 +1074,6 @@ public class Bank {
           if (MouseHandler.mouseClicked && shouldConsume()) {
             if (buttonActive[5] || buttonActive[11]) {
               resetSearch();
-            } else if (buttonActive[4]) {
-              if (Client.showNativeInputPopup(
-                  Client.POPUP_BANK_SEARCH, Bank.bankSearchText, true)) {
-                // any additional logic after showing popup
-                // none at the moment
-              } else {
-                // fallback - notify user of command
-                Client.displayMessage("@mag@Using last bank search filter", Client.CHAT_QUEST);
-                Client.displayMessage(
-                    "@mag@Type @yel@::banksearch [aString]@mag@ to search banked items with query string aString",
-                    Client.CHAT_QUEST);
-              }
             }
           }
 

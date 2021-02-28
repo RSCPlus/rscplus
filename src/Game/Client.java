@@ -386,6 +386,7 @@ public class Client {
   public static boolean showContactDetails;
 
   public static int mouse_click;
+  public static boolean singleButtonMode;
   public static boolean firstTime = true;
   public static Object worldInstance;
   public static int lastHeightOffset;

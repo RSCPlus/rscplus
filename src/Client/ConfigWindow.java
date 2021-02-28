@@ -1169,6 +1169,13 @@ public class ConfigWindow {
     bankPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     bankPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
 
+    JLabel banksearchExplanation =
+        new JLabel(
+            "<html><p>"
+                + "<strong>Note:</strong> <em>Right Clicking</em> the magnifying glass is also a way to set the \"Item Search\""
+                + "</p></html>");
+    bankPanel.add(banksearchExplanation);
+
     addSettingsHeader(bankPanel, "Custom bank order");
     JLabel exportExplanation =
         new JLabel(

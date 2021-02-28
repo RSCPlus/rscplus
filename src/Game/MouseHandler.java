@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import javax.swing.SwingUtilities;
 
 /** Listens to mouse events and stores relevant information about them */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -33,6 +34,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   public static int x = 0;
   public static int y = 0;
   public static boolean mouseClicked = false;
+  public static boolean rightClick = false;
   public static MouseListener listener_mouse = null;
   public static MouseMotionListener listener_mouse_motion = null;
 
@@ -180,6 +182,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     }
 
     mouseClicked = true;
+    rightClick = SwingUtilities.isRightMouseButton(e);
   }
 
   @Override

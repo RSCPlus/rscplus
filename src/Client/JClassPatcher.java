@@ -828,6 +828,9 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "Cf", "I", "Game/Client", "mouse_click", "I", true, true);
 
+      hookClassVariable(
+          methodNode, "client", "Yh", "Z", "Game/Client", "singleButtonMode", "Z", true, true);
+
       hookClassVariable(methodNode, "client", "Pg", "Z", "Game/Client", "members", "Z", true, true);
 
       hookClassVariable(
