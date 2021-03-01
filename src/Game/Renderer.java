@@ -743,8 +743,8 @@ public class Renderer {
                 color_text,
                 true);*/
         g2.setColor(Renderer.color_text);
-        g2.drawLine(mapButtonBounds.x + 27, mapButtonBounds.y + 1, mapButtonBounds.x + 27, mapButtonBounds.y + 1 + 6);
-        g2.drawLine(mapButtonBounds.x + 24, mapButtonBounds.y + 4, mapButtonBounds.x + 30, mapButtonBounds.y + 4);
+        g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+        g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
 
         // Handle replay play selection click
         if (MouseHandler.x >= mapButtonBounds.x
@@ -785,8 +785,8 @@ public class Renderer {
                 color_text,
                 true);*/
         g2.setColor(Renderer.color_text);
-        g2.drawLine(mapButtonBounds.x + 27, mapButtonBounds.y + 1, mapButtonBounds.x + 27, mapButtonBounds.y + 1 + 6);
-        g2.drawLine(mapButtonBounds.x + 24, mapButtonBounds.y + 4, mapButtonBounds.x + 30, mapButtonBounds.y + 4);
+        g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+        g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
 
         // Handle replay play selection click
         if (MouseHandler.x >= mapButtonBounds.x

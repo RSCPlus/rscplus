@@ -945,10 +945,8 @@ public class Client {
       }
 
       displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
-      displayMessage(
-          "@mag@Open the settings with @yel@"
-              + configWindowShortcut
-              + "@mag@ or @yel@right-click the tray icon",
+      displayMessage("@mag@Open the settings by @yel@clicking the wrench icon@mag@, pressing @yel@" + configWindowShortcut +
+                      "@mag@, or from the @yel@tray icon",
           CHAT_QUEST);
     }
 
