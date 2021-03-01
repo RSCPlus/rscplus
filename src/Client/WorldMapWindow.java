@@ -183,11 +183,11 @@ public class WorldMapWindow {
                         }
                     });
         } catch (InvocationTargetException e) {
-            Logger.Error("There was a thread-related error while setting up the replay queue window!");
+            Logger.Error("There was a thread-related error while setting up the world map window!");
             e.printStackTrace();
         } catch (InterruptedException e) {
             Logger.Error(
-                    "There was a thread-related error while setting up the replay queue window! The window may not be initialized properly!");
+                    "There was a thread-related error while setting up the world map window! The window may not be initialized properly!");
             e.printStackTrace();
         }
 
@@ -329,8 +329,6 @@ public class WorldMapWindow {
     }
 
     private static void updateMapRender() {
-        System.out.println("update");
-
         for (int i = 0; i < 4; i++)
             mapImageUpdate[i] = false;
 
@@ -1054,8 +1052,7 @@ public class WorldMapWindow {
     public static void initScenery() {
         // Load Scenery
         try {
-            File f = new File(Launcher.getResource("/assets/map/scenery.bin").toURI());
-            DataInputStream in = new DataInputStream(new FileInputStream(f));
+            DataInputStream in = new DataInputStream(Launcher.getResource("/assets/map/scenery.bin").openStream());
             int count = in.readInt();
             for (int i = 0; i < count; i++) {
                 MapScenery scenery = new MapScenery();
