@@ -196,6 +196,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_WORLD_COLUMN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_CONVERSION_COLUMN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_USERFIELD_COLUMN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
 
   //// world list
   public static HashMap<Integer, String> WORLD_URLS = new HashMap<Integer, String>();
@@ -1257,6 +1258,16 @@ public class Settings {
     SHOW_USERFIELD_COLUMN.put(
         "custom",
         getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
+
+    SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
+    SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
+    SHOW_RSCPLUS_BUTTONS.put("lite", true);
+    SHOW_RSCPLUS_BUTTONS.put("default", true);
+    SHOW_RSCPLUS_BUTTONS.put("heavy", true);
+    SHOW_RSCPLUS_BUTTONS.put("all", true);
+    SHOW_RSCPLUS_BUTTONS.put(
+            "custom",
+            getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
 
     //// world list
     initWorlds();

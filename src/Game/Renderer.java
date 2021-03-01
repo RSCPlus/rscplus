@@ -713,48 +713,30 @@ public class Renderer {
         setAlpha(g2, 1.0f);
       }
 
-      // Interface menu buttons
-      if (!Client.isInterfaceOpen()) {
-        // Map Button
+      // Interface rsc+ buttons
+      // Map Button
+      if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
         Rectangle mapButtonBounds =
                 new Rectangle(
                         width - 68,
                         3,
                         32,
                         32);
-        /*if (Client.show_menu == Client.MENU_MINIMAP) {
-          setAlpha(g2, 0.5f);
-        } else {
-          setAlpha(g2, 0.25f);
-        }
+        if (!Client.show_bank || mapButtonBounds.x >= 460) {
+          g2.setColor(Renderer.color_text);
+          g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+          g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
 
-        g2.setColor(color_text);
-        g2.fillRect(
-                mapButtonBounds.x,
-                mapButtonBounds.y,
-                mapButtonBounds.width,
-                mapButtonBounds.height);
-        setAlpha(g2, 1.0f);*/
-        /*drawShadowText(
-                g2,
-                "map",
-                mapButtonBounds.x + (mapButtonBounds.width / 2),
-                mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
-                color_text,
-                true);*/
-        g2.setColor(Renderer.color_text);
-        g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-        g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          // Handle replay play selection click
+          if (MouseHandler.x >= mapButtonBounds.x
+                  && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                  && MouseHandler.y >= mapButtonBounds.y
+                  && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                  && MouseHandler.mouseClicked) {
 
-        // Handle replay play selection click
-        if (MouseHandler.x >= mapButtonBounds.x
-                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                && MouseHandler.y >= mapButtonBounds.y
-                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                && MouseHandler.mouseClicked) {
+            Launcher.getWorldMapWindow().showWorldMapWindow();
 
-          Launcher.getWorldMapWindow().showWorldMapWindow();
-
+          }
         }
 
         // Settings
@@ -764,39 +746,21 @@ public class Renderer {
                         3,
                         32,
                         32);
-        /*if (Client.show_menu == Client.MENU_SETTINGS) {
-          setAlpha(g2, 0.5f);
-        } else {
-          setAlpha(g2, 0.25f);
-        }
+        if (!Client.show_bank || mapButtonBounds.x >= 460) {
+          g2.setColor(Renderer.color_text);
+          g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+          g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
 
-        g2.setColor(color_text);
-        g2.fillRect(
-                mapButtonBounds.x,
-                mapButtonBounds.y,
-                mapButtonBounds.width,
-                mapButtonBounds.height);
-        setAlpha(g2, 1.0f);*/
-        /*drawShadowText(
-                g2,
-                "optn",
-                mapButtonBounds.x + (mapButtonBounds.width / 2),
-                mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
-                color_text,
-                true);*/
-        g2.setColor(Renderer.color_text);
-        g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-        g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          // Handle replay play selection click
+          if (MouseHandler.x >= mapButtonBounds.x
+                  && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                  && MouseHandler.y >= mapButtonBounds.y
+                  && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                  && MouseHandler.mouseClicked) {
 
-        // Handle replay play selection click
-        if (MouseHandler.x >= mapButtonBounds.x
-                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                && MouseHandler.y >= mapButtonBounds.y
-                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                && MouseHandler.mouseClicked) {
+            Launcher.getConfigWindow().showConfigWindow();
 
-          Launcher.getConfigWindow().showConfigWindow();
-
+          }
         }
       }
 
