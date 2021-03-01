@@ -545,7 +545,7 @@ public class WorldMapWindow {
     private static void runInit() {
         // Load labels
         try {
-            String labelJson = new String(Files.readAllBytes(Paths.get(Launcher.getResource("/assets/map/labels.json").toURI())));
+            String labelJson = Util.readString(Launcher.getResource("/assets/map/labels.json").openStream());
             JSONArray obj = new JSONArray(labelJson);
             for (int i = 0; i < obj.length(); i++) {
                 JSONObject entry = obj.getJSONObject(i);
@@ -579,7 +579,7 @@ public class WorldMapWindow {
 
         // Load Glyphs
         try {
-            String labelJson = new String(Files.readAllBytes(Paths.get(Launcher.getResource("/assets/map/points.json").toURI())));
+            String labelJson = Util.readString(Launcher.getResource("/assets/map/points.json").openStream());
             JSONArray obj = new JSONArray(labelJson);
             for (int i = 0; i < obj.length(); i++) {
                 JSONObject entry = obj.getJSONObject(i);
@@ -1472,7 +1472,15 @@ public class WorldMapWindow {
             drawButton(g, "v", floorDownBounds);
             Renderer.drawShadowText(g, "Floor", floorTextBounds.x, floorTextBounds.y - 54, Renderer.color_text, true);
             g.setFont(Renderer.font_big);
-            Renderer.drawShadowText(g, Integer.toString(planeIndex), floorTextBounds.x, floorTextBounds.y, Renderer.color_text, true);
+
+            final String[] floorNames = {
+                    "G",
+                    "1",
+                    "2",
+                    "B"
+            };
+
+            Renderer.drawShadowText(g, floorNames[planeIndex], floorTextBounds.x, floorTextBounds.y, Renderer.color_text, true);
 
             if (renderChunkGrid) {
                 drawButton(g, "Disable Chunk Grid", chunkGridBounds);

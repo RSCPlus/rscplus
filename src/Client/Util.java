@@ -21,10 +21,7 @@ package Client;
 import Game.Replay;
 import Game.ReplayQueue;
 import java.awt.Point;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,6 +79,16 @@ public class Util {
       angle += 360;
 
     return angle;
+  }
+
+  public static String readString(InputStream inputStream) throws IOException {
+    ByteArrayOutputStream into = new ByteArrayOutputStream();
+    byte[] buf = new byte[4096];
+    for (int n; 0 < (n = inputStream.read(buf));) {
+      into.write(buf, 0, n);
+    }
+    into.close();
+    return new String(into.toByteArray(), "UTF-8"); // Or whatever encoding
   }
 
   public static String getAngleDirectionName(float angle) {
