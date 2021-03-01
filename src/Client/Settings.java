@@ -1437,6 +1437,7 @@ public class Settings {
       WorldMapWindow.showLabels = getPropBoolean(props, "worldmap_show_labels", true);
       WorldMapWindow.showScenery = getPropBoolean(props, "worldmap_show_scenery", true);
       WorldMapWindow.renderChunkGrid = getPropBoolean(props, "worldmap_show_chunk_grid", false);
+      WorldMapWindow.showOtherFloors = getPropBoolean(props, "worldmap_show_other_floors", false);
 
       updateInjectedVariables(); // TODO remove this function
 
@@ -1898,6 +1899,7 @@ public class Settings {
       props.setProperty("worldmap_show_labels", Boolean.toString(WorldMapWindow.showLabels));
       props.setProperty("worldmap_show_scenery", Boolean.toString(WorldMapWindow.showScenery));
       props.setProperty("worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
+      props.setProperty("worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");

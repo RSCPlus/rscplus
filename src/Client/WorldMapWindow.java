@@ -52,6 +52,7 @@ public class WorldMapWindow {
     public static boolean showLabels;
     public static boolean showScenery;
     public static boolean showIcons;
+    public static boolean showOtherFloors;
     private static boolean followPlayer;
     private static String searchText;
     private static int searchNumber;
@@ -69,6 +70,7 @@ public class WorldMapWindow {
     private static Rectangle showLabelsBounds;
     private static Rectangle showSceneryBounds;
     private static Rectangle showIconsBounds;
+    private static Rectangle showOtherFloorsBounds;
     private static Rectangle followPlayerBounds;
     private static Rectangle searchBounds;
     private static Rectangle searchRefreshBounds;
@@ -204,6 +206,7 @@ public class WorldMapWindow {
         showLabelsBounds = new Rectangle(0, 0, 116, 24);
         showSceneryBounds = new Rectangle(0, 0, 116, 24);
         showIconsBounds = new Rectangle(0, 0, 116, 24);
+        showOtherFloorsBounds = new Rectangle(0, 0, 116, 24);
         followPlayerBounds = new Rectangle(0, 0, 116, 24);
         legendBounds = new Rectangle(0, 0, 150, 24);
         searchBounds = new Rectangle(0, 0, 250, 24);
@@ -237,7 +240,7 @@ public class WorldMapWindow {
 
         Graphics2D g = (Graphics2D)mapImageBuffer[plane].getGraphics();
 
-        if (planeIndex == 0)
+        if (showOtherFloors || planeIndex == 0)
             g.setColor(color_water);
         else
             g.setColor(Color.black);
@@ -245,6 +248,23 @@ public class WorldMapWindow {
         synchronized (renderLock) {
             g.fillRect(0, 0, mapWidth, mapHeight);
 
+            if (showOtherFloors) {
+                if (plane == 3) {
+                    g.drawImage(planes[0], 0, 0, null);
+                    setAlpha(g, 0.8f);
+                    g.setColor(Color.black);
+                    g.fillRect(0, 0, mapWidth, mapHeight);
+                    setAlpha(g, 1.0f);
+                } else {
+                    for (int i = 0; i < plane; i++) {
+                        g.drawImage(planes[i], 0, 0, null);
+                        setAlpha(g, 0.5f);
+                        g.setColor(Color.black);
+                        g.fillRect(0, 0, mapWidth, mapHeight);
+                        setAlpha(g, 1.0f);
+                    }
+                }
+            }
             g.drawImage(planes[plane], 0, 0, null);
 
             if (showScenery) {
@@ -936,6 +956,12 @@ public class WorldMapWindow {
                         updateMapFloorRender(0, true);
                     }
 
+                    if (process(p, showOtherFloorsBounds)) {
+                        showOtherFloors = !showOtherFloors;
+                        Settings.save();
+                        updateMapRender();
+                    }
+
                     if (process(p, followPlayerBounds))
                         followPlayer = !followPlayer;
 
@@ -1388,6 +1414,8 @@ public class WorldMapWindow {
             showSceneryBounds.y = showLabelsBounds.y - BORDER_SIZE - showSceneryBounds.height;
             showIconsBounds.x = showSceneryBounds.x;
             showIconsBounds.y = showSceneryBounds.y - BORDER_SIZE - showIconsBounds.height;
+            showOtherFloorsBounds.x = showIconsBounds.x;
+            showOtherFloorsBounds.y = showIconsBounds.y - BORDER_SIZE - showOtherFloorsBounds.height;
             followPlayerBounds.x = chunkGridBounds.x - BORDER_SIZE - chunkGridBounds.width;
             followPlayerBounds.y = chunkGridBounds.y;
             searchBounds.x = BORDER_SIZE;
@@ -1428,12 +1456,28 @@ public class WorldMapWindow {
                 g.drawImage(planes[planeIndex], -cameraPosition.x, -cameraPosition.y, null);
             }*/
 
-            if (planeIndex == 0)
+            if (showOtherFloors || planeIndex == 0)
                 g.setColor(color_water);
             else
                 g.setColor(Color.black);
 
             g.fill(rootShape);
+
+            if (showOtherFloors) {
+                if (planeIndex == 3) {
+                    setAlpha(g, 0.8f);
+                    g.setColor(Color.black);
+                    g.fill(rootShape);
+                    setAlpha(g, 1.0f);
+                } else {
+                    for (int i = 0; i < planeIndex; i++) {
+                        setAlpha(g, 0.5f);
+                        g.setColor(Color.black);
+                        g.fill(rootShape);
+                        setAlpha(g, 1.0f);
+                    }
+                }
+            }
 
             synchronized (renderLock) {
                 g.drawImage(mapImageBuffer[planeIndex], -cameraPosition.x, -cameraPosition.y, null);
@@ -1504,6 +1548,12 @@ public class WorldMapWindow {
                 drawButton(g, "Hide Icons", showIconsBounds);
             } else {
                 drawButton(g, "Show Icons", showIconsBounds);
+            }
+
+            if (showOtherFloors) {
+                drawButton(g, "Hide Other Floors", showOtherFloorsBounds);
+            } else {
+                drawButton(g, "Show Other Floors", showOtherFloorsBounds);
             }
 
             if (followPlayer) {
