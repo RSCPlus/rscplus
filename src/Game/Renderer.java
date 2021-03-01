@@ -722,7 +722,7 @@ public class Renderer {
                         3,
                         32,
                         32);
-        if (!Client.show_bank || mapButtonBounds.x >= 460) {
+        if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           g2.setColor(Renderer.color_text);
           g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
           g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
@@ -746,7 +746,7 @@ public class Renderer {
                         3,
                         32,
                         32);
-        if (!Client.show_bank || mapButtonBounds.x >= 460) {
+        if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           g2.setColor(Renderer.color_text);
           g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
           g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
