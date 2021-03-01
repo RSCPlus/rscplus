@@ -89,6 +89,7 @@
     { "type": "bed", "x": 2199, "y": 1350 },
     { "type": "bed", "x": 2199, "y": 1598 },
     { "type": "bed", "x": 2243, "y": 2072 },
+	{ "type": "bed", "x": 1931, "y": 471 },
     { "type": "body-armour-shop", "x": 1531, "y": 1726 },
     { "type": "body-armour-shop", "x": 2087, "y": 1493 },
     { "type": "certificate-trader", "x": 626, "y": 1502 },
