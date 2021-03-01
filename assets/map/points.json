@@ -228,6 +228,7 @@
     { "type": "mining-site", "x": 2120, "y": 660 },
     { "type": "mining-site", "x": 2220, "y": 1631 },
     { "type": "mining-site", "x": 2224, "y": 1749 },
+    { "type": "mining-site", "x": 383, "y": 1884 },
     { "type": "pickable-lock", "x": 588, "y": 1661 },
     { "type": "pickable-lock", "x": 605, "y": 1805 },
     { "type": "pickable-lock", "x": 616, "y": 1741 },
