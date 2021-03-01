@@ -24,6 +24,7 @@ import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.Util;
+import Client.WorldMapWindow;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,6 +42,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,8 +97,8 @@ public class Renderer {
 
   private static Item last_item;
 
-  private static Font font_main;
-  private static Font font_big;
+  public static Font font_main;
+  public static Font font_big;
 
   private static int frames = 0;
   private static long fps_timer = 0;
@@ -689,6 +691,108 @@ public class Renderer {
       }
       // Handles drawing bank value, bank sort panel, & bank filter panel
       Bank.drawBankAugmentations(g2);
+
+      // World Map
+      // Arrow marker for destination
+      if (WorldMapWindow.getWaypointPosition() != null && !Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE) {
+        float absCameraRotation = ((((float) Camera.rotation / 255.0f) * 360.0f) + 180.0f) + WorldMapWindow.getWaypointAngle();
+        if (WorldMapWindow.getWaypointFloor() != Client.planeIndex)
+          setAlpha(g2, 0.5f);
+        Image arrowSprite = WorldMapWindow.directions[Util.getAngleIndex(absCameraRotation)];
+        x = (width / 2);
+        y = 54;
+        g2.drawImage(arrowSprite, x - 12, y - 12, 24, 24, null);
+        y += -20;
+        drawShadowText(
+                g2,
+                "" + Util.getAngleDirectionName(WorldMapWindow.getWaypointAngle()),
+                x,
+                y,
+                Renderer.color_low,
+                true);
+        setAlpha(g2, 1.0f);
+      }
+
+      // Interface menu buttons
+      if (!Client.isInterfaceOpen()) {
+        // Map Button
+        Rectangle mapButtonBounds =
+                new Rectangle(
+                        width - 68,
+                        3,
+                        32,
+                        32);
+        if (Client.show_menu == Client.MENU_MINIMAP) {
+          setAlpha(g2, 0.5f);
+        } else {
+          setAlpha(g2, 0.25f);
+        }
+
+        g2.setColor(color_text);
+        g2.fillRect(
+                mapButtonBounds.x,
+                mapButtonBounds.y,
+                mapButtonBounds.width,
+                mapButtonBounds.height);
+        setAlpha(g2, 1.0f);
+        drawShadowText(
+                g2,
+                "map",
+                mapButtonBounds.x + (mapButtonBounds.width / 2),
+                mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
+                color_text,
+                true);
+
+        // Handle replay play selection click
+        if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+
+          Launcher.getWorldMapWindow().showWorldMapWindow();
+
+        }
+
+        // Settings
+        mapButtonBounds =
+                new Rectangle(
+                        width - 200,
+                        3,
+                        32,
+                        32);
+        if (Client.show_menu == Client.MENU_MINIMAP) {
+          setAlpha(g2, 0.5f);
+        } else {
+          setAlpha(g2, 0.25f);
+        }
+
+        g2.setColor(color_text);
+        g2.fillRect(
+                mapButtonBounds.x,
+                mapButtonBounds.y,
+                mapButtonBounds.width,
+                mapButtonBounds.height);
+        setAlpha(g2, 1.0f);
+        drawShadowText(
+                g2,
+                "optn",
+                mapButtonBounds.x + (mapButtonBounds.width / 2),
+                mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
+                color_text,
+                true);
+
+        // Handle replay play selection click
+        if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+
+          Launcher.getConfigWindow().showConfigWindow();
+
+        }
+      }
 
       if (Settings.DEBUG.get(Settings.currentProfile)) {
         x = 32;
@@ -1779,6 +1883,7 @@ public class Renderer {
     g.drawString(text, textX + 1, textY);
     g.drawString(text, textX - 1, textY);
     g.drawString(text, textX, textY + 1);
+    g.drawString(text, textX, textY - 1);
     g.drawString(text, textX, textY - 1);
 
     g.setColor(textColor);

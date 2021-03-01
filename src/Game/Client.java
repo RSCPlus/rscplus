@@ -25,6 +25,7 @@ import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
 import Client.Logger;
+import Client.WorldMapWindow;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
@@ -737,6 +738,12 @@ public class Client {
       runReplayHook = false;
       login_hook();
     }
+
+    WorldMapWindow.UpdateView();
+    if (Client.state == Client.STATE_GAME)
+      WorldMapWindow.Update();
+    else
+      WorldMapWindow.Reset();
 
     updates++;
     time = System.currentTimeMillis();

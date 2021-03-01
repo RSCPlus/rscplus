@@ -20,6 +20,7 @@ package Client;
 
 import Game.Replay;
 import Game.ReplayQueue;
+import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -42,6 +43,22 @@ public class Util {
   /** The last time the world populations were checked */
   static long lastPopCheck = 0;
 
+  public static final float ANGLE_WEST = 0;
+  public static final float ANGLE_SOUTH = 90;
+  public static final float ANGLE_EAST = 180;
+  public static final float ANGLE_NORTH = 270;
+
+  public static String angleNames[] = {
+          "W",
+          "SW",
+          "S",
+          "SE",
+          "E",
+          "NE",
+          "N",
+          "NW"
+  };
+
   private Util() {
     // Empty private constructor to prevent instantiation.
   }
@@ -56,6 +73,24 @@ public class Util {
 
   public static float lerp(float a, float b, float c) {
     return a + c * (b - a);
+  }
+
+  public static float getAngle(Point source, Point target) {
+    float angle = (float)Math.toDegrees(Math.atan2(target.y - source.y, target.x - source.x));
+
+    if(angle < 0)
+      angle += 360;
+
+    return angle;
+  }
+
+  public static String getAngleDirectionName(float angle) {
+    return angleNames[getAngleIndex(angle)];
+  }
+
+  public static int getAngleIndex(float angle) {
+    int index = (int)((angle / (360.0f / 8.0f)) + 0.5f);
+    return index % 8;
   }
 
   public static String findDirectoryReverse(String name) {

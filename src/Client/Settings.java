@@ -1431,6 +1431,13 @@ public class Settings {
 
       currentProfile = getPropString(props, "current_profile", "custom");
       definePresets(props);
+
+      // World Map
+      WorldMapWindow.showIcons = getPropBoolean(props, "worldmap_show_icons", true);
+      WorldMapWindow.showLabels = getPropBoolean(props, "worldmap_show_labels", true);
+      WorldMapWindow.showScenery = getPropBoolean(props, "worldmap_show_scenery", true);
+      WorldMapWindow.renderChunkGrid = getPropBoolean(props, "worldmap_show_chunk_grid", false);
+
       updateInjectedVariables(); // TODO remove this function
 
       // Keybinds
@@ -1885,6 +1892,12 @@ public class Settings {
 
       props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+
+      // World Map
+      props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
+      props.setProperty("worldmap_show_labels", Boolean.toString(WorldMapWindow.showLabels));
+      props.setProperty("worldmap_show_scenery", Boolean.toString(WorldMapWindow.showScenery));
+      props.setProperty("worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
 
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");
@@ -2523,6 +2536,9 @@ public class Settings {
         return true;
       case "show_config_window":
         Launcher.getConfigWindow().showConfigWindow();
+        return true;
+      case "show_worldmap_window":
+        Launcher.getWorldMapWindow().showWorldMapWindow();
         return true;
       case "show_queue_window":
         // Try to not allow Replay window to appear while logged into the game :-)

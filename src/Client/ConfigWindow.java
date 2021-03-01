@@ -1553,6 +1553,12 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_O);
     addKeybindSet(
+            keybindContainerPanel,
+            "Show world map window",
+            "show_worldmap_window",
+            KeyModifier.CTRL,
+            KeyEvent.VK_M);
+    addKeybindSet(
         keybindContainerPanel,
         "Show queue window",
         "show_queue_window",
