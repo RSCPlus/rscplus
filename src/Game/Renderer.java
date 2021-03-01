@@ -1890,7 +1890,6 @@ public class Renderer {
     g.drawString(text, textX - 1, textY);
     g.drawString(text, textX, textY + 1);
     g.drawString(text, textX, textY - 1);
-    g.drawString(text, textX, textY - 1);
 
     g.setColor(textColor);
     g.drawString(text, textX, textY);
