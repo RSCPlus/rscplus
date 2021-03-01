@@ -643,6 +643,13 @@
         "align": "center",
         "bold": true,
         "colour": "rgb(254, 165, 0)"
-    }
+    },
+	{
+        "text": "Fisher King\nRealm",
+        "x": 905,
+        "y": 65,
+        "size": 10,
+        "align": "center"
+    },
 ]
 

@@ -735,13 +735,13 @@ public class Renderer {
                 mapButtonBounds.width,
                 mapButtonBounds.height);
         setAlpha(g2, 1.0f);
-        drawShadowText(
+        /*drawShadowText(
                 g2,
                 "map",
                 mapButtonBounds.x + (mapButtonBounds.width / 2),
                 mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
                 color_text,
-                true);
+                true);*/
 
         // Handle replay play selection click
         if (MouseHandler.x >= mapButtonBounds.x
@@ -761,7 +761,7 @@ public class Renderer {
                         3,
                         32,
                         32);
-        if (Client.show_menu == Client.MENU_MINIMAP) {
+        if (Client.show_menu == Client.MENU_SETTINGS) {
           setAlpha(g2, 0.5f);
         } else {
           setAlpha(g2, 0.25f);
@@ -774,13 +774,13 @@ public class Renderer {
                 mapButtonBounds.width,
                 mapButtonBounds.height);
         setAlpha(g2, 1.0f);
-        drawShadowText(
+        /*drawShadowText(
                 g2,
                 "optn",
                 mapButtonBounds.x + (mapButtonBounds.width / 2),
                 mapButtonBounds.y + (mapButtonBounds.height / 2) - 3,
                 color_text,
-                true);
+                true);*/
 
         // Handle replay play selection click
         if (MouseHandler.x >= mapButtonBounds.x

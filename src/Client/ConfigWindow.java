@@ -1556,7 +1556,7 @@ public class ConfigWindow {
             keybindContainerPanel,
             "Show world map window",
             "show_worldmap_window",
-            KeyModifier.CTRL,
+            KeyModifier.ALT,
             KeyEvent.VK_M);
     addKeybindSet(
         keybindContainerPanel,
