@@ -781,7 +781,6 @@ public class WorldMapWindow {
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     Point newPos = worldCoords;
-                    System.out.println(newPos);
                     if (waypointPosition != null) {
                         int distance = (int)Point.distance(waypointPosition.x, waypointPosition.y, newPos.x, newPos.y);
                         if (distance <= 2)
