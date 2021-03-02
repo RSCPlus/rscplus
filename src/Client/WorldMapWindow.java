@@ -1707,6 +1707,10 @@ public class WorldMapWindow {
         }
     }
 
+    public static void disposeJFrame() {
+        frame.dispose();
+    }
+
     public static class MapLink {
         Rectangle loc;
         int floor;
