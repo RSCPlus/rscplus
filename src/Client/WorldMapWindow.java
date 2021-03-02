@@ -61,6 +61,8 @@ public class WorldMapWindow {
     private static boolean searchOverflow;
     private static boolean searchValid;
 
+    private static boolean developmentMode;
+
     private static Rectangle floorUpBounds;
     private static Rectangle floorDownBounds;
     private static Point floorTextBounds;
@@ -217,6 +219,7 @@ public class WorldMapWindow {
         searchText = "";
         searchIndex = 0;
         cameraLerpPosition = null;
+        developmentMode = false;
 
         GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
@@ -563,7 +566,337 @@ public class WorldMapWindow {
     }
 
     private static void runInit() {
+        initAssets();
+
+        cameraCurrentPosition = new Point(planes[0].getWidth(null) / 2, planes[0].getHeight(null) / 2);
+
+        // Initialize window
+        frame = new JFrame();
+        frame.setTitle("World Map");
+        frame.setBounds(0, 0, 800, 580);
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.getContentPane().setLayout(new BorderLayout());
+        URL iconURL = Launcher.getResource("/assets/icon.png");
+        if (iconURL != null) {
+            ImageIcon icon = new ImageIcon(iconURL);
+            frame.setIconImage(icon.getImage());
+        }
+
+        // Initialize map view
+        mapView = new JPanel();
+        mapView.setLayout(new BorderLayout());
+        mapView.add(new MapRenderer());
+        mapView.revalidate();
+        mapView.repaint();
+        mapView.setVisible(true);
+
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                String prevSearchText = searchText;
+
+                // We currently do not support ctrl, it will add garbage to search
+                int stepMask = InputEvent.CTRL_MASK;
+                if ((e.getModifiers() & stepMask) == stepMask)
+                    return;
+
+                char keyChar = e.getKeyChar();
+
+                if (keyChar == KeyEvent.VK_DELETE || keyChar == KeyEvent.VK_ESCAPE || keyChar == KeyEvent.VK_ENTER)
+                    return;
+
+                if (keyChar == KeyEvent.VK_BACK_SPACE) {
+                    if (searchText.length() > 0)
+                        searchText = searchText.substring(0, searchText.length() - 1);
+                } else {
+                    searchText += keyChar;
+                }
+
+                buildSearchResults();
+
+                if (prevSearchText != searchText) {
+                    mapView.repaint();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                boolean dirty = false;
+
+                int devMask = InputEvent.ALT_MASK | InputEvent.CTRL_MASK;
+                if ((e.getModifiers() & devMask) == devMask) {
+                    // Ctrl + Alt + D enables development mode
+                    if (e.getKeyCode() == KeyEvent.VK_D) {
+                        developmentMode = !developmentMode;
+                        dirty = true;
+                    }
+
+                    // Ctrl + Alt + R reloads assets and rebuilds map
+                    if (e.getKeyCode() == KeyEvent.VK_R) {
+                        initAssets();
+                        initScenery();
+                        updateMapRender();
+                        dirty = true;
+                    }
+                }
+
+                if (searchResults != null && searchResults.length > 1) {
+                    if (e.getKeyCode() == KeyEvent.VK_UP) {
+                        searchIndex += 1;
+                        if (searchIndex >= searchResults.length)
+                            searchIndex = 0;
+                        dirty = true;
+                    }
+
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        searchIndex -= 1;
+                        if (searchIndex < 0)
+                            searchIndex = searchResults.length - 1;
+                        dirty = true;
+                    }
+                } else {
+                    if (e.getKeyCode() == KeyEvent.VK_UP) {
+                        setFloor(planeIndex + 1);
+                        dirty = true;
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        setFloor(planeIndex - 1);
+                        dirty = true;
+                    }
+                }
+
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (searchText.length() > 0) {
+                        if (searchResults != null && searchResults.length > 0) {
+                            SearchResult result = searchResults[searchIndex];
+
+                            if(result.getSearchType() == SearchResult.SEARCH_GLYPH) {
+                                MapGlyph glyph = (MapGlyph) result;
+                                setLerpPosition(glyph.x, glyph.y);
+                                setFloor(0);
+                                followPlayer = false;
+                                dirty = true;
+                            } else if(result.getSearchType() == SearchResult.SEARCH_LABEL) {
+                                MapLabel label = (MapLabel)result;
+                                setLerpPosition(label.x, label.y);
+                                setFloor(0);
+                                followPlayer = false;
+                                dirty = true;
+                            } else if(result.getSearchType() == SearchResult.SEARCH_SCENERY) {
+                                MapScenery scenery = (MapScenery)result;
+                                Rectangle p = convertWorldCoordsToMap(scenery.x, scenery.y);
+                                setLerpPosition(cameraPosition.x + p.x, cameraPosition.y + p.y);
+                                setFloor(p.width);
+                                followPlayer = false;
+                                dirty = true;
+                            }
+
+                            // Wrap search index
+                            searchIndex += 1;
+                            if (searchIndex >= searchResults.length)
+                                searchIndex = 0;
+                        }
+                    }
+                }
+
+                if (dirty)
+                    mapView.repaint();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+
+        mapView.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Point p = e.getPoint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point p = e.getPoint();
+
+                if (developmentMode) {
+                    if (e.getButton() == MouseEvent.BUTTON2) {
+                        Point p2 = new Point(cameraPosition.x + p.x, cameraPosition.y + p.y);
+                        Logger.Info("[MAPDEVMODE]\tMap Coordinates: " + p2.x + ", " + p2.y + "\n" +
+                                    "\t\t\t\t\t\t\t\tGlyph Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7));
+                        return;
+                    }
+                }
+
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    Point newPos = new Point(((planes[planeIndex].getWidth(null) - (cameraPosition.x + p.x)) / 3) - 1, ((cameraPosition.y + p.y) / 3) + (944 * planeIndex));
+                    if (waypointPosition != null) {
+                        int distance = (int)Point.distance(waypointPosition.x, waypointPosition.y, newPos.x, newPos.y);
+                        if (distance <= 2)
+                            waypointPosition = null;
+                        else
+                            waypointPosition = newPos;
+                    } else {
+                        waypointPosition = newPos;
+                    }
+                }
+
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (process(p, floorUpBounds)) {
+                        setFloor(planeIndex + 1);
+                        followPlayer = false;
+                    }
+
+                    if (process(p, floorDownBounds)) {
+                        setFloor(planeIndex - 1);
+                        followPlayer = false;
+                    }
+
+                    if (process(p, chunkGridBounds)) {
+                        renderChunkGrid = !renderChunkGrid;
+                        Settings.save();
+                        updateMapRender();
+                    }
+
+                    if (process(p, showLabelsBounds)) {
+                        showLabels = !showLabels;
+                        Settings.save();
+                        updateMapFloorRender(0, true);
+                    }
+
+                    if (process(p, showSceneryBounds)) {
+                        showScenery = !showScenery;
+                        Settings.save();
+                        updateMapFloorRender(0, true);
+                    }
+
+                    if (process(p, showIconsBounds)) {
+                        showIcons = !showIcons;
+                        Settings.save();
+                        updateMapFloorRender(0, true);
+                    }
+
+                    if (process(p, showOtherFloorsBounds)) {
+                        showOtherFloors = !showOtherFloors;
+                        Settings.save();
+                        updateMapRender();
+                    }
+
+                    if (process(p, followPlayerBounds))
+                        followPlayer = !followPlayer;
+
+                    if (searchText.length() > 0) {
+                        if (process(p, searchRefreshBounds))
+                            buildSearchResults();
+                    }
+                }
+
+                for (MapLink link : mapLinks) {
+                    if (link.floor != planeIndex)
+                        continue;
+
+                    Rectangle linkPos = new Rectangle();
+                    linkPos.x = -cameraPosition.x + (planes[0].getWidth(null) - (link.loc.x * 3));
+                    linkPos.y = -cameraPosition.y + (((link.loc.y - planeIndex) - (943 * planeIndex)) * 3);
+
+                    if (linkPos.x < 0 || linkPos.x > mapView.getWidth() ||
+                        linkPos.y < 0 || linkPos.y > mapView.getHeight())
+                        continue;
+
+                    linkPos.width = link.loc.width;
+                    linkPos.height = link.loc.height;
+
+                    if (process(p, linkPos)) {
+                        int type = link.type;
+
+                        if (type == MapLink.LINK_BOTH_FLOOR) {
+                            if (e.getButton() == MouseEvent.BUTTON1) {
+                                type = MapLink.LINK_NEXT_FLOOR;
+                            } else if (e.getButton() == MouseEvent.BUTTON3) {
+                                if (planeIndex > 0)
+                                    type = MapLink.LINK_PREV_FLOOR;
+                            }
+                        }
+
+                        if (type == MapLink.LINK_NEXT_FLOOR)
+                            setFloor(planeIndex + 1);
+                        else if (type == MapLink.LINK_PREV_FLOOR)
+                            setFloor(planeIndex - 1);
+
+                        break;
+                    }
+                }
+
+                prevMousePoint = p;
+                mapView.repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
+
+        // Add listeners
+        mapView.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                Point p = e.getPoint();
+
+                showLegend = process(p, legendBounds);
+
+                if (!SwingUtilities.isLeftMouseButton(e) && (!SwingUtilities.isMiddleMouseButton(e) || developmentMode))
+                    return;
+
+                int diffX = prevMousePoint.x - p.x;
+                int diffY = prevMousePoint.y - p.y;
+
+                prevMousePoint = p;
+                if (diffX != 0 || diffY != 0) {
+                    followPlayer = false;
+                    cameraLerpPosition = null;
+                    cameraCurrentPosition.x += diffX;
+                    cameraCurrentPosition.y += diffY;
+
+                    int mapWidth = planes[0].getWidth(null);
+                    int mapHeight = planes[0].getHeight(null);
+                    if (cameraCurrentPosition.x < 0)
+                        cameraCurrentPosition.x = 0;
+                    if (cameraCurrentPosition.y < 0)
+                        cameraCurrentPosition.y = 0;
+                    if (cameraCurrentPosition.x > mapWidth)
+                        cameraCurrentPosition.x = mapWidth;
+                    if (cameraCurrentPosition.y > mapHeight)
+                        cameraCurrentPosition.y = mapHeight;
+
+                    mapView.repaint();
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point p = e.getPoint();
+
+                showLegend = process(p, legendBounds);
+
+                prevMousePoint = p;
+                mapView.repaint();
+            }
+        });
+
+        // Populate frame
+        frame.setContentPane(mapView);
+    }
+
+    public static void initAssets() {
         // Load labels
+        mapLabels.clear();
         try {
             String labelJson = Util.readString(Launcher.getResource("/assets/map/labels.json").openStream());
             JSONArray obj = new JSONArray(labelJson);
@@ -598,6 +931,7 @@ public class WorldMapWindow {
         } catch (Exception e) { e.printStackTrace(); }
 
         // Load Glyphs
+        mapGlyphs.clear();
         try {
             String labelJson = Util.readString(Launcher.getResource("/assets/map/points.json").openStream());
             JSONArray obj = new JSONArray(labelJson);
@@ -780,302 +1114,11 @@ public class WorldMapWindow {
             directions[6] = ImageIO.read(Launcher.getResource("/assets/map/N.png"));
             directions[7] = ImageIO.read(Launcher.getResource("/assets/map/NW.png"));
         } catch (Exception e) {}
-
-        cameraCurrentPosition = new Point(planes[0].getWidth(null) / 2, planes[0].getHeight(null) / 2);
-
-        // Initialize window
-        frame = new JFrame();
-        frame.setTitle("World Map");
-        frame.setBounds(0, 0, 800, 580);
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
-        URL iconURL = Launcher.getResource("/assets/icon.png");
-        if (iconURL != null) {
-            ImageIcon icon = new ImageIcon(iconURL);
-            frame.setIconImage(icon.getImage());
-        }
-
-        // Initialize map view
-        mapView = new JPanel();
-        mapView.setLayout(new BorderLayout());
-        mapView.add(new MapRenderer());
-        mapView.revalidate();
-        mapView.repaint();
-        mapView.setVisible(true);
-
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                String prevSearchText = searchText;
-                char keyChar = e.getKeyChar();
-
-                if (keyChar == KeyEvent.VK_DELETE || keyChar == KeyEvent.VK_ESCAPE || keyChar == KeyEvent.VK_ENTER)
-                    return;
-
-                if (keyChar == KeyEvent.VK_BACK_SPACE) {
-                    if (searchText.length() > 0)
-                        searchText = searchText.substring(0, searchText.length() - 1);
-                } else {
-                    searchText += keyChar;
-                }
-
-                buildSearchResults();
-
-                if (prevSearchText != searchText) {
-                    mapView.repaint();
-                }
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                boolean dirty = false;
-
-                if (searchResults != null && searchResults.length > 1) {
-                    if (e.getKeyCode() == KeyEvent.VK_UP) {
-                        searchIndex += 1;
-                        if (searchIndex >= searchResults.length)
-                            searchIndex = 0;
-                        dirty = true;
-                    }
-
-                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        searchIndex -= 1;
-                        if (searchIndex < 0)
-                            searchIndex = searchResults.length - 1;
-                        dirty = true;
-                    }
-                } else {
-                    if (e.getKeyCode() == KeyEvent.VK_UP) {
-                        setFloor(planeIndex + 1);
-                        dirty = true;
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        setFloor(planeIndex - 1);
-                        dirty = true;
-                    }
-                }
-
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (searchText.length() > 0) {
-                        if (searchResults != null && searchResults.length > 0) {
-                            SearchResult result = searchResults[searchIndex];
-
-                            if(result.getSearchType() == SearchResult.SEARCH_GLYPH) {
-                                MapGlyph glyph = (MapGlyph) result;
-                                setLerpPosition(glyph.x, glyph.y);
-                                setFloor(0);
-                                followPlayer = false;
-                                dirty = true;
-                            } else if(result.getSearchType() == SearchResult.SEARCH_LABEL) {
-                                MapLabel label = (MapLabel)result;
-                                setLerpPosition(label.x, label.y);
-                                setFloor(0);
-                                followPlayer = false;
-                                dirty = true;
-                            } else if(result.getSearchType() == SearchResult.SEARCH_SCENERY) {
-                                MapScenery scenery = (MapScenery)result;
-                                Rectangle p = convertWorldCoordsToMap(scenery.x, scenery.y);
-                                setLerpPosition(cameraPosition.x + p.x, cameraPosition.y + p.y);
-                                setFloor(p.width);
-                                followPlayer = false;
-                                dirty = true;
-                            }
-
-                            // Wrap search index
-                            searchIndex += 1;
-                            if (searchIndex >= searchResults.length)
-                                searchIndex = 0;
-                        }
-                    }
-                }
-
-                if (dirty)
-                    mapView.repaint();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
-
-        mapView.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Point p = e.getPoint();
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                Point p = e.getPoint();
-
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    Point newPos = new Point(((planes[planeIndex].getWidth(null) - (cameraPosition.x + p.x)) / 3) - 1, ((cameraPosition.y + p.y) / 3) + (944 * planeIndex));
-                    if (waypointPosition != null) {
-                        int distance = (int)Point.distance(waypointPosition.x, waypointPosition.y, newPos.x, newPos.y);
-                        if (distance <= 2)
-                            waypointPosition = null;
-                        else
-                            waypointPosition = newPos;
-                    } else {
-                        waypointPosition = newPos;
-                    }
-                }
-
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (process(p, floorUpBounds)) {
-                        setFloor(planeIndex + 1);
-                        followPlayer = false;
-                    }
-
-                    if (process(p, floorDownBounds)) {
-                        setFloor(planeIndex - 1);
-                        followPlayer = false;
-                    }
-
-                    if (process(p, chunkGridBounds)) {
-                        renderChunkGrid = !renderChunkGrid;
-                        Settings.save();
-                        updateMapRender();
-                    }
-
-                    if (process(p, showLabelsBounds)) {
-                        showLabels = !showLabels;
-                        Settings.save();
-                        updateMapFloorRender(0, true);
-                    }
-
-                    if (process(p, showSceneryBounds)) {
-                        showScenery = !showScenery;
-                        Settings.save();
-                        updateMapFloorRender(0, true);
-                    }
-
-                    if (process(p, showIconsBounds)) {
-                        showIcons = !showIcons;
-                        Settings.save();
-                        updateMapFloorRender(0, true);
-                    }
-
-                    if (process(p, showOtherFloorsBounds)) {
-                        showOtherFloors = !showOtherFloors;
-                        Settings.save();
-                        updateMapRender();
-                    }
-
-                    if (process(p, followPlayerBounds))
-                        followPlayer = !followPlayer;
-
-                    if (searchText.length() > 0) {
-                        if (process(p, searchRefreshBounds))
-                            buildSearchResults();
-                    }
-                }
-
-                for (MapLink link : mapLinks) {
-                    if (link.floor != planeIndex)
-                        continue;
-
-                    Rectangle linkPos = new Rectangle();
-                    linkPos.x = -cameraPosition.x + (planes[0].getWidth(null) - (link.loc.x * 3));
-                    linkPos.y = -cameraPosition.y + (((link.loc.y - planeIndex) - (943 * planeIndex)) * 3);
-
-                    if (linkPos.x < 0 || linkPos.x > mapView.getWidth() ||
-                        linkPos.y < 0 || linkPos.y > mapView.getHeight())
-                        continue;
-
-                    linkPos.width = link.loc.width;
-                    linkPos.height = link.loc.height;
-
-                    if (process(p, linkPos)) {
-                        int type = link.type;
-
-                        if (type == MapLink.LINK_BOTH_FLOOR) {
-                            if (e.getButton() == MouseEvent.BUTTON1) {
-                                type = MapLink.LINK_NEXT_FLOOR;
-                            } else if (e.getButton() == MouseEvent.BUTTON3) {
-                                if (planeIndex > 0)
-                                    type = MapLink.LINK_PREV_FLOOR;
-                            }
-                        }
-
-                        if (type == MapLink.LINK_NEXT_FLOOR)
-                            setFloor(planeIndex + 1);
-                        else if (type == MapLink.LINK_PREV_FLOOR)
-                            setFloor(planeIndex - 1);
-
-                        break;
-                    }
-                }
-
-                prevMousePoint = p;
-                mapView.repaint();
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-            }
-        });
-
-        // Add listeners
-        mapView.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                Point p = e.getPoint();
-
-                showLegend = process(p, legendBounds);
-
-                if (!SwingUtilities.isLeftMouseButton(e) && !SwingUtilities.isMiddleMouseButton(e))
-                    return;
-
-                int diffX = prevMousePoint.x - p.x;
-                int diffY = prevMousePoint.y - p.y;
-
-                prevMousePoint = p;
-                if (diffX != 0 || diffY != 0) {
-                    followPlayer = false;
-                    cameraLerpPosition = null;
-                    cameraCurrentPosition.x += diffX;
-                    cameraCurrentPosition.y += diffY;
-
-                    int mapWidth = planes[0].getWidth(null);
-                    int mapHeight = planes[0].getHeight(null);
-                    if (cameraCurrentPosition.x < 0)
-                        cameraCurrentPosition.x = 0;
-                    if (cameraCurrentPosition.y < 0)
-                        cameraCurrentPosition.y = 0;
-                    if (cameraCurrentPosition.x > mapWidth)
-                        cameraCurrentPosition.x = mapWidth;
-                    if (cameraCurrentPosition.y > mapHeight)
-                        cameraCurrentPosition.y = mapHeight;
-
-                    mapView.repaint();
-                }
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                Point p = e.getPoint();
-
-                showLegend = process(p, legendBounds);
-
-                prevMousePoint = p;
-                mapView.repaint();
-            }
-        });
-
-        // Populate frame
-        frame.setContentPane(mapView);
     }
 
     public static void initScenery() {
+        mapSceneries.clear();
+
         // Load Scenery
         try {
             DataInputStream in = new DataInputStream(Launcher.getResource("/assets/map/scenery.bin").openStream());
@@ -1509,8 +1552,14 @@ public class WorldMapWindow {
                 setAlpha(g, 1.0f);
             }
 
+            int renderY = posTextBounds.y;
+            if (developmentMode) {
+                Renderer.drawShadowText(g, "DEVELOPMENT MODE", posTextBounds.x, renderY, Renderer.color_text, false);
+                renderY += 16;
+            }
             g.setFont(Renderer.font_main);
-            Renderer.drawShadowText(g, Integer.toString(prevMousePointMap.x) + ", " + Integer.toString(prevMousePointMap.y), posTextBounds.x, posTextBounds.y, Renderer.color_fatigue, false);
+            Renderer.drawShadowText(g, Integer.toString(prevMousePointMap.x) + ", " + Integer.toString(prevMousePointMap.y), posTextBounds.x, renderY, Renderer.color_fatigue, false);
+
 
             drawButton(g, "^", floorUpBounds);
             drawButton(g, "v", floorDownBounds);
