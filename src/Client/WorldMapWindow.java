@@ -711,8 +711,8 @@ public class WorldMapWindow {
                                 dirty = true;
                             } else if(result.getSearchType() == SearchResult.SEARCH_SCENERY) {
                                 MapScenery scenery = (MapScenery)result;
-                                Rectangle p = convertWorldCoordsToMap(scenery.x, scenery.y);
-                                setLerpPosition(cameraPosition.x + p.x, cameraPosition.y + p.y);
+                                Rectangle p = convertWorldCoordsToMapRaw(scenery.x, scenery.y);
+                                setLerpPosition(p.x, p.y);
                                 setFloor(p.width);
                                 followPlayer = false;
                                 dirty = true;
