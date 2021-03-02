@@ -255,6 +255,14 @@ public class WorldMapWindow {
         //mapImageBuffer = new BufferedImage(2448, 2736, BufferedImage.TYPE_INT_RGB);
     }
 
+    private static MapScenery getSceneryAtCoord(int x, int y) {
+        for (MapScenery scenery : mapSceneries) {
+            if (scenery.x == x && scenery.y == y)
+                return scenery;
+        }
+        return null;
+    }
+
     private static void updateMapFloorRender(int plane, boolean force) {
         if (!force && mapImageUpdate[plane])
             return;
@@ -772,7 +780,11 @@ public class WorldMapWindow {
                 if (developmentMode) {
                     if (e.getButton() == MouseEvent.BUTTON2) {
                         Point p2 = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
-                        Logger.Info("[MAPDEVMODE] Map Coordinates: " + p2.x + ", " + p2.y + "; Point Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7));
+                        MapScenery sceneryObject = getSceneryAtCoord(worldCoords.x, worldCoords.y);
+                        String objectInfo = "";
+                        if (sceneryObject != null)
+                            objectInfo = "; Scenery ID: " + Integer.toString(sceneryObject.id);
+                        Logger.Info("[MAPDEVMODE] Map Coordinates: " + p2.x + ", " + p2.y + "; Point Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7) + objectInfo);
                         return;
                     }
                 }
