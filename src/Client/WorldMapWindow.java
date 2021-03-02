@@ -64,9 +64,12 @@ public class WorldMapWindow {
 
     private static boolean developmentMode;
 
+    private static Rectangle zoomUpBounds;
+    private static Rectangle zoomDownBounds;
     private static Rectangle floorUpBounds;
     private static Rectangle floorDownBounds;
     private static Point floorTextBounds;
+    private static Point zoomTextBounds;
     private static Point posTextBounds;
     private static Rectangle legendBounds;
     private static Rectangle chunkGridBounds;
@@ -200,7 +203,10 @@ public class WorldMapWindow {
         waypointPosition = null;
         floorUpBounds = new Rectangle(0, 0, 24, 24);
         floorDownBounds = new Rectangle(0, 0, 24, 24);
+        zoomUpBounds = new Rectangle(0, 0, 24, 24);
+        zoomDownBounds = new Rectangle(0, 0, 24, 24);
         floorTextBounds = new Point(0, 0);
+        zoomTextBounds = new Point(0, 0);
         posTextBounds = new Point(0, 0);
         prevMousePoint = new Point(0, 0);
         prevMousePointMap = new Point(0, 0);
@@ -594,10 +600,10 @@ public class WorldMapWindow {
         frame.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                int notches = e.getWheelRotation();
-                float newZoom = zoom - notches;
-                setZoom(newZoom);
+                int notches = e.getWheelRotation() * -1;
+                setZoom(zoom + notches);
                 mapView.repaint();
+                e.consume();
             }
         });
 
@@ -764,6 +770,14 @@ public class WorldMapWindow {
                     if (process(p, floorDownBounds)) {
                         setFloor(planeIndex - 1);
                         followPlayer = false;
+                    }
+
+                    if (process(p, zoomUpBounds)) {
+                        setZoom(zoom + 1.0f);
+                    }
+
+                    if (process(p, zoomDownBounds)) {
+                        setZoom(zoom - 1.0f);
                     }
 
                     if (process(p, chunkGridBounds)) {
@@ -1330,6 +1344,7 @@ public class WorldMapWindow {
         Point prevPosition = new Point(playerPosition.x, playerPosition.y);
         Point prevCameraPosition = new Point(cameraCurrentPosition.x, cameraCurrentPosition.y);
         int prevPlane = playerPlane;
+        boolean dirty = false;
 
         playerPosition = new Point(Client.worldX, Client.worldY);
         playerPlane = Client.planeIndex;
@@ -1337,8 +1352,10 @@ public class WorldMapWindow {
         // Handle waypoint removal when destination is reached
         if (waypointPosition != null) {
             int distance = (int)Point.distance(playerPosition.x, playerPosition.y, waypointPosition.x, waypointPosition.y);
-            if (distance <= 2)
+            if (distance <= 2) {
                 waypointPosition = null;
+                dirty = true;
+            }
 
             if (waypointPosition != null) {
                 Rectangle p = convertWorldCoordsToMapRaw(playerPosition.x, playerPosition.y);
@@ -1370,7 +1387,7 @@ public class WorldMapWindow {
             return;
 
         // Repaint if data changed
-        if (prevPosition.x != playerPosition.x || prevPosition.y != playerPosition.y || prevPlane != playerPlane ||
+        if (dirty || prevPosition.x != playerPosition.x || prevPosition.y != playerPosition.y || prevPlane != playerPlane ||
             prevCameraPosition.x != cameraCurrentPosition.x || prevCameraPosition.y != cameraCurrentPosition.y)
             mapView.repaint();
     }
@@ -1466,6 +1483,14 @@ public class WorldMapWindow {
             floorUpBounds.y = floorDownBounds.y - 64;
             floorTextBounds.x = floorDownBounds.x + (floorDownBounds.width / 2);
             floorTextBounds.y = floorDownBounds.y - 24;
+
+            zoomDownBounds.x = floorUpBounds.x;
+            zoomDownBounds.y = floorUpBounds.y - zoomDownBounds.height - BORDER_SIZE;
+            zoomTextBounds.x = zoomDownBounds.x + (zoomDownBounds.width / 2);
+            zoomTextBounds.y = zoomDownBounds.y - 24;
+            zoomUpBounds.x = zoomDownBounds.x;
+            zoomUpBounds.y = zoomDownBounds.y - 64;
+
             posTextBounds.x = BORDER_SIZE;
             posTextBounds.y = BORDER_SIZE * 2;
             chunkGridBounds.x = floorDownBounds.x - BORDER_SIZE - chunkGridBounds.width;
@@ -1561,7 +1586,9 @@ public class WorldMapWindow {
 
             drawButton(g, "^", floorUpBounds);
             drawButton(g, "v", floorDownBounds);
-            Renderer.drawShadowText(g, "Floor", floorTextBounds.x, floorTextBounds.y - 54, Renderer.color_text, true);
+            drawButton(g, "-", zoomDownBounds);
+            drawButton(g, "+", zoomUpBounds);
+            //Renderer.drawShadowText(g, "Floor", floorTextBounds.x, floorTextBounds.y - 54, Renderer.color_text, true);
             g.setFont(Renderer.font_big);
 
             final String[] floorNames = {
@@ -1572,6 +1599,7 @@ public class WorldMapWindow {
             };
 
             Renderer.drawShadowText(g, floorNames[planeIndex], floorTextBounds.x, floorTextBounds.y, Renderer.color_text, true);
+            Renderer.drawShadowText(g, Integer.toString((int)zoom) + "x", zoomTextBounds.x, zoomTextBounds.y, Renderer.color_text, true);
 
             if (renderChunkGrid) {
                 drawButton(g, "Disable Chunk Grid", chunkGridBounds);
