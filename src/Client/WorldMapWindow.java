@@ -27,12 +27,22 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class WorldMapWindow {
+    private static class CameraPoint {
+        public float x;
+        public float y;
+
+        public CameraPoint(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+    };
+
     static private JFrame frame;
     static private JPanel mapView;
 
     private static Point prevMousePoint;
     private static Point prevMousePointMap;
-    private static Point cameraCurrentPosition;
+    private static CameraPoint cameraCurrentPosition;
     private static Point cameraPosition;
     private static float cameraFloatPosX;
     private static float cameraFloatPosY;
@@ -575,7 +585,7 @@ public class WorldMapWindow {
     private static void runInit() {
         initAssets();
 
-        cameraCurrentPosition = new Point(planes[0].getWidth(null) / 2, planes[0].getHeight(null) / 2);
+        cameraCurrentPosition = new CameraPoint(planes[0].getWidth(null) / 2, planes[0].getHeight(null) / 2);
 
         // Initialize window
         frame = new JFrame();
@@ -883,15 +893,15 @@ public class WorldMapWindow {
                 if (!SwingUtilities.isLeftMouseButton(e) && (!SwingUtilities.isMiddleMouseButton(e) || developmentMode))
                     return;
 
-                int diffX = prevMousePoint.x - p.x;
-                int diffY = prevMousePoint.y - p.y;
+                int diffX = (prevMousePoint.x - p.x);
+                int diffY = (prevMousePoint.y - p.y);
 
                 prevMousePoint = p;
                 if (diffX != 0 || diffY != 0) {
                     followPlayer = false;
                     cameraLerpPosition = null;
-                    cameraCurrentPosition.x += diffX;
-                    cameraCurrentPosition.y += diffY;
+                    cameraCurrentPosition.x += diffX / zoom;
+                    cameraCurrentPosition.y += diffY / zoom;
 
                     int mapWidth = planes[0].getWidth(null);
                     int mapHeight = planes[0].getHeight(null);
@@ -1303,8 +1313,8 @@ public class WorldMapWindow {
     }
 
     private static void updateCameraView() {
-        cameraPosition.x = getZoomInt(cameraCurrentPosition.x) - mapView.getWidth() / 2;
-        cameraPosition.y = getZoomInt(cameraCurrentPosition.y) - mapView.getHeight() / 2;
+        cameraPosition.x = getZoomInt((int)cameraCurrentPosition.x) - mapView.getWidth() / 2;
+        cameraPosition.y = getZoomInt((int)cameraCurrentPosition.y) - mapView.getHeight() / 2;
     }
 
     public static void UpdateView() {
@@ -1342,7 +1352,7 @@ public class WorldMapWindow {
     public static void Update()
     {
         Point prevPosition = new Point(playerPosition.x, playerPosition.y);
-        Point prevCameraPosition = new Point(cameraCurrentPosition.x, cameraCurrentPosition.y);
+        CameraPoint prevCameraPosition = new CameraPoint(cameraCurrentPosition.x, cameraCurrentPosition.y);
         int prevPlane = playerPlane;
         boolean dirty = false;
 
