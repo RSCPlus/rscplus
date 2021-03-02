@@ -60,6 +60,7 @@ public class WorldMapWindow {
     private static SearchResult[] searchResults;
     private static boolean searchOverflow;
     private static boolean searchValid;
+    private static float zoom = 2.0f;
 
     private static boolean developmentMode;
 
@@ -590,6 +591,16 @@ public class WorldMapWindow {
         mapView.repaint();
         mapView.setVisible(true);
 
+        frame.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                int notches = e.getWheelRotation();
+                float newZoom = zoom - notches;
+                setZoom(newZoom);
+                mapView.repaint();
+            }
+        });
+
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -717,17 +728,22 @@ public class WorldMapWindow {
             @Override
             public void mousePressed(MouseEvent e) {
                 Point p = e.getPoint();
+                Point scaledPoint = new Point(getInvZoomInt(p.x), getInvZoomInt(p.y));
 
                 if (developmentMode) {
                     if (e.getButton() == MouseEvent.BUTTON2) {
-                        Point p2 = new Point(cameraPosition.x + p.x, cameraPosition.y + p.y);
+                        Point p2 = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
                         Logger.Info("[MAPDEVMODE] Map Coordinates: " + p2.x + ", " + p2.y + "; Point Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7));
                         return;
                     }
                 }
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    Point newPos = new Point(((planes[planeIndex].getWidth(null) - (cameraPosition.x + p.x)) / 3) - 1, ((cameraPosition.y + p.y) / 3) + (944 * planeIndex));
+                    int mapWidth = planes[planeIndex].getWidth(null);
+                    int pX = ((mapWidth - (getInvZoomInt(cameraPosition.x) + scaledPoint.x) - 4) / 3) + 1;
+                    int pY = ((getInvZoomInt(cameraPosition.y) + scaledPoint.y) / 3) + (944 * planeIndex);
+
+                    Point newPos = new Point(pX, pY);
                     if (waypointPosition != null) {
                         int distance = (int)Point.distance(waypointPosition.x, waypointPosition.y, newPos.x, newPos.y);
                         if (distance <= 2)
@@ -1247,6 +1263,14 @@ public class WorldMapWindow {
         frame.setVisible(true);
     }
 
+    private static void setZoom(float val) {
+        zoom = val;
+        if (zoom < 1.0f)
+            zoom = 1.0f;
+        else if (zoom > 8.0f)
+            zoom = 8.0f;
+    }
+
     private static void setFloor(int floor) {
         planeIndex = floor;
         if (planeIndex < 0)
@@ -1256,9 +1280,17 @@ public class WorldMapWindow {
         updateMapFloorRender(planeIndex, false);
     }
 
+    private static int getZoomInt(int val) {
+        return (int)(val * zoom);
+    }
+
+    private static int getInvZoomInt(int val) {
+        return (int)(val / zoom);
+    }
+
     private static void updateCameraView() {
-        cameraPosition.x = cameraCurrentPosition.x - mapView.getWidth() / 2;
-        cameraPosition.y = cameraCurrentPosition.y - mapView.getHeight() / 2;
+        cameraPosition.x = getZoomInt(cameraCurrentPosition.x) - mapView.getWidth() / 2;
+        cameraPosition.y = getZoomInt(cameraCurrentPosition.y) - mapView.getHeight() / 2;
     }
 
     public static void UpdateView() {
@@ -1329,8 +1361,9 @@ public class WorldMapWindow {
             } else {
                 y -= 2829;
             }
-            cameraCurrentPosition.x = (planes[planeIndex].getWidth(null) - (playerPosition.x * 3)) + 2;
-            cameraCurrentPosition.y = ((y - planeIndex) * 3) + 2;
+            int tileSize = getZoomInt(3);
+            cameraCurrentPosition.x = (planes[planeIndex].getWidth(null) - (playerPosition.x * 3)) - 1;
+            cameraCurrentPosition.y = ((y - planeIndex) * 3) + 1;
         }
 
         if (!frame.isVisible())
@@ -1349,44 +1382,30 @@ public class WorldMapWindow {
             mapView.repaint();
     }
 
-    public static Rectangle convertWorldCoordsToMapRaw(int x, int y)
+    public static Rectangle convertWorldCoordsToMapRaw(int x, int y, int tileSize)
     {
-        int plane = 0;
+        int plane = y / 945;
         int wilderness = 0;
-        if (y < 943) {
+        if (plane == 0) {
             if (x <= 336 && y <= 429)
                 wilderness = 1;
-        } else if (y < 1886) {
-            y -= 943;
-            plane = 1;
-        } else if (y < 2829) {
-            y -= 1886;
-            plane = 2;
-        } else {
-            y -= 2829;
-            plane = 3;
         }
-        return new Rectangle((planes[planeIndex].getWidth(null) / 3 - (x + 1)) * 3, (y - plane) * 3, plane, wilderness);
+        x += 1;
+        y -= plane * 944;
+        return new Rectangle((planes[planeIndex].getWidth(null) / 3 - x) * tileSize, y * tileSize, plane, wilderness);
+    }
+
+    public static Rectangle convertWorldCoordsToMapRaw(int x, int y) {
+        return convertWorldCoordsToMapRaw(x, y, 3);
     }
 
     public static Rectangle convertWorldCoordsToMap(int x, int y)
     {
-        int plane = 0;
-        int wilderness = 0;
-        if (y < 943) {
-            if (x <= 336 && y <= 429)
-                wilderness = 1;
-        } else if (y < 1886) {
-            y -= 943;
-            plane = 1;
-        } else if (y < 2829) {
-            y -= 1886;
-            plane = 2;
-        } else {
-            y -= 2829;
-            plane = 3;
-        }
-        return new Rectangle(-cameraPosition.x + ((planes[planeIndex].getWidth(null) / 3 - (x + 1)) * 3), -cameraPosition.y + (y - plane) * 3, plane, wilderness);
+        int tileSize = getZoomInt(3);
+        x = x;
+        y = y;
+        Rectangle p = convertWorldCoordsToMapRaw(x, y, tileSize);
+        return new Rectangle(-cameraPosition.x + p.x, -cameraPosition.y + p.y, p.width, p.height);
     }
 
     public static void drawMapPoint(Graphics2D g, int x, int y) {
@@ -1439,6 +1458,7 @@ public class WorldMapWindow {
             int canvasHeight = getHeight();
             int mapWidth = planes[planeIndex].getWidth(null);
             int mapHeight = planes[planeIndex].getHeight(null);
+            int tileSize = getZoomInt(3);
 
             floorDownBounds.x = canvasWidth - floorDownBounds.width - BORDER_SIZE;
             floorDownBounds.y = canvasHeight - floorDownBounds.height - BORDER_SIZE;
@@ -1465,38 +1485,15 @@ public class WorldMapWindow {
             searchRefreshBounds.x = searchBounds.x + searchBounds.width + BORDER_SIZE;
             searchRefreshBounds.y = searchBounds.y;
 
-            int hoveredX = (mapWidth - (cameraPosition.x + prevMousePoint.x)) / 3;
-            int hoveredY = (cameraPosition.y + prevMousePoint.y) / 3;
-            prevMousePointMap.x = hoveredX - 1;
+            int hoveredX =  (mapWidth - getInvZoomInt(cameraPosition.x + prevMousePoint.x) - 1) / 3;
+            int hoveredY = getInvZoomInt(cameraPosition.y + prevMousePoint.y) / 3;
+            prevMousePointMap.x = hoveredX;
             prevMousePointMap.y = (hoveredY + planeIndex) + (943 * planeIndex);
 
             // Initialize
             Shape rootShape = new Rectangle2D.Float(0, 0, getWidth(), getHeight());
             Graphics2D g = (Graphics2D)graphics;
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Clear
-            /*g.setColor(color_water);
-            g.fill(rootShape);
-
-            if (planeIndex != 3) {
-                for (int i = 0; i < planeIndex + 1; i++) {
-                    g.drawImage(planes[i], -cameraPosition.x, -cameraPosition.y, null);
-                    if (i < planeIndex) {
-                        setAlpha(g, 0.5f);
-                        g.setColor(Color.black);
-                        g.fillRect(0, 0, mapWidth, mapHeight);
-                        setAlpha(g, 1.0f);
-                    }
-                }
-            } else {
-                g.drawImage(planes[0], -cameraPosition.x, -cameraPosition.y, null);
-                setAlpha(g, 0.85f);
-                g.setColor(Color.black);
-                g.fillRect(0, 0, mapWidth, mapHeight);
-                setAlpha(g, 1.0f);
-                g.drawImage(planes[planeIndex], -cameraPosition.x, -cameraPosition.y, null);
-            }*/
 
             if (showOtherFloors || planeIndex == 0)
                 g.setColor(color_water);
@@ -1522,13 +1519,15 @@ public class WorldMapWindow {
             }
 
             synchronized (renderLock) {
-                g.drawImage(mapImageBuffer[planeIndex], -cameraPosition.x, -cameraPosition.y, null);
+                int bufferWidth = getZoomInt(mapImageBuffer[planeIndex].getWidth());
+                int bufferHeight = getZoomInt(mapImageBuffer[planeIndex].getHeight());
+                g.drawImage(mapImageBuffer[planeIndex], -cameraPosition.x, -cameraPosition.y, bufferWidth, bufferHeight, null);
             }
 
             Rectangle hoverTilePoint = convertWorldCoordsToMap(prevMousePointMap.x, prevMousePointMap.y);
             g.setColor(Renderer.color_low);
             setAlpha(g, 0.5f);
-            g.fillRect(hoverTilePoint.x, hoverTilePoint.y, 3, 3);
+            g.fillRect(hoverTilePoint.x, hoverTilePoint.y, tileSize, tileSize);
             setAlpha(g, 1.0f);
 
             // Render waypoint
@@ -1536,8 +1535,8 @@ public class WorldMapWindow {
                 Rectangle p = convertWorldCoordsToMap(waypointPosition.x, waypointPosition.y);
                 setAlpha(g, p.width == planeIndex ? 1.0f : 0.25f);
                 g.setFont(fontsBold[18]);
-                g.drawImage(waypointImage, p.x - pointImage.getWidth(null) / 2 + 1, p.y - pointImage.getHeight(null) / 2 + 2, null);
-                Renderer.drawShadowText(g, "Your destination", p.x, p.y - 28, Renderer.color_low, true);
+                g.drawImage(waypointImage, p.x - pointImage.getWidth(null) / 2 + (tileSize / 2), p.y - pointImage.getHeight(null) / 2 + (tileSize / 2), null);
+                Renderer.drawShadowText(g, "Your destination", p.x + tileSize / 2, p.y - 28, Renderer.color_low, true);
                 setAlpha(g, 1.0f);
             }
 
@@ -1546,8 +1545,8 @@ public class WorldMapWindow {
                 setAlpha(g, playerPlane == planeIndex ? 1.0f : 0.25f);
                 Rectangle p = convertWorldCoordsToMap(playerPosition.x, playerPosition.y);
                 g.setFont(fontsBold[18]);
-                g.drawImage(pointImage, p.x - pointImage.getWidth(null) / 2 + 1, p.y - pointImage.getHeight(null) / 2 + 2, null);
-                Renderer.drawShadowText(g, "You are here", p.x, p.y - 28, Renderer.color_item_highlighted, true);
+                g.drawImage(pointImage, p.x - pointImage.getWidth(null) / 2 + (tileSize / 2), p.y - pointImage.getHeight(null) / 2 + (tileSize / 2), null);
+                Renderer.drawShadowText(g, "You are here", p.x + tileSize / 2, p.y - 28, Renderer.color_item_highlighted, true);
                 setAlpha(g, 1.0f);
             }
 
