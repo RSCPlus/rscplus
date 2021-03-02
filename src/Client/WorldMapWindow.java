@@ -1288,11 +1288,22 @@ public class WorldMapWindow {
     }
 
     private static void setZoom(float val) {
+        float prevZoom = zoom;
         zoom = val;
         if (zoom < 1.0f)
             zoom = 1.0f;
         else if (zoom > 8.0f)
             zoom = 8.0f;
+
+        if (prevZoom < zoom) {
+            float newX = (planes[0].getWidth(null)) - prevMousePointMap.x * 3;
+            float newY = prevMousePointMap.y * 3;
+            float diffX = newX - cameraCurrentPosition.x;
+            float diffY = newY - cameraCurrentPosition.y;
+
+            cameraCurrentPosition.x += diffX / zoom;
+            cameraCurrentPosition.y += diffY / zoom;
+        }
     }
 
     private static void setFloor(int floor) {
