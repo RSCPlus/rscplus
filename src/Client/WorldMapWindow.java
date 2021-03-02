@@ -752,7 +752,6 @@ public class WorldMapWindow {
             public void mousePressed(MouseEvent e) {
                 Point p = e.getPoint();
                 Point scaledPoint = new Point(getInvZoomInt(p.x), getInvZoomInt(p.y));
-                int tileSize = getZoomInt(3);
 
                 // Get world coords
                 Point worldCoords = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
@@ -1759,7 +1758,7 @@ public class WorldMapWindow {
             int scDist = sc.getPlayerDistance();
             int sccDist = scc.getPlayerDistance();
             int diff = scDist - sccDist;
-            return diff <= 0 ? -1 : 1;
+            return diff < 0 ? -1 : diff > 0 ? 1 : 0;
         }
     }
 
