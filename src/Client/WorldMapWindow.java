@@ -1611,11 +1611,11 @@ public class WorldMapWindow {
             }
 
             int renderY = posTextBounds.y;
+            g.setFont(Renderer.font_main);
             if (developmentMode) {
                 Renderer.drawShadowText(g, "DEVELOPMENT MODE", posTextBounds.x, renderY, Renderer.color_text, false);
                 renderY += 16;
             }
-            g.setFont(Renderer.font_main);
             Renderer.drawShadowText(g, Integer.toString(prevMousePointMap.x) + ", " + Integer.toString(prevMousePointMap.y), posTextBounds.x, renderY, Renderer.color_fatigue, false);
 
 
