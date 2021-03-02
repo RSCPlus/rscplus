@@ -3,6 +3,7 @@ package Client;
 import Game.Client;
 import Game.JGameData;
 import Game.Renderer;
+import Game.StreamUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.css.Rect;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 public class WorldMapWindow {
     private static class CameraPoint {
@@ -99,6 +101,8 @@ public class WorldMapWindow {
     private static int playerPlane;
 
     private static int BORDER_SIZE = 8;
+
+    private static int keyboardModMask = 0;
 
     public static Color color_water = new Color(36, 64, 127);
     public static Color color_scenery_tree = new Color(0, 161, 49);
@@ -650,6 +654,8 @@ public class WorldMapWindow {
             public void keyPressed(KeyEvent e) {
                 boolean dirty = false;
 
+                keyboardModMask |= e.getModifiers();
+
                 int devMask = InputEvent.ALT_MASK | InputEvent.CTRL_MASK;
                 if ((e.getModifiers() & devMask) == devMask) {
                     // Ctrl + Alt + D enables development mode
@@ -732,6 +738,7 @@ public class WorldMapWindow {
 
             @Override
             public void keyReleased(KeyEvent e) {
+                keyboardModMask &= ~e.getModifiers();
             }
         });
 
@@ -745,6 +752,12 @@ public class WorldMapWindow {
             public void mousePressed(MouseEvent e) {
                 Point p = e.getPoint();
                 Point scaledPoint = new Point(getInvZoomInt(p.x), getInvZoomInt(p.y));
+                int tileSize = getZoomInt(3);
+
+                // Get world coords
+                Point worldCoords = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
+                worldCoords.x = ((planes[planeIndex].getWidth(null) - worldCoords.x - 4) / 3) + 1;
+                worldCoords.y = (worldCoords.y / 3) + (planeIndex * 944);
 
                 if (developmentMode) {
                     if (e.getButton() == MouseEvent.BUTTON2) {
@@ -754,12 +767,20 @@ public class WorldMapWindow {
                     }
                 }
 
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    int mapWidth = planes[planeIndex].getWidth(null);
-                    int pX = ((mapWidth - (getInvZoomInt(cameraPosition.x) + scaledPoint.x) - 4) / 3) + 1;
-                    int pY = ((getInvZoomInt(cameraPosition.y) + scaledPoint.y) / 3) + (944 * planeIndex);
+                int shiftClickMask = KeyEvent.SHIFT_MASK | KeyEvent.CTRL_MASK;
+                if ((keyboardModMask & shiftClickMask) == shiftClickMask) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        // Teleport user on servers that allow them to
+                        Object buffer = StreamUtil.getStreamBuffer();
+                        StreamUtil.newPacket(59);
+                        StreamUtil.putShortTo(buffer, (short) worldCoords.x);
+                        StreamUtil.putShortTo(buffer, (short) worldCoords.y);
+                        StreamUtil.sendPacket();
+                    }
+                }
 
-                    Point newPos = new Point(pX, pY);
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    Point newPos = worldCoords;
                     if (waypointPosition != null) {
                         int distance = (int)Point.distance(waypointPosition.x, waypointPosition.y, newPos.x, newPos.y);
                         if (distance <= 2)
@@ -1611,11 +1632,11 @@ public class WorldMapWindow {
             }
 
             int renderY = posTextBounds.y;
+            g.setFont(Renderer.font_main);
             if (developmentMode) {
                 Renderer.drawShadowText(g, "DEVELOPMENT MODE", posTextBounds.x, renderY, Renderer.color_text, false);
                 renderY += 16;
             }
-            g.setFont(Renderer.font_main);
             Renderer.drawShadowText(g, Integer.toString(prevMousePointMap.x) + ", " + Integer.toString(prevMousePointMap.y), posTextBounds.x, renderY, Renderer.color_fatigue, false);
 
 
