@@ -107,7 +107,7 @@ public class WorldMapWindow {
     public static Color color_scenery_indoors = new Color(0, 255, 255);
 
     public static final int SEARCH_RESULTS_MAX = 5;
-    public static final int SEARCH_RESULTS_LIMIT = 300;
+    public static final int SEARCH_RESULTS_LIMIT = 10000;
 
     private static ArrayList<MapLabel> mapLabels = new ArrayList<MapLabel>();
     private static ArrayList<MapScenery> mapSceneries = new ArrayList<MapScenery>();
