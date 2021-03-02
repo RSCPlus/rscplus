@@ -611,6 +611,17 @@ public class WorldMapWindow {
         mapView.repaint();
         mapView.setVisible(true);
 
+        frame.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                keyboardModMask = 0;
+            }
+        });
+
         frame.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
