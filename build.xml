@@ -109,8 +109,17 @@
 		</jar>
 	</target>
 
-	<target name="run" depends="dist">
+	<target name="distrun" depends="dist">
 		<java jar="${jar.file}" dir="${bin.dir}" fork="true" />
+	</target>
+	
+	<target name="run" depends="compile">
+		<java classname="Client.Launcher" fork="true">
+			<classpath>
+				<path refid="classpath.main"/>
+				<pathelement location="${main.build.dir}"/>
+			</classpath>
+		</java>
 	</target>
 
 	<target name="clean">
