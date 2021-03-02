@@ -757,7 +757,7 @@ public class WorldMapWindow {
                 // Get world coords
                 Point worldCoords = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
                 worldCoords.x = ((planes[planeIndex].getWidth(null) - worldCoords.x - 4) / 3) + 1;
-                worldCoords.y = worldCoords.y / 3;
+                worldCoords.y = (worldCoords.y / 3) + (planeIndex * 944);
 
                 if (developmentMode) {
                     if (e.getButton() == MouseEvent.BUTTON2) {
@@ -774,7 +774,7 @@ public class WorldMapWindow {
                         Object buffer = StreamUtil.getStreamBuffer();
                         StreamUtil.newPacket(59);
                         StreamUtil.putShortTo(buffer, (short) worldCoords.x);
-                        StreamUtil.putShortTo(buffer, (short)(worldCoords.y + (planeIndex * 944)));
+                        StreamUtil.putShortTo(buffer, (short) worldCoords.y);
                         StreamUtil.sendPacket();
                     }
                 }
