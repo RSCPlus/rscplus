@@ -721,8 +721,7 @@ public class WorldMapWindow {
                 if (developmentMode) {
                     if (e.getButton() == MouseEvent.BUTTON2) {
                         Point p2 = new Point(cameraPosition.x + p.x, cameraPosition.y + p.y);
-                        Logger.Info("[MAPDEVMODE]\tMap Coordinates: " + p2.x + ", " + p2.y + "\n" +
-                                    "\t\t\t\t\t\t\t\tGlyph Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7));
+                        Logger.Info("[MAPDEVMODE] Map Coordinates: " + p2.x + ", " + p2.y + "; Point Coordinates: " + (p2.x - 7) + ", " + (p2.y - 7));
                         return;
                     }
                 }
