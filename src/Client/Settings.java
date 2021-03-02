@@ -121,6 +121,8 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -196,7 +198,6 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_WORLD_COLUMN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_CONVERSION_COLUMN = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_USERFIELD_COLUMN = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
 
   //// world list
   public static HashMap<Integer, String> WORLD_URLS = new HashMap<Integer, String>();
@@ -689,6 +690,26 @@ public class Settings {
     SHOW_INVCOUNT.put("all", true);
     SHOW_INVCOUNT.put(
         "custom", getPropBoolean(props, "show_invcount", SHOW_INVCOUNT.get("default")));
+
+    SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
+    SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
+    SHOW_RSCPLUS_BUTTONS.put("lite", true);
+    SHOW_RSCPLUS_BUTTONS.put("default", true);
+    SHOW_RSCPLUS_BUTTONS.put("heavy", true);
+    SHOW_RSCPLUS_BUTTONS.put("all", true);
+    SHOW_RSCPLUS_BUTTONS.put(
+      "custom",
+      getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
+
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla", false);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla_resizable", false);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("lite", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("default", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("heavy", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("all", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put(
+      "custom",
+      getPropBoolean(props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1259,16 +1280,6 @@ public class Settings {
         "custom",
         getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
 
-    SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
-    SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
-    SHOW_RSCPLUS_BUTTONS.put("lite", true);
-    SHOW_RSCPLUS_BUTTONS.put("default", true);
-    SHOW_RSCPLUS_BUTTONS.put("heavy", true);
-    SHOW_RSCPLUS_BUTTONS.put("all", true);
-    SHOW_RSCPLUS_BUTTONS.put(
-            "custom",
-            getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
-
     //// world list
     initWorlds();
 
@@ -1772,6 +1783,8 @@ public class Settings {
       props.setProperty(
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
       props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT.get(preset)));
+      props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
+      props.setProperty("rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));

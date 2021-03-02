@@ -715,7 +715,7 @@ public class Renderer {
 
       // Interface rsc+ buttons
       // Map Button
-      if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+      if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile) || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
         Rectangle mapButtonBounds =
                 new Rectangle(
                         width - 68,
@@ -723,9 +723,11 @@ public class Renderer {
                         32,
                         32);
         if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
-          g2.setColor(Renderer.color_text);
-          g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-          g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+            g2.setColor(Renderer.color_text);
+            g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+            g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          }
 
           // Handle replay play selection click
           if (MouseHandler.x >= mapButtonBounds.x
@@ -747,9 +749,11 @@ public class Renderer {
                         32,
                         32);
         if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
-          g2.setColor(Renderer.color_text);
-          g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-          g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+            g2.setColor(Renderer.color_text);
+            g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
+            g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+          }
 
           // Handle replay play selection click
           if (MouseHandler.x >= mapButtonBounds.x
