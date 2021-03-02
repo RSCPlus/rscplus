@@ -1588,10 +1588,11 @@ public class WorldMapWindow {
             searchRefreshBounds.x = searchBounds.x + searchBounds.width + BORDER_SIZE;
             searchRefreshBounds.y = searchBounds.y;
 
-            int hoveredX =  (mapWidth - getInvZoomInt(cameraPosition.x + prevMousePoint.x) - 1) / 3;
-            int hoveredY = getInvZoomInt(cameraPosition.y + prevMousePoint.y) / 3;
-            prevMousePointMap.x = hoveredX;
-            prevMousePointMap.y = (hoveredY + planeIndex) + (943 * planeIndex);
+            // Get world coords
+            Point scaledPoint = new Point(getInvZoomInt(prevMousePoint.x), getInvZoomInt(prevMousePoint.y));
+            Point worldCoords = new Point(getInvZoomInt(cameraPosition.x) + scaledPoint.x, getInvZoomInt(cameraPosition.y) + scaledPoint.y);
+            prevMousePointMap.x = ((planes[planeIndex].getWidth(null) - worldCoords.x - 4) / 3) + 1;
+            prevMousePointMap.y = (worldCoords.y / 3) + (planeIndex * 944);
 
             // Initialize
             Shape rootShape = new Rectangle2D.Float(0, 0, getWidth(), getHeight());
