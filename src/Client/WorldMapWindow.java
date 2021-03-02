@@ -1303,6 +1303,17 @@ public class WorldMapWindow {
 
             cameraCurrentPosition.x += diffX / zoom;
             cameraCurrentPosition.y += diffY / zoom;
+
+            int mapWidth = planes[planeIndex].getWidth(null);
+            int mapHeight = planes[planeIndex].getHeight(null);
+            if (cameraCurrentPosition.x < 0)
+                cameraCurrentPosition.x = 0;
+            if (cameraCurrentPosition.y < 0)
+                cameraCurrentPosition.y = 0;
+            if (cameraCurrentPosition.x > mapWidth)
+                cameraCurrentPosition.x = mapWidth;
+            if (cameraCurrentPosition.y > mapHeight)
+                cameraCurrentPosition.y = mapHeight;
         }
     }
 
