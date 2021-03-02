@@ -1460,6 +1460,9 @@ public class WorldMapWindow {
     public static void drawMapPoint(Graphics2D g, int x, int y) {
         g.drawLine(x + 2, y - 1, x + 2, y + 1);
         g.drawLine(x + 1, y, x + 3, y);
+        // Centered
+        //g.drawLine(x + 1, y, x + 1, y + 2);
+        //g.drawLine(x, y + 1, x + 2, y + 1);
     }
 
     public static void drawMapLabel(Graphics2D g, int x, int y, MapLabel label) {
