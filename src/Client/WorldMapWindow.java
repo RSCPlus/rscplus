@@ -774,7 +774,7 @@ public class WorldMapWindow {
                         Object buffer = StreamUtil.getStreamBuffer();
                         StreamUtil.newPacket(59);
                         StreamUtil.putShortTo(buffer, (short) worldCoords.x);
-                        StreamUtil.putShortTo(buffer, (short) worldCoords.y);
+                        StreamUtil.putShortTo(buffer, (short)(worldCoords.y + (planeIndex * 944)));
                         StreamUtil.sendPacket();
                     }
                 }
