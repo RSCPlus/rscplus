@@ -969,9 +969,17 @@ public class ConfigWindow {
     overlayPanelRscPlusButtonsFunctionalCheckbox = addCheckbox("Able to click in-game buttons to activate RSC+ features", overlayPanel);
     overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText("Able to click in-game buttons to activate RSC+ features");
 
-    overlayPanelRscPlusButtonsCheckbox = addCheckbox("Display + indicators over in-game buttons", overlayPanel);
+    JPanel overlayPanelRscPlusButtonsPanel = new JPanel();
+    overlayPanel.add(overlayPanelRscPlusButtonsPanel);
+    overlayPanelRscPlusButtonsPanel.setLayout(new BoxLayout(overlayPanelRscPlusButtonsPanel, BoxLayout.X_AXIS));
+    overlayPanelRscPlusButtonsPanel.setPreferredSize(new Dimension(0, 37));
+    overlayPanelRscPlusButtonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    overlayPanelRscPlusButtonsPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+    JLabel rscplusButtonsSpacingLabel = new JLabel("");
+    rscplusButtonsSpacingLabel .setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+    overlayPanelRscPlusButtonsPanel.add(rscplusButtonsSpacingLabel);
+    overlayPanelRscPlusButtonsCheckbox = addCheckbox("Also display + indicators over the in-game buttons", overlayPanelRscPlusButtonsPanel);
     overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
-    // overlayPanelRscPlusButtonsCheckbox.setBorder(new EmptyBorder(0, 0, 15, 200)); // TODO: add to a panel & indent
 
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
