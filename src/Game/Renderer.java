@@ -420,10 +420,6 @@ public class Renderer {
         }
       }
 
-      if (!Client.isSleeping()) {
-        Client.updateCurrentFatigue();
-      }
-
       // Clear item list for next frame
       Client.item_list.clear();
       last_item = null;
@@ -671,6 +667,10 @@ public class Renderer {
       Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
       Client.xpbar.draw(g2);
+
+      if (!Client.isSleeping()) {
+        Client.updateCurrentFatigue();
+      }
 
       // Make the reset buttons for filter & sort flash red a few frames when clicked
       if (Bank.buttonActive[5]

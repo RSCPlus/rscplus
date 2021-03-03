@@ -1172,7 +1172,7 @@ public class ConfigWindow {
     searchBankPanel.setLayout(new BoxLayout(searchBankPanel, BoxLayout.X_AXIS));
     searchBankPanel.setPreferredSize(new Dimension(0, 37));
     searchBankPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    searchBankPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    searchBankPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
 
     JLabel searchBankPanelLabel = new JLabel("Item Search (supports CSV): ");
     searchBankPanelLabel.setToolTipText(
@@ -1185,6 +1185,14 @@ public class ConfigWindow {
     bankPanelSearchBankWordTextField.setMinimumSize(new Dimension(100, 28));
     bankPanelSearchBankWordTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     bankPanelSearchBankWordTextField.setAlignmentY((float) 0.75);
+
+    JLabel banksearchExplanation =
+        new JLabel(
+            "<html><p>"
+                + "<strong>Note:</strong> <em>Right Clicking</em> the magnifying glass is also a way to set the \"Item Search\""
+                + "</p></html>");
+    bankPanel.add(banksearchExplanation);
+    banksearchExplanation.setBorder(new EmptyBorder(0, 0, 12, 0));
 
     addSettingsHeader(bankPanel, "Custom bank order");
     JLabel exportExplanation =

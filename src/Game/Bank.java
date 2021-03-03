@@ -23,11 +23,15 @@ import Client.Logger;
 import Client.Settings;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 public class Bank {
@@ -68,6 +72,9 @@ public class Bank {
   private static final int REMOVE_INVENTORY_SLOT = 123;
   private static boolean catchMeNextOpcode = false;
 
+  public static String bankSearchText[] =
+      new String[] {"Please enter the name of the item to search for", "and press enter"};
+
   static boolean processPacket(int opcode, int psize) {
     boolean processed = false;
     if (opcode == SHOW_BANK || opcode == UPDATE_BANK_ITEM) {
@@ -91,6 +98,19 @@ public class Bank {
     }
 
     fixFilterWhenItemRemovedFromInventory(opcode);
+
+    return processed;
+  }
+
+  public static boolean processInputPopup(int popupType, String popupInput) {
+    boolean processed = false;
+    String input = popupInput;
+    if (popupType == Client.POPUP_BANK_SEARCH) {
+      if (!input.trim().equals("")) {
+        bankSearch(input, false);
+      }
+      processed = true;
+    }
 
     return processed;
   }
@@ -999,10 +1019,21 @@ public class Bank {
           for (i = 0; i < 12; i++) {
             if (hoveringOverButton[i]) {
               if (i != 5 && i != 11) {
-                ++buttonMode[i];
-                if (buttonMode[i] > buttonModeLimits[i]) {
+                if (!MouseHandler.rightClick) {
+                  ++buttonMode[i];
+                } else {
+                  --buttonMode[i];
+                }
+                if (i == 4 && buttonActive[i] && MouseHandler.rightClick) {
+                  // maintain right click search if active
+                } else if (buttonMode[i] > buttonModeLimits[i]) {
                   buttonMode[i] = 0;
                   buttonActive[i] = false;
+                } else if (buttonMode[i] == 0) {
+                  buttonActive[i] = false;
+                } else if (buttonMode[i] < 0) {
+                  buttonMode[i] = buttonModeLimits[i];
+                  buttonActive[i] = true;
                 } else {
                   buttonActive[i] = true;
                 }
@@ -1024,6 +1055,24 @@ public class Bank {
                     for (int j = 0; j < 5; j++) {
                       buttonMode[j] = 0;
                       buttonActive[j] = false;
+                    }
+                  } else if (i == 4) {
+                    if (Client.singleButtonMode || MouseHandler.rightClick) {
+                      // right click bank search opens popup
+                      if (Client.showNativeInputPopup(
+                          Client.POPUP_BANK_SEARCH, Bank.bankSearchText, true)) {
+                        // any additional logic after showing popup
+                        // none at the moment
+                      } else {
+                        // fallback - notify user of command
+                        Client.displayMessage(
+                            "@mag@Type @yel@::banksearch [aString]@mag@ to search banked items with query string aString",
+                            Client.CHAT_QUEST);
+                      }
+                    } else if (Settings.SEARCH_BANK_WORD.get("custom").equals("")) {
+                      Client.displayMessage(
+                          "@mag@Right click the magnifying glass to start a new search",
+                          Client.CHAT_QUEST);
                     }
                   }
                 }

@@ -1152,10 +1152,11 @@ public class AccountManagement {
           "No that wasn't me - Cancel the request!", Renderer.width / 2, currYPos, 1, textColor);
       if (textColor == 0xFF0000 && mouseButtonClick == 1) {
         if (Settings.CONFIRM_CANCEL_RECOVERY_CHANGE.get(Settings.currentProfile)) {
-          try {
-            Reflection.showInputPopup.invoke(Client.instance, confirmCancelRecovery, 12, 10, false);
+          if (Client.showNativeInputPopup(
+              Client.POPUP_CANCEL_RECOVERY, confirmCancelRecovery, false)) {
+            // hide the welcome box
             Client.mouse_click = 0;
-          } catch (Exception e) {
+          } else {
             // fallback - notify user of command
             Client.displayMessage(
                 "@mag@Type @yel@::cancelrecoveryrequest@mag@ if you wish to confirm the cancellation",
@@ -1303,12 +1304,13 @@ public class AccountManagement {
     return currYPos - yPos;
   }
 
-  public static boolean processInputPopup(int popupType) {
+  public static boolean processInputPopup(int popupType, String popupInput) {
     boolean processed = false;
 
-    if (popupType == 10) {
+    if (popupType == Client.POPUP_CANCEL_RECOVERY) {
       // created to have confirm if doing "cancel recovery question"
       sendCancelRecoveryChange();
+      processed = true;
     }
 
     return processed;
