@@ -1019,12 +1019,21 @@ public class Bank {
           for (i = 0; i < 12; i++) {
             if (hoveringOverButton[i]) {
               if (i != 5 && i != 11) {
-                ++buttonMode[i];
+                if (!MouseHandler.rightClick) {
+                  ++buttonMode[i];
+                } else {
+                  --buttonMode[i];
+                }
                 if (i == 4 && buttonActive[i] && MouseHandler.rightClick) {
                   // maintain right click search if active
                 } else if (buttonMode[i] > buttonModeLimits[i]) {
                   buttonMode[i] = 0;
                   buttonActive[i] = false;
+                } else if (buttonMode[i] == 0) {
+                  buttonActive[i] = false;
+                } else if (buttonMode[i] < 0) {
+                  buttonMode[i] = buttonModeLimits[i];
+                  buttonActive[i] = true;
                 } else {
                   buttonActive[i] = true;
                 }
