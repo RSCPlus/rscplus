@@ -857,10 +857,12 @@ public class WorldMapWindow {
                         updateMapFloorRender(0, true);
                     }
 
-                    if (process(p, showOtherFloorsBounds)) {
+                    if (planeIndex != 0) {
+                      if (process(p, showOtherFloorsBounds)) {
                         showOtherFloors = !showOtherFloors;
                         Settings.save();
                         updateMapRender();
+                      }
                     }
 
                     if (process(p, followPlayerBounds))
@@ -1703,11 +1705,12 @@ public class WorldMapWindow {
             } else {
                 drawButton(g, "Show Icons", showIconsBounds);
             }
-
-            if (showOtherFloors) {
+          if (planeIndex != 0) {
+              if (showOtherFloors) {
                 drawButton(g, "Hide Other Floors", showOtherFloorsBounds);
-            } else {
+              } else {
                 drawButton(g, "Show Other Floors", showOtherFloorsBounds);
+              }
             }
 
             if (followPlayer) {
