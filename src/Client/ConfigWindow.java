@@ -181,6 +181,8 @@ public class ConfigWindow {
   private JCheckBox overlayPanelMouseTooltipCheckbox;
   private JCheckBox overlayPanelExtendedTooltipCheckbox;
   private JCheckBox overlayPanelInvCountCheckbox;
+  private JCheckBox overlayPanelRscPlusButtonsCheckbox;
+  private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
@@ -964,6 +966,21 @@ public class ConfigWindow {
     overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
     overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
 
+    overlayPanelRscPlusButtonsFunctionalCheckbox = addCheckbox("Able to click in-game buttons to activate RSC+ features", overlayPanel);
+    overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText("Able to click in-game buttons to activate RSC+ features");
+
+    JPanel overlayPanelRscPlusButtonsPanel = new JPanel();
+    overlayPanel.add(overlayPanelRscPlusButtonsPanel);
+    overlayPanelRscPlusButtonsPanel.setLayout(new BoxLayout(overlayPanelRscPlusButtonsPanel, BoxLayout.X_AXIS));
+    overlayPanelRscPlusButtonsPanel.setPreferredSize(new Dimension(0, 37));
+    overlayPanelRscPlusButtonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    overlayPanelRscPlusButtonsPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+    JLabel rscplusButtonsSpacingLabel = new JLabel("");
+    rscplusButtonsSpacingLabel .setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+    overlayPanelRscPlusButtonsPanel.add(rscplusButtonsSpacingLabel);
+    overlayPanelRscPlusButtonsCheckbox = addCheckbox("Also display + indicators over the in-game buttons", overlayPanelRscPlusButtonsPanel);
+    overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
+
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
 
@@ -1552,6 +1569,12 @@ public class ConfigWindow {
         "show_config_window",
         KeyModifier.CTRL,
         KeyEvent.VK_O);
+    addKeybindSet(
+            keybindContainerPanel,
+            "Show world map window",
+            "show_worldmap_window",
+            KeyModifier.ALT,
+            KeyEvent.VK_M);
     addKeybindSet(
         keybindContainerPanel,
         "Show queue window",
@@ -2439,6 +2462,8 @@ public class ConfigWindow {
     overlayPanelExtendedTooltipCheckbox.setSelected(
         Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile));
     overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
+    overlayPanelRscPlusButtonsCheckbox.setSelected(Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
+    overlayPanelRscPlusButtonsFunctionalCheckbox.setSelected(Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile) || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
     overlayPanelPositionCheckbox.setSelected(
         Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
     overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
@@ -2672,6 +2697,8 @@ public class ConfigWindow {
     Settings.SHOW_EXTENDED_TOOLTIP.put(
         Settings.currentProfile, overlayPanelExtendedTooltipCheckbox.isSelected());
     Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
+    Settings.SHOW_RSCPLUS_BUTTONS.put(Settings.currentProfile, overlayPanelRscPlusButtonsCheckbox.isSelected());
+    Settings.RSCPLUS_BUTTONS_FUNCTIONAL.put(Settings.currentProfile, overlayPanelRscPlusButtonsFunctionalCheckbox.isSelected() || overlayPanelRscPlusButtonsCheckbox.isSelected());
     Settings.SHOW_PLAYER_POSITION.put(
         Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
     Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());

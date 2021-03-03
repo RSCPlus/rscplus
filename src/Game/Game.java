@@ -204,6 +204,7 @@ public class Game extends JFrame
     dispose();
     Launcher.getConfigWindow().disposeJFrame();
     Launcher.getQueueWindow().disposeJFrame();
+    Launcher.getWorldMapWindow().disposeJFrame();
     TrayHandler.removeTrayIcon();
     NotificationsHandler.closeNotificationSoundClip();
     NotificationsHandler.disposeNotificationHandler();

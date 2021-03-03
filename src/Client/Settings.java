@@ -121,6 +121,8 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -688,6 +690,26 @@ public class Settings {
     SHOW_INVCOUNT.put("all", true);
     SHOW_INVCOUNT.put(
         "custom", getPropBoolean(props, "show_invcount", SHOW_INVCOUNT.get("default")));
+
+    SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
+    SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
+    SHOW_RSCPLUS_BUTTONS.put("lite", true);
+    SHOW_RSCPLUS_BUTTONS.put("default", true);
+    SHOW_RSCPLUS_BUTTONS.put("heavy", true);
+    SHOW_RSCPLUS_BUTTONS.put("all", true);
+    SHOW_RSCPLUS_BUTTONS.put(
+      "custom",
+      getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
+
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla", false);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla_resizable", false);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("lite", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("default", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("heavy", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put("all", true);
+    RSCPLUS_BUTTONS_FUNCTIONAL.put(
+      "custom",
+      getPropBoolean(props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1431,6 +1453,14 @@ public class Settings {
 
       currentProfile = getPropString(props, "current_profile", "custom");
       definePresets(props);
+
+      // World Map
+      WorldMapWindow.showIcons = getPropBoolean(props, "worldmap_show_icons", true);
+      WorldMapWindow.showLabels = getPropBoolean(props, "worldmap_show_labels", true);
+      WorldMapWindow.showScenery = getPropBoolean(props, "worldmap_show_scenery", true);
+      WorldMapWindow.renderChunkGrid = getPropBoolean(props, "worldmap_show_chunk_grid", false);
+      WorldMapWindow.showOtherFloors = getPropBoolean(props, "worldmap_show_other_floors", false);
+
       updateInjectedVariables(); // TODO remove this function
 
       // Keybinds
@@ -1753,6 +1783,8 @@ public class Settings {
       props.setProperty(
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
       props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT.get(preset)));
+      props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
+      props.setProperty("rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
@@ -1885,6 +1917,13 @@ public class Settings {
 
       props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+
+      // World Map
+      props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
+      props.setProperty("worldmap_show_labels", Boolean.toString(WorldMapWindow.showLabels));
+      props.setProperty("worldmap_show_scenery", Boolean.toString(WorldMapWindow.showScenery));
+      props.setProperty("worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
+      props.setProperty("worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");
@@ -2523,6 +2562,9 @@ public class Settings {
         return true;
       case "show_config_window":
         Launcher.getConfigWindow().showConfigWindow();
+        return true;
+      case "show_worldmap_window":
+        Launcher.getWorldMapWindow().showWorldMapWindow();
         return true;
       case "show_queue_window":
         // Try to not allow Replay window to appear while logged into the game :-)

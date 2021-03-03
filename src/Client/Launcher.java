@@ -42,6 +42,7 @@ public class Launcher extends JFrame implements Runnable {
   // Singleton
   private static Launcher instance;
   private static ConfigWindow configWindow;
+  private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
 
   public static ImageIcon icon = null;
@@ -439,6 +440,7 @@ public class Launcher extends JFrame implements Runnable {
     setConfigWindow(new ConfigWindow());
     Settings.loadKeybinds(props);
     Settings.successfullyInitted = true;
+    setWorldMapWindow(new WorldMapWindow());
     setQueueWindow(new QueueWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();
@@ -535,6 +537,16 @@ public class Launcher extends JFrame implements Runnable {
   /** @param configWindow the window to set */
   public static void setConfigWindow(ConfigWindow configWindow) {
     Launcher.configWindow = configWindow;
+  }
+
+  /** @return the window */
+  public static WorldMapWindow getWorldMapWindow() {
+    return worldMapWindow;
+  }
+
+  /** @param worldMapWindow the window to set */
+  public static void setWorldMapWindow(WorldMapWindow worldMapWindow) {
+    Launcher.worldMapWindow = worldMapWindow;
   }
 
   /** @return the window */

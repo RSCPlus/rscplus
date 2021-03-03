@@ -846,6 +846,9 @@ public class JClassPatcher {
 
       hookClassVariable(
           methodNode, "client", "yj", "I", "Game/Client", "lastHeightOffset", "I", true, true);
+
+      // Game data hooks
+      hookStaticVariableClone(methodNode, "l", "a", "[Ljava/lang/String;", "Game/JGameData", "objectNames", "[Ljava/lang/String;");
     }
   }
 
@@ -925,6 +928,10 @@ public class JClassPatcher {
             lastNode,
             new MethodInsnNode(
                 Opcodes.INVOKESTATIC, "Game/Item", "patchItemCommands", "()V", false));
+        methodNode.instructions.insertBefore(
+                lastNode,
+                new MethodInsnNode(
+                        Opcodes.INVOKESTATIC, "Client/WorldMapWindow", "initScenery", "()V", false));
       }
     }
   }
@@ -4384,6 +4391,46 @@ public class JClassPatcher {
           field.owner = newClass;
           field.name = newVar;
           field.desc = newDesc;
+        }
+      }
+    }
+  }
+
+  /**
+   * TODO: Complete JavaDoc
+   *
+   * @param methodNode
+   * @param owner The class of the variable to be hooked
+   * @param var The variable to be hooked
+   * @param desc
+   * @param newClass The class the hooked variable will be stored in
+   * @param newVar The variable name the hooked variable will be stored in
+   * @param newDesc
+   */
+  private void hookStaticVariableClone(
+          MethodNode methodNode,
+          String owner,
+          String var,
+          String desc,
+          String newClass,
+          String newVar,
+          String newDesc) {
+    Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+    while (insnNodeList.hasNext()) {
+      AbstractInsnNode insnNode = insnNodeList.next();
+
+      int opcode = insnNode.getOpcode();
+      if (opcode == Opcodes.PUTSTATIC) {
+        FieldInsnNode field = (FieldInsnNode) insnNode;
+        if (field.owner.equals(owner) && field.name.equals(var) && field.desc.equals(desc)) {
+          methodNode.instructions.insertBefore(field, new InsnNode(Opcodes.DUP));
+          methodNode.instructions.insert(
+                  field,
+                  new FieldInsnNode(
+                          Opcodes.PUTSTATIC,
+                          newClass,
+                          newVar,
+                          newDesc));
         }
       }
     }

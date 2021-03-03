@@ -25,6 +25,7 @@ import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
 import Client.Logger;
+import Client.WorldMapWindow;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
@@ -738,6 +739,12 @@ public class Client {
       login_hook();
     }
 
+    WorldMapWindow.UpdateView();
+    if (Client.state == Client.STATE_GAME)
+      WorldMapWindow.Update();
+    else
+      WorldMapWindow.Reset();
+
     updates++;
     time = System.currentTimeMillis();
     if (time >= update_timer) {
@@ -938,10 +945,8 @@ public class Client {
       }
 
       displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
-      displayMessage(
-          "@mag@Open the settings with @yel@"
-              + configWindowShortcut
-              + "@mag@ or @yel@right-click the tray icon",
+      displayMessage("@mag@Open the settings by @yel@clicking the wrench icon@mag@, pressing @yel@" + configWindowShortcut +
+                      "@mag@, or from the @yel@tray icon",
           CHAT_QUEST);
     }
 
