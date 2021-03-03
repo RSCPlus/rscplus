@@ -45,16 +45,7 @@ public class Util {
   public static final float ANGLE_EAST = 180;
   public static final float ANGLE_NORTH = 270;
 
-  public static String angleNames[] = {
-          "W",
-          "SW",
-          "S",
-          "SE",
-          "E",
-          "NE",
-          "N",
-          "NW"
-  };
+  public static String angleNames[] = {"W", "SW", "S", "SE", "E", "NE", "N", "NW"};
 
   private Util() {
     // Empty private constructor to prevent instantiation.
@@ -73,10 +64,9 @@ public class Util {
   }
 
   public static float getAngle(Point source, Point target) {
-    float angle = (float)Math.toDegrees(Math.atan2(target.y - source.y, target.x - source.x));
+    float angle = (float) Math.toDegrees(Math.atan2(target.y - source.y, target.x - source.x));
 
-    if(angle < 0)
-      angle += 360;
+    if (angle < 0) angle += 360;
 
     return angle;
   }
@@ -84,7 +74,7 @@ public class Util {
   public static String readString(InputStream inputStream) throws IOException {
     ByteArrayOutputStream into = new ByteArrayOutputStream();
     byte[] buf = new byte[4096];
-    for (int n; 0 < (n = inputStream.read(buf));) {
+    for (int n; 0 < (n = inputStream.read(buf)); ) {
       into.write(buf, 0, n);
     }
     into.close();
@@ -96,7 +86,7 @@ public class Util {
   }
 
   public static int getAngleIndex(float angle) {
-    int index = (int)((angle / (360.0f / 8.0f)) + 0.5f);
+    int index = (int) ((angle / (360.0f / 8.0f)) + 0.5f);
     return index % 8;
   }
 

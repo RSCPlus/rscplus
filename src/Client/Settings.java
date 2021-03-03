@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20210226.015634;
+  public static final double VERSION_NUMBER = 20210303.030618;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -122,7 +122,8 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -698,8 +699,8 @@ public class Settings {
     SHOW_RSCPLUS_BUTTONS.put("heavy", true);
     SHOW_RSCPLUS_BUTTONS.put("all", true);
     SHOW_RSCPLUS_BUTTONS.put(
-      "custom",
-      getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
+        "custom",
+        getPropBoolean(props, "show_rscplus_buttons", SHOW_RSCPLUS_BUTTONS.get("default")));
 
     RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla", false);
     RSCPLUS_BUTTONS_FUNCTIONAL.put("vanilla_resizable", false);
@@ -708,8 +709,9 @@ public class Settings {
     RSCPLUS_BUTTONS_FUNCTIONAL.put("heavy", true);
     RSCPLUS_BUTTONS_FUNCTIONAL.put("all", true);
     RSCPLUS_BUTTONS_FUNCTIONAL.put(
-      "custom",
-      getPropBoolean(props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
+        "custom",
+        getPropBoolean(
+            props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1784,7 +1786,8 @@ public class Settings {
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
       props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT.get(preset)));
       props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
-      props.setProperty("rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
+      props.setProperty(
+          "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
@@ -1922,8 +1925,10 @@ public class Settings {
       props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
       props.setProperty("worldmap_show_labels", Boolean.toString(WorldMapWindow.showLabels));
       props.setProperty("worldmap_show_scenery", Boolean.toString(WorldMapWindow.showScenery));
-      props.setProperty("worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
-      props.setProperty("worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
+      props.setProperty(
+          "worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
+      props.setProperty(
+          "worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
       FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
       props.store(out, "---rscplus config---");

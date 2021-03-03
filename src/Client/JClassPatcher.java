@@ -851,7 +851,14 @@ public class JClassPatcher {
           methodNode, "client", "yj", "I", "Game/Client", "lastHeightOffset", "I", true, true);
 
       // Game data hooks
-      hookStaticVariableClone(methodNode, "l", "a", "[Ljava/lang/String;", "Game/JGameData", "objectNames", "[Ljava/lang/String;");
+      hookStaticVariableClone(
+          methodNode,
+          "l",
+          "a",
+          "[Ljava/lang/String;",
+          "Game/JGameData",
+          "objectNames",
+          "[Ljava/lang/String;");
     }
   }
 
@@ -932,9 +939,9 @@ public class JClassPatcher {
             new MethodInsnNode(
                 Opcodes.INVOKESTATIC, "Game/Item", "patchItemCommands", "()V", false));
         methodNode.instructions.insertBefore(
-                lastNode,
-                new MethodInsnNode(
-                        Opcodes.INVOKESTATIC, "Client/WorldMapWindow", "initScenery", "()V", false));
+            lastNode,
+            new MethodInsnNode(
+                Opcodes.INVOKESTATIC, "Client/WorldMapWindow", "initScenery", "()V", false));
       }
     }
   }
@@ -4415,13 +4422,13 @@ public class JClassPatcher {
    * @param newDesc
    */
   private void hookStaticVariableClone(
-          MethodNode methodNode,
-          String owner,
-          String var,
-          String desc,
-          String newClass,
-          String newVar,
-          String newDesc) {
+      MethodNode methodNode,
+      String owner,
+      String var,
+      String desc,
+      String newClass,
+      String newVar,
+      String newDesc) {
     Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
     while (insnNodeList.hasNext()) {
       AbstractInsnNode insnNode = insnNodeList.next();
@@ -4432,12 +4439,7 @@ public class JClassPatcher {
         if (field.owner.equals(owner) && field.name.equals(var) && field.desc.equals(desc)) {
           methodNode.instructions.insertBefore(field, new InsnNode(Opcodes.DUP));
           methodNode.instructions.insert(
-                  field,
-                  new FieldInsnNode(
-                          Opcodes.PUTSTATIC,
-                          newClass,
-                          newVar,
-                          newDesc));
+              field, new FieldInsnNode(Opcodes.PUTSTATIC, newClass, newVar, newDesc));
         }
       }
     }

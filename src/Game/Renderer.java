@@ -42,7 +42,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
 import java.io.File;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -694,76 +693,84 @@ public class Renderer {
 
       // World Map
       // Arrow marker for destination
-      if (WorldMapWindow.getWaypointPosition() != null && !Client.isInterfaceOpen() && Client.show_menu == Client.MENU_NONE) {
-        float absCameraRotation = ((((float) Camera.rotation / 255.0f) * 360.0f) + 180.0f) + WorldMapWindow.getWaypointAngle();
-        if (WorldMapWindow.getWaypointFloor() != Client.planeIndex)
-          setAlpha(g2, 0.5f);
+      if (WorldMapWindow.getWaypointPosition() != null
+          && !Client.isInterfaceOpen()
+          && Client.show_menu == Client.MENU_NONE) {
+        float absCameraRotation =
+            ((((float) Camera.rotation / 255.0f) * 360.0f) + 180.0f)
+                + WorldMapWindow.getWaypointAngle();
+        if (WorldMapWindow.getWaypointFloor() != Client.planeIndex) setAlpha(g2, 0.5f);
         Image arrowSprite = WorldMapWindow.directions[Util.getAngleIndex(absCameraRotation)];
         x = (width / 2);
         y = 54;
         g2.drawImage(arrowSprite, x - 12, y - 12, 24, 24, null);
         y += -20;
         drawShadowText(
-                g2,
-                "" + Util.getAngleDirectionName(WorldMapWindow.getWaypointAngle()),
-                x,
-                y,
-                Renderer.color_low,
-                true);
+            g2,
+            "" + Util.getAngleDirectionName(WorldMapWindow.getWaypointAngle()),
+            x,
+            y,
+            Renderer.color_low,
+            true);
         setAlpha(g2, 1.0f);
       }
 
       // Interface rsc+ buttons
       // Map Button
-      if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile) || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
-        Rectangle mapButtonBounds =
-                new Rectangle(
-                        width - 68,
-                        3,
-                        32,
-                        32);
+      if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
+          || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+        Rectangle mapButtonBounds = new Rectangle(width - 68, 3, 32, 32);
         if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-            g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+            g2.drawLine(
+                mapButtonBounds.x + 4,
+                mapButtonBounds.y + 1,
+                mapButtonBounds.x + 4,
+                mapButtonBounds.y + 1 + 6);
+            g2.drawLine(
+                mapButtonBounds.x + 1,
+                mapButtonBounds.y + 4,
+                mapButtonBounds.x + 7,
+                mapButtonBounds.y + 4);
           }
 
           // Handle replay play selection click
           if (MouseHandler.x >= mapButtonBounds.x
-                  && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                  && MouseHandler.y >= mapButtonBounds.y
-                  && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                  && MouseHandler.mouseClicked) {
+              && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+              && MouseHandler.y >= mapButtonBounds.y
+              && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+              && MouseHandler.mouseClicked) {
 
             Launcher.getWorldMapWindow().showWorldMapWindow();
-
           }
         }
 
         // Settings
-        mapButtonBounds =
-                new Rectangle(
-                        width - 200,
-                        3,
-                        32,
-                        32);
+        mapButtonBounds = new Rectangle(width - 200, 3, 32, 32);
         if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(mapButtonBounds.x + 4, mapButtonBounds.y + 1, mapButtonBounds.x + 4, mapButtonBounds.y + 1 + 6);
-            g2.drawLine(mapButtonBounds.x + 1, mapButtonBounds.y + 4, mapButtonBounds.x + 7, mapButtonBounds.y + 4);
+            g2.drawLine(
+                mapButtonBounds.x + 4,
+                mapButtonBounds.y + 1,
+                mapButtonBounds.x + 4,
+                mapButtonBounds.y + 1 + 6);
+            g2.drawLine(
+                mapButtonBounds.x + 1,
+                mapButtonBounds.y + 4,
+                mapButtonBounds.x + 7,
+                mapButtonBounds.y + 4);
           }
 
           // Handle replay play selection click
           if (MouseHandler.x >= mapButtonBounds.x
-                  && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                  && MouseHandler.y >= mapButtonBounds.y
-                  && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                  && MouseHandler.mouseClicked) {
+              && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+              && MouseHandler.y >= mapButtonBounds.y
+              && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+              && MouseHandler.mouseClicked) {
 
             Launcher.getConfigWindow().showConfigWindow();
-
           }
         }
       }

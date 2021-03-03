@@ -25,13 +25,13 @@ import Client.JConfig;
 import Client.KeybindSet;
 import Client.Launcher;
 import Client.Logger;
-import Client.WorldMapWindow;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
 import Client.Util;
+import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.Component;
@@ -744,10 +744,11 @@ public class Client {
     }
 
     WorldMapWindow.UpdateView();
-    if (Client.state == Client.STATE_GAME)
+    if (Client.state == Client.STATE_GAME) {
       WorldMapWindow.Update();
-    else
+    } else {
       WorldMapWindow.Reset();
+    }
 
     updates++;
     time = System.currentTimeMillis();
@@ -949,8 +950,10 @@ public class Client {
       }
 
       displayMessage("@mag@Type @yel@::help@mag@ for a list of commands", CHAT_QUEST);
-      displayMessage("@mag@Open the settings by @yel@clicking the wrench icon@mag@, pressing @yel@" + configWindowShortcut +
-                      "@mag@, or from the @yel@tray icon",
+      displayMessage(
+          "@mag@Open the settings by @yel@clicking the wrench icon@mag@, pressing @yel@"
+              + configWindowShortcut
+              + "@mag@, or from the @yel@tray icon",
           CHAT_QUEST);
     }
 
