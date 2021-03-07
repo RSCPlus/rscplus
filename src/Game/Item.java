@@ -141,11 +141,14 @@ public class Item {
   public static void patchItemCommands() {
     int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
     // ids of Half full wine jug, Disk of Returning, Pumpkin, Easter egg
-    int[] edible_rare_item_ids = {246, 387, 422, 677};
+    int[] edible_rare_item_ids = { 246, 387, 422, 677 };
+    String[] edible_rare_item_original_commands = { "Drink", "spin", "eat", "eat" };
 
-    if (commandPatchType == 1 || commandPatchType == 3) {
-      for (int i : edible_rare_item_ids) {
-        item_commands[i] = "";
+    for (int i = 0; i < edible_rare_item_ids.length; i++) {
+      if (commandPatchType == 1 || commandPatchType == 3) {
+        item_commands[edible_rare_item_ids[i]] = "";
+      } else {
+        item_commands[edible_rare_item_ids[i]] = edible_rare_item_original_commands[i];
       }
     }
   }

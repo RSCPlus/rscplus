@@ -22,6 +22,7 @@ import Client.KeybindSet.KeyModifier;
 import Game.Bank;
 import Game.Camera;
 import Game.Client;
+import Game.Item;
 import Game.Game;
 import Game.KeyboardHandler;
 import Game.Replay;
@@ -891,7 +892,7 @@ public class ConfigWindow {
     generalPanelCommandPatchModePanel.add(generalPanelCommandPatchModeTextPanel);
 
     JLabel generalPanelCommandPatchModeTitle =
-        new JLabel("<html><b>Item command patch mode</b> (Requires restart)</html>");
+        new JLabel("<html><b>Item command patch mode</b></html>");
     generalPanelCommandPatchModeTitle.setToolTipText(
         "Reworks certain discontinued/quest-only item edible commands with improved versions");
     generalPanelCommandPatchModeTextPanel.add(
@@ -2933,6 +2934,7 @@ public class ConfigWindow {
     synchronizeGuiValues();
     QueueWindow.syncColumnsWithSettings();
     QueueWindow.playlistTable.repaint();
+    Item.patchItemCommands();
   }
 
   public void synchronizePresetOptions() {
