@@ -135,36 +135,40 @@ public class Item {
   }
 
   /**
-   * Patches discontinued edible item commands specified by {@link Settings#COMMAND_PATCH_TYPE}.
-   * Removes completely the option to eat/drink
+   * Patches discontinued edible item commands. Removes completely the option to eat or drink them
    */
   public static void patchItemCommands() {
-    int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
-    // ids of Half full wine jug, Disk of Returning, Pumpkin, Easter egg
-    int[] edible_rare_item_ids = { 246, 387, 422, 677 };
-    String[] edible_rare_item_original_commands = { "Drink", "spin", "eat", "eat" };
+    // ids of Half full wine jug, Pumpkin, Easter egg
+    int[] edible_rare_item_ids = {246, 422, 677};
+    String[] edible_rare_item_original_commands = {"Drink", "eat", "eat"};
 
     for (int i = 0; i < edible_rare_item_ids.length; i++) {
-      if (commandPatchType == 1 || commandPatchType == 3) {
+      if (Settings.COMMAND_PATCH_EDIBLE_RARES.get(Settings.currentProfile)) {
         item_commands[edible_rare_item_ids[i]] = "";
       } else {
         item_commands[edible_rare_item_ids[i]] = edible_rare_item_original_commands[i];
       }
     }
+
+    // Disk of Returning patch, remove the ability to spin the disk.
+    // Really not necessary, unless you are in Thordur's black hole and don't want to ever leave.
+    // Keeping this setting since it existed in RSC+ before we knew whether or not it would consume
+    // the disk.
+    if (Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile)) {
+      item_commands[387] = "";
+    } else {
+      item_commands[387] = "spin";
+    }
   }
 
-  /**
-   * Patches quest only edible item commands specified by Settings.COMMANDS_PATCH_TYPE. Swaps around
-   * the option to eat/drink
-   */
+  /** Patches quest only edible item commands. Swaps around the option to eat/drink */
   public static boolean shouldPatch(int index) {
     if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return false;
 
-    int commandPatchType = Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile);
     // ids of giant Carp, chocolaty milk, Rock cake, nightshade
     int[] edible_quest_item_ids = {718, 770, 1061, 1086};
     boolean found = false;
-    if (commandPatchType == 2 || commandPatchType == 3) {
+    if (Settings.COMMAND_PATCH_QUEST.get(Settings.currentProfile)) {
       for (int i : edible_quest_item_ids) {
         if (index == i) {
           found = true;

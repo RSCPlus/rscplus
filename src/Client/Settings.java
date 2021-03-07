@@ -90,7 +90,11 @@ public class Settings {
   public static HashMap<String, Boolean> FATIGUE_ALERT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> INVENTORY_FULL_ALERT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
-  public static HashMap<String, Integer> COMMAND_PATCH_TYPE = new HashMap<String, Integer>();
+  public static HashMap<String, Integer> COMMAND_PATCH_LEGACY = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> COMMAND_PATCH_QUEST = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> COMMAND_PATCH_EDIBLE_RARES =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> COMMAND_PATCH_DISK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
       new HashMap<String, Boolean>();
@@ -442,18 +446,56 @@ public class Settings {
         "custom", getPropInt(props, "name_patch_type", NAME_PATCH_TYPE.get("default")));
 
     /**
-     * Defines to what extent fix the item commands should be patched. 0 - No item command patching
-     * 1 - Disable item consumption on discontinued rares 2 - Swap item command, i.e. use instead of
-     * consuming on quest-only items 3 - Apply both fixes 1 and 2
+     * LEGACY, NOT USED EXCEPT TO MIGRATE SETTINGS Defines to what extent fix the item commands
+     * should be patched. 0 - No item command patching 1 - Disable item consumption on discontinued
+     * rares 2 - Swap item command, i.e. use instead of consuming on quest-only items 3 - Apply both
+     * fixes 1 and 2
      */
-    COMMAND_PATCH_TYPE.put("vanilla", 0);
-    COMMAND_PATCH_TYPE.put("vanilla_resizable", 0);
-    COMMAND_PATCH_TYPE.put("lite", 1);
-    COMMAND_PATCH_TYPE.put("default", 1);
-    COMMAND_PATCH_TYPE.put("heavy", 3);
-    COMMAND_PATCH_TYPE.put("all", 3);
-    COMMAND_PATCH_TYPE.put(
-        "custom", getPropInt(props, "command_patch_type", COMMAND_PATCH_TYPE.get("default")));
+    COMMAND_PATCH_LEGACY.put("vanilla", 0);
+    COMMAND_PATCH_LEGACY.put("vanilla_resizable", 0);
+    COMMAND_PATCH_LEGACY.put("lite", 0);
+    COMMAND_PATCH_LEGACY.put("default", 0);
+    COMMAND_PATCH_LEGACY.put("heavy", 0);
+    COMMAND_PATCH_LEGACY.put("all", 0);
+    COMMAND_PATCH_LEGACY.put(
+        "custom", getPropInt(props, "command_patch_type", COMMAND_PATCH_LEGACY.get("default")));
+
+    COMMAND_PATCH_QUEST.put("vanilla", false);
+    COMMAND_PATCH_QUEST.put("vanilla_resizable", false);
+    COMMAND_PATCH_QUEST.put("lite", false);
+    COMMAND_PATCH_QUEST.put("default", false);
+    COMMAND_PATCH_QUEST.put("heavy", false);
+    COMMAND_PATCH_QUEST.put("all", true);
+    COMMAND_PATCH_QUEST.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "command_patch_quest",
+            COMMAND_PATCH_QUEST.get("default") || COMMAND_PATCH_LEGACY.get("default") >= 2));
+
+    COMMAND_PATCH_EDIBLE_RARES.put("vanilla", false);
+    COMMAND_PATCH_EDIBLE_RARES.put("vanilla_resizable", false);
+    COMMAND_PATCH_EDIBLE_RARES.put("lite", false);
+    COMMAND_PATCH_EDIBLE_RARES.put("default", true);
+    COMMAND_PATCH_EDIBLE_RARES.put("heavy", true);
+    COMMAND_PATCH_EDIBLE_RARES.put("all", true);
+    COMMAND_PATCH_EDIBLE_RARES.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "command_patch_edible_rares",
+            COMMAND_PATCH_EDIBLE_RARES.get("default")
+                || COMMAND_PATCH_LEGACY.get("default") == 1
+                || COMMAND_PATCH_LEGACY.get("default") == 3));
+
+    COMMAND_PATCH_DISK.put("vanilla", false);
+    COMMAND_PATCH_DISK.put("vanilla_resizable", false);
+    COMMAND_PATCH_DISK.put("lite", false);
+    COMMAND_PATCH_DISK.put("default", false);
+    COMMAND_PATCH_DISK.put("heavy", false);
+    COMMAND_PATCH_DISK.put("all", true);
+    COMMAND_PATCH_DISK.put(
+        "custom", getPropBoolean(props, "command_patch_disk", COMMAND_PATCH_DISK.get("default")));
 
     ATTACK_ALWAYS_LEFT_CLICK.put("vanilla", false);
     ATTACK_ALWAYS_LEFT_CLICK.put("vanilla_resizable", false);
@@ -1387,14 +1429,6 @@ public class Settings {
       save("custom");
     }
 
-    if (COMMAND_PATCH_TYPE.get("custom") < 0) {
-      COMMAND_PATCH_TYPE.put("custom", 0);
-      save("custom");
-    } else if (COMMAND_PATCH_TYPE.get("custom") > 3) {
-      COMMAND_PATCH_TYPE.put("custom", 3);
-      save("custom");
-    }
-
     if (FATIGUE_FIGURES.get("custom") < 1) {
       FATIGUE_FIGURES.put("custom", 1);
       save("custom");
@@ -1750,7 +1784,10 @@ public class Settings {
       props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT.get(preset)));
       props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT.get(preset)));
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
-      props.setProperty("command_patch_type", Integer.toString(COMMAND_PATCH_TYPE.get(preset)));
+      props.setProperty("command_patch_quest", Boolean.toString(COMMAND_PATCH_QUEST.get(preset)));
+      props.setProperty(
+          "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
+      props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
       props.setProperty(
           "keep_scrollbar_pos_magic_prayer",
@@ -2635,7 +2672,7 @@ public class Settings {
     FATIGUE_ALERT = true;
     INVENTORY_FULL_ALERT = false;
     NAME_PATCH_TYPE = 3;
-    COMMAND_PATCH_TYPE = 3;
+    COMMAND_PATCH_LEGACY = 3;
     BYPASS_ATTACK = false;
     HIDE_ROOFS = true;
     COLORIZE = true;
