@@ -844,7 +844,7 @@ public class ConfigWindow {
     generalPanelNamePatchModePanel.add(generalPanelNamePatchModeSlider);
 
     JPanel generalPanelNamePatchModeTextPanel = new JPanel();
-    generalPanelNamePatchModeTextPanel.setPreferredSize(new Dimension(255, 55));
+    generalPanelNamePatchModeTextPanel.setPreferredSize(new Dimension(255, 80));
     generalPanelNamePatchModeTextPanel.setLayout(new BorderLayout());
     generalPanelNamePatchModeTextPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
     generalPanelNamePatchModePanel.add(generalPanelNamePatchModeTextPanel);
