@@ -806,12 +806,12 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
+    generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
     generalPanelCommandPatchEdibleRaresCheckbox.setToolTipText(
         "Applies to the Easter Egg, Pumpkin, and the Half Wine.");
-    generalPanelCommandPatchEdibleRaresCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCommandPatchQuestCheckbox =
         addCheckbox("Swap eat & use options on Quest Items", generalPanel);
