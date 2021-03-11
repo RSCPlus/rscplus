@@ -1654,6 +1654,18 @@ public class ConfigWindow {
         "toggle_indicators",
         KeyModifier.CTRL,
         KeyEvent.VK_W);
+    addKeybindSet(
+            keybindContainerPanel,
+            "Reset camera zoom",
+            "reset_zoom",
+            KeyModifier.ALT,
+            KeyEvent.VK_Z);
+    addKeybindSet(
+            keybindContainerPanel,
+            "Reset camera rotation",
+            "reset_rotation",
+            KeyModifier.ALT,
+            KeyEvent.VK_N);
 
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
