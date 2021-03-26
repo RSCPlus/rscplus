@@ -816,7 +816,7 @@ public class ConfigWindow {
     generalPanelCommandPatchQuestCheckbox =
         addCheckbox("Swap eat & use options on Quest Items", generalPanel);
     generalPanelCommandPatchQuestCheckbox.setToolTipText(
-        "Applies to giant Carp, chocolaty milk, Rock cake, and nightshade.");
+        "Applies to giant Carp, Draynor Malt Whisky, Rock cake, and Nightshade.");
 
     generalPanelCommandPatchDiskOfReturningCheckbox =
         addCheckbox("Remove the spin option from the Disk of Returning", generalPanel);

@@ -165,8 +165,8 @@ public class Item {
   public static boolean shouldPatch(int index) {
     if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return false;
 
-    // ids of giant Carp, chocolaty milk, Rock cake, nightshade
-    int[] edible_quest_item_ids = {718, 770, 1061, 1086};
+    // ids of giant Carp, draynor malt whisky, Rock cake, nightshade
+    int[] edible_quest_item_ids = {718, 584, 1061, 1086};
     boolean found = false;
     if (Settings.COMMAND_PATCH_QUEST.get(Settings.currentProfile)) {
       for (int i : edible_quest_item_ids) {
