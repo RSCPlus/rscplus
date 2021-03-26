@@ -1459,8 +1459,7 @@ public class Client {
         return "My Fatigue is at " + currentFatigue + "%.";
       } else if ("cmb".equals(command)) {
         // this command breaks character limits and might be bannable... would not recommend sending
-        // this
-        // command over PM to rs2/rs3
+        // this command over PM to rs2/rs3
         return "@whi@My Combat is Level "
             + "@gre@"
             +
@@ -1477,19 +1476,19 @@ public class Client {
                     : 0)
                 // prayer and mage
                 + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
-            + " @lre@Att:@whi@ "
+            + " @lre@A:@whi@ "
             + base_level[SKILL_ATTACK]
-            + " @lre@Str:@whi@ "
+            + " @lre@S:@whi@ "
             + base_level[SKILL_STRENGTH]
-            + " @lre@Def:@whi@ "
+            + " @lre@D:@whi@ "
             + base_level[SKILL_DEFENSE]
-            + " @lre@Hits:@whi@ "
+            + " @lre@H:@whi@ "
             + base_level[SKILL_HP]
-            + " @lre@Ranged:@whi@ "
+            + " @lre@R:@whi@ "
             + base_level[SKILL_RANGED]
-            + " @lre@Prayer:@whi@ "
+            + " @lre@P:@whi@ "
             + base_level[SKILL_PRAYER]
-            + " @lre@Magic:@whi@ "
+            + " @lre@M:@whi@ "
             + base_level[SKILL_MAGIC];
       } else if ("cmbnocolor"
           .equals(command)) { // this command stays within character limits and is safe.
