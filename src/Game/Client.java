@@ -2658,11 +2658,20 @@ public class Client {
    * @return the minimum XP required to reach the specified level, starting from 0 XP
    */
   public static float getXPforLevel(int level) {
-    // TODO: Consider using a final variable to store corresponding values since this is called a
-    // lot
-    float xp = 0.0f;
-    for (int x = 1; x < level; x++) xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
-    return xp;
+    if (level < 2) {
+      return 0;
+    }
+
+    if (level > Util.xpLevelTable.length - 1) {
+      // This probably doesn't ever happen since our lookup table already goes to virtual level 150.
+      // levels 1 to 120 are from the official game, level 121 to 150 are from this formula below
+      float xp = 0.0f;
+      for (int x = 1; x < level; x++) xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
+      return (float) Math.floor(xp);
+    }
+
+    // speedier to use a lookup table than to always calculate
+    return Util.xpLevelTable[level];
   }
 
   public static float getLevelFromXP(float xp) {

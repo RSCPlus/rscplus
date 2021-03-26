@@ -1868,8 +1868,18 @@ public class Renderer {
   }
 
   public static void drawColoredText(Graphics2D g, String text, int x, int y) {
+    drawColoredText(g, text, x, y, false);
+  }
+
+  public static void drawColoredText(Graphics2D g, String text, int x, int y, boolean center) {
     int textX = x;
     int textY = y;
+
+    if (center) {
+      Dimension bounds = getStringBounds(g, text.replaceAll("@...@", ""));
+      textX -= (bounds.width / 2);
+      textY += (bounds.height / 2);
+    }
 
     String outputText = "";
     Color outputColor = colorFromCode("@yel@");
