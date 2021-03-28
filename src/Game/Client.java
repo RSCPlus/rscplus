@@ -1459,8 +1459,7 @@ public class Client {
         return "My Fatigue is at " + currentFatigue + "%.";
       } else if ("cmb".equals(command)) {
         // this command breaks character limits and might be bannable... would not recommend sending
-        // this
-        // command over PM to rs2/rs3
+        // this command over PM to rs2/rs3
         return "@whi@My Combat is Level "
             + "@gre@"
             +
@@ -1477,19 +1476,19 @@ public class Client {
                     : 0)
                 // prayer and mage
                 + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
-            + " @lre@Att:@whi@ "
+            + " @lre@A:@whi@ "
             + base_level[SKILL_ATTACK]
-            + " @lre@Str:@whi@ "
+            + " @lre@S:@whi@ "
             + base_level[SKILL_STRENGTH]
-            + " @lre@Def:@whi@ "
+            + " @lre@D:@whi@ "
             + base_level[SKILL_DEFENSE]
-            + " @lre@Hits:@whi@ "
+            + " @lre@H:@whi@ "
             + base_level[SKILL_HP]
-            + " @lre@Ranged:@whi@ "
+            + " @lre@R:@whi@ "
             + base_level[SKILL_RANGED]
-            + " @lre@Prayer:@whi@ "
+            + " @lre@P:@whi@ "
             + base_level[SKILL_PRAYER]
-            + " @lre@Magic:@whi@ "
+            + " @lre@M:@whi@ "
             + base_level[SKILL_MAGIC];
       } else if ("cmbnocolor"
           .equals(command)) { // this command stays within character limits and is safe.
@@ -2659,11 +2658,20 @@ public class Client {
    * @return the minimum XP required to reach the specified level, starting from 0 XP
    */
   public static float getXPforLevel(int level) {
-    // TODO: Consider using a final variable to store corresponding values since this is called a
-    // lot
-    float xp = 0.0f;
-    for (int x = 1; x < level; x++) xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
-    return xp;
+    if (level < 2) {
+      return 0;
+    }
+
+    if (level > Util.xpLevelTable.length - 1) {
+      // This probably doesn't ever happen since our lookup table already goes to virtual level 150.
+      // levels 1 to 120 are from the official game, level 121 to 150 are from this formula below
+      float xp = 0.0f;
+      for (int x = 1; x < level; x++) xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
+      return (float) Math.floor(xp);
+    }
+
+    // speedier to use a lookup table than to always calculate
+    return Util.xpLevelTable[level];
   }
 
   public static float getLevelFromXP(float xp) {

@@ -23,6 +23,7 @@ import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
+import Game.Item;
 import Game.KeyboardHandler;
 import Game.Replay;
 import java.awt.BorderLayout;
@@ -155,7 +156,9 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogTimestampsCheckbox;
   private JCheckBox generalPanelLogForceLevelCheckbox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
-  private JSlider generalPanelCommandPatchModeSlider;
+  private JCheckBox generalPanelCommandPatchQuestCheckbox;
+  private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
+  private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
   private JCheckBox generalPanelBypassAttackCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
@@ -773,10 +776,6 @@ public class ConfigWindow {
     generalPanelInventoryFullAlertCheckbox.setToolTipText(
         "Displays a large notice when the inventory is full");
 
-    generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
-    generalPanelBypassAttackCheckbox.setToolTipText(
-        "Left click attack monsters regardless of level difference");
-
     generalPanelKeepScrollbarPosMagicPrayerCheckbox =
         addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
@@ -802,6 +801,28 @@ public class ConfigWindow {
     generalPanelCameraMovableRelativeCheckbox.setToolTipText(
         "Camera movement will follow the player position");
 
+    addSettingsHeader(generalPanel, "Menu/Item patching");
+
+    generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
+    generalPanelBypassAttackCheckbox.setToolTipText(
+        "Left click attack monsters regardless of level difference");
+    generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    generalPanelCommandPatchEdibleRaresCheckbox =
+        addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
+    generalPanelCommandPatchEdibleRaresCheckbox.setToolTipText(
+        "Applies to the Easter Egg, Pumpkin, and the Half Wine.");
+
+    generalPanelCommandPatchQuestCheckbox =
+        addCheckbox("Swap eat & use options on Quest Items", generalPanel);
+    generalPanelCommandPatchQuestCheckbox.setToolTipText(
+        "Applies to giant Carp, Draynor Malt Whisky, Rock cake, and Nightshade.");
+
+    generalPanelCommandPatchDiskOfReturningCheckbox =
+        addCheckbox("Remove the spin option from the Disk of Returning", generalPanel);
+    generalPanelCommandPatchDiskOfReturningCheckbox.setToolTipText(
+        "There is no reason to want to do this. Kept in RSC+ as a historic option.");
+
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelNamePatchModePanel.setMaximumSize(new Dimension(300, 60));
@@ -818,12 +839,12 @@ public class ConfigWindow {
     generalPanelNamePatchModeSlider.setMaximum(3);
     generalPanelNamePatchModeSlider.setPreferredSize(new Dimension(33, 0));
     generalPanelNamePatchModeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelNamePatchModeSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+    generalPanelNamePatchModeSlider.setBorder(new EmptyBorder(0, 0, 10, 0));
     generalPanelNamePatchModeSlider.setOrientation(SwingConstants.VERTICAL);
     generalPanelNamePatchModePanel.add(generalPanelNamePatchModeSlider);
 
     JPanel generalPanelNamePatchModeTextPanel = new JPanel();
-    generalPanelNamePatchModeTextPanel.setPreferredSize(new Dimension(255, 55));
+    generalPanelNamePatchModeTextPanel.setPreferredSize(new Dimension(255, 80));
     generalPanelNamePatchModeTextPanel.setLayout(new BorderLayout());
     generalPanelNamePatchModeTextPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
     generalPanelNamePatchModePanel.add(generalPanelNamePatchModeTextPanel);
@@ -859,69 +880,6 @@ public class ConfigWindow {
                 break;
               default:
                 Logger.Error("Invalid name patch mode value");
-                break;
-            }
-          }
-        });
-
-    JPanel generalPanelCommandPatchModePanel = new JPanel();
-    generalPanelCommandPatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelCommandPatchModePanel.setMaximumSize(new Dimension(300, 60));
-    generalPanelCommandPatchModePanel.setLayout(
-        new BoxLayout(generalPanelCommandPatchModePanel, BoxLayout.X_AXIS));
-    generalPanel.add(generalPanelCommandPatchModePanel);
-
-    generalPanelCommandPatchModeSlider = new JSlider();
-    generalPanelCommandPatchModeSlider.setMajorTickSpacing(1);
-    generalPanelCommandPatchModeSlider.setPaintLabels(true);
-    generalPanelCommandPatchModeSlider.setPaintTicks(true);
-    generalPanelCommandPatchModeSlider.setSnapToTicks(true);
-    generalPanelCommandPatchModeSlider.setMinimum(0);
-    generalPanelCommandPatchModeSlider.setMaximum(3);
-    generalPanelCommandPatchModeSlider.setPreferredSize(new Dimension(33, 0));
-    generalPanelCommandPatchModeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelCommandPatchModeSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-    generalPanelCommandPatchModeSlider.setOrientation(SwingConstants.VERTICAL);
-    generalPanelCommandPatchModePanel.add(generalPanelCommandPatchModeSlider);
-
-    JPanel generalPanelCommandPatchModeTextPanel = new JPanel();
-    generalPanelCommandPatchModeTextPanel.setPreferredSize(new Dimension(255, 55));
-    generalPanelCommandPatchModeTextPanel.setLayout(new BorderLayout());
-    generalPanelCommandPatchModeTextPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
-    generalPanelCommandPatchModePanel.add(generalPanelCommandPatchModeTextPanel);
-
-    JLabel generalPanelCommandPatchModeTitle =
-        new JLabel("<html><b>Item command patch mode</b> (Requires restart)</html>");
-    generalPanelCommandPatchModeTitle.setToolTipText(
-        "Reworks certain discontinued/quest-only item edible commands with improved versions");
-    generalPanelCommandPatchModeTextPanel.add(
-        generalPanelCommandPatchModeTitle, BorderLayout.PAGE_START);
-    generalPanelCommandPatchModeDesc = new JLabel("");
-    generalPanelCommandPatchModeTextPanel.add(
-        generalPanelCommandPatchModeDesc, BorderLayout.CENTER);
-
-    generalPanelCommandPatchModeSlider.addChangeListener(
-        new ChangeListener() {
-
-          @Override
-          public void stateChanged(ChangeEvent e) {
-            switch (generalPanelCommandPatchModeSlider.getValue()) {
-              case 3:
-                generalPanelCommandPatchModeDesc.setText("<html>Apply both 1 & 2 changes</html>");
-                break;
-              case 2:
-                generalPanelCommandPatchModeDesc.setText(
-                    "<html>Swap eat/drink option with use on quest-only items</html>");
-                break;
-              case 1:
-                generalPanelCommandPatchModeDesc.setText(
-                    "<html>Remove eat/drink option on discontinued items</html>");
-                break;
-              case 0:
-                generalPanelCommandPatchModeDesc.setText("<html>No item command patching</html>");
-                break;
-              default:
-                Logger.Error("Invalid log verbosity value");
                 break;
             }
           }
@@ -2407,8 +2365,12 @@ public class ConfigWindow {
         Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
     generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelLogVerbositySlider.setValue(Settings.LOG_VERBOSITY.get(Settings.currentProfile));
-    generalPanelCommandPatchModeSlider.setValue(
-        Settings.COMMAND_PATCH_TYPE.get(Settings.currentProfile));
+    generalPanelCommandPatchQuestCheckbox.setSelected(
+        Settings.COMMAND_PATCH_QUEST.get(Settings.currentProfile));
+    generalPanelCommandPatchEdibleRaresCheckbox.setSelected(
+        Settings.COMMAND_PATCH_EDIBLE_RARES.get(Settings.currentProfile));
+    generalPanelCommandPatchDiskOfReturningCheckbox.setSelected(
+        Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
@@ -2671,8 +2633,12 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelLogForceTimestampsCheckbox.isSelected());
     Settings.LOG_FORCE_LEVEL.put(
         Settings.currentProfile, generalPanelLogForceLevelCheckbox.isSelected());
-    Settings.COMMAND_PATCH_TYPE.put(
-        Settings.currentProfile, generalPanelCommandPatchModeSlider.getValue());
+    Settings.COMMAND_PATCH_DISK.put(
+        Settings.currentProfile, generalPanelCommandPatchDiskOfReturningCheckbox.isSelected());
+    Settings.COMMAND_PATCH_EDIBLE_RARES.put(
+        Settings.currentProfile, generalPanelCommandPatchEdibleRaresCheckbox.isSelected());
+    Settings.COMMAND_PATCH_QUEST.put(
+        Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
@@ -2933,6 +2899,7 @@ public class ConfigWindow {
     synchronizeGuiValues();
     QueueWindow.syncColumnsWithSettings();
     QueueWindow.playlistTable.repaint();
+    Item.patchItemCommands();
   }
 
   public void synchronizePresetOptions() {

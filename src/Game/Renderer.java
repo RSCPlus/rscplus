@@ -264,8 +264,7 @@ public class Renderer {
           NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
           Color color = color_low;
 
-          boolean show = false;
-          boolean extend = false;
+          boolean showName = false;
           if (npc.type == NPC.TYPE_PLAYER) {
             color = color_fatigue;
 
@@ -273,13 +272,13 @@ public class Renderer {
                 && (Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile)
                     || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
               color = color_hp;
-              show = true;
+              showName = true;
             } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
-              show = true;
+              showName = true;
             }
           } else if (npc.type == NPC.TYPE_MOB
               && Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile)) {
-            show = true;
+            showName = true;
           }
 
           if (Settings.SHOW_HITBOX.get(Settings.currentProfile)) {
@@ -310,8 +309,8 @@ public class Renderer {
             }
           }
 
-          if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)
-              && npc.name != null) {
+          // draw npc's name
+          if (showName && npc.name != null) {
             int x = npc.x + (npc.width / 2);
             int y = npc.y - 20;
             for (Iterator<Point> locIterator = entity_text_loc.iterator();
@@ -319,14 +318,12 @@ public class Renderer {
               Point loc = locIterator.next(); // TODO: Remove unnecessary allocations
               if (loc.x == x && loc.y == y) y -= 12;
             }
-            if (show) {
-              extend = Settings.EXTEND_IDS_OVERLAY.get(Settings.currentProfile);
-              String text = npc.name;
-              if (extend) {
-                text += (" (" + npc.id + "-" + npc.id2 + ")");
-              }
-              drawShadowText(g2, text, x, y, color, true);
+
+            String text = npc.name;
+            if (Settings.EXTEND_IDS_OVERLAY.get(Settings.currentProfile)) {
+              text += (" (" + npc.id + "-" + npc.id2 + ")");
             }
+            drawShadowText(g2, text, x, y, color, true);
             entity_text_loc.add(new Point(x, y));
           }
         }
@@ -1871,8 +1868,18 @@ public class Renderer {
   }
 
   public static void drawColoredText(Graphics2D g, String text, int x, int y) {
+    drawColoredText(g, text, x, y, false);
+  }
+
+  public static void drawColoredText(Graphics2D g, String text, int x, int y, boolean center) {
     int textX = x;
     int textY = y;
+
+    if (center) {
+      Dimension bounds = getStringBounds(g, text.replaceAll("@...@", ""));
+      textX -= (bounds.width / 2);
+      textY += (bounds.height / 2);
+    }
 
     String outputText = "";
     Color outputColor = colorFromCode("@yel@");
