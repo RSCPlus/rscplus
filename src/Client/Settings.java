@@ -2518,6 +2518,12 @@ public class Settings {
       case "toggle_indicators":
         Settings.toggleLagIndicator();
         return true;
+      case "reset_zoom":
+        Camera.resetZoom();
+        return true;
+      case "reset_rotation":
+        Camera.resetRotation();
+        return true;
       case "toggle_colorize":
         Settings.toggleColorTerminal();
         return true;

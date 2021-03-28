@@ -252,4 +252,14 @@ public class Camera {
       zoom = (int) delta_zoom;
     }
   }
+
+  public static void resetZoom() {
+    zoom = 750;
+    delta_zoom = (float) zoom;
+  }
+
+  public static void resetRotation() {
+    rotation = 126;
+    delta_rotation = (float) rotation;
+  }
 }
