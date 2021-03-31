@@ -286,14 +286,23 @@ public class Item {
           int y = groundItemY[i] + Client.regionY;
           if (x == coolItem.x && y == coolItem.y && groundItemId[i] == coolItem.id) {
             // "an" item with same item id & x & y coordinate still exists on the ground
-            Logger.Info("@|red,bold Make sure to pick up your " + item_name[coolItem.id] + "!|@");
-            NotificationsHandler.notify(
+            Client.displayMessage("@lre@[@gre@RSC+@lre@]: @red@Make sure to pick up your " + item_name[coolItem.id] + "!", Client.CHAT_NONE);
+            if (Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile) > 0) {
+              NotificationsHandler.notify(
                 NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
                 "Highlighted Item Notification",
                 item_name[coolItem.id]
-                    + " has been on the ground for "
-                    + Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile)
-                    + " seconds!");
+                  + " has been on the ground for "
+                  + Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile)
+                  + " second"
+                  + (Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile) == 1 ? "!" : "s!"));
+            } else {
+              NotificationsHandler.notify(
+                NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
+                "Highlighted Item Notification",
+                item_name[coolItem.id]
+                  + " appeared!");
+            }
             iterator.remove();
           }
         }
