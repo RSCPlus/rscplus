@@ -74,7 +74,8 @@ public class NotificationsHandler {
     DUEL,
     LOGOUT,
     LOWHP,
-    FATIGUE
+    FATIGUE,
+    HIGHLIGHTEDITEM
   }
 
   /** Initializes the Notification JFrame and prepares it to receive notifications */
@@ -487,6 +488,20 @@ public class NotificationsHandler {
           }
           break;
         }
+      case HIGHLIGHTEDITEM:
+        if (Settings.HIGHLIGHTED_ITEM_NOTIFICATIONS.get(Settings.currentProfile)) {
+          if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
+            // If notification sounds, play audio
+            playNotificationSound();
+            didNotify = true;
+          }
+          if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
+            // This is very important, we will always warn, even if game is focused
+            displayNotification(title, text, "critical");
+            didNotify = true;
+          }
+        }
+        break;
     }
     return didNotify;
   }

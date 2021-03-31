@@ -173,6 +173,10 @@ public class Settings {
   public static HashMap<String, Integer> LOW_HP_NOTIF_VALUE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> FATIGUE_NOTIFICATIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FATIGUE_NOTIF_VALUE = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> HIGHLIGHTED_ITEM_NOTIFICATIONS =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> HIGHLIGHTED_ITEM_NOTIF_VALUE =
+      new HashMap<String, Integer>();
 
   //// streaming
   public static HashMap<String, Boolean> TWITCH_CHAT_ENABLED = new HashMap<String, Boolean>();
@@ -1101,6 +1105,30 @@ public class Settings {
     FATIGUE_NOTIF_VALUE.put(
         "custom", getPropInt(props, "fatigue_notif_value", FATIGUE_NOTIF_VALUE.get("default")));
 
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("vanilla", false);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("vanilla_resizable", false);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("lite", false);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("default", true);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("heavy", true);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put("all", true);
+    HIGHLIGHTED_ITEM_NOTIFICATIONS.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "highlighted_item_notifications",
+            HIGHLIGHTED_ITEM_NOTIFICATIONS.get("default")));
+
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("vanilla", 11000);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("vanilla_resizable", 11000);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("lite", 100);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("default", 100);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("heavy", 100);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put("all", 0);
+    HIGHLIGHTED_ITEM_NOTIF_VALUE.put(
+        "custom",
+        getPropInt(
+            props, "highlighted_item_notif_value", HIGHLIGHTED_ITEM_NOTIF_VALUE.get("default")));
+
     //// streaming
     TWITCH_CHAT_ENABLED.put("vanilla", false);
     TWITCH_CHAT_ENABLED.put("vanilla_resizable", false);
@@ -1871,6 +1899,12 @@ public class Settings {
       props.setProperty(
           "fatigue_notifications", Boolean.toString(FATIGUE_NOTIFICATIONS.get(preset)));
       props.setProperty("fatigue_notif_value", Integer.toString(FATIGUE_NOTIF_VALUE.get(preset)));
+      props.setProperty(
+          "highlighted_item_notifications",
+          Boolean.toString(HIGHLIGHTED_ITEM_NOTIFICATIONS.get(preset)));
+      props.setProperty(
+          "highlighted_item_notif_value",
+          Integer.toString(HIGHLIGHTED_ITEM_NOTIF_VALUE.get(preset)));
 
       //// streaming
       props.setProperty("twitch_enabled", Boolean.toString(TWITCH_CHAT_ENABLED.get(preset)));

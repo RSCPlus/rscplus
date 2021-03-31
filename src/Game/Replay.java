@@ -1289,6 +1289,10 @@ public class Replay {
         // free memory
         retained_bytes = null;
       }
+    } else if (opcode == 99) {
+      Item.checkForNewItems(len);
+    } else if (opcode == 191) {
+      Item.checkForImminentlyDespawningCoolItem();
     }
 
     if (!isPlaying && !isSeeking) {
