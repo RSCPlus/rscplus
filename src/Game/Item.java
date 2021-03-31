@@ -249,7 +249,7 @@ public class Item {
           }
         } else {
           // TODO: this removes the oldest item, but not sure that's correct.
-          removeFromCoolItems(x, y, itemId & 0x7F);
+          removeFromCoolItems(x, y, itemId & 0x7FFF);
         }
       }
     }
