@@ -231,15 +231,15 @@ public class Item {
   public static void checkForNewItems(int psize) {
     int offset = 1;
     while (offset < psize) {
-      int remove = Replay.retained_bytes[offset++] & 0xFF;
+      int remove = Client.lastIncomingBytes[offset++] & 0xFF;
       if (remove == 255) {
-        int x = Client.worldX + (Replay.retained_bytes[offset++] & 0xFF);
-        int y = Client.worldY + (Replay.retained_bytes[offset++] & 0xFF);
+        int x = Client.worldX + (Client.lastIncomingBytes[offset++] & 0xFF);
+        int y = Client.worldY + (Client.lastIncomingBytes[offset++] & 0xFF);
         removeFromCoolItems(x, y, -1);
       } else {
-        int itemId = remove << 8 | Replay.retained_bytes[offset++] & 0xFF;
-        int x = Client.worldX + (Replay.retained_bytes[offset++] & 0xFF);
-        int y = Client.worldY + (Replay.retained_bytes[offset++] & 0xFF);
+        int itemId = remove << 8 | Client.lastIncomingBytes[offset++] & 0xFF;
+        int x = Client.worldX + (Client.lastIncomingBytes[offset++] & 0xFF);
+        int y = Client.worldY + (Client.lastIncomingBytes[offset++] & 0xFF);
         // first bit on means removing a specific item, don't care in that case
         boolean addingAnItem = (remove & 0x80) >> 7 != 1;
         if (addingAnItem) {
