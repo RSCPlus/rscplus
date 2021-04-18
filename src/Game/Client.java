@@ -195,8 +195,6 @@ public class Client {
   public static String modal_text;
   public static String modal_enteredText;
 
-  public static String mouseText = "";
-
   public static int login_screen;
   public static String username_login;
   public static String password_login;
@@ -1016,12 +1014,12 @@ public class Client {
    * @param tooltipMessage - the message in raw color format
    */
   public static String mouse_action_hook(String tooltipMessage) {
-    if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)) {
-      mouseText = tooltipMessage;
+    MouseText.mouseText = tooltipMessage;
+    MouseText.regenerateCleanedMouseTexts();
 
-      // Remove top-left action text in extended mode
-      if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) return "";
-    }
+    // Remove top-left action text in extended mode
+    if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)
+        && Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) return "";
 
     return tooltipMessage;
   }

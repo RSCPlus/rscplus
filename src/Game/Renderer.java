@@ -24,6 +24,7 @@ import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.Util;
+import Client.WikiURL;
 import Client.WorldMapWindow;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -712,6 +713,32 @@ public class Renderer {
         setAlpha(g2, 1.0f);
       }
 
+      // RSC Wiki integration
+      if (WikiURL.nextClickIsLookup && MouseHandler.mouseClicked && !MouseHandler.rightClick) {
+        if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
+          if (!MouseText.isPlayer) {
+            String wikiURL = WikiURL.translateNameToUrl(MouseText.name);
+            if (!wikiURL.equals("INVALID")) {
+              WikiURL.lastLookupTime = System.currentTimeMillis();
+              Client.displayMessage(
+                  "@whi@Looking up @gre@" + MouseText.name + "@whi@ on the wiki!",
+                  Client.CHAT_NONE);
+              Util.openLinkInBrowser(wikiURL);
+              WikiURL.nextClickIsLookup = false;
+            }
+          } else {
+            Client.displayMessage(
+                "@lre@Players cannot be looked up on the wiki, try again.", Client.CHAT_NONE);
+          }
+        } else {
+          Client.displayMessage(
+              String.format(
+                  "@lre@Please wait %1d seconds between wiki queries",
+                  WikiURL.cooldownTimer / 1000),
+              Client.CHAT_NONE);
+        }
+      }
+
       // Interface rsc+ buttons
       // Map Button
       if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
@@ -768,6 +795,37 @@ public class Renderer {
               && MouseHandler.mouseClicked) {
 
             Launcher.getConfigWindow().showConfigWindow();
+          }
+        }
+
+        // wiki button on magic book (Probably a bad idea due to misclicks)
+        if (Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile)) {
+          mapButtonBounds = new Rectangle(width - 68 - 66, 3, 32, 32);
+          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+            if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+              g2.setColor(Renderer.color_text);
+              g2.drawLine(
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1,
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1 + 6);
+              g2.drawLine(
+                  mapButtonBounds.x + 1,
+                  mapButtonBounds.y + 4,
+                  mapButtonBounds.x + 7,
+                  mapButtonBounds.y + 4);
+            }
+
+            // Handle replay play selection click
+            if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+              Client.displayMessage(
+                  "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+              WikiURL.nextClickIsLookup = true;
+            }
           }
         }
       }
@@ -939,7 +997,7 @@ public class Renderer {
         y += 16;
         drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
         y += 16;
-        drawShadowText(g2, "Mouse Text: " + Client.mouseText, x, y, color_text, false);
+        drawShadowText(g2, "Mouse Text: " + MouseText.mouseText, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
         y += 16;
@@ -1015,44 +1073,16 @@ public class Renderer {
           && !Client.isInterfaceOpen()
           && !Client.show_questionmenu
           && Client.is_hover) {
-        String cleanText = Client.mouseText;
-        String extraOptions = "";
         final int extraOptionsOffsetX = 8;
         final int extraOptionsOffsetY = 12;
-        int indexExtraOptions = cleanText.indexOf('/');
-
-        String colorlessText = cleanText;
-
-        // Remove extra options text
-        if (indexExtraOptions != -1) cleanText = cleanText.substring(0, indexExtraOptions).trim();
-
-        // Remove color codes from string
-        for (int i = 0; i < colorlessText.length(); i++) {
-          if (colorlessText.charAt(i) == '@') {
-            try {
-              if (colorlessText.charAt(i + 4) == '@')
-                colorlessText = colorlessText.substring(0, i) + colorlessText.substring(i + 5);
-            } catch (Exception e) {
-            }
-          }
-        }
-
-        // Let's grab the extra options
-        indexExtraOptions = colorlessText.indexOf('/');
-        if (indexExtraOptions != -1) {
-          extraOptions = colorlessText.substring(indexExtraOptions + 1).trim();
-          colorlessText = colorlessText.substring(0, indexExtraOptions).trim();
-        }
-
-        if (extraOptions.length() > 0) extraOptions = "(" + extraOptions + ")";
 
         x = MouseHandler.x + 16;
         y = MouseHandler.y + 28;
 
         // Dont allow text to go off the screen
-        Dimension bounds = getStringBounds(g2, colorlessText);
-        Dimension extraBounds = getStringBounds(g2, extraOptions);
-        if (extraOptions.length() == 0) extraBounds.height = 0;
+        Dimension bounds = getStringBounds(g2, MouseText.colorlessText);
+        Dimension extraBounds = getStringBounds(g2, MouseText.extraOptions);
+        if (MouseText.extraOptions.length() == 0) extraBounds.height = 0;
 
         bounds.height += extraOptionsOffsetY;
         if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
@@ -1063,30 +1093,24 @@ public class Renderer {
         if (x + bounds.width > Renderer.width - 4) x -= (x + bounds.width) - (Renderer.width - 4);
         if (y + bounds.height > Renderer.height) y -= (y + bounds.height) - (Renderer.height);
 
-        indexExtraOptions = cleanText.indexOf(":");
-        if (indexExtraOptions != -1) {
-          String name = cleanText.substring(0, indexExtraOptions).trim();
-          String action = cleanText.substring(indexExtraOptions + 1).trim();
-          cleanText = action + " " + name;
-        }
-
         // Draw the final outcome
         if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
           setAlpha(g2, 0.65f);
           g2.setColor(color_shadow);
           g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
           setAlpha(g2, 1.0f);
-          drawColoredText(g2, cleanText, x, y);
+          drawColoredText(g2, MouseText.getMouseOverText(), x, y);
           x += extraOptionsOffsetX;
           y += extraOptionsOffsetY;
-          drawColoredText(g2, "@whi@" + extraOptions, x, y);
+          drawColoredText(g2, "@whi@" + MouseText.extraOptions, x, y);
         } else {
-          if (!cleanText.contains("Walk here") && !cleanText.contains("Choose a target")) {
+          if (!MouseText.getMouseOverText().contains("Walk here")
+              && !MouseText.getMouseOverText().contains("Choose a target")) {
             setAlpha(g2, 0.65f);
             g2.setColor(color_shadow);
             g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
             setAlpha(g2, 1.0f);
-            drawColoredText(g2, cleanText, x, y);
+            drawColoredText(g2, MouseText.getMouseOverText(), x, y);
           }
         }
       }

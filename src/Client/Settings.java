@@ -116,6 +116,7 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
@@ -128,6 +129,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> WIKI_LOOKUP_ON_MAGIC_BOOK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -681,6 +683,16 @@ public class Settings {
     LOG_FORCE_LEVEL.put(
         "custom", getPropBoolean(props, "log_force_level", LOG_FORCE_LEVEL.get("default")));
 
+    Util.hasXdgOpen = Util.detectBinaryAvailable("xdg-open", "URL opening");
+    PREFERS_XDG_OPEN.put("vanilla", false);
+    PREFERS_XDG_OPEN.put("vanilla_resizable", false);
+    PREFERS_XDG_OPEN.put("lite", false);
+    PREFERS_XDG_OPEN.put("default", Util.hasXdgOpen);
+    PREFERS_XDG_OPEN.put("heavy", true);
+    PREFERS_XDG_OPEN.put("all", true);
+    PREFERS_XDG_OPEN.put(
+        "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
+
     //// overlays
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla_resizable", false);
@@ -758,6 +770,17 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
+
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("vanilla", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("vanilla_resizable", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("lite", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("default", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("heavy", true);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("all", true);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put(
+        "custom",
+        getPropBoolean(
+            props, "wiki_lookup_on_magic_book", WIKI_LOOKUP_ON_MAGIC_BOOK.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1839,6 +1862,7 @@ public class Settings {
       props.setProperty("log_show_level", Boolean.toString(LOG_SHOW_LEVEL.get(preset)));
       props.setProperty("log_force_timestamps", Boolean.toString(LOG_FORCE_TIMESTAMPS.get(preset)));
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
+      props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
 
       //// overlays
       props.setProperty(
@@ -1853,6 +1877,8 @@ public class Settings {
       props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
       props.setProperty(
           "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
+      props.setProperty(
+          "wiki_lookup_on_magic_book", Boolean.toString(WIKI_LOOKUP_ON_MAGIC_BOOK.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));

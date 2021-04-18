@@ -47,6 +47,8 @@ public class Util {
 
   public static String angleNames[] = {"W", "SW", "S", "SE", "E", "NE", "N", "NW"};
 
+  static boolean hasXdgOpen = false;
+
   public static final int[] xpLevelTable =
       new int[] {
         0,
@@ -631,5 +633,53 @@ public class Util {
     } catch (NumberFormatException nfe) {
       throw nfe;
     }
+  }
+
+  public static String execCmd(String[] cmdArray) throws java.io.IOException {
+    java.util.Scanner s =
+        new java.util.Scanner(Runtime.getRuntime().exec(cmdArray).getInputStream())
+            .useDelimiter("\\A");
+    return s.hasNext() ? s.next() : "";
+  }
+
+  public static boolean detectBinaryAvailable(String binaryName, String reason) {
+    if (System.getProperty("os.name").contains("Windows")) {
+      return false; // don't trust Windows to run the detection code
+    }
+
+    try {
+      // "whereis" is part of the util-linux package,
+      // It is included in pretty much all unix-like operating systems; i.e. safe to use.
+      final String whereis =
+          execCmd(new String[] {"whereis", "-b", binaryName})
+              .replace("\n", "")
+              .replace(binaryName + ": ", "");
+      if (whereis.length() < ("/" + binaryName).length()) {
+        Logger.Error(
+            String.format(
+                "@|red !!! Please install %s for %s to work on Linux (or other systems with compatible binary) !!!|@",
+                binaryName, reason));
+        return false;
+      } else {
+        Logger.Info(binaryName + ": " + whereis);
+        return true;
+      }
+    } catch (IOException e) {
+      Logger.Error("Error while detecting " + binaryName + " binary: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  public static boolean notMacWindows() {
+    if (System.getProperty("os.name").contains("Windows")) {
+      return false;
+    }
+    return !isMacOS();
+  }
+
+  public static void openLinkInBrowser(String url) {
+    Thread t = new Thread(new LinkOpener(url));
+    t.start();
   }
 }

@@ -150,6 +150,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogLevelCheckbox;
   private JCheckBox generalPanelLogTimestampsCheckbox;
   private JCheckBox generalPanelLogForceLevelCheckbox;
+  private JCheckBox generalPanelPrefersXdgOpenCheckbox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
   private JCheckBox generalPanelCommandPatchQuestCheckbox;
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
@@ -182,6 +183,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelInvCountCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
+  private JCheckBox overlayPanelWikiLookupOnMagicBookCheckbox;
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
@@ -746,6 +748,11 @@ public class ConfigWindow {
     generalPanelExceptionHandlerCheckbox.setToolTipText(
         "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
 
+    generalPanelPrefersXdgOpenCheckbox =
+        addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
+    generalPanelPrefersXdgOpenCheckbox.setToolTipText(
+        "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
@@ -941,6 +948,11 @@ public class ConfigWindow {
         addCheckbox(
             "Also display + indicators over the in-game buttons", overlayPanelRscPlusButtonsPanel);
     overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
+
+    overlayPanelWikiLookupOnMagicBookCheckbox =
+        addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
+    overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
+        "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
 
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
@@ -2451,6 +2463,8 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
+    generalPanelPrefersXdgOpenCheckbox.setSelected(
+        Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile));
 
     // Sets the text associated with the name patch slider.
     switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -2490,6 +2504,8 @@ public class ConfigWindow {
     overlayPanelRscPlusButtonsFunctionalCheckbox.setSelected(
         Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
             || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
+    overlayPanelWikiLookupOnMagicBookCheckbox.setSelected(
+        Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile));
     overlayPanelPositionCheckbox.setSelected(
         Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
     overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
@@ -2685,6 +2701,9 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelLogForceTimestampsCheckbox.isSelected());
     Settings.LOG_FORCE_LEVEL.put(
         Settings.currentProfile, generalPanelLogForceLevelCheckbox.isSelected());
+    Settings.PREFERS_XDG_OPEN.put(
+        Settings.currentProfile, generalPanelPrefersXdgOpenCheckbox.isSelected());
+
     Settings.COMMAND_PATCH_DISK.put(
         Settings.currentProfile, generalPanelCommandPatchDiskOfReturningCheckbox.isSelected());
     Settings.COMMAND_PATCH_EDIBLE_RARES.put(
@@ -2737,6 +2756,8 @@ public class ConfigWindow {
         Settings.currentProfile,
         overlayPanelRscPlusButtonsFunctionalCheckbox.isSelected()
             || overlayPanelRscPlusButtonsCheckbox.isSelected());
+    Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.put(
+        Settings.currentProfile, overlayPanelWikiLookupOnMagicBookCheckbox.isSelected());
     Settings.SHOW_PLAYER_POSITION.put(
         Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
     Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());
