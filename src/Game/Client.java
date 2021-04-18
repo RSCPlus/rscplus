@@ -280,6 +280,8 @@ public class Client {
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
 
+  public static byte[] lastIncomingBytes;
+
   public static Thread loginMessageHandlerThread;
   public static String loginMessageTop =
       "To connect to a server, please configure your World URLs.";

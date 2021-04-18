@@ -19,6 +19,7 @@
 package Game;
 
 import Client.Logger;
+import Client.NotificationsHandler;
 import Client.Settings;
 import java.io.File;
 import java.sql.Connection;
@@ -27,6 +28,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class defines items and provides a static method to patch item names as needed according to
@@ -36,12 +40,20 @@ public class Item {
 
   public static String[] item_name;
   public static String[] item_commands;
+  public static List<Item> cool_items = new ArrayList<>();
+
+  public static int[] groundItemX;
+  public static int[] groundItemY;
+  public static int[] groundItemZ;
+  public static int[] groundItemId;
+  public static int groundItemCount;
 
   public int x;
   public int y;
   public int width;
   public int height;
   public int id;
+  public long timestamp;
 
   public Item(int x, int y, int width, int height, int id) {
     this.x = x;
@@ -49,6 +61,13 @@ public class Item {
     this.width = width;
     this.height = height;
     this.id = id;
+  }
+
+  public Item(int x, int y, int id, long timestamp) {
+    this.x = x;
+    this.y = y;
+    this.id = id;
+    this.timestamp = timestamp;
   }
 
   /** Patches item names as specified by {@link Settings#NAME_PATCH_TYPE}. */
@@ -207,5 +226,87 @@ public class Item {
     // This is an acceptable hash since it's fine if two unequal objects have the same hash
     // according to docs
     return this.x + this.y + this.width + this.height + this.id;
+  }
+
+  public static void checkForNewItems(int psize) {
+    int offset = 1;
+    while (offset < psize) {
+      int remove = Client.lastIncomingBytes[offset++] & 0xFF;
+      if (remove == 255) {
+        int x = Client.worldX + (Client.lastIncomingBytes[offset++] & 0xFF);
+        int y = Client.worldY + (Client.lastIncomingBytes[offset++] & 0xFF);
+        removeFromCoolItems(x, y, -1);
+      } else {
+        int itemId = remove << 8 | Client.lastIncomingBytes[offset++] & 0xFF;
+        int x = Client.worldX + (Client.lastIncomingBytes[offset++] & 0xFF);
+        int y = Client.worldY + (Client.lastIncomingBytes[offset++] & 0xFF);
+        // first bit on means removing a specific item, don't care in that case
+        boolean addingAnItem = (remove & 0x80) >> 7 != 1;
+        if (addingAnItem) {
+          if (Renderer.stringIsWithinList(
+              item_name[itemId], Settings.HIGHLIGHTED_ITEMS.get("custom"))) {
+            cool_items.add(new Item(x, y, itemId, System.currentTimeMillis()));
+          }
+        } else {
+          // TODO: this removes the oldest item, but not sure that's correct.
+          removeFromCoolItems(x, y, itemId & 0x7FFF);
+        }
+      }
+    }
+  }
+
+  private static void removeFromCoolItems(int x, int y, int itemId) {
+    Iterator<Item> iterator = cool_items.iterator();
+    Item coolItem;
+    while (iterator.hasNext()) {
+      coolItem = iterator.next();
+      if (coolItem.x == x && coolItem.y == y) {
+        if (itemId == -1 || itemId == coolItem.id) {
+          iterator.remove();
+          if (itemId != -1) {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  public static void checkForImminentlyDespawningCoolItem() {
+    Iterator<Item> iterator = cool_items.iterator();
+    Item coolItem;
+    while (iterator.hasNext()) {
+      coolItem = iterator.next();
+      boolean itemGoingStale =
+          System.currentTimeMillis() - coolItem.timestamp
+              > 1000 * Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile);
+      if (itemGoingStale) {
+        // check if item still exists
+        for (int i = 0; i < groundItemCount; i++) {
+          int x = groundItemX[i] + Client.regionX;
+          int y = groundItemY[i] + Client.regionY;
+          if (x == coolItem.x && y == coolItem.y && groundItemId[i] == coolItem.id) {
+            // "an" item with same item id & x & y coordinate still exists on the ground
+            Client.displayMessage("@lre@[@gre@RSC+@lre@]: @red@Make sure to pick up your " + item_name[coolItem.id] + "!", Client.CHAT_NONE);
+            if (Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile) > 0) {
+              NotificationsHandler.notify(
+                NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
+                "Highlighted Item Notification",
+                item_name[coolItem.id]
+                  + " has been on the ground for "
+                  + Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile)
+                  + " second"
+                  + (Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile) == 1 ? "!" : "s!"));
+            } else {
+              NotificationsHandler.notify(
+                NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
+                "Highlighted Item Notification",
+                item_name[coolItem.id]
+                  + " appeared!");
+            }
+            iterator.remove();
+          }
+        }
+      }
+    }
   }
 }

@@ -1092,6 +1092,8 @@ public class Replay {
   }
 
   public static void dumpRawInputStream(byte[] b, int n, int n2, int n5, int bytesread) {
+    Client.lastIncomingBytes = b.clone();
+
     // Save timestamp of last time we saw data from the server
     if (bytesread > 0) {
       int lag = timestamp - timestamp_server_last;
@@ -1289,6 +1291,10 @@ public class Replay {
         // free memory
         retained_bytes = null;
       }
+    } else if (opcode == 99) {
+      Item.checkForNewItems(len);
+    } else if (opcode == 191) {
+      Item.checkForImminentlyDespawningCoolItem();
     }
 
     if (!isPlaying && !isSeeking) {

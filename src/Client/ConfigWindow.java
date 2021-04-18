@@ -121,11 +121,6 @@ public class ConfigWindow {
 
   private JFrame frame;
 
-  private JLabel generalPanelNamePatchModeDesc;
-  private JLabel generalPanelCommandPatchModeDesc;
-  private JLabel notificationPanelLowHPNotifsEndLabel;
-  private JLabel notificationPanelFatigueNotifsEndLabel;
-
   ClickListener clickListener = new ClickListener();
   RebindListener rebindListener = new RebindListener();
 
@@ -176,6 +171,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelDebugModeCheckbox;
   private JCheckBox generalPanelExceptionHandlerCheckbox;
+  private JLabel generalPanelNamePatchModeDesc;
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
@@ -227,6 +223,8 @@ public class ConfigWindow {
   private JSpinner notificationPanelLowHPNotifsSpinner;
   private JCheckBox notificationPanelFatigueNotifsCheckbox;
   private JSpinner notificationPanelFatigueNotifsSpinner;
+  private JCheckBox notificationPanelHighlightedItemTimerCheckbox;
+  private JSpinner notificationPanelHighlightedItemTimerSpinner;
   private JCheckBox notificationPanelNotifSoundsCheckbox;
   private JCheckBox notificationPanelUseSystemNotifsCheckbox;
   private JCheckBox notificationPanelTrayPopupCheckbox;
@@ -1335,7 +1333,7 @@ public class ConfigWindow {
     notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsSpinner);
     notificationPanelLowHPNotifsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
-    notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
+    JLabel notificationPanelLowHPNotifsEndLabel = new JLabel("% HP");
     notificationPanelLowHPNotifsPanel.add(notificationPanelLowHPNotifsEndLabel);
     notificationPanelLowHPNotifsEndLabel.setAlignmentY((float) 0.9);
     notificationPanelLowHPNotifsEndLabel.setBorder(new EmptyBorder(0, 2, 0, 0));
@@ -1366,7 +1364,7 @@ public class ConfigWindow {
     notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsSpinner);
     notificationPanelFatigueNotifsSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
-    notificationPanelFatigueNotifsEndLabel = new JLabel("% fatigue");
+    JLabel notificationPanelFatigueNotifsEndLabel = new JLabel("% fatigue");
     notificationPanelFatigueNotifsPanel.add(notificationPanelFatigueNotifsEndLabel);
     notificationPanelFatigueNotifsEndLabel.setAlignmentY((float) 0.9);
     notificationPanelFatigueNotifsEndLabel.setBorder(new EmptyBorder(0, 2, 0, 0));
@@ -1377,6 +1375,48 @@ public class ConfigWindow {
     spinnerFatigueNumModel.setMaximum(100);
     spinnerFatigueNumModel.setValue(98);
     notificationPanelFatigueNotifsSpinner.setModel(spinnerFatigueNumModel);
+
+    JPanel warnHighlightedOnGroundPanel = new JPanel();
+    notificationPanel.add(warnHighlightedOnGroundPanel);
+    warnHighlightedOnGroundPanel.setLayout(
+        new BoxLayout(warnHighlightedOnGroundPanel, BoxLayout.X_AXIS));
+    warnHighlightedOnGroundPanel.setPreferredSize(new Dimension(0, 37));
+    warnHighlightedOnGroundPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    notificationPanelHighlightedItemTimerCheckbox =
+        addCheckbox(
+            "Warn if one of your highlighted items has been on the ground for more than",
+            warnHighlightedOnGroundPanel);
+    notificationPanelHighlightedItemTimerCheckbox.setToolTipText(
+        "Highlighted items can be configured in the Overlays tab");
+
+    JLabel highlightedItemsSuggestionJLabel =
+      new JLabel(
+        "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+          + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
+          + "</p></html>");
+    notificationPanel.add(highlightedItemsSuggestionJLabel);
+    highlightedItemsSuggestionJLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
+
+    notificationPanelHighlightedItemTimerSpinner = new JSpinner();
+    notificationPanelHighlightedItemTimerSpinner.setMaximumSize(new Dimension(55, 22));
+    notificationPanelHighlightedItemTimerSpinner.setMinimumSize(new Dimension(55, 22));
+    notificationPanelHighlightedItemTimerSpinner.setAlignmentY((float) 0.75);
+    warnHighlightedOnGroundPanel.add(notificationPanelHighlightedItemTimerSpinner);
+    notificationPanelHighlightedItemTimerSpinner.putClientProperty(
+        "JComponent.sizeVariant", "mini");
+
+    JLabel notificationPanelHighlightedItemEndLabel = new JLabel("seconds");
+    warnHighlightedOnGroundPanel.add(notificationPanelHighlightedItemEndLabel);
+    notificationPanelHighlightedItemEndLabel.setAlignmentY((float) 0.9);
+    notificationPanelHighlightedItemEndLabel.setBorder(new EmptyBorder(0, 2, 0, 0));
+
+    // Sanitize JSpinner values
+    SpinnerNumberModel highlightedItemSecondsModel = new SpinnerNumberModel();
+    highlightedItemSecondsModel.setMinimum(0);
+    highlightedItemSecondsModel.setMaximum(630); // 10.5 minutes max
+    highlightedItemSecondsModel.setValue(100);
+    notificationPanelHighlightedItemTimerSpinner.setModel(highlightedItemSecondsModel);
 
     /*
      * Streaming & Privacy tab
@@ -1613,17 +1653,13 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_W);
     addKeybindSet(
-            keybindContainerPanel,
-            "Reset camera zoom",
-            "reset_zoom",
-            KeyModifier.ALT,
-            KeyEvent.VK_Z);
+        keybindContainerPanel, "Reset camera zoom", "reset_zoom", KeyModifier.ALT, KeyEvent.VK_Z);
     addKeybindSet(
-            keybindContainerPanel,
-            "Reset camera rotation",
-            "reset_rotation",
-            KeyModifier.ALT,
-            KeyEvent.VK_N);
+        keybindContainerPanel,
+        "Reset camera rotation",
+        "reset_rotation",
+        KeyModifier.ALT,
+        KeyEvent.VK_N);
 
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
@@ -2527,6 +2563,10 @@ public class ConfigWindow {
         Settings.FATIGUE_NOTIFICATIONS.get(Settings.currentProfile));
     notificationPanelFatigueNotifsSpinner.setValue(
         Settings.FATIGUE_NOTIF_VALUE.get(Settings.currentProfile));
+    notificationPanelHighlightedItemTimerCheckbox.setSelected(
+        Settings.HIGHLIGHTED_ITEM_NOTIFICATIONS.get(Settings.currentProfile));
+    notificationPanelHighlightedItemTimerSpinner.setValue(
+        Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile));
     notificationPanelNotifSoundsCheckbox.setSelected(
         Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile));
     notificationPanelUseSystemNotifsCheckbox.setSelected(
@@ -2762,6 +2802,13 @@ public class ConfigWindow {
     Settings.FATIGUE_NOTIF_VALUE.put(
         Settings.currentProfile,
         ((SpinnerNumberModel) (notificationPanelFatigueNotifsSpinner.getModel()))
+            .getNumber()
+            .intValue());
+    Settings.HIGHLIGHTED_ITEM_NOTIFICATIONS.put(
+        Settings.currentProfile, notificationPanelHighlightedItemTimerCheckbox.isSelected());
+    Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.put(
+        Settings.currentProfile,
+        ((SpinnerNumberModel) (notificationPanelHighlightedItemTimerSpinner.getModel()))
             .getNumber()
             .intValue());
     Settings.NOTIFICATION_SOUNDS.put(

@@ -859,6 +859,18 @@ public class JClassPatcher {
           "Game/JGameData",
           "objectNames",
           "[Ljava/lang/String;");
+
+      // current ground items
+      hookClassVariable(
+          methodNode, "client", "Zf", "[I", "Game/Item", "groundItemX", "[I", true, false);
+      hookClassVariable(
+          methodNode, "client", "Ni", "[I", "Game/Item", "groundItemY", "[I", true, false);
+      hookClassVariable(
+          methodNode, "client", "Le", "[I", "Game/Item", "groundItemZ", "[I", true, false);
+      hookClassVariable(
+          methodNode, "client", "Gj", "[I", "Game/Item", "groundItemId", "[I", true, false);
+      hookClassVariable(
+          methodNode, "client", "Ah", "I", "Game/Item", "groundItemCount", "I", true, false);
     }
   }
 
