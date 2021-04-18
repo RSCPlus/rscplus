@@ -1403,10 +1403,10 @@ public class ConfigWindow {
         "Highlighted items can be configured in the Overlays tab");
 
     JLabel highlightedItemsSuggestionJLabel =
-      new JLabel(
-        "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-          + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
-          + "</p></html>");
+        new JLabel(
+            "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
+                + "</p></html>");
     notificationPanel.add(highlightedItemsSuggestionJLabel);
     highlightedItemsSuggestionJLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
 
