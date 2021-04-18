@@ -269,11 +269,12 @@ public class Renderer {
           if (npc.type == NPC.TYPE_PLAYER) {
             color = color_fatigue;
 
-            if (Client.isFriend(npc.name)
-                && (Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile)
-                    || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
+            if (Client.isFriend(npc.name)) {
               color = color_hp;
-              showName = true;
+              if ((Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile)
+                  || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
+                showName = true;
+              }
             } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
               showName = true;
             }
