@@ -903,13 +903,11 @@ public class Client {
   }
 
   public static void init_game() {
-    // Reset values to make the client more deterministic
-    // This helps out the replay mode to have matching output from the time it was recorded
     Camera.init();
     combat_style = Settings.COMBAT_STYLE.get(Settings.currentProfile);
     state = STATE_GAME;
-    bank_active_page = 0;
-    combat_timer = 0;
+    // bank_active_page = 0; // TODO: config option? don't think this is very important.
+    // combat_timer = 0;
   }
 
   public static void login_hook() {
