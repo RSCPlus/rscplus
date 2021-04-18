@@ -204,6 +204,7 @@ public class Launcher extends JFrame implements Runnable {
   @Override
   public void run() {
     if (Settings.UPDATE_CONFIRMATION.get(Settings.currentProfile)) {
+      Client.firstTimeRunningRSCPlus = true;
       int response =
           JOptionPane.showConfirmDialog(
               this,

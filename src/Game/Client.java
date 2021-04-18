@@ -386,6 +386,8 @@ public class Client {
   public static boolean showRecoveryQuestions;
   public static boolean showContactDetails;
 
+  public static boolean firstTimeRunningRSCPlus = false;
+
   public static int mouse_click;
   public static boolean singleButtonMode;
   public static boolean firstTime = true;
@@ -579,6 +581,10 @@ public class Client {
   }
 
   public static boolean skipToLogin() {
+    if (firstTimeRunningRSCPlus) {
+      return false;
+    }
+
     boolean skipToLogin = false;
 
     if (Settings.noWorldsConfigured
