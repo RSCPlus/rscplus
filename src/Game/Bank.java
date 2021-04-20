@@ -51,7 +51,7 @@ public class Bank {
   public static int[] buttonMode = new int[12];
   private static final int[] buttonModeLimits = // how many sort settings are enabled in one button
       {
-    2, // inventory filter
+    3, // inventory filter
     1, // melee filter
     2, // food/potions filter
     3, // tools/resources filter
@@ -206,25 +206,28 @@ public class Bank {
           ++filterCount;
         }
       }
-      if (buttonActive[0]) { // inventory
-        switch (buttonMode[0]) {
-          case 1:
-            for (int invIdx = 0; invIdx < Client.inventory_count; invIdx++) {
-              if (bankItemsActual[i] == Client.inventory_items[invIdx]) {
-                shouldInclude = true;
-                break;
-              }
-            }
-            break;
-          case 2:
-            // TODO: this is a bit unpredictable & could be made better.
-            shouldInclude |= intInArray(bankItemsActual[i], Client.inventory_items);
-            break;
-        }
-        // set back to true if this filter is active & another filter turned it off
-        shouldWriteInventory = true;
 
-        ++filterCount;
+      if (buttonActive[0]) { // inventory
+        if (buttonMode[0] == 1) {
+          // show inventory items (even if filtered)
+          for (int invIdx = 0; invIdx < Client.inventory_count; invIdx++) {
+            if (bankItemsActual[i] == Client.inventory_items[invIdx]) {
+              shouldInclude = true;
+              break;
+            }
+          }
+          shouldWriteInventory = true;
+          ++filterCount;
+        } else if (buttonMode[0] == 2) {
+          // inventory history
+          // TODO: this is a bit unpredictable & could be made better.
+          shouldInclude |= intInArray(bankItemsActual[i], Client.inventory_items);
+          shouldWriteInventory = true;
+          ++filterCount;
+        } else if (buttonMode[0] == 3) {
+          // no inventory items shown
+          shouldWriteInventory = false;
+        }
       }
 
       bankItemsShown[i] = (shouldInclude || filterCount == 0) && bankItemCountsActual[i] > 0;
@@ -752,14 +755,17 @@ public class Bank {
         }
         g2.fillRect(x, y, buttonWidth, buttonHeight);
         Renderer.setAlpha(g2, 1.0f);
-        if (buttonMode[0] != 2) {
-          // might possibly want to draw this 3 pixels to the left, to line up with the other icon,
+        if (buttonMode[0] < 2) {
+          // might possibly want to draw this 3 pixels to the left, to line up with the other icons,
           // but maybe not.
           g2.drawImage(
               Launcher.icon_satchel.getImage(), x + (buttonWidth - 32) / 2, y, 32, 32, null);
-        } else {
+        } else if (buttonMode[0] == 2) {
           g2.drawImage(
               Launcher.icon_satchel_time.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
+        } else if (buttonMode[0] == 3) {
+          g2.drawImage(
+              Launcher.icon_no_satchel.getImage(), x + (buttonWidth - 48) / 2, y, 48, 32, null);
         }
         hoveringOverButton[i++] =
             (MouseHandler.x >= x

@@ -51,6 +51,7 @@ public class Launcher extends JFrame implements Runnable {
   // bank filter/sort icons
   public static ImageIcon icon_satchel = null;
   public static ImageIcon icon_satchel_time = null;
+  public static ImageIcon icon_no_satchel = null;
   public static ImageIcon icon_runes_weapons_armour = null;
   public static ImageIcon icon_lobster_potion = null;
   public static ImageIcon icon_herblaw = null;
@@ -98,84 +99,88 @@ public class Launcher extends JFrame implements Runnable {
       icon_warn = new ImageIcon(iconURL);
     }
 
-    iconURL = getResource("/assets/filter.png");
+    iconURL = getResource("/assets/bank/filter.png");
     if (iconURL != null) {
       icon_filter_text = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/satchel.png");
+    iconURL = getResource("/assets/bank/satchel.png");
     if (iconURL != null) {
       icon_satchel = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/satchel.time.png");
+    iconURL = getResource("/assets/bank/satchel.time.png");
     if (iconURL != null) {
       icon_satchel_time = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/runes.weapons.armour.png");
+    iconURL = getResource("/assets/bank/no.satchel.png");
+    if (iconURL != null) {
+      icon_no_satchel = new ImageIcon(iconURL);
+    }
+    iconURL = getResource("/assets/bank/runes.weapons.armour.png");
     if (iconURL != null) {
       icon_runes_weapons_armour = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/lobster.potion.png");
+    iconURL = getResource("/assets/bank/lobster.potion.png");
     if (iconURL != null) {
       icon_lobster_potion = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/herblaw.png");
+    iconURL = getResource("/assets/bank/herblaw.png");
     if (iconURL != null) {
       icon_herblaw = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/resources.tools.png");
+    iconURL = getResource("/assets/bank/resources.tools.png");
     if (iconURL != null) {
       icon_resources_tools = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/tools.png");
+    iconURL = getResource("/assets/bank/tools.png");
     if (iconURL != null) {
       icon_tools = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/resources.png");
+    iconURL = getResource("/assets/bank/resources.png");
     if (iconURL != null) {
       icon_resources = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/magnifying.lens.png");
+    iconURL = getResource("/assets/bank/magnifying.lens.png");
     if (iconURL != null) {
       icon_banksearch = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/reset.png");
+    iconURL = getResource("/assets/bank/reset.png");
     if (iconURL != null) {
       icon_filter_reset = new ImageIcon(iconURL);
     }
 
-    iconURL = getResource("/assets/sort.png");
+    iconURL = getResource("/assets/bank/sort.png");
     if (iconURL != null) {
       icon_sort_text = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/release.png");
+    iconURL = getResource("/assets/bank/release.png");
     if (iconURL != null) {
       icon_release = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/release.desc.png");
+    iconURL = getResource("/assets/bank/release.desc.png");
     if (iconURL != null) {
       icon_release_desc = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/item.value.png");
+    iconURL = getResource("/assets/bank/item.value.png");
     if (iconURL != null) {
       icon_item_value = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/item.value.rev.png");
+    iconURL = getResource("/assets/bank/item.value.rev.png");
     if (iconURL != null) {
       icon_item_value_rev = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/alphabetical.png");
+    iconURL = getResource("/assets/bank/alphabetical.png");
     if (iconURL != null) {
       icon_alphabetical = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/alphabetical.rev.png");
+    iconURL = getResource("/assets/bank/alphabetical.rev.png");
     if (iconURL != null) {
       icon_alphabetical_rev = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/efficient.png");
+    iconURL = getResource("/assets/bank/efficient.png");
     if (iconURL != null) {
       icon_efficient = new ImageIcon(iconURL);
     }
-    iconURL = getResource("/assets/user.config.png");
+    iconURL = getResource("/assets/bank/user.config.png");
     if (iconURL != null) {
       icon_user_custom = new ImageIcon(iconURL);
     }
