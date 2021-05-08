@@ -1460,6 +1460,49 @@ public class JClassPatcher {
             break;
           }
         }
+
+        // find part of "click" around report abuse tab
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode startNode, targetNode;
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.ICONST_1
+              && nextNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) nextNode).owner.equals("client")
+              && ((FieldInsnNode) nextNode).name.equals("Vf")) {
+            LabelNode label = new LabelNode();
+            startNode = insnNode;
+            targetNode = nextNode.getNext();
+
+            // find starting block in condition block
+            int foundTimes = 0;
+            while (startNode.getOpcode() != Opcodes.ALOAD && foundTimes < 2) {
+              // has to be two times here
+              startNode = startNode.getPrevious();
+              if (startNode.getOpcode() == Opcodes.ALOAD) ++foundTimes;
+            }
+
+            // find ending block in condition block
+            while (targetNode.getOpcode() != Opcodes.PUTFIELD) {
+              // indicated by subsequent putfield after client.Vf = 1
+              targetNode = targetNode.getNext();
+            }
+            targetNode = targetNode.getNext();
+
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "skipActionReportAbuseTabHook", "()Z"));
+            methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFGT, label));
+
+            methodNode.instructions.insertBefore(targetNode, label);
+            break;
+          }
+        }
       }
       if (methodNode.name.equals("h") && methodNode.desc.equals("(B)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -3909,6 +3952,76 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(
                 call, new FieldInsnNode(Opcodes.GETSTATIC, "ua", "Kb", "[Ljava/lang/String;"));
             methodNode.instructions.insertBefore(call, new JumpInsnNode(Opcodes.GOTO, contNode));
+            break;
+          }
+        }
+      }
+
+      if (methodNode.name.equals("A") && methodNode.desc.equals("(I)V")) {
+        // drawChatMessageTabs to allow wiki integration
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode startNode, targetNode;
+
+          if (insnNode.getOpcode() == Opcodes.ALOAD && ((VarInsnNode) insnNode).var == 0) {
+            LabelNode label = new LabelNode();
+            startNode = targetNode = insnNode;
+
+            while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+              // find this.surface.drawSprite(...)
+              targetNode = targetNode.getNext();
+            }
+            targetNode = targetNode.getNext();
+
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "displayAltTabsHook", "()Z"));
+            methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFGT, label));
+
+            methodNode.instructions.insertBefore(targetNode, label);
+            break;
+          }
+        }
+
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNodes = nextNode.getNext();
+          AbstractInsnNode startNode, targetNode;
+
+          if (nextNode == null || twoNextNodes == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) nextNode).operand == 120
+              && twoNextNodes.getOpcode() == Opcodes.AALOAD) {
+
+            LabelNode label = new LabelNode();
+            // back off to find the corresponding aload0
+            startNode = insnNode;
+            while (startNode.getOpcode() != Opcodes.ALOAD) {
+              startNode = startNode.getPrevious();
+            }
+
+            targetNode = insnNode;
+            while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+              // find this.surface.drawstringCenter(...)
+              targetNode = targetNode.getNext();
+            }
+            targetNode = targetNode.getNext();
+
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "hideReportAbuseHook", "()Z"));
+            methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFGT, label));
+
+            methodNode.instructions.insertBefore(targetNode, label);
             break;
           }
         }

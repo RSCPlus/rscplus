@@ -2144,6 +2144,35 @@ public class Client {
   }
 
   /**
+   * This method skips drawing original chat tabs to make room to display alternative one
+   *
+   * @return true if alternative chat tabs have already have been displayed
+   */
+  public static boolean displayAltTabsHook() {
+    return false;
+  }
+
+  /**
+   * This method hides the report abuse text on chat tabs
+   *
+   * @return true if something else has been drawn or left empty
+   */
+  public static boolean hideReportAbuseHook() {
+    // Renderer.drawString("Wiki", 457, Renderer.height_client + 6, 0, 16777215);
+    return false;
+  }
+
+  /**
+   * This method allows client to skip having default report abuse tab click behavior and instead
+   * have some custom one defined
+   *
+   * @return true when it is desired to not have the default report abuse tab click behavior
+   */
+  public static boolean skipActionReportAbuseTabHook() {
+    return false;
+  }
+
+  /**
    * This method hooks all options received and adds them to console
    *
    * @param menuOptions The options received from server
