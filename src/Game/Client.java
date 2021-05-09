@@ -275,6 +275,7 @@ public class Client {
   public static BigInteger exponent;
   public static int maxRetries;
   public static byte[] fontData;
+  public static byte[] hbarData;
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
 
@@ -571,6 +572,7 @@ public class Client {
     init_login();
 
     init_extra();
+    init_old_tabs();
 
     // check if "Gender" of appearance panel should be patched
     // first is of the string to "Body" then in
@@ -644,6 +646,17 @@ public class Client {
       }
 
       inputFilterCharFontAddr[code] = index * 9;
+    }
+  }
+
+  public static void init_old_tabs() {
+    InputStream is = Launcher.getResourceAsStream("/assets/hbar2.dat");
+    try {
+      hbarData = new byte[is.available()];
+      is.read(hbarData);
+    } catch (IOException e) {
+      Logger.Warn("Could not load old hbar2 data, will not be able to draw old chat tabs");
+      hbarData = null;
     }
   }
 
@@ -2144,7 +2157,28 @@ public class Client {
   }
 
   /**
-   * This method skips drawing original chat tabs to make room to display alternative one
+   * This method determines if the old chat tabs (without report abuse button) should be shown
+   * Requires asset file hbar2.dat
+   *
+   * @return true when wanting to display the old chat tabs.
+   */
+  public static boolean drawOldChatTabs() {
+    boolean useCondition = true; // this would be the condition to switch over to old tab
+    return useCondition && hbarData != null;
+  }
+
+  /**
+   * This method returns over the old chat tabs data array Requires asset file hbar2.dat
+   *
+   * @return
+   */
+  public static byte[] readDataOldChatTabs() {
+    return hbarData;
+  }
+
+  /**
+   * This method skips drawing original chat tabs to make room to display alternative one. PREFER
+   * THE USE OF drawOldChatTabs() IF JUST WANTING TO HAVE OVER PRE-REPORT ABUSE TABS
    *
    * @return true if alternative chat tabs have already have been displayed
    */
@@ -2159,7 +2193,7 @@ public class Client {
    */
   public static boolean hideReportAbuseHook() {
     // Renderer.drawString("Wiki", 457, Renderer.height_client + 6, 0, 16777215);
-    return false;
+    return true;
   }
 
   /**
@@ -2169,7 +2203,7 @@ public class Client {
    * @return true when it is desired to not have the default report abuse tab click behavior
    */
   public static boolean skipActionReportAbuseTabHook() {
-    return false;
+    return true;
   }
 
   /**

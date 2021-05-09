@@ -4027,6 +4027,63 @@ public class JClassPatcher {
         }
       }
 
+      if (methodNode.name.equals("m") && methodNode.desc.equals("(B)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNodes = nextNode.getNext();
+          AbstractInsnNode startNode, targetNode;
+
+          if (nextNode == null || twoNextNodes == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) nextNode).operand == 97
+              && twoNextNodes.getOpcode() == Opcodes.AALOAD) {
+
+            LabelNode label = new LabelNode();
+            startNode = insnNode;
+            while (startNode.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+              // find this.surface.parseSprite(...)
+              startNode = startNode.getNext();
+            }
+            startNode = startNode.getNext();
+
+            targetNode = startNode;
+
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawOldChatTabs", "()Z"));
+            methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFLE, label));
+
+            methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                startNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "li", "Lba;"));
+            methodNode.instructions.insertBefore(startNode, new IntInsnNode(Opcodes.BIPUSH, 23));
+            methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                startNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "tg", "I"));
+            methodNode.instructions.insertBefore(startNode, new InsnNode(Opcodes.IADD));
+            methodNode.instructions.insertBefore(startNode, new InsnNode(Opcodes.ICONST_1));
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "readDataOldChatTabs", "()[B"));
+            methodNode.instructions.insertBefore(startNode, new IntInsnNode(Opcodes.BIPUSH, 104));
+            methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ALOAD, 3));
+            methodNode.instructions.insertBefore(
+                startNode,
+                new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ba", "a", "(II[BI[B)V", false));
+
+            methodNode.instructions.insertBefore(targetNode, label);
+
+            break;
+          }
+        }
+      }
+
       // hookTracer(node, methodNode);
     }
   }
