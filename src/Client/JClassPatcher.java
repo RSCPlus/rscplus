@@ -3960,6 +3960,19 @@ public class JClassPatcher {
       if (methodNode.name.equals("A") && methodNode.desc.equals("(I)V")) {
         // drawChatMessageTabs to allow wiki integration
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          // check if chat tabs should be changed
+          AbstractInsnNode findNode = methodNode.instructions.getFirst();
+          methodNode.instructions.insertBefore(
+              findNode,
+              new MethodInsnNode(
+                  Opcodes.INVOKESTATIC, "Game/Client", "checkChatTabs", "()V", false));
+          break;
+        }
+
+        insnNodeList = methodNode.instructions.iterator();
 
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
@@ -4033,6 +4046,36 @@ public class JClassPatcher {
           AbstractInsnNode insnNode = insnNodeList.next();
           AbstractInsnNode nextNode = insnNode.getNext();
           AbstractInsnNode twoNextNodes = nextNode.getNext();
+          AbstractInsnNode findNode;
+
+          if (nextNode == null || twoNextNodes == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.GETSTATIC
+              && ((FieldInsnNode) insnNode).name.equals("il")
+              && nextNode.getOpcode() == Opcodes.BIPUSH
+              && ((IntInsnNode) nextNode).operand == 103
+              && twoNextNodes.getOpcode() == Opcodes.AALOAD) {
+            // find and copy over index.dat to memory
+            findNode = insnNode;
+            while (findNode.getOpcode() != Opcodes.ASTORE) {
+              // find ASTORE 3, the reference where the index.dat byte array is
+              findNode = findNode.getNext();
+            }
+            findNode = findNode.getNext();
+            methodNode.instructions.insertBefore(findNode, new VarInsnNode(Opcodes.ALOAD, 3));
+            methodNode.instructions.insertBefore(
+                findNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "cloneMediaIndex", "([B)V"));
+            break;
+          }
+        }
+
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+          AbstractInsnNode twoNextNodes = nextNode.getNext();
           AbstractInsnNode startNode, targetNode;
 
           if (nextNode == null || twoNextNodes == null) break;
@@ -4053,9 +4096,10 @@ public class JClassPatcher {
 
             targetNode = startNode;
 
+            methodNode.instructions.insertBefore(startNode, new InsnNode(Opcodes.ICONST_1));
             methodNode.instructions.insertBefore(
                 startNode,
-                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawOldChatTabs", "()Z"));
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "drawOldChatTabs", "(Z)Z"));
             methodNode.instructions.insertBefore(startNode, new JumpInsnNode(Opcodes.IFLE, label));
 
             methodNode.instructions.insertBefore(startNode, new VarInsnNode(Opcodes.ALOAD, 0));

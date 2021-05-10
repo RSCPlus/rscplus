@@ -275,7 +275,9 @@ public class Client {
   public static BigInteger exponent;
   public static int maxRetries;
   public static byte[] fontData;
-  public static byte[] hbarData;
+  public static byte[] indexData;
+  public static byte[] hbarOrigData;
+  public static byte[] hbarRetroData;
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
 
@@ -409,6 +411,8 @@ public class Client {
   public static boolean worldVeterans;
   public static Object soundSub = null;
   public static Object gameContainer = null;
+
+  public static boolean usingRetroTabs = false;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -572,7 +576,7 @@ public class Client {
     init_login();
 
     init_extra();
-    init_old_tabs();
+    init_chat_tab_assets();
 
     // check if "Gender" of appearance panel should be patched
     // first is of the string to "Body" then in
@@ -649,14 +653,23 @@ public class Client {
     }
   }
 
-  public static void init_old_tabs() {
-    InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2.dat");
+  public static void init_chat_tab_assets() {
+    InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2_retro_compat.dat");
     try {
-      hbarData = new byte[is.available()];
-      is.read(hbarData);
+      hbarRetroData = new byte[is.available()];
+      is.read(hbarRetroData);
     } catch (IOException e) {
       Logger.Warn("Could not load old hbar2 data, will not be able to draw old chat tabs");
-      hbarData = null;
+      hbarRetroData = null;
+    }
+
+    is = Launcher.getResourceAsStream("/assets/hbar/hbar2_orig.dat");
+    try {
+      hbarOrigData = new byte[is.available()];
+      is.read(hbarOrigData);
+    } catch (IOException e) {
+      Logger.Warn("Could not load hbar2 data, will not be able to go back to the modern chat tabs");
+      hbarOrigData = null;
     }
   }
 
@@ -2157,23 +2170,72 @@ public class Client {
   }
 
   /**
-   * This method determines if the old chat tabs (without report abuse button) should be shown
-   * Requires asset file hbar2.dat
+   * Clones over to memory index.dat
    *
-   * @return true when wanting to display the old chat tabs.
+   * @param data
    */
-  public static boolean drawOldChatTabs() {
-    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
-        && hbarData != null;
+  public static void cloneMediaIndex(byte[] data) {
+    indexData = data.clone();
   }
 
   /**
-   * This method returns over the old chat tabs data array Requires asset file hbar2.dat
+   * This method determines if the old chat tabs (without report abuse button) can/should be shown
+   * To hot load changes use checkChatTabs(). Requires asset file hbar2_retro_compat.dat
+   *
+   * @param init - to specify if should also initialize first time value
+   * @return true when wanting to display the old chat tabs.
+   */
+  public static boolean drawOldChatTabs(boolean init) {
+    boolean shouldDraw =
+        Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+            && hbarRetroData != null;
+    if (init) {
+      usingRetroTabs = shouldDraw;
+    }
+    return shouldDraw;
+  }
+
+  /**
+   * This method returns over the old chat tabs data array. Checked at mudclient's loadMedia()
+   * Requires asset file hbar2_retro_compat.dat
    *
    * @return
    */
   public static byte[] readDataOldChatTabs() {
-    return hbarData;
+    return hbarRetroData;
+  }
+
+  /**
+   * This method checks if the hbar2 file should be changed (per settings) before rendering the chat
+   * tabs
+   */
+  public static void checkChatTabs() {
+    boolean shouldDrawOldTabs = drawOldChatTabs(false);
+    if (!usingRetroTabs && shouldDrawOldTabs) {
+      try {
+        Reflection.parseSprite.invoke(
+            Renderer.instance,
+            Renderer.sprite_media + 23,
+            1,
+            Client.hbarRetroData,
+            104,
+            Client.indexData);
+        usingRetroTabs = true;
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      }
+    } else if (usingRetroTabs && !shouldDrawOldTabs && hbarOrigData != null) {
+      try {
+        Reflection.parseSprite.invoke(
+            Renderer.instance,
+            Renderer.sprite_media + 23,
+            1,
+            Client.hbarOrigData,
+            104,
+            Client.indexData);
+        usingRetroTabs = false;
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      }
+    }
   }
 
   /**
