@@ -645,7 +645,7 @@ public class Settings {
 
     PATCH_WRENCH_MENU_SPACING.put("vanilla", false);
     PATCH_WRENCH_MENU_SPACING.put("vanilla_resizable", false);
-    PATCH_WRENCH_MENU_SPACING.put("lite", false);
+    PATCH_WRENCH_MENU_SPACING.put("lite", true);
     PATCH_WRENCH_MENU_SPACING.put("default", true);
     PATCH_WRENCH_MENU_SPACING.put("heavy", true);
     PATCH_WRENCH_MENU_SPACING.put("all", true);
@@ -2508,6 +2508,31 @@ public class Settings {
     save();
   }
 
+  public static void toggleWikiHbar() {
+    WIKI_LOOKUP_ON_HBAR.put(currentProfile, !WIKI_LOOKUP_ON_HBAR.get(currentProfile));
+
+    if (WIKI_LOOKUP_ON_HBAR.get(currentProfile)) {
+      Client.displayMessage("@cya@Wiki button in Hbar now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Wiki button in Hbar now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleReportAbuse() {
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        currentProfile, !REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(currentProfile));
+
+    if (!REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(currentProfile)) {
+      Client.displayMessage("@cya@Report Abuse button is now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Report Abuse button is now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void setClientFoV(String fovValue) {
     try {
       FOV.put(currentProfile, Integer.parseInt(fovValue));
@@ -2753,6 +2778,27 @@ public class Settings {
         return true;
       case "world_5":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(5);
+        return true;
+      case "world_6":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(6);
+        return true;
+      case "world_7":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(7);
+        return true;
+      case "world_8":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(8);
+        return true;
+      case "world_9":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(9);
+        return true;
+      case "world_10":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(10);
+        return true;
+      case "toggle_report_abuse_button":
+        Settings.toggleReportAbuse();
+        return true;
+      case "toggle_wiki_hbar_button":
+        Settings.toggleWikiHbar();
         return true;
       case "stop":
       case "restart":

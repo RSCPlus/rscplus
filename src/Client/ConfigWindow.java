@@ -1608,7 +1608,7 @@ public class ConfigWindow {
     // consider using ALT instead.
 
     addKeybindCategory(keybindContainerPanel, "General");
-    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
+    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_SPACE);
     addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
@@ -1772,14 +1772,26 @@ public class ConfigWindow {
         keybindContainerPanel,
         "Toggle time until health regen",
         "toggle_health_regen_timer",
-        KeyModifier.NONE,
-        -1);
+        KeyModifier.CTRL,
+        KeyEvent.VK_X);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle debug mode",
         "toggle_debug",
         KeyModifier.CTRL,
         KeyEvent.VK_D);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle Wiki Hbar Button",
+        "toggle_wiki_hbar_button",
+        KeyModifier.ALT,
+        KeyEvent.VK_W);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle report abuse button",
+        "toggle_report_abuse_button",
+        KeyModifier.ALT,
+        KeyEvent.VK_R);
 
     addKeybindCategory(keybindContainerPanel, "Streaming & Privacy");
     addKeybindSet(
@@ -1872,6 +1884,36 @@ public class ConfigWindow {
         "world_5",
         KeyModifier.CTRL,
         KeyEvent.VK_5);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 6 at login screen",
+        "world_6",
+        KeyModifier.CTRL,
+        KeyEvent.VK_6);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 7 at login screen",
+        "world_7",
+        KeyModifier.CTRL,
+        KeyEvent.VK_7);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 8 at login screen",
+        "world_8",
+        KeyModifier.CTRL,
+        KeyEvent.VK_8);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 9 at login screen",
+        "world_9",
+        KeyModifier.CTRL,
+        KeyEvent.VK_9);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 10 at login screen",
+        "world_0",
+        KeyModifier.CTRL,
+        KeyEvent.VK_0);
 
     keybindContainerContainerPanel.add(keybindContainerPanel, gbl_constraints);
     keybindPanel.add(keybindContainerContainerPanel, con);
