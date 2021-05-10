@@ -3148,45 +3148,47 @@ public class JClassPatcher {
         }
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IZ)V")) {
-        // move down original text "to change your contact details, etc" since should be 5 px down
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode nextNode = insnNode.getNext();
-          AbstractInsnNode twoNextNode = nextNode.getNext();
+        if (Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile)) {
+          // move down original text "to change your contact details, etc" since should be 5 px down
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode twoNextNode = nextNode.getNext();
 
-          if (nextNode == null || twoNextNode == null) break;
+            if (nextNode == null || twoNextNode == null) break;
 
-          if (insnNode.getOpcode() == Opcodes.GETSTATIC
-              && ((FieldInsnNode) insnNode).name.equals("il")
-              && nextNode.getOpcode() == Opcodes.SIPUSH
-              && ((IntInsnNode) nextNode).operand == 145) {
-            methodNode.instructions.insertBefore(
-                insnNode.getPrevious().getPrevious(), new IincInsnNode(7, 5));
-            break;
+            if (insnNode.getOpcode() == Opcodes.GETSTATIC
+                && ((FieldInsnNode) insnNode).name.equals("il")
+                && nextNode.getOpcode() == Opcodes.SIPUSH
+                && ((IntInsnNode) nextNode).operand == 145) {
+              methodNode.instructions.insertBefore(
+                  insnNode.getPrevious().getPrevious(), new IincInsnNode(7, 5));
+              break;
+            }
           }
-        }
 
-        // correct the offset of clicking with previous text correction
-        insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode nextNode = insnNode.getNext();
-          AbstractInsnNode twoNextNode = nextNode.getNext();
+          // correct the offset of clicking with previous text correction
+          insnNodeList = methodNode.instructions.iterator();
+          while (insnNodeList.hasNext()) {
+            AbstractInsnNode insnNode = insnNodeList.next();
+            AbstractInsnNode nextNode = insnNode.getNext();
+            AbstractInsnNode twoNextNode = nextNode.getNext();
 
-          if (nextNode == null || twoNextNode == null) break;
+            if (nextNode == null || twoNextNode == null) break;
 
-          if (insnNode.getOpcode() == Opcodes.IINC
-              && ((IincInsnNode) insnNode).var == 7
-              && ((IincInsnNode) insnNode).incr == 15
-              && nextNode.getOpcode() == Opcodes.IINC
-              && ((IincInsnNode) nextNode).var == 7
-              && ((IincInsnNode) nextNode).incr == 15
-              && twoNextNode.getOpcode() == Opcodes.IINC
-              && ((IincInsnNode) twoNextNode).var == 7
-              && ((IincInsnNode) twoNextNode).incr == 15) {
-            methodNode.instructions.insertBefore(insnNode, new IincInsnNode(7, 5));
-            break;
+            if (insnNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) insnNode).var == 7
+                && ((IincInsnNode) insnNode).incr == 15
+                && nextNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) nextNode).var == 7
+                && ((IincInsnNode) nextNode).incr == 15
+                && twoNextNode.getOpcode() == Opcodes.IINC
+                && ((IincInsnNode) twoNextNode).var == 7
+                && ((IincInsnNode) twoNextNode).incr == 15) {
+              methodNode.instructions.insertBefore(insnNode, new IincInsnNode(7, 5));
+              break;
+            }
           }
         }
 
