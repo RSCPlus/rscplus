@@ -516,7 +516,7 @@ public class Renderer {
       }
 
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
-        if (width < 800) {
+        if (roomInHbarForHPPrayerFatigueOverlay()) {
           if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
             setAlpha(g2, alphaHP);
             drawShadowText(
@@ -722,37 +722,42 @@ public class Renderer {
       }
 
       // RSC Wiki integration
-      if (WikiURL.nextClickIsLookup && MouseHandler.mouseClicked && !MouseHandler.rightClick) {
-        if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
-          if (!MouseText.isPlayer) {
-            String wikiURL = WikiURL.translateNameToUrl(MouseText.name);
-            if (!wikiURL.equals("INVALID")) {
-              WikiURL.lastLookupTime = System.currentTimeMillis();
+      if (WikiURL.nextClickIsLookup && MouseHandler.mouseClicked) {
+        if (MouseHandler.rightClick) {
+          WikiURL.nextClickIsLookup = false;
+          Client.displayMessage("Cancelled lookup.", Client.CHAT_NONE);
+        } else {
+          if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
+            if (!MouseText.isPlayer) {
+              String wikiURL = WikiURL.translateNameToUrl(MouseText.name);
+              if (!wikiURL.equals("INVALID")) {
+                WikiURL.lastLookupTime = System.currentTimeMillis();
+                Client.displayMessage(
+                    "@whi@Looking up @gre@" + MouseText.name + "@whi@ on the wiki!",
+                    Client.CHAT_NONE);
+                Util.openLinkInBrowser(wikiURL);
+                WikiURL.nextClickIsLookup = false;
+              }
+            } else {
               Client.displayMessage(
-                  "@whi@Looking up @gre@" + MouseText.name + "@whi@ on the wiki!",
-                  Client.CHAT_NONE);
-              Util.openLinkInBrowser(wikiURL);
-              WikiURL.nextClickIsLookup = false;
+                  "@lre@Players cannot be looked up on the wiki, try again.", Client.CHAT_NONE);
             }
           } else {
             Client.displayMessage(
-                "@lre@Players cannot be looked up on the wiki, try again.", Client.CHAT_NONE);
+                String.format(
+                    "@lre@Please wait %1d seconds between wiki queries",
+                    WikiURL.cooldownTimer / 1000),
+                Client.CHAT_NONE);
           }
-        } else {
-          Client.displayMessage(
-              String.format(
-                  "@lre@Please wait %1d seconds between wiki queries",
-                  WikiURL.cooldownTimer / 1000),
-              Client.CHAT_NONE);
         }
       }
 
       if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
-        int xCoord = Client.wikiLookupReplacesReportAbuse() ? 413 : 413 + 90 + 12;
+        int xCoord = Client.wikiLookupReplacesReportAbuse() ? 410 : 410 + 90 + 12;
         int yCoord = height - 16;
         // Handle replay play selection click
-        if (MouseHandler.x >= xCoord
-            && MouseHandler.x <= xCoord + 90
+        if (MouseHandler.x >= xCoord + 3 // + 3 for hbar shadow included in image
+            && MouseHandler.x <= xCoord + 3 + 90
             && MouseHandler.y >= height - 16
             && MouseHandler.y <= height
             && MouseHandler.mouseClicked) {
@@ -761,9 +766,9 @@ public class Renderer {
           WikiURL.nextClickIsLookup = true;
         }
         if (WikiURL.nextClickIsLookup) {
-          g2.drawImage(image_wiki_hbar_active, xCoord, yCoord, 90, 15, null);
+          g2.drawImage(image_wiki_hbar_active, xCoord, yCoord, 96, 15, null);
         } else {
-          g2.drawImage(image_wiki_hbar_inactive, xCoord, yCoord, 90, 15, null);
+          g2.drawImage(image_wiki_hbar_inactive, xCoord, yCoord, 96, 15, null);
         }
       }
 
@@ -1842,6 +1847,15 @@ public class Renderer {
 
     // Reset the mouse click handler
     MouseHandler.mouseClicked = false;
+  }
+
+  private static boolean roomInHbarForHPPrayerFatigueOverlay() {
+    if (!Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || Client.wikiLookupReplacesReportAbuse()) {
+      return width < 800;
+    } else {
+      return width < 800 - 112;
+    }
   }
 
   public static void drawBar(

@@ -3058,6 +3058,9 @@ public class Client {
 
   public static boolean wikiLookupReplacesReportAbuse() {
     if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+      if (Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)) {
+        return true;
+      }
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
         return Renderer.width < 900;
       } else {
