@@ -237,7 +237,8 @@ public class Renderer {
     g2.setFont(font_main);
 
     g2.drawImage(image, 0, 0, null);
-    g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
+    int startingPixel = Settings.PATCH_HBAR_512_LAST_PIXEL.get(Settings.currentProfile) ? 511 : 512;
+    g2.drawImage(image_border, startingPixel, height - 13, width - startingPixel, 13, null);
 
     // In-game UI
     if (Client.state == Client.STATE_GAME) {
