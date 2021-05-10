@@ -91,6 +91,8 @@ public class Renderer {
   public static Image image_bar_frame;
   public static Image image_cursor;
   public static Image image_highlighted_item;
+  public static Image image_wiki_hbar_inactive;
+  public static Image image_wiki_hbar_active;
   private static BufferedImage game_image;
 
   private static Dimension new_size = new Dimension(0, 0);
@@ -156,8 +158,12 @@ public class Renderer {
 
     // Load images
     try {
-      image_border = ImageIO.read(Launcher.getResource("/assets/border.png"));
-      image_bar_frame = ImageIO.read(Launcher.getResource("/assets/bar.png"));
+      image_border = ImageIO.read(Launcher.getResource("/assets/hbar/border.png"));
+      image_bar_frame = ImageIO.read(Launcher.getResource("/assets/hbar/bar.png"));
+      image_wiki_hbar_inactive =
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive.png"));
+      image_wiki_hbar_active =
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active.png"));
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
     } catch (Exception e) {
@@ -737,6 +743,26 @@ public class Renderer {
                   "@lre@Please wait %1d seconds between wiki queries",
                   WikiURL.cooldownTimer / 1000),
               Client.CHAT_NONE);
+        }
+      }
+
+      if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+        int xCoord = Client.wikiLookupReplacesReportAbuse() ? 413 : 413 + 90 + 12;
+        int yCoord = height - 16;
+        // Handle replay play selection click
+        if (MouseHandler.x >= xCoord
+            && MouseHandler.x <= xCoord + 90
+            && MouseHandler.y >= height - 16
+            && MouseHandler.y <= height
+            && MouseHandler.mouseClicked) {
+          Client.displayMessage(
+              "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+          WikiURL.nextClickIsLookup = true;
+        }
+        if (WikiURL.nextClickIsLookup) {
+          g2.drawImage(image_wiki_hbar_active, xCoord, yCoord, 90, 15, null);
+        } else {
+          g2.drawImage(image_wiki_hbar_inactive, xCoord, yCoord, 90, 15, null);
         }
       }
 

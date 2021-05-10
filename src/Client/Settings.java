@@ -111,6 +111,8 @@ public class Settings {
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PATCH_WRENCH_MENU_SPACING = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> LOG_VERBOSITY = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
@@ -130,6 +132,9 @@ public class Settings {
   public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> WIKI_LOOKUP_ON_MAGIC_BOOK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> WIKI_LOOKUP_ON_HBAR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> REMOVE_REPORT_ABUSE_BUTTON_HBAR =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -638,6 +643,28 @@ public class Settings {
     PATCH_GENDER.put("all", true);
     PATCH_GENDER.put("custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
 
+    PATCH_WRENCH_MENU_SPACING.put("vanilla", false);
+    PATCH_WRENCH_MENU_SPACING.put("vanilla_resizable", false);
+    PATCH_WRENCH_MENU_SPACING.put("lite", false);
+    PATCH_WRENCH_MENU_SPACING.put("default", true);
+    PATCH_WRENCH_MENU_SPACING.put("heavy", true);
+    PATCH_WRENCH_MENU_SPACING.put("all", true);
+    PATCH_WRENCH_MENU_SPACING.put(
+        "custom",
+        getPropBoolean(
+            props, "patch_wrench_menu_spacing", PATCH_WRENCH_MENU_SPACING.get("default")));
+
+    PATCH_HBAR_512_LAST_PIXEL.put("vanilla", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("vanilla_resizable", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("lite", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("default", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("heavy", true);
+    PATCH_HBAR_512_LAST_PIXEL.put("all", true);
+    PATCH_HBAR_512_LAST_PIXEL.put(
+        "custom",
+        getPropBoolean(
+            props, "patch_hbar_512_last_pixel", PATCH_HBAR_512_LAST_PIXEL.get("default")));
+
     LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("lite", Logger.Type.WARN.id);
@@ -781,6 +808,28 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "wiki_lookup_on_magic_book", WIKI_LOOKUP_ON_MAGIC_BOOK.get("default")));
+
+    WIKI_LOOKUP_ON_HBAR.put("vanilla", false);
+    WIKI_LOOKUP_ON_HBAR.put("vanilla_resizable", false);
+    WIKI_LOOKUP_ON_HBAR.put("lite", false);
+    WIKI_LOOKUP_ON_HBAR.put("default", true);
+    WIKI_LOOKUP_ON_HBAR.put("heavy", true);
+    WIKI_LOOKUP_ON_HBAR.put("all", true);
+    WIKI_LOOKUP_ON_HBAR.put(
+        "custom", getPropBoolean(props, "wiki_lookup_on_hbar", WIKI_LOOKUP_ON_HBAR.get("default")));
+
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("vanilla", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("vanilla_resizable", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("lite", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("default", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("heavy", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("all", true);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "remove_report_abuse_button_hbar",
+            REMOVE_REPORT_ABUSE_BUTTON_HBAR.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1857,6 +1906,10 @@ public class Settings {
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
+      props.setProperty(
+          "patch_hbar_512_last_pixel", Boolean.toString(PATCH_HBAR_512_LAST_PIXEL.get(preset)));
+      props.setProperty(
+          "patch_wrench_menu_spacing", Boolean.toString(PATCH_WRENCH_MENU_SPACING.get(preset)));
       props.setProperty("log_verbosity", Integer.toString(LOG_VERBOSITY.get(preset)));
       props.setProperty("log_show_timestamps", Boolean.toString(LOG_SHOW_TIMESTAMPS.get(preset)));
       props.setProperty("log_show_level", Boolean.toString(LOG_SHOW_LEVEL.get(preset)));
@@ -1879,6 +1932,10 @@ public class Settings {
           "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
       props.setProperty(
           "wiki_lookup_on_magic_book", Boolean.toString(WIKI_LOOKUP_ON_MAGIC_BOOK.get(preset)));
+      props.setProperty("wiki_lookup_on_hbar", Boolean.toString(WIKI_LOOKUP_ON_HBAR.get(preset)));
+      props.setProperty(
+          "remove_report_abuse_button_hbar",
+          Boolean.toString(REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));

@@ -170,6 +170,8 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelPatchGenderCheckbox;
+  private JCheckBox generalPanelPatchHbar512LastPixelCheckbox;
+  private JCheckBox generalPanelPatchWrenchMenuSpacingCheckbox;
   private JCheckBox generalPanelDebugModeCheckbox;
   private JCheckBox generalPanelExceptionHandlerCheckbox;
   private JLabel generalPanelNamePatchModeDesc;
@@ -184,6 +186,8 @@ public class ConfigWindow {
   private JCheckBox overlayPanelRscPlusButtonsCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
   private JCheckBox overlayPanelWikiLookupOnMagicBookCheckbox;
+  private JCheckBox overlayPanelWikiLookupOnHbarCheckbox;
+  private JCheckBox overlayPanelRemoveReportAbuseButtonHbarCheckbox;
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
@@ -896,6 +900,16 @@ public class ConfigWindow {
     generalPanelPatchGenderCheckbox.setToolTipText(
         "When selected places body type instead of gender in the appearance screen");
 
+    generalPanelPatchWrenchMenuSpacingCheckbox =
+        addCheckbox("Fix 5px vertical spacing bug in wrench menu", generalPanel);
+    generalPanelPatchWrenchMenuSpacingCheckbox.setToolTipText(
+        "When the \"Security settings\" section was removed from the wrench menu, Jagex also deleted 5 pixels of vertical space needed to properly align the next section.");
+
+    generalPanelPatchHbar512LastPixelCheckbox =
+        addCheckbox("Fix bottom bar's last pixel at 512 width", generalPanel);
+    generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
+        "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
+
     /*
      * Overlays tab
      */
@@ -953,6 +967,18 @@ public class ConfigWindow {
         addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
     overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
         "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelWikiLookupOnHbarCheckbox =
+        addCheckbox(
+            "Search the RSC Wiki with a button in the bottom blue bar (replaces Report Abuse button at low width)",
+            overlayPanel);
+    overlayPanelWikiLookupOnHbarCheckbox.setToolTipText(
+        "Click the button on the bottom bar, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox =
+        addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox.setToolTipText(
+        "mudclient149 added the Report Abuse button. You will still be able to report players with right click menu if this option is enabled.");
 
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
@@ -2463,6 +2489,10 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
+    generalPanelPatchHbar512LastPixelCheckbox.setSelected(
+        Settings.PATCH_HBAR_512_LAST_PIXEL.get(Settings.currentProfile));
+    generalPanelPatchWrenchMenuSpacingCheckbox.setSelected(
+        Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile));
     generalPanelPrefersXdgOpenCheckbox.setSelected(
         Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile));
 
@@ -2506,6 +2536,10 @@ public class ConfigWindow {
             || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
     overlayPanelWikiLookupOnMagicBookCheckbox.setSelected(
         Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile));
+    overlayPanelWikiLookupOnHbarCheckbox.setSelected(
+        Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile));
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox.setSelected(
+        Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile));
     overlayPanelPositionCheckbox.setSelected(
         Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
     overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
@@ -2738,6 +2772,10 @@ public class ConfigWindow {
         ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
     Settings.PATCH_GENDER.put(
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
+    Settings.PATCH_HBAR_512_LAST_PIXEL.put(
+        Settings.currentProfile, generalPanelPatchHbar512LastPixelCheckbox.isSelected());
+    Settings.PATCH_WRENCH_MENU_SPACING.put(
+        Settings.currentProfile, generalPanelPatchWrenchMenuSpacingCheckbox.isSelected());
 
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
@@ -2758,6 +2796,10 @@ public class ConfigWindow {
             || overlayPanelRscPlusButtonsCheckbox.isSelected());
     Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.put(
         Settings.currentProfile, overlayPanelWikiLookupOnMagicBookCheckbox.isSelected());
+    Settings.WIKI_LOOKUP_ON_HBAR.put(
+        Settings.currentProfile, overlayPanelWikiLookupOnHbarCheckbox.isSelected());
+    Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        Settings.currentProfile, overlayPanelRemoveReportAbuseButtonHbarCheckbox.isSelected());
     Settings.SHOW_PLAYER_POSITION.put(
         Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
     Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());

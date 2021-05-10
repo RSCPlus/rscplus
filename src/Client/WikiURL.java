@@ -12,7 +12,7 @@ public class WikiURL {
   // also used by OSRS & RS3 clients' wiki integration
 
   public static String translateNameToUrl(String name) throws IllegalArgumentException {
-    if (name.equals("Walk here") || name.contains("Choose a target")) {
+    if (name.equals("Walk here") || name.contains("Choose a target") || name.equals("")) {
       return "INVALID";
     }
     return wikiPrefix + name + wikiSuffix;

@@ -650,7 +650,7 @@ public class Client {
   }
 
   public static void init_old_tabs() {
-    InputStream is = Launcher.getResourceAsStream("/assets/hbar2.dat");
+    InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2.dat");
     try {
       hbarData = new byte[is.available()];
       is.read(hbarData);
@@ -2163,8 +2163,8 @@ public class Client {
    * @return true when wanting to display the old chat tabs.
    */
   public static boolean drawOldChatTabs() {
-    boolean useCondition = true; // this would be the condition to switch over to old tab
-    return useCondition && hbarData != null;
+    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        && hbarData != null;
   }
 
   /**
@@ -2192,8 +2192,7 @@ public class Client {
    * @return true if something else has been drawn or left empty
    */
   public static boolean hideReportAbuseHook() {
-    // Renderer.drawString("Wiki", 457, Renderer.height_client + 6, 0, 16777215);
-    return true;
+    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile);
   }
 
   /**
@@ -2203,7 +2202,8 @@ public class Client {
    * @return true when it is desired to not have the default report abuse tab click behavior
    */
   public static boolean skipActionReportAbuseTabHook() {
-    return true;
+    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || wikiLookupReplacesReportAbuse();
   }
 
   /**
@@ -2992,6 +2992,17 @@ public class Client {
 
   public static Double getLastXpGain(int skill) {
     return lastXpGain.get(xpUsername)[skill][LAST_XP_GAIN];
+  }
+
+  public static boolean wikiLookupReplacesReportAbuse() {
+    if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
+        return Renderer.width < 900;
+      } else {
+        return Renderer.width < 512 + 90 + 12;
+      }
+    }
+    return false;
   }
 }
 
