@@ -134,6 +134,9 @@ public class Client {
   public static final int POPUP_CANCEL_RECOVERY = 10;
   public static final int POPUP_BANK_SEARCH = 11;
 
+  public static final int WRENCH_ALIGNMENT_FIX = 5;
+  public static final int WRENCH_ALIGNMENT_NO_FIX = 0;
+
   public static int max_inventory;
   public static int inventory_count;
   public static long magic_timer = 0L;
@@ -608,6 +611,18 @@ public class Client {
     }
 
     return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+
+  /**
+   * Decides if the text of "to change your contact details, etc" should be moved down to make it
+   * well aligned
+   *
+   * @return the needed alignment or none
+   */
+  public static int wrenchFixHook() {
+    return Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile)
+        ? WRENCH_ALIGNMENT_FIX
+        : WRENCH_ALIGNMENT_NO_FIX;
   }
 
   /**
