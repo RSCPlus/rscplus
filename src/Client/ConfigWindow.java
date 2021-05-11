@@ -896,12 +896,12 @@ public class ConfigWindow {
 
     generalPanelPatchGenderCheckbox =
         addCheckbox(
-            "Correct gender to body type in appearance screen (Requires restart)", generalPanel);
+            "Correct \"Gender\" to \"Body Type\" on the appearance screen (Requires restart)", generalPanel);
     generalPanelPatchGenderCheckbox.setToolTipText(
-        "When selected places body type instead of gender in the appearance screen");
+        "When selected, says \"Body Type\" instead of \"Gender\" on the character creation/appearance screen");
 
     generalPanelPatchWrenchMenuSpacingCheckbox =
-        addCheckbox("Fix 5px vertical spacing bug in wrench menu (Requires restart)", generalPanel);
+        addCheckbox("Fix 5 pixel vertical spacing bug in wrench menu", generalPanel);
     generalPanelPatchWrenchMenuSpacingCheckbox.setToolTipText(
         "When the \"Security settings\" section was removed from the wrench menu, Jagex also deleted 5 pixels of vertical space needed to properly align the next section.");
 
