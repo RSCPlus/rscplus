@@ -89,7 +89,7 @@ public class Renderer {
 
   public static Image image_border;
   public static Image image_bar_frame;
-	public static Image image_bar_frame_short;
+  public static Image image_bar_frame_short;
   public static Image image_cursor;
   public static Image image_highlighted_item;
   public static Image image_wiki_hbar_inactive;
@@ -161,7 +161,7 @@ public class Renderer {
     try {
       image_border = ImageIO.read(Launcher.getResource("/assets/hbar/border.png"));
       image_bar_frame = ImageIO.read(Launcher.getResource("/assets/hbar/bar.png"));
-			image_bar_frame_short = ImageIO.read(Launcher.getResource("/assets/hbar/bar_short.png"));
+      image_bar_frame_short = ImageIO.read(Launcher.getResource("/assets/hbar/bar_short.png"));
       image_wiki_hbar_inactive =
           ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive.png"));
       image_wiki_hbar_active =
@@ -551,20 +551,19 @@ public class Renderer {
             y += 16;
           }
         } else {
-        	boolean fullSizeBar = useFullSizeHPPrayerFatigueBars();
-        	int barPadding = fullSizeBar ? 4 : 3;
-        	Image used_bar_frame = fullSizeBar ? image_bar_frame : image_bar_frame_short;
+          boolean fullSizeBar = useFullSizeHPPrayerFatigueBars();
+          int barPadding = fullSizeBar ? 4 : 3;
+          Image used_bar_frame = fullSizeBar ? image_bar_frame : image_bar_frame_short;
           int barSize = barPadding + used_bar_frame.getWidth(null);
           int x2 = width - (barPadding + barSize);
           int y2 = height - used_bar_frame.getHeight(null);
 
-          drawBar(
-              g2, used_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
+          drawBar(g2, used_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
           x2 -= barSize;
 
           drawBar(
               g2,
-						used_bar_frame,
+              used_bar_frame,
               x2,
               y2,
               colorPrayer,
@@ -575,7 +574,7 @@ public class Renderer {
 
           drawBar(
               g2,
-						used_bar_frame,
+              used_bar_frame,
               x2,
               y2,
               colorHP,
@@ -1862,14 +1861,15 @@ public class Renderer {
       return width >= 800 - 112 - 90 - 3; // 595
     }
   }
+
   private static boolean useFullSizeHPPrayerFatigueBars() {
-		if (!Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
-			|| Client.wikiLookupReplacesReportAbuse()) {
-			return width >= 800;
-		} else {
-			return width >= 800 - 112;
-		}
-	}
+    if (!Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || Client.wikiLookupReplacesReportAbuse()) {
+      return width >= 800;
+    } else {
+      return width >= 800 - 112;
+    }
+  }
 
   public static void drawBar(
       Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {

@@ -896,7 +896,8 @@ public class ConfigWindow {
 
     generalPanelPatchGenderCheckbox =
         addCheckbox(
-            "Correct \"Gender\" to \"Body Type\" on the appearance screen (Requires restart)", generalPanel);
+            "Correct \"Gender\" to \"Body Type\" on the appearance screen (Requires restart)",
+            generalPanel);
     generalPanelPatchGenderCheckbox.setToolTipText(
         "When selected, says \"Body Type\" instead of \"Gender\" on the character creation/appearance screen");
 
