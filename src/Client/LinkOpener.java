@@ -25,7 +25,7 @@ public class LinkOpener implements Runnable {
         // Tested to work on Windows XP+, Mac OS, and Linux,
         // but Linux needs some GNOME library for this to work.
         Logger.Info("Opening \"" + url + "\".");
-        Desktop.getDesktop().browse(new URI(url));
+        Desktop.getDesktop().browse(new URI(url.replaceAll(" ", "%20")));
       } else {
         if (Util.isMacOS()) {
           // not sure, but maybe some version of Mac OS isn't supported by Desktop
