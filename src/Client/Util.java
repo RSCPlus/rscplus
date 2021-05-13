@@ -636,10 +636,13 @@ public class Util {
   }
 
   public static String execCmd(String[] cmdArray) throws java.io.IOException {
-    java.util.Scanner s =
-        new java.util.Scanner(Runtime.getRuntime().exec(cmdArray).getInputStream())
-            .useDelimiter("\\A");
-    return s.hasNext() ? s.next() : "";
+    Process p = Runtime.getRuntime().exec(cmdArray);
+    java.util.Scanner s = new java.util.Scanner(p.getInputStream()).useDelimiter("\\A");
+    String ret = s.hasNext() ? s.next() : "";
+    s.close();
+    // without destroying, closing RSC+ will also close whatever was launched
+    p.destroyForcibly();
+    return ret;
   }
 
   public static boolean detectBinaryAvailable(String binaryName, String reason) {

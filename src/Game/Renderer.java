@@ -346,8 +346,7 @@ public class Renderer {
             Settings.currentProfile)) { // Don't sort if we aren't displaying any item names anyway
           try {
             // Keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of
-            // randomly
-            // changing places each frame
+            // randomly changing places each frame
             Collections.sort(Client.item_list, new ItemComparator());
           } catch (Exception e) {
             // Sometimes Java helpfully complains that the sorting method violates its general
@@ -428,6 +427,7 @@ public class Renderer {
       }
 
       // Clear item list for next frame
+      Client.item_list_retained = new ArrayList<Item>(Client.item_list);
       Client.item_list.clear();
       last_item = null;
 
@@ -670,6 +670,7 @@ public class Renderer {
       }
 
       // Clear npc list for the next frame
+      Client.npc_list_retained = new ArrayList<NPC>(Client.npc_list);
       Client.npc_list.clear();
 
       // render XP bar/drop
@@ -733,7 +734,7 @@ public class Renderer {
         } else {
           if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
             if (!MouseText.isPlayer) {
-              String wikiURL = WikiURL.translateNameToUrl(MouseText.name);
+              String wikiURL = WikiURL.getURL();
               if (!wikiURL.equals("INVALID")) {
                 WikiURL.lastLookupTime = System.currentTimeMillis();
                 Client.displayMessage(

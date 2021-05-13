@@ -70,7 +70,9 @@ public class Client {
       new LinkedHashMap<String, LinkedList<String>>();
 
   public static List<NPC> npc_list = new ArrayList<>();
+  public static List<NPC> npc_list_retained = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
+  public static List<Item> item_list_retained = new ArrayList<>();
 
   public static final int SKILL_ATTACK = 0;
   public static final int SKILL_DEFENSE = 1;
@@ -2030,9 +2032,19 @@ public class Client {
     }
   }
 
-  public static String appendDetailsHook(int id, int dir, int x, int y) {
+  public static String appendDetailsHook(int id, int dir, int x, int y, int type) {
     int fullX = x + regionX;
     int fullY = y + regionY;
+    MouseText.lastObjectId = id;
+
+    // TODO:
+    // MouseText.lastObjectType = type;
+    if (type == dir) {
+      MouseText.lastObjectType = MouseText.BOUNDARY;
+    } else if (type == y) {
+      MouseText.lastObjectType = MouseText.SCENERY;
+    }
+
     if (Settings.TRACE_OBJECT_INFO.get(Settings.currentProfile)) {
       return " @gre@(" + id + ";" + dir + ";" + fullX + "," + fullY + ")";
     } else {

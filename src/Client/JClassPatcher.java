@@ -3626,13 +3626,19 @@ public class JClassPatcher {
                   insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "ye", "[I"));
               methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
               methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // mark as scenery by duplicating y // TODO: just insert Game/MouseText.SCENERY
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "ye", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
               methodNode.instructions.insertBefore(
                   insnNode,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
                       "Game/Client",
                       "appendDetailsHook",
-                      "(IIII)Ljava/lang/String;",
+                      "(IIIII)Ljava/lang/String;",
                       false));
               methodNode.instructions.insertBefore(
                   insnNode,
@@ -3686,13 +3692,20 @@ public class JClassPatcher {
                   insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "yk", "[I"));
               methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
               methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+              // mark as boundary by duplicating direction // TODO: just insert
+              // Game/MouseText.BOUNDARY
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Hj", "[I"));
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
+              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
               methodNode.instructions.insertBefore(
                   insnNode,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
                       "Game/Client",
                       "appendDetailsHook",
-                      "(IIII)Ljava/lang/String;",
+                      "(IIIII)Ljava/lang/String;",
                       false));
               methodNode.instructions.insertBefore(
                   insnNode,
