@@ -150,6 +150,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogLevelCheckbox;
   private JCheckBox generalPanelLogTimestampsCheckbox;
   private JCheckBox generalPanelLogForceLevelCheckbox;
+  private JCheckBox generalPanelPrefersXdgOpenCheckbox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
   private JCheckBox generalPanelCommandPatchQuestCheckbox;
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
@@ -169,6 +170,8 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelPatchGenderCheckbox;
+  private JCheckBox generalPanelPatchHbar512LastPixelCheckbox;
+  private JCheckBox generalPanelPatchWrenchMenuSpacingCheckbox;
   private JCheckBox generalPanelDebugModeCheckbox;
   private JCheckBox generalPanelExceptionHandlerCheckbox;
   private JLabel generalPanelNamePatchModeDesc;
@@ -182,6 +185,9 @@ public class ConfigWindow {
   private JCheckBox overlayPanelInvCountCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
+  private JCheckBox overlayPanelWikiLookupOnMagicBookCheckbox;
+  private JCheckBox overlayPanelWikiLookupOnHbarCheckbox;
+  private JCheckBox overlayPanelRemoveReportAbuseButtonHbarCheckbox;
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
@@ -746,6 +752,11 @@ public class ConfigWindow {
     generalPanelExceptionHandlerCheckbox.setToolTipText(
         "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
 
+    generalPanelPrefersXdgOpenCheckbox =
+        addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
+    generalPanelPrefersXdgOpenCheckbox.setToolTipText(
+        "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
@@ -885,9 +896,20 @@ public class ConfigWindow {
 
     generalPanelPatchGenderCheckbox =
         addCheckbox(
-            "Correct gender to body type in appearance screen (Requires restart)", generalPanel);
+            "Correct \"Gender\" to \"Body Type\" on the appearance screen (Requires restart)",
+            generalPanel);
     generalPanelPatchGenderCheckbox.setToolTipText(
-        "When selected places body type instead of gender in the appearance screen");
+        "When selected, says \"Body Type\" instead of \"Gender\" on the character creation/appearance screen");
+
+    generalPanelPatchWrenchMenuSpacingCheckbox =
+        addCheckbox("Fix 5 pixel vertical spacing bug in wrench menu", generalPanel);
+    generalPanelPatchWrenchMenuSpacingCheckbox.setToolTipText(
+        "When the \"Security settings\" section was removed from the wrench menu, Jagex also deleted 5 pixels of vertical space needed to properly align the next section.");
+
+    generalPanelPatchHbar512LastPixelCheckbox =
+        addCheckbox("Fix bottom bar's last pixel at 512 width", generalPanel);
+    generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
+        "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
 
     /*
      * Overlays tab
@@ -941,6 +963,23 @@ public class ConfigWindow {
         addCheckbox(
             "Also display + indicators over the in-game buttons", overlayPanelRscPlusButtonsPanel);
     overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
+
+    overlayPanelWikiLookupOnMagicBookCheckbox =
+        addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
+    overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
+        "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelWikiLookupOnHbarCheckbox =
+        addCheckbox(
+            "Search the RSC Wiki with a button in the bottom blue bar (replaces Report Abuse button at low width)",
+            overlayPanel);
+    overlayPanelWikiLookupOnHbarCheckbox.setToolTipText(
+        "Click the button on the bottom bar, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox =
+        addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox.setToolTipText(
+        "mudclient149 added the Report Abuse button. You will still be able to report players with right click menu if this option is enabled.");
 
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
@@ -1391,10 +1430,10 @@ public class ConfigWindow {
         "Highlighted items can be configured in the Overlays tab");
 
     JLabel highlightedItemsSuggestionJLabel =
-      new JLabel(
-        "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-          + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
-          + "</p></html>");
+        new JLabel(
+            "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
+                + "</p></html>");
     notificationPanel.add(highlightedItemsSuggestionJLabel);
     highlightedItemsSuggestionJLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
 
@@ -1570,7 +1609,7 @@ public class ConfigWindow {
     // consider using ALT instead.
 
     addKeybindCategory(keybindContainerPanel, "General");
-    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_X);
+    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_SPACE);
     addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
@@ -1734,14 +1773,26 @@ public class ConfigWindow {
         keybindContainerPanel,
         "Toggle time until health regen",
         "toggle_health_regen_timer",
-        KeyModifier.NONE,
-        -1);
+        KeyModifier.CTRL,
+        KeyEvent.VK_X);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle debug mode",
         "toggle_debug",
         KeyModifier.CTRL,
         KeyEvent.VK_D);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle Wiki Hbar Button",
+        "toggle_wiki_hbar_button",
+        KeyModifier.ALT,
+        KeyEvent.VK_W);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle report abuse button",
+        "toggle_report_abuse_button",
+        KeyModifier.ALT,
+        KeyEvent.VK_R);
 
     addKeybindCategory(keybindContainerPanel, "Streaming & Privacy");
     addKeybindSet(
@@ -1834,6 +1885,36 @@ public class ConfigWindow {
         "world_5",
         KeyModifier.CTRL,
         KeyEvent.VK_5);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 6 at login screen",
+        "world_6",
+        KeyModifier.CTRL,
+        KeyEvent.VK_6);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 7 at login screen",
+        "world_7",
+        KeyModifier.CTRL,
+        KeyEvent.VK_7);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 8 at login screen",
+        "world_8",
+        KeyModifier.CTRL,
+        KeyEvent.VK_8);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 9 at login screen",
+        "world_9",
+        KeyModifier.CTRL,
+        KeyEvent.VK_9);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Switch to world 10 at login screen",
+        "world_0",
+        KeyModifier.CTRL,
+        KeyEvent.VK_0);
 
     keybindContainerContainerPanel.add(keybindContainerPanel, gbl_constraints);
     keybindPanel.add(keybindContainerContainerPanel, con);
@@ -2451,6 +2532,12 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
+    generalPanelPatchHbar512LastPixelCheckbox.setSelected(
+        Settings.PATCH_HBAR_512_LAST_PIXEL.get(Settings.currentProfile));
+    generalPanelPatchWrenchMenuSpacingCheckbox.setSelected(
+        Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile));
+    generalPanelPrefersXdgOpenCheckbox.setSelected(
+        Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile));
 
     // Sets the text associated with the name patch slider.
     switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -2490,6 +2577,12 @@ public class ConfigWindow {
     overlayPanelRscPlusButtonsFunctionalCheckbox.setSelected(
         Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
             || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
+    overlayPanelWikiLookupOnMagicBookCheckbox.setSelected(
+        Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile));
+    overlayPanelWikiLookupOnHbarCheckbox.setSelected(
+        Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile));
+    overlayPanelRemoveReportAbuseButtonHbarCheckbox.setSelected(
+        Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile));
     overlayPanelPositionCheckbox.setSelected(
         Settings.SHOW_PLAYER_POSITION.get(Settings.currentProfile));
     overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
@@ -2685,6 +2778,9 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelLogForceTimestampsCheckbox.isSelected());
     Settings.LOG_FORCE_LEVEL.put(
         Settings.currentProfile, generalPanelLogForceLevelCheckbox.isSelected());
+    Settings.PREFERS_XDG_OPEN.put(
+        Settings.currentProfile, generalPanelPrefersXdgOpenCheckbox.isSelected());
+
     Settings.COMMAND_PATCH_DISK.put(
         Settings.currentProfile, generalPanelCommandPatchDiskOfReturningCheckbox.isSelected());
     Settings.COMMAND_PATCH_EDIBLE_RARES.put(
@@ -2719,6 +2815,10 @@ public class ConfigWindow {
         ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
     Settings.PATCH_GENDER.put(
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
+    Settings.PATCH_HBAR_512_LAST_PIXEL.put(
+        Settings.currentProfile, generalPanelPatchHbar512LastPixelCheckbox.isSelected());
+    Settings.PATCH_WRENCH_MENU_SPACING.put(
+        Settings.currentProfile, generalPanelPatchWrenchMenuSpacingCheckbox.isSelected());
 
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
@@ -2737,6 +2837,12 @@ public class ConfigWindow {
         Settings.currentProfile,
         overlayPanelRscPlusButtonsFunctionalCheckbox.isSelected()
             || overlayPanelRscPlusButtonsCheckbox.isSelected());
+    Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.put(
+        Settings.currentProfile, overlayPanelWikiLookupOnMagicBookCheckbox.isSelected());
+    Settings.WIKI_LOOKUP_ON_HBAR.put(
+        Settings.currentProfile, overlayPanelWikiLookupOnHbarCheckbox.isSelected());
+    Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        Settings.currentProfile, overlayPanelRemoveReportAbuseButtonHbarCheckbox.isSelected());
     Settings.SHOW_PLAYER_POSITION.put(
         Settings.currentProfile, overlayPanelPositionCheckbox.isSelected());
     Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());

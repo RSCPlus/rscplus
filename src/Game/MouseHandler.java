@@ -19,6 +19,7 @@
 package Game;
 
 import Client.Settings;
+import Client.WikiURL;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -67,7 +68,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
         || inBounds(Renderer.nextBounds)
         || inBounds(Renderer.queueBounds)
         || inBounds(Renderer.stopBounds)
-        || Bank.shouldConsume();
+        || Bank.shouldConsume()
+        || WikiURL.shouldConsume();
   }
 
   @Override

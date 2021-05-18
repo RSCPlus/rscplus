@@ -95,6 +95,7 @@ public class Reflection {
   public static Method drawLineHoriz = null;
   public static Method drawLineVert = null;
   public static Method drawSprite = null;
+  public static Method parseSprite = null;
 
   public static Method newPacket = null;
   public static Method getUnsignedByte = null;
@@ -185,6 +186,7 @@ public class Reflection {
   private static final String DRAWLINEHORIZ = "final void ua.b(int,int,int,int,byte)";
   private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
   private static final String DRAWSPRITE = "final void ua.b(int,int,int,int)";
+  private static final String PARSESPRITE = "final void ua.a(int,int,byte[],int,byte[])";
   private static final String SHOW_INPUT_POPUP =
       "private final void client.a(java.lang.String[],int,int,boolean)";
 
@@ -631,6 +633,10 @@ public class Reflection {
           drawSprite = method;
           Logger.Info("Found drawSprite");
         }
+        if (method.toGenericString().equals(PARSESPRITE)) {
+          parseSprite = method;
+          Logger.Info("Found parseSprite");
+        }
       }
 
       // Character
@@ -806,6 +812,7 @@ public class Reflection {
       if (drawLineHoriz != null) drawLineHoriz.setAccessible(true);
       if (drawLineVert != null) drawLineVert.setAccessible(true);
       if (drawSprite != null) drawSprite.setAccessible(true);
+      if (parseSprite != null) parseSprite.setAccessible(true);
       if (stream != null) stream.setAccessible(true);
       if (newPacket != null) newPacket.setAccessible(true);
       if (getUnsignedByte != null) getUnsignedByte.setAccessible(true);

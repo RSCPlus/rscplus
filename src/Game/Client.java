@@ -70,7 +70,9 @@ public class Client {
       new LinkedHashMap<String, LinkedList<String>>();
 
   public static List<NPC> npc_list = new ArrayList<>();
+  public static List<NPC> npc_list_retained = new ArrayList<>();
   public static List<Item> item_list = new ArrayList<>();
+  public static List<Item> item_list_retained = new ArrayList<>();
 
   public static final int SKILL_ATTACK = 0;
   public static final int SKILL_DEFENSE = 1;
@@ -134,6 +136,9 @@ public class Client {
   public static final int POPUP_CANCEL_RECOVERY = 10;
   public static final int POPUP_BANK_SEARCH = 11;
 
+  public static final int WRENCH_ALIGNMENT_FIX = 5;
+  public static final int WRENCH_ALIGNMENT_NO_FIX = 0;
+
   public static int max_inventory;
   public static int inventory_count;
   public static long magic_timer = 0L;
@@ -194,8 +199,6 @@ public class Client {
   public static String lastpm_username = null;
   public static String modal_text;
   public static String modal_enteredText;
-
-  public static String mouseText = "";
 
   public static int login_screen;
   public static String username_login;
@@ -277,6 +280,9 @@ public class Client {
   public static BigInteger exponent;
   public static int maxRetries;
   public static byte[] fontData;
+  public static byte[] indexData;
+  public static byte[] hbarOrigData;
+  public static byte[] hbarRetroData;
   public static String lastServerMessage = "";
   public static int[] inputFilterCharFontAddr;
 
@@ -388,6 +394,8 @@ public class Client {
   public static boolean showRecoveryQuestions;
   public static boolean showContactDetails;
 
+  public static boolean firstTimeRunningRSCPlus = false;
+
   public static int mouse_click;
   public static boolean singleButtonMode;
   public static boolean firstTime = true;
@@ -408,6 +416,8 @@ public class Client {
   public static boolean worldVeterans;
   public static Object soundSub = null;
   public static Object gameContainer = null;
+
+  public static boolean usingRetroTabs = false;
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -571,6 +581,7 @@ public class Client {
     init_login();
 
     init_extra();
+    init_chat_tab_assets();
 
     // check if "Gender" of appearance panel should be patched
     // first is of the string to "Body" then in
@@ -581,6 +592,10 @@ public class Client {
   }
 
   public static boolean skipToLogin() {
+    if (firstTimeRunningRSCPlus) {
+      return false;
+    }
+
     boolean skipToLogin = false;
 
     if (Settings.noWorldsConfigured
@@ -598,6 +613,18 @@ public class Client {
     }
 
     return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+
+  /**
+   * Decides if the text of "to change your contact details, etc" should be moved down to make it
+   * well aligned
+   *
+   * @return the needed alignment or none
+   */
+  public static int wrenchFixHook() {
+    return Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile)
+        ? WRENCH_ALIGNMENT_FIX
+        : WRENCH_ALIGNMENT_NO_FIX;
   }
 
   /**
@@ -640,6 +667,26 @@ public class Client {
       }
 
       inputFilterCharFontAddr[code] = index * 9;
+    }
+  }
+
+  public static void init_chat_tab_assets() {
+    InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2_retro_compat.dat");
+    try {
+      hbarRetroData = new byte[is.available()];
+      is.read(hbarRetroData);
+    } catch (IOException e) {
+      Logger.Warn("Could not load old hbar2 data, will not be able to draw old chat tabs");
+      hbarRetroData = null;
+    }
+
+    is = Launcher.getResourceAsStream("/assets/hbar/hbar2_orig.dat");
+    try {
+      hbarOrigData = new byte[is.available()];
+      is.read(hbarOrigData);
+    } catch (IOException e) {
+      Logger.Warn("Could not load hbar2 data, will not be able to go back to the modern chat tabs");
+      hbarOrigData = null;
     }
   }
 
@@ -899,13 +946,11 @@ public class Client {
   }
 
   public static void init_game() {
-    // Reset values to make the client more deterministic
-    // This helps out the replay mode to have matching output from the time it was recorded
     Camera.init();
     combat_style = Settings.COMBAT_STYLE.get(Settings.currentProfile);
     state = STATE_GAME;
-    bank_active_page = 0;
-    combat_timer = 0;
+    // bank_active_page = 0; // TODO: config option? don't think this is very important.
+    // combat_timer = 0;
   }
 
   public static void login_hook() {
@@ -1016,12 +1061,12 @@ public class Client {
    * @param tooltipMessage - the message in raw color format
    */
   public static String mouse_action_hook(String tooltipMessage) {
-    if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)) {
-      mouseText = tooltipMessage;
+    MouseText.mouseText = tooltipMessage;
+    MouseText.regenerateCleanedMouseTexts();
 
-      // Remove top-left action text in extended mode
-      if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) return "";
-    }
+    // Remove top-left action text in extended mode
+    if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)
+        && Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) return "";
 
     return tooltipMessage;
   }
@@ -1987,9 +2032,19 @@ public class Client {
     }
   }
 
-  public static String appendDetailsHook(int id, int dir, int x, int y) {
+  public static String appendDetailsHook(int id, int dir, int x, int y, int type) {
     int fullX = x + regionX;
     int fullY = y + regionY;
+    MouseText.lastObjectId = id;
+
+    // TODO:
+    // MouseText.lastObjectType = type;
+    if (type == dir) {
+      MouseText.lastObjectType = MouseText.BOUNDARY;
+    } else if (type == y) {
+      MouseText.lastObjectType = MouseText.SCENERY;
+    }
+
     if (Settings.TRACE_OBJECT_INFO.get(Settings.currentProfile)) {
       return " @gre@(" + id + ";" + dir + ";" + fullX + "," + fullY + ")";
     } else {
@@ -2139,6 +2194,105 @@ public class Client {
       Client.gameContainer = gameContainer;
     }
     return (Component) Client.gameContainer;
+  }
+
+  /**
+   * Clones over to memory index.dat
+   *
+   * @param data
+   */
+  public static void cloneMediaIndex(byte[] data) {
+    indexData = data.clone();
+  }
+
+  /**
+   * This method determines if the old chat tabs (without report abuse button) can/should be shown
+   * To hot load changes use checkChatTabs(). Requires asset file hbar2_retro_compat.dat
+   *
+   * @param init - to specify if should also initialize first time value
+   * @return true when wanting to display the old chat tabs.
+   */
+  public static boolean drawOldChatTabs(boolean init) {
+    boolean shouldDraw =
+        Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+            && hbarRetroData != null;
+    if (init) {
+      usingRetroTabs = shouldDraw;
+    }
+    return shouldDraw;
+  }
+
+  /**
+   * This method returns over the old chat tabs data array. Checked at mudclient's loadMedia()
+   * Requires asset file hbar2_retro_compat.dat
+   *
+   * @return
+   */
+  public static byte[] readDataOldChatTabs() {
+    return hbarRetroData;
+  }
+
+  /**
+   * This method checks if the hbar2 file should be changed (per settings) before rendering the chat
+   * tabs
+   */
+  public static void checkChatTabs() {
+    boolean shouldDrawOldTabs = drawOldChatTabs(false);
+    if (!usingRetroTabs && shouldDrawOldTabs) {
+      try {
+        Reflection.parseSprite.invoke(
+            Renderer.instance,
+            Renderer.sprite_media + 23,
+            1,
+            Client.hbarRetroData,
+            104,
+            Client.indexData);
+        usingRetroTabs = true;
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      }
+    } else if (usingRetroTabs && !shouldDrawOldTabs && hbarOrigData != null) {
+      try {
+        Reflection.parseSprite.invoke(
+            Renderer.instance,
+            Renderer.sprite_media + 23,
+            1,
+            Client.hbarOrigData,
+            104,
+            Client.indexData);
+        usingRetroTabs = false;
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      }
+    }
+  }
+
+  /**
+   * This method skips drawing original chat tabs to make room to display alternative one. PREFER
+   * THE USE OF drawOldChatTabs() IF JUST WANTING TO HAVE OVER PRE-REPORT ABUSE TABS
+   *
+   * @return true if alternative chat tabs have already have been displayed
+   */
+  public static boolean displayAltTabsHook() {
+    return false;
+  }
+
+  /**
+   * This method hides the report abuse text on chat tabs
+   *
+   * @return true if something else has been drawn or left empty
+   */
+  public static boolean hideReportAbuseHook() {
+    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile);
+  }
+
+  /**
+   * This method allows client to skip having default report abuse tab click behavior and instead
+   * have some custom one defined
+   *
+   * @return true when it is desired to not have the default report abuse tab click behavior
+   */
+  public static boolean skipActionReportAbuseTabHook() {
+    return Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || wikiLookupReplacesReportAbuse();
   }
 
   /**
@@ -2927,6 +3081,24 @@ public class Client {
 
   public static Double getLastXpGain(int skill) {
     return lastXpGain.get(xpUsername)[skill][LAST_XP_GAIN];
+  }
+
+  public static boolean wikiLookupReplacesReportAbuse() {
+    if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+      if (Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)) {
+        return true;
+      }
+      // both wiki lookup and report abuse button are enabled
+      // want to make room for hp/prayer/fatigue overlay if possible
+      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
+        // there is a 90 pixel region where HP/Prayer/Fatigue overlay can't be drawn, but both
+        // Report Abuse & Wiki lookup can
+        return (Renderer.width < 900 && Renderer.width >= 704) || Renderer.width < 512 + 90 + 12;
+      } else {
+        return Renderer.width < 512 + 90 + 12;
+      }
+    }
+    return false;
   }
 }
 

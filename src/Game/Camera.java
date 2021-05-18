@@ -56,10 +56,12 @@ public class Camera {
   }
 
   public static void init() {
-    zoom = 750;
-    rotation = 126;
-    delta_zoom = (float) zoom;
-    delta_rotation = (float) rotation;
+    if (Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) {
+      zoom = 750;
+      delta_zoom = (float) zoom;
+    }
+    // rotation = 126;
+    // delta_rotation = (float) rotation;
     setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     setFoV(Settings.FOV.get(Settings.currentProfile));
   }

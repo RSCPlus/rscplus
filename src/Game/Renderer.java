@@ -24,6 +24,7 @@ import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.Settings;
 import Client.Util;
+import Client.WikiURL;
 import Client.WorldMapWindow;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -88,8 +89,11 @@ public class Renderer {
 
   public static Image image_border;
   public static Image image_bar_frame;
+  public static Image image_bar_frame_short;
   public static Image image_cursor;
   public static Image image_highlighted_item;
+  public static Image image_wiki_hbar_inactive;
+  public static Image image_wiki_hbar_active;
   private static BufferedImage game_image;
 
   private static Dimension new_size = new Dimension(0, 0);
@@ -155,8 +159,13 @@ public class Renderer {
 
     // Load images
     try {
-      image_border = ImageIO.read(Launcher.getResource("/assets/border.png"));
-      image_bar_frame = ImageIO.read(Launcher.getResource("/assets/bar.png"));
+      image_border = ImageIO.read(Launcher.getResource("/assets/hbar/border.png"));
+      image_bar_frame = ImageIO.read(Launcher.getResource("/assets/hbar/bar.png"));
+      image_bar_frame_short = ImageIO.read(Launcher.getResource("/assets/hbar/bar_short.png"));
+      image_wiki_hbar_inactive =
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive.png"));
+      image_wiki_hbar_active =
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active.png"));
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
     } catch (Exception e) {
@@ -230,7 +239,8 @@ public class Renderer {
     g2.setFont(font_main);
 
     g2.drawImage(image, 0, 0, null);
-    g2.drawImage(image_border, 512, height - 13, width - 512, 13, null);
+    int startingPixel = Settings.PATCH_HBAR_512_LAST_PIXEL.get(Settings.currentProfile) ? 511 : 512;
+    g2.drawImage(image_border, startingPixel, height - 13, width - startingPixel, 13, null);
 
     // In-game UI
     if (Client.state == Client.STATE_GAME) {
@@ -268,11 +278,12 @@ public class Renderer {
           if (npc.type == NPC.TYPE_PLAYER) {
             color = color_fatigue;
 
-            if (Client.isFriend(npc.name)
-                && (Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile)
-                    || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
+            if (Client.isFriend(npc.name)) {
               color = color_hp;
-              showName = true;
+              if ((Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile)
+                  || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
+                showName = true;
+              }
             } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
               showName = true;
             }
@@ -335,8 +346,7 @@ public class Renderer {
             Settings.currentProfile)) { // Don't sort if we aren't displaying any item names anyway
           try {
             // Keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of
-            // randomly
-            // changing places each frame
+            // randomly changing places each frame
             Collections.sort(Client.item_list, new ItemComparator());
           } catch (Exception e) {
             // Sometimes Java helpfully complains that the sorting method violates its general
@@ -417,6 +427,7 @@ public class Renderer {
       }
 
       // Clear item list for next frame
+      Client.item_list_retained = new ArrayList<Item>(Client.item_list);
       Client.item_list.clear();
       last_item = null;
 
@@ -507,7 +518,7 @@ public class Renderer {
       }
 
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
-        if (width < 800) {
+        if (!roomInHbarForHPPrayerFatigueOverlay()) {
           if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
             setAlpha(g2, alphaHP);
             drawShadowText(
@@ -540,17 +551,19 @@ public class Renderer {
             y += 16;
           }
         } else {
-          int barSize = 4 + image_bar_frame.getWidth(null);
-          int x2 = width - (4 + barSize);
-          int y2 = height - image_bar_frame.getHeight(null);
+          boolean fullSizeBar = useFullSizeHPPrayerFatigueBars();
+          int barPadding = fullSizeBar ? 4 : 3;
+          Image used_bar_frame = fullSizeBar ? image_bar_frame : image_bar_frame_short;
+          int barSize = barPadding + used_bar_frame.getWidth(null);
+          int x2 = width - (barPadding + barSize);
+          int y2 = height - used_bar_frame.getHeight(null);
 
-          drawBar(
-              g2, image_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
+          drawBar(g2, used_bar_frame, x2, y2, colorFatigue, alphaFatigue, Client.getFatigue(), 100);
           x2 -= barSize;
 
           drawBar(
               g2,
-              image_bar_frame,
+              used_bar_frame,
               x2,
               y2,
               colorPrayer,
@@ -561,7 +574,7 @@ public class Renderer {
 
           drawBar(
               g2,
-              image_bar_frame,
+              used_bar_frame,
               x2,
               y2,
               colorHP,
@@ -657,6 +670,7 @@ public class Renderer {
       }
 
       // Clear npc list for the next frame
+      Client.npc_list_retained = new ArrayList<NPC>(Client.npc_list);
       Client.npc_list.clear();
 
       // render XP bar/drop
@@ -710,6 +724,57 @@ public class Renderer {
             Renderer.color_low,
             true);
         setAlpha(g2, 1.0f);
+      }
+
+      // RSC Wiki integration
+      if (WikiURL.nextClickIsLookup && MouseHandler.mouseClicked) {
+        if (MouseHandler.rightClick) {
+          WikiURL.nextClickIsLookup = false;
+          Client.displayMessage("Cancelled lookup.", Client.CHAT_NONE);
+        } else {
+          if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
+            if (!MouseText.isPlayer) {
+              String wikiURL = WikiURL.getURL();
+              if (!wikiURL.equals("INVALID")) {
+                WikiURL.lastLookupTime = System.currentTimeMillis();
+                Client.displayMessage(
+                    "@whi@Looking up @gre@" + MouseText.name + "@whi@ on the wiki!",
+                    Client.CHAT_NONE);
+                Util.openLinkInBrowser(wikiURL);
+                WikiURL.nextClickIsLookup = false;
+              }
+            } else {
+              Client.displayMessage(
+                  "@lre@Players cannot be looked up on the wiki, try again.", Client.CHAT_NONE);
+            }
+          } else {
+            Client.displayMessage(
+                String.format(
+                    "@lre@Please wait %1d seconds between wiki queries",
+                    WikiURL.cooldownTimer / 1000),
+                Client.CHAT_NONE);
+          }
+        }
+      }
+
+      if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+        int xCoord = Client.wikiLookupReplacesReportAbuse() ? 410 : 410 + 90 + 12;
+        int yCoord = height - 16;
+        // Handle replay play selection click
+        if (MouseHandler.x >= xCoord + 3 // + 3 for hbar shadow included in image
+            && MouseHandler.x <= xCoord + 3 + 90
+            && MouseHandler.y >= height - 16
+            && MouseHandler.y <= height
+            && MouseHandler.mouseClicked) {
+          Client.displayMessage(
+              "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+          WikiURL.nextClickIsLookup = true;
+        }
+        if (WikiURL.nextClickIsLookup) {
+          g2.drawImage(image_wiki_hbar_active, xCoord, yCoord, 96, 15, null);
+        } else {
+          g2.drawImage(image_wiki_hbar_inactive, xCoord, yCoord, 96, 15, null);
+        }
       }
 
       // Interface rsc+ buttons
@@ -768,6 +833,37 @@ public class Renderer {
               && MouseHandler.mouseClicked) {
 
             Launcher.getConfigWindow().showConfigWindow();
+          }
+        }
+
+        // wiki button on magic book (Probably a bad idea due to misclicks)
+        if (Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile)) {
+          mapButtonBounds = new Rectangle(width - 68 - 66, 3, 32, 32);
+          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+            if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+              g2.setColor(Renderer.color_text);
+              g2.drawLine(
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1,
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1 + 6);
+              g2.drawLine(
+                  mapButtonBounds.x + 1,
+                  mapButtonBounds.y + 4,
+                  mapButtonBounds.x + 7,
+                  mapButtonBounds.y + 4);
+            }
+
+            // Handle replay play selection click
+            if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+              Client.displayMessage(
+                  "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+              WikiURL.nextClickIsLookup = true;
+            }
           }
         }
       }
@@ -939,7 +1035,7 @@ public class Renderer {
         y += 16;
         drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
         y += 16;
-        drawShadowText(g2, "Mouse Text: " + Client.mouseText, x, y, color_text, false);
+        drawShadowText(g2, "Mouse Text: " + MouseText.mouseText, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
         y += 16;
@@ -1015,44 +1111,16 @@ public class Renderer {
           && !Client.isInterfaceOpen()
           && !Client.show_questionmenu
           && Client.is_hover) {
-        String cleanText = Client.mouseText;
-        String extraOptions = "";
         final int extraOptionsOffsetX = 8;
         final int extraOptionsOffsetY = 12;
-        int indexExtraOptions = cleanText.indexOf('/');
-
-        String colorlessText = cleanText;
-
-        // Remove extra options text
-        if (indexExtraOptions != -1) cleanText = cleanText.substring(0, indexExtraOptions).trim();
-
-        // Remove color codes from string
-        for (int i = 0; i < colorlessText.length(); i++) {
-          if (colorlessText.charAt(i) == '@') {
-            try {
-              if (colorlessText.charAt(i + 4) == '@')
-                colorlessText = colorlessText.substring(0, i) + colorlessText.substring(i + 5);
-            } catch (Exception e) {
-            }
-          }
-        }
-
-        // Let's grab the extra options
-        indexExtraOptions = colorlessText.indexOf('/');
-        if (indexExtraOptions != -1) {
-          extraOptions = colorlessText.substring(indexExtraOptions + 1).trim();
-          colorlessText = colorlessText.substring(0, indexExtraOptions).trim();
-        }
-
-        if (extraOptions.length() > 0) extraOptions = "(" + extraOptions + ")";
 
         x = MouseHandler.x + 16;
         y = MouseHandler.y + 28;
 
         // Dont allow text to go off the screen
-        Dimension bounds = getStringBounds(g2, colorlessText);
-        Dimension extraBounds = getStringBounds(g2, extraOptions);
-        if (extraOptions.length() == 0) extraBounds.height = 0;
+        Dimension bounds = getStringBounds(g2, MouseText.colorlessText);
+        Dimension extraBounds = getStringBounds(g2, MouseText.extraOptions);
+        if (MouseText.extraOptions.length() == 0) extraBounds.height = 0;
 
         bounds.height += extraOptionsOffsetY;
         if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
@@ -1063,30 +1131,24 @@ public class Renderer {
         if (x + bounds.width > Renderer.width - 4) x -= (x + bounds.width) - (Renderer.width - 4);
         if (y + bounds.height > Renderer.height) y -= (y + bounds.height) - (Renderer.height);
 
-        indexExtraOptions = cleanText.indexOf(":");
-        if (indexExtraOptions != -1) {
-          String name = cleanText.substring(0, indexExtraOptions).trim();
-          String action = cleanText.substring(indexExtraOptions + 1).trim();
-          cleanText = action + " " + name;
-        }
-
         // Draw the final outcome
         if (Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
           setAlpha(g2, 0.65f);
           g2.setColor(color_shadow);
           g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
           setAlpha(g2, 1.0f);
-          drawColoredText(g2, cleanText, x, y);
+          drawColoredText(g2, MouseText.getMouseOverText(), x, y);
           x += extraOptionsOffsetX;
           y += extraOptionsOffsetY;
-          drawColoredText(g2, "@whi@" + extraOptions, x, y);
+          drawColoredText(g2, "@whi@" + MouseText.extraOptions, x, y);
         } else {
-          if (!cleanText.contains("Walk here") && !cleanText.contains("Choose a target")) {
+          if (!MouseText.getMouseOverText().contains("Walk here")
+              && !MouseText.getMouseOverText().contains("Choose a target")) {
             setAlpha(g2, 0.65f);
             g2.setColor(color_shadow);
             g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
             setAlpha(g2, 1.0f);
-            drawColoredText(g2, cleanText, x, y);
+            drawColoredText(g2, MouseText.getMouseOverText(), x, y);
           }
         }
       }
@@ -1792,6 +1854,24 @@ public class Renderer {
     MouseHandler.mouseClicked = false;
   }
 
+  private static boolean roomInHbarForHPPrayerFatigueOverlay() {
+    if (!Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || Client.wikiLookupReplacesReportAbuse()) {
+      return width >= 800 - 90 - 6; // 704
+    } else {
+      return width >= 800 - 112 - 90 - 3; // 595
+    }
+  }
+
+  private static boolean useFullSizeHPPrayerFatigueBars() {
+    if (!Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile)
+        || Client.wikiLookupReplacesReportAbuse()) {
+      return width >= 800;
+    } else {
+      return width >= 800 - 112;
+    }
+  }
+
   public static void drawBar(
       Graphics2D g, Image image, int x, int y, Color color, float alpha, int value, int total) {
     // Prevent divide by zero
@@ -1808,7 +1888,7 @@ public class Renderer {
     g.fillRect(x + 1, y, percent, image.getHeight(null));
     setAlpha(g, 1.0f);
 
-    g.drawImage(image_bar_frame, x, y, null);
+    g.drawImage(image, x, y, null);
     drawShadowText(
         g,
         value + "/" + total,

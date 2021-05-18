@@ -111,11 +111,14 @@ public class Settings {
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PATCH_WRENCH_MENU_SPACING = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> LOG_VERBOSITY = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_SHOW_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
@@ -127,6 +130,10 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> WIKI_LOOKUP_ON_MAGIC_BOOK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> WIKI_LOOKUP_ON_HBAR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> REMOVE_REPORT_ABUSE_BUTTON_HBAR =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -636,6 +643,28 @@ public class Settings {
     PATCH_GENDER.put("all", true);
     PATCH_GENDER.put("custom", getPropBoolean(props, "patch_gender", PATCH_GENDER.get("default")));
 
+    PATCH_WRENCH_MENU_SPACING.put("vanilla", false);
+    PATCH_WRENCH_MENU_SPACING.put("vanilla_resizable", false);
+    PATCH_WRENCH_MENU_SPACING.put("lite", true);
+    PATCH_WRENCH_MENU_SPACING.put("default", true);
+    PATCH_WRENCH_MENU_SPACING.put("heavy", true);
+    PATCH_WRENCH_MENU_SPACING.put("all", true);
+    PATCH_WRENCH_MENU_SPACING.put(
+        "custom",
+        getPropBoolean(
+            props, "patch_wrench_menu_spacing", PATCH_WRENCH_MENU_SPACING.get("default")));
+
+    PATCH_HBAR_512_LAST_PIXEL.put("vanilla", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("vanilla_resizable", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("lite", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("default", false);
+    PATCH_HBAR_512_LAST_PIXEL.put("heavy", true);
+    PATCH_HBAR_512_LAST_PIXEL.put("all", true);
+    PATCH_HBAR_512_LAST_PIXEL.put(
+        "custom",
+        getPropBoolean(
+            props, "patch_hbar_512_last_pixel", PATCH_HBAR_512_LAST_PIXEL.get("default")));
+
     LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("lite", Logger.Type.WARN.id);
@@ -680,6 +709,16 @@ public class Settings {
     LOG_FORCE_LEVEL.put("all", true);
     LOG_FORCE_LEVEL.put(
         "custom", getPropBoolean(props, "log_force_level", LOG_FORCE_LEVEL.get("default")));
+
+    Util.hasXdgOpen = Util.detectBinaryAvailable("xdg-open", "URL opening");
+    PREFERS_XDG_OPEN.put("vanilla", false);
+    PREFERS_XDG_OPEN.put("vanilla_resizable", false);
+    PREFERS_XDG_OPEN.put("lite", false);
+    PREFERS_XDG_OPEN.put("default", Util.hasXdgOpen);
+    PREFERS_XDG_OPEN.put("heavy", true);
+    PREFERS_XDG_OPEN.put("all", true);
+    PREFERS_XDG_OPEN.put(
+        "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
 
     //// overlays
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -758,6 +797,39 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "rscplus_buttons_functional", RSCPLUS_BUTTONS_FUNCTIONAL.get("default")));
+
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("vanilla", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("vanilla_resizable", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("lite", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("default", false);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("heavy", true);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put("all", true);
+    WIKI_LOOKUP_ON_MAGIC_BOOK.put(
+        "custom",
+        getPropBoolean(
+            props, "wiki_lookup_on_magic_book", WIKI_LOOKUP_ON_MAGIC_BOOK.get("default")));
+
+    WIKI_LOOKUP_ON_HBAR.put("vanilla", false);
+    WIKI_LOOKUP_ON_HBAR.put("vanilla_resizable", false);
+    WIKI_LOOKUP_ON_HBAR.put("lite", false);
+    WIKI_LOOKUP_ON_HBAR.put("default", true);
+    WIKI_LOOKUP_ON_HBAR.put("heavy", true);
+    WIKI_LOOKUP_ON_HBAR.put("all", true);
+    WIKI_LOOKUP_ON_HBAR.put(
+        "custom", getPropBoolean(props, "wiki_lookup_on_hbar", WIKI_LOOKUP_ON_HBAR.get("default")));
+
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("vanilla", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("vanilla_resizable", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("lite", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("default", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("heavy", false);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put("all", true);
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "remove_report_abuse_button_hbar",
+            REMOVE_REPORT_ABUSE_BUTTON_HBAR.get("default")));
 
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY.put("vanilla_resizable", false);
@@ -1834,11 +1906,16 @@ public class Settings {
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
+      props.setProperty(
+          "patch_hbar_512_last_pixel", Boolean.toString(PATCH_HBAR_512_LAST_PIXEL.get(preset)));
+      props.setProperty(
+          "patch_wrench_menu_spacing", Boolean.toString(PATCH_WRENCH_MENU_SPACING.get(preset)));
       props.setProperty("log_verbosity", Integer.toString(LOG_VERBOSITY.get(preset)));
       props.setProperty("log_show_timestamps", Boolean.toString(LOG_SHOW_TIMESTAMPS.get(preset)));
       props.setProperty("log_show_level", Boolean.toString(LOG_SHOW_LEVEL.get(preset)));
       props.setProperty("log_force_timestamps", Boolean.toString(LOG_FORCE_TIMESTAMPS.get(preset)));
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
+      props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
 
       //// overlays
       props.setProperty(
@@ -1853,6 +1930,12 @@ public class Settings {
       props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
       props.setProperty(
           "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
+      props.setProperty(
+          "wiki_lookup_on_magic_book", Boolean.toString(WIKI_LOOKUP_ON_MAGIC_BOOK.get(preset)));
+      props.setProperty("wiki_lookup_on_hbar", Boolean.toString(WIKI_LOOKUP_ON_HBAR.get(preset)));
+      props.setProperty(
+          "remove_report_abuse_button_hbar",
+          Boolean.toString(REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
@@ -2425,6 +2508,31 @@ public class Settings {
     save();
   }
 
+  public static void toggleWikiHbar() {
+    WIKI_LOOKUP_ON_HBAR.put(currentProfile, !WIKI_LOOKUP_ON_HBAR.get(currentProfile));
+
+    if (WIKI_LOOKUP_ON_HBAR.get(currentProfile)) {
+      Client.displayMessage("@cya@Wiki button in Hbar now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Wiki button in Hbar now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleReportAbuse() {
+    REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
+        currentProfile, !REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(currentProfile));
+
+    if (!REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(currentProfile)) {
+      Client.displayMessage("@cya@Report Abuse button is now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Report Abuse button is now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void setClientFoV(String fovValue) {
     try {
       FOV.put(currentProfile, Integer.parseInt(fovValue));
@@ -2670,6 +2778,27 @@ public class Settings {
         return true;
       case "world_5":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(5);
+        return true;
+      case "world_6":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(6);
+        return true;
+      case "world_7":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(7);
+        return true;
+      case "world_8":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(8);
+        return true;
+      case "world_9":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(9);
+        return true;
+      case "world_10":
+        if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(10);
+        return true;
+      case "toggle_report_abuse_button":
+        Settings.toggleReportAbuse();
+        return true;
+      case "toggle_wiki_hbar_button":
+        Settings.toggleWikiHbar();
         return true;
       case "stop":
       case "restart":
