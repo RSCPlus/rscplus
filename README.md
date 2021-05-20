@@ -6,8 +6,8 @@
 ## Download
 The latest release can be found [here](https://github.com/RSCPlus/rscplus/releases/latest).
 
-## Discord
-Join our Discord server ([Invite link](https://discord.gg/92gG87h))
+## Chat
+You can reach us on #rscplus at irc.libera.chat, or join our Discord server ([Invite link](https://discord.gg/92gG87h))
 
 ## Changes since RSC went offline
 
