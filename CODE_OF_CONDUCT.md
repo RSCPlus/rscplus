@@ -55,7 +55,7 @@ further defined and clarified by project maintainers.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at #rscplus on freenode, or via our discord server at https://discord.gg/92gG87h.
+reported by contacting the project team at #rscplus on irc.libera.chat, or via our discord server at https://discord.gg/92gG87h.
 All complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.
