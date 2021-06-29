@@ -22,12 +22,6 @@ import Client.Logger;
 import Client.NotificationsHandler;
 import Client.Settings;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLTimeoutException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +35,7 @@ public class Item {
   public static String[] item_name;
   public static String[] item_commands;
   public static List<Item> cool_items = new ArrayList<>();
+  private static int patch_last = 0;
 
   public static int[] groundItemX;
   public static int[] groundItemY;
@@ -72,85 +67,26 @@ public class Item {
 
   /** Patches item names as specified by {@link Settings#NAME_PATCH_TYPE}. */
   public static void patchItemNames() {
-    int namePatchType = Settings.NAME_PATCH_TYPE.get(Settings.currentProfile);
-    Connection c = null;
-
-    try {
-      Class.forName("org.sqlite.JDBC");
-
-      // Check if running from a jar so you know where to look for the database
-      if (new File("assets/itempatch.db").exists()) {
-        c = DriverManager.getConnection("jdbc:sqlite:assets/itempatch.db");
-      } else {
-        c = DriverManager.getConnection("jdbc:sqlite::resource:assets/itempatch.db");
-      }
-
-      c.setAutoCommit(false);
-      Logger.Info("Opened item name database successfully");
-
-      switch (namePatchType) {
-        case 1:
-          queryDatabaseAndPatchItem(
-              c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
-          break;
-        case 2:
-          queryDatabaseAndPatchItem(
-              c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
-          queryDatabaseAndPatchItem(
-              c,
-              "SELECT item_id, patched_name FROM patched_names_type1 WHERE patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type2);");
-          break;
-        case 3:
-          queryDatabaseAndPatchItem(
-              c, "SELECT item_id, patched_name FROM patched_names_type" + namePatchType + ";");
-          queryDatabaseAndPatchItem(
-              c,
-              "SELECT item_id, patched_name FROM patched_names_type1 WHERE patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type2) AND patched_names_type1.item_id NOT IN (SELECT item_id FROM patched_names_type3);");
-          queryDatabaseAndPatchItem(
-              c,
-              "SELECT item_id, patched_name FROM patched_names_type2 WHERE patched_names_type2.item_id NOT IN (SELECT item_id FROM patched_names_type3);");
-          break;
-        case 0:
-        default:
-          break;
-      }
-      c.close();
-
-    } catch (SQLTimeoutException e) {
-      e.printStackTrace();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Queries an opened database and patches the items and names it returns.
-   *
-   * @param c the connection with a specific database
-   * @param query a SQLite query statement
-   */
-  public static void queryDatabaseAndPatchItem(Connection c, String query) {
-    try {
-      Statement stmt = null;
-
-      stmt = c.createStatement();
-      ResultSet rs = stmt.executeQuery(query);
-
-      while (rs.next()) {
-        int itemID = rs.getInt("item_id");
-        String patchedName = rs.getString("patched_name");
-        item_name[itemID] = patchedName;
-      }
-
-      rs.close();
-      stmt.close();
-
-    } catch (SQLException e) {
-      Logger.Error("Error patching item names from database values.");
-      e.printStackTrace();
-    }
+		ItemNamePatch.init();
+		int namePatchType = Settings.NAME_PATCH_TYPE.get(Settings.currentProfile);
+		if (patch_last == namePatchType) {
+			return;
+		}
+		switch (namePatchType) {
+			case 0:
+				item_name = ItemNamePatch.item_name_original.clone();
+				break;
+			case 1:
+				item_name = ItemNamePatch.item_name_patch1.clone();
+				break;
+			case 2:
+				item_name = ItemNamePatch.item_name_patch2.clone();
+				break;
+			case 3:
+				item_name = ItemNamePatch.item_name_patch3.clone();
+				break;
+		}
+		patch_last = namePatchType;
   }
 
   /**
