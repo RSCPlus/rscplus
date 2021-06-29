@@ -18,10 +18,8 @@
  */
 package Game;
 
-import Client.Logger;
 import Client.NotificationsHandler;
 import Client.Settings;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +33,8 @@ public class Item {
   public static String[] item_name;
   public static String[] item_commands;
   public static List<Item> cool_items = new ArrayList<>();
-  private static int patch_last = 0;
+
+  private static int name_patch_last = 0;
 
   public static int[] groundItemX;
   public static int[] groundItemY;
@@ -67,26 +66,26 @@ public class Item {
 
   /** Patches item names as specified by {@link Settings#NAME_PATCH_TYPE}. */
   public static void patchItemNames() {
-		ItemNamePatch.init();
-		int namePatchType = Settings.NAME_PATCH_TYPE.get(Settings.currentProfile);
-		if (patch_last == namePatchType) {
-			return;
-		}
-		switch (namePatchType) {
-			case 0:
-				item_name = ItemNamePatch.item_name_original.clone();
-				break;
-			case 1:
-				item_name = ItemNamePatch.item_name_patch1.clone();
-				break;
-			case 2:
-				item_name = ItemNamePatch.item_name_patch2.clone();
-				break;
-			case 3:
-				item_name = ItemNamePatch.item_name_patch3.clone();
-				break;
-		}
-		patch_last = namePatchType;
+    int namePatchType = Settings.NAME_PATCH_TYPE.get(Settings.currentProfile);
+    if (name_patch_last == namePatchType) {
+      return;
+    }
+    ItemNamePatch.init();
+    switch (namePatchType) {
+      case 0:
+        item_name = ItemNamePatch.item_name_original.clone();
+        break;
+      case 1:
+        item_name = ItemNamePatch.item_name_patch1.clone();
+        break;
+      case 2:
+        item_name = ItemNamePatch.item_name_patch2.clone();
+        break;
+      case 3:
+        item_name = ItemNamePatch.item_name_patch3.clone();
+        break;
+    }
+    name_patch_last = namePatchType;
   }
 
   /**
