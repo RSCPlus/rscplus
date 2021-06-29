@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="lib/asm-5.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/asm-tree-5.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/asm-util-5.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.11.2.jar"/>
 	<classpathentry kind="lib" path="lib/jansi-1.18.jar"/>
 	<classpathentry kind="lib" path="lib/commons-compress-1.18.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
