@@ -4276,6 +4276,22 @@ public class JClassPatcher {
       if (methodNode.name.equals("a") && methodNode.desc.equals("(ILjava/lang/String;IIII)V")) {
         // method hook for drawstringCenter, reserved testing
       }
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(Z)V")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.ICONST_0 && start.getPrevious().getOpcode() == Opcodes.IINC ||
+              start.getOpcode() == Opcodes.ICONST_0 && start.getPrevious().getOpcode() == Opcodes.ILOAD) {
+            methodNode.instructions.insertBefore(
+                    start,
+                    new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getClearColor", "()I"));
+            start = start.getNext();
+            methodNode.instructions.remove(start.getPrevious());
+            continue;
+          }
+
+          start = start.getNext();
+        }
+      }
     }
   }
 

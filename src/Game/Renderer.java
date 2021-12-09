@@ -65,6 +65,9 @@ public class Renderer {
   public static int[] pixels;
   public static int sprite_media;
 
+  // Screen clear color, stored same way rsc stores colors
+  private static int clearColor = 0;
+
   public static int fps;
   public static float alpha_time;
   public static float delta_time;
@@ -132,6 +135,20 @@ public class Renderer {
   private static boolean lastInterlace = false;
 
   private static int bankResetTimer = 0;
+
+  public static int getClearColor()
+  {
+    // Login screen needs black background
+    if (Client.state == Client.STATE_LOGIN)
+      return 0;
+
+    return clearColor;
+  }
+
+  public static void setClearColor(int color)
+  {
+    clearColor = color;
+  }
 
   public static void init() {
     // patch copyright to match the year that jagex took down RSC
