@@ -505,6 +505,8 @@ public class JClassPatcher {
           methodNode, "client", "Xj", "Z", "Game/Client", "show_tradeconfirm", "Z", true, false);
       hookClassVariable(
           methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, true);
+      hookClassVariable(
+              methodNode, "client", "Kg", "Z", "Game/Client", "show_appearance", "Z", true, true);
 
       hookClassVariable(
           methodNode,

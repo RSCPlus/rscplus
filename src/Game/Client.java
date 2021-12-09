@@ -157,6 +157,7 @@ public class Client {
   public static boolean show_trade;
   public static boolean show_tradeconfirm;
   public static boolean show_welcome;
+  public static boolean show_appearance;
 
   public static boolean runReplayHook = false;
   public static boolean runReplayCloseHook = false;

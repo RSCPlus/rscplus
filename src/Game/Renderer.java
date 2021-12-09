@@ -142,6 +142,10 @@ public class Renderer {
     if (Client.state == Client.STATE_LOGIN)
       return 0;
 
+    // Character creation needs black background
+    if (Client.show_appearance)
+      return 0;
+
     return clearColor;
   }
 
