@@ -42,6 +42,9 @@ public class Camera {
   public static int distance3; // This one is divided onto something to do with fog (it's usually 1)
   public static int distance4; // This one seems to be fog distance
 
+  // This will offset the camera height
+  public static int offset_height = 0;
+
   public static float add_lookat_x;
   public static float add_lookat_y;
   public static int new_lookat_x;

@@ -4471,6 +4471,24 @@ public class JClassPatcher {
           }
         }
       }
+
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.PUTFIELD && start.getPrevious().getOpcode() == Opcodes.IADD) {
+            FieldInsnNode insnNode = (FieldInsnNode)start;
+            if (insnNode.name.equals("o")) {
+              methodNode.instructions.insertBefore(
+                      start,
+                      new FieldInsnNode(Opcodes.GETSTATIC, "Game/Camera", "offset_height", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.INEG));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
+            }
+          }
+
+          start = start.getNext();
+        }
+      }
     }
   }
 
