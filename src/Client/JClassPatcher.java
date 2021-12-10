@@ -4491,6 +4491,21 @@ public class JClassPatcher {
           start = start.getNext();
         }
       }
+
+      if (methodNode.name.equals("c") && methodNode.desc.equals("(I)V")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.IASTORE && start.getPrevious().getOpcode() == Opcodes.IADD &&
+              start.getPrevious().getPrevious().getOpcode() == Opcodes.IDIV) {
+            methodNode.instructions.insertBefore(
+                    start.getPrevious(),
+                    new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getFogColor", "(II)I"));
+            methodNode.instructions.remove(start.getPrevious());
+          }
+
+          start = start.getNext();
+        }
+      }
     }
   }
 

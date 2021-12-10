@@ -65,6 +65,9 @@ public class Renderer {
   public static int[] pixels;
   public static int sprite_media;
 
+  public static int rsc_color_skyoverworld = 0xFFCAC1AB;
+  public static int rsc_color_skyunderground = 0xFF1D150E;
+
   // Screen clear color, stored same way rsc stores colors
   private static int clearColor = 0;
 
@@ -135,6 +138,18 @@ public class Renderer {
   private static boolean lastInterlace = false;
 
   private static int bankResetTimer = 0;
+
+  public static int getFogColor(int attenuation, int val)
+  {
+    int clearColor = getClearColor();
+
+    // Return normal fog
+    if (clearColor == 0)
+        return val + attenuation;
+
+    // Disable fog for custom colors
+    return attenuation;
+  }
 
   public static int getClearColor()
   {
