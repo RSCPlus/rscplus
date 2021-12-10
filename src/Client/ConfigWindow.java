@@ -169,6 +169,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLimitFPSCheckbox;
   private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
+  private JCheckBox generalPanelRS2HDSkyCheckbox;
   private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelPatchHbar512LastPixelCheckbox;
   private JCheckBox generalPanelPatchWrenchMenuSpacingCheckbox;
@@ -616,6 +617,11 @@ public class ConfigWindow {
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
+
+    generalPanelRS2HDSkyCheckbox =
+            addCheckbox("Use RS2: HD Sky colors", generalPanel);
+    generalPanelRS2HDSkyCheckbox.setToolTipText(
+            "Uses sky colors from RS2: HD");
 
     JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
     generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
@@ -2528,6 +2534,8 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
+    generalPanelRS2HDSkyCheckbox.setSelected(
+            Settings.RS2HD_SKY.get(Settings.currentProfile));
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
@@ -2807,6 +2815,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
+    Settings.RS2HD_SKY.put(
+            Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.FPS_LIMIT_ENABLED.put(
         Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());

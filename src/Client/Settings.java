@@ -109,6 +109,7 @@ public class Settings {
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
@@ -634,6 +635,15 @@ public class Settings {
     AUTO_SCREENSHOT.put("all", true);
     AUTO_SCREENSHOT.put(
         "custom", getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
+
+    RS2HD_SKY.put("vanilla", false);
+    RS2HD_SKY.put("vanilla_resizable", false);
+    RS2HD_SKY.put("lite", false);
+    RS2HD_SKY.put("default", false);
+    RS2HD_SKY.put("heavy", true);
+    RS2HD_SKY.put("all", true);
+    RS2HD_SKY.put(
+            "custom", getPropBoolean(props, "rs2hd_sky", RS2HD_SKY.get("default")));
 
     PATCH_GENDER.put("vanilla", false);
     PATCH_GENDER.put("vanilla_resizable", false);
@@ -1904,6 +1914,7 @@ public class Settings {
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
+      props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
       props.setProperty(

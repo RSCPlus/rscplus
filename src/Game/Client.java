@@ -694,6 +694,11 @@ public class Client {
   public static boolean forceDisconnect = false;
   public static boolean forceReconnect = false;
 
+  public static boolean isUnderground()
+  {
+    return planeIndex == 3;
+  }
+
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
    *
@@ -715,6 +720,15 @@ public class Client {
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
+
+    if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
+      if (isUnderground())
+        Renderer.setClearColor(Renderer.rsc_color_skyunderground);
+      else
+        Renderer.setClearColor(Renderer.rsc_color_skyoverworld);
+    } else {
+      Renderer.setClearColor(0);
+    }
 
     Replay.update();
 
