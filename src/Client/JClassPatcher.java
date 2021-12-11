@@ -359,7 +359,7 @@ public class JClassPatcher {
 
       hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
-      hookClassVariable(methodNode, "lb", "Kb", "I", "Game/Camera", "pitch", "I", true, true);
+      hookClassVariable(methodNode, "lb", "Kb", "I", "Game/Camera", "pitch_internal", "I", true, true);
 
       hookStaticVariable(
           methodNode,
@@ -4515,7 +4515,7 @@ public class JClassPatcher {
 
       // Set camera routine
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
-        System.out.println("patching setCamera()");
+        Logger.Info("patching setCamera()");
 
         AbstractInsnNode findNode = methodNode.instructions.getLast();
         methodNode.instructions.insertBefore(
