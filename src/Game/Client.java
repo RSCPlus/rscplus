@@ -755,6 +755,10 @@ public class Client {
       Renderer.setClearColor(0);
     }
 
+    if (Settings.JOYSTICK_ENABLED.get(Settings.currentProfile)) {
+      JoystickHandler.poll();
+    }
+
     Replay.update();
 
     if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME.get(Settings.currentProfile)
@@ -1522,6 +1526,8 @@ public class Client {
         case "set_pitch":
           try {
             Camera.pitch_rscplus = Integer.parseInt(commandArray[1]);
+            if (Camera.pitch_rscplus < 0) Camera.pitch_rscplus = 0;
+            if (Camera.pitch_rscplus > 512) Camera.pitch_rscplus = 512;
           } catch (ArrayIndexOutOfBoundsException ex) {
             displayMessage(
                 "You must specify a number to set the pitch to. 112 is default.", CHAT_QUEST);

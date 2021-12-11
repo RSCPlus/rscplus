@@ -45,7 +45,7 @@ public class Camera {
   // This will offset the camera height
   public static int offset_height = 0;
 
-  public static int pitch;
+  public static int pitch_internal;
   public static float add_lookat_x;
   public static float add_lookat_y;
   public static int new_lookat_x;
@@ -56,6 +56,7 @@ public class Camera {
   public static float delta_rotation = 0.0f;
 
   public static int pitch_rscplus = 112;
+  public static boolean isUsing3DMouseControls = true;
 
   private Camera() {
     // Empty private constructor to prevent instantiation.
@@ -103,7 +104,7 @@ public class Camera {
       else addZoom(8 * 50 * delta_time);
     }
 
-    if (!KeyboardHandler.keyShift) {
+    if (!KeyboardHandler.keyShift && !isUsing3DMouseControls) {
       int tileX = ((int) add_lookat_x / 128) * 128;
       int tileY = ((int) add_lookat_y / 128) * 128;
       add_lookat_x = Util.lerp(add_lookat_x, tileX, 8.0f * delta_time);
@@ -122,9 +123,7 @@ public class Camera {
 
     // If the user changes modes, reset
     if (relative != Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)) {
-      add_lookat_x = 0;
-      add_lookat_y = 0;
-      relative = Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile);
+      resetCamera();
     }
 
     delta_lookat_x = new_lookat_x; // Util.lerp(delta_lookat_x, new_lookat_x, 8.0f * delta_time);
@@ -147,6 +146,14 @@ public class Camera {
     if (Settings.CAMERA_ROTATABLE.get(Settings.currentProfile)) auto_speed = 0;
   }
 
+  private static void resetCamera() {
+    add_lookat_x = 0;
+    add_lookat_y = 0;
+    relative = Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile);
+    resetPitch();
+    offset_height = 0;
+  }
+
   public static void resize() {
     if (Reflection.displayMessage == null || instance == null) return;
 
@@ -164,6 +171,7 @@ public class Camera {
     }
   }
 
+  // up or down
   public static void strafe(float speed) {
     if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
         || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
@@ -175,6 +183,7 @@ public class Camera {
     add_movement(xDiff * speed, yDiff * speed);
   }
 
+  // left or right
   public static void move(float speed) {
     if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
         || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
@@ -186,11 +195,22 @@ public class Camera {
     add_movement(xDiff * speed, yDiff * speed);
   }
 
+  public static void pitch(float speed) {
+    if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
+            || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+      return;
+    }
+    pitch_rscplus -= speed;
+    if (pitch_rscplus < 0) pitch_rscplus = 0;
+    if (pitch_rscplus > 512) pitch_rscplus = 512;
+  }
+
   public static void add_movement(float x, float y) {
     if (!Settings.CAMERA_MOVABLE_RELATIVE.get(Settings.currentProfile)
         && ((add_lookat_x == 0.0f && x != 0.0f) || (add_lookat_y == 0.0f && y != 0.0f))) {
       add_lookat_x = lookat_x;
       add_lookat_y = lookat_y;
+      if (isUsing3DMouseControls) offset_height = 200;
       Client.displayMessage("The camera is no longer following the player", Client.CHAT_NONE);
     }
 
@@ -240,6 +260,10 @@ public class Camera {
   public static void addZoom(float amount) {
     if (amount == 0 || !Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile)) return;
 
+    if (isUsing3DMouseControls) {
+      leave3DMouseControls();
+    }
+
     delta_zoom += amount;
     if (delta_zoom > 1238.0f) delta_zoom = 1238.0f;
     else if (delta_zoom < 262.0f) delta_zoom = 262.0f;
@@ -272,10 +296,58 @@ public class Camera {
   }
 
   public static void postSetCamera() {
-    Camera.pitch = pitch_rscplus;
+    Camera.pitch_internal = pitch_rscplus;
   }
 
   public static void resetPitch() {
-    Camera.pitch = 112;
+    Camera.pitch_rscplus = 112;
+  }
+
+  public static void handleJoystick(String inputName) {
+    float amount = JoystickHandler.joystickInputReports.get(inputName) / 50;
+    zoom = 0; // this is so that Z Rotation isn't displaced from the camera
+    isUsing3DMouseControls = true;
+    switch (inputName) {
+      case "X Axis":
+        if (KeyboardHandler.keyShift) {
+          move(amount / 2);
+        } else {
+          move(amount / 5);
+        }
+        break;
+      case "Y Axis":
+        if (KeyboardHandler.keyShift) {
+          strafe(amount / 2);
+        } else {
+          strafe(amount / 5);
+        }
+        break;
+      case "Z Axis":
+        offset_height -= JoystickHandler.joystickInputReports.get(inputName) / 10;
+        break;
+      case "X Rotation":
+        pitch(JoystickHandler.joystickInputReports.get(inputName) / 30);
+        break;
+      case "Y Rotation":
+        break;
+      case "Z Rotation":
+        addRotation(amount);
+        break;
+      case "Button 0":
+        if (JoystickHandler.joystickInputReports.get(inputName) == 1)
+        break;
+      case "Button 1":
+        if (JoystickHandler.joystickInputReports.get(inputName) == 1) {
+          leave3DMouseControls();
+        }
+        break;
+    }
+  }
+
+  private static void leave3DMouseControls() {
+    isUsing3DMouseControls = false;
+    init(); // resets zoom as well
+    resetCamera();
+    Client.displayMessage("The camera is now following the player", Client.CHAT_NONE);
   }
 }

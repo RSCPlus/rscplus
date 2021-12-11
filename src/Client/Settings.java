@@ -239,6 +239,9 @@ public class Settings {
   public static int WORLDS_TO_DISPLAY = 5;
   public static boolean noWorldsConfigured = true;
 
+  //// joystick
+  public static HashMap<String, Boolean> JOYSTICK_ENABLED = new HashMap<String, Boolean>();
+
   //// no gui
   public static HashMap<String, Integer> COMBAT_STYLE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> WORLD = new HashMap<String, Integer>();
@@ -1512,6 +1515,15 @@ public class Settings {
     //// world list
     initWorlds();
 
+    //// joystick
+    JOYSTICK_ENABLED.put("vanilla", false);
+    JOYSTICK_ENABLED.put("vanilla_resizable", false);
+    JOYSTICK_ENABLED.put("lite", false);
+    JOYSTICK_ENABLED.put("default", false);
+    JOYSTICK_ENABLED.put("heavy", false);
+    JOYSTICK_ENABLED.put("all", true);
+    JOYSTICK_ENABLED.put("custom", getPropBoolean(props, "joystick_enabled", JOYSTICK_ENABLED.get("default")));
+
     //// no gui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
     COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
@@ -1654,6 +1666,10 @@ public class Settings {
     Util.makeDirectory(Dir.SPEEDRUN);
     Dir.BANK = Dir.JAR + "/bank";
     Util.makeDirectory(Dir.BANK);
+    Dir.LIB = Dir.JAR + "/lib";
+    Util.makeDirectory(Dir.LIB);
+    Dir.JINPUTNATIVELIB = Dir.LIB + "/jinput-natives";
+    Util.makeDirectory(Dir.JINPUTNATIVELIB);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -2125,6 +2141,9 @@ public class Settings {
 
       //// world urls
       saveWorlds();
+
+      //// joystick
+      props.setProperty("joystick_enabled", Boolean.toString(JOYSTICK_ENABLED.get(preset)));
 
       //// presets
       props.setProperty("current_profile", currentProfile);
@@ -2749,6 +2768,8 @@ public class Settings {
     public static String WORLDS;
     public static String SPEEDRUN;
     public static String BANK;
+    public static String LIB;
+    public static String JINPUTNATIVELIB;
   }
 
   /**

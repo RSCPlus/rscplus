@@ -89,6 +89,7 @@ public class Game extends JFrame
 
     Reflection.Load();
     Renderer.init();
+    JoystickHandler.init();
 
     if (!Util.isMacOS() && Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
       Game.getInstance().resizeFrameWithContents();

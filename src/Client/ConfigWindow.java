@@ -25,6 +25,7 @@ import Game.Client;
 import Game.Game;
 import Game.Item;
 import Game.KeyboardHandler;
+import Game.JoystickHandler;
 import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -50,10 +51,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -302,6 +300,12 @@ public class ConfigWindow {
   private HashMap<Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
   private JPanel worldListPanel = new JPanel();
 
+  //// Joystick tab
+  private JCheckBox joystickPanelJoystickEnabledCheckbox;
+  private HashMap<String, JLabel> joystickInputJlabels = new LinkedHashMap<String, JLabel>();
+  private HashMap<String, JLabel> joystickInputValueJlabels = new HashMap<String, JLabel>();
+  private JPanel joystickPanel = new JPanel();
+
   public ConfigWindow() {
     try {
       // Set System L&F as a fall-back option.
@@ -333,6 +337,10 @@ public class ConfigWindow {
 
   public void hideConfigWindow() {
     frame.setVisible(false);
+  }
+
+  public boolean isShown() {
+    return frame.isVisible();
   }
 
   /** Initialize the contents of the frame. */
@@ -388,6 +396,7 @@ public class ConfigWindow {
     JScrollPane replayScrollPane = new JScrollPane();
     JScrollPane worldListScrollPane = new JScrollPane();
     JScrollPane authorsScrollPane = new JScrollPane();
+    JScrollPane joystickScrollPane = new JScrollPane();
 
     JPanel presetsPanel = new JPanel();
     JPanel generalPanel = new JPanel();
@@ -397,6 +406,7 @@ public class ConfigWindow {
     JPanel streamingPanel = new JPanel();
     JPanel keybindPanel = new JPanel();
     JPanel replayPanel = new JPanel();
+    joystickPanel = new JPanel();
     worldListPanel = new JPanel();
     JPanel authorsPanel = new JPanel();
 
@@ -412,6 +422,7 @@ public class ConfigWindow {
     tabbedPane.addTab("Keybinds", null, keybindScrollPane, null);
     tabbedPane.addTab("Replay", null, replayScrollPane, null);
     tabbedPane.addTab("World List", null, worldListScrollPane, null);
+    tabbedPane.addTab("Joystick", null, joystickScrollPane, null);
     tabbedPane.addTab("Authors", null, authorsScrollPane, null);
 
     presetsScrollPane.setViewportView(presetsPanel);
@@ -424,6 +435,7 @@ public class ConfigWindow {
     replayScrollPane.setViewportView(replayPanel);
     worldListScrollPane.setViewportView(worldListPanel);
     authorsScrollPane.setViewportView(authorsPanel);
+    joystickScrollPane.setViewportView(joystickPanel);
 
     // Adding padding for aesthetics
     navigationPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 10));
@@ -437,6 +449,7 @@ public class ConfigWindow {
     replayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     worldListPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     authorsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    joystickPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
     setScrollSpeed(presetsScrollPane, 20, 15);
     setScrollSpeed(generalScrollPane, 20, 15);
@@ -448,6 +461,7 @@ public class ConfigWindow {
     setScrollSpeed(replayScrollPane, 20, 15);
     setScrollSpeed(worldListScrollPane, 20, 15);
     setScrollSpeed(authorsScrollPane, 20, 15);
+    setScrollSpeed(joystickScrollPane, 20, 15);
 
     /*
      * Navigation buttons
@@ -2275,6 +2289,57 @@ public class ConfigWindow {
     thirdsPanel.add(bottomPane, c);
 
     authorsPanel.add(thirdsPanel);
+
+    // Joystick Tab
+
+    joystickPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+    joystickPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    joystickPanel.setLayout(new BoxLayout(joystickPanel, BoxLayout.Y_AXIS));
+
+    addSettingsHeader(joystickPanel, "Explanation");
+
+    JLabel joystickExplanation =
+            new JLabel(
+                    "<html><head><style>p{font-size:10px;}</style></head><p>"
+                            + "Currently, RSC+ is compatible with only the 3DConnexion Space Navigator 3D Mouse.<br/>"
+                            + "It is used to enable a 5 degree of freedom camera (roll left/right is omitted).<br/><br/>"
+                            + "This setting does not allow you to move the player with a joystick or perform in-game actions.<br/><br/>"
+                            + "If you do not have a 3DConnexion Space Navigator 3D Mouse, you should not enable this setting."
+                            + "</p><br/></html>");
+    joystickExplanation.setBorder(new EmptyBorder(7, 0, 0, 0));
+    joystickPanel.add(joystickExplanation);
+
+    addSettingsHeader(joystickPanel, "Joystick");
+    joystickPanelJoystickEnabledCheckbox = addCheckbox("Enable Joystick polling (Performance decreased if not using joystick)", joystickPanel);
+    joystickPanelJoystickEnabledCheckbox.setToolTipText(
+            "Enable Joystick polling once every frame");
+    joystickPanelJoystickEnabledCheckbox.setBorder(new EmptyBorder(7,0,7,0));
+
+
+    joystickInputJlabels.put("X Axis", new JLabel("X Axis"));
+    joystickInputJlabels.put("Y Axis", new JLabel("Y Axis"));
+    joystickInputJlabels.put("Z Axis", new JLabel("Z Axis"));
+    joystickInputJlabels.put("X Rotation", new JLabel("X Rotate"));
+    joystickInputJlabels.put("Y Rotation", new JLabel("Y Rotate"));
+    joystickInputJlabels.put("Z Rotation", new JLabel("Z Rotate"));
+    joystickInputJlabels.put("Button 0", new JLabel("Button 0"));
+    joystickInputJlabels.put("Button 1", new JLabel("Button 1"));
+
+    joystickInputValueJlabels.put("X Axis", new JLabel("No input"));
+    joystickInputValueJlabels.put("Y Axis", new JLabel("No input"));
+    joystickInputValueJlabels.put("Z Axis", new JLabel("No input"));
+    joystickInputValueJlabels.put("X Rotation", new JLabel("No input"));
+    joystickInputValueJlabels.put("Y Rotation", new JLabel("No input"));
+    joystickInputValueJlabels.put("Z Rotation", new JLabel("No input"));
+    joystickInputValueJlabels.put("Button 0", new JLabel("No input"));
+    joystickInputValueJlabels.put("Button 1", new JLabel("No input"));
+
+    joystickInputJlabels.forEach((key, value) -> {
+        joystickPanel.add(value);
+        joystickPanel.add(joystickInputValueJlabels.get(key));
+        joystickPanel.add(new JLabel("<html><br/></html>"));
+      }
+    );
   }
 
   /**
@@ -2804,6 +2869,10 @@ public class ConfigWindow {
     // World List tab
     synchronizeWorldTab();
 
+    // Joystick tab
+    joystickPanelJoystickEnabledCheckbox.setSelected(
+            Settings.JOYSTICK_ENABLED.get(Settings.currentProfile));
+
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
     }
@@ -3116,6 +3185,9 @@ public class ConfigWindow {
     if (Client.state == Client.STATE_LOGIN)
       Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
 
+    //// joystick
+    Settings.JOYSTICK_ENABLED.put(Settings.currentProfile, joystickPanelJoystickEnabledCheckbox.isSelected());
+
     // Save Settings
     Settings.save();
   }
@@ -3410,6 +3482,12 @@ public class ConfigWindow {
         worldListHiscoresTextFieldContainers.get(i).setVisible(false);
       }
     }
+  }
+
+  public void updateJoystickInput(String compName) {
+    joystickInputValueJlabels.get(compName).setText(String.format("%d", (int)Math.floor(JoystickHandler.joystickInputReports.get(compName))));
+    joystickPanel.revalidate();
+    joystickPanel.repaint();
   }
 }
 

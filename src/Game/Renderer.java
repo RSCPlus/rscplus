@@ -144,7 +144,9 @@ public class Renderer {
     int clearColor = getClearColor();
 
     // Return normal fog
-    if (clearColor == 0) return val + attenuation;
+    if (clearColor == 0 || Client.state == Client.STATE_LOGIN)
+        return val + attenuation;
+
 
     // Disable fog for custom colors
     return attenuation;
@@ -1115,7 +1117,7 @@ public class Renderer {
 
         // Draw camera info
         y += 16;
-        drawShadowText(g2, "Camera Pitch: " + Camera.pitch, x, y, color_text, false);
+        drawShadowText(g2, "Camera Pitch: " + Camera.pitch_internal, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Camera Rotation: " + Camera.rotation, x, y, color_text, false);
         y += 16;
