@@ -864,8 +864,7 @@ public class ConfigWindow {
     generalPanelNamePatchModeTextPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
     generalPanelNamePatchModePanel.add(generalPanelNamePatchModeTextPanel);
 
-    JLabel generalPanelNamePatchModeTitle =
-        new JLabel("<html><b>Item name patch mode</b> (Requires restart)</html>");
+    JLabel generalPanelNamePatchModeTitle = new JLabel("<html><b>Item name patch mode</b></html>");
     generalPanelNamePatchModeTitle.setToolTipText(
         "Replace certain item names with improved versions");
     generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
@@ -3074,6 +3073,7 @@ public class ConfigWindow {
     synchronizeGuiValues();
     QueueWindow.syncColumnsWithSettings();
     QueueWindow.playlistTable.repaint();
+    Item.patchItemNames();
     Item.patchItemCommands();
   }
 
