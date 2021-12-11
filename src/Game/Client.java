@@ -107,9 +107,13 @@ public class Client {
   public static final int MENU_NONE = 0;
   public static final int MENU_INVENTORY = 1;
   public static final int MENU_MINIMAP = 2;
-  public static final int MENU_STATS = 3;
-  public static final int MENU_FRIENDS = 4;
-  public static final int MENU_SETTINGS = 5;
+  public static final int MENU_STATS_QUESTS = 3;
+  public static final int MENU_MAGIC_PRAYERS = 4;
+  public static final int MENU_FRIENDS_IGNORE = 5;
+  public static final int MENU_SETTINGS = 6;
+
+  public static final int MENU_STATS = 0;
+  public static final int MENU_QUESTS = 1;
 
   public static final int CHAT_NONE = 0;
   public static final int CHAT_PRIVATE = 1;
@@ -150,6 +154,7 @@ public class Client {
   public static boolean show_duelconfirm;
   public static int show_friends;
   public static int show_menu;
+  public static int show_stats_or_quests;
   public static boolean show_questionmenu;
   public static int show_report;
   public static boolean show_shop;
@@ -419,6 +424,29 @@ public class Client {
   public static Object gameContainer = null;
 
   public static boolean usingRetroTabs = false;
+
+  public static final String[] colorDict = {
+    // less common colors should go at the bottom b/c we can break search loop early
+    // several of the orange & green colours are basically the same colour, even in-game
+    "(?i)@cya@", "|@@|cyan ",
+    "(?i)@whi@", "|@@|white ",
+    "(?i)@red@", "|@@|red ",
+    "(?i)@gre@", "|@@|green ",
+    "(?i)@lre@", "|@@|red,intensity_faint ",
+    "(?i)@dre@", "|@@|red,intensity_bold ",
+    "(?i)@ran@", "|@@|red,blink_fast ", // TODO: consider handling this specially
+    "(?i)@yel@", "|@@|yellow ",
+    "(?i)@mag@", "|@@|magenta,intensity_bold ",
+    "(?i)@gr1@", "|@@|green ",
+    "(?i)@gr2@", "|@@|green ",
+    "(?i)@gr3@", "|@@|green ",
+    "(?i)@ora@", "|@@|red,intensity_faint ",
+    "(?i)@or1@", "|@@|red,intensity_faint ",
+    "(?i)@or2@", "|@@|red,intensity_faint ",
+    "(?i)@or3@", "|@@|red ",
+    "(?i)@blu@", "|@@|blue ",
+    "(?i)@bla@", "|@@|black "
+  };
 
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
@@ -694,8 +722,7 @@ public class Client {
   public static boolean forceDisconnect = false;
   public static boolean forceReconnect = false;
 
-  public static boolean isUnderground()
-  {
+  public static boolean isUnderground() {
     return planeIndex == 3;
   }
 
@@ -722,10 +749,8 @@ public class Client {
     Camera.update(delta_time);
 
     if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
-      if (isUnderground())
-        Renderer.setClearColor(Renderer.rsc_color_skyunderground);
-      else
-        Renderer.setClearColor(Renderer.rsc_color_skyoverworld);
+      if (isUnderground()) Renderer.setClearColor(Renderer.rsc_color_skyunderground);
+      else Renderer.setClearColor(Renderer.rsc_color_skyoverworld);
     } else {
       Renderer.setClearColor(0);
     }
@@ -1493,6 +1518,16 @@ public class Client {
           break;
         case "cancelrecoveryrequest":
           AccountManagement.sendCancelRecoveryChange();
+          break;
+        case "set_pitch":
+          try {
+            Camera.pitch_rscplus = Integer.parseInt(commandArray[1]);
+          } catch (ArrayIndexOutOfBoundsException ex) {
+            displayMessage(
+                "You must specify a number to set the pitch to. 112 is default.", CHAT_QUEST);
+          } catch (NumberFormatException ex) {
+            displayMessage("That is not a number.", CHAT_QUEST);
+          }
           break;
         default:
           if (commandArray[0] != null) {
@@ -2452,6 +2487,14 @@ public class Client {
   public static void messageHook(
       String username, String message, int type, String colorCodeOverride) {
 
+    // notify if the user set the message as one they wanted to be alerted by
+    if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
+      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message);
+    }
+    if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
+      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message, "sad");
+    }
+
     if (colorCodeOverride != null) {
       if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@")))
         message = colorCodeOverride + message;
@@ -2761,28 +2804,6 @@ public class Client {
   }
 
   public static String colorReplace(String colorMessage) {
-    final String[] colorDict = { // TODO: Make this a class variable
-      // less common colors should go at the bottom b/c we can break search loop early
-      "(?i)@cya@", "|@@|cyan ",
-      "(?i)@whi@", "|@@|white ",
-      "(?i)@red@", "|@@|red ",
-      "(?i)@gre@", "|@@|green ",
-      "(?i)@lre@", "|@@|red,intensity_faint ",
-      "(?i)@dre@", "|@@|red,intensity_bold ",
-      "(?i)@ran@", "|@@|red,blink_fast ", // TODO: consider handling this specially
-      "(?i)@yel@", "|@@|yellow ",
-      "(?i)@mag@", "|@@|magenta,intensity_bold ",
-      "(?i)@gr1@", "|@@|green ",
-      "(?i)@gr2@", "|@@|green ",
-      "(?i)@gr3@", "|@@|green ",
-      "(?i)@ora@", "|@@|red,intensity_faint ",
-      "(?i)@or1@", "|@@|red,intensity_faint ",
-      "(?i)@or2@",
-          "|@@|red,intensity_faint ", // these are all basically the same color, even in game
-      "(?i)@or3@", "|@@|red ",
-      "(?i)@blu@", "|@@|blue ",
-      "(?i)@bla@", "|@@|black "
-    };
     for (int i = 0; i + 1 < colorDict.length; i += 2) {
       if (!colorMessage.matches(".*@.{3}@.*")) { // if doesn't contain any color codes: break;
         break;
@@ -3114,6 +3135,14 @@ public class Client {
       }
     }
     return false;
+  }
+
+  public static void displayMotivationalQuote() {
+    // TODO: more motivational quotes
+    int colorIdx = ((int) (Math.random() * ((Client.colorDict.length / 2) - 1)) * 2);
+    String color = colorDict[colorIdx].substring(4);
+    // A coward dies a thousand deaths, but the valiant tastes death but once.
+    displayMessage(color + "You are beautiful today, " + player_name + ".", CHAT_QUEST);
   }
 }
 

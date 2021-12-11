@@ -28,7 +28,7 @@ import java.util.jar.JarInputStream;
 public class JClassLoader extends ClassLoader {
 
   /** Stores class names and the corresponding class byte data */
-  private Map<String, byte[]> m_classData = new HashMap<>();
+  private final Map<String, byte[]> m_classData = new HashMap<>();
 
   /**
    * Fetches the game jar and loads and patches the classes

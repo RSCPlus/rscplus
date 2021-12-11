@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.HiscoresURL;
 import Client.Settings;
 import Client.WikiURL;
 import java.awt.Point;
@@ -69,7 +70,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
         || inBounds(Renderer.queueBounds)
         || inBounds(Renderer.stopBounds)
         || Bank.shouldConsume()
-        || WikiURL.shouldConsume();
+        || WikiURL.shouldConsume()
+        || HiscoresURL.shouldConsume();
   }
 
   @Override

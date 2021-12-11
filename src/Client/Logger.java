@@ -51,7 +51,7 @@ public class Logger {
       this.showLevel = showLevel;
       this.showTimestamp = showTimestamp;
 
-      levelFixedWidth = (levelFixedWidth < name.length()) ? name.length() : levelFixedWidth;
+      levelFixedWidth = Math.max(levelFixedWidth, name.length());
     }
 
     public int id;
@@ -98,8 +98,8 @@ public class Logger {
       if ((type.showLevel || Settings.LOG_FORCE_LEVEL.get(Settings.currentProfile))
           && Settings.LOG_SHOW_LEVEL.get(Settings.currentProfile)) {
         // Uppercase and pad level for monospace fonts
-        String levelText = type.name.toUpperCase();
-        while (levelText.length() < levelFixedWidth) levelText = " " + levelText;
+        StringBuilder levelText = new StringBuilder(type.name.toUpperCase());
+        while (levelText.length() < levelFixedWidth) levelText.insert(0, " ");
 
         extra += "[" + levelText + "]";
       }
@@ -130,7 +130,7 @@ public class Logger {
       }
     } catch (Exception e) {
       try {
-        System.out.println("Logger died, heres the report:");
+        System.out.println("Logger died, here's the report:");
         e.printStackTrace();
       } catch (Exception e2) {
       }
@@ -209,7 +209,7 @@ public class Logger {
       }
     } catch (Exception e) {
       try {
-        System.out.println("Opcode logger died, heres the report:");
+        System.out.println("Opcode logger died, here's the report:");
         e.printStackTrace();
       } catch (Exception e2) {
       }

@@ -78,7 +78,8 @@ public class XPBar {
       current_skill = -1;
       return;
     }
-    if (pinnedSkill > 0) {
+
+    if (pinnedSkill >= 0) {
       current_skill = pinnedSkill;
     }
 
@@ -245,7 +246,7 @@ public class XPBar {
     }
     y += 12;
     Renderer.drawShadowText(
-        g, pinnedSkill > 0 ? "Use recent skill" : "Keep this skill", x, y, textColour, false);
+        g, pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill", x, y, textColour, false);
 
     // Option 3
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -261,7 +262,7 @@ public class XPBar {
   }
 
   private void pinSkill() {
-    if (pinnedSkill > 0) {
+    if (pinnedSkill >= 0) {
       pinnedSkill = -1;
     } else {
       pinnedSkill = current_skill;
