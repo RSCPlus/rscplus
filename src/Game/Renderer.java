@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.HiscoresURL;
 import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
@@ -139,33 +140,27 @@ public class Renderer {
 
   private static int bankResetTimer = 0;
 
-  public static int getFogColor(int attenuation, int val)
-  {
+  public static int getFogColor(int attenuation, int val) {
     int clearColor = getClearColor();
 
     // Return normal fog
-    if (clearColor == 0)
-        return val + attenuation;
+    if (clearColor == 0) return val + attenuation;
 
     // Disable fog for custom colors
     return attenuation;
   }
 
-  public static int getClearColor()
-  {
+  public static int getClearColor() {
     // Login screen needs black background
-    if (Client.state == Client.STATE_LOGIN)
-      return 0;
+    if (Client.state == Client.STATE_LOGIN) return 0;
 
     // Character creation needs black background
-    if (Client.show_appearance)
-      return 0;
+    if (Client.show_appearance) return 0;
 
     return clearColor;
   }
 
-  public static void setClearColor(int color)
-  {
+  public static void setClearColor(int color) {
     clearColor = color;
   }
 
@@ -802,14 +797,53 @@ public class Renderer {
             && MouseHandler.y >= height - 16
             && MouseHandler.y <= height
             && MouseHandler.mouseClicked) {
-          Client.displayMessage(
-              "Click on something to look it up on the wiki...", Client.CHAT_NONE);
-          WikiURL.nextClickIsLookup = true;
+          if (!MouseHandler.rightClick) {
+            Client.displayMessage(
+                "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+            WikiURL.nextClickIsLookup = true;
+          }
         }
         if (WikiURL.nextClickIsLookup) {
           g2.drawImage(image_wiki_hbar_active, xCoord, yCoord, 96, 15, null);
         } else {
           g2.drawImage(image_wiki_hbar_inactive, xCoord, yCoord, 96, 15, null);
+        }
+      }
+
+      // Hiscores integration
+      if (HiscoresURL.nextClickIsLookup && MouseHandler.mouseClicked) {
+        if (MouseHandler.rightClick) {
+          HiscoresURL.nextClickIsLookup = false;
+          Client.displayMessage("Cancelled lookup.", Client.CHAT_NONE);
+        } else {
+          if (System.currentTimeMillis() - HiscoresURL.lastLookupTime > HiscoresURL.cooldownTimer) {
+            if (MouseText.isPlayer) {
+              String hiscoresURL = HiscoresURL.getURL();
+              if (hiscoresURL.equals("NO_URL")) {
+                Client.displayMessage(
+                    "@lre@No hiscores URL defined for this world.", Client.CHAT_NONE);
+              } else {
+                if (!hiscoresURL.equals("INVALID")) {
+                  HiscoresURL.lastLookupTime = System.currentTimeMillis();
+                  Client.displayMessage(
+                      "@whi@Looking up @gre@" + MouseText.name + "@whi@ on the hiscores!",
+                      Client.CHAT_NONE);
+                  Util.openLinkInBrowser(hiscoresURL);
+                  HiscoresURL.nextClickIsLookup = false;
+                }
+              }
+            } else {
+              Client.displayMessage(
+                  "@lre@Only players can be looked up on the hiscores, try again.",
+                  Client.CHAT_NONE);
+            }
+          } else {
+            Client.displayMessage(
+                String.format(
+                    "@lre@Please wait %1d seconds between hiscores queries",
+                    WikiURL.cooldownTimer / 1000),
+                Client.CHAT_NONE);
+          }
         }
       }
 
@@ -872,7 +906,7 @@ public class Renderer {
           }
         }
 
-        // wiki button on magic book (Probably a bad idea due to misclicks)
+        // wiki button on magic book (Good for in-replay but not good if spam casting magic)
         if (Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile)) {
           mapButtonBounds = new Rectangle(width - 68 - 66, 3, 32, 32);
           if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
@@ -896,11 +930,131 @@ public class Renderer {
                 && MouseHandler.y >= mapButtonBounds.y
                 && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
                 && MouseHandler.mouseClicked) {
-              Client.displayMessage(
-                  "Click on something to look it up on the wiki...", Client.CHAT_NONE);
-              WikiURL.nextClickIsLookup = true;
+              if (!MouseHandler.rightClick) {
+                Client.displayMessage(
+                    "Click on something to look it up on the wiki...", Client.CHAT_NONE);
+                WikiURL.nextClickIsLookup = true;
+              }
             }
           }
+        }
+
+        // Hiscore lookup / Motivational Quotes
+        if (Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile)
+            || Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
+          mapButtonBounds = new Rectangle(width - 68 - 99, 3, 32, 32);
+          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+            if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+              g2.setColor(Renderer.color_text);
+              g2.drawLine(
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1,
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1 + 6);
+              g2.drawLine(
+                  mapButtonBounds.x + 1,
+                  mapButtonBounds.y + 4,
+                  mapButtonBounds.x + 7,
+                  mapButtonBounds.y + 4);
+            }
+
+            // Handle replay play selection click
+            if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+              if (MouseHandler.rightClick) {
+                if (Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile)) {
+                  Client.displayMotivationalQuote();
+                }
+              } else {
+                if (Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
+                  if (Settings.WORLD_HISCORES_URL
+                      .get(Settings.WORLD.get(Settings.currentProfile))
+                      .equals("")) {
+                    Client.displayMessage(
+                        "@lre@No hiscores URL defined for this world.", Client.CHAT_NONE);
+                  } else {
+                    Client.displayMessage(
+                        "Click on a player to look them up on the hiscores...", Client.CHAT_NONE);
+                    HiscoresURL.nextClickIsLookup = true;
+                  }
+                } else if (Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile)) {
+                  // any mouse button can display a motivational quote if Hiscores lookup is
+                  // disabled
+                  Client.displayMotivationalQuote();
+                }
+              }
+            }
+          }
+        }
+
+        // Toggle XP bar
+        if (Settings.TOGGLE_XP_BAR_ON_STATS_BUTTON.get(Settings.currentProfile)) {
+          mapButtonBounds = new Rectangle(width - 68 - 33, 3, 32, 32);
+          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+            if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+              g2.setColor(Renderer.color_text);
+              g2.drawLine(
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1,
+                  mapButtonBounds.x + 4,
+                  mapButtonBounds.y + 1 + 6);
+              g2.drawLine(
+                  mapButtonBounds.x + 1,
+                  mapButtonBounds.y + 4,
+                  mapButtonBounds.x + 7,
+                  mapButtonBounds.y + 4);
+            }
+
+            // Handle replay play selection click
+            if (MouseHandler.x >= mapButtonBounds.x
+                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
+                && MouseHandler.y >= mapButtonBounds.y
+                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
+                && MouseHandler.mouseClicked) {
+              if (MouseHandler.rightClick) {
+                Settings.toggleXPBar();
+              } else {
+                Settings.toggleXPBarPin();
+              }
+            }
+          }
+        }
+      }
+
+      // Handle setting XP Bar stat from STATS menu
+      if (Client.show_menu == Client.MENU_STATS_QUESTS
+          && Client.show_stats_or_quests == Client.MENU_STATS
+          && MouseHandler.mouseClicked) {
+        int xOffset = width - 199;
+        int yOffset = 85;
+        boolean clickedSkill = false;
+        int selectedSkill = -1;
+        for (int skillIdx = 0; skillIdx < 9; ++skillIdx) {
+          // Column 1
+          if (MouseHandler.x > xOffset + 3
+              && MouseHandler.x < xOffset + 90
+              && MouseHandler.y >= yOffset - 11
+              && MouseHandler.y < yOffset + 2) {
+            selectedSkill = skillIdx;
+            clickedSkill = true;
+            break;
+          }
+          // Column 2
+          if (MouseHandler.x >= xOffset + 90
+              && MouseHandler.x < xOffset + 196
+              && MouseHandler.y >= yOffset - 24
+              && MouseHandler.y < yOffset - 11) {
+            selectedSkill = skillIdx + 9;
+            clickedSkill = true;
+            break;
+          }
+          yOffset += 13;
+        }
+        if (clickedSkill) {
+          XPBar.pinnedSkill = selectedSkill;
         }
       }
 
@@ -960,6 +1114,8 @@ public class Renderer {
         y += 16;
 
         // Draw camera info
+        y += 16;
+        drawShadowText(g2, "Camera Pitch: " + Camera.pitch, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Camera Rotation: " + Camera.rotation, x, y, color_text, false);
         y += 16;

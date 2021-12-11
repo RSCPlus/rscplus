@@ -133,6 +133,11 @@ public class Settings {
   public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> WIKI_LOOKUP_ON_MAGIC_BOOK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> MOTIVATIONAL_QUOTES_BUTTON =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> TOGGLE_XP_BAR_ON_STATS_BUTTON =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> HISCORES_LOOKUP_BUTTON = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> WIKI_LOOKUP_ON_HBAR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> REMOVE_REPORT_ABUSE_BUTTON_HBAR =
       new HashMap<String, Boolean>();
@@ -185,6 +190,12 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> HIGHLIGHTED_ITEM_NOTIF_VALUE =
       new HashMap<String, Integer>();
+  public static HashMap<String, ArrayList<String>> IMPORTANT_MESSAGES =
+      new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, ArrayList<String>> IMPORTANT_SAD_MESSAGES =
+      new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, Boolean> MUTE_IMPORTANT_MESSAGE_SOUNDS =
+      new HashMap<String, Boolean>();
 
   //// streaming
   public static HashMap<String, Boolean> TWITCH_CHAT_ENABLED = new HashMap<String, Boolean>();
@@ -223,6 +234,7 @@ public class Settings {
   public static HashMap<Integer, Integer> WORLD_SERVER_TYPES = new HashMap<Integer, Integer>();
   public static HashMap<Integer, String> WORLD_RSA_PUB_KEYS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_RSA_EXPONENTS = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> WORLD_HISCORES_URL = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_FILE_PATHS = new HashMap<Integer, String>();
   public static int WORLDS_TO_DISPLAY = 5;
   public static boolean noWorldsConfigured = true;
@@ -642,8 +654,7 @@ public class Settings {
     RS2HD_SKY.put("default", false);
     RS2HD_SKY.put("heavy", true);
     RS2HD_SKY.put("all", true);
-    RS2HD_SKY.put(
-            "custom", getPropBoolean(props, "rs2hd_sky", RS2HD_SKY.get("default")));
+    RS2HD_SKY.put("custom", getPropBoolean(props, "rs2hd_sky", RS2HD_SKY.get("default")));
 
     PATCH_GENDER.put("vanilla", false);
     PATCH_GENDER.put("vanilla_resizable", false);
@@ -818,6 +829,38 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "wiki_lookup_on_magic_book", WIKI_LOOKUP_ON_MAGIC_BOOK.get("default")));
+
+    MOTIVATIONAL_QUOTES_BUTTON.put("vanilla", false);
+    MOTIVATIONAL_QUOTES_BUTTON.put("vanilla_resizable", false);
+    MOTIVATIONAL_QUOTES_BUTTON.put("lite", false);
+    MOTIVATIONAL_QUOTES_BUTTON.put("default", false);
+    MOTIVATIONAL_QUOTES_BUTTON.put("heavy", true);
+    MOTIVATIONAL_QUOTES_BUTTON.put("all", true);
+    MOTIVATIONAL_QUOTES_BUTTON.put(
+        "custom",
+        getPropBoolean(
+            props, "motivational_quotes_button", MOTIVATIONAL_QUOTES_BUTTON.get("default")));
+
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("vanilla", false);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("vanilla_resizable", false);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("lite", false);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("default", true);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("heavy", true);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put("all", true);
+    TOGGLE_XP_BAR_ON_STATS_BUTTON.put(
+        "custom",
+        getPropBoolean(
+            props, "toggle_xp_bar_on_stats_button", TOGGLE_XP_BAR_ON_STATS_BUTTON.get("default")));
+
+    HISCORES_LOOKUP_BUTTON.put("vanilla", false);
+    HISCORES_LOOKUP_BUTTON.put("vanilla_resizable", false);
+    HISCORES_LOOKUP_BUTTON.put("lite", false);
+    HISCORES_LOOKUP_BUTTON.put("default", false);
+    HISCORES_LOOKUP_BUTTON.put("heavy", false);
+    HISCORES_LOOKUP_BUTTON.put("all", true);
+    HISCORES_LOOKUP_BUTTON.put(
+        "custom",
+        getPropBoolean(props, "hiscores_lookup_button", HISCORES_LOOKUP_BUTTON.get("default")));
 
     WIKI_LOOKUP_ON_HBAR.put("vanilla", false);
     WIKI_LOOKUP_ON_HBAR.put("vanilla_resizable", false);
@@ -1038,7 +1081,7 @@ public class Settings {
     SHOW_BANK_VALUE.put("vanilla", false);
     SHOW_BANK_VALUE.put("vanilla_resizable", false);
     SHOW_BANK_VALUE.put("lite", false);
-    SHOW_BANK_VALUE.put("default", false);
+    SHOW_BANK_VALUE.put("default", true);
     SHOW_BANK_VALUE.put("heavy", true);
     SHOW_BANK_VALUE.put("all", true);
     SHOW_BANK_VALUE.put(
@@ -1047,7 +1090,7 @@ public class Settings {
     SORT_FILTER_BANK.put("vanilla", false);
     SORT_FILTER_BANK.put("vanilla_resizable", false);
     SORT_FILTER_BANK.put("lite", false);
-    SORT_FILTER_BANK.put("default", false);
+    SORT_FILTER_BANK.put("default", true);
     SORT_FILTER_BANK.put("heavy", true);
     SORT_FILTER_BANK.put("all", true);
     SORT_FILTER_BANK.put(
@@ -1210,6 +1253,38 @@ public class Settings {
         "custom",
         getPropInt(
             props, "highlighted_item_notif_value", HIGHLIGHTED_ITEM_NOTIF_VALUE.get("default")));
+
+    IMPORTANT_MESSAGES.put("vanilla", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put("vanilla_resizable", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put("lite", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put("default", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put("heavy", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put("all", new ArrayList<String>());
+    IMPORTANT_MESSAGES.put(
+        "custom",
+        getPropArrayListString(props, "important_messages", IMPORTANT_MESSAGES.get("default")));
+
+    IMPORTANT_SAD_MESSAGES.put("vanilla", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put("vanilla_resizable", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put("lite", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put("default", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put("heavy", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put("all", new ArrayList<String>());
+    IMPORTANT_SAD_MESSAGES.put(
+        "custom",
+        getPropArrayListString(
+            props, "important_sad_messages", IMPORTANT_SAD_MESSAGES.get("default")));
+
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("vanilla", false);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("vanilla_resizable", false);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("lite", false);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("default", false);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("heavy", false);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put("all", true);
+    MUTE_IMPORTANT_MESSAGE_SOUNDS.put(
+        "custom",
+        getPropBoolean(
+            props, "mute_important_message_sounds", MUTE_IMPORTANT_MESSAGE_SOUNDS.get("default")));
 
     //// streaming
     TWITCH_CHAT_ENABLED.put("vanilla", false);
@@ -1717,6 +1792,7 @@ public class Settings {
                 i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
             WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
             WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
+            WORLD_HISCORES_URL.put(i, (String) worldProps.getOrDefault("hiscores_url", ""));
 
             i++;
           } catch (Exception e) {
@@ -1748,6 +1824,7 @@ public class Settings {
       worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(i).toString());
       worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(i));
       worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(i));
+      worldProps.setProperty("hiscores_url", WORLD_HISCORES_URL.get(i));
 
       try {
         FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName));
@@ -1778,6 +1855,7 @@ public class Settings {
     WORLD_SERVER_TYPES.put(worldNum, 1);
     WORLD_RSA_PUB_KEYS.put(worldNum, "");
     WORLD_RSA_EXPONENTS.put(worldNum, "");
+    WORLD_HISCORES_URL.put(worldNum, "");
 
     String worldFileName =
         String.format(
@@ -1790,6 +1868,7 @@ public class Settings {
     worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(worldNum).toString());
     worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(worldNum));
     worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(worldNum));
+    worldProps.setProperty("hiscores_url", WORLD_HISCORES_URL.get(worldNum));
 
     try {
       FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName));
@@ -1820,6 +1899,7 @@ public class Settings {
       WORLD_RSA_PUB_KEYS.put(i - 1, WORLD_RSA_PUB_KEYS.remove(i));
       WORLD_RSA_EXPONENTS.put(i - 1, WORLD_RSA_EXPONENTS.remove(i));
       WORLD_FILE_PATHS.put(i - 1, WORLD_FILE_PATHS.remove(i));
+      WORLD_HISCORES_URL.put(i - 1, WORLD_HISCORES_URL.remove(i));
     }
     WORLD_NAMES.remove(initialSize);
     WORLD_URLS.remove(initialSize);
@@ -1828,6 +1908,7 @@ public class Settings {
     WORLD_RSA_PUB_KEYS.remove(initialSize);
     WORLD_RSA_EXPONENTS.remove(initialSize);
     WORLD_FILE_PATHS.remove(initialSize);
+    WORLD_HISCORES_URL.remove(initialSize);
     Settings.WORLDS_TO_DISPLAY--;
     Launcher.getConfigWindow().synchronizeWorldTab();
     saveWorlds();
@@ -1947,6 +2028,10 @@ public class Settings {
       props.setProperty(
           "remove_report_abuse_button_hbar",
           Boolean.toString(REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(preset)));
+      props.setProperty(
+          "hiscores_lookup_button", Boolean.toString(HISCORES_LOOKUP_BUTTON.get(preset)));
+      props.setProperty(
+          "motivational_quotes_button", Boolean.toString(MOTIVATIONAL_QUOTES_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
@@ -1999,6 +2084,13 @@ public class Settings {
       props.setProperty(
           "highlighted_item_notif_value",
           Integer.toString(HIGHLIGHTED_ITEM_NOTIF_VALUE.get(preset)));
+      props.setProperty(
+          "important_messages", Util.joinAsString(",", IMPORTANT_MESSAGES.get(preset)));
+      props.setProperty(
+          "important_sad_messages", Util.joinAsString(",", IMPORTANT_SAD_MESSAGES.get(preset)));
+      props.setProperty(
+          "mute_important_message_sounds",
+          Boolean.toString(MUTE_IMPORTANT_MESSAGE_SOUNDS.get(preset)));
 
       //// streaming
       props.setProperty("twitch_enabled", Boolean.toString(TWITCH_CHAT_ENABLED.get(preset)));
@@ -2196,6 +2288,14 @@ public class Settings {
     if (SHOW_XP_BAR.get(currentProfile))
       Client.displayMessage("@cya@XP Bar is now shown", Client.CHAT_NONE);
     else Client.displayMessage("@cya@XP Bar is now hidden", Client.CHAT_NONE);
+    save();
+  }
+
+  public static void toggleXPBarPin() {
+    SHOW_XP_BAR.put(currentProfile, true);
+    if (!XPBar.pinnedBar) Client.displayMessage("@cya@XP Bar is now pinned", Client.CHAT_NONE);
+    else Client.displayMessage("@cya@XP Bar is now unpinned", Client.CHAT_NONE);
+    XPBar.pinnedBar = !XPBar.pinnedBar;
     save();
   }
 
@@ -2654,8 +2754,7 @@ public class Settings {
   /**
    * Processes the commands triggered by pressing keybinds
    *
-   * @param commandName the name of a keybind command as defined by {@link
-   *     ConfigWindow#addKeybindSet}
+   * @param commandName the name of a keybind command as defined by ConfigWindow.addKeybindSet
    */
   public static boolean processKeybindCommand(String commandName) {
     switch (commandName) {

@@ -75,7 +75,8 @@ public class NotificationsHandler {
     LOGOUT,
     LOWHP,
     FATIGUE,
-    HIGHLIGHTEDITEM
+    HIGHLIGHTEDITEM,
+    IMPORTANT_MESSAGE
   }
 
   /** Initializes the Notification JFrame and prepares it to receive notifications */
@@ -349,6 +350,10 @@ public class NotificationsHandler {
    * @return True if at least one type of notification (audio/popup) was attempted; false otherwise
    */
   public static boolean notify(NotifType type, String title, String text) {
+    return notify(type, title, text, "default");
+  }
+
+  public static boolean notify(NotifType type, String title, String text, String sound) {
     boolean didNotify = false;
 
     if (Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile)) {
@@ -363,7 +368,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -385,7 +390,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -407,7 +412,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -429,7 +434,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -451,7 +456,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -473,7 +478,7 @@ public class NotificationsHandler {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
                   || (!Game.getInstance().getContentPane().hasFocus())) {
-                playNotificationSound();
+                playNotificationSound(sound);
                 didNotify = true;
               }
             }
@@ -492,7 +497,7 @@ public class NotificationsHandler {
         if (Settings.HIGHLIGHTED_ITEM_NOTIFICATIONS.get(Settings.currentProfile)) {
           if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
             // If notification sounds, play audio
-            playNotificationSound();
+            playNotificationSound(sound);
             didNotify = true;
           }
           if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
@@ -501,6 +506,13 @@ public class NotificationsHandler {
             didNotify = true;
           }
         }
+        break;
+      case IMPORTANT_MESSAGE:
+        if (!Settings.MUTE_IMPORTANT_MESSAGE_SOUNDS.get(Settings.currentProfile)) {
+          playNotificationSound(sound);
+        }
+        displayNotification(title, text, "critical");
+        didNotify = true;
         break;
     }
     return didNotify;
@@ -514,7 +526,7 @@ public class NotificationsHandler {
    * @param title The title of the notification
    * @param text Text message of the notification
    */
-  public static void displayNotification(final String title, String text, String urgency) {
+  private static void displayNotification(final String title, String text, String urgency) {
     // Remove color/formatting codes
     final String sanitizedText =
         text.replaceAll("@...@", "").replaceAll("~...~", "").replaceAll("\\\\", "\\\\\\\\");
@@ -602,7 +614,9 @@ public class NotificationsHandler {
   }
 
   private static AudioInputStream notificationAudioIn;
+  private static AudioInputStream sadNotificationAudioIn;
   private static Clip notificationSoundClip;
+  private static Clip sadNotificationSoundClip;
 
   public static void loadNotificationSound() {
     try {
@@ -613,6 +627,15 @@ public class NotificationsHandler {
           (Clip)
               AudioSystem.getLine(new DataLine.Info(Clip.class, notificationAudioIn.getFormat()));
       notificationSoundClip.open(notificationAudioIn);
+      sadNotificationAudioIn =
+          AudioSystem.getAudioInputStream(
+              new BufferedInputStream(
+                  Launcher.getResourceAsStream("/assets/notification_sad.wav")));
+      sadNotificationSoundClip =
+          (Clip)
+              AudioSystem.getLine(
+                  new DataLine.Info(Clip.class, sadNotificationAudioIn.getFormat()));
+      sadNotificationSoundClip.open(sadNotificationAudioIn);
     } catch (UnsupportedAudioFileException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -622,16 +645,25 @@ public class NotificationsHandler {
     }
   }
 
-  public static void playNotificationSound() {
-    if (notificationSoundClip == null) return;
-    notificationSoundClip.stop();
-    notificationSoundClip.flush();
-    notificationSoundClip.setFramePosition(0);
-    notificationSoundClip.start();
+  public static void playNotificationSound(String sound) {
+    Clip usedSound;
+    switch (sound) {
+      case "sad":
+        usedSound = sadNotificationSoundClip;
+        break;
+      default:
+        usedSound = notificationSoundClip;
+    }
+    if (usedSound == null) return;
+    usedSound.stop();
+    usedSound.flush();
+    usedSound.setFramePosition(0);
+    usedSound.start();
   }
 
   public static void closeNotificationSoundClip() {
     if (notificationSoundClip != null) notificationSoundClip.close();
+    if (sadNotificationSoundClip != null) sadNotificationSoundClip.close();
   }
 
   public static void disposeNotificationHandler() {

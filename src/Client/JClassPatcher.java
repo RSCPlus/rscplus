@@ -359,6 +359,8 @@ public class JClassPatcher {
 
       hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
+      hookClassVariable(methodNode, "lb", "Kb", "I", "Game/Camera", "pitch", "I", true, true);
+
       hookStaticVariable(
           methodNode,
           "client",
@@ -492,6 +494,8 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "qc", "I", "Game/Client", "show_menu", "I", true, false);
       hookClassVariable(
+          methodNode, "client", "zd", "I", "Game/Client", "show_stats_or_quests", "I", true, false);
+      hookClassVariable(
           methodNode, "client", "Ph", "Z", "Game/Client", "show_questionmenu", "Z", true, false);
       hookClassVariable(
           methodNode, "client", "Vf", "I", "Game/Client", "show_report", "I", true, false);
@@ -506,7 +510,7 @@ public class JClassPatcher {
       hookClassVariable(
           methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, true);
       hookClassVariable(
-              methodNode, "client", "Kg", "Z", "Game/Client", "show_appearance", "Z", true, true);
+          methodNode, "client", "Kg", "Z", "Game/Client", "show_appearance", "Z", true, true);
 
       hookClassVariable(
           methodNode,
@@ -4281,11 +4285,13 @@ public class JClassPatcher {
       if (methodNode.name.equals("a") && methodNode.desc.equals("(Z)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();
         while (start != null) {
-          if (start.getOpcode() == Opcodes.ICONST_0 && start.getPrevious().getOpcode() == Opcodes.IINC ||
-              start.getOpcode() == Opcodes.ICONST_0 && start.getPrevious().getOpcode() == Opcodes.ILOAD) {
+          if (start.getOpcode() == Opcodes.ICONST_0
+                  && start.getPrevious().getOpcode() == Opcodes.IINC
+              || start.getOpcode() == Opcodes.ICONST_0
+                  && start.getPrevious().getOpcode() == Opcodes.ILOAD) {
             methodNode.instructions.insertBefore(
-                    start,
-                    new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getClearColor", "()I"));
+                start,
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getClearColor", "()I"));
             start = start.getNext();
             methodNode.instructions.remove(start.getPrevious());
             continue;
@@ -4473,16 +4479,15 @@ public class JClassPatcher {
           }
         }
       }
-
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();
         while (start != null) {
-          if (start.getOpcode() == Opcodes.PUTFIELD && start.getPrevious().getOpcode() == Opcodes.IADD) {
-            FieldInsnNode insnNode = (FieldInsnNode)start;
+          if (start.getOpcode() == Opcodes.PUTFIELD
+              && start.getPrevious().getOpcode() == Opcodes.IADD) {
+            FieldInsnNode insnNode = (FieldInsnNode) start;
             if (insnNode.name.equals("o")) {
               methodNode.instructions.insertBefore(
-                      start,
-                      new FieldInsnNode(Opcodes.GETSTATIC, "Game/Camera", "offset_height", "I"));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Camera", "offset_height", "I"));
               methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.INEG));
               methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.IADD));
             }
@@ -4495,16 +4500,27 @@ public class JClassPatcher {
       if (methodNode.name.equals("c") && methodNode.desc.equals("(I)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();
         while (start != null) {
-          if (start.getOpcode() == Opcodes.IASTORE && start.getPrevious().getOpcode() == Opcodes.IADD &&
-              start.getPrevious().getPrevious().getOpcode() == Opcodes.IDIV) {
+          if (start.getOpcode() == Opcodes.IASTORE
+              && start.getPrevious().getOpcode() == Opcodes.IADD
+              && start.getPrevious().getPrevious().getOpcode() == Opcodes.IDIV) {
             methodNode.instructions.insertBefore(
-                    start.getPrevious(),
-                    new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getFogColor", "(II)I"));
+                start.getPrevious(),
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Renderer", "getFogColor", "(II)I"));
             methodNode.instructions.remove(start.getPrevious());
           }
 
           start = start.getNext();
         }
+      }
+
+      // Set camera routine
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIIII)V")) {
+        System.out.println("patching setCamera()");
+
+        AbstractInsnNode findNode = methodNode.instructions.getLast();
+        methodNode.instructions.insertBefore(
+            findNode,
+            new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Camera", "postSetCamera", "()V", false));
       }
     }
   }

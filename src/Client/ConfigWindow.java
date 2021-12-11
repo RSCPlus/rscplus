@@ -188,6 +188,9 @@ public class ConfigWindow {
   private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
   private JCheckBox overlayPanelWikiLookupOnMagicBookCheckbox;
   private JCheckBox overlayPanelWikiLookupOnHbarCheckbox;
+  private JCheckBox overlayPanelToggleXPBarOnStatsButtonCheckbox;
+  private JCheckBox overlayPaneHiscoresLookupButtonCheckbox;
+  private JCheckBox overlayPanelToggleMotivationalQuotesCheckbox;
   private JCheckBox overlayPanelRemoveReportAbuseButtonHbarCheckbox;
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
@@ -239,6 +242,9 @@ public class ConfigWindow {
   private JRadioButton notificationPanelNotifSoundClientFocusButton;
   private JRadioButton notificationPanelTrayPopupAnyFocusButton;
   private JRadioButton notificationPanelNotifSoundAnyFocusButton;
+  private JTextField importantMessagesTextField;
+  private JTextField importantSadMessagesTextField;
+  private JCheckBox notificationPanelMuteImportantMessageSoundsCheckbox;
 
   //// Streaming & Privacy tab
   private JCheckBox streamingPanelTwitchChatCheckbox;
@@ -289,6 +295,10 @@ public class ConfigWindow {
   private HashMap<Integer, JPanel> worldListURLPortTextFieldContainers =
       new HashMap<Integer, JPanel>();
   private HashMap<Integer, JPanel> worldListRSATextFieldContainers = new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JPanel> worldListHiscoresTextFieldContainers =
+      new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JTextField> worldListHiscoresURLTextFieldContainers =
+      new HashMap<Integer, JTextField>();
   private HashMap<Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
   private JPanel worldListPanel = new JPanel();
 
@@ -618,10 +628,8 @@ public class ConfigWindow {
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
 
-    generalPanelRS2HDSkyCheckbox =
-            addCheckbox("Use RS2: HD Sky colors", generalPanel);
-    generalPanelRS2HDSkyCheckbox.setToolTipText(
-            "Uses sky colors from RS2: HD");
+    generalPanelRS2HDSkyCheckbox = addCheckbox("Use RS2: HD Sky colors", generalPanel);
+    generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colors from RS2: HD");
 
     JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
     generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
@@ -928,7 +936,7 @@ public class ConfigWindow {
     addSettingsHeader(overlayPanel, "Interface Overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
-    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
+    overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -949,38 +957,6 @@ public class ConfigWindow {
 
     overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
     overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
-
-    overlayPanelRscPlusButtonsFunctionalCheckbox =
-        addCheckbox("Able to click in-game buttons to activate RSC+ features", overlayPanel);
-    overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText(
-        "Able to click in-game buttons to activate RSC+ features");
-
-    JPanel overlayPanelRscPlusButtonsPanel = new JPanel();
-    overlayPanel.add(overlayPanelRscPlusButtonsPanel);
-    overlayPanelRscPlusButtonsPanel.setLayout(
-        new BoxLayout(overlayPanelRscPlusButtonsPanel, BoxLayout.X_AXIS));
-    overlayPanelRscPlusButtonsPanel.setPreferredSize(new Dimension(0, 37));
-    overlayPanelRscPlusButtonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    overlayPanelRscPlusButtonsPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-    JLabel rscplusButtonsSpacingLabel = new JLabel("");
-    rscplusButtonsSpacingLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
-    overlayPanelRscPlusButtonsPanel.add(rscplusButtonsSpacingLabel);
-    overlayPanelRscPlusButtonsCheckbox =
-        addCheckbox(
-            "Also display + indicators over the in-game buttons", overlayPanelRscPlusButtonsPanel);
-    overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
-
-    overlayPanelWikiLookupOnMagicBookCheckbox =
-        addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
-    overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
-        "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
-
-    overlayPanelWikiLookupOnHbarCheckbox =
-        addCheckbox(
-            "Search the RSC Wiki with a button in the bottom blue bar (replaces Report Abuse button at low width)",
-            overlayPanel);
-    overlayPanelWikiLookupOnHbarCheckbox.setToolTipText(
-        "Click the button on the bottom bar, then click on anything else, and it will look it up on the RSC wiki.");
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -1020,11 +996,57 @@ public class ConfigWindow {
     // TODO: Remove this line when the HP regen timer is implemented
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
 
+    /// In-game buttons
+    addSettingsHeader(overlayPanel, "In-game Buttons");
+
+    overlayPanelRscPlusButtonsCheckbox =
+        addCheckbox("Display + indicators over the activated in-game buttons", overlayPanel);
+    overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
+    overlayPanelRscPlusButtonsCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    overlayPanelRscPlusButtonsFunctionalCheckbox =
+        addCheckbox(
+            "Enable opening the World Map window and the Settings window with in-game buttons",
+            overlayPanel);
+    overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText(
+        "Able to click in-game Wrench & Map buttons to activate RSC+ features");
+
+    overlayPanelWikiLookupOnMagicBookCheckbox =
+        addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
+    overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
+        "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelWikiLookupOnHbarCheckbox =
+        addCheckbox(
+            "Search the RSC Wiki with a button in the bottom blue bar (replaces Report Abuse button at low width)",
+            overlayPanel);
+    overlayPanelWikiLookupOnHbarCheckbox.setToolTipText(
+        "Click the button on the bottom bar, then click on anything else, and it will look it up on the RSC wiki.");
+
+    overlayPanelToggleXPBarOnStatsButtonCheckbox =
+        addCheckbox(
+            "Add left and right click options to the Stats button to control the XP bar",
+            overlayPanel);
+    overlayPanelToggleXPBarOnStatsButtonCheckbox.setToolTipText(
+        "Left click pins/unpins the XP Bar, Right click enables/disables the XP Bar");
+
+    overlayPaneHiscoresLookupButtonCheckbox =
+        addCheckbox(
+            "Look up players in hiscores by left clicking the Friends button", overlayPanel);
+    overlayPaneHiscoresLookupButtonCheckbox.setToolTipText(
+        "Must be a hiscores that supports looking up player by username. Hiscores URL defined per-world.");
+
+    overlayPanelToggleMotivationalQuotesCheckbox =
+        addCheckbox(
+            "Right click on the Friends button to display a motivational quote", overlayPanel);
+    overlayPanelToggleMotivationalQuotesCheckbox.setToolTipText(
+        "Motivational quotes are displayed when you need motivation.");
+
     /// XP Bar
     addSettingsHeader(overlayPanel, "XP Bar");
     overlayPanelXPBarCheckbox = addCheckbox("Show an XP bar", overlayPanel);
     overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar to the left of the wrench");
-    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
+    overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelXPDropsCheckbox = addCheckbox("Show XP drops", overlayPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
@@ -1085,7 +1107,7 @@ public class ConfigWindow {
         addCheckbox("Show hitboxes around NPCs, players, and items", overlayPanel);
     overlayPanelHitboxCheckbox.setToolTipText(
         "Shows the clickable areas on NPCs, players, and items");
-    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
+    overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     overlayPanelPlayerNamesCheckbox =
         addCheckbox("Show player names over their heads", overlayPanel);
@@ -1462,6 +1484,47 @@ public class ConfigWindow {
     highlightedItemSecondsModel.setMaximum(630); // 10.5 minutes max
     highlightedItemSecondsModel.setValue(100);
     notificationPanelHighlightedItemTimerSpinner.setModel(highlightedItemSecondsModel);
+
+    // Important messages
+    JPanel importantMessagesPanel = new JPanel();
+    notificationPanel.add(importantMessagesPanel);
+    importantMessagesPanel.setLayout(new BoxLayout(importantMessagesPanel, BoxLayout.X_AXIS));
+    importantMessagesPanel.setPreferredSize(new Dimension(0, 37));
+    importantMessagesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    importantMessagesPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel importantMessagesNameLabel = new JLabel("Important Messages: ");
+    importantMessagesPanel.add(importantMessagesNameLabel);
+    importantMessagesNameLabel.setAlignmentY((float) 0.9);
+
+    importantMessagesTextField = new JTextField();
+    importantMessagesPanel.add(importantMessagesTextField);
+    importantMessagesTextField.setMinimumSize(new Dimension(100, 28));
+    importantMessagesTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    importantMessagesTextField.setAlignmentY((float) 0.75);
+
+    // Important sad messages
+    JPanel importantSadMessagesPanel = new JPanel();
+    notificationPanel.add(importantSadMessagesPanel);
+    importantSadMessagesPanel.setLayout(new BoxLayout(importantSadMessagesPanel, BoxLayout.X_AXIS));
+    importantSadMessagesPanel.setPreferredSize(new Dimension(0, 37));
+    importantSadMessagesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    importantSadMessagesPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel importantSadMessagesNameLabel = new JLabel("Important Messages (sad noise): ");
+    importantSadMessagesPanel.add(importantSadMessagesNameLabel);
+    importantSadMessagesNameLabel.setAlignmentY((float) 0.9);
+
+    importantSadMessagesTextField = new JTextField();
+    importantSadMessagesPanel.add(importantSadMessagesTextField);
+    importantSadMessagesTextField.setMinimumSize(new Dimension(100, 28));
+    importantSadMessagesTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    importantSadMessagesTextField.setAlignmentY((float) 0.75);
+
+    notificationPanelMuteImportantMessageSoundsCheckbox =
+        addCheckbox("Mute the alert sound even if it's an important message", notificationPanel);
+    notificationPanelMuteImportantMessageSoundsCheckbox.setToolTipText(
+        "Muting for Important Messages (defined in text fields above)");
 
     /*
      * Streaming & Privacy tab
@@ -2534,8 +2597,7 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
-    generalPanelRS2HDSkyCheckbox.setSelected(
-            Settings.RS2HD_SKY.get(Settings.currentProfile));
+    generalPanelRS2HDSkyCheckbox.setSelected(Settings.RS2HD_SKY.get(Settings.currentProfile));
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
@@ -2589,6 +2651,12 @@ public class ConfigWindow {
         Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile));
     overlayPanelWikiLookupOnHbarCheckbox.setSelected(
         Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile));
+    overlayPanelToggleXPBarOnStatsButtonCheckbox.setSelected(
+        Settings.TOGGLE_XP_BAR_ON_STATS_BUTTON.get(Settings.currentProfile));
+    overlayPaneHiscoresLookupButtonCheckbox.setSelected(
+        Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile));
+    overlayPanelToggleMotivationalQuotesCheckbox.setSelected(
+        Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile));
     overlayPanelRemoveReportAbuseButtonHbarCheckbox.setSelected(
         Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.get(Settings.currentProfile));
     overlayPanelPositionCheckbox.setSelected(
@@ -2682,6 +2750,12 @@ public class ConfigWindow {
         !Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
     notificationPanelNotifSoundAnyFocusButton.setSelected(
         Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
+    importantMessagesTextField.setText(
+        Util.joinAsString(",", Settings.IMPORTANT_MESSAGES.get("custom")));
+    importantSadMessagesTextField.setText(
+        Util.joinAsString(",", Settings.IMPORTANT_SAD_MESSAGES.get("custom")));
+    notificationPanelMuteImportantMessageSoundsCheckbox.setSelected(
+        Settings.MUTE_IMPORTANT_MESSAGE_SOUNDS.get(Settings.currentProfile));
 
     // Streaming & Privacy tab
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setSelected(
@@ -2815,8 +2889,7 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
-    Settings.RS2HD_SKY.put(
-            Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
+    Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.FPS_LIMIT_ENABLED.put(
         Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
@@ -2844,13 +2917,17 @@ public class ConfigWindow {
     Settings.SHOW_RSCPLUS_BUTTONS.put(
         Settings.currentProfile, overlayPanelRscPlusButtonsCheckbox.isSelected());
     Settings.RSCPLUS_BUTTONS_FUNCTIONAL.put(
-        Settings.currentProfile,
-        overlayPanelRscPlusButtonsFunctionalCheckbox.isSelected()
-            || overlayPanelRscPlusButtonsCheckbox.isSelected());
+        Settings.currentProfile, overlayPanelRscPlusButtonsFunctionalCheckbox.isSelected());
     Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.put(
         Settings.currentProfile, overlayPanelWikiLookupOnMagicBookCheckbox.isSelected());
     Settings.WIKI_LOOKUP_ON_HBAR.put(
         Settings.currentProfile, overlayPanelWikiLookupOnHbarCheckbox.isSelected());
+    Settings.TOGGLE_XP_BAR_ON_STATS_BUTTON.put(
+        Settings.currentProfile, overlayPanelToggleXPBarOnStatsButtonCheckbox.isSelected());
+    Settings.HISCORES_LOOKUP_BUTTON.put(
+        Settings.currentProfile, overlayPaneHiscoresLookupButtonCheckbox.isSelected());
+    Settings.MOTIVATIONAL_QUOTES_BUTTON.put(
+        Settings.currentProfile, overlayPanelToggleMotivationalQuotesCheckbox.isSelected());
     Settings.REMOVE_REPORT_ABUSE_BUTTON_HBAR.put(
         Settings.currentProfile, overlayPanelRemoveReportAbuseButtonHbarCheckbox.isSelected());
     Settings.SHOW_PLAYER_POSITION.put(
@@ -2937,6 +3014,13 @@ public class ConfigWindow {
         Settings.currentProfile, notificationPanelTrayPopupAnyFocusButton.isSelected());
     Settings.SOUND_NOTIFS_ALWAYS.put(
         Settings.currentProfile, notificationPanelNotifSoundAnyFocusButton.isSelected());
+    Settings.IMPORTANT_MESSAGES.put(
+        "custom", new ArrayList<>(Arrays.asList(importantMessagesTextField.getText().split(","))));
+    Settings.IMPORTANT_SAD_MESSAGES.put(
+        "custom",
+        new ArrayList<>(Arrays.asList(importantSadMessagesTextField.getText().split(","))));
+    Settings.MUTE_IMPORTANT_MESSAGE_SOUNDS.put(
+        Settings.currentProfile, notificationPanelMuteImportantMessageSoundsCheckbox.isSelected());
 
     // Streaming & Privacy
     Settings.TWITCH_CHAT_ENABLED.put(
@@ -3028,6 +3112,7 @@ public class ConfigWindow {
       }
       Settings.WORLD_RSA_PUB_KEYS.put(i, worldRSAPubKeyJTextFields.get(i).getText());
       Settings.WORLD_RSA_EXPONENTS.put(i, worldRSAExponentsJTextFields.get(i).getText());
+      Settings.WORLD_HISCORES_URL.put(i, worldListHiscoresURLTextFieldContainers.get(i).getText());
     }
     if (Client.state == Client.STATE_LOGIN)
       Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
@@ -3227,10 +3312,44 @@ public class ConfigWindow {
     worldListRSATextFieldContainers.get(i).add(worldRSAExponentsJTextFields.get(i));
     worldListPanel.add(worldListRSATextFieldContainers.get(i));
 
+    //// Hiscores URL line
+    worldListHiscoresTextFieldContainers.put(i, new JPanel());
+    worldListHiscoresTextFieldContainers.get(i).setLayout(new GridBagLayout());
+    cR.fill = GridBagConstraints.HORIZONTAL;
+    cR.anchor = GridBagConstraints.LINE_START;
+    cR.weightx = 0.1;
+    cR.gridy = 0;
+    cR.gridwidth = 1;
+
+    JLabel hiscoresURLJLabel = new JLabel("<html><b>Hiscores URL</b></html>");
+    hiscoresURLJLabel.setAlignmentY((float) 1);
+    worldListHiscoresTextFieldContainers.get(i).add(hiscoresURLJLabel, cR);
+
+    worldListHiscoresURLTextFieldContainers.put(
+        i, new HintTextField(String.format("World %d Hiscores URL", i)));
+
+    worldListHiscoresURLTextFieldContainers.get(i).setMinimumSize(new Dimension(100, 28));
+    worldListHiscoresURLTextFieldContainers.get(i).setMaximumSize(new Dimension(580, 28));
+    worldListHiscoresURLTextFieldContainers.get(i).setPreferredSize(new Dimension(580, 28));
+    worldListHiscoresURLTextFieldContainers.get(i).setAlignmentY((float) 0.75);
+
+    worldListHiscoresTextFieldContainers
+        .get(i)
+        .setLayout(new BoxLayout(worldListHiscoresTextFieldContainers.get(i), BoxLayout.X_AXIS));
+
+    worldListHiscoresTextFieldContainers.get(i).add(worldListHiscoresURLTextFieldContainers.get(i));
+    worldListHiscoresTextFieldContainers.get(i).setMaximumSize(new Dimension(680, 28));
+    worldListHiscoresTextFieldContainers
+        .get(i)
+        .setVisible(Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile));
+    worldListPanel.add(worldListHiscoresTextFieldContainers.get(i));
+
+    //// spacing between worlds
     worldListSpacingLabels.put(i, new JLabel(""));
     worldListSpacingLabels.get(i).setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
     worldListPanel.add(worldListSpacingLabels.get(i));
 
+    //// create world
     if (i > Settings.WORLD_NAMES.size()) {
       Settings.createNewWorld(i);
     }
@@ -3275,15 +3394,20 @@ public class ConfigWindow {
         }
         worldRSAPubKeyJTextFields.get(i).setText(Settings.WORLD_RSA_PUB_KEYS.get(i));
         worldRSAExponentsJTextFields.get(i).setText(Settings.WORLD_RSA_EXPONENTS.get(i));
+        worldListHiscoresURLTextFieldContainers.get(i).setText(Settings.WORLD_HISCORES_URL.get(i));
         worldListTitleTextFieldContainers.get(i).setVisible(true);
         worldListURLPortTextFieldContainers.get(i).setVisible(true);
         worldListRSATextFieldContainers.get(i).setVisible(true);
         worldListSpacingLabels.get(i).setVisible(true);
+        worldListHiscoresTextFieldContainers
+            .get(i)
+            .setVisible(Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile));
       } else {
         worldListTitleTextFieldContainers.get(i).setVisible(false);
         worldListURLPortTextFieldContainers.get(i).setVisible(false);
         worldListRSATextFieldContainers.get(i).setVisible(false);
         worldListSpacingLabels.get(i).setVisible(false);
+        worldListHiscoresTextFieldContainers.get(i).setVisible(false);
       }
     }
   }

@@ -45,6 +45,7 @@ public class Camera {
   // This will offset the camera height
   public static int offset_height = 0;
 
+  public static int pitch;
   public static float add_lookat_x;
   public static float add_lookat_y;
   public static int new_lookat_x;
@@ -53,6 +54,8 @@ public class Camera {
   public static float delta_lookat_y;
   public static float delta_zoom = 0.0f;
   public static float delta_rotation = 0.0f;
+
+  public static int pitch_rscplus = 112;
 
   private Camera() {
     // Empty private constructor to prevent instantiation.
@@ -266,5 +269,13 @@ public class Camera {
   public static void resetRotation() {
     rotation = 126;
     delta_rotation = (float) rotation;
+  }
+
+  public static void postSetCamera() {
+    Camera.pitch = pitch_rscplus;
+  }
+
+  public static void resetPitch() {
+    Camera.pitch = 112;
   }
 }
