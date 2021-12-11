@@ -201,8 +201,9 @@ public class Camera {
       return;
     }
     pitch_rscplus -= speed;
-    if (pitch_rscplus < 0) pitch_rscplus = 0;
-    if (pitch_rscplus > 512) pitch_rscplus = 512;
+    if (pitch_rscplus < 0) pitch_rscplus = 1023;
+    if (pitch_rscplus > 1023) pitch_rscplus = 0;
+
   }
 
   public static void add_movement(float x, float y) {
