@@ -35,6 +35,7 @@ public class MusicPlayer implements Runnable {
 
             if (new File(zipPath).exists() && customMusic && !currentTrack.equals(switchTrack)) {
                 // Play track
+                Stop();
                 if (switchTrack.length() > 0) {
                     Logger.Info("Playing music '" + switchTrack + "'");
 
