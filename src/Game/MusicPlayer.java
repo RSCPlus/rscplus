@@ -14,8 +14,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class MusicPlayer implements Runnable {
-    public static final String MUSIC_PATH = "/assets/music";
-
     private static String currentTrack = "";
     private static String switchTrack = "";
 
