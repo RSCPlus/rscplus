@@ -392,10 +392,10 @@ public class WorldMapWindow {
           try
           {
             InputStream stream = Launcher.getResourceAsStream(MusicPlayer.MUSIC_PATH + "/" + music + ".mid");
-            Sequencer sequencer = MidiSystem.getSequencer();
+            /*Sequencer sequencer = MidiSystem.getSequencer();
             sequencer.open();
             sequencer.setSequence(stream);
-            sequencer.close();
+            sequencer.close();*/
             stream.close();
           }
           catch (Exception e)

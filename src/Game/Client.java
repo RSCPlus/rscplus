@@ -40,13 +40,7 @@ import java.applet.Applet;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -60,6 +54,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
 
 /**
@@ -605,7 +601,28 @@ public class Client {
         areaDefinitions[x][y] = AreaDefinition.DEFAULT;
 
     try {
-      String areaJson = Util.readString(Launcher.getResource("/assets/areas.json").openStream());
+      InputStream input = null;
+      String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+      try
+      {
+        FileInputStream fis = new FileInputStream(zipPath);
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        ZipInputStream zis = new ZipInputStream(bis);
+
+        ZipEntry ze;
+        while ((ze = zis.getNextEntry()) != null)
+        {
+          if (ze.getName().equalsIgnoreCase("areas.json")) {
+            input = zis;
+            break;
+          }
+        }
+      }
+      catch (Exception e)
+      {
+      }
+
+      String areaJson = Util.readString(input);
       JSONArray obj = new JSONArray(areaJson);
       for (int i = 0; i < obj.length(); i++) {
         JSONObject entry = obj.getJSONObject(i);
