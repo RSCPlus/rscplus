@@ -1188,6 +1188,8 @@ public class Renderer {
         y += 16;
         drawShadowText(g2, "WorldCoord: " + Client.getCoords(), x, y, color_text, false);
         y += 16;
+        drawShadowText(g2, "ChunkCoord: " + Client.getChunkX() + ", " + Client.getChunkY(), x, y, color_text, false);
+        y += 16;
         drawShadowText(
             g2,
             "Plane: ("
