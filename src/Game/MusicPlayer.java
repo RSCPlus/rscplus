@@ -156,8 +156,7 @@ public class MusicPlayer implements Runnable {
 
     public static void Stop()
     {
-        if (sequencer.isRunning())
-            sequencer.stop();
+        sequencer.stop();
     }
 
     public static void Close()
