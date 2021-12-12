@@ -6,6 +6,7 @@ import Client.Settings;
 
 import javax.sound.midi.*;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Set;
@@ -20,6 +21,7 @@ public class MusicPlayer implements Runnable {
 
     private static Synthesizer synthesizer;
     private static Sequencer sequencer;
+    private static Soundbank soundbank;
     private static Thread thread;
 
     private static boolean running = true;
@@ -27,15 +29,15 @@ public class MusicPlayer implements Runnable {
     public void run()
     {
         while (running) {
-            if (Settings.CUSTOM_MUSIC.get(Settings.currentProfile) && !currentTrack.equals(switchTrack)) {
+            String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
 
+            if (new File(zipPath).exists() && Settings.CUSTOM_MUSIC.get(Settings.currentProfile) && !currentTrack.equals(switchTrack)) {
                 // Play track
                 if (switchTrack.length() > 0) {
                     Logger.Info("Playing music '" + switchTrack + "'");
 
                     InputStream input = null;
 
-                    String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
                     try
                     {
                         FileInputStream fis = new FileInputStream(zipPath);
@@ -50,10 +52,7 @@ public class MusicPlayer implements Runnable {
                                 break;
                             }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    } catch (Exception e) {}
 
                     Play(input);
                 } else {
@@ -75,6 +74,7 @@ public class MusicPlayer implements Runnable {
             synthesizer = MidiSystem.getSynthesizer();
             synthesizer.open();
             sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+            soundbank = synthesizer.getDefaultSoundbank();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +82,47 @@ public class MusicPlayer implements Runnable {
         MusicPlayer player = new MusicPlayer();
         thread = new Thread(player);
         thread.start();
+    }
+
+    public static void resetSoundFont()
+    {
+        synthesizer.unloadAllInstruments(soundbank);
+        soundbank = synthesizer.getDefaultSoundbank();
+        synthesizer.loadAllInstruments(soundbank);
+    }
+
+    public static void loadSoundFont(String name)
+    {
+        Logger.Info("Loading soundfont '" + name + "'");
+
+        String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+        InputStream input = null;
+
+        try
+        {
+            FileInputStream fis = new FileInputStream(zipPath);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            ZipInputStream zis = new ZipInputStream(bis);
+
+            ZipEntry ze;
+            while ((ze = zis.getNextEntry()) != null)
+            {
+                if (ze.getName().equals(name + ".sf2")) {
+                    input = zis;
+                    break;
+                }
+            }
+        } catch (Exception e) {}
+
+        try {
+            Soundbank newSoundbank = synthesizer.getDefaultSoundbank();
+            if (input != null)
+                newSoundbank = MidiSystem.getSoundbank(input);
+            synthesizer.unloadAllInstruments(soundbank);
+            soundbank = newSoundbank;
+            synthesizer.loadAllInstruments(soundbank);
+        } catch (Exception e) {
+        }
     }
 
     public static void playTrack(String name)

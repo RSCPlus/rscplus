@@ -389,19 +389,6 @@ public class WorldMapWindow {
           if (music.length() == 0)
             continue;
 
-          try
-          {
-            InputStream stream = Launcher.getResourceAsStream(MusicPlayer.MUSIC_PATH + "/" + music + ".mid");
-            /*Sequencer sequencer = MidiSystem.getSequencer();
-            sequencer.open();
-            sequencer.setSequence(stream);
-            sequencer.close();*/
-            stream.close();
-          }
-          catch (Exception e)
-          {
-            color = Renderer.color_low;
-          }
           Renderer.drawShadowText(g, indexX + ", " + indexY + ": " + music, drawX, drawY, color, false);
         }
       }

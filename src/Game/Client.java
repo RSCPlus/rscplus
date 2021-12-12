@@ -426,7 +426,7 @@ public class Client {
 
   public static boolean usingRetroTabs = false;
 
-  public static String loginTrack;
+  public static String loginTrack = "";
 
   public static AreaDefinition[][] areaDefinitions = new AreaDefinition[AreaDefinition.SIZE_X][AreaDefinition.SIZE_Y_ALL];
 
@@ -602,6 +602,8 @@ public class Client {
       for (int y = 0; y < AreaDefinition.SIZE_Y_ALL; y++)
         areaDefinitions[x][y] = AreaDefinition.DEFAULT;
 
+    MusicPlayer.resetSoundFont();
+
     try {
       InputStream input = null;
       String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
@@ -620,9 +622,7 @@ public class Client {
           }
         }
       }
-      catch (Exception e)
-      {
-      }
+      catch (Exception e) {}
 
       String areaJson = Util.readString(input);
       JSONArray obj = new JSONArray(areaJson);
@@ -632,6 +632,13 @@ public class Client {
         try
         {
           loginTrack = entry.getString("title");
+          continue;
+        } catch (Exception e) {}
+
+        try
+        {
+          String soundfont = entry.getString("soundfont");
+          MusicPlayer.loadSoundFont(soundfont);
           continue;
         } catch (Exception e) {}
 
@@ -649,9 +656,7 @@ public class Client {
           for (int y = chunkY; y <= chunkY2; y++)
             areaDefinitions[x][y] = definition;
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    } catch (Exception e) {}
   }
 
   public static AreaDefinition getCurrentAreaDefinition()
