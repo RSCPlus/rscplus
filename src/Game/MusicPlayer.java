@@ -31,7 +31,7 @@ public class MusicPlayer implements Runnable {
 
             boolean customMusic = Settings.CUSTOM_MUSIC.get(Settings.currentProfile);
 
-            if (new File(zipPath).exists() && customMusic && !currentTrack.equals(switchTrack)) {
+            if (!Replay.isSeeking && new File(zipPath).exists() && customMusic && !currentTrack.equals(switchTrack)) {
                 // Play track
                 Stop();
                 if (switchTrack.length() > 0) {
@@ -67,6 +67,12 @@ public class MusicPlayer implements Runnable {
                 switchTrack = "";
                 Stop();
             }
+
+            // TODO: Make this customizable, it's music repeat
+            if (Client.state == Client.STATE_GAME)
+                sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+            else
+                sequencer.setLoopCount(0);
 
             try { Thread.sleep(100); } catch (Exception e) {}
         }
@@ -144,8 +150,6 @@ public class MusicPlayer implements Runnable {
 
     public static void Play(InputStream inputStream)
     {
-        Stop();
-
         try {
             sequencer.setSequence(inputStream);
             sequencer.start();
