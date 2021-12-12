@@ -31,7 +31,9 @@ public class MusicPlayer implements Runnable {
         while (running) {
             String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
 
-            if (new File(zipPath).exists() && Settings.CUSTOM_MUSIC.get(Settings.currentProfile) && !currentTrack.equals(switchTrack)) {
+            boolean customMusic = Settings.CUSTOM_MUSIC.get(Settings.currentProfile);
+
+            if (new File(zipPath).exists() && customMusic && !currentTrack.equals(switchTrack)) {
                 // Play track
                 if (switchTrack.length() > 0) {
                     Logger.Info("Playing music '" + switchTrack + "'");
@@ -55,10 +57,16 @@ public class MusicPlayer implements Runnable {
                     } catch (Exception e) {}
 
                     Play(input);
-                } else {
-                    Stop();
                 }
+
                 currentTrack = switchTrack;
+            }
+
+            if (!customMusic)
+            {
+                currentTrack = "";
+                switchTrack = "";
+                Stop();
             }
 
             try { Thread.sleep(100); } catch (Exception e) {}
@@ -149,7 +157,8 @@ public class MusicPlayer implements Runnable {
 
     public static void Stop()
     {
-        sequencer.stop();
+        if (sequencer.isRunning())
+            sequencer.stop();
     }
 
     public static void Close()
