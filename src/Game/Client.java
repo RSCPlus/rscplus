@@ -1905,6 +1905,7 @@ public class Client {
       Client.autologin_timeout = 2;
       Reflection.login.invoke(Client.instance, -12, pass, user, reconnecting);
     } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

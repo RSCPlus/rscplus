@@ -2038,7 +2038,7 @@ public class Renderer {
     }
 
     // handle resize
-    if (width != new_size.width || height != new_size.height) handle_resize();
+    //if (width != new_size.width || height != new_size.height) handle_resize();
     if (Settings.fovUpdateRequired) {
       Camera.setFoV(Settings.FOV.get(Settings.currentProfile));
       Settings.fovUpdateRequired = false;

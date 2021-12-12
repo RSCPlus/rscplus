@@ -61,7 +61,7 @@ public class JClassLoader extends ClassLoader {
 
         if (name.endsWith(".class")) {
           name = name.substring(0, name.indexOf(".class"));
-          classData = JClassPatcher.getInstance().patch(classData);
+          classData = JClassPatcher.getInstance().new_patch(classData);
           m_classData.put(name, classData);
         }
       }
