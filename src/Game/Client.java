@@ -1476,9 +1476,8 @@ public class Client {
 
   public static int getChunkY()
   {
-    int chunkY = (worldY / 48);
-    int floor = chunkY / AreaDefinition.SIZE_Y;
-    chunkY = chunkY % AreaDefinition.SIZE_Y;
+    int chunkY = (worldY % 944) / 48;
+    int floor = worldY / 944;
     if (floor == 3)
       chunkY += AreaDefinition.SIZE_Y;
     return chunkY;
