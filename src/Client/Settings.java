@@ -819,7 +819,7 @@ public class Settings {
             "custom",
             getPropBoolean(props, "custom_music", CUSTOM_MUSIC.get("default")));
 
-    CUSTOM_MUSIC_PATH.put("vanilla", "music.zip");
+    CUSTOM_MUSIC_PATH.put("vanilla", "mods/music.zip");
     CUSTOM_MUSIC_PATH.put("vanilla_resizable", CUSTOM_MUSIC_PATH.get("vanilla"));
     CUSTOM_MUSIC_PATH.put("lite", CUSTOM_MUSIC_PATH.get("vanilla"));
     CUSTOM_MUSIC_PATH.put("default", CUSTOM_MUSIC_PATH.get("vanilla"));
@@ -1744,6 +1744,8 @@ public class Settings {
     // Load other directories
     Dir.SCREENSHOT = Dir.JAR + "/screenshots";
     Util.makeDirectory(Dir.SCREENSHOT);
+    Dir.MODS = Dir.JAR + "/mods";
+    Util.makeDirectory(Dir.MODS);
     Dir.REPLAY = Dir.JAR + "/replay";
     Util.makeDirectory(Dir.REPLAY);
     Dir.WORLDS = Dir.JAR + "/worlds";
@@ -2868,6 +2870,7 @@ public class Settings {
     public static String JAR;
     public static String DUMP;
     public static String SCREENSHOT;
+    public static String MODS;
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;
