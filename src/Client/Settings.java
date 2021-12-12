@@ -129,6 +129,10 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
+  //// music
+  public static HashMap<String, Boolean> CUSTOM_MUSIC = new HashMap<String, Boolean>();
+  public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
+
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
       new HashMap<String, Boolean>();
@@ -803,6 +807,27 @@ public class Settings {
     PREFERS_XDG_OPEN.put("all", true);
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
+
+    //// music
+    CUSTOM_MUSIC.put("vanilla", false);
+    CUSTOM_MUSIC.put("vanilla_resizable", false);
+    CUSTOM_MUSIC.put("lite", false);
+    CUSTOM_MUSIC.put("default", true);
+    CUSTOM_MUSIC.put("heavy", true);
+    CUSTOM_MUSIC.put("all", true);
+    CUSTOM_MUSIC.put(
+            "custom",
+            getPropBoolean(props, "custom_music", CUSTOM_MUSIC.get("default")));
+
+    CUSTOM_MUSIC_PATH.put("vanilla", "music.zip");
+    CUSTOM_MUSIC_PATH.put("vanilla_resizable", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("lite", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("default", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("heavy", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put(
+            "custom",
+            getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
 
     //// overlays
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -2097,6 +2122,12 @@ public class Settings {
       props.setProperty("log_force_timestamps", Boolean.toString(LOG_FORCE_TIMESTAMPS.get(preset)));
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
       props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
+
+      //// music
+      props.setProperty(
+              "custom_music", Boolean.toString(CUSTOM_MUSIC.get(preset)));
+      props.setProperty(
+              "custom_music_path", CUSTOM_MUSIC_PATH.get(preset));
 
       //// overlays
       props.setProperty(

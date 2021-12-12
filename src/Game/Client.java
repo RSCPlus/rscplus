@@ -33,8 +33,12 @@ import Client.TwitchIRC;
 import Client.Util;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.applet.Applet;
-import java.awt.Component;
+import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -426,6 +430,8 @@ public class Client {
 
   public static boolean usingRetroTabs = false;
 
+  public static AreaDefinition[][] areaDefinitions = new AreaDefinition[AreaDefinition.SIZE_X][AreaDefinition.SIZE_Y_ALL];
+
   public static final String[] colorDict = {
     // less common colors should go at the bottom b/c we can break search loop early
     // several of the orange & green colours are basically the same colour, even in-game
@@ -591,8 +597,53 @@ public class Client {
     instructions.add(instruction);
   }
 
-  public static void init() {
+  public static void loadAreaDefinitions()
+  {
+    // Set default region
+    for (int x = 0; x < AreaDefinition.SIZE_X; x++)
+      for (int y = 0; y < AreaDefinition.SIZE_Y_ALL; y++)
+        areaDefinitions[x][y] = AreaDefinition.DEFAULT;
 
+    try {
+      String areaJson = Util.readString(Launcher.getResource("/assets/areas.json").openStream());
+      JSONArray obj = new JSONArray(areaJson);
+      for (int i = 0; i < obj.length(); i++) {
+        JSONObject entry = obj.getJSONObject(i);
+
+        int chunkX = entry.getInt("x");
+        int chunkY = entry.getInt("y");
+        int chunkX2 = chunkX;
+        int chunkY2 = chunkY;
+        try { chunkX2 = entry.getInt("x2"); } catch (Exception e) {}
+        try { chunkY2 = entry.getInt("y2"); } catch (Exception e) {}
+        String music = entry.getString("music");
+
+        AreaDefinition definition = new AreaDefinition(music);
+
+        for (int x = chunkX; x <= chunkX2; x++)
+          for (int y = chunkY; y <= chunkY2; y++)
+            areaDefinitions[x][y] = definition;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static AreaDefinition getCurrentAreaDefinition()
+  {
+    int chunkX = getChunkX();
+    int chunkY = getChunkY();
+
+    // Return default chunk if out of bounds
+    if (chunkX >= AreaDefinition.SIZE_X || chunkY >= AreaDefinition.SIZE_Y_ALL ||
+        chunkX < 0 || chunkY < 0)
+      return AreaDefinition.DEFAULT;
+
+    return areaDefinitions[chunkX][chunkY];
+  }
+
+  public static void init() {
+    loadAreaDefinitions();
     adaptStrings();
 
     handler_mouse = new MouseHandler();
@@ -727,6 +778,8 @@ public class Client {
     return planeIndex == 3;
   }
 
+
+
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
    *
@@ -745,6 +798,17 @@ public class Client {
 
     float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
+
+    // Handdle area data
+    if (state == STATE_GAME)
+    {
+      AreaDefinition area = getCurrentAreaDefinition();
+      MusicPlayer.playTrack(area.music);
+    }
+    else if (state == STATE_LOGIN)
+    {
+      MusicPlayer.playTrack("scape_original");
+    }
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
@@ -1382,7 +1446,12 @@ public class Client {
 
   public static int getChunkY()
   {
-    return worldY / 48;
+    int chunkY = (worldY / 48);
+    int floor = chunkY / AreaDefinition.SIZE_Y;
+    chunkY = chunkY % AreaDefinition.SIZE_Y;
+    if (floor == 3)
+      chunkY += AreaDefinition.SIZE_Y;
+    return chunkY;
   }
 
   /**
