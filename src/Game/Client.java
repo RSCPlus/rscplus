@@ -426,6 +426,8 @@ public class Client {
 
   public static boolean usingRetroTabs = false;
 
+  public static String loginTrack;
+
   public static AreaDefinition[][] areaDefinitions = new AreaDefinition[AreaDefinition.SIZE_X][AreaDefinition.SIZE_Y_ALL];
 
   public static final String[] colorDict = {
@@ -627,6 +629,12 @@ public class Client {
       for (int i = 0; i < obj.length(); i++) {
         JSONObject entry = obj.getJSONObject(i);
 
+        try
+        {
+          loginTrack = entry.getString("title");
+          continue;
+        } catch (Exception e) {}
+
         int chunkX = entry.getInt("x");
         int chunkY = entry.getInt("y");
         int chunkX2 = chunkX;
@@ -824,7 +832,7 @@ public class Client {
     }
     else if (state == STATE_LOGIN)
     {
-      MusicPlayer.playTrack("scape_original");
+      MusicPlayer.playTrack(loginTrack);
     }
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
