@@ -62,7 +62,7 @@ public class MusicPlayer implements Runnable {
 
                     currentTrack = switchTrack;
                 } else {
-                    setVolume(getVolume() - 0.05);
+                    setVolume(getVolume() - 0.03);
                 }
             }
 
