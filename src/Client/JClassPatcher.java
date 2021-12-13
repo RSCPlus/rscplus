@@ -359,7 +359,8 @@ public class JClassPatcher {
 
       hookClassVariable(methodNode, "lb", "pb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
-      hookClassVariable(methodNode, "lb", "Kb", "I", "Game/Camera", "pitch_internal", "I", true, true);
+      hookClassVariable(
+          methodNode, "lb", "Kb", "I", "Game/Camera", "pitch_internal", "I", true, true);
 
       hookStaticVariable(
           methodNode,

@@ -749,11 +749,20 @@ public class Client {
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
 
+    Renderer.setClearColor(0);
     if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
-      if (isUnderground()) Renderer.setClearColor(Renderer.rsc_color_skyunderground);
-      else Renderer.setClearColor(Renderer.rsc_color_skyoverworld);
+      if (isUnderground()) Renderer.setClearColor(Renderer.rs2hd_color_skyunderground);
+      else Renderer.setClearColor(Renderer.rs2hd_color_skyoverworld);
     } else {
-      Renderer.setClearColor(0);
+      if (Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(Settings.currentProfile)) {
+        Renderer.setClearColor(
+            Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.get(Settings.currentProfile));
+      }
+      if (Settings.CUSTOM_SKYBOX_UNDERGROUND_ENABLED.get(Settings.currentProfile)) {
+        if (isUnderground())
+          Renderer.setClearColor(
+              Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
+      }
     }
 
     if (Settings.JOYSTICK_ENABLED.get(Settings.currentProfile)) {
@@ -1538,10 +1547,20 @@ public class Client {
           try {
             Camera.pitch_rscplus = Integer.parseInt(commandArray[1]);
             if (Camera.pitch_rscplus < 0) Camera.pitch_rscplus = 0;
-            if (Camera.pitch_rscplus > 512) Camera.pitch_rscplus = 512;
+            if (Camera.pitch_rscplus > 1023) Camera.pitch_rscplus = 1023;
           } catch (ArrayIndexOutOfBoundsException ex) {
             displayMessage(
                 "You must specify a number to set the pitch to. 112 is default.", CHAT_QUEST);
+          } catch (NumberFormatException ex) {
+            displayMessage("That is not a number.", CHAT_QUEST);
+          }
+          break;
+        case "set_height":
+          try {
+            Camera.offset_height = Integer.parseInt(commandArray[1]);
+          } catch (ArrayIndexOutOfBoundsException ex) {
+            displayMessage(
+                "You must specify a number to set the height offset to. 0 is default.", CHAT_QUEST);
           } catch (NumberFormatException ex) {
             displayMessage("That is not a number.", CHAT_QUEST);
           }

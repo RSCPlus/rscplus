@@ -24,8 +24,8 @@ import Game.Camera;
 import Game.Client;
 import Game.Game;
 import Game.Item;
-import Game.KeyboardHandler;
 import Game.JoystickHandler;
+import Game.KeyboardHandler;
 import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -53,32 +53,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -168,6 +144,14 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelRS2HDSkyCheckbox;
+  private JCheckBox generalPanelCustomSkyboxOverworldCheckbox;
+  private JPanel generalPanelSkyOverworldColourColourPanel;
+  private JCheckBox generalPanelCustomSkyboxUndergroundCheckbox;
+  private JPanel generalPanelSkyUndergroundColourColourPanel;
+  private Color overworldSkyColour =
+      Util.intToColor(Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.get(Settings.currentProfile));
+  private Color undergroundSkyColour =
+      Util.intToColor(Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
   private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelPatchHbar512LastPixelCheckbox;
   private JCheckBox generalPanelPatchWrenchMenuSpacingCheckbox;
@@ -642,9 +626,104 @@ public class ConfigWindow {
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
 
-    generalPanelRS2HDSkyCheckbox = addCheckbox("Use RS2: HD Sky colors", generalPanel);
-    generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colors from RS2: HD");
+    generalPanelRS2HDSkyCheckbox =
+        addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
+    generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colours from RS2: HD");
 
+    // colour choose overworld sub-panel
+    JPanel generalPanelSkyOverworldColourPanel = new JPanel();
+    generalPanel.add(generalPanelSkyOverworldColourPanel);
+    generalPanelSkyOverworldColourPanel.setLayout(
+        new BoxLayout(generalPanelSkyOverworldColourPanel, BoxLayout.X_AXIS));
+    generalPanelSkyOverworldColourPanel.setPreferredSize(new Dimension(0, 30));
+    generalPanelSkyOverworldColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelCustomSkyboxOverworldCheckbox =
+        addCheckbox("Use a custom colour for the sky", generalPanelSkyOverworldColourPanel);
+    generalPanelCustomSkyboxOverworldCheckbox.setToolTipText(
+        "You can set your own preferred colour for what you think the sky should have");
+
+    generalPanelSkyOverworldColourColourPanel = new JPanel();
+    generalPanelSkyOverworldColourPanel.add(generalPanelSkyOverworldColourColourPanel);
+    generalPanelSkyOverworldColourColourPanel.setAlignmentY((float) 0.7);
+    generalPanelSkyOverworldColourColourPanel.setMinimumSize(new Dimension(32, 20));
+    generalPanelSkyOverworldColourColourPanel.setPreferredSize(new Dimension(32, 20));
+    generalPanelSkyOverworldColourColourPanel.setMaximumSize(new Dimension(32, 20));
+    generalPanelSkyOverworldColourColourPanel.setBorder(
+        BorderFactory.createLineBorder(Color.black));
+    generalPanelSkyOverworldColourColourPanel.setBackground(overworldSkyColour);
+
+    JPanel generalPanelSkyOverworldColourColourSpacingPanel = new JPanel();
+    generalPanelSkyOverworldColourPanel.add(generalPanelSkyOverworldColourColourSpacingPanel);
+    generalPanelSkyOverworldColourColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    generalPanelSkyOverworldColourColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    generalPanelSkyOverworldColourColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton overworldSkyColourChooserButton = new JButton("Choose colour");
+    overworldSkyColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose Overworld Sky Colour", overworldSkyColour);
+            if (null != selected) {
+              overworldSkyColour = selected;
+            }
+            generalPanelSkyOverworldColourColourPanel.setBackground(overworldSkyColour);
+          }
+        });
+    generalPanelSkyOverworldColourPanel.add(overworldSkyColourChooserButton);
+    overworldSkyColourChooserButton.setAlignmentY(.7f);
+
+    // choose color for underground subpanel
+    JPanel generalPanelSkyUndergroundColourPanel = new JPanel();
+    generalPanel.add(generalPanelSkyUndergroundColourPanel);
+    generalPanelSkyUndergroundColourPanel.setLayout(
+        new BoxLayout(generalPanelSkyUndergroundColourPanel, BoxLayout.X_AXIS));
+    generalPanelSkyUndergroundColourPanel.setPreferredSize(new Dimension(0, 30));
+    generalPanelSkyUndergroundColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelCustomSkyboxUndergroundCheckbox =
+        addCheckbox(
+            "Use a custom colour for the sky when underground",
+            generalPanelSkyUndergroundColourPanel);
+    generalPanelCustomSkyboxUndergroundCheckbox.setToolTipText(
+        "You can set your own preferred colour for what you think the sky should have (underground)");
+
+    generalPanelSkyUndergroundColourColourPanel = new JPanel();
+    generalPanelSkyUndergroundColourPanel.add(generalPanelSkyUndergroundColourColourPanel);
+    generalPanelSkyUndergroundColourColourPanel.setAlignmentY((float) 0.7);
+    generalPanelSkyUndergroundColourColourPanel.setMinimumSize(new Dimension(32, 20));
+    generalPanelSkyUndergroundColourColourPanel.setPreferredSize(new Dimension(32, 20));
+    generalPanelSkyUndergroundColourColourPanel.setMaximumSize(new Dimension(32, 20));
+    generalPanelSkyUndergroundColourColourPanel.setBorder(
+        BorderFactory.createLineBorder(Color.black));
+    generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
+
+    JPanel generalPanelSkyUndergroundColourColourSpacingPanel = new JPanel();
+    generalPanelSkyUndergroundColourPanel.add(generalPanelSkyUndergroundColourColourSpacingPanel);
+    generalPanelSkyUndergroundColourColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    generalPanelSkyUndergroundColourColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    generalPanelSkyUndergroundColourColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton undergroundSkyColourChooserButton = new JButton("Choose colour");
+    undergroundSkyColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(
+                    null, "Choose Underground Sky Colour", undergroundSkyColour);
+            if (null != selected) {
+              undergroundSkyColour = selected;
+            }
+            generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
+          }
+        });
+    generalPanelSkyUndergroundColourPanel.add(undergroundSkyColourChooserButton);
+    undergroundSkyColourChooserButton.setAlignmentY(.7f);
+
+    // sliders
     JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
     generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
     generalPanel.add(generalPanelFoVLabel);
@@ -2299,22 +2378,22 @@ public class ConfigWindow {
     addSettingsHeader(joystickPanel, "Explanation");
 
     JLabel joystickExplanation =
-            new JLabel(
-                    "<html><head><style>p{font-size:10px;}</style></head><p>"
-                            + "Currently, RSC+ is compatible with only the 3DConnexion Space Navigator 3D Mouse.<br/>"
-                            + "It is used to enable a 5 degree of freedom camera (roll left/right is omitted).<br/><br/>"
-                            + "This setting does not allow you to move the player with a joystick or perform in-game actions.<br/><br/>"
-                            + "If you do not have a 3DConnexion Space Navigator 3D Mouse, you should not enable this setting."
-                            + "</p><br/></html>");
+        new JLabel(
+            "<html><head><style>p{font-size:10px;}</style></head><p>"
+                + "Currently, RSC+ is compatible with only the 3DConnexion Space Navigator 3D Mouse.<br/>"
+                + "It is used to enable a 5 degree of freedom camera (roll left/right is omitted).<br/><br/>"
+                + "This setting does not allow you to move the player with a joystick or perform in-game actions.<br/><br/>"
+                + "If you do not have a 3DConnexion Space Navigator 3D Mouse, you should not enable this setting."
+                + "</p><br/></html>");
     joystickExplanation.setBorder(new EmptyBorder(7, 0, 0, 0));
     joystickPanel.add(joystickExplanation);
 
     addSettingsHeader(joystickPanel, "Joystick");
-    joystickPanelJoystickEnabledCheckbox = addCheckbox("Enable Joystick polling (Performance decreased if not using joystick)", joystickPanel);
-    joystickPanelJoystickEnabledCheckbox.setToolTipText(
-            "Enable Joystick polling once every frame");
-    joystickPanelJoystickEnabledCheckbox.setBorder(new EmptyBorder(7,0,7,0));
-
+    joystickPanelJoystickEnabledCheckbox =
+        addCheckbox(
+            "Enable Joystick polling (Performance decreased if not using joystick)", joystickPanel);
+    joystickPanelJoystickEnabledCheckbox.setToolTipText("Enable Joystick polling once every frame");
+    joystickPanelJoystickEnabledCheckbox.setBorder(new EmptyBorder(7, 0, 7, 0));
 
     joystickInputJlabels.put("X Axis", new JLabel("X Axis"));
     joystickInputJlabels.put("Y Axis", new JLabel("Y Axis"));
@@ -2334,12 +2413,12 @@ public class ConfigWindow {
     joystickInputValueJlabels.put("Button 0", new JLabel("No input"));
     joystickInputValueJlabels.put("Button 1", new JLabel("No input"));
 
-    joystickInputJlabels.forEach((key, value) -> {
-        joystickPanel.add(value);
-        joystickPanel.add(joystickInputValueJlabels.get(key));
-        joystickPanel.add(new JLabel("<html><br/></html>"));
-      }
-    );
+    joystickInputJlabels.forEach(
+        (key, value) -> {
+          joystickPanel.add(value);
+          joystickPanel.add(joystickInputValueJlabels.get(key));
+          joystickPanel.add(new JLabel("<html><br/></html>"));
+        });
   }
 
   /**
@@ -2662,6 +2741,16 @@ public class ConfigWindow {
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
     generalPanelRS2HDSkyCheckbox.setSelected(Settings.RS2HD_SKY.get(Settings.currentProfile));
+    generalPanelCustomSkyboxOverworldCheckbox.setSelected(
+        Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(Settings.currentProfile));
+    generalPanelCustomSkyboxUndergroundCheckbox.setSelected(
+        Settings.CUSTOM_SKYBOX_UNDERGROUND_ENABLED.get(Settings.currentProfile));
+    overworldSkyColour =
+        Util.intToColor(Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.get(Settings.currentProfile));
+    undergroundSkyColour =
+        Util.intToColor(Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
+    generalPanelSkyOverworldColourColourPanel.setBackground(overworldSkyColour);
+    generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
@@ -2871,7 +2960,7 @@ public class ConfigWindow {
 
     // Joystick tab
     joystickPanelJoystickEnabledCheckbox.setSelected(
-            Settings.JOYSTICK_ENABLED.get(Settings.currentProfile));
+        Settings.JOYSTICK_ENABLED.get(Settings.currentProfile));
 
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       setKeybindButtonText(kbs);
@@ -2958,6 +3047,14 @@ public class ConfigWindow {
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
+    Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.put(
+        Settings.currentProfile, generalPanelCustomSkyboxOverworldCheckbox.isSelected());
+    Settings.CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put(
+        Settings.currentProfile, generalPanelCustomSkyboxUndergroundCheckbox.isSelected());
+    Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(overworldSkyColour));
+    Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(undergroundSkyColour));
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.FPS_LIMIT_ENABLED.put(
         Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
@@ -3186,7 +3283,8 @@ public class ConfigWindow {
       Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
 
     //// joystick
-    Settings.JOYSTICK_ENABLED.put(Settings.currentProfile, joystickPanelJoystickEnabledCheckbox.isSelected());
+    Settings.JOYSTICK_ENABLED.put(
+        Settings.currentProfile, joystickPanelJoystickEnabledCheckbox.isSelected());
 
     // Save Settings
     Settings.save();
@@ -3485,7 +3583,11 @@ public class ConfigWindow {
   }
 
   public void updateJoystickInput(String compName) {
-    joystickInputValueJlabels.get(compName).setText(String.format("%d", (int)Math.floor(JoystickHandler.joystickInputReports.get(compName))));
+    joystickInputValueJlabels
+        .get(compName)
+        .setText(
+            String.format(
+                "%d", (int) Math.floor(JoystickHandler.joystickInputReports.get(compName))));
     joystickPanel.revalidate();
     joystickPanel.repaint();
   }
