@@ -602,8 +602,6 @@ public class Client {
       for (int y = 0; y < AreaDefinition.SIZE_Y_ALL; y++)
         areaDefinitions[x][y] = AreaDefinition.DEFAULT;
 
-    MusicPlayer.resetSoundFont();
-
     try {
       InputStream input = null;
       String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
