@@ -110,6 +110,14 @@ public class Settings {
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> CUSTOM_SKYBOX_OVERWORLD_COLOUR =
+      new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> CUSTOM_SKYBOX_UNDERGROUND_ENABLED =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> CUSTOM_SKYBOX_UNDERGROUND_COLOUR =
+      new HashMap<String, Integer>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
@@ -658,6 +666,58 @@ public class Settings {
     RS2HD_SKY.put("heavy", true);
     RS2HD_SKY.put("all", true);
     RS2HD_SKY.put("custom", getPropBoolean(props, "rs2hd_sky", RS2HD_SKY.get("default")));
+
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("vanilla", false);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("vanilla_resizable", false);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("lite", false);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("default", false);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("heavy", true);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put("all", true);
+    CUSTOM_SKYBOX_OVERWORLD_ENABLED.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "custom_skybox_overworld_enabled",
+            CUSTOM_SKYBOX_OVERWORLD_ENABLED.get("default")));
+
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("vanilla", 0);
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("vanilla_resizable", 0);
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("lite", 0);
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("default", 0xBEEF); // moooo
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("heavy", 0xBEEF); // it's actually a nice colour
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put("all", 0xFFB8D5FF); // 117hd sky colour
+    CUSTOM_SKYBOX_OVERWORLD_COLOUR.put(
+        "custom",
+        getPropInt(
+            props,
+            "custom_skybox_overworld_colour",
+            CUSTOM_SKYBOX_OVERWORLD_COLOUR.get("default")));
+
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla", false);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla_resizable", false);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("lite", false);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("default", false);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("heavy", true);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("all", true);
+    CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "custom_skybox_underground_enabled",
+            CUSTOM_SKYBOX_UNDERGROUND_ENABLED.get("default")));
+
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("vanilla", 0);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("vanilla_resizable", 0);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("lite", 0);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("default", 0x101010);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("heavy", 0x101010);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put("all", 0xFF1D150E);
+    CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put(
+        "custom",
+        getPropInt(
+            props,
+            "custom_skybox_underground_colour",
+            CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get("default")));
 
     PATCH_GENDER.put("vanilla", false);
     PATCH_GENDER.put("vanilla_resizable", false);
@@ -1522,7 +1582,8 @@ public class Settings {
     JOYSTICK_ENABLED.put("default", false);
     JOYSTICK_ENABLED.put("heavy", false);
     JOYSTICK_ENABLED.put("all", true);
-    JOYSTICK_ENABLED.put("custom", getPropBoolean(props, "joystick_enabled", JOYSTICK_ENABLED.get("default")));
+    JOYSTICK_ENABLED.put(
+        "custom", getPropBoolean(props, "joystick_enabled", JOYSTICK_ENABLED.get("default")));
 
     //// no gui
     COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
@@ -2012,6 +2073,18 @@ public class Settings {
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
+      props.setProperty(
+          "custom_skybox_overworld_enabled",
+          Boolean.toString(CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(preset)));
+      props.setProperty(
+          "custom_skybox_overworld_colour",
+          Integer.toString(CUSTOM_SKYBOX_OVERWORLD_COLOUR.get(preset)));
+      props.setProperty(
+          "custom_skybox_underground_enabled",
+          Boolean.toString(CUSTOM_SKYBOX_UNDERGROUND_ENABLED.get(preset)));
+      props.setProperty(
+          "custom_skybox_underground_colour",
+          Integer.toString(CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(preset)));
       props.setProperty("view_distance", Integer.toString(VIEW_DISTANCE.get(preset)));
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
       props.setProperty(

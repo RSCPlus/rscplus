@@ -536,11 +536,21 @@ public class Launcher extends JFrame implements Runnable {
   }
 
   public static void extractJInputNatives() {
-    extractResource("/lib/jinput-natives/jinput-dx8_64.dll", new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-dx8_64.dll"));
-    extractResource("/lib/jinput-natives/jinput-raw_64.dll", new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-raw_64.dll"));
-    extractResource("/lib/jinput-natives/jinput-wintab.dll", new File(Settings.Dir.JINPUTNATIVELIB +"/jinput-wintab.dll"));
-    extractResource("/lib/jinput-natives/libjinput-linux64.so", new File(Settings.Dir.JINPUTNATIVELIB + "/libjinput-linux64.so"));
-    extractResource("/lib/jinput-natives/libjinput-osx.jnilib", new File(Settings.Dir.JINPUTNATIVELIB + "/libjinput-osx.jnilib"));
+    extractResource(
+        "/lib/jinput-natives/jinput-dx8_64.dll",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-dx8_64.dll"));
+    extractResource(
+        "/lib/jinput-natives/jinput-raw_64.dll",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-raw_64.dll"));
+    extractResource(
+        "/lib/jinput-natives/jinput-wintab.dll",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-wintab.dll"));
+    extractResource(
+        "/lib/jinput-natives/libjinput-linux64.so",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/libjinput-linux64.so"));
+    extractResource(
+        "/lib/jinput-natives/libjinput-osx.jnilib",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/libjinput-osx.jnilib"));
   }
 
   public static void extractResource(String pathInJar, File destinationPath) {
@@ -559,7 +569,6 @@ public class Launcher extends JFrame implements Runnable {
       Logger.Error("Could not extract " + pathInJar);
       e.printStackTrace();
     }
-
   }
 
   /** @return the window */

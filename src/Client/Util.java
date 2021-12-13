@@ -20,7 +20,7 @@ package Client;
 
 import Game.Replay;
 import Game.ReplayQueue;
-import java.awt.Point;
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -684,5 +684,13 @@ public class Util {
   public static void openLinkInBrowser(String url) {
     Thread t = new Thread(new LinkOpener(url));
     t.start();
+  }
+
+  public static Color intToColor(Integer i) {
+    return new Color((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF);
+  }
+
+  public static Integer colorToInt(Color color) {
+    return (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue();
   }
 }

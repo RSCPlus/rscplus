@@ -66,8 +66,8 @@ public class Renderer {
   public static int[] pixels;
   public static int sprite_media;
 
-  public static int rsc_color_skyoverworld = 0xFFCAC1AB;
-  public static int rsc_color_skyunderground = 0xFF1D150E;
+  public static int rs2hd_color_skyoverworld = 0xFFCAC1AB;
+  public static int rs2hd_color_skyunderground = 0xFF1D150E;
 
   // Screen clear color, stored same way rsc stores colors
   private static int clearColor = 0;
@@ -144,9 +144,7 @@ public class Renderer {
     int clearColor = getClearColor();
 
     // Return normal fog
-    if (clearColor == 0 || Client.state == Client.STATE_LOGIN)
-        return val + attenuation;
-
+    if (clearColor == 0 || Client.state == Client.STATE_LOGIN) return val + attenuation;
 
     // Disable fog for custom colors
     return attenuation;

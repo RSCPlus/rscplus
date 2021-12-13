@@ -171,7 +171,7 @@ public class Camera {
     }
   }
 
-  // up or down
+  // forward or back
   public static void strafe(float speed) {
     if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
         || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
@@ -195,15 +195,24 @@ public class Camera {
     add_movement(xDiff * speed, yDiff * speed);
   }
 
+  // up or down
+  private static void elevate(float speed) {
+    if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
+        || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+      return;
+    }
+    offset_height -= speed;
+  }
+
+  // pitch forward or back
   public static void pitch(float speed) {
     if (!Settings.CAMERA_MOVABLE.get(Settings.currentProfile)
-            || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
+        || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
       return;
     }
     pitch_rscplus -= speed;
     if (pitch_rscplus < 0) pitch_rscplus = 1023;
     if (pitch_rscplus > 1023) pitch_rscplus = 0;
-
   }
 
   public static void add_movement(float x, float y) {
@@ -324,7 +333,7 @@ public class Camera {
         }
         break;
       case "Z Axis":
-        offset_height -= JoystickHandler.joystickInputReports.get(inputName) / 10;
+        elevate(JoystickHandler.joystickInputReports.get(inputName) / 10);
         break;
       case "X Rotation":
         pitch(JoystickHandler.joystickInputReports.get(inputName) / 30);
@@ -335,8 +344,7 @@ public class Camera {
         addRotation(amount);
         break;
       case "Button 0":
-        if (JoystickHandler.joystickInputReports.get(inputName) == 1)
-        break;
+        if (JoystickHandler.joystickInputReports.get(inputName) == 1) break;
       case "Button 1":
         if (JoystickHandler.joystickInputReports.get(inputName) == 1) {
           leave3DMouseControls();
