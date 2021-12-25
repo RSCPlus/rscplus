@@ -35,7 +35,6 @@ import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.Component;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -1375,13 +1374,11 @@ public class Client {
     return "(" + worldX + "," + worldY + ")";
   }
 
-  public static int getChunkX()
-  {
+  public static int getChunkX() {
     return worldX / 48;
   }
 
-  public static int getChunkY()
-  {
+  public static int getChunkY() {
     return worldY / 48;
   }
 
