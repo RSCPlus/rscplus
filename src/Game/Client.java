@@ -42,12 +42,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -448,6 +450,12 @@ public class Client {
     "(?i)@bla@", "|@@|black "
   };
 
+  public static int objectCount;
+  public static int[] objectDirections;
+  public static int[] objectX;
+  public static int[] objectY;
+  public static int[] objectID;
+
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
    * patching client text.
@@ -590,6 +598,36 @@ public class Client {
     instructions.add(instruction);
   }
 
+  public static Object getObjectModel(int i) {
+    try {
+      return Array.get(Reflection.objectModels.get(Client.instance), i);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  public static void gameModelRotate(Object model, int rotation)
+  {
+    try {
+      Reflection.gameModelRotate.setAccessible(true);
+      Reflection.gameModelRotate.invoke(model, 0, -31616, rotation, 0);
+      Reflection.gameModelRotate.setAccessible(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void gameModelSetLight(Object model)
+  {
+    try {
+      Reflection.gameModelSetLight.setAccessible(true);
+      Reflection.gameModelSetLight.invoke(model, -50, 48, -10, -50, true, 48, 117);
+      Reflection.gameModelSetLight.setAccessible(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void init() {
 
     adaptStrings();
@@ -726,12 +764,52 @@ public class Client {
     return planeIndex == 3;
   }
 
+  public static void setObjectDirection(int idx, int direction)
+  {
+    objectDirections[idx] = direction;
+  }
+
+  /**
+   * This works with world position!
+   */
+  public static int getGameObjectIndex(int x, int y)
+  {
+    for (int i = 0; i < objectCount; i++)
+    {
+      int worldX = regionX + objectX[i];
+      int worldY = regionY + objectY[i];
+      if (worldX == x && worldY == y)
+        return i;
+    }
+    return -1;
+  }
+
+  public static void setGameObjectDirection(int modelIndex, int direction)
+  {
+    if (modelIndex == -1)
+      return;
+
+    // Only update direction if it needs to be
+    if (objectDirections[modelIndex] != direction) {
+      Object model = getObjectModel(modelIndex);
+      gameModelRotate(model, objectDirections[modelIndex] * -32);
+      gameModelRotate(model, direction * 32);
+      objectDirections[modelIndex] = direction;
+    }
+  }
+
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
    *
    * <p>This updater does not handle any rendering, for rendering see {@link Renderer#present}
    */
   public static void update() {
+    // TODO: REMOVE THIS BEFORE YOU COMMIT, JUST HOW TO USE :)
+    if (state == STATE_GAME) {
+      // Game object direction overrides
+      setGameObjectDirection(getGameObjectIndex(466, 436), 1);
+    }
+
     // FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
     version = 235;
     if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT))

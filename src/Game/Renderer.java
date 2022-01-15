@@ -1173,6 +1173,8 @@ public class Renderer {
         y += 16;
         drawShadowText(g2, "NPC Count: " + npcCount, x, y, color_text, false);
         y += 16;
+        drawShadowText(g2, "Object Count: " + Client.objectCount, x, y, color_text, false);
+        y += 16;
         drawShadowText(
             g2,
             "LocalRegion: (" + Client.localRegionX + "," + Client.localRegionY + ")",
