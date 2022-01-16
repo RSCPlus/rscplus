@@ -49,7 +49,6 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -606,8 +605,7 @@ public class Client {
     }
   }
 
-  public static void gameModelRotate(Object model, int rotation)
-  {
+  public static void gameModelRotate(Object model, int rotation) {
     try {
       Reflection.gameModelRotate.setAccessible(true);
       Reflection.gameModelRotate.invoke(model, 0, -31616, rotation, 0);
@@ -617,8 +615,7 @@ public class Client {
     }
   }
 
-  public static void gameModelSetLight(Object model)
-  {
+  public static void gameModelSetLight(Object model) {
     try {
       Reflection.gameModelSetLight.setAccessible(true);
       Reflection.gameModelSetLight.invoke(model, -50, 48, -10, -50, true, 48, 117);
@@ -764,30 +761,22 @@ public class Client {
     return planeIndex == 3;
   }
 
-  public static void setObjectDirection(int idx, int direction)
-  {
+  public static void setObjectDirection(int idx, int direction) {
     objectDirections[idx] = direction;
   }
 
-  /**
-   * This works with world position!
-   */
-  public static int getGameObjectIndex(int x, int y)
-  {
-    for (int i = 0; i < objectCount; i++)
-    {
+  /** This works with world position! */
+  public static int getGameObjectIndex(int x, int y) {
+    for (int i = 0; i < objectCount; i++) {
       int worldX = regionX + objectX[i];
       int worldY = regionY + objectY[i];
-      if (worldX == x && worldY == y)
-        return i;
+      if (worldX == x && worldY == y) return i;
     }
     return -1;
   }
 
-  public static void setGameObjectDirection(int modelIndex, int direction)
-  {
-    if (modelIndex == -1)
-      return;
+  public static void setGameObjectDirection(int modelIndex, int direction) {
+    if (modelIndex == -1) return;
 
     // Only update direction if it needs to be
     if (objectDirections[modelIndex] != direction) {

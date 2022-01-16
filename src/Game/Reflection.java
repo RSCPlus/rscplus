@@ -252,7 +252,8 @@ public class Reflection {
   private static final String HANDLEKEY = "final void qa.a(int,int)";
 
   private static final String GAMEMODELROTATE = "final void ca.f(int,int,int,int)";
-  private static final String GAMEMODELSETLIGHT = "final void ca.a(int,int,int,int,boolean,int,int)";
+  private static final String GAMEMODELSETLIGHT =
+      "final void ca.a(int,int,int,int,boolean,int,int)";
 
   private static final String UPDATE_BANK_ITEMS = "private final void client.C(int)";
 
@@ -286,8 +287,7 @@ public class Reflection {
         if (method.toGenericString().equals(GAMEMODELROTATE)) {
           gameModelRotate = method;
           Logger.Info("Found gameModelRotate");
-        }
-        else if (method.toGenericString().equals(GAMEMODELSETLIGHT)) {
+        } else if (method.toGenericString().equals(GAMEMODELSETLIGHT)) {
           gameModelSetLight = method;
           Logger.Info("Found gameModelSetLight");
         }
