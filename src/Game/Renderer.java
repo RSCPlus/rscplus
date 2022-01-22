@@ -1747,7 +1747,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, previousBounds.y + 2, shapeHeight, "previous");
 
-          if (MouseHandler.inBounds(previousBounds) && MouseHandler.mouseClicked)
+          if (MouseHandler.inPlaybackButtonBounds(previousBounds) && MouseHandler.mouseClicked)
             Replay.controlPlayback("prev");
 
           // slowdown button
@@ -1782,7 +1782,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, slowForwardBounds.y + 2, shapeHeight, "slowforward");
 
-          if (MouseHandler.inBounds(slowForwardBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(slowForwardBounds) && MouseHandler.mouseClicked) {
             Replay.controlPlayback("ff_minus");
           }
 
@@ -1815,7 +1815,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, playPauseBounds.y + 2, shapeHeight, "playpause");
 
-          if (MouseHandler.inBounds(playPauseBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(playPauseBounds) && MouseHandler.mouseClicked) {
             Replay.togglePause();
           }
           // fastforward button
@@ -1850,7 +1850,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, fastForwardBounds.y + 2, shapeHeight, "fastforward");
 
-          if (MouseHandler.inBounds(fastForwardBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(fastForwardBounds) && MouseHandler.mouseClicked) {
             Replay.controlPlayback("ff_plus");
           }
 
@@ -1879,7 +1879,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, nextBounds.y + 2, shapeHeight, "next");
 
-          if (MouseHandler.inBounds(nextBounds) && MouseHandler.mouseClicked)
+          if (MouseHandler.inPlaybackButtonBounds(nextBounds) && MouseHandler.mouseClicked)
             Replay.controlPlayback("next");
 
           // open queue button (right aligned)
@@ -1912,7 +1912,7 @@ public class Renderer {
               color_white,
               false);
 
-          if (MouseHandler.inBounds(queueBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(queueBounds) && MouseHandler.mouseClicked) {
             Launcher.getQueueWindow().showQueueWindow();
           }
 
@@ -1941,7 +1941,7 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, stopBounds.y + 2, shapeHeight, "stop");
 
-          if (MouseHandler.inBounds(stopBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(stopBounds) && MouseHandler.mouseClicked) {
             Replay.controlPlayback("stop");
           }
         }
