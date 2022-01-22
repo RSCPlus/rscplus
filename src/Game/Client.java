@@ -1629,6 +1629,17 @@ public class Client {
             displayMessage("That is not a number.", CHAT_QUEST);
           }
           break;
+        case "rec":
+          int length = 50;
+          try {
+            length = Integer.parseInt(commandArray[1]);
+          } catch (ArrayIndexOutOfBoundsException ex) {
+          } catch (NumberFormatException ex) {
+            displayMessage("That is not a number.", CHAT_QUEST);
+            break;
+          }
+          Renderer.videolength = Renderer.videorecord = length;
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";

@@ -113,6 +113,8 @@ public class Renderer {
   private static int frames = 0;
   private static long fps_timer = 0;
   private static boolean screenshot = false;
+  public static int videorecord = 0;
+  public static int videolength = 0;
 
   public static boolean combat_menu_shown = false;
 
@@ -1970,6 +1972,18 @@ public class Renderer {
       screenshot = false;
     }
 
+    if (videorecord > 0) {
+      String fname = Settings.Dir.VIDEO + "/" + "video" + (videolength - videorecord) + ".png";
+      try {
+        File screenshotFile = new File(fname);
+        ImageIO.write(game_image, "png", screenshotFile);
+      } catch (Exception e) {
+      }
+      videorecord--;
+      if (videorecord <= 0) {
+        Client.displayMessage("@cya@Many screenshots saved to '" + fname + "'", Client.CHAT_NONE);
+      }
+    }
     g.drawImage(game_image, 0, 0, null);
 
     frames++;

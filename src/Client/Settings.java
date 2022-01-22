@@ -1731,6 +1731,8 @@ public class Settings {
     Util.makeDirectory(Dir.LIB);
     Dir.JINPUTNATIVELIB = Dir.LIB + "/jinput-natives";
     Util.makeDirectory(Dir.JINPUTNATIVELIB);
+    Dir.VIDEO = Dir.SCREENSHOT + "/rapid-screenshots";
+    Util.makeDirectory(Dir.VIDEO);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -2840,6 +2842,7 @@ public class Settings {
     public static String JAR;
     public static String DUMP;
     public static String SCREENSHOT;
+    public static String VIDEO;
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;
