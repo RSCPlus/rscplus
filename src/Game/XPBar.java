@@ -114,6 +114,7 @@ public class XPBar {
 
     // need to 	exit *after* setting xp_bar_x because XPDropHandler needs it
     if (!Settings.SHOW_XP_BAR.get(Settings.currentProfile)) {
+      hoveringOverMenu = false;
       return;
     }
 
@@ -187,7 +188,8 @@ public class XPBar {
   }
 
   static boolean hoveringOverBar() {
-    return MouseHandler.x >= xp_bar_x
+    return Settings.SHOW_XP_BAR.get(Settings.currentProfile)
+        && MouseHandler.x >= xp_bar_x
         && MouseHandler.x <= xp_bar_x + bounds.width
         && MouseHandler.y > xp_bar_y
         && MouseHandler.y < xp_bar_y + bounds.height
@@ -445,6 +447,14 @@ public class XPBar {
 
   public static boolean shouldShowGoalInput() {
     return drawGoalInputState != 0;
+  }
+
+  public static boolean shouldConsume() {
+    if (XPBar.hoveringOverMenu || XPBar.hoveringOverBar()) {
+      XPBar.hoveringOverMenu = false;
+      return true;
+    }
+    return false;
   }
 
   public static boolean shouldConsumeKey() {

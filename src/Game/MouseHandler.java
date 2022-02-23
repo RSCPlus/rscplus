@@ -44,11 +44,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   private Point m_rotatePosition;
   private float m_rotateX = 0.0f;
 
-  public static boolean inBounds(Rectangle bounds) {
-    if (XPBar.hoveringOverMenu || XPBar.hoveringOverBar()) {
-      XPBar.hoveringOverMenu = false;
-      return true;
-    }
+  public static boolean inPlaybackButtonBounds(Rectangle bounds) {
     if (bounds == null) return false;
     if (Replay.isPlaying
         && Settings.SHOW_PLAYER_CONTROLS.get(Settings.currentProfile)
@@ -62,13 +58,14 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   }
 
   public boolean inConsumableButton() {
-    return inBounds(Renderer.previousBounds)
-        || inBounds(Renderer.slowForwardBounds)
-        || inBounds(Renderer.playPauseBounds)
-        || inBounds(Renderer.fastForwardBounds)
-        || inBounds(Renderer.nextBounds)
-        || inBounds(Renderer.queueBounds)
-        || inBounds(Renderer.stopBounds)
+    return inPlaybackButtonBounds(Renderer.previousBounds)
+        || inPlaybackButtonBounds(Renderer.slowForwardBounds)
+        || inPlaybackButtonBounds(Renderer.playPauseBounds)
+        || inPlaybackButtonBounds(Renderer.fastForwardBounds)
+        || inPlaybackButtonBounds(Renderer.nextBounds)
+        || inPlaybackButtonBounds(Renderer.queueBounds)
+        || inPlaybackButtonBounds(Renderer.stopBounds)
+        || XPBar.shouldConsume()
         || Bank.shouldConsume()
         || WikiURL.shouldConsume()
         || HiscoresURL.shouldConsume();

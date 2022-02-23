@@ -548,6 +548,17 @@ public class JClassPatcher {
           methodNode, "client", "Vh", "I", "Game/Client", "autologin_timeout", "I", true, true);
 
       hookClassVariable(
+          methodNode, "client", "eh", "I", "Game/Client", "objectCount", "I", true, true);
+      hookClassVariable(
+          methodNode, "client", "bg", "[I", "Game/Client", "objectDirections", "[I", true, true);
+      hookClassVariable(
+          methodNode, "client", "Se", "[I", "Game/Client", "objectX", "[I", true, true);
+      hookClassVariable(
+          methodNode, "client", "ye", "[I", "Game/Client", "objectY", "[I", true, true);
+      hookClassVariable(
+          methodNode, "client", "vc", "[I", "Game/Client", "objectID", "[I", true, true);
+
+      hookClassVariable(
           methodNode, "client", "lc", "I", "Game/Client", "inventory_count", "I", true, false);
       hookClassVariable(
           methodNode, "client", "vf", "[I", "Game/Client", "inventory_items", "[I", true, false);

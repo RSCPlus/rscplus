@@ -76,6 +76,10 @@ public class Reflection {
   public static Field memberSoundPack = null;
   public static Field soundBuffer = null;
 
+  public static Field objectModels = null;
+  public static Method gameModelRotate = null;
+  public static Method gameModelSetLight = null;
+
   public static Method showInputPopup = null;
   public static Method getParameter = null;
   public static Method displayMessage = null;
@@ -247,6 +251,10 @@ public class Reflection {
   private static final String HANDLEMOUSE = "final void qa.b(int,int,int,int,int)";
   private static final String HANDLEKEY = "final void qa.a(int,int)";
 
+  private static final String GAMEMODELROTATE = "final void ca.f(int,int,int,int)";
+  private static final String GAMEMODELSETLIGHT =
+      "final void ca.a(int,int,int,int,boolean,int,int)";
+
   private static final String UPDATE_BANK_ITEMS = "private final void client.C(int)";
 
   public static void Load() {
@@ -268,6 +276,20 @@ public class Reflection {
         } else if (method.toGenericString().equals(LOAD_DATA_FILE)) {
           loadDataFile = method;
           Logger.Info("Found loadDataFile");
+        }
+      }
+
+      // Model
+      c = classLoader.loadClass("ca");
+      methods = c.getDeclaredMethods();
+      for (Method method : methods) {
+        Logger.Info("TESTL " + method.toGenericString());
+        if (method.toGenericString().equals(GAMEMODELROTATE)) {
+          gameModelRotate = method;
+          Logger.Info("Found gameModelRotate");
+        } else if (method.toGenericString().equals(GAMEMODELSETLIGHT)) {
+          gameModelSetLight = method;
+          Logger.Info("Found gameModelSetLight");
         }
       }
 
@@ -332,6 +354,10 @@ public class Reflection {
       // Game Applet
       lastMouseAction = c.getSuperclass().getDeclaredField("sb");
       lastMouseAction.setAccessible(true);
+
+      // Object Model
+      objectModels = c.getDeclaredField("hg");
+      objectModels.setAccessible(true);
 
       // Region X and Region Y
       c.getDeclaredField("Qg").setAccessible(true);

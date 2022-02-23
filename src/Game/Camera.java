@@ -56,7 +56,7 @@ public class Camera {
   public static float delta_rotation = 0.0f;
 
   public static int pitch_rscplus = 112;
-  public static boolean isUsing3DMouseControls = true;
+  public static boolean isUsing3DMouseControls = false;
 
   private Camera() {
     // Empty private constructor to prevent instantiation.

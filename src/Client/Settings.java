@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20211225.064013;
+  public static final double VERSION_NUMBER = 20220222.222222;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -260,6 +260,7 @@ public class Settings {
   public static HashMap<String, Boolean> DISASSEMBLE = new HashMap<String, Boolean>();
   public static HashMap<String, String> DISASSEMBLE_DIRECTORY = new HashMap<String, String>();
   public static HashMap<String, Integer[]> USER_BANK_SORT = new HashMap<String, Integer[]>();
+  public static boolean takingSceneryScreenshots = false;
 
   // these are variables that are injected with JClassPatcher
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
@@ -1731,6 +1732,8 @@ public class Settings {
     Util.makeDirectory(Dir.LIB);
     Dir.JINPUTNATIVELIB = Dir.LIB + "/jinput-natives";
     Util.makeDirectory(Dir.JINPUTNATIVELIB);
+    Dir.VIDEO = Dir.SCREENSHOT + "/rapid-screenshots";
+    Util.makeDirectory(Dir.VIDEO);
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -2121,6 +2124,9 @@ public class Settings {
           "hiscores_lookup_button", Boolean.toString(HISCORES_LOOKUP_BUTTON.get(preset)));
       props.setProperty(
           "motivational_quotes_button", Boolean.toString(MOTIVATIONAL_QUOTES_BUTTON.get(preset)));
+      props.setProperty(
+          "toggle_xp_bar_on_stats_button",
+          Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
@@ -2837,6 +2843,7 @@ public class Settings {
     public static String JAR;
     public static String DUMP;
     public static String SCREENSHOT;
+    public static String VIDEO;
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;

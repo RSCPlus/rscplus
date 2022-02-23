@@ -34,7 +34,7 @@ import Client.Util;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
-import java.awt.Component;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,6 +42,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -242,10 +243,8 @@ public class Client {
   public static final int TRACER_LINES = 100;
 
   // bank items and their count for each type, new bank items are first to get updated and indicate
-  // bank
-  // excluding inventory types and bank items do include them (in regular mode), as bank operations
-  // are messy
-  // they get excluded also in searchable bank
+  // bank excluding inventory types and bank items do include them (in regular mode), as bank
+  // operations are messy they get excluded also in searchable bank
   public static int[] bank_items_count;
   public static int[] bank_items;
   public static int[] new_bank_items_count;
@@ -448,6 +447,12 @@ public class Client {
     "(?i)@bla@", "|@@|black "
   };
 
+  public static int objectCount;
+  public static int[] objectDirections;
+  public static int[] objectX;
+  public static int[] objectY;
+  public static int[] objectID;
+
   /**
    * Iterates through {@link #strings} array and checks if various conditions are met. Used for
    * patching client text.
@@ -590,6 +595,34 @@ public class Client {
     instructions.add(instruction);
   }
 
+  public static Object getObjectModel(int i) {
+    try {
+      return Array.get(Reflection.objectModels.get(Client.instance), i);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  public static void gameModelRotate(Object model, int rotation) {
+    try {
+      Reflection.gameModelRotate.setAccessible(true);
+      Reflection.gameModelRotate.invoke(model, 0, -31616, rotation, 0);
+      Reflection.gameModelRotate.setAccessible(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void gameModelSetLight(Object model) {
+    try {
+      Reflection.gameModelSetLight.setAccessible(true);
+      Reflection.gameModelSetLight.invoke(model, -50, 48, -10, -50, true, 48, 117);
+      Reflection.gameModelSetLight.setAccessible(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void init() {
 
     adaptStrings();
@@ -726,14 +759,41 @@ public class Client {
     return planeIndex == 3;
   }
 
+  public static void setObjectDirection(int idx, int direction) {
+    objectDirections[idx] = direction;
+  }
+
+  /** This works with world position! */
+  public static int getGameObjectIndex(int x, int y) {
+    for (int i = 0; i < objectCount; i++) {
+      int worldX = regionX + objectX[i];
+      int worldY = regionY + objectY[i];
+      if (worldX == x && worldY == y) return i;
+    }
+    return -1;
+  }
+
+  public static void setGameObjectDirection(int modelIndex, int direction) {
+    if (modelIndex == -1) return;
+
+    // Only update direction if it needs to be
+    if (objectDirections[modelIndex] != direction) {
+      Object model = getObjectModel(modelIndex);
+      gameModelRotate(model, objectDirections[modelIndex] * -32);
+      gameModelRotate(model, direction * 32);
+      objectDirections[modelIndex] = direction;
+    }
+  }
+
   /**
    * An updater that runs frequently to update calculations for XP/fatigue drops, the XP bar, etc.
    *
    * <p>This updater does not handle any rendering, for rendering see {@link Renderer#present}
    */
   public static void update() {
-    // FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
-    version = 235;
+    // historical: RSC+ changed version here from 234 to 235 from 2016-10-10 up until 2022-01-16
+    // version = 235;
+
     if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT))
       exponent = new BigInteger(JConfig.SERVER_RSA_EXPONENT);
     if (!modulus.toString().equals(JConfig.SERVER_RSA_MODULUS))
@@ -747,6 +807,25 @@ public class Client {
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
+
+    if (Settings.takingSceneryScreenshots && state == STATE_GAME) {
+      setGameObjectDirection(
+          getGameObjectIndex(720, 1520), Renderer.screenshot_scenery_scenery_rotation);
+    }
+
+    /*
+    if (state == STATE_GAME) {
+      for (int i = 0; i< objectDirections.length; i++) {
+        Object model = getObjectModel(i);
+        if (model != null  && frameCounter % 10 == 0) {
+          gameModelRotate(model, objectDirections[i] * -32);
+          int newDirection = (objectDirections[i] + 1) % 8;
+          gameModelRotate(model,newDirection * 32);
+          objectDirections[i] = newDirection;
+        }
+      }
+    }
+     */
 
     Renderer.setClearColor(0);
     if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
@@ -762,6 +841,9 @@ public class Client {
           Renderer.setClearColor(
               Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
       }
+    }
+    if (Settings.takingSceneryScreenshots) {
+      Renderer.setClearColor(Renderer.screenshot_scenery_bgcolor);
     }
 
     if (Settings.JOYSTICK_ENABLED.get(Settings.currentProfile)) {
@@ -1562,6 +1644,49 @@ public class Client {
             displayMessage("That is not a number.", CHAT_QUEST);
           }
           break;
+        case "rec":
+          int length = 50;
+          try {
+            length = Integer.parseInt(commandArray[1]);
+          } catch (ArrayIndexOutOfBoundsException ex) {
+          } catch (NumberFormatException ex) {
+            displayMessage("That is not a number.", CHAT_QUEST);
+            break;
+          }
+          Renderer.videolength = Renderer.videorecord = length;
+          break;
+        case "sceneryshots":
+          {
+            Settings.takingSceneryScreenshots = true;
+            try {
+              Renderer.screenshot_scenery_scenery_rotation = Integer.parseInt(commandArray[1]);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage(
+                  "scenery rotation not provided, using "
+                      + Renderer.screenshot_scenery_scenery_rotation,
+                  CHAT_QUEST);
+              break;
+            }
+            try {
+              Camera.zoom = Renderer.screenshot_scenery_zoom = Integer.parseInt(commandArray[2]);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage(
+                  "camera zoom not provided, using " + Renderer.screenshot_scenery_zoom,
+                  CHAT_QUEST);
+              break;
+            }
+
+            Util.makeDirectory(
+                Settings.Dir.SCREENSHOT + "/zoom" + Renderer.screenshot_scenery_zoom);
+            break;
+          }
+        case "stopsceneryshots":
+          {
+            Settings.takingSceneryScreenshots = false;
+            break;
+          }
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2526,6 +2651,17 @@ public class Client {
     }
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
       NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message, "sad");
+    }
+
+    if (Settings.takingSceneryScreenshots) {
+      if (message.startsWith("scenery id: ")) {
+        try {
+          Renderer.prepareNewSceneryScreenshotSession(
+              Integer.parseInt(message.substring("scenery id: ".length())));
+        } catch (Exception e) {
+          Logger.Error("Couldn't parse scenery id!");
+        }
+      }
     }
 
     if (colorCodeOverride != null) {
