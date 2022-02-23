@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20211225.064013;
+  public static final double VERSION_NUMBER = 20220222.222222;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -260,6 +260,7 @@ public class Settings {
   public static HashMap<String, Boolean> DISASSEMBLE = new HashMap<String, Boolean>();
   public static HashMap<String, String> DISASSEMBLE_DIRECTORY = new HashMap<String, String>();
   public static HashMap<String, Integer[]> USER_BANK_SORT = new HashMap<String, Integer[]>();
+  public static boolean takingSceneryScreenshots = false;
 
   // these are variables that are injected with JClassPatcher
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;

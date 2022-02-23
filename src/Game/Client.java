@@ -34,7 +34,7 @@ import Client.Util;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
-import java.awt.Component;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -243,10 +243,8 @@ public class Client {
   public static final int TRACER_LINES = 100;
 
   // bank items and their count for each type, new bank items are first to get updated and indicate
-  // bank
-  // excluding inventory types and bank items do include them (in regular mode), as bank operations
-  // are messy
-  // they get excluded also in searchable bank
+  // bank excluding inventory types and bank items do include them (in regular mode), as bank
+  // operations are messy they get excluded also in searchable bank
   public static int[] bank_items_count;
   public static int[] bank_items;
   public static int[] new_bank_items_count;
@@ -793,14 +791,9 @@ public class Client {
    * <p>This updater does not handle any rendering, for rendering see {@link Renderer#present}
    */
   public static void update() {
-    // TODO: REMOVE THIS BEFORE YOU COMMIT, JUST HOW TO USE :)
-    if (state == STATE_GAME) {
-      // Game object direction overrides
-      setGameObjectDirection(getGameObjectIndex(466, 436), 1);
-    }
+    // historical: RSC+ changed version here from 234 to 235 from 2016-10-10 up until 2022-01-16
+    // version = 235;
 
-    // FIXME: This is a hack from a rsc client update (so we can skip updating the client this time)
-    version = 235;
     if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT))
       exponent = new BigInteger(JConfig.SERVER_RSA_EXPONENT);
     if (!modulus.toString().equals(JConfig.SERVER_RSA_MODULUS))
@@ -814,6 +807,25 @@ public class Client {
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
+
+    if (Settings.takingSceneryScreenshots && state == STATE_GAME) {
+      setGameObjectDirection(
+          getGameObjectIndex(720, 1520), Renderer.screenshot_scenery_scenery_rotation);
+    }
+
+    /*
+    if (state == STATE_GAME) {
+      for (int i = 0; i< objectDirections.length; i++) {
+        Object model = getObjectModel(i);
+        if (model != null  && frameCounter % 10 == 0) {
+          gameModelRotate(model, objectDirections[i] * -32);
+          int newDirection = (objectDirections[i] + 1) % 8;
+          gameModelRotate(model,newDirection * 32);
+          objectDirections[i] = newDirection;
+        }
+      }
+    }
+     */
 
     Renderer.setClearColor(0);
     if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
@@ -829,6 +841,9 @@ public class Client {
           Renderer.setClearColor(
               Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
       }
+    }
+    if (Settings.takingSceneryScreenshots) {
+      Renderer.setClearColor(Renderer.screenshot_scenery_bgcolor);
     }
 
     if (Settings.JOYSTICK_ENABLED.get(Settings.currentProfile)) {
@@ -1640,6 +1655,38 @@ public class Client {
           }
           Renderer.videolength = Renderer.videorecord = length;
           break;
+        case "sceneryshots":
+          {
+            Settings.takingSceneryScreenshots = true;
+            try {
+              Renderer.screenshot_scenery_scenery_rotation = Integer.parseInt(commandArray[1]);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage(
+                  "scenery rotation not provided, using "
+                      + Renderer.screenshot_scenery_scenery_rotation,
+                  CHAT_QUEST);
+              break;
+            }
+            try {
+              Camera.zoom = Renderer.screenshot_scenery_zoom = Integer.parseInt(commandArray[2]);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage(
+                  "camera zoom not provided, using " + Renderer.screenshot_scenery_zoom,
+                  CHAT_QUEST);
+              break;
+            }
+
+            Util.makeDirectory(
+                Settings.Dir.SCREENSHOT + "/zoom" + Renderer.screenshot_scenery_zoom);
+            break;
+          }
+        case "stopsceneryshots":
+          {
+            Settings.takingSceneryScreenshots = false;
+            break;
+          }
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2604,6 +2651,17 @@ public class Client {
     }
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
       NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message, "sad");
+    }
+
+    if (Settings.takingSceneryScreenshots) {
+      if (message.startsWith("scenery id: ")) {
+        try {
+          Renderer.prepareNewSceneryScreenshotSession(
+              Integer.parseInt(message.substring("scenery id: ".length())));
+        } catch (Exception e) {
+          Logger.Error("Couldn't parse scenery id!");
+        }
+      }
     }
 
     if (colorCodeOverride != null) {

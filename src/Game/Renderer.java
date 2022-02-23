@@ -19,6 +19,7 @@
 package Game;
 
 import Client.HiscoresURL;
+import Client.ImageManip;
 import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
@@ -115,6 +116,12 @@ public class Renderer {
   private static boolean screenshot = false;
   public static int videorecord = 0;
   public static int videolength = 0;
+  public static int screenshot_scenery_angle = 0;
+  public static int screenshot_scenery_frames = 0;
+  public static int screenshot_scenery_scenery_id = 0;
+  public static int screenshot_scenery_scenery_rotation = 0;
+  public static int screenshot_scenery_zoom = 750;
+  public static int screenshot_scenery_bgcolor = 0x00FF00FF;
 
   public static boolean combat_menu_shown = false;
 
@@ -141,6 +148,7 @@ public class Renderer {
   private static boolean lastInterlace = false;
 
   private static int bankResetTimer = 0;
+  private static boolean show_bank_last = false;
 
   public static int getFogColor(int attenuation, int val) {
     int clearColor = getClearColor();
@@ -824,6 +832,9 @@ public class Renderer {
               if (hiscoresURL.equals("NO_URL")) {
                 Client.displayMessage(
                     "@lre@No hiscores URL defined for this world.", Client.CHAT_NONE);
+                Client.displayMessage(
+                    "@lre@You can change this from the World List tab in settings.",
+                    Client.CHAT_NONE);
               } else {
                 if (!hiscoresURL.equals("INVALID")) {
                   HiscoresURL.lastLookupTime = System.currentTimeMillis();
@@ -854,7 +865,7 @@ public class Renderer {
       if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
           || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
         Rectangle mapButtonBounds = new Rectangle(width - 68, 3, 32, 32);
-        if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+        if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
             g2.drawLine(
@@ -882,7 +893,7 @@ public class Renderer {
 
         // Settings
         mapButtonBounds = new Rectangle(width - 200, 3, 32, 32);
-        if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+        if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
             g2.drawLine(
@@ -903,7 +914,6 @@ public class Renderer {
               && MouseHandler.y >= mapButtonBounds.y
               && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
               && MouseHandler.mouseClicked) {
-
             Launcher.getConfigWindow().showConfigWindow();
           }
         }
@@ -911,7 +921,7 @@ public class Renderer {
         // wiki button on magic book (Good for in-replay but not good if spam casting magic)
         if (Settings.WIKI_LOOKUP_ON_MAGIC_BOOK.get(Settings.currentProfile)) {
           mapButtonBounds = new Rectangle(width - 68 - 66, 3, 32, 32);
-          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+          if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
               g2.drawLine(
@@ -945,7 +955,7 @@ public class Renderer {
         if (Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile)
             || Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
           mapButtonBounds = new Rectangle(width - 68 - 99, 3, 32, 32);
-          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+          if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
               g2.drawLine(
@@ -995,7 +1005,7 @@ public class Renderer {
         // Toggle XP bar
         if (Settings.TOGGLE_XP_BAR_ON_STATS_BUTTON.get(Settings.currentProfile)) {
           mapButtonBounds = new Rectangle(width - 68 - 33, 3, 32, 32);
-          if ((!Client.show_bank || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
+          if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
               g2.drawLine(
@@ -1984,6 +1994,51 @@ public class Renderer {
         Client.displayMessage("@cya@Many screenshots saved to '" + fname + "'", Client.CHAT_NONE);
       }
     }
+
+    if (screenshot_scenery_frames > 0 && screenshot_scenery_angle < 256) {
+      screenshot_scenery_frames--;
+      if (screenshot_scenery_frames % 4 == 0 && screenshot_scenery_frames < 290) {
+        String fname =
+            Settings.Dir.SCREENSHOT
+                + "/zoom"
+                + Camera.zoom
+                + "/scenery"
+                + screenshot_scenery_scenery_id
+                + "rot"
+                + screenshot_scenery_scenery_rotation
+                + "angle"
+                + (screenshot_scenery_angle + (screenshot_scenery_scenery_rotation * 32)) % 256
+                + "zoom"
+                + Camera.zoom
+                + ".png";
+        try {
+          File screenshotFile = new File(fname);
+          BufferedImage writtenImage;
+          if (screenshot_scenery_scenery_id <= 1) {
+            // error in replay makes it inconsistent at beginning, just crop more off bottom to
+            // compensate
+            writtenImage =
+                ImageManip.prepareSceneryImage(
+                    game_image.getSubimage(
+                        275, 0, game_image.getWidth() - 475, game_image.getHeight() - 227));
+          } else {
+            writtenImage =
+                ImageManip.prepareSceneryImage(
+                    game_image.getSubimage(
+                        275, 0, game_image.getWidth() - 475, game_image.getHeight() - 27));
+          }
+          ImageIO.write(writtenImage, "png", screenshotFile);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+        screenshot_scenery_angle += 8; // set angle for next screenshot
+        Camera.rotation = screenshot_scenery_angle;
+        Camera.zoom = screenshot_scenery_zoom;
+        Camera.delta_rotation = (float) Camera.rotation;
+      }
+    }
+
     g.drawImage(game_image, 0, 0, null);
 
     frames++;
@@ -2068,6 +2123,9 @@ public class Renderer {
 
     // Reset the mouse click handler
     MouseHandler.mouseClicked = false;
+
+    // state of show_bank "last frame"
+    show_bank_last = Client.show_bank;
   }
 
   private static boolean roomInHbarForHPPrayerFatigueOverlay() {
@@ -2518,6 +2576,48 @@ public class Renderer {
     // NPC name
     drawShadowText(
         g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 12, color_text, true);
+  }
+
+  public static void prepareNewSceneryScreenshotSession(int id) {
+    screenshot_scenery_scenery_id = id;
+    screenshot_scenery_frames = 300;
+    screenshot_scenery_angle = 0;
+    if (JGameData.objectWidths[id] > 1 || JGameData.objectHeights[id] > 1) {
+      int widthOffset = 0;
+      int heightOffset = 0;
+      if (JGameData.objectWidths[id] > 1) {
+        widthOffset = (int) ((JGameData.objectWidths[id]) / 2.0f) * 128;
+      }
+      if (JGameData.objectHeights[id] > 1) {
+        heightOffset = (int) ((JGameData.objectHeights[id]) / 2.0f) * 128;
+      }
+      switch (screenshot_scenery_scenery_rotation) {
+        case 0:
+          Camera.add_lookat_x = widthOffset;
+          Camera.add_lookat_y = heightOffset;
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+          Camera.add_lookat_x = -widthOffset;
+          Camera.add_lookat_y = heightOffset;
+          break;
+        case 5:
+        case 6:
+        case 7:
+        default:
+          Camera.add_lookat_x = 0;
+          Camera.add_lookat_y = 0;
+          break;
+      }
+
+    } else {
+      Camera.add_lookat_x = 0;
+      Camera.add_lookat_y = 0;
+    }
+    Camera.rotation = screenshot_scenery_angle;
+    Camera.delta_rotation = (float) Camera.rotation;
   }
 }
 
