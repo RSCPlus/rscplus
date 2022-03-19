@@ -1143,6 +1143,39 @@ public class JClassPatcher {
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
+      // Makes the underground flickering toggleable
+      if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode)start;
+            if (ldcNode.cst instanceof Double && (double)ldcNode.cst == 3.0) {
+              JumpInsnNode insnNode = (JumpInsnNode) ldcNode.getPrevious().getPrevious();
+
+              methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.IFGT, insnNode.label));
+
+              methodNode.instructions.insert(
+                      insnNode,
+                      new FieldInsnNode(
+                              Opcodes.GETSTATIC, "Client/Settings", "DISABLE_UNDERGROUND_LIGHTING_BOOL", "Z"));
+
+              methodNode.instructions.insert(
+                      insnNode,
+                      new MethodInsnNode(
+                              Opcodes.INVOKESTATIC,
+                              "Client/Settings",
+                              "updateInjectedVariables",
+                              "()V",
+                              false));
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+      }
+
       // This fixes the rendering bug that happens during end of days replays.
       // It resizes a few arrays with messages, teleport, and action bubbles to allow more data
       Iterator<AbstractInsnNode> insnNodeList2 = methodNode.instructions.iterator();

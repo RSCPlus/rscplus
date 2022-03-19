@@ -132,6 +132,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelBypassAttackCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
+  private JCheckBox generalPanelDisableUndergroundLightingCheckbox;
   private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelCameraRotatableCheckbox;
   private JCheckBox generalPanelCameraMovableCheckbox;
@@ -899,6 +900,9 @@ public class ConfigWindow {
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+
+    generalPanelDisableUndergroundLightingCheckbox = addCheckbox("Disable underground lighting", generalPanel);
+    generalPanelDisableUndergroundLightingCheckbox.setToolTipText("Underground will no longer flicker, basically");
 
     generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
@@ -2717,6 +2721,7 @@ public class ConfigWindow {
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
         Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
+    generalPanelDisableUndergroundLightingCheckbox.setSelected(Settings.DISABLE_UNDERGROUND_LIGHTING.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
     generalPanelCameraRotatableCheckbox.setSelected(
@@ -3031,6 +3036,7 @@ public class ConfigWindow {
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
         Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
+    Settings.DISABLE_UNDERGROUND_LIGHTING.put(Settings.currentProfile, generalPanelDisableUndergroundLightingCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
     Settings.CAMERA_ROTATABLE.put(
