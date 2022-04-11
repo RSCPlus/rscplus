@@ -3,31 +3,31 @@ package Game;
 import Client.Logger;
 
 public class SoundEffects {
-    final static int PLAY_SOUND = 204;
+  static final int PLAY_SOUND = 204;
 
-    public static boolean processPacket(int opcode, int psize) {
-        boolean processed = false;
-        if (opcode == PLAY_SOUND) {
-            return readPlaySoundPacket(psize);
-        }
-
-        return processed;
+  public static boolean processPacket(int opcode, int psize) {
+    boolean processed = false;
+    if (opcode == PLAY_SOUND) {
+      return readPlaySoundPacket(psize);
     }
 
-    private static boolean readPlaySoundPacket(int psize) {
-        StringBuilder yummy = new StringBuilder();
+    return processed;
+  }
 
-        byte[] bufferByteArray = StreamUtil.getBufferByteArray(Client.packetsIncoming);
-        int offset = StreamUtil.getBufferOffset(Client.packetsIncoming);
+  private static boolean readPlaySoundPacket(int psize) {
+    StringBuilder yummy = new StringBuilder();
 
-        for (int i = offset; i < offset + psize - 1; i++) {
-            yummy.append((char)(bufferByteArray[i] & 0xFF));
-        }
-        Logger.Info(yummy.toString());
+    byte[] bufferByteArray = StreamUtil.getBufferByteArray(Client.packetsIncoming);
+    int offset = StreamUtil.getBufferOffset(Client.packetsIncoming);
 
-        if (yummy.toString().contains("combat1")) { // TODO: settings
-            return true;
-        }
-        return false;
+    for (int i = offset; i < offset + psize - 1; i++) {
+      yummy.append((char) (bufferByteArray[i] & 0xFF));
     }
+    Logger.Info(yummy.toString());
+
+    if (yummy.toString().contains("combat1")) { // TODO: settings
+      return true;
+    }
+    return false;
+  }
 }

@@ -1,7 +1,7 @@
 package Client;
 
 import Game.*;
-
+import Game.Renderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
@@ -13,12 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import javax.imageio.ImageIO;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-
-import Game.Renderer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -373,10 +369,8 @@ public class WorldMapWindow {
         setAlpha(g, 1.0f);
       }
 
-      for (int x = 0; x < AreaDefinition.SIZE_X; x++)
-      {
-        for (int y = 0; y < AreaDefinition.SIZE_Y; y++)
-        {
+      for (int x = 0; x < AreaDefinition.SIZE_X; x++) {
+        for (int y = 0; y < AreaDefinition.SIZE_Y; y++) {
           int indexX = AreaDefinition.SIZE_X - x - 1;
           int indexY = y;
           int drawX = x * chunkSize;
@@ -386,10 +380,10 @@ public class WorldMapWindow {
           Color color = Renderer.color_hp;
           String music = Client.areaDefinitions[indexX][indexY].music;
 
-          if (music.length() == 0)
-            continue;
+          if (music.length() == 0) continue;
 
-          Renderer.drawShadowText(g, indexX + ", " + indexY + ": " + music, drawX, drawY, color, false);
+          Renderer.drawShadowText(
+              g, indexX + ", " + indexY + ": " + music, drawX, drawY, color, false);
         }
       }
     }

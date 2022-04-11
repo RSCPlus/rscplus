@@ -1148,25 +1148,29 @@ public class JClassPatcher {
         AbstractInsnNode start = methodNode.instructions.getFirst();
         while (start != null) {
           if (start.getOpcode() == Opcodes.LDC) {
-            LdcInsnNode ldcNode = (LdcInsnNode)start;
-            if (ldcNode.cst instanceof Double && (double)ldcNode.cst == 3.0) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 3.0) {
               JumpInsnNode insnNode = (JumpInsnNode) ldcNode.getPrevious().getPrevious();
 
-              methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.IFGT, insnNode.label));
+              methodNode.instructions.insert(
+                  insnNode, new JumpInsnNode(Opcodes.IFGT, insnNode.label));
 
               methodNode.instructions.insert(
-                      insnNode,
-                      new FieldInsnNode(
-                              Opcodes.GETSTATIC, "Client/Settings", "DISABLE_UNDERGROUND_LIGHTING_BOOL", "Z"));
+                  insnNode,
+                  new FieldInsnNode(
+                      Opcodes.GETSTATIC,
+                      "Client/Settings",
+                      "DISABLE_UNDERGROUND_LIGHTING_BOOL",
+                      "Z"));
 
               methodNode.instructions.insert(
-                      insnNode,
-                      new MethodInsnNode(
-                              Opcodes.INVOKESTATIC,
-                              "Client/Settings",
-                              "updateInjectedVariables",
-                              "()V",
-                              false));
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Settings",
+                      "updateInjectedVariables",
+                      "()V",
+                      false));
 
               break;
             }

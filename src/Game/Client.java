@@ -33,9 +33,6 @@ import Client.TwitchIRC;
 import Client.Util;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.applet.Applet;
 import java.awt.*;
 import java.io.*;
@@ -56,6 +53,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -425,7 +424,8 @@ public class Client {
 
   public static String loginTrack = "";
 
-  public static AreaDefinition[][] areaDefinitions = new AreaDefinition[AreaDefinition.SIZE_X][AreaDefinition.SIZE_Y_ALL];
+  public static AreaDefinition[][] areaDefinitions =
+      new AreaDefinition[AreaDefinition.SIZE_X][AreaDefinition.SIZE_Y_ALL];
 
   public static final String[] colorDict = {
     // less common colors should go at the bottom b/c we can break search loop early
@@ -598,8 +598,7 @@ public class Client {
     instructions.add(instruction);
   }
 
-  public static void loadAreaDefinitions()
-  {
+  public static void loadAreaDefinitions() {
     // Set default region
     for (int x = 0; x < AreaDefinition.SIZE_X; x++)
       for (int y = 0; y < AreaDefinition.SIZE_Y_ALL; y++)
@@ -607,23 +606,21 @@ public class Client {
 
     try {
       InputStream input = null;
-      String zipPath = Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
-      try
-      {
+      String zipPath =
+          Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+      try {
         FileInputStream fis = new FileInputStream(zipPath);
         BufferedInputStream bis = new BufferedInputStream(fis);
         ZipInputStream zis = new ZipInputStream(bis);
 
         ZipEntry ze;
-        while ((ze = zis.getNextEntry()) != null)
-        {
+        while ((ze = zis.getNextEntry()) != null) {
           if (ze.getName().equalsIgnoreCase("areas.json")) {
             input = zis;
             break;
           }
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         Logger.Info("No music to load at " + zipPath);
       }
 
@@ -632,45 +629,51 @@ public class Client {
       for (int i = 0; i < obj.length(); i++) {
         JSONObject entry = obj.getJSONObject(i);
 
-        try
-        {
+        try {
           loginTrack = entry.getString("title");
           continue;
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
-        try
-        {
+        try {
           String soundfont = entry.getString("soundfont");
           MusicPlayer.loadSoundFont(soundfont);
           continue;
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         int chunkX = entry.getInt("x");
         int chunkY = entry.getInt("y");
         int chunkX2 = chunkX;
         int chunkY2 = chunkY;
-        try { chunkX2 = entry.getInt("x2"); } catch (Exception e) {}
-        try { chunkY2 = entry.getInt("y2"); } catch (Exception e) {}
+        try {
+          chunkX2 = entry.getInt("x2");
+        } catch (Exception e) {
+        }
+        try {
+          chunkY2 = entry.getInt("y2");
+        } catch (Exception e) {
+        }
         String music = entry.getString("music");
 
         AreaDefinition definition = new AreaDefinition(music);
 
         for (int x = chunkX; x <= chunkX2; x++)
-          for (int y = chunkY; y <= chunkY2; y++)
-            areaDefinitions[x][y] = definition;
+          for (int y = chunkY; y <= chunkY2; y++) areaDefinitions[x][y] = definition;
       }
-    } catch (Exception e) {}
+    } catch (Exception e) {
+    }
   }
 
-  public static AreaDefinition getCurrentAreaDefinition()
-  {
+  public static AreaDefinition getCurrentAreaDefinition() {
     int chunkX = getChunkX();
     int chunkY = getChunkY();
 
     // Return default chunk if out of bounds
-    if (chunkX >= AreaDefinition.SIZE_X || chunkY >= AreaDefinition.SIZE_Y_ALL ||
-        chunkX < 0 || chunkY < 0)
-      return AreaDefinition.DEFAULT;
+    if (chunkX >= AreaDefinition.SIZE_X
+        || chunkY >= AreaDefinition.SIZE_Y_ALL
+        || chunkX < 0
+        || chunkY < 0) return AreaDefinition.DEFAULT;
 
     return areaDefinitions[chunkX][chunkY];
   }
@@ -886,13 +889,10 @@ public class Client {
     last_time = nanoTime;
 
     // Handdle area data
-    if (state == STATE_GAME)
-    {
+    if (state == STATE_GAME) {
       AreaDefinition area = getCurrentAreaDefinition();
       MusicPlayer.playTrack(area.music);
-    }
-    else if (state == STATE_LOGIN)
-    {
+    } else if (state == STATE_LOGIN) {
       MusicPlayer.playTrack(loginTrack);
     }
 
@@ -1554,11 +1554,11 @@ public class Client {
   public static int getChunkX() {
     return worldX / 48;
   }
+
   public static int getChunkY() {
     int chunkY = (worldY % 944) / 48;
     int floor = worldY / 944;
-    if (floor == 3)
-      chunkY += AreaDefinition.SIZE_Y;
+    if (floor == 3) chunkY += AreaDefinition.SIZE_Y;
     return chunkY;
   }
 
