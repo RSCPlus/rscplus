@@ -283,7 +283,6 @@ public class Reflection {
       c = classLoader.loadClass("ca");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
-        Logger.Info("TESTL " + method.toGenericString());
         if (method.toGenericString().equals(GAMEMODELROTATE)) {
           gameModelRotate = method;
           Logger.Info("Found gameModelRotate");

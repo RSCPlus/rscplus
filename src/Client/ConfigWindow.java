@@ -374,6 +374,7 @@ public class ConfigWindow {
     JScrollPane presetsScrollPane = new JScrollPane();
     JScrollPane generalScrollPane = new JScrollPane();
     JScrollPane overlayScrollPane = new JScrollPane();
+    JScrollPane audioScrollPane = new JScrollPane();
     JScrollPane bankScrollPane = new JScrollPane();
     JScrollPane notificationScrollPane = new JScrollPane();
     JScrollPane streamingScrollPane = new JScrollPane();
@@ -401,6 +402,7 @@ public class ConfigWindow {
     tabbedPane.addTab("Presets", null, presetsScrollPane, null);
     tabbedPane.addTab("General", null, generalScrollPane, null);
     tabbedPane.addTab("Overlays", null, overlayScrollPane, null);
+    tabbedPane.addTab("Audio", null, audioScrollPane, null);
     tabbedPane.addTab("Bank", null, bankScrollPane, null);
     tabbedPane.addTab("Notifications", null, notificationScrollPane, null);
     tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null);
@@ -901,7 +903,7 @@ public class ConfigWindow {
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
 
-    generalPanelDisableUndergroundLightingCheckbox = addCheckbox("Disable underground lighting", generalPanel);
+    generalPanelDisableUndergroundLightingCheckbox = addCheckbox("Disable underground lighting flicker", generalPanel);
     generalPanelDisableUndergroundLightingCheckbox.setToolTipText("Underground will no longer flicker, basically");
 
     generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);

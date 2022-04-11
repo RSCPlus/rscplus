@@ -623,7 +623,9 @@ public class Client {
           }
         }
       }
-      catch (Exception e) {}
+      catch (Exception e) {
+        Logger.Info("No music to load at " + zipPath);
+      }
 
       String areaJson = Util.readString(input);
       JSONArray obj = new JSONArray(areaJson);
@@ -1339,6 +1341,10 @@ public class Client {
     boolean needsProcess = true;
 
     if (Bank.processPacket(opcode, psize)) {
+      needsProcess = false;
+    }
+
+    if (SoundEffects.processPacket(opcode, psize)) {
       needsProcess = false;
     }
 
