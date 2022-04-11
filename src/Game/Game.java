@@ -87,6 +87,7 @@ public class Game extends JFrame
 
     updateTitle();
 
+    MusicPlayer.Init();
     Reflection.Load();
     Renderer.init();
     JoystickHandler.init();
@@ -194,8 +195,11 @@ public class Game extends JFrame
   public final void windowClosed(WindowEvent e) {
     if (m_applet == null) return;
 
+    MusicPlayer.Close();
+
     m_applet.stop();
     m_applet.destroy();
+    m_applet = null;
 
     Logger.stop();
   }

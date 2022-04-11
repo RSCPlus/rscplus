@@ -1254,6 +1254,12 @@ public class Renderer {
         drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Java version: " + Settings.javaVersion, x, y, color_text, false);
+
+        AreaDefinition area = Client.getCurrentAreaDefinition();
+        y += 32;
+        drawShadowText(g2, "~Area Information~", x, y, color_text, false);
+        y += 16;
+        drawShadowText(g2, "Music: " + area.music, x, y, color_text, false);
       }
 
       // A little over a full tick

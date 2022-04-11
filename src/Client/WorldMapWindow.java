@@ -1,9 +1,7 @@
 package Client;
 
-import Game.Client;
-import Game.JGameData;
-import Game.Renderer;
-import Game.StreamUtil;
+import Game.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
@@ -15,8 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import javax.imageio.ImageIO;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
+import Game.Renderer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -361,13 +363,34 @@ public class WorldMapWindow {
         }
       }
 
+      int chunkSize = 48 * 3;
+
       if (renderChunkGrid) {
-        int chunkSize = 48 * 3;
         g.setColor(Renderer.color_shadow);
         setAlpha(g, 0.5f);
         for (int x = 0; x <= mapWidth; x += chunkSize) g.drawLine(x, 0, x, mapHeight);
         for (int y = 0; y <= mapHeight; y += chunkSize) g.drawLine(0, y, mapWidth, y);
         setAlpha(g, 1.0f);
+      }
+
+      for (int x = 0; x < AreaDefinition.SIZE_X; x++)
+      {
+        for (int y = 0; y < AreaDefinition.SIZE_Y; y++)
+        {
+          int indexX = AreaDefinition.SIZE_X - x - 1;
+          int indexY = y;
+          int drawX = x * chunkSize;
+          int drawY = y * chunkSize + 16;
+          g.setFont(Renderer.font_main);
+
+          Color color = Renderer.color_hp;
+          String music = Client.areaDefinitions[indexX][indexY].music;
+
+          if (music.length() == 0)
+            continue;
+
+          Renderer.drawShadowText(g, indexX + ", " + indexY + ": " + music, drawX, drawY, color, false);
+        }
       }
     }
 
