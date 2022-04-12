@@ -362,7 +362,8 @@ public class WorldMapWindow {
       int chunkSize = 48 * 3;
 
       if (renderChunkGrid) {
-        g.setColor(Renderer.color_shadow);
+        if (planeIndex == 0) g.setColor(Renderer.color_shadow);
+        else g.setColor(Renderer.color_prayer);
         setAlpha(g, 0.5f);
         for (int x = 0; x <= mapWidth; x += chunkSize) g.drawLine(x, 0, x, mapHeight);
         for (int y = 0; y <= mapHeight; y += chunkSize) g.drawLine(0, y, mapWidth, y);
@@ -373,17 +374,28 @@ public class WorldMapWindow {
         for (int y = 0; y < AreaDefinition.SIZE_Y; y++) {
           int indexX = AreaDefinition.SIZE_X - x - 1;
           int indexY = y;
-          int drawX = x * chunkSize;
-          int drawY = y * chunkSize + 16;
+          int drawX = x * chunkSize + 4;
+          int drawY = y * chunkSize + 12;
           g.setFont(Renderer.font_main);
 
-          Color color = Renderer.color_hp;
-          String music = Client.areaDefinitions[indexX][indexY].music;
+          int chunkX = indexX + AreaDefinition.REGION_X_OFFSET;
+          int chunkY = indexY + AreaDefinition.REGION_Y_OFFSET;
 
-          if (music.length() == 0) continue;
+          String music = Client.areaDefinitions[planeIndex][chunkX][chunkY].music.trackname;
 
-          Renderer.drawShadowText(
-              g, indexX + ", " + indexY + ": " + music, drawX, drawY, color, false);
+          if (!Client.areaDefinitions[planeIndex][chunkX][chunkY].hasLand) continue;
+
+          if (music.length() == 0) {
+            Renderer.drawColoredText(
+                g, "@yel@" + planeIndex + "" + chunkX + "" + chunkY, drawX, drawY, false);
+          } else {
+            Renderer.drawColoredText(
+                g,
+                "@yel@" + planeIndex + "" + chunkX + "" + chunkY + ": @cya@" + music,
+                drawX,
+                drawY,
+                false);
+          }
         }
       }
     }

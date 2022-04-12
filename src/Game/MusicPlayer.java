@@ -49,7 +49,7 @@ public class MusicPlayer implements Runnable {
 
               ZipEntry ze;
               while ((ze = zis.getNextEntry()) != null) {
-                if (ze.getName().startsWith(switchTrack)) {
+                if (ze.getName().equals(switchTrack)) {
                   input = zis;
                   break;
                 }
