@@ -512,6 +512,8 @@ public class JClassPatcher {
           methodNode, "client", "Oh", "Z", "Game/Client", "show_welcome", "Z", true, true);
       hookClassVariable(
           methodNode, "client", "Kg", "Z", "Game/Client", "show_appearance", "Z", true, true);
+      hookClassVariable(
+          methodNode, "client", "ne", "Z", "Game/SoundEffects", "sounds_disabled", "Z", true, true);
 
       hookClassVariable(
           methodNode,
@@ -875,7 +877,7 @@ public class JClassPatcher {
           "a",
           "[Ljava/lang/String;",
           "Game/JGameData",
-          "objectNames",
+          "sceneryNames",
           "[Ljava/lang/String;");
 
       // current ground items
@@ -972,6 +974,10 @@ public class JClassPatcher {
             lastNode,
             new MethodInsnNode(
                 Opcodes.INVOKESTATIC, "Client/WorldMapWindow", "initScenery", "()V", false));
+        methodNode.instructions.insertBefore(
+            lastNode,
+            new MethodInsnNode(
+                Opcodes.INVOKESTATIC, "Client/WorldMapWindow", "initBoundaries", "()V", false));
       }
     }
   }

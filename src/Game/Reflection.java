@@ -75,6 +75,7 @@ public class Reflection {
   public static Field memberLandscapePack = null;
   public static Field memberSoundPack = null;
   public static Field soundBuffer = null;
+  public static Field soundDisabled = null;
 
   public static Field objectModels = null;
   public static Method gameModelRotate = null;
@@ -158,6 +159,8 @@ public class Reflection {
   public static Method handleKey = null;
 
   public static Method updateBankItems = null;
+
+  public static Method playSound = null;
 
   // Constructor descriptions
   private static final String PANEL = "qa(ua,int)";
@@ -257,6 +260,8 @@ public class Reflection {
 
   private static final String UPDATE_BANK_ITEMS = "private final void client.C(int)";
 
+  private static final String PLAY_SOUND = "private final void client.a(int,java.lang.String)";
+
   public static void Load() {
     try {
       JClassLoader classLoader = Launcher.getInstance().getClassLoader();
@@ -347,6 +352,9 @@ public class Reflection {
         } else if (method.toGenericString().equals(UPDATE_BANK_ITEMS)) {
           updateBankItems = method;
           Logger.Info("Found updateBankItems");
+        } else if (method.toGenericString().equals(PLAY_SOUND)) {
+          playSound = method;
+          Logger.Info("Found playSound");
         }
       }
 
@@ -898,6 +906,7 @@ public class Reflection {
       if (memberSoundPack != null) memberSoundPack.setAccessible(true);
       if (soundBuffer != null) soundBuffer.setAccessible(true);
       if (updateBankItems != null) updateBankItems.setAccessible(true);
+      if (playSound != null) playSound.setAccessible(true);
 
     } catch (Exception e) {
       e.printStackTrace();

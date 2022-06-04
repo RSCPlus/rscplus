@@ -27,6 +27,7 @@ import Game.Item;
 import Game.JoystickHandler;
 import Game.KeyboardHandler;
 import Game.Replay;
+import Game.SoundEffects;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -198,6 +199,51 @@ public class ConfigWindow {
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
+
+  //// Audio tab
+  private JCheckBox audioPanelEnableMusicCheckbox;
+  private JCheckBox audioPanelLouderSoundEffectsCheckbox;
+  private JCheckBox audioPanelOverrideAudioSettingCheckbox;
+  private JRadioButton audioPanelOverrideAudioSettingOnButton;
+  private JRadioButton audioPanelOverrideAudioSettingOffButton;
+  private JCheckBox audioPanelFixSpiderWebDummySoundCheckbox;
+  private JCheckBox soundEffectAdvanceCheckbox;
+  private JCheckBox soundEffectAnvilCheckbox;
+  private JCheckBox soundEffectChiselCheckbox;
+  private JCheckBox soundEffectClickCheckbox;
+  private JCheckBox soundEffectClosedoorCheckbox;
+  private JCheckBox soundEffectCoinsCheckbox;
+  private JCheckBox soundEffectCombat1aCheckbox;
+  private JCheckBox soundEffectCombat1bCheckbox;
+  private JCheckBox soundEffectCombat2aCheckbox;
+  private JCheckBox soundEffectCombat2bCheckbox;
+  private JCheckBox soundEffectCombat3aCheckbox;
+  private JCheckBox soundEffectCombat3bCheckbox;
+  private JCheckBox soundEffectCookingCheckbox;
+  private JCheckBox soundEffectDeathCheckbox;
+  private JCheckBox soundEffectDropobjectCheckbox;
+  private JCheckBox soundEffectEatCheckbox;
+  private JCheckBox soundEffectFilljugCheckbox;
+  private JCheckBox soundEffectFishCheckbox;
+  private JCheckBox soundEffectFoundgemCheckbox;
+  private JCheckBox soundEffectMechanicalCheckbox;
+  private JCheckBox soundEffectMineCheckbox;
+  private JCheckBox soundEffectMixCheckbox;
+  private JCheckBox soundEffectOpendoorCheckbox;
+  private JCheckBox soundEffectOutofammoCheckbox;
+  private JCheckBox soundEffectPotatoCheckbox;
+  private JCheckBox soundEffectPrayeroffCheckbox;
+  private JCheckBox soundEffectPrayeronCheckbox;
+  private JCheckBox soundEffectProspectCheckbox;
+  private JCheckBox soundEffectRechargeCheckbox;
+  private JCheckBox soundEffectRetreatCheckbox;
+  private JCheckBox soundEffectSecretdoorCheckbox;
+  private JCheckBox soundEffectShootCheckbox;
+  private JCheckBox soundEffectSpellfailCheckbox;
+  private JCheckBox soundEffectSpellokCheckbox;
+  private JCheckBox soundEffectTakeobjectCheckbox;
+  private JCheckBox soundEffectUnderattackCheckbox;
+  private JCheckBox soundEffectVictoryCheckbox;
 
   //// Bank tab
   private JCheckBox bankPanelStartSearchedBankCheckbox;
@@ -387,6 +433,7 @@ public class ConfigWindow {
     JPanel presetsPanel = new JPanel();
     JPanel generalPanel = new JPanel();
     JPanel overlayPanel = new JPanel();
+    JPanel audioPanel = new JPanel();
     JPanel bankPanel = new JPanel();
     JPanel notificationPanel = new JPanel();
     JPanel streamingPanel = new JPanel();
@@ -415,6 +462,7 @@ public class ConfigWindow {
     presetsScrollPane.setViewportView(presetsPanel);
     generalScrollPane.setViewportView(generalPanel);
     overlayScrollPane.setViewportView(overlayPanel);
+    audioScrollPane.setViewportView(audioPanel);
     bankScrollPane.setViewportView(bankPanel);
     notificationScrollPane.setViewportView(notificationPanel);
     streamingScrollPane.setViewportView(streamingPanel);
@@ -429,6 +477,7 @@ public class ConfigWindow {
     presetsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     overlayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    audioPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     bankPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     notificationPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     streamingPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -442,6 +491,7 @@ public class ConfigWindow {
     setScrollSpeed(generalScrollPane, 20, 15);
     setScrollSpeed(overlayScrollPane, 20, 15);
     setScrollSpeed(bankScrollPane, 20, 15);
+    setScrollSpeed(audioScrollPane, 20, 15);
     setScrollSpeed(notificationScrollPane, 20, 15);
     setScrollSpeed(streamingScrollPane, 20, 15);
     setScrollSpeed(keybindScrollPane, 20, 15);
@@ -678,7 +728,7 @@ public class ConfigWindow {
     generalPanelSkyOverworldColourPanel.add(overworldSkyColourChooserButton);
     overworldSkyColourChooserButton.setAlignmentY(.7f);
 
-    // choose color for underground subpanel
+    // choose colour for underground subpanel
     JPanel generalPanelSkyUndergroundColourPanel = new JPanel();
     generalPanel.add(generalPanelSkyUndergroundColourPanel);
     generalPanelSkyUndergroundColourPanel.setLayout(
@@ -906,7 +956,7 @@ public class ConfigWindow {
     generalPanelDisableUndergroundLightingCheckbox =
         addCheckbox("Disable underground lighting flicker", generalPanel);
     generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
-        "Underground will no longer flicker, basically");
+        "Underground lighting will no longer flicker");
 
     generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
@@ -1031,9 +1081,9 @@ public class ConfigWindow {
 
     overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
 
-    /// "Interface Overlays" are overlays that have a constant position on
+    /// "Interface overlays" are overlays that have a constant position on
     /// the screen because they are designed to modify just the interface of RSC+
-    addSettingsHeader(overlayPanel, "Interface Overlays");
+    addSettingsHeader(overlayPanel, "Interface overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
@@ -1097,7 +1147,7 @@ public class ConfigWindow {
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
 
     /// In-game buttons
-    addSettingsHeader(overlayPanel, "In-game Buttons");
+    addSettingsHeader(overlayPanel, "In-game buttons");
 
     overlayPanelRscPlusButtonsCheckbox =
         addCheckbox("Display + indicators over the activated in-game buttons", overlayPanel);
@@ -1143,7 +1193,7 @@ public class ConfigWindow {
         "Motivational quotes are displayed when you need motivation.");
 
     /// XP Bar
-    addSettingsHeader(overlayPanel, "XP Bar");
+    addSettingsHeader(overlayPanel, "XP bar");
     overlayPanelXPBarCheckbox = addCheckbox("Show an XP bar", overlayPanel);
     overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar to the left of the wrench");
     overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
@@ -1270,6 +1320,319 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+
+    /*
+     * Audio tab
+     */
+
+    audioPanel.setLayout(new BoxLayout(audioPanel, BoxLayout.Y_AXIS));
+
+    addSettingsHeader(audioPanel, "Audio settings");
+
+    audioPanelEnableMusicCheckbox =
+        addCheckbox("Enable Music (Must have music pack installed)", audioPanel);
+    audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
+    audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
+    audioPanelLouderSoundEffectsCheckbox.setToolTipText(
+        "Play sound effects twice at the same time so that it's louder.");
+
+    audioPanelOverrideAudioSettingCheckbox =
+        addCheckbox("Override server's remembered audio on/off setting", audioPanel);
+    audioPanelOverrideAudioSettingCheckbox.setToolTipText(
+        "Let RSC+ control whether or not sound effects are played (useful for watching replays)");
+
+    ButtonGroup overrideAudioSettingGroup = new ButtonGroup();
+    audioPanelOverrideAudioSettingOnButton =
+        addRadioButton("Sound effects always on", audioPanel, 20);
+    audioPanelOverrideAudioSettingOnButton.setToolTipText(
+        "Even if the server remembers that the user's audio should be off, RSC+ will play sound effects.");
+    audioPanelOverrideAudioSettingOffButton =
+        addRadioButton("Sound effects always off", audioPanel, 20);
+    audioPanelOverrideAudioSettingOffButton.setToolTipText(
+        "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
+    overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
+    overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
+
+    audioPanelFixSpiderWebDummySoundCheckbox =
+        addCheckbox("Fix web slicing & dummy hitting sound effect", audioPanel);
+    audioPanelFixSpiderWebDummySoundCheckbox.setToolTipText(
+        "The RSC server authentically tells your client to play a sound effect when slicing a web or hitting a dummy, but that sound effect doesn't exist in an unmodified client cache.");
+
+    addSettingsHeader(audioPanel, "Toggle individual sound effects");
+
+    JLabel audioPanelSoundEffectsToggleExplanation =
+        new JLabel(
+            "<html><p>"
+                + "There are 37 sound effects in RS-Classic. Some are great, and some can be grating. It's up to you to decide which are which."
+                + "</p></html>");
+    audioPanel.add(audioPanelSoundEffectsToggleExplanation);
+    audioPanelSoundEffectsToggleExplanation.setBorder(new EmptyBorder(7, 0, 7, 0));
+
+    JPanel audioPanelToggleAllPanel = new JPanel();
+    audioPanelToggleAllPanel.setLayout(new BoxLayout(audioPanelToggleAllPanel, BoxLayout.X_AXIS));
+    audioPanelToggleAllPanel.setPreferredSize(new Dimension(0, 37));
+    audioPanelToggleAllPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelToggleAllPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+    addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                setAllSoundeffects(true);
+              }
+            });
+
+    JPanel audioPanelToggleAllPanelSpacingPanel = new JPanel();
+    audioPanelToggleAllPanel.add(audioPanelToggleAllPanelSpacingPanel);
+    audioPanelToggleAllPanelSpacingPanel.setMinimumSize(new Dimension(6, 20));
+    audioPanelToggleAllPanelSpacingPanel.setPreferredSize(new Dimension(6, 20));
+    audioPanelToggleAllPanelSpacingPanel.setMaximumSize(new Dimension(6, 20));
+
+    addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                setAllSoundeffects(false);
+              }
+            });
+
+    audioPanel.add(audioPanelToggleAllPanel);
+
+    JPanel advancePanel = makeSoundEffectPanel("advance");
+    soundEffectAdvanceCheckbox = addCheckbox("advance", advancePanel);
+    soundEffectAdvanceCheckbox.setToolTipText("Plays when advancing a level.");
+    soundEffectAdvanceCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(advancePanel);
+
+    JPanel anvilPanel = makeSoundEffectPanel("anvil");
+    soundEffectAnvilCheckbox = addCheckbox("anvil", anvilPanel);
+    soundEffectAnvilCheckbox.setToolTipText("Plays when hammering on an anvil.");
+    soundEffectAnvilCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(anvilPanel);
+
+    JPanel chiselPanel = makeSoundEffectPanel("chisel");
+    soundEffectChiselCheckbox = addCheckbox("chisel", chiselPanel);
+    soundEffectChiselCheckbox.setToolTipText("Plays when cutting a gemstone.");
+    soundEffectChiselCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(chiselPanel);
+
+    JPanel clickPanel = makeSoundEffectPanel("click");
+    soundEffectClickCheckbox = addCheckbox("click", clickPanel);
+    soundEffectClickCheckbox.setToolTipText("Plays when equipping or unequipping your equipment.");
+    soundEffectClickCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(clickPanel);
+
+    JPanel closedoorPanel = makeSoundEffectPanel("closedoor");
+    soundEffectClosedoorCheckbox = addCheckbox("closedoor", closedoorPanel);
+    soundEffectClosedoorCheckbox.setToolTipText("Plays when a door opens or closes.");
+    soundEffectClosedoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(closedoorPanel);
+
+    JPanel coinsPanel = makeSoundEffectPanel("coins");
+    soundEffectCoinsCheckbox = addCheckbox("coins", coinsPanel);
+    soundEffectCoinsCheckbox.setToolTipText("Plays when buying or selling to a shop.");
+    soundEffectCoinsCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(coinsPanel);
+
+    JPanel combat1aPanel = makeSoundEffectPanel("combat1a");
+    soundEffectCombat1aCheckbox = addCheckbox("combat1a", combat1aPanel);
+    soundEffectCombat1aCheckbox.setToolTipText(
+        "Plays when no damage is done without a weapon wielded.");
+    soundEffectCombat1aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat1aPanel);
+
+    JPanel combat1bPanel = makeSoundEffectPanel("combat1b");
+    soundEffectCombat1bCheckbox = addCheckbox("combat1b", combat1bPanel);
+    soundEffectCombat1bCheckbox.setToolTipText(
+        "Plays when damage is done in combat without a weapon wielded.");
+    soundEffectCombat1bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat1bPanel);
+
+    JPanel combat2aPanel = makeSoundEffectPanel("combat2a");
+    soundEffectCombat2aCheckbox = addCheckbox("combat2a", combat2aPanel);
+    soundEffectCombat2aCheckbox.setToolTipText(
+        "Plays when no damage is done with a sharp weapon wielded.");
+    soundEffectCombat2aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat2aPanel);
+
+    JPanel combat2bPanel = makeSoundEffectPanel("combat2b");
+    soundEffectCombat2bCheckbox = addCheckbox("combat2b", combat2bPanel);
+    soundEffectCombat2bCheckbox.setToolTipText(
+        "Plays when damage is done with a sharp weapon wielded.");
+    soundEffectCombat2bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat2bPanel);
+
+    JPanel combat3aPanel = makeSoundEffectPanel("combat3a");
+    soundEffectCombat3aCheckbox = addCheckbox("combat3a", combat3aPanel);
+    soundEffectCombat3aCheckbox.setToolTipText(
+        "Plays when no damage is done against an undead opponent.");
+    soundEffectCombat3aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat3aPanel);
+
+    JPanel combat3bPanel = makeSoundEffectPanel("combat3b");
+    soundEffectCombat3bCheckbox = addCheckbox("combat3b", combat3bPanel);
+    soundEffectCombat3bCheckbox.setToolTipText(
+        "Plays when damage is done against an undead opponent.");
+    soundEffectCombat3bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(combat3bPanel);
+
+    JPanel cookingPanel = makeSoundEffectPanel("cooking");
+    soundEffectCookingCheckbox = addCheckbox("cooking", cookingPanel);
+    soundEffectCookingCheckbox.setToolTipText("Plays when cooking food on a range or fire.");
+    soundEffectCookingCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(cookingPanel);
+
+    JPanel deathPanel = makeSoundEffectPanel("death");
+    soundEffectDeathCheckbox = addCheckbox("death", deathPanel);
+    soundEffectDeathCheckbox.setToolTipText("Plays when the player dies.");
+    soundEffectDeathCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(deathPanel);
+
+    JPanel dropobjectPanel = makeSoundEffectPanel("dropobject");
+    soundEffectDropobjectCheckbox = addCheckbox("dropobject", dropobjectPanel);
+    soundEffectDropobjectCheckbox.setToolTipText("Plays when you drop an item.");
+    soundEffectDropobjectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(dropobjectPanel);
+
+    JPanel eatPanel = makeSoundEffectPanel("eat");
+    soundEffectEatCheckbox = addCheckbox("eat", eatPanel);
+    soundEffectEatCheckbox.setToolTipText("Plays when you eat food.");
+    soundEffectEatCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(eatPanel);
+
+    JPanel filljugPanel = makeSoundEffectPanel("filljug");
+    soundEffectFilljugCheckbox = addCheckbox("filljug", filljugPanel);
+    soundEffectFilljugCheckbox.setToolTipText("Plays when filling things with water.");
+    soundEffectFilljugCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(filljugPanel);
+
+    JPanel fishPanel = makeSoundEffectPanel("fish");
+    soundEffectFishCheckbox = addCheckbox("fish", fishPanel);
+    soundEffectFishCheckbox.setToolTipText("Plays when fishing.");
+    soundEffectFishCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(fishPanel);
+
+    JPanel foundgemPanel = makeSoundEffectPanel("foundgem");
+    soundEffectFoundgemCheckbox = addCheckbox("foundgem", foundgemPanel);
+    soundEffectFoundgemCheckbox.setToolTipText("Plays when you find a gem while fishing.");
+    soundEffectFoundgemCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(foundgemPanel);
+
+    JPanel mechanicalPanel = makeSoundEffectPanel("mechanical");
+    soundEffectMechanicalCheckbox = addCheckbox("mechanical", mechanicalPanel);
+    soundEffectMechanicalCheckbox.setToolTipText(
+        "Plays when using a hopper, spinning wheel, making pottery.");
+    soundEffectMechanicalCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(mechanicalPanel);
+
+    JPanel minePanel = makeSoundEffectPanel("mine");
+    soundEffectMineCheckbox = addCheckbox("mine", minePanel);
+    soundEffectMineCheckbox.setToolTipText("Plays when mining.");
+    soundEffectMineCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(minePanel);
+
+    JPanel mixPanel = makeSoundEffectPanel("mix");
+    soundEffectMixCheckbox = addCheckbox("mix", mixPanel);
+    soundEffectMixCheckbox.setToolTipText(
+        "Plays when mixing ingredients, particularly in Herblaw.");
+    soundEffectMixCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(mixPanel);
+
+    JPanel opendoorPanel = makeSoundEffectPanel("opendoor");
+    soundEffectOpendoorCheckbox = addCheckbox("opendoor", opendoorPanel);
+    soundEffectOpendoorCheckbox.setToolTipText("The sound of a door opening.");
+    soundEffectOpendoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(opendoorPanel);
+
+    JPanel outofammoPanel = makeSoundEffectPanel("outofammo");
+    soundEffectOutofammoCheckbox = addCheckbox("outofammo", outofammoPanel);
+    soundEffectOutofammoCheckbox.setToolTipText("Plays when you run out of ammo while ranging.");
+    soundEffectOutofammoCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(outofammoPanel);
+
+    JPanel potatoPanel = makeSoundEffectPanel("potato");
+    soundEffectPotatoCheckbox = addCheckbox("potato", potatoPanel);
+    soundEffectPotatoCheckbox.setToolTipText("Plays when harvesting crops from a field.");
+    soundEffectPotatoCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(potatoPanel);
+
+    JPanel prayeroffPanel = makeSoundEffectPanel("prayeroff");
+    soundEffectPrayeroffCheckbox = addCheckbox("prayeroff", prayeroffPanel);
+    soundEffectPrayeroffCheckbox.setToolTipText("Plays when disabling a prayer.");
+    soundEffectPrayeroffCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(prayeroffPanel);
+
+    JPanel prayeronPanel = makeSoundEffectPanel("prayeron");
+    soundEffectPrayeronCheckbox = addCheckbox("prayeron", prayeronPanel);
+    soundEffectPrayeronCheckbox.setToolTipText("Plays when enabling a prayer.");
+    soundEffectPrayeronCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(prayeronPanel);
+
+    JPanel prospectPanel = makeSoundEffectPanel("prospect");
+    soundEffectProspectCheckbox = addCheckbox("prospect", prospectPanel);
+    soundEffectProspectCheckbox.setToolTipText("Plays when prospecting a mining resource.");
+    soundEffectProspectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(prospectPanel);
+
+    JPanel rechargePanel = makeSoundEffectPanel("recharge");
+    soundEffectRechargeCheckbox = addCheckbox("recharge", rechargePanel);
+    soundEffectRechargeCheckbox.setToolTipText("Plays when praying at an altar.");
+    soundEffectRechargeCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(rechargePanel);
+
+    JPanel retreatPanel = makeSoundEffectPanel("retreat");
+    soundEffectRetreatCheckbox = addCheckbox("retreat", retreatPanel);
+    soundEffectRetreatCheckbox.setToolTipText("Plays when you or your opponent flee from combat.");
+    soundEffectRetreatCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(retreatPanel);
+
+    JPanel secretdoorPanel = makeSoundEffectPanel("secretdoor");
+    soundEffectSecretdoorCheckbox = addCheckbox("secretdoor", secretdoorPanel);
+    soundEffectSecretdoorCheckbox.setToolTipText(
+        "Plays when passing through a secret door (e.g. in Karamja dungeon)");
+    soundEffectSecretdoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(secretdoorPanel);
+
+    JPanel shootPanel = makeSoundEffectPanel("shoot");
+    soundEffectShootCheckbox = addCheckbox("shoot", shootPanel);
+    soundEffectShootCheckbox.setToolTipText("Plays when using the ranged skill.");
+    soundEffectShootCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(shootPanel);
+
+    JPanel spellfailPanel = makeSoundEffectPanel("spellfail");
+    soundEffectSpellfailCheckbox = addCheckbox("spellfail", spellfailPanel);
+    soundEffectSpellfailCheckbox.setToolTipText(
+        "Plays when you fail to cast a spell successfully.");
+    soundEffectSpellfailCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(spellfailPanel);
+
+    JPanel spellokPanel = makeSoundEffectPanel("spellok");
+    soundEffectSpellokCheckbox = addCheckbox("spellok", spellokPanel);
+    soundEffectSpellokCheckbox.setToolTipText("Plays when you successfully cast a spell.");
+    soundEffectSpellokCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(spellokPanel);
+
+    JPanel takeobjectPanel = makeSoundEffectPanel("takeobject");
+    soundEffectTakeobjectCheckbox = addCheckbox("takeobject", takeobjectPanel);
+    soundEffectTakeobjectCheckbox.setToolTipText("Plays when you pick up an item.");
+    soundEffectTakeobjectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(takeobjectPanel);
+
+    JPanel underattackPanel = makeSoundEffectPanel("underattack");
+    soundEffectUnderattackCheckbox = addCheckbox("underattack", underattackPanel);
+    soundEffectUnderattackCheckbox.setToolTipText("Plays when you are attacked.");
+    soundEffectUnderattackCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(underattackPanel);
+
+    JPanel victoryPanel = makeSoundEffectPanel("victory");
+    soundEffectVictoryCheckbox = addCheckbox("victory", victoryPanel);
+    soundEffectVictoryCheckbox.setToolTipText("Plays when you have won a fight.");
+    soundEffectVictoryCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    audioPanel.add(victoryPanel);
 
     /*
      * Bank tab
@@ -1418,7 +1781,7 @@ public class ConfigWindow {
 
     notificationPanel.setLayout(new BoxLayout(notificationPanel, BoxLayout.Y_AXIS));
 
-    addSettingsHeader(notificationPanel, "Notification Settings");
+    addSettingsHeader(notificationPanel, "Notification settings");
 
     notificationPanelTrayPopupCheckbox =
         addCheckbox("Enable notification tray popups", notificationPanel);
@@ -2429,6 +2792,77 @@ public class ConfigWindow {
         });
   }
 
+  private void setAllSoundeffects(boolean setting) {
+    soundEffectAdvanceCheckbox.setSelected(setting);
+    soundEffectAnvilCheckbox.setSelected(setting);
+    soundEffectChiselCheckbox.setSelected(setting);
+    soundEffectClickCheckbox.setSelected(setting);
+    soundEffectClosedoorCheckbox.setSelected(setting);
+    soundEffectCoinsCheckbox.setSelected(setting);
+    soundEffectCombat1aCheckbox.setSelected(setting);
+    soundEffectCombat1bCheckbox.setSelected(setting);
+    soundEffectCombat2aCheckbox.setSelected(setting);
+    soundEffectCombat2bCheckbox.setSelected(setting);
+    soundEffectCombat3aCheckbox.setSelected(setting);
+    soundEffectCombat3bCheckbox.setSelected(setting);
+    soundEffectCookingCheckbox.setSelected(setting);
+    soundEffectDeathCheckbox.setSelected(setting);
+    soundEffectDropobjectCheckbox.setSelected(setting);
+    soundEffectEatCheckbox.setSelected(setting);
+    soundEffectFilljugCheckbox.setSelected(setting);
+    soundEffectFishCheckbox.setSelected(setting);
+    soundEffectFoundgemCheckbox.setSelected(setting);
+    soundEffectMechanicalCheckbox.setSelected(setting);
+    soundEffectMineCheckbox.setSelected(setting);
+    soundEffectMixCheckbox.setSelected(setting);
+    soundEffectOpendoorCheckbox.setSelected(setting);
+    soundEffectOutofammoCheckbox.setSelected(setting);
+    soundEffectPotatoCheckbox.setSelected(setting);
+    soundEffectPrayeroffCheckbox.setSelected(setting);
+    soundEffectPrayeronCheckbox.setSelected(setting);
+    soundEffectProspectCheckbox.setSelected(setting);
+    soundEffectRechargeCheckbox.setSelected(setting);
+    soundEffectRetreatCheckbox.setSelected(setting);
+    soundEffectSecretdoorCheckbox.setSelected(setting);
+    soundEffectShootCheckbox.setSelected(setting);
+    soundEffectSpellfailCheckbox.setSelected(setting);
+    soundEffectSpellokCheckbox.setSelected(setting);
+    soundEffectTakeobjectCheckbox.setSelected(setting);
+    soundEffectUnderattackCheckbox.setSelected(setting);
+    soundEffectVictoryCheckbox.setSelected(setting);
+  }
+
+  private JPanel makeSoundEffectPanel(String soundEffectName) {
+    JPanel soundEffectPanel = new JPanel();
+    soundEffectPanel.setLayout(new BoxLayout(soundEffectPanel, BoxLayout.X_AXIS));
+    soundEffectPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    formatPlayButton("▶");
+    QueueWindow.button.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            boolean disabledBefore = SoundEffects.sounds_disabled;
+            if (disabledBefore) {
+              SoundEffects.sounds_disabled = false;
+            }
+            SoundEffects.playSound(soundEffectName);
+            if (disabledBefore) {
+              SoundEffects.sounds_disabled = true;
+            }
+          }
+        });
+    soundEffectPanel.add(QueueWindow.button);
+
+    return soundEffectPanel;
+  }
+
+  private void formatPlayButton(String text) {
+    QueueWindow.button = new JButton(text);
+    QueueWindow.button.setFont(QueueWindow.controlsFont);
+    QueueWindow.button.setMargin(new Insets(-2, -7, -2, -7));
+  }
+
   /**
    * Adds a new keybind to the GUI and settings and registers it to be checked when keypresses are
    * sent to the applet.
@@ -2868,6 +3302,84 @@ public class ConfigWindow {
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
 
+    // Audio tab
+    audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
+    audioPanelLouderSoundEffectsCheckbox.setSelected(
+        Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile));
+    audioPanelOverrideAudioSettingCheckbox.setSelected(
+        Settings.OVERRIDE_AUDIO_SETTING.get(Settings.currentProfile));
+    audioPanelOverrideAudioSettingOnButton.setSelected(
+        Settings.OVERRIDE_AUDIO_SETTING_SETTING_ON.get(Settings.currentProfile));
+    audioPanelOverrideAudioSettingOffButton.setSelected(
+        !Settings.OVERRIDE_AUDIO_SETTING_SETTING_ON.get(Settings.currentProfile));
+    audioPanelFixSpiderWebDummySoundCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT1.get(Settings.currentProfile));
+    soundEffectAdvanceCheckbox.setSelected(
+        Settings.SOUND_EFFECT_ADVANCE.get(Settings.currentProfile));
+    soundEffectAnvilCheckbox.setSelected(Settings.SOUND_EFFECT_ANVIL.get(Settings.currentProfile));
+    soundEffectChiselCheckbox.setSelected(
+        Settings.SOUND_EFFECT_CHISEL.get(Settings.currentProfile));
+    soundEffectClickCheckbox.setSelected(Settings.SOUND_EFFECT_CLICK.get(Settings.currentProfile));
+    soundEffectClosedoorCheckbox.setSelected(
+        Settings.SOUND_EFFECT_CLOSEDOOR.get(Settings.currentProfile));
+    soundEffectCoinsCheckbox.setSelected(Settings.SOUND_EFFECT_COINS.get(Settings.currentProfile));
+    soundEffectCombat1aCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT1A.get(Settings.currentProfile));
+    soundEffectCombat1bCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT1B.get(Settings.currentProfile));
+    soundEffectCombat2aCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT2A.get(Settings.currentProfile));
+    soundEffectCombat2bCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT2B.get(Settings.currentProfile));
+    soundEffectCombat3aCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT3A.get(Settings.currentProfile));
+    soundEffectCombat3bCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COMBAT3B.get(Settings.currentProfile));
+    soundEffectCookingCheckbox.setSelected(
+        Settings.SOUND_EFFECT_COOKING.get(Settings.currentProfile));
+    soundEffectDeathCheckbox.setSelected(Settings.SOUND_EFFECT_DEATH.get(Settings.currentProfile));
+    soundEffectDropobjectCheckbox.setSelected(
+        Settings.SOUND_EFFECT_DROPOBJECT.get(Settings.currentProfile));
+    soundEffectEatCheckbox.setSelected(Settings.SOUND_EFFECT_EAT.get(Settings.currentProfile));
+    soundEffectFilljugCheckbox.setSelected(
+        Settings.SOUND_EFFECT_FILLJUG.get(Settings.currentProfile));
+    soundEffectFishCheckbox.setSelected(Settings.SOUND_EFFECT_FISH.get(Settings.currentProfile));
+    soundEffectFoundgemCheckbox.setSelected(
+        Settings.SOUND_EFFECT_FOUNDGEM.get(Settings.currentProfile));
+    soundEffectMechanicalCheckbox.setSelected(
+        Settings.SOUND_EFFECT_MECHANICAL.get(Settings.currentProfile));
+    soundEffectMineCheckbox.setSelected(Settings.SOUND_EFFECT_MINE.get(Settings.currentProfile));
+    soundEffectMixCheckbox.setSelected(Settings.SOUND_EFFECT_MIX.get(Settings.currentProfile));
+    soundEffectOpendoorCheckbox.setSelected(
+        Settings.SOUND_EFFECT_OPENDOOR.get(Settings.currentProfile));
+    soundEffectOutofammoCheckbox.setSelected(
+        Settings.SOUND_EFFECT_OUTOFAMMO.get(Settings.currentProfile));
+    soundEffectPotatoCheckbox.setSelected(
+        Settings.SOUND_EFFECT_POTATO.get(Settings.currentProfile));
+    soundEffectPrayeroffCheckbox.setSelected(
+        Settings.SOUND_EFFECT_PRAYEROFF.get(Settings.currentProfile));
+    soundEffectPrayeronCheckbox.setSelected(
+        Settings.SOUND_EFFECT_PRAYERON.get(Settings.currentProfile));
+    soundEffectProspectCheckbox.setSelected(
+        Settings.SOUND_EFFECT_PROSPECT.get(Settings.currentProfile));
+    soundEffectRechargeCheckbox.setSelected(
+        Settings.SOUND_EFFECT_RECHARGE.get(Settings.currentProfile));
+    soundEffectRetreatCheckbox.setSelected(
+        Settings.SOUND_EFFECT_RETREAT.get(Settings.currentProfile));
+    soundEffectSecretdoorCheckbox.setSelected(
+        Settings.SOUND_EFFECT_SECRETDOOR.get(Settings.currentProfile));
+    soundEffectShootCheckbox.setSelected(Settings.SOUND_EFFECT_SHOOT.get(Settings.currentProfile));
+    soundEffectSpellfailCheckbox.setSelected(
+        Settings.SOUND_EFFECT_SPELLFAIL.get(Settings.currentProfile));
+    soundEffectSpellokCheckbox.setSelected(
+        Settings.SOUND_EFFECT_SPELLOK.get(Settings.currentProfile));
+    soundEffectTakeobjectCheckbox.setSelected(
+        Settings.SOUND_EFFECT_TAKEOBJECT.get(Settings.currentProfile));
+    soundEffectUnderattackCheckbox.setSelected(
+        Settings.SOUND_EFFECT_UNDERATTACK.get(Settings.currentProfile));
+    soundEffectVictoryCheckbox.setSelected(
+        Settings.SOUND_EFFECT_VICTORY.get(Settings.currentProfile));
+
     // Bank tab
     bankPanelCalculateBankValueCheckbox.setSelected(
         Settings.SHOW_BANK_VALUE.get(Settings.currentProfile));
@@ -3140,6 +3652,84 @@ public class ConfigWindow {
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+
+    // Audio options
+    Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());
+    Settings.LOUDER_SOUND_EFFECTS.put(
+        Settings.currentProfile, audioPanelLouderSoundEffectsCheckbox.isSelected());
+    Settings.OVERRIDE_AUDIO_SETTING.put(
+        Settings.currentProfile, audioPanelOverrideAudioSettingCheckbox.isSelected());
+    Settings.OVERRIDE_AUDIO_SETTING_SETTING_ON.put(
+        Settings.currentProfile,
+        audioPanelOverrideAudioSettingOnButton
+            .isSelected()); // audioPanelOverrideAudioSettingOffButton ignored
+    Settings.SOUND_EFFECT_COMBAT1.put(
+        Settings.currentProfile, audioPanelFixSpiderWebDummySoundCheckbox.isSelected());
+    Settings.SOUND_EFFECT_ADVANCE.put(
+        Settings.currentProfile, soundEffectAdvanceCheckbox.isSelected());
+    Settings.SOUND_EFFECT_ANVIL.put(Settings.currentProfile, soundEffectAnvilCheckbox.isSelected());
+    Settings.SOUND_EFFECT_CHISEL.put(
+        Settings.currentProfile, soundEffectChiselCheckbox.isSelected());
+    Settings.SOUND_EFFECT_CLICK.put(Settings.currentProfile, soundEffectClickCheckbox.isSelected());
+    Settings.SOUND_EFFECT_CLOSEDOOR.put(
+        Settings.currentProfile, soundEffectClosedoorCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COINS.put(Settings.currentProfile, soundEffectCoinsCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT1A.put(
+        Settings.currentProfile, soundEffectCombat1aCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT1B.put(
+        Settings.currentProfile, soundEffectCombat1bCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT2A.put(
+        Settings.currentProfile, soundEffectCombat2aCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT2B.put(
+        Settings.currentProfile, soundEffectCombat2bCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT3A.put(
+        Settings.currentProfile, soundEffectCombat3aCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COMBAT3B.put(
+        Settings.currentProfile, soundEffectCombat3bCheckbox.isSelected());
+    Settings.SOUND_EFFECT_COOKING.put(
+        Settings.currentProfile, soundEffectCookingCheckbox.isSelected());
+    Settings.SOUND_EFFECT_DEATH.put(Settings.currentProfile, soundEffectDeathCheckbox.isSelected());
+    Settings.SOUND_EFFECT_DROPOBJECT.put(
+        Settings.currentProfile, soundEffectDropobjectCheckbox.isSelected());
+    Settings.SOUND_EFFECT_EAT.put(Settings.currentProfile, soundEffectEatCheckbox.isSelected());
+    Settings.SOUND_EFFECT_FILLJUG.put(
+        Settings.currentProfile, soundEffectFilljugCheckbox.isSelected());
+    Settings.SOUND_EFFECT_FISH.put(Settings.currentProfile, soundEffectFishCheckbox.isSelected());
+    Settings.SOUND_EFFECT_FOUNDGEM.put(
+        Settings.currentProfile, soundEffectFoundgemCheckbox.isSelected());
+    Settings.SOUND_EFFECT_MECHANICAL.put(
+        Settings.currentProfile, soundEffectMechanicalCheckbox.isSelected());
+    Settings.SOUND_EFFECT_MINE.put(Settings.currentProfile, soundEffectMineCheckbox.isSelected());
+    Settings.SOUND_EFFECT_MIX.put(Settings.currentProfile, soundEffectMixCheckbox.isSelected());
+    Settings.SOUND_EFFECT_OPENDOOR.put(
+        Settings.currentProfile, soundEffectOpendoorCheckbox.isSelected());
+    Settings.SOUND_EFFECT_OUTOFAMMO.put(
+        Settings.currentProfile, soundEffectOutofammoCheckbox.isSelected());
+    Settings.SOUND_EFFECT_POTATO.put(
+        Settings.currentProfile, soundEffectPotatoCheckbox.isSelected());
+    Settings.SOUND_EFFECT_PRAYEROFF.put(
+        Settings.currentProfile, soundEffectPrayeroffCheckbox.isSelected());
+    Settings.SOUND_EFFECT_PRAYERON.put(
+        Settings.currentProfile, soundEffectPrayeronCheckbox.isSelected());
+    Settings.SOUND_EFFECT_PROSPECT.put(
+        Settings.currentProfile, soundEffectProspectCheckbox.isSelected());
+    Settings.SOUND_EFFECT_RECHARGE.put(
+        Settings.currentProfile, soundEffectRechargeCheckbox.isSelected());
+    Settings.SOUND_EFFECT_RETREAT.put(
+        Settings.currentProfile, soundEffectRetreatCheckbox.isSelected());
+    Settings.SOUND_EFFECT_SECRETDOOR.put(
+        Settings.currentProfile, soundEffectSecretdoorCheckbox.isSelected());
+    Settings.SOUND_EFFECT_SHOOT.put(Settings.currentProfile, soundEffectShootCheckbox.isSelected());
+    Settings.SOUND_EFFECT_SPELLFAIL.put(
+        Settings.currentProfile, soundEffectSpellfailCheckbox.isSelected());
+    Settings.SOUND_EFFECT_SPELLOK.put(
+        Settings.currentProfile, soundEffectSpellokCheckbox.isSelected());
+    Settings.SOUND_EFFECT_TAKEOBJECT.put(
+        Settings.currentProfile, soundEffectTakeobjectCheckbox.isSelected());
+    Settings.SOUND_EFFECT_UNDERATTACK.put(
+        Settings.currentProfile, soundEffectUnderattackCheckbox.isSelected());
+    Settings.SOUND_EFFECT_VICTORY.put(
+        Settings.currentProfile, soundEffectVictoryCheckbox.isSelected());
 
     // Bank options
     Settings.SHOW_BANK_VALUE.put(

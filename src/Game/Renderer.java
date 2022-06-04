@@ -2588,11 +2588,11 @@ public class Renderer {
     screenshot_scenery_scenery_id = id;
     screenshot_scenery_frames = 300;
     screenshot_scenery_angle = 0;
-    if (JGameData.objectWidths[id] > 1 || JGameData.objectHeights[id] > 1) {
+    if (JGameData.sceneryWidths[id] > 1 || JGameData.objectHeights[id] > 1) {
       int widthOffset = 0;
       int heightOffset = 0;
-      if (JGameData.objectWidths[id] > 1) {
-        widthOffset = (int) ((JGameData.objectWidths[id]) / 2.0f) * 128;
+      if (JGameData.sceneryWidths[id] > 1) {
+        widthOffset = (int) ((JGameData.sceneryWidths[id]) / 2.0f) * 128;
       }
       if (JGameData.objectHeights[id] > 1) {
         heightOffset = (int) ((JGameData.objectHeights[id]) / 2.0f) * 128;

@@ -50,6 +50,7 @@ public class WorldMapWindow {
   private static Image waypointImage;
   private static int planeIndex;
   public static boolean renderChunkGrid;
+  public static boolean renderChunkLabelling;
   private static boolean showLegend;
   public static boolean showLabels;
   public static boolean showScenery;
@@ -58,6 +59,7 @@ public class WorldMapWindow {
   private static boolean followPlayer;
   private static String searchText;
   private static int searchNumber;
+  private static int boundarySearchNumber;
   private static int searchIndex;
   private static SearchResult[] searchResults;
   private static boolean searchOverflow;
@@ -75,6 +77,7 @@ public class WorldMapWindow {
   private static Point posTextBounds;
   private static Rectangle legendBounds;
   private static Rectangle chunkGridBounds;
+  private static Rectangle chunkLabellingBounds;
   private static Rectangle showLabelsBounds;
   private static Rectangle showSceneryBounds;
   private static Rectangle showIconsBounds;
@@ -105,6 +108,7 @@ public class WorldMapWindow {
 
   private static ArrayList<MapLabel> mapLabels = new ArrayList<MapLabel>();
   private static ArrayList<MapScenery> mapSceneries = new ArrayList<MapScenery>();
+  private static ArrayList<MapScenery> mapBoundaries = new ArrayList<MapScenery>();
   private static ArrayList<MapGlyph> mapGlyphs = new ArrayList<MapGlyph>();
   private static ArrayList<MapLink> mapLinks = new ArrayList<MapLink>();
 
@@ -215,12 +219,15 @@ public class WorldMapWindow {
     prevMousePoint = new Point(0, 0);
     prevMousePointMap = new Point(0, 0);
     playerPosition = new Point(0, 0);
-    chunkGridBounds = new Rectangle(0, 0, 116, 24);
-    showLabelsBounds = new Rectangle(0, 0, 116, 24);
-    showSceneryBounds = new Rectangle(0, 0, 116, 24);
-    showIconsBounds = new Rectangle(0, 0, 116, 24);
-    showOtherFloorsBounds = new Rectangle(0, 0, 116, 24);
-    followPlayerBounds = new Rectangle(0, 0, 116, 24);
+    final int buttonwidth = 140;
+    chunkGridBounds = new Rectangle(0, 0, buttonwidth, 24);
+    chunkLabellingBounds = new Rectangle(0, 0, buttonwidth, 24);
+    showLabelsBounds = new Rectangle(0, 0, buttonwidth, 24);
+    showSceneryBounds = new Rectangle(0, 0, buttonwidth, 24);
+    showIconsBounds = new Rectangle(0, 0, buttonwidth, 24);
+    showOtherFloorsBounds =
+        new Rectangle(0, 0, buttonwidth + BORDER_SIZE + floorUpBounds.width, 24);
+    followPlayerBounds = new Rectangle(0, 0, buttonwidth, 24);
     legendBounds = new Rectangle(0, 0, 150, 24);
     searchBounds = new Rectangle(0, 0, 250, 24);
     searchRefreshBounds = new Rectangle(0, 0, 64, 24);
@@ -314,6 +321,19 @@ public class WorldMapWindow {
         }
       }
 
+      for (MapScenery boundary : mapBoundaries) {
+        Rectangle p = convertWorldCoordsToMapRaw(boundary.x, boundary.y);
+        if (p.width != plane) continue;
+
+        if (boundary.isSearchable()
+            && searchText.length() > 0
+            && (boundarySearchNumber == boundary.id
+                || boundary.searchName.toLowerCase().contains(searchText.toLowerCase()))) {
+          g.setColor(Renderer.color_low);
+          drawMapBoundary(g, p.x, p.y, boundary.dir);
+        }
+      }
+
       for (MapLink link : mapLinks) {
         Rectangle p = convertWorldCoordsToMapRaw(link.loc.x, link.loc.y);
         if (p.width != plane) continue;
@@ -370,31 +390,33 @@ public class WorldMapWindow {
         setAlpha(g, 1.0f);
       }
 
-      for (int x = 0; x < AreaDefinition.SIZE_X; x++) {
-        for (int y = 0; y < AreaDefinition.SIZE_Y; y++) {
-          int indexX = AreaDefinition.SIZE_X - x - 1;
-          int indexY = y;
-          int drawX = x * chunkSize + 4;
-          int drawY = y * chunkSize + 12;
-          g.setFont(Renderer.font_main);
+      if (renderChunkLabelling) {
+        for (int x = 0; x < AreaDefinition.SIZE_X; x++) {
+          for (int y = 0; y < AreaDefinition.SIZE_Y; y++) {
+            int indexX = AreaDefinition.SIZE_X - x - 1;
+            int indexY = y;
+            int drawX = x * chunkSize + 4;
+            int drawY = y * chunkSize + 12;
+            g.setFont(Renderer.font_main);
 
-          int chunkX = indexX + AreaDefinition.REGION_X_OFFSET;
-          int chunkY = indexY + AreaDefinition.REGION_Y_OFFSET;
+            int chunkX = indexX + AreaDefinition.REGION_X_OFFSET;
+            int chunkY = indexY + AreaDefinition.REGION_Y_OFFSET;
 
-          String music = Client.areaDefinitions[planeIndex][chunkX][chunkY].music.trackname;
+            String music = Client.areaDefinitions[planeIndex][chunkX][chunkY].music.trackname;
 
-          if (!Client.areaDefinitions[planeIndex][chunkX][chunkY].hasLand) continue;
+            if (!Client.areaDefinitions[planeIndex][chunkX][chunkY].hasLand) continue;
 
-          if (music.length() == 0) {
-            Renderer.drawColoredText(
-                g, "@yel@" + planeIndex + "" + chunkX + "" + chunkY, drawX, drawY, false);
-          } else {
-            Renderer.drawColoredText(
-                g,
-                "@yel@" + planeIndex + "" + chunkX + "" + chunkY + ": @cya@" + music,
-                drawX,
-                drawY,
-                false);
+            if (music.length() == 0 || !Settings.CUSTOM_MUSIC.get(Settings.currentProfile)) {
+              Renderer.drawColoredText(
+                  g, "@yel@" + planeIndex + "" + chunkX + "" + chunkY, drawX, drawY, false);
+            } else {
+              Renderer.drawColoredText(
+                  g,
+                  "@yel@" + planeIndex + "" + chunkX + "" + chunkY + ": @cya@" + music,
+                  drawX,
+                  drawY,
+                  false);
+            }
           }
         }
       }
@@ -452,6 +474,14 @@ public class WorldMapWindow {
     } catch (Exception e) {
     }
 
+    boundarySearchNumber = -1;
+    try {
+      if (searchText.startsWith("bid:")) {
+        boundarySearchNumber = Integer.parseInt(searchText.substring(4));
+      }
+    } catch (Exception e) {
+    }
+
     ArrayList<SearchResult> results = new ArrayList<SearchResult>();
     for (SearchResult glyph : mapGlyphs) {
       if (glyph.isSearchable()
@@ -493,6 +523,25 @@ public class WorldMapWindow {
           && (sceneryObj.id == searchNumber
               || scenery.getSearchName().toLowerCase().contains(searchText.toLowerCase()))) {
         results.add(scenery);
+        if (results.size() > SEARCH_RESULTS_LIMIT) {
+          searchOverflow = true;
+          searchResults = null;
+          if (updateMap) {
+            searchText = "";
+            updateMapRender();
+            searchText = prevSearchText;
+          }
+          return;
+        }
+      }
+    }
+
+    for (SearchResult boundary : mapBoundaries) {
+      MapScenery sceneryObj = (MapScenery) boundary;
+      if (boundary.isSearchable()
+          && (sceneryObj.id == boundarySearchNumber
+              || boundary.getSearchName().toLowerCase().contains(searchText.toLowerCase()))) {
+        results.add(boundary);
         if (results.size() > SEARCH_RESULTS_LIMIT) {
           searchOverflow = true;
           searchResults = null;
@@ -741,6 +790,7 @@ public class WorldMapWindow {
               if (e.getKeyCode() == KeyEvent.VK_R) {
                 initAssets();
                 initScenery();
+                initBoundaries();
                 updateMapRender();
                 dirty = true;
               }
@@ -901,6 +951,12 @@ public class WorldMapWindow {
 
               if (process(p, chunkGridBounds)) {
                 renderChunkGrid = !renderChunkGrid;
+                Settings.save();
+                updateMapRender();
+              }
+
+              if (process(p, chunkLabellingBounds)) {
+                renderChunkLabelling = !renderChunkLabelling;
                 Settings.save();
                 updateMapRender();
               }
@@ -1322,11 +1378,35 @@ public class WorldMapWindow {
 
             // Use object name for the remaining object ids
           default:
-            scenery.searchName = JGameData.objectNames[scenery.id];
+            scenery.searchName = JGameData.sceneryNames[scenery.id];
             break;
         }
 
         mapSceneries.add(scenery);
+      }
+      in.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void initBoundaries() {
+    mapBoundaries.clear();
+
+    // Load Boundaries
+    try {
+      DataInputStream in =
+          new DataInputStream(Launcher.getResource("/assets/map/boundaries.bin").openStream());
+      int count = in.readInt();
+      for (int i = 0; i < count; i++) {
+        MapScenery boundary = new MapScenery();
+        boundary.x = in.readShort();
+        boundary.y = in.readShort();
+        boundary.id = in.readShort();
+        boundary.dir = in.readByte();
+        boundary.searchName = JGameData.boundaryNames[boundary.id];
+
+        mapBoundaries.add(boundary);
       }
       in.close();
     } catch (Exception e) {
@@ -1525,6 +1605,27 @@ public class WorldMapWindow {
     // g.drawLine(x, y + 1, x + 2, y + 1);
   }
 
+  public static void drawMapBoundary(Graphics2D g, int x, int y, int dir) {
+    switch (dir) {
+      case 0:
+      case 4:
+        g.drawLine(x, y, x + 2, y);
+        break;
+      case 1:
+      case 5:
+        g.drawLine(x + 2, y, x + 2, y + 2);
+        break;
+      case 2:
+      case 6:
+        g.drawLine(x, y, x + 2, y + 2);
+        break;
+      case 3:
+      case 7:
+        g.drawLine(x, y + 2, x + 2, y);
+        break;
+    }
+  }
+
   public static void drawMapLabel(Graphics2D g, int x, int y, MapLabel label) {
     if (label.bold) g.setFont(fontsBold[label.size]);
     else g.setFont(fonts[label.size]);
@@ -1586,18 +1687,21 @@ public class WorldMapWindow {
 
       posTextBounds.x = BORDER_SIZE;
       posTextBounds.y = BORDER_SIZE * 2;
+      chunkLabellingBounds.x = floorDownBounds.x - BORDER_SIZE - chunkLabellingBounds.width;
+      chunkLabellingBounds.y = floorDownBounds.y;
       chunkGridBounds.x = floorDownBounds.x - BORDER_SIZE - chunkGridBounds.width;
-      chunkGridBounds.y = floorDownBounds.y;
+      chunkGridBounds.y = chunkLabellingBounds.y - BORDER_SIZE - chunkLabellingBounds.height;
       showLabelsBounds.x = chunkGridBounds.x;
       showLabelsBounds.y = chunkGridBounds.y - BORDER_SIZE - showLabelsBounds.height;
       showSceneryBounds.x = showLabelsBounds.x;
       showSceneryBounds.y = showLabelsBounds.y - BORDER_SIZE - showSceneryBounds.height;
       showIconsBounds.x = showSceneryBounds.x;
       showIconsBounds.y = showSceneryBounds.y - BORDER_SIZE - showIconsBounds.height;
-      showOtherFloorsBounds.x = showIconsBounds.x;
-      showOtherFloorsBounds.y = showIconsBounds.y - BORDER_SIZE - showOtherFloorsBounds.height;
-      followPlayerBounds.x = chunkGridBounds.x - BORDER_SIZE - chunkGridBounds.width;
-      followPlayerBounds.y = chunkGridBounds.y;
+      followPlayerBounds.x =
+          showIconsBounds.x; // chunkLabellingBounds.x - BORDER_SIZE - followPlayerBounds.width;
+      followPlayerBounds.y = showIconsBounds.y - BORDER_SIZE - followPlayerBounds.height;
+      showOtherFloorsBounds.x = followPlayerBounds.x;
+      showOtherFloorsBounds.y = followPlayerBounds.y - BORDER_SIZE - showOtherFloorsBounds.height;
       searchBounds.x = BORDER_SIZE;
       searchBounds.y = canvasHeight - BORDER_SIZE - searchBounds.height;
       searchRefreshBounds.x = searchBounds.x + searchBounds.width + BORDER_SIZE;
@@ -1625,13 +1729,13 @@ public class WorldMapWindow {
 
       if (showOtherFloors) {
         if (planeIndex == 3) {
-          setAlpha(g, 0.8f);
+          setAlpha(g, 0.3f);
           g.setColor(Color.black);
           g.fill(rootShape);
           setAlpha(g, 1.0f);
         } else {
           for (int i = 0; i < planeIndex; i++) {
-            setAlpha(g, 0.5f);
+            setAlpha(g, 0.25f);
             g.setColor(Color.black);
             g.fill(rootShape);
             setAlpha(g, 1.0f);
@@ -1726,6 +1830,12 @@ public class WorldMapWindow {
           zoomTextBounds.y,
           Renderer.color_text,
           true);
+
+      if (renderChunkLabelling) {
+        drawButton(g, "Disable Chunk Labelling", chunkLabellingBounds);
+      } else {
+        drawButton(g, "Enable Chunk Labelling", chunkLabellingBounds);
+      }
 
       if (renderChunkGrid) {
         drawButton(g, "Disable Chunk Grid", chunkGridBounds);
@@ -1907,6 +2017,7 @@ public class WorldMapWindow {
     int y;
     int id;
     String searchName;
+    int dir = -1;
 
     @Override
     public String getSearchName() {

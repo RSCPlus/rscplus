@@ -422,7 +422,7 @@ public class Client {
 
   public static boolean usingRetroTabs = false;
 
-  public static String loginTrack = "";
+  public static MusicDef loginTrack = MusicDef.NONE;
 
   public static AreaDefinition[][][] areaDefinitions = new AreaDefinition[4][100][100];
 
@@ -633,15 +633,22 @@ public class Client {
         }
       } catch (Exception e) {
         Logger.Info("No music to load at " + zipPath);
+        return;
       }
 
+      if (null == input) {
+        return;
+      }
       String areaJson = Util.readString(input);
       JSONArray obj = new JSONArray(areaJson);
       for (int i = 0; i < obj.length(); i++) {
         JSONObject entry = obj.getJSONObject(i);
 
         try {
-          loginTrack = entry.getString("title");
+          String filename = entry.getString("title");
+          String trackname = entry.getString("trackname");
+          String filetype = entry.getString("filetype");
+          loginTrack = new MusicDef(trackname, filename, filetype);
           continue;
         } catch (Exception e) {
         }
@@ -913,11 +920,13 @@ public class Client {
     last_time = nanoTime;
 
     // Handle area data
-    if (state == STATE_GAME) {
-      AreaDefinition area = getCurrentAreaDefinition();
-      MusicPlayer.playTrack(area.music.filename);
-    } else if (state == STATE_LOGIN) {
-      MusicPlayer.playTrack(loginTrack);
+    if (Settings.CUSTOM_MUSIC.get(Settings.currentProfile)) {
+      if (state == STATE_GAME) {
+        AreaDefinition area = getCurrentAreaDefinition();
+        MusicPlayer.playTrack(area.music);
+      } else if (state == STATE_LOGIN) {
+        MusicPlayer.playTrack(loginTrack);
+      }
     }
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());

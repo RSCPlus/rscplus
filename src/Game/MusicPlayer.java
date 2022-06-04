@@ -2,17 +2,15 @@ package Game;
 
 import Client.Logger;
 import Client.Settings;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.sound.midi.*;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class MusicPlayer implements Runnable {
-  private static String currentTrack = "";
-  private static String switchTrack = "";
+  private static MusicDef currentTrack = MusicDef.NONE;
+  private static MusicDef switchTrack = MusicDef.NONE;
 
   private static Synthesizer synthesizer;
   private static Sequencer sequencer;
@@ -36,9 +34,9 @@ public class MusicPlayer implements Runnable {
           && !currentTrack.equals(switchTrack)) {
         // Play track
         if (getVolume() == 0.0) {
-          Stop();
-          if (switchTrack.length() > 0) {
-            Logger.Info("Playing music '" + switchTrack + "'");
+          stop();
+          if (switchTrack.filename.length() > 0) {
+            Logger.Info("Playing music '" + switchTrack.filename + "'");
 
             InputStream input = null;
 
@@ -49,15 +47,25 @@ public class MusicPlayer implements Runnable {
 
               ZipEntry ze;
               while ((ze = zis.getNextEntry()) != null) {
-                if (ze.getName().equals(switchTrack)) {
+                if (ze.getName().equals(switchTrack.filename)) {
                   input = zis;
                   break;
                 }
               }
             } catch (Exception e) {
             }
-
-            Play(input);
+            if (switchTrack.filetype.equals("mid")) {
+              playMidi(input);
+            } else {
+              try {
+                if (null != input) {
+                  Logger.Info("Loading " + switchTrack.filename + "." + switchTrack.filetype);
+                  Sound.play(Sound.loadSound(new BufferedInputStream(input)));
+                }
+              } catch (UnsupportedAudioFileException | IOException e) {
+                e.printStackTrace();
+              }
+            }
           }
 
           currentTrack = switchTrack;
@@ -67,9 +75,9 @@ public class MusicPlayer implements Runnable {
       }
 
       if (!customMusic) {
-        currentTrack = "";
-        switchTrack = "";
-        Stop();
+        currentTrack = MusicDef.NONE;
+        switchTrack = MusicDef.NONE;
+        stop();
       }
 
       // TODO: Make this customizable, it's music repeat
@@ -80,7 +88,9 @@ public class MusicPlayer implements Runnable {
 
       if (synthesizer != null) {
         try {
-          int volumeInt = (int) (volume * 127.0);
+          int volumeInt =
+              1; // (int) (volume * 127.0); // TODO: this is the minimum volume achievable with this
+                 // method but it should be even quieter
 
           if (synthesizer != null) {
             MidiChannel[] channels = synthesizer.getChannels();
@@ -100,7 +110,7 @@ public class MusicPlayer implements Runnable {
     }
   }
 
-  public static void Init() {
+  public static void init() {
     MusicPlayer player = new MusicPlayer();
     thread = new Thread(player);
     thread.start();
@@ -144,15 +154,15 @@ public class MusicPlayer implements Runnable {
     volume = Math.max(0.0, value);
   }
 
-  public static void playTrack(String name) {
+  public static void playTrack(MusicDef track) {
     // Track didn't change
-    if (switchTrack.equals(name)) return;
+    if (switchTrack.equals(track.filename)) return;
 
     // Switch track
-    switchTrack = name;
+    switchTrack = track;
   }
 
-  public static void Play(InputStream inputStream) {
+  public static void playMidi(InputStream inputStream) {
     try {
       synthesizer = MidiSystem.getSynthesizer();
       synthesizer.open();
@@ -179,10 +189,10 @@ public class MusicPlayer implements Runnable {
       e.printStackTrace();
     }
 
-    setVolume(1.0);
+    setVolume(Settings.MIDI_VOLUME);
   }
 
-  public static void Stop() {
+  public static void stop() {
     if (sequencer != null && sequencer.isOpen()) {
       sequencer.stop();
       sequencer.close();
@@ -190,12 +200,12 @@ public class MusicPlayer implements Runnable {
     }
   }
 
-  public static void Close() {
+  public static void close() {
     running = false;
     try {
       thread.join();
     } catch (Exception e) {
     }
-    Stop();
+    stop();
   }
 }
