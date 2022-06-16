@@ -1564,12 +1564,14 @@ public class ConfigWindow {
     soundEffectPrayeroffCheckbox = addCheckbox("prayeroff", prayeroffPanel);
     soundEffectPrayeroffCheckbox.setToolTipText("Plays when disabling a prayer.");
     soundEffectPrayeroffCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    soundEffectPrayeroffCheckbox.setEnabled(false); // TODO: would need to either reimplement opcode 206 or go disable it in there (preferred)
     audioPanel.add(prayeroffPanel);
 
     JPanel prayeronPanel = makeSoundEffectPanel("prayeron");
     soundEffectPrayeronCheckbox = addCheckbox("prayeron", prayeronPanel);
     soundEffectPrayeronCheckbox.setToolTipText("Plays when enabling a prayer.");
     soundEffectPrayeronCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    soundEffectPrayeronCheckbox.setEnabled(false); // TODO: would need to either reimplement opcode 206 or go disable it in there (preferred)
     audioPanel.add(prayeronPanel);
 
     JPanel prospectPanel = makeSoundEffectPanel("prospect");
@@ -2818,8 +2820,8 @@ public class ConfigWindow {
     soundEffectOpendoorCheckbox.setSelected(setting);
     soundEffectOutofammoCheckbox.setSelected(setting);
     soundEffectPotatoCheckbox.setSelected(setting);
-    soundEffectPrayeroffCheckbox.setSelected(setting);
-    soundEffectPrayeronCheckbox.setSelected(setting);
+    // soundEffectPrayeroffCheckbox.setSelected(setting); // TODO: unimplemented
+    // soundEffectPrayeronCheckbox.setSelected(setting); // TODO: unimplemented
     soundEffectProspectCheckbox.setSelected(setting);
     soundEffectRechargeCheckbox.setSelected(setting);
     soundEffectRetreatCheckbox.setSelected(setting);
