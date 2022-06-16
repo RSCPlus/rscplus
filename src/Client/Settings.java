@@ -712,9 +712,9 @@ public class Settings {
     VIEW_DISTANCE.put("all", 20000);
     VIEW_DISTANCE.put("custom", getPropInt(props, "view_distance", VIEW_DISTANCE.get("default")));
 
-    AUTO_SCREENSHOT.put("vanilla", false);
-    AUTO_SCREENSHOT.put("vanilla_resizable", false);
-    AUTO_SCREENSHOT.put("lite", false);
+    AUTO_SCREENSHOT.put("vanilla", true);
+    AUTO_SCREENSHOT.put("vanilla_resizable", true);
+    AUTO_SCREENSHOT.put("lite", true);
     AUTO_SCREENSHOT.put("default", true);
     AUTO_SCREENSHOT.put("heavy", true);
     AUTO_SCREENSHOT.put("all", true);
