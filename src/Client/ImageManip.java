@@ -1,6 +1,5 @@
 package Client;
 
-
 import java.awt.image.BufferedImage;
 
 public class ImageManip {

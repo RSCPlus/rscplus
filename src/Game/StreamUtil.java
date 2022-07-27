@@ -120,6 +120,18 @@ public class StreamUtil {
     return bufferOffset;
   }
 
+  public static int setBufferOffset(Object buffer, int offset) {
+    if (Reflection.bufferOffset == null) return 0;
+    int bufferOffset = 0;
+
+    try {
+      Reflection.bufferOffset.set(buffer, offset);
+    } catch (Exception e) {
+    }
+
+    return bufferOffset;
+  }
+
   public static byte[] getBufferByteArray(Object buffer) {
     if (Reflection.bufferByteArray == null) return null;
     byte[] bufferArray = null;

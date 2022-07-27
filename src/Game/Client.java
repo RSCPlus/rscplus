@@ -35,13 +35,7 @@ import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
@@ -56,7 +50,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -424,6 +422,10 @@ public class Client {
 
   public static boolean usingRetroTabs = false;
 
+  public static MusicDef loginTrack = MusicDef.NONE;
+
+  public static AreaDefinition[][][] areaDefinitions = new AreaDefinition[4][100][100];
+
   public static final String[] colorDict = {
     // less common colors should go at the bottom b/c we can break search loop early
     // several of the orange & green colours are basically the same colour, even in-game
@@ -595,6 +597,118 @@ public class Client {
     instructions.add(instruction);
   }
 
+  public static void loadAreaDefinitions() {
+    // Set default region
+    for (int floor = 0; floor < 4; floor++) {
+      for (int x = AreaDefinition.REGION_X_OFFSET;
+          x < AreaDefinition.SIZE_X + AreaDefinition.REGION_X_OFFSET;
+          x++) {
+        for (int y = AreaDefinition.REGION_Y_OFFSET;
+            y < AreaDefinition.SIZE_Y + AreaDefinition.REGION_Y_OFFSET;
+            y++) {
+          if (AreaDefinition.hasLand(floor * 10000 + x * 100 + y)) {
+            areaDefinitions[floor][x][y] = AreaDefinition.DEFAULT_LAND;
+          } else {
+            areaDefinitions[floor][x][y] = AreaDefinition.DEFAULT;
+          }
+        }
+      }
+    }
+
+    try {
+      InputStream input = null;
+      String zipPath =
+          Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+      try {
+        FileInputStream fis = new FileInputStream(zipPath);
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        ZipInputStream zis = new ZipInputStream(bis);
+
+        ZipEntry ze;
+        while ((ze = zis.getNextEntry()) != null) {
+          if (ze.getName().equalsIgnoreCase("areas.json")) {
+            input = zis;
+            break;
+          }
+        }
+      } catch (Exception e) {
+        Logger.Info("No music to load at " + zipPath);
+        return;
+      }
+
+      if (null == input) {
+        return;
+      }
+      String areaJson = Util.readString(input);
+      JSONArray obj = new JSONArray(areaJson);
+      for (int i = 0; i < obj.length(); i++) {
+        JSONObject entry = obj.getJSONObject(i);
+
+        try {
+          String filename = entry.getString("title");
+          String trackname = entry.getString("trackname");
+          String filetype = entry.getString("filetype");
+          loginTrack = new MusicDef(trackname, filename, filetype);
+          continue;
+        } catch (Exception e) {
+        }
+
+        try {
+          String soundfont = entry.getString("soundfont");
+          MusicPlayer.loadSoundFont(soundfont);
+          continue;
+        } catch (Exception e) {
+        }
+
+        try {
+          int floor = entry.getInt("floor");
+          int chunkX = entry.getInt("regionX");
+          int chunkY = entry.getInt("regionY");
+          String trackname = entry.getString("trackname");
+          String filename = entry.getString("filename");
+          String filetype = entry.getString("filetype");
+
+          // Spread the same music track across multiple chunks if an x2 or y2 value is defined
+          int chunkX2 = chunkX;
+          int chunkY2 = chunkY;
+          try {
+            chunkX2 = entry.getInt("regionX2");
+          } catch (Exception e) {
+          }
+          try {
+            chunkY2 = entry.getInt("regionY2");
+          } catch (Exception e) {
+          }
+
+          MusicDef musicDef = new MusicDef(trackname, filename, filetype);
+          AreaDefinition areaDef = new AreaDefinition(musicDef, true);
+
+          for (int x = chunkX; x <= chunkX2; x++) {
+            for (int y = chunkY; y <= chunkY2; y++) {
+              areaDefinitions[floor][x][y] = areaDef;
+            }
+          }
+        } catch (Exception e) {
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static AreaDefinition getCurrentAreaDefinition() {
+    int chunkX = getChunkX();
+    int chunkY = getChunkY();
+
+    // Return default chunk if out of bounds
+    if (chunkX >= AreaDefinition.SIZE_X + AreaDefinition.REGION_X_OFFSET
+        || chunkY >= AreaDefinition.SIZE_Y + AreaDefinition.REGION_Y_OFFSET
+        || chunkX < AreaDefinition.REGION_X_OFFSET
+        || chunkY < AreaDefinition.REGION_Y_OFFSET) return AreaDefinition.DEFAULT;
+
+    return areaDefinitions[getFloor()][chunkX][chunkY];
+  }
+
   public static Object getObjectModel(int i) {
     try {
       return Array.get(Reflection.objectModels.get(Client.instance), i);
@@ -624,7 +738,7 @@ public class Client {
   }
 
   public static void init() {
-
+    loadAreaDefinitions();
     adaptStrings();
 
     handler_mouse = new MouseHandler();
@@ -804,6 +918,16 @@ public class Client {
 
     float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
+
+    // Handle area data
+    if (Settings.CUSTOM_MUSIC.get(Settings.currentProfile)) {
+      if (state == STATE_GAME) {
+        AreaDefinition area = getCurrentAreaDefinition();
+        MusicPlayer.playTrack(area.music);
+      } else if (state == STATE_LOGIN) {
+        MusicPlayer.playTrack(loginTrack);
+      }
+    }
 
     Camera.setLookatTile(getPlayerWaypointX(), getPlayerWaypointY());
     Camera.update(delta_time);
@@ -1253,6 +1377,10 @@ public class Client {
       needsProcess = false;
     }
 
+    if (SoundEffects.processPacket(opcode, psize)) {
+      needsProcess = false;
+    }
+
     return needsProcess;
   }
 
@@ -1457,11 +1585,15 @@ public class Client {
   }
 
   public static int getChunkX() {
-    return worldX / 48;
+    return (worldX / 48) + AreaDefinition.REGION_X_OFFSET;
   }
 
   public static int getChunkY() {
-    return worldY / 48;
+    return (worldY % 944) / 48 + AreaDefinition.REGION_Y_OFFSET;
+  }
+
+  public static int getFloor() {
+    return worldY / 944;
   }
 
   /**

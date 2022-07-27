@@ -20,6 +20,7 @@ package Client;
 
 import Game.Client;
 import Game.Game;
+import Game.SoundEffects;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -450,6 +451,7 @@ public class Launcher extends JFrame implements Runnable {
     setQueueWindow(new QueueWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();
+    SoundEffects.loadCustomSoundEffects();
     Launcher.getInstance().init();
   }
 

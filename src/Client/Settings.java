@@ -46,7 +46,7 @@ public class Settings {
   public static boolean fovUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20220222.222222;
+  public static final double VERSION_NUMBER = 20220604.055304;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -99,7 +99,8 @@ public class Settings {
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> DISABLE_UNDERGROUND_LIGHTING = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DISABLE_UNDERGROUND_LIGHTING =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_MOVABLE = new HashMap<String, Boolean>();
@@ -129,6 +130,53 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
+
+  //// music
+  public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
+  public static final double MIDI_VOLUME = 0.01;
+  public static HashMap<String, Boolean> CUSTOM_MUSIC = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> LOUDER_SOUND_EFFECTS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT1 = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_ADVANCE = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_ANVIL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_CHISEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_CLICK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_CLOSEDOOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COINS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT1A = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT1B = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT2A = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT2B = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT3A = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT3B = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_COOKING = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_DEATH = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_DROPOBJECT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_EAT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_FILLJUG = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_FISH = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_FOUNDGEM = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_MECHANICAL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_MINE = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_MIX = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_OPENDOOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_OUTOFAMMO = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_POTATO = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_PRAYEROFF = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_PRAYERON = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_PROSPECT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_RECHARGE = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_RETREAT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_SECRETDOOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_SHOOT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_SPELLFAIL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_SPELLOK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_TAKEOBJECT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_UNDERATTACK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SOUND_EFFECT_VICTORY = new HashMap<String, Boolean>();
 
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
@@ -571,7 +619,10 @@ public class Settings {
     DISABLE_UNDERGROUND_LIGHTING.put("default", false);
     DISABLE_UNDERGROUND_LIGHTING.put("heavy", true);
     DISABLE_UNDERGROUND_LIGHTING.put("all", true);
-    DISABLE_UNDERGROUND_LIGHTING.put("custom", getPropBoolean(props, "disable_underground_lighting", DISABLE_UNDERGROUND_LIGHTING.get("default")));
+    DISABLE_UNDERGROUND_LIGHTING.put(
+        "custom",
+        getPropBoolean(
+            props, "disable_underground_lighting", DISABLE_UNDERGROUND_LIGHTING.get("default")));
 
     CAMERA_ZOOMABLE.put("vanilla", false);
     CAMERA_ZOOMABLE.put("vanilla_resizable", false);
@@ -661,9 +712,9 @@ public class Settings {
     VIEW_DISTANCE.put("all", 20000);
     VIEW_DISTANCE.put("custom", getPropInt(props, "view_distance", VIEW_DISTANCE.get("default")));
 
-    AUTO_SCREENSHOT.put("vanilla", false);
-    AUTO_SCREENSHOT.put("vanilla_resizable", false);
-    AUTO_SCREENSHOT.put("lite", false);
+    AUTO_SCREENSHOT.put("vanilla", true);
+    AUTO_SCREENSHOT.put("vanilla_resizable", true);
+    AUTO_SCREENSHOT.put("lite", true);
     AUTO_SCREENSHOT.put("default", true);
     AUTO_SCREENSHOT.put("heavy", true);
     AUTO_SCREENSHOT.put("all", true);
@@ -814,6 +865,426 @@ public class Settings {
     PREFERS_XDG_OPEN.put("all", true);
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
+
+    //// music
+    CUSTOM_MUSIC.put("vanilla", false);
+    CUSTOM_MUSIC.put("vanilla_resizable", false);
+    CUSTOM_MUSIC.put("lite", false);
+    CUSTOM_MUSIC.put("default", true);
+    CUSTOM_MUSIC.put("heavy", true);
+    CUSTOM_MUSIC.put("all", true);
+    CUSTOM_MUSIC.put("custom", getPropBoolean(props, "custom_music", CUSTOM_MUSIC.get("default")));
+
+    CUSTOM_MUSIC_PATH.put("vanilla", "mods/music.zip");
+    CUSTOM_MUSIC_PATH.put("vanilla_resizable", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("lite", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("default", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("heavy", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
+    CUSTOM_MUSIC_PATH.put(
+        "custom", getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
+
+    LOUDER_SOUND_EFFECTS.put("vanilla", false);
+    LOUDER_SOUND_EFFECTS.put("vanilla_resizable", false);
+    LOUDER_SOUND_EFFECTS.put("lite", false);
+    LOUDER_SOUND_EFFECTS.put("default", false);
+    LOUDER_SOUND_EFFECTS.put("heavy", true);
+    LOUDER_SOUND_EFFECTS.put("all", true);
+    LOUDER_SOUND_EFFECTS.put(
+        "custom",
+        getPropBoolean(props, "louder_sound_effects", LOUDER_SOUND_EFFECTS.get("default")));
+
+    OVERRIDE_AUDIO_SETTING.put("vanilla", false);
+    OVERRIDE_AUDIO_SETTING.put("vanilla_resizable", false);
+    OVERRIDE_AUDIO_SETTING.put("lite", false);
+    OVERRIDE_AUDIO_SETTING.put("default", false);
+    OVERRIDE_AUDIO_SETTING.put("heavy", true);
+    OVERRIDE_AUDIO_SETTING.put("all", true);
+    OVERRIDE_AUDIO_SETTING.put(
+        "custom",
+        getPropBoolean(props, "override_audio_setting", OVERRIDE_AUDIO_SETTING.get("default")));
+
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("vanilla", false);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("vanilla_resizable", false);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("lite", false);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("default", false);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("heavy", false);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put("all", true);
+    OVERRIDE_AUDIO_SETTING_SETTING_ON.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "override_audio_setting_setting_on",
+            OVERRIDE_AUDIO_SETTING_SETTING_ON.get("default")));
+
+    SOUND_EFFECT_COMBAT1.put("vanilla", false);
+    SOUND_EFFECT_COMBAT1.put("vanilla_resizable", false);
+    SOUND_EFFECT_COMBAT1.put("lite", false);
+    SOUND_EFFECT_COMBAT1.put("default", false);
+    SOUND_EFFECT_COMBAT1.put("heavy", true);
+    SOUND_EFFECT_COMBAT1.put("all", true);
+    SOUND_EFFECT_COMBAT1.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat1", SOUND_EFFECT_COMBAT1.get("default")));
+
+    SOUND_EFFECT_ADVANCE.put("vanilla", true);
+    SOUND_EFFECT_ADVANCE.put("vanilla_resizable", true);
+    SOUND_EFFECT_ADVANCE.put("lite", true);
+    SOUND_EFFECT_ADVANCE.put("default", true);
+    SOUND_EFFECT_ADVANCE.put("heavy", true);
+    SOUND_EFFECT_ADVANCE.put("all", true);
+    SOUND_EFFECT_ADVANCE.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_advance", SOUND_EFFECT_ADVANCE.get("default")));
+
+    SOUND_EFFECT_ANVIL.put("vanilla", true);
+    SOUND_EFFECT_ANVIL.put("vanilla_resizable", true);
+    SOUND_EFFECT_ANVIL.put("lite", true);
+    SOUND_EFFECT_ANVIL.put("default", true);
+    SOUND_EFFECT_ANVIL.put("heavy", true);
+    SOUND_EFFECT_ANVIL.put("all", true);
+    SOUND_EFFECT_ANVIL.put(
+        "custom", getPropBoolean(props, "sound_effect_anvil", SOUND_EFFECT_ANVIL.get("default")));
+
+    SOUND_EFFECT_CHISEL.put("vanilla", true);
+    SOUND_EFFECT_CHISEL.put("vanilla_resizable", true);
+    SOUND_EFFECT_CHISEL.put("lite", true);
+    SOUND_EFFECT_CHISEL.put("default", true);
+    SOUND_EFFECT_CHISEL.put("heavy", true);
+    SOUND_EFFECT_CHISEL.put("all", true);
+    SOUND_EFFECT_CHISEL.put(
+        "custom", getPropBoolean(props, "sound_effect_chisel", SOUND_EFFECT_CHISEL.get("default")));
+
+    SOUND_EFFECT_CLICK.put("vanilla", true);
+    SOUND_EFFECT_CLICK.put("vanilla_resizable", true);
+    SOUND_EFFECT_CLICK.put("lite", true);
+    SOUND_EFFECT_CLICK.put("default", true);
+    SOUND_EFFECT_CLICK.put("heavy", true);
+    SOUND_EFFECT_CLICK.put("all", true);
+    SOUND_EFFECT_CLICK.put(
+        "custom", getPropBoolean(props, "sound_effect_click", SOUND_EFFECT_CLICK.get("default")));
+
+    SOUND_EFFECT_CLOSEDOOR.put("vanilla", true);
+    SOUND_EFFECT_CLOSEDOOR.put("vanilla_resizable", true);
+    SOUND_EFFECT_CLOSEDOOR.put("lite", true);
+    SOUND_EFFECT_CLOSEDOOR.put("default", true);
+    SOUND_EFFECT_CLOSEDOOR.put("heavy", true);
+    SOUND_EFFECT_CLOSEDOOR.put("all", true);
+    SOUND_EFFECT_CLOSEDOOR.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_closedoor", SOUND_EFFECT_CLOSEDOOR.get("default")));
+
+    SOUND_EFFECT_COINS.put("vanilla", true);
+    SOUND_EFFECT_COINS.put("vanilla_resizable", true);
+    SOUND_EFFECT_COINS.put("lite", true);
+    SOUND_EFFECT_COINS.put("default", true);
+    SOUND_EFFECT_COINS.put("heavy", true);
+    SOUND_EFFECT_COINS.put("all", true);
+    SOUND_EFFECT_COINS.put(
+        "custom", getPropBoolean(props, "sound_effect_coins", SOUND_EFFECT_COINS.get("default")));
+
+    SOUND_EFFECT_COMBAT1A.put("vanilla", true);
+    SOUND_EFFECT_COMBAT1A.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT1A.put("lite", true);
+    SOUND_EFFECT_COMBAT1A.put("default", true);
+    SOUND_EFFECT_COMBAT1A.put("heavy", true);
+    SOUND_EFFECT_COMBAT1A.put("all", true);
+    SOUND_EFFECT_COMBAT1A.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat1a", SOUND_EFFECT_COMBAT1A.get("default")));
+
+    SOUND_EFFECT_COMBAT1B.put("vanilla", true);
+    SOUND_EFFECT_COMBAT1B.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT1B.put("lite", true);
+    SOUND_EFFECT_COMBAT1B.put("default", true);
+    SOUND_EFFECT_COMBAT1B.put("heavy", true);
+    SOUND_EFFECT_COMBAT1B.put("all", true);
+    SOUND_EFFECT_COMBAT1B.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat1b", SOUND_EFFECT_COMBAT1B.get("default")));
+
+    SOUND_EFFECT_COMBAT2A.put("vanilla", true);
+    SOUND_EFFECT_COMBAT2A.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT2A.put("lite", true);
+    SOUND_EFFECT_COMBAT2A.put("default", true);
+    SOUND_EFFECT_COMBAT2A.put("heavy", true);
+    SOUND_EFFECT_COMBAT2A.put("all", true);
+    SOUND_EFFECT_COMBAT2A.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat2a", SOUND_EFFECT_COMBAT2A.get("default")));
+
+    SOUND_EFFECT_COMBAT2B.put("vanilla", true);
+    SOUND_EFFECT_COMBAT2B.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT2B.put("lite", true);
+    SOUND_EFFECT_COMBAT2B.put("default", true);
+    SOUND_EFFECT_COMBAT2B.put("heavy", true);
+    SOUND_EFFECT_COMBAT2B.put("all", true);
+    SOUND_EFFECT_COMBAT2B.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat2b", SOUND_EFFECT_COMBAT2B.get("default")));
+
+    SOUND_EFFECT_COMBAT3A.put("vanilla", true);
+    SOUND_EFFECT_COMBAT3A.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT3A.put("lite", true);
+    SOUND_EFFECT_COMBAT3A.put("default", true);
+    SOUND_EFFECT_COMBAT3A.put("heavy", true);
+    SOUND_EFFECT_COMBAT3A.put("all", true);
+    SOUND_EFFECT_COMBAT3A.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat3a", SOUND_EFFECT_COMBAT3A.get("default")));
+
+    SOUND_EFFECT_COMBAT3B.put("vanilla", true);
+    SOUND_EFFECT_COMBAT3B.put("vanilla_resizable", true);
+    SOUND_EFFECT_COMBAT3B.put("lite", true);
+    SOUND_EFFECT_COMBAT3B.put("default", true);
+    SOUND_EFFECT_COMBAT3B.put("heavy", true);
+    SOUND_EFFECT_COMBAT3B.put("all", true);
+    SOUND_EFFECT_COMBAT3B.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_combat3b", SOUND_EFFECT_COMBAT3B.get("default")));
+
+    SOUND_EFFECT_COOKING.put("vanilla", true);
+    SOUND_EFFECT_COOKING.put("vanilla_resizable", true);
+    SOUND_EFFECT_COOKING.put("lite", true);
+    SOUND_EFFECT_COOKING.put("default", true);
+    SOUND_EFFECT_COOKING.put("heavy", true);
+    SOUND_EFFECT_COOKING.put("all", true);
+    SOUND_EFFECT_COOKING.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_cooking", SOUND_EFFECT_COOKING.get("default")));
+
+    SOUND_EFFECT_DEATH.put("vanilla", true);
+    SOUND_EFFECT_DEATH.put("vanilla_resizable", true);
+    SOUND_EFFECT_DEATH.put("lite", true);
+    SOUND_EFFECT_DEATH.put("default", true);
+    SOUND_EFFECT_DEATH.put("heavy", true);
+    SOUND_EFFECT_DEATH.put("all", true);
+    SOUND_EFFECT_DEATH.put(
+        "custom", getPropBoolean(props, "sound_effect_death", SOUND_EFFECT_DEATH.get("default")));
+
+    SOUND_EFFECT_DROPOBJECT.put("vanilla", true);
+    SOUND_EFFECT_DROPOBJECT.put("vanilla_resizable", true);
+    SOUND_EFFECT_DROPOBJECT.put("lite", true);
+    SOUND_EFFECT_DROPOBJECT.put("default", true);
+    SOUND_EFFECT_DROPOBJECT.put("heavy", true);
+    SOUND_EFFECT_DROPOBJECT.put("all", true);
+    SOUND_EFFECT_DROPOBJECT.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_dropobject", SOUND_EFFECT_DROPOBJECT.get("default")));
+
+    SOUND_EFFECT_EAT.put("vanilla", true);
+    SOUND_EFFECT_EAT.put("vanilla_resizable", true);
+    SOUND_EFFECT_EAT.put("lite", true);
+    SOUND_EFFECT_EAT.put("default", true);
+    SOUND_EFFECT_EAT.put("heavy", true);
+    SOUND_EFFECT_EAT.put("all", true);
+    SOUND_EFFECT_EAT.put(
+        "custom", getPropBoolean(props, "sound_effect_eat", SOUND_EFFECT_EAT.get("default")));
+
+    SOUND_EFFECT_FILLJUG.put("vanilla", true);
+    SOUND_EFFECT_FILLJUG.put("vanilla_resizable", true);
+    SOUND_EFFECT_FILLJUG.put("lite", true);
+    SOUND_EFFECT_FILLJUG.put("default", true);
+    SOUND_EFFECT_FILLJUG.put("heavy", true);
+    SOUND_EFFECT_FILLJUG.put("all", true);
+    SOUND_EFFECT_FILLJUG.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_filljug", SOUND_EFFECT_FILLJUG.get("default")));
+
+    SOUND_EFFECT_FISH.put("vanilla", true);
+    SOUND_EFFECT_FISH.put("vanilla_resizable", true);
+    SOUND_EFFECT_FISH.put("lite", true);
+    SOUND_EFFECT_FISH.put("default", true);
+    SOUND_EFFECT_FISH.put("heavy", true);
+    SOUND_EFFECT_FISH.put("all", true);
+    SOUND_EFFECT_FISH.put(
+        "custom", getPropBoolean(props, "sound_effect_fish", SOUND_EFFECT_FISH.get("default")));
+
+    SOUND_EFFECT_FOUNDGEM.put("vanilla", true);
+    SOUND_EFFECT_FOUNDGEM.put("vanilla_resizable", true);
+    SOUND_EFFECT_FOUNDGEM.put("lite", true);
+    SOUND_EFFECT_FOUNDGEM.put("default", true);
+    SOUND_EFFECT_FOUNDGEM.put("heavy", true);
+    SOUND_EFFECT_FOUNDGEM.put("all", true);
+    SOUND_EFFECT_FOUNDGEM.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_foundgem", SOUND_EFFECT_FOUNDGEM.get("default")));
+
+    SOUND_EFFECT_MECHANICAL.put("vanilla", true);
+    SOUND_EFFECT_MECHANICAL.put("vanilla_resizable", true);
+    SOUND_EFFECT_MECHANICAL.put("lite", true);
+    SOUND_EFFECT_MECHANICAL.put("default", true);
+    SOUND_EFFECT_MECHANICAL.put("heavy", true);
+    SOUND_EFFECT_MECHANICAL.put("all", true);
+    SOUND_EFFECT_MECHANICAL.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_mechanical", SOUND_EFFECT_MECHANICAL.get("default")));
+
+    SOUND_EFFECT_MINE.put("vanilla", true);
+    SOUND_EFFECT_MINE.put("vanilla_resizable", true);
+    SOUND_EFFECT_MINE.put("lite", true);
+    SOUND_EFFECT_MINE.put("default", true);
+    SOUND_EFFECT_MINE.put("heavy", true);
+    SOUND_EFFECT_MINE.put("all", true);
+    SOUND_EFFECT_MINE.put(
+        "custom", getPropBoolean(props, "sound_effect_mine", SOUND_EFFECT_MINE.get("default")));
+
+    SOUND_EFFECT_MIX.put("vanilla", true);
+    SOUND_EFFECT_MIX.put("vanilla_resizable", true);
+    SOUND_EFFECT_MIX.put("lite", true);
+    SOUND_EFFECT_MIX.put("default", true);
+    SOUND_EFFECT_MIX.put("heavy", true);
+    SOUND_EFFECT_MIX.put("all", true);
+    SOUND_EFFECT_MIX.put(
+        "custom", getPropBoolean(props, "sound_effect_mix", SOUND_EFFECT_MIX.get("default")));
+
+    SOUND_EFFECT_OPENDOOR.put("vanilla", true);
+    SOUND_EFFECT_OPENDOOR.put("vanilla_resizable", true);
+    SOUND_EFFECT_OPENDOOR.put("lite", true);
+    SOUND_EFFECT_OPENDOOR.put("default", true);
+    SOUND_EFFECT_OPENDOOR.put("heavy", true);
+    SOUND_EFFECT_OPENDOOR.put("all", true);
+    SOUND_EFFECT_OPENDOOR.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_opendoor", SOUND_EFFECT_OPENDOOR.get("default")));
+
+    SOUND_EFFECT_OUTOFAMMO.put("vanilla", true);
+    SOUND_EFFECT_OUTOFAMMO.put("vanilla_resizable", true);
+    SOUND_EFFECT_OUTOFAMMO.put("lite", true);
+    SOUND_EFFECT_OUTOFAMMO.put("default", true);
+    SOUND_EFFECT_OUTOFAMMO.put("heavy", true);
+    SOUND_EFFECT_OUTOFAMMO.put("all", true);
+    SOUND_EFFECT_OUTOFAMMO.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_outofammo", SOUND_EFFECT_OUTOFAMMO.get("default")));
+
+    SOUND_EFFECT_POTATO.put("vanilla", true);
+    SOUND_EFFECT_POTATO.put("vanilla_resizable", true);
+    SOUND_EFFECT_POTATO.put("lite", true);
+    SOUND_EFFECT_POTATO.put("default", true);
+    SOUND_EFFECT_POTATO.put("heavy", true);
+    SOUND_EFFECT_POTATO.put("all", true);
+    SOUND_EFFECT_POTATO.put(
+        "custom", getPropBoolean(props, "sound_effect_potato", SOUND_EFFECT_POTATO.get("default")));
+
+    SOUND_EFFECT_PRAYEROFF.put("vanilla", true);
+    SOUND_EFFECT_PRAYEROFF.put("vanilla_resizable", true);
+    SOUND_EFFECT_PRAYEROFF.put("lite", true);
+    SOUND_EFFECT_PRAYEROFF.put("default", true);
+    SOUND_EFFECT_PRAYEROFF.put("heavy", true);
+    SOUND_EFFECT_PRAYEROFF.put("all", true);
+    SOUND_EFFECT_PRAYEROFF.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_prayeroff", SOUND_EFFECT_PRAYEROFF.get("default")));
+
+    SOUND_EFFECT_PRAYERON.put("vanilla", true);
+    SOUND_EFFECT_PRAYERON.put("vanilla_resizable", true);
+    SOUND_EFFECT_PRAYERON.put("lite", true);
+    SOUND_EFFECT_PRAYERON.put("default", true);
+    SOUND_EFFECT_PRAYERON.put("heavy", true);
+    SOUND_EFFECT_PRAYERON.put("all", true);
+    SOUND_EFFECT_PRAYERON.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_prayeron", SOUND_EFFECT_PRAYERON.get("default")));
+
+    SOUND_EFFECT_PROSPECT.put("vanilla", true);
+    SOUND_EFFECT_PROSPECT.put("vanilla_resizable", true);
+    SOUND_EFFECT_PROSPECT.put("lite", true);
+    SOUND_EFFECT_PROSPECT.put("default", true);
+    SOUND_EFFECT_PROSPECT.put("heavy", true);
+    SOUND_EFFECT_PROSPECT.put("all", true);
+    SOUND_EFFECT_PROSPECT.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_prospect", SOUND_EFFECT_PROSPECT.get("default")));
+
+    SOUND_EFFECT_RECHARGE.put("vanilla", true);
+    SOUND_EFFECT_RECHARGE.put("vanilla_resizable", true);
+    SOUND_EFFECT_RECHARGE.put("lite", true);
+    SOUND_EFFECT_RECHARGE.put("default", true);
+    SOUND_EFFECT_RECHARGE.put("heavy", true);
+    SOUND_EFFECT_RECHARGE.put("all", true);
+    SOUND_EFFECT_RECHARGE.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_recharge", SOUND_EFFECT_RECHARGE.get("default")));
+
+    SOUND_EFFECT_RETREAT.put("vanilla", true);
+    SOUND_EFFECT_RETREAT.put("vanilla_resizable", true);
+    SOUND_EFFECT_RETREAT.put("lite", true);
+    SOUND_EFFECT_RETREAT.put("default", true);
+    SOUND_EFFECT_RETREAT.put("heavy", true);
+    SOUND_EFFECT_RETREAT.put("all", true);
+    SOUND_EFFECT_RETREAT.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_retreat", SOUND_EFFECT_RETREAT.get("default")));
+
+    SOUND_EFFECT_SECRETDOOR.put("vanilla", true);
+    SOUND_EFFECT_SECRETDOOR.put("vanilla_resizable", true);
+    SOUND_EFFECT_SECRETDOOR.put("lite", true);
+    SOUND_EFFECT_SECRETDOOR.put("default", true);
+    SOUND_EFFECT_SECRETDOOR.put("heavy", true);
+    SOUND_EFFECT_SECRETDOOR.put("all", true);
+    SOUND_EFFECT_SECRETDOOR.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_secretdoor", SOUND_EFFECT_SECRETDOOR.get("default")));
+
+    SOUND_EFFECT_SHOOT.put("vanilla", true);
+    SOUND_EFFECT_SHOOT.put("vanilla_resizable", true);
+    SOUND_EFFECT_SHOOT.put("lite", true);
+    SOUND_EFFECT_SHOOT.put("default", true);
+    SOUND_EFFECT_SHOOT.put("heavy", true);
+    SOUND_EFFECT_SHOOT.put("all", true);
+    SOUND_EFFECT_SHOOT.put(
+        "custom", getPropBoolean(props, "sound_effect_shoot", SOUND_EFFECT_SHOOT.get("default")));
+
+    SOUND_EFFECT_SPELLFAIL.put("vanilla", true);
+    SOUND_EFFECT_SPELLFAIL.put("vanilla_resizable", true);
+    SOUND_EFFECT_SPELLFAIL.put("lite", true);
+    SOUND_EFFECT_SPELLFAIL.put("default", true);
+    SOUND_EFFECT_SPELLFAIL.put("heavy", true);
+    SOUND_EFFECT_SPELLFAIL.put("all", true);
+    SOUND_EFFECT_SPELLFAIL.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_spellfail", SOUND_EFFECT_SPELLFAIL.get("default")));
+
+    SOUND_EFFECT_SPELLOK.put("vanilla", true);
+    SOUND_EFFECT_SPELLOK.put("vanilla_resizable", true);
+    SOUND_EFFECT_SPELLOK.put("lite", true);
+    SOUND_EFFECT_SPELLOK.put("default", true);
+    SOUND_EFFECT_SPELLOK.put("heavy", true);
+    SOUND_EFFECT_SPELLOK.put("all", true);
+    SOUND_EFFECT_SPELLOK.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_spellok", SOUND_EFFECT_SPELLOK.get("default")));
+
+    SOUND_EFFECT_TAKEOBJECT.put("vanilla", true);
+    SOUND_EFFECT_TAKEOBJECT.put("vanilla_resizable", true);
+    SOUND_EFFECT_TAKEOBJECT.put("lite", true);
+    SOUND_EFFECT_TAKEOBJECT.put("default", true);
+    SOUND_EFFECT_TAKEOBJECT.put("heavy", true);
+    SOUND_EFFECT_TAKEOBJECT.put("all", true);
+    SOUND_EFFECT_TAKEOBJECT.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_takeobject", SOUND_EFFECT_TAKEOBJECT.get("default")));
+
+    SOUND_EFFECT_UNDERATTACK.put("vanilla", true);
+    SOUND_EFFECT_UNDERATTACK.put("vanilla_resizable", true);
+    SOUND_EFFECT_UNDERATTACK.put("lite", true);
+    SOUND_EFFECT_UNDERATTACK.put("default", true);
+    SOUND_EFFECT_UNDERATTACK.put("heavy", true);
+    SOUND_EFFECT_UNDERATTACK.put("all", true);
+    SOUND_EFFECT_UNDERATTACK.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_underattack", SOUND_EFFECT_UNDERATTACK.get("default")));
+
+    SOUND_EFFECT_VICTORY.put("vanilla", true);
+    SOUND_EFFECT_VICTORY.put("vanilla_resizable", true);
+    SOUND_EFFECT_VICTORY.put("lite", true);
+    SOUND_EFFECT_VICTORY.put("default", true);
+    SOUND_EFFECT_VICTORY.put("heavy", true);
+    SOUND_EFFECT_VICTORY.put("all", true);
+    SOUND_EFFECT_VICTORY.put(
+        "custom",
+        getPropBoolean(props, "sound_effect_victory", SOUND_EFFECT_VICTORY.get("default")));
 
     //// overlays
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put("vanilla", false);
@@ -1730,6 +2201,8 @@ public class Settings {
     // Load other directories
     Dir.SCREENSHOT = Dir.JAR + "/screenshots";
     Util.makeDirectory(Dir.SCREENSHOT);
+    Dir.MODS = Dir.JAR + "/mods";
+    Util.makeDirectory(Dir.MODS);
     Dir.REPLAY = Dir.JAR + "/replay";
     Util.makeDirectory(Dir.REPLAY);
     Dir.WORLDS = Dir.JAR + "/worlds";
@@ -1770,7 +2243,9 @@ public class Settings {
       WorldMapWindow.showLabels = getPropBoolean(props, "worldmap_show_labels", true);
       WorldMapWindow.showScenery = getPropBoolean(props, "worldmap_show_scenery", true);
       WorldMapWindow.renderChunkGrid = getPropBoolean(props, "worldmap_show_chunk_grid", false);
-      WorldMapWindow.showOtherFloors = getPropBoolean(props, "worldmap_show_other_floors", false);
+      WorldMapWindow.renderChunkLabelling =
+          getPropBoolean(props, "worldmap_show_chunk_labelling", false);
+      WorldMapWindow.showOtherFloors = getPropBoolean(props, "worldmap_show_other_floors", true);
 
       updateInjectedVariables(); // TODO remove this function
 
@@ -2074,7 +2549,9 @@ public class Settings {
           "keep_scrollbar_pos_magic_prayer",
           Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
-      props.setProperty("disable_underground_lighting", Boolean.toString(DISABLE_UNDERGROUND_LIGHTING.get(preset)));
+      props.setProperty(
+          "disable_underground_lighting",
+          Boolean.toString(DISABLE_UNDERGROUND_LIGHTING.get(preset)));
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
       props.setProperty("camera_movable", Boolean.toString(CAMERA_MOVABLE.get(preset)));
@@ -2111,6 +2588,74 @@ public class Settings {
       props.setProperty("log_force_timestamps", Boolean.toString(LOG_FORCE_TIMESTAMPS.get(preset)));
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
       props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
+
+      //// music
+      props.setProperty("custom_music", Boolean.toString(CUSTOM_MUSIC.get(preset)));
+      props.setProperty("custom_music_path", CUSTOM_MUSIC_PATH.get(preset));
+      props.setProperty("louder_sound_effects", Boolean.toString(LOUDER_SOUND_EFFECTS.get(preset)));
+      props.setProperty(
+          "override_audio_setting", Boolean.toString(OVERRIDE_AUDIO_SETTING.get(preset)));
+      props.setProperty(
+          "override_audio_setting_setting_on",
+          Boolean.toString(OVERRIDE_AUDIO_SETTING_SETTING_ON.get(preset)));
+      props.setProperty("sound_effect_combat1", Boolean.toString(SOUND_EFFECT_COMBAT1.get(preset)));
+      props.setProperty("sound_effect_advance", Boolean.toString(SOUND_EFFECT_ADVANCE.get(preset)));
+      props.setProperty("sound_effect_anvil", Boolean.toString(SOUND_EFFECT_ANVIL.get(preset)));
+      props.setProperty("sound_effect_chisel", Boolean.toString(SOUND_EFFECT_CHISEL.get(preset)));
+      props.setProperty("sound_effect_click", Boolean.toString(SOUND_EFFECT_CLICK.get(preset)));
+      props.setProperty(
+          "sound_effect_closedoor", Boolean.toString(SOUND_EFFECT_CLOSEDOOR.get(preset)));
+      props.setProperty("sound_effect_coins", Boolean.toString(SOUND_EFFECT_COINS.get(preset)));
+      props.setProperty(
+          "sound_effect_combat1a", Boolean.toString(SOUND_EFFECT_COMBAT1A.get(preset)));
+      props.setProperty(
+          "sound_effect_combat1b", Boolean.toString(SOUND_EFFECT_COMBAT1B.get(preset)));
+      props.setProperty(
+          "sound_effect_combat2a", Boolean.toString(SOUND_EFFECT_COMBAT2A.get(preset)));
+      props.setProperty(
+          "sound_effect_combat2b", Boolean.toString(SOUND_EFFECT_COMBAT2B.get(preset)));
+      props.setProperty(
+          "sound_effect_combat3a", Boolean.toString(SOUND_EFFECT_COMBAT3A.get(preset)));
+      props.setProperty(
+          "sound_effect_combat3b", Boolean.toString(SOUND_EFFECT_COMBAT3B.get(preset)));
+      props.setProperty("sound_effect_cooking", Boolean.toString(SOUND_EFFECT_COOKING.get(preset)));
+      props.setProperty("sound_effect_death", Boolean.toString(SOUND_EFFECT_DEATH.get(preset)));
+      props.setProperty(
+          "sound_effect_dropobject", Boolean.toString(SOUND_EFFECT_DROPOBJECT.get(preset)));
+      props.setProperty("sound_effect_eat", Boolean.toString(SOUND_EFFECT_EAT.get(preset)));
+      props.setProperty("sound_effect_filljug", Boolean.toString(SOUND_EFFECT_FILLJUG.get(preset)));
+      props.setProperty("sound_effect_fish", Boolean.toString(SOUND_EFFECT_FISH.get(preset)));
+      props.setProperty(
+          "sound_effect_foundgem", Boolean.toString(SOUND_EFFECT_FOUNDGEM.get(preset)));
+      props.setProperty(
+          "sound_effect_mechanical", Boolean.toString(SOUND_EFFECT_MECHANICAL.get(preset)));
+      props.setProperty("sound_effect_mine", Boolean.toString(SOUND_EFFECT_MINE.get(preset)));
+      props.setProperty("sound_effect_mix", Boolean.toString(SOUND_EFFECT_MIX.get(preset)));
+      props.setProperty(
+          "sound_effect_opendoor", Boolean.toString(SOUND_EFFECT_OPENDOOR.get(preset)));
+      props.setProperty(
+          "sound_effect_outofammo", Boolean.toString(SOUND_EFFECT_OUTOFAMMO.get(preset)));
+      props.setProperty("sound_effect_potato", Boolean.toString(SOUND_EFFECT_POTATO.get(preset)));
+      props.setProperty(
+          "sound_effect_prayeroff", Boolean.toString(SOUND_EFFECT_PRAYEROFF.get(preset)));
+      props.setProperty(
+          "sound_effect_prayeron", Boolean.toString(SOUND_EFFECT_PRAYERON.get(preset)));
+      props.setProperty(
+          "sound_effect_prospect", Boolean.toString(SOUND_EFFECT_PROSPECT.get(preset)));
+      props.setProperty(
+          "sound_effect_recharge", Boolean.toString(SOUND_EFFECT_RECHARGE.get(preset)));
+      props.setProperty("sound_effect_retreat", Boolean.toString(SOUND_EFFECT_RETREAT.get(preset)));
+      props.setProperty(
+          "sound_effect_secretdoor", Boolean.toString(SOUND_EFFECT_SECRETDOOR.get(preset)));
+      props.setProperty("sound_effect_shoot", Boolean.toString(SOUND_EFFECT_SHOOT.get(preset)));
+      props.setProperty(
+          "sound_effect_spellfail", Boolean.toString(SOUND_EFFECT_SPELLFAIL.get(preset)));
+      props.setProperty("sound_effect_spellok", Boolean.toString(SOUND_EFFECT_SPELLOK.get(preset)));
+      props.setProperty(
+          "sound_effect_takeobject", Boolean.toString(SOUND_EFFECT_TAKEOBJECT.get(preset)));
+      props.setProperty(
+          "sound_effect_underattack", Boolean.toString(SOUND_EFFECT_UNDERATTACK.get(preset)));
+      props.setProperty("sound_effect_victory", Boolean.toString(SOUND_EFFECT_VICTORY.get(preset)));
 
       //// overlays
       props.setProperty(
@@ -2293,6 +2838,8 @@ public class Settings {
       props.setProperty("worldmap_show_scenery", Boolean.toString(WorldMapWindow.showScenery));
       props.setProperty(
           "worldmap_show_chunk_grid", Boolean.toString(WorldMapWindow.renderChunkGrid));
+      props.setProperty(
+          "worldmap_show_chunk_labelling", Boolean.toString(WorldMapWindow.renderChunkLabelling));
       props.setProperty(
           "worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
@@ -2855,6 +3402,7 @@ public class Settings {
     public static String DUMP;
     public static String SCREENSHOT;
     public static String VIDEO;
+    public static String MODS;
     public static String REPLAY;
     public static String WORLDS;
     public static String SPEEDRUN;

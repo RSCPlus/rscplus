@@ -56,8 +56,8 @@ public class QueueWindow {
   static PlaylistModel model = (PlaylistModel) playlistTable.getModel();
   static JLabel replayCountLabel = new JLabel("0 replays");
   static private JFrame frame;
-  static private JButton button;
-  static private Font controlsFont;
+  static public JButton button;
+  static public Font controlsFont;
   static private String editValue = "@:/@";
   static private boolean editingEnabled = false;
   static private boolean reorderIsPointless = true; //helper bool to stop copyTableToQueue if nothing in table has changed
@@ -1000,7 +1000,7 @@ public class QueueWindow {
     return button;
   }
 
-  private static void formatButton(String text) {
+  static void formatButton(String text) {
     button = new JButton(text);
 		button.setFont(controlsFont);
     button.setMargin(new Insets(-5,-7,-2,-7));

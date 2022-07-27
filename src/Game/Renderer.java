@@ -1203,7 +1203,7 @@ public class Renderer {
         y += 16;
         drawShadowText(
             g2,
-            "ChunkCoord: " + Client.getChunkX() + ", " + Client.getChunkY(),
+            "ChunkCoord: " + Client.getFloor() + "" + Client.getChunkX() + "" + Client.getChunkY(),
             x,
             y,
             color_text,
@@ -1250,11 +1250,17 @@ public class Renderer {
         y += 16;
         drawShadowText(g2, "Last sound effect: " + Client.lastSoundEffect, x, y, color_text, false);
         y += 16;
-        drawShadowText(g2, "Mouse Text: " + MouseText.mouseText, x, y, color_text, false);
+        drawColoredText(g2, "@whi@Mouse Text: " + MouseText.mouseText, x, y, false);
         y += 16;
         drawShadowText(g2, "Hover: " + Client.is_hover, x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Java version: " + Settings.javaVersion, x, y, color_text, false);
+
+        AreaDefinition area = Client.getCurrentAreaDefinition();
+        y += 32;
+        drawShadowText(g2, "~Area Information~", x, y, color_text, false);
+        y += 16;
+        drawShadowText(g2, "Music: " + area.music.trackname, x, y, color_text, false);
       }
 
       // A little over a full tick
@@ -2595,8 +2601,8 @@ public class Renderer {
     if (JGameData.objectWidths[id] > 1 || JGameData.objectHeights[id] > 1) {
       int widthOffset = 0;
       int heightOffset = 0;
-      if (JGameData.objectWidths[id] > 1) {
-        widthOffset = (int) ((JGameData.objectWidths[id]) / 2.0f) * 128;
+      if (JGameData.sceneryWidths[id] > 1) {
+        widthOffset = (int) ((JGameData.sceneryWidths[id]) / 2.0f) * 128;
       }
       if (JGameData.objectHeights[id] > 1) {
         heightOffset = (int) ((JGameData.objectHeights[id]) / 2.0f) * 128;
