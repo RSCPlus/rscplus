@@ -43,6 +43,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
+import java.awt.image.RasterFormatException;
 import java.io.File;
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -1997,11 +1998,13 @@ public class Renderer {
 
     if (screenshot_scenery_frames > 0 && screenshot_scenery_angle < 256) {
       screenshot_scenery_frames--;
-      if (screenshot_scenery_frames % 4 == 0 && screenshot_scenery_frames < 290) {
+      if (screenshot_scenery_frames % 2 == 0 && screenshot_scenery_frames < 290) {
         String fname =
             Settings.Dir.SCREENSHOT
                 + "/zoom"
                 + Camera.zoom
+							  + "/rot"
+							  + screenshot_scenery_scenery_rotation
                 + "/scenery"
                 + screenshot_scenery_scenery_id
                 + "rot"
@@ -2014,19 +2017,25 @@ public class Renderer {
         try {
           File screenshotFile = new File(fname);
           BufferedImage writtenImage;
-          if (screenshot_scenery_scenery_id <= 1) {
-            // error in replay makes it inconsistent at beginning, just crop more off bottom to
-            // compensate
-            writtenImage =
-                ImageManip.prepareSceneryImage(
-                    game_image.getSubimage(
-                        275, 0, game_image.getWidth() - 475, game_image.getHeight() - 227));
-          } else {
-            writtenImage =
-                ImageManip.prepareSceneryImage(
-                    game_image.getSubimage(
-                        275, 0, game_image.getWidth() - 475, game_image.getHeight() - 27));
-          }
+          try {
+						if (screenshot_scenery_scenery_id <= 1) {
+							// error in replay makes it inconsistent at beginning, just crop more off bottom to
+							// compensate
+							writtenImage =
+								ImageManip.prepareSceneryImage(
+									game_image.getSubimage(
+										275, 0, game_image.getWidth() - 475, game_image.getHeight() - 227));
+						} else {
+							writtenImage =
+								ImageManip.prepareSceneryImage(
+									game_image.getSubimage(
+										275, 0, game_image.getWidth() - 475, game_image.getHeight() - 27));
+						}
+					} catch (RasterFormatException ex) {
+          	writtenImage = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
+          	writtenImage.getGraphics().setColor(new Color(0,0,0,0));
+						writtenImage.getGraphics().fillRect(0,0, 1,1);
+					}
           ImageIO.write(writtenImage, "png", screenshotFile);
         } catch (Exception e) {
           e.printStackTrace();
@@ -2582,6 +2591,7 @@ public class Renderer {
     screenshot_scenery_scenery_id = id;
     screenshot_scenery_frames = 300;
     screenshot_scenery_angle = 0;
+    /*
     if (JGameData.objectWidths[id] > 1 || JGameData.objectHeights[id] > 1) {
       int widthOffset = 0;
       int heightOffset = 0;
@@ -2616,6 +2626,9 @@ public class Renderer {
       Camera.add_lookat_x = 0;
       Camera.add_lookat_y = 0;
     }
+    */
+		Camera.add_lookat_x = 0;
+		Camera.add_lookat_y = 0;
     Camera.rotation = screenshot_scenery_angle;
     Camera.delta_rotation = (float) Camera.rotation;
   }

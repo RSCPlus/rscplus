@@ -1678,8 +1678,11 @@ public class Client {
               break;
             }
 
-            Util.makeDirectory(
-                Settings.Dir.SCREENSHOT + "/zoom" + Renderer.screenshot_scenery_zoom);
+						String outputDir = Settings.Dir.SCREENSHOT + "/zoom" + Renderer.screenshot_scenery_zoom;
+            Util.makeDirectory(outputDir);
+            outputDir = outputDir + "/rot" + Renderer.screenshot_scenery_scenery_rotation;
+            Util.makeDirectory(outputDir);
+						displayMessage("Outputting scenery shots to @gre@" + outputDir, CHAT_QUEST);
             break;
           }
         case "stopsceneryshots":

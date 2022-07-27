@@ -12,7 +12,7 @@ public class ImageManip {
     boolean[] rowHasPixels = new boolean[image.getHeight()];
     boolean[] columnHasPixels = new boolean[image.getWidth()];
 
-    int transparentPixel = image.getRGB(0, 0);
+    int transparentPixel = -65281; // image.getRGB(0, 0);
     // must iterate over all pixels to find auto-crop, so also fix bgcolor transparency here
     for (int curY = 0; curY < outputImage.getHeight(); curY++) {
       for (int curX = 0; curX < outputImage.getWidth(); curX++) {
