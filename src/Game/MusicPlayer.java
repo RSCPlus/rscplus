@@ -90,7 +90,7 @@ public class MusicPlayer implements Runnable {
         try {
           int volumeInt =
               1; // (int) (volume * 127.0); // TODO: this is the minimum volume achievable with this
-                 // method but it should be even quieter
+          // method but it should be even quieter
 
           if (synthesizer != null) {
             MidiChannel[] channels = synthesizer.getChannels();

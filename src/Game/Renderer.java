@@ -2009,8 +2009,8 @@ public class Renderer {
             Settings.Dir.SCREENSHOT
                 + "/zoom"
                 + Camera.zoom
-							  + "/rot"
-							  + screenshot_scenery_scenery_rotation
+                + "/rot"
+                + screenshot_scenery_scenery_rotation
                 + "/scenery"
                 + screenshot_scenery_scenery_id
                 + "rot"
@@ -2024,24 +2024,24 @@ public class Renderer {
           File screenshotFile = new File(fname);
           BufferedImage writtenImage;
           try {
-						if (screenshot_scenery_scenery_id <= 1) {
-							// error in replay makes it inconsistent at beginning, just crop more off bottom to
-							// compensate
-							writtenImage =
-								ImageManip.prepareSceneryImage(
-									game_image.getSubimage(
-										275, 0, game_image.getWidth() - 475, game_image.getHeight() - 227));
-						} else {
-							writtenImage =
-								ImageManip.prepareSceneryImage(
-									game_image.getSubimage(
-										275, 0, game_image.getWidth() - 475, game_image.getHeight() - 27));
-						}
-					} catch (RasterFormatException ex) {
-          	writtenImage = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
-          	writtenImage.getGraphics().setColor(new Color(0,0,0,0));
-						writtenImage.getGraphics().fillRect(0,0, 1,1);
-					}
+            if (screenshot_scenery_scenery_id <= 1) {
+              // error in replay makes it inconsistent at beginning, just crop more off bottom to
+              // compensate
+              writtenImage =
+                  ImageManip.prepareSceneryImage(
+                      game_image.getSubimage(
+                          275, 0, game_image.getWidth() - 475, game_image.getHeight() - 227));
+            } else {
+              writtenImage =
+                  ImageManip.prepareSceneryImage(
+                      game_image.getSubimage(
+                          275, 0, game_image.getWidth() - 475, game_image.getHeight() - 27));
+            }
+          } catch (RasterFormatException ex) {
+            writtenImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            writtenImage.getGraphics().setColor(new Color(0, 0, 0, 0));
+            writtenImage.getGraphics().fillRect(0, 0, 1, 1);
+          }
           ImageIO.write(writtenImage, "png", screenshotFile);
         } catch (Exception e) {
           e.printStackTrace();
@@ -2633,8 +2633,8 @@ public class Renderer {
       Camera.add_lookat_y = 0;
     }
     */
-		Camera.add_lookat_x = 0;
-		Camera.add_lookat_y = 0;
+    Camera.add_lookat_x = 0;
+    Camera.add_lookat_y = 0;
     Camera.rotation = screenshot_scenery_angle;
     Camera.delta_rotation = (float) Camera.rotation;
   }
