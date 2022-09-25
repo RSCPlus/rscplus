@@ -127,6 +127,7 @@ public class KeyboardHandler implements KeyListener {
       if (dialogue_option >= 0) e.consume();
     }
 
+    // Open friend chat with tab
     if (Client.state == Client.STATE_GAME
         && e.getKeyCode() == KeyEvent.VK_TAB
         && !Client.isInterfaceOpen()) {
@@ -136,6 +137,15 @@ public class KeyboardHandler implements KeyListener {
         Client.pm_username = Client.lastpm_username;
         Client.show_friends = 2;
       }
+      e.consume();
+    }
+    
+    // Close friend chat with escape
+    if (Client.state == Client.STATE_GAME
+        && Client.show_friends == 2
+        && e.getKeyCode() == KeyEvent.VK_ESCAPE
+        && !Replay.isPlaying) {
+      Client.show_friends = 0;
       e.consume();
     }
 
