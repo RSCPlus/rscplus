@@ -1430,8 +1430,10 @@ public class WorldMapWindow {
     if (!frame.isVisible()) {
       searchText = "";
       updateMapRender();
+      frame.setVisible(true);
+    } else {
+      frame.setVisible(false);
     }
-    frame.setVisible(true);
   }
 
   private static void setZoom(float val) {
