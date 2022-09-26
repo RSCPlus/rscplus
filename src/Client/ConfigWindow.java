@@ -363,11 +363,20 @@ public class ConfigWindow {
 
   public void showConfigWindow() {
     this.synchronizeGuiValues();
-    frame.setVisible(!isShown());
+    frame.setVisible(true);
   }
 
   public void hideConfigWindow() {
+    this.synchronizeGuiValues();
     frame.setVisible(false);
+  }
+
+  public void toggleConfigWindow() {
+    if (this.isShown()) {
+      this.hideConfigWindow();
+    } else {
+      this.showConfigWindow();
+    }
   }
 
   public boolean isShown() {

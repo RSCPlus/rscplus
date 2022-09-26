@@ -3521,10 +3521,10 @@ public class Settings {
         Settings.toggleStartSearchedBank("", false);
         return true;
       case "show_config_window":
-        Launcher.getConfigWindow().showConfigWindow();
+        Launcher.getConfigWindow().toggleConfigWindow();
         return true;
       case "show_worldmap_window":
-        Launcher.getWorldMapWindow().showWorldMapWindow();
+        Launcher.getWorldMapWindow().toggleWorldMapWindow();
         return true;
       case "show_queue_window":
         // Try to not allow Replay window to appear while logged into the game :-)

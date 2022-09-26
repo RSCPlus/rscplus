@@ -1427,13 +1427,28 @@ public class WorldMapWindow {
   }
 
   public void showWorldMapWindow() {
-    if (!frame.isVisible()) {
+    if (!isShown()) {
       searchText = "";
       updateMapRender();
-      frame.setVisible(true);
-    } else {
-      frame.setVisible(false);
     }
+
+    frame.setVisible(true);
+  }
+
+  public void hideWorldMapWindow() {
+    frame.setVisible(false);
+  }
+
+  public void toggleWorldMapWindow() {
+    if (isShown()) {
+      this.hideWorldMapWindow();
+    } else {
+      this.showWorldMapWindow();
+    }
+  }
+
+  public static boolean isShown() {
+    return frame.isVisible();
   }
 
   private static void setZoom(float val) {
@@ -1558,7 +1573,7 @@ public class WorldMapWindow {
       cameraCurrentPosition.y = ((y - planeIndex) * 3) + 1;
     }
 
-    if (!frame.isVisible()) return;
+    if (!isShown()) return;
 
     // Repaint if data changed
     if (dirty
