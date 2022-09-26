@@ -143,8 +143,7 @@ public class KeyboardHandler implements KeyListener {
     // Close friend chat with escape
     if (Client.state == Client.STATE_GAME
         && Client.show_friends == 2
-        && e.getKeyCode() == KeyEvent.VK_ESCAPE
-        && !Replay.isPlaying) {
+        && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
       Client.show_friends = 0;
       e.consume();
     }
