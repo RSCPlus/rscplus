@@ -362,11 +362,15 @@ public class ConfigWindow {
   }
 
   public void showConfigWindow() {
+    Client.displayMessage("Showing config window...", Client.CHAT_NONE);
+
     this.synchronizeGuiValues();
     frame.setVisible(true);
   }
 
   public void hideConfigWindow() {
+    Client.displayMessage("Hid the config window.", Client.CHAT_NONE);
+
     frame.setVisible(false);
   }
 

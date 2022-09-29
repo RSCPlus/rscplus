@@ -1427,6 +1427,8 @@ public class WorldMapWindow {
   }
 
   public void showWorldMapWindow() {
+    Client.displayMessage("Showing world map window...", Client.CHAT_NONE);
+
     if (!isShown()) {
       searchText = "";
       updateMapRender();
@@ -1436,6 +1438,8 @@ public class WorldMapWindow {
   }
 
   public void hideWorldMapWindow() {
+    Client.displayMessage("Hid the world map window.", Client.CHAT_NONE);
+
     frame.setVisible(false);
   }
 
