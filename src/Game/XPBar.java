@@ -330,7 +330,7 @@ public class XPBar {
     if (hasGoalForSkill(current_skill)) {
       height += 32;
       if (Client.getShowXpPerHour()[current_skill]) {
-        height += 12;
+        height += 24;
       }
     }
 
@@ -405,6 +405,17 @@ public class XPBar {
             y,
             true);
         y += 12;
+
+        Renderer.drawColoredText(
+            g,
+            labelColour
+                + "Hours until Goal: "
+                + highlightColour
+                + formatFractionalNumber(Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill], 0, 1),
+            x,
+            y,
+            true);
+        y += 12;
       }
       Renderer.drawColoredText(
           g,
@@ -430,14 +441,30 @@ public class XPBar {
   }
 
   /**
-   * Rounds up a double to to the nearest integer and adds commas, periods, etc. according to the
-   * local of the user
+   * Rounds up a double to the nearest integer and adds commas, periods, etc. according to the
+   * locale of the user
    *
    * @param number the number to round
    * @return a formatted version of the double as a String
    */
   public static String formatXP(double number) {
     return NumberFormat.getIntegerInstance().format(Math.ceil(number));
+  }
+
+  /**
+   * Formats a number and adds commas, periods, etc. according to the
+   * locale of the user, with a provided number of fractional digits
+   *
+   * @param number the number to format
+   * @param minimumDigits the minimum number of fractional digits to print
+   * @param maximumDigits the maximum number of fractional digits to print
+   * @return a formatted version of the double as a String
+   */
+  public static String formatFractionalNumber(double number, int minimumDigits, int maximumDigits) {
+    NumberFormat nf = NumberFormat.getInstance();
+    nf.setMinimumFractionDigits(minimumDigits);
+    nf.setMaximumFractionDigits(maximumDigits);
+    return nf.format(number);
   }
 
   /*
