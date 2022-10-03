@@ -479,7 +479,7 @@ public class Renderer {
             Client.inventory_count + "/" + Client.max_inventory,
             width - 19,
             17,
-            color_text,
+            getInventoryCountColor(),
             true);
 
       int percentHP = 0;
@@ -2141,6 +2141,23 @@ public class Renderer {
 
     // state of show_bank "last frame"
     show_bank_last = Client.show_bank;
+  }
+
+  private static Color getInventoryCountColor() {
+    if (Client.inventory_count == 0) {
+      return color_hp;
+    }
+
+    if (Client.inventory_count >= Client.max_inventory * 0.9
+            && Client.inventory_count < Client.max_inventory) {
+      return color_fatigue;
+    }
+
+    if (Client.inventory_count == Client.max_inventory) {
+      return color_low;
+    }
+
+    return color_text;
   }
 
   private static boolean roomInHbarForHPPrayerFatigueOverlay() {
