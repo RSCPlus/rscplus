@@ -888,7 +888,7 @@ public class Renderer {
               && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
               && MouseHandler.mouseClicked) {
 
-            Launcher.getWorldMapWindow().showWorldMapWindow();
+            Launcher.getWorldMapWindow().toggleWorldMapWindow();
           }
         }
 
@@ -915,7 +915,7 @@ public class Renderer {
               && MouseHandler.y >= mapButtonBounds.y
               && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
               && MouseHandler.mouseClicked) {
-            Launcher.getConfigWindow().showConfigWindow();
+            Launcher.getConfigWindow().toggleConfigWindow();
           }
         }
 
