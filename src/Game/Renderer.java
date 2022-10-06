@@ -2144,13 +2144,15 @@ public class Renderer {
   }
 
   private static Color getInventoryCountColor() {
-    if (Client.inventory_count == 0) {
-      return color_hp;
-    }
+    if (Settings.SHOW_INVCOUNT_COLORS.get(Settings.currentProfile)) {
+      if (Client.inventory_count == 0) {
+        return color_hp;
+      }
 
-    if (Client.inventory_count >= Client.max_inventory * 0.9
-            && Client.inventory_count < Client.max_inventory) {
-      return color_fatigue;
+      if (Client.inventory_count >= Client.max_inventory * 0.9
+              && Client.inventory_count < Client.max_inventory) {
+        return color_fatigue;
+      }
     }
 
     if (Client.inventory_count == Client.max_inventory) {
