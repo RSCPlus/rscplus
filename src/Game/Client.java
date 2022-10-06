@@ -1735,8 +1735,8 @@ public class Client {
         case "toggleinvcount":
           Settings.toggleInvCount();
           break;
-        case "toggleinvcountcolors":
-          Settings.toggleInvCountColors();
+        case "toggleinvcountcolours":
+          Settings.toggleInvCountColours();
           break;
         case "togglebuffs":
           Settings.toggleBuffs();

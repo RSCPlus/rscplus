@@ -2144,7 +2144,7 @@ public class Renderer {
   }
 
   private static Color getInventoryCountColor() {
-    if (Settings.SHOW_INVCOUNT_COLORS.get(Settings.currentProfile)) {
+    if (Settings.SHOW_INVCOUNT_COLOURS.get(Settings.currentProfile)) {
       if (Client.inventory_count == 0) {
         return color_hp;
       }
