@@ -319,7 +319,7 @@ public class XPBar {
     int height = 50;
 
     if (Client.getShowXpPerHour()[current_skill]) {
-      height += 12;
+      height += 24;
     }
     if (!post99xp) {
       height += 20;
@@ -378,6 +378,18 @@ public class XPBar {
             y,
             true);
         y += 12;
+
+        Renderer.drawColoredText(
+            g,
+            labelColour
+                + "Time until Level: "
+                + highlightColour
+                + formatHours(
+                    Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill]),
+            x,
+            y,
+            true);
+        y += 12;
       }
       y += 8;
     }
@@ -409,9 +421,10 @@ public class XPBar {
         Renderer.drawColoredText(
             g,
             labelColour
-                + "Hours until Goal: "
+                + "Time until Goal: "
                 + highlightColour
-                + formatFractionalNumber(Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill], 0, 1),
+                + formatHours(
+                    Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill]),
             x,
             y,
             true);
@@ -452,19 +465,16 @@ public class XPBar {
   }
 
   /**
-   * Formats a number and adds commas, periods, etc. according to the
-   * locale of the user, with a provided number of fractional digits
+   * Formats a given decimal-form hour value to HH:mm
    *
-   * @param number the number to format
-   * @param minimumDigits the minimum number of fractional digits to print
-   * @param maximumDigits the maximum number of fractional digits to print
+   * @param fractionalHours the number of hours to format
    * @return a formatted version of the double as a String
    */
-  public static String formatFractionalNumber(double number, int minimumDigits, int maximumDigits) {
-    NumberFormat nf = NumberFormat.getInstance();
-    nf.setMinimumFractionDigits(minimumDigits);
-    nf.setMaximumFractionDigits(maximumDigits);
-    return nf.format(number);
+  public static String formatHours(double fractionalHours) {
+    long hours = Math.round(Math.floor(fractionalHours));
+    long minutes = Math.round(Math.floor((fractionalHours - hours) * 60));
+
+    return String.format("%02d:%02d", hours, minutes);
   }
 
   /*
