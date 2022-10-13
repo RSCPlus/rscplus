@@ -319,7 +319,7 @@ public class XPBar {
     int height = 50;
 
     if (Client.getShowXpPerHour()[current_skill]) {
-      height += 12;
+      height += 24;
     }
     if (!post99xp) {
       height += 20;
@@ -330,7 +330,7 @@ public class XPBar {
     if (hasGoalForSkill(current_skill)) {
       height += 32;
       if (Client.getShowXpPerHour()[current_skill]) {
-        height += 12;
+        height += 24;
       }
     }
 
@@ -378,6 +378,18 @@ public class XPBar {
             y,
             true);
         y += 12;
+
+        Renderer.drawColoredText(
+            g,
+            labelColour
+                + "Time until Level: "
+                + highlightColour
+                + formatHours(
+                    Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill]),
+            x,
+            y,
+            true);
+        y += 12;
       }
       y += 8;
     }
@@ -401,6 +413,18 @@ public class XPBar {
                 + highlightColour
                 + formatXP(
                     Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
+            x,
+            y,
+            true);
+        y += 12;
+
+        Renderer.drawColoredText(
+            g,
+            labelColour
+                + "Time until Goal: "
+                + highlightColour
+                + formatHours(
+                    Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill]),
             x,
             y,
             true);
@@ -430,14 +454,27 @@ public class XPBar {
   }
 
   /**
-   * Rounds up a double to to the nearest integer and adds commas, periods, etc. according to the
-   * local of the user
+   * Rounds up a double to the nearest integer and adds commas, periods, etc. according to the
+   * locale of the user
    *
    * @param number the number to round
    * @return a formatted version of the double as a String
    */
   public static String formatXP(double number) {
     return NumberFormat.getIntegerInstance().format(Math.ceil(number));
+  }
+
+  /**
+   * Formats a given decimal-form hour value to HH:mm
+   *
+   * @param fractionalHours the number of hours to format
+   * @return a formatted version of the double as a String
+   */
+  public static String formatHours(double fractionalHours) {
+    long hours = Math.round(Math.floor(fractionalHours));
+    long minutes = Math.round(Math.floor((fractionalHours - hours) * 60));
+
+    return String.format("%02d:%02d", hours, minutes);
   }
 
   /*
