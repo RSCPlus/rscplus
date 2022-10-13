@@ -2149,7 +2149,7 @@ public class Renderer {
         return color_hp;
       }
 
-      if (Client.inventory_count >= Client.max_inventory * 0.9
+      if (Client.inventory_count >= 25
               && Client.inventory_count < Client.max_inventory) {
         return color_fatigue;
       }

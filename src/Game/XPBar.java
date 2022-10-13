@@ -379,13 +379,13 @@ public class XPBar {
             true);
         y += 12;
 
+        double hoursToLevel = Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill];
         Renderer.drawColoredText(
             g,
             labelColour
                 + "Time until Level: "
                 + highlightColour
-                + formatHours(
-                    Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill]),
+                + formatHours(hoursToLevel),
             x,
             y,
             true);
@@ -418,13 +418,13 @@ public class XPBar {
             true);
         y += 12;
 
+        double hoursToGoal = Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill];
         Renderer.drawColoredText(
             g,
             labelColour
                 + "Time until Goal: "
                 + highlightColour
-                + formatHours(
-                    Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill]),
+                + formatHours(hoursToGoal),
             x,
             y,
             true);
@@ -474,7 +474,24 @@ public class XPBar {
     long hours = Math.round(Math.floor(fractionalHours));
     long minutes = Math.round(Math.floor((fractionalHours - hours) * 60));
 
-    return String.format("%02d:%02d", hours, minutes);
+    boolean minutesPlural = minutes != 1;
+
+    String hoursText;
+    if (hours != 1) {
+        if (hours > 12) {
+            hoursText = "hrs";
+        } else {
+            hoursText = "hours";
+        }
+    } else {
+        hoursText = "hour";
+    }
+
+    if (hours >= 1) {
+        return String.format("%d %s %d %s", hours, hoursText, minutes, minutesPlural ? "mins" : "min");
+    } else {
+        return String.format("%d %s", minutes, minutesPlural ? "minutes" : "minute");
+    }
   }
 
   /*
