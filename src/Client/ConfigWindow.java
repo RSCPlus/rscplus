@@ -168,6 +168,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelMouseTooltipCheckbox;
   private JCheckBox overlayPanelExtendedTooltipCheckbox;
   private JCheckBox overlayPanelInvCountCheckbox;
+  private JCheckBox overlayPanelInvCountColoursCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsCheckbox;
   private JCheckBox overlayPanelRscPlusButtonsFunctionalCheckbox;
   private JCheckBox overlayPanelWikiLookupOnMagicBookCheckbox;
@@ -1119,6 +1120,9 @@ public class ConfigWindow {
 
     overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
     overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
+
+    overlayPanelInvCountColoursCheckbox = addCheckbox("Additional inventory count colours", overlayPanel);
+    overlayPanelInvCountColoursCheckbox.setToolTipText("Adds additional colours to the inventory count to indicate fullness levels");
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -2273,6 +2277,12 @@ public class ConfigWindow {
         KeyEvent.VK_E);
     addKeybindSet(
         keybindContainerPanel,
+        "Toggle additional inventory count colours",
+        "toggle_inven_count_colours",
+        KeyModifier.ALT,
+        KeyEvent.VK_T);
+    addKeybindSet(
+        keybindContainerPanel,
         "Toggle position overlay",
         "toggle_position_overlay",
         KeyModifier.ALT,
@@ -3257,6 +3267,7 @@ public class ConfigWindow {
     overlayPanelExtendedTooltipCheckbox.setSelected(
         Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile));
     overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
+    overlayPanelInvCountColoursCheckbox.setSelected(Settings.SHOW_INVCOUNT_COLOURS.get(Settings.currentProfile));
     overlayPanelRscPlusButtonsCheckbox.setSelected(
         Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
     overlayPanelRscPlusButtonsFunctionalCheckbox.setSelected(
@@ -3621,6 +3632,7 @@ public class ConfigWindow {
     Settings.SHOW_EXTENDED_TOOLTIP.put(
         Settings.currentProfile, overlayPanelExtendedTooltipCheckbox.isSelected());
     Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
+    Settings.SHOW_INVCOUNT_COLOURS.put(Settings.currentProfile, overlayPanelInvCountColoursCheckbox.isSelected());
     Settings.SHOW_RSCPLUS_BUTTONS.put(
         Settings.currentProfile, overlayPanelRscPlusButtonsCheckbox.isSelected());
     Settings.RSCPLUS_BUTTONS_FUNCTIONAL.put(

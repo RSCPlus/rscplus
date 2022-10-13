@@ -186,6 +186,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_INVCOUNT_COLOURS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_RSCPLUS_BUTTONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RSCPLUS_BUTTONS_FUNCTIONAL =
       new HashMap<String, Boolean>();
@@ -1342,6 +1343,15 @@ public class Settings {
     SHOW_INVCOUNT.put("all", true);
     SHOW_INVCOUNT.put(
         "custom", getPropBoolean(props, "show_invcount", SHOW_INVCOUNT.get("default")));
+
+    SHOW_INVCOUNT_COLOURS.put("vanilla", false);
+    SHOW_INVCOUNT_COLOURS.put("vanilla_resizable", false);
+    SHOW_INVCOUNT_COLOURS.put("lite", false);
+    SHOW_INVCOUNT_COLOURS.put("default", false);
+    SHOW_INVCOUNT_COLOURS.put("heavy", true);
+    SHOW_INVCOUNT_COLOURS.put("all", true);
+    SHOW_INVCOUNT_COLOURS.put(
+            "custom", getPropBoolean(props, "show_invcount_colours", SHOW_INVCOUNT_COLOURS.get("default")));
 
     SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
     SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
@@ -2667,6 +2677,7 @@ public class Settings {
       props.setProperty(
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
       props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT.get(preset)));
+      props.setProperty("show_invcount_colours", Boolean.toString(SHOW_INVCOUNT_COLOURS.get(preset)));
       props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
       props.setProperty(
           "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
@@ -2978,6 +2989,18 @@ public class Settings {
       Client.displayMessage("@cya@Inventory count is now shown", Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@Inventory count is now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleInvCountColours() {
+    SHOW_INVCOUNT_COLOURS.put(currentProfile, !SHOW_INVCOUNT_COLOURS.get(currentProfile));
+
+    if (SHOW_INVCOUNT_COLOURS.get(currentProfile)) {
+      Client.displayMessage("@cya@Additional inventory count colours are now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Additional inventory count colours are now hidden", Client.CHAT_NONE);
     }
 
     save();
@@ -3474,6 +3497,9 @@ public class Settings {
         return true;
       case "toggle_inven_count_overlay":
         Settings.toggleInvCount();
+        return true;
+      case "toggle_inven_count_colours":
+        Settings.toggleInvCountColours();
         return true;
       case "toggle_ipdns":
         Settings.toggleShowLoginIpAddress();
