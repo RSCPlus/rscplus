@@ -477,8 +477,10 @@ public class XPBar {
     boolean minutesPlural = minutes != 1;
 
     String hoursText;
+    // check for plurality
     if (hours != 1) {
-        if (hours > 12) {
+        // 20 is when the two digit number becomes significantly wide (generally)
+        if (hours > 20) {
             hoursText = "hrs";
         } else {
             hoursText = "hours";
