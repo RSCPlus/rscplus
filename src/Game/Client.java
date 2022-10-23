@@ -1618,6 +1618,14 @@ public class Client {
     return worldY / 944;
   }
 
+  /** Hook onto random minimap rotation, making it able to be removed */
+  public static int minimapRotation(int proposedRotation) {
+    if (Settings.DISABLE_MINIMAP_ROTATION.get(Settings.currentProfile)) {
+      return 0;
+    }
+    return proposedRotation;
+  }
+
   /**
    * Intercepts chat messages sent by the user and parses them for commands.
    *
