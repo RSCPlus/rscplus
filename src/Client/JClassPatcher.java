@@ -1161,9 +1161,9 @@ public class JClassPatcher {
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 334.0) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
+                  start,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
 
               methodNode.instructions.remove(start);
 
@@ -1183,19 +1183,12 @@ public class JClassPatcher {
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 80.0) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(0.5));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DMUL));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(176.0));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DSUB));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(0.5));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DMUL));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(176.0));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DSUB));
 
               methodNode.instructions.remove(start);
 
@@ -1215,9 +1208,9 @@ public class JClassPatcher {
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 334.0) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
+                  start,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
 
               methodNode.instructions.remove(start);
 
@@ -1236,19 +1229,12 @@ public class JClassPatcher {
             LdcInsnNode ldcNode = (LdcInsnNode) start;
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 80.0) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(0.5));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DMUL));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(176.0));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DSUB));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(0.5));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DMUL));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(176.0));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DSUB));
 
               methodNode.instructions.remove(start);
 
@@ -1268,7 +1254,7 @@ public class JClassPatcher {
 
             if (call.operand == 512) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
 
               methodNode.instructions.remove(start);
 
@@ -1288,20 +1274,15 @@ public class JClassPatcher {
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 0.15) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
               methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DADD));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(5640.0));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DDIV));
+                  start,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DADD));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(5640.0));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DDIV));
 
               methodNode.instructions.remove(start);
 
@@ -1321,20 +1302,15 @@ public class JClassPatcher {
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 0.15) {
               methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+                  start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
               methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.I2D));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DADD));
-              methodNode.instructions.insertBefore(
-                      start,
-                      new LdcInsnNode(5640.0));
-              methodNode.instructions.insertBefore(
-                      start, new InsnNode(Opcodes.DDIV));
+                  start,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DADD));
+              methodNode.instructions.insertBefore(start, new LdcInsnNode(5640.0));
+              methodNode.instructions.insertBefore(start, new InsnNode(Opcodes.DDIV));
 
               methodNode.instructions.remove(start);
 

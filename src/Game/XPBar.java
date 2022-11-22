@@ -379,13 +379,11 @@ public class XPBar {
             true);
         y += 12;
 
-        double hoursToLevel = Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill];
+        double hoursToLevel =
+            Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill];
         Renderer.drawColoredText(
             g,
-            labelColour
-                + "Time until Level: "
-                + highlightColour
-                + formatHours(hoursToLevel),
+            labelColour + "Time until Level: " + highlightColour + formatHours(hoursToLevel),
             x,
             y,
             true);
@@ -418,13 +416,11 @@ public class XPBar {
             true);
         y += 12;
 
-        double hoursToGoal = Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill];
+        double hoursToGoal =
+            Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill];
         Renderer.drawColoredText(
             g,
-            labelColour
-                + "Time until Goal: "
-                + highlightColour
-                + formatHours(hoursToGoal),
+            labelColour + "Time until Goal: " + highlightColour + formatHours(hoursToGoal),
             x,
             y,
             true);
@@ -479,20 +475,21 @@ public class XPBar {
     String hoursText;
     // check for plurality
     if (hours != 1) {
-        // 20 is when the two digit number becomes significantly wide (generally)
-        if (hours > 20) {
-            hoursText = "hrs";
-        } else {
-            hoursText = "hours";
-        }
+      // 20 is when the two digit number becomes significantly wide (generally)
+      if (hours >= 20) {
+        hoursText = "hrs";
+      } else {
+        hoursText = "hours";
+      }
     } else {
-        hoursText = "hour";
+      hoursText = "hour";
     }
 
     if (hours >= 1) {
-        return String.format("%d %s %d %s", hours, hoursText, minutes, minutesPlural ? "mins" : "min");
+      return String.format(
+          "%d %s %d %s", hours, hoursText, minutes, minutesPlural ? "mins" : "min");
     } else {
-        return String.format("%d %s", minutes, minutesPlural ? "minutes" : "minute");
+      return String.format("%d %s", minutes, minutesPlural ? "minutes" : "minute");
     }
   }
 
