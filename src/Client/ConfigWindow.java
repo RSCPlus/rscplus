@@ -52,10 +52,39 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -134,6 +163,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelDisableUndergroundLightingCheckbox;
+  private JCheckBox generalPanelDisableMinimapRotationCheckbox;
   private JCheckBox generalPanelCameraZoomableCheckbox;
   private JCheckBox generalPanelCameraRotatableCheckbox;
   private JCheckBox generalPanelCameraMovableCheckbox;
@@ -971,6 +1001,11 @@ public class ConfigWindow {
     generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
         "Underground lighting will no longer flicker");
 
+    generalPanelDisableMinimapRotationCheckbox =
+        addCheckbox("Disable random minimap rotation", generalPanel);
+    generalPanelDisableMinimapRotationCheckbox.setToolTipText(
+        "The random minimap rotation when opening minimap will no longer be applied");
+
     generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
         "Zoom the camera in and out with the mouse wheel, and no longer zooms in inside buildings");
@@ -1121,8 +1156,10 @@ public class ConfigWindow {
     overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
     overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
 
-    overlayPanelInvCountColoursCheckbox = addCheckbox("Additional inventory count colours", overlayPanel);
-    overlayPanelInvCountColoursCheckbox.setToolTipText("Adds additional colours to the inventory count to indicate fullness levels");
+    overlayPanelInvCountColoursCheckbox =
+        addCheckbox("Additional inventory count colours", overlayPanel);
+    overlayPanelInvCountColoursCheckbox.setToolTipText(
+        "Adds additional colours to the inventory count to indicate fullness levels");
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -1582,7 +1619,7 @@ public class ConfigWindow {
     soundEffectPrayeroffCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
     soundEffectPrayeroffCheckbox.setEnabled(
         false); // TODO: would need to either reimplement opcode 206 or go disable it in there
-                // (preferred)
+    // (preferred)
     audioPanel.add(prayeroffPanel);
 
     JPanel prayeronPanel = makeSoundEffectPanel("prayeron");
@@ -1591,7 +1628,7 @@ public class ConfigWindow {
     soundEffectPrayeronCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
     soundEffectPrayeronCheckbox.setEnabled(
         false); // TODO: would need to either reimplement opcode 206 or go disable it in there
-                // (preferred)
+    // (preferred)
     audioPanel.add(prayeronPanel);
 
     JPanel prospectPanel = makeSoundEffectPanel("prospect");
@@ -3189,6 +3226,8 @@ public class ConfigWindow {
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelDisableUndergroundLightingCheckbox.setSelected(
         Settings.DISABLE_UNDERGROUND_LIGHTING.get(Settings.currentProfile));
+    generalPanelDisableMinimapRotationCheckbox.setSelected(
+        Settings.DISABLE_MINIMAP_ROTATION.get(Settings.currentProfile));
     generalPanelCameraZoomableCheckbox.setSelected(
         Settings.CAMERA_ZOOMABLE.get(Settings.currentProfile));
     generalPanelCameraRotatableCheckbox.setSelected(
@@ -3267,7 +3306,8 @@ public class ConfigWindow {
     overlayPanelExtendedTooltipCheckbox.setSelected(
         Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile));
     overlayPanelInvCountCheckbox.setSelected(Settings.SHOW_INVCOUNT.get(Settings.currentProfile));
-    overlayPanelInvCountColoursCheckbox.setSelected(Settings.SHOW_INVCOUNT_COLOURS.get(Settings.currentProfile));
+    overlayPanelInvCountColoursCheckbox.setSelected(
+        Settings.SHOW_INVCOUNT_COLOURS.get(Settings.currentProfile));
     overlayPanelRscPlusButtonsCheckbox.setSelected(
         Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile));
     overlayPanelRscPlusButtonsFunctionalCheckbox.setSelected(
@@ -3584,6 +3624,8 @@ public class ConfigWindow {
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.DISABLE_UNDERGROUND_LIGHTING.put(
         Settings.currentProfile, generalPanelDisableUndergroundLightingCheckbox.isSelected());
+    Settings.DISABLE_MINIMAP_ROTATION.put(
+        Settings.currentProfile, generalPanelDisableMinimapRotationCheckbox.isSelected());
     Settings.CAMERA_ZOOMABLE.put(
         Settings.currentProfile, generalPanelCameraZoomableCheckbox.isSelected());
     Settings.CAMERA_ROTATABLE.put(
@@ -3632,7 +3674,8 @@ public class ConfigWindow {
     Settings.SHOW_EXTENDED_TOOLTIP.put(
         Settings.currentProfile, overlayPanelExtendedTooltipCheckbox.isSelected());
     Settings.SHOW_INVCOUNT.put(Settings.currentProfile, overlayPanelInvCountCheckbox.isSelected());
-    Settings.SHOW_INVCOUNT_COLOURS.put(Settings.currentProfile, overlayPanelInvCountColoursCheckbox.isSelected());
+    Settings.SHOW_INVCOUNT_COLOURS.put(
+        Settings.currentProfile, overlayPanelInvCountColoursCheckbox.isSelected());
     Settings.SHOW_RSCPLUS_BUTTONS.put(
         Settings.currentProfile, overlayPanelRscPlusButtonsCheckbox.isSelected());
     Settings.RSCPLUS_BUTTONS_FUNCTIONAL.put(

@@ -101,6 +101,7 @@ public class Settings {
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DISABLE_UNDERGROUND_LIGHTING =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DISABLE_MINIMAP_ROTATION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ZOOMABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_ROTATABLE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CAMERA_MOVABLE = new HashMap<String, Boolean>();
@@ -316,6 +317,7 @@ public class Settings {
   public static int COMBAT_STYLE_INT = Client.COMBAT_AGGRESSIVE;
   public static boolean HIDE_ROOFS_BOOL = false;
   public static boolean DISABLE_UNDERGROUND_LIGHTING_BOOL = false;
+  public static boolean DISABLE_MINIMAP_ROTATION_BOOL = false;
   public static boolean COMBAT_MENU_SHOWN_BOOL = false;
   public static boolean COMBAT_MENU_HIDDEN_BOOL = false;
   public static boolean CAMERA_ZOOMABLE_BOOL = false;
@@ -624,6 +626,16 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "disable_underground_lighting", DISABLE_UNDERGROUND_LIGHTING.get("default")));
+
+    DISABLE_MINIMAP_ROTATION.put("vanilla", false);
+    DISABLE_MINIMAP_ROTATION.put("vanilla_resizable", false);
+    DISABLE_MINIMAP_ROTATION.put("lite", true);
+    DISABLE_MINIMAP_ROTATION.put("default", true);
+    DISABLE_MINIMAP_ROTATION.put("heavy", true);
+    DISABLE_MINIMAP_ROTATION.put("all", true);
+    DISABLE_MINIMAP_ROTATION.put(
+        "custom",
+        getPropBoolean(props, "disable_minimap_rotation", DISABLE_MINIMAP_ROTATION.get("default")));
 
     CAMERA_ZOOMABLE.put("vanilla", false);
     CAMERA_ZOOMABLE.put("vanilla_resizable", false);
@@ -1351,7 +1363,8 @@ public class Settings {
     SHOW_INVCOUNT_COLOURS.put("heavy", true);
     SHOW_INVCOUNT_COLOURS.put("all", true);
     SHOW_INVCOUNT_COLOURS.put(
-            "custom", getPropBoolean(props, "show_invcount_colours", SHOW_INVCOUNT_COLOURS.get("default")));
+        "custom",
+        getPropBoolean(props, "show_invcount_colours", SHOW_INVCOUNT_COLOURS.get("default")));
 
     SHOW_RSCPLUS_BUTTONS.put("vanilla", false);
     SHOW_RSCPLUS_BUTTONS.put("vanilla_resizable", false);
@@ -2562,6 +2575,8 @@ public class Settings {
       props.setProperty(
           "disable_underground_lighting",
           Boolean.toString(DISABLE_UNDERGROUND_LIGHTING.get(preset)));
+      props.setProperty(
+          "disable_minimap_rotation", Boolean.toString(DISABLE_MINIMAP_ROTATION.get(preset)));
       props.setProperty("camera_zoomable", Boolean.toString(CAMERA_ZOOMABLE.get(preset)));
       props.setProperty("camera_rotatable", Boolean.toString(CAMERA_ROTATABLE.get(preset)));
       props.setProperty("camera_movable", Boolean.toString(CAMERA_MOVABLE.get(preset)));
@@ -2677,7 +2692,8 @@ public class Settings {
       props.setProperty(
           "show_extended_tooltip", Boolean.toString(SHOW_EXTENDED_TOOLTIP.get(preset)));
       props.setProperty("show_invcount", Boolean.toString(SHOW_INVCOUNT.get(preset)));
-      props.setProperty("show_invcount_colours", Boolean.toString(SHOW_INVCOUNT_COLOURS.get(preset)));
+      props.setProperty(
+          "show_invcount_colours", Boolean.toString(SHOW_INVCOUNT_COLOURS.get(preset)));
       props.setProperty("show_rscplus_buttons", Boolean.toString(SHOW_RSCPLUS_BUTTONS.get(preset)));
       props.setProperty(
           "rscplus_buttons_functional", Boolean.toString(RSCPLUS_BUTTONS_FUNCTIONAL.get(preset)));
@@ -2998,9 +3014,11 @@ public class Settings {
     SHOW_INVCOUNT_COLOURS.put(currentProfile, !SHOW_INVCOUNT_COLOURS.get(currentProfile));
 
     if (SHOW_INVCOUNT_COLOURS.get(currentProfile)) {
-      Client.displayMessage("@cya@Additional inventory count colours are now shown", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@Additional inventory count colours are now shown", Client.CHAT_NONE);
     } else {
-      Client.displayMessage("@cya@Additional inventory count colours are now hidden", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@Additional inventory count colours are now hidden", Client.CHAT_NONE);
     }
 
     save();
@@ -3728,6 +3746,7 @@ public class Settings {
     COMBAT_STYLE_INT = COMBAT_STYLE.get(currentProfile);
     HIDE_ROOFS_BOOL = HIDE_ROOFS.get(currentProfile);
     DISABLE_UNDERGROUND_LIGHTING_BOOL = DISABLE_UNDERGROUND_LIGHTING.get(currentProfile);
+    DISABLE_MINIMAP_ROTATION_BOOL = DISABLE_MINIMAP_ROTATION.get(currentProfile);
     COMBAT_MENU_SHOWN_BOOL = COMBAT_MENU_SHOWN.get(currentProfile);
     COMBAT_MENU_HIDDEN_BOOL = COMBAT_MENU_HIDDEN.get(currentProfile);
     CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);

@@ -34,8 +34,16 @@ import Client.Util;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
-import java.awt.*;
-import java.io.*;
+import java.awt.Component;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
@@ -201,6 +209,7 @@ public class Client {
   public static String pm_username;
   public static String pm_text;
   public static String pm_enteredText;
+  public static String pm_enteredTextCopy = ""; // must be initialized
   public static String lastpm_username = null;
   public static String modal_text;
   public static String modal_enteredText;
@@ -1373,6 +1382,15 @@ public class Client {
   public static boolean gameOpcodeReceivedHook(int opcode, int psize) {
     boolean needsProcess = true;
 
+    if (opcode == 117) {
+      // sleep enter packet, get whatever was in pm to de-duplex when sleep and pm are active
+      pm_enteredTextCopy = pm_enteredText;
+    } else if (opcode == 84) {
+      // sleep exit packet, restore whatever was in pm
+      pm_enteredText = pm_enteredTextCopy;
+      pm_enteredTextCopy = "";
+    }
+
     if (Bank.processPacket(opcode, psize)) {
       needsProcess = false;
     }
@@ -1460,6 +1478,10 @@ public class Client {
       return AccountManagement.keyHandler(key);
     } else if (XPBar.shouldConsumeKey()) {
       return XPBar.keyHandler();
+    }
+
+    if (isSleeping()) {
+      pm_enteredText = "";
     }
     return 0;
   }
@@ -1594,6 +1616,14 @@ public class Client {
 
   public static int getFloor() {
     return worldY / 944;
+  }
+
+  /** Hook onto random minimap rotation, making it able to be removed */
+  public static int minimapRotation(int proposedRotation) {
+    if (Settings.DISABLE_MINIMAP_ROTATION.get(Settings.currentProfile)) {
+      return 0;
+    }
+    return proposedRotation;
   }
 
   /**

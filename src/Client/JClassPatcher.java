@@ -4129,6 +4129,27 @@ public class JClassPatcher {
         }
       }
 
+      if (methodNode.name.equals("D") && methodNode.desc.equals("(I)V")) {
+        // hook to control random minimap rotation
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode call;
+          FieldInsnNode field;
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD) {
+            field = (FieldInsnNode) insnNode;
+            call = insnNode;
+            if (field.owner.equals("client")
+                && (field.name.equals("Df") || field.name.equals("sd"))) {
+              methodNode.instructions.insertBefore(
+                  call,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC, "Game/Client", "minimapRotation", "(I)I", false));
+            }
+          }
+        }
+      }
+
       if (methodNode.name.equals("m") && methodNode.desc.equals("(B)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
