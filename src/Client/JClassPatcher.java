@@ -1149,9 +1149,205 @@ public class JClassPatcher {
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
-      // Makes the underground flickering toggleable
       if (methodNode.name.equals("f") && methodNode.desc.equals("(I)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();
+
+        // Scale "ZZZ" sleep effect rendering to client size
+
+        // Scale first ZZZ box height
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 334.0) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Scale first ZZZ box width
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 80.0) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(0.5));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DMUL));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(176.0));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DSUB));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Scale second ZZZ box height
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 334.0) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Scale second ZZZ box width
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 80.0) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(0.5));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DMUL));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(176.0));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DSUB));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Adjust second ZZZ box width calculation
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.SIPUSH) {
+            IntInsnNode call = (IntInsnNode) start;
+
+            if (call.operand == 512) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Adjust frequency of first ZZZ draw to approximate scale
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 0.15) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DADD));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(5640.0));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DDIV));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Adjust frequency of second ZZZ draw to approximate scale
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 0.15) {
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "height_client", "I"));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.I2D));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DADD));
+              methodNode.instructions.insertBefore(
+                      start,
+                      new LdcInsnNode(5640.0));
+              methodNode.instructions.insertBefore(
+                      start, new InsnNode(Opcodes.DDIV));
+
+              methodNode.instructions.remove(start);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Makes the underground flickering toggleable
         while (start != null) {
           if (start.getOpcode() == Opcodes.LDC) {
             LdcInsnNode ldcNode = (LdcInsnNode) start;
