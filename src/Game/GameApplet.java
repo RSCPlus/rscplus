@@ -19,9 +19,13 @@
 package Game;
 
 import Client.Launcher;
+import Client.Logger;
 import java.net.URL;
 
 public class GameApplet {
+
+  public static byte[][] gameFonts;
+
   public static URL cacheURLHook(URL url) {
     String file = url.getFile();
     if (file.startsWith("/contentcrcs")) {
@@ -32,5 +36,46 @@ public class GameApplet {
     if (urlFile != null) return urlFile;
 
     return url;
+  }
+
+  public static void loadFontHook(byte[] dataFile) {
+    try {
+      String jagexFileExtension = ".jf";
+
+      String h11pFile = Renderer.shellStrings[29] + jagexFileExtension;
+      String h12bFile = Renderer.shellStrings[39] + jagexFileExtension;
+      String h12pFile = Renderer.shellStrings[31] + jagexFileExtension;
+      String h13bFile = Renderer.shellStrings[36] + jagexFileExtension;
+      String h14bFile = Renderer.shellStrings[38] + jagexFileExtension;
+      String h16bFile = Renderer.shellStrings[34] + jagexFileExtension;
+      String h20bFile = Renderer.shellStrings[35] + jagexFileExtension;
+      String h24bFile = Renderer.shellStrings[37] + jagexFileExtension;
+
+      byte[] h11p = (byte[]) Reflection.loadData.invoke(null, h11pFile, 0, dataFile, -120);
+      gameFonts[0] = h11p;
+
+      byte[] h12b = (byte[]) Reflection.loadData.invoke(null, h12bFile, 0, dataFile, -120);
+      gameFonts[1] = h12b;
+
+      byte[] h12p = (byte[]) Reflection.loadData.invoke(null, h12pFile, 0, dataFile, -120);
+      gameFonts[2] = h12p;
+
+      byte[] h13b = (byte[]) Reflection.loadData.invoke(null, h13bFile, 0, dataFile, -120);
+      gameFonts[3] = h13b;
+
+      byte[] h14b = (byte[]) Reflection.loadData.invoke(null, h14bFile, 0, dataFile, -120);
+      gameFonts[4] = h14b;
+
+      byte[] h16b = (byte[]) Reflection.loadData.invoke(null, h16bFile, 0, dataFile, -120);
+      gameFonts[5] = h16b;
+
+      byte[] h20b = (byte[]) Reflection.loadData.invoke(null, h20bFile, 0, dataFile, -120);
+      gameFonts[6] = h20b;
+
+      byte[] h24b = (byte[]) Reflection.loadData.invoke(null, h24bFile, 0, dataFile, -120);
+      gameFonts[7] = h24b;
+    } catch (Exception e) {
+      Logger.Error("Error loading jagex font files");
+    }
   }
 }
