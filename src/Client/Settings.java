@@ -124,6 +124,7 @@ public class Settings {
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> USE_JAGEX_FONTS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_WRENCH_MENU_SPACING = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> LOG_VERBOSITY = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOG_SHOW_TIMESTAMPS = new HashMap<String, Boolean>();
@@ -325,6 +326,7 @@ public class Settings {
   public static boolean CAMERA_MOVABLE_BOOL = false;
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
+  public static boolean USE_JAGEX_FONTS_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -823,6 +825,15 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "patch_hbar_512_last_pixel", PATCH_HBAR_512_LAST_PIXEL.get("default")));
+
+    USE_JAGEX_FONTS.put("vanilla", false);
+    USE_JAGEX_FONTS.put("vanilla_resizable", false);
+    USE_JAGEX_FONTS.put("lite", true);
+    USE_JAGEX_FONTS.put("default", true);
+    USE_JAGEX_FONTS.put("heavy", true);
+    USE_JAGEX_FONTS.put("all", true);
+    USE_JAGEX_FONTS.put(
+        "custom", getPropBoolean(props, "use_jagex_fonts", USE_JAGEX_FONTS.get("default")));
 
     LOG_VERBOSITY.put("vanilla", Logger.Type.GAME.id);
     LOG_VERBOSITY.put("vanilla_resizable", Logger.Type.GAME.id);
@@ -2605,6 +2616,7 @@ public class Settings {
       props.setProperty("patch_gender", Boolean.toString(PATCH_GENDER.get(preset)));
       props.setProperty(
           "patch_hbar_512_last_pixel", Boolean.toString(PATCH_HBAR_512_LAST_PIXEL.get(preset)));
+      props.setProperty("use_jagex_fonts", Boolean.toString(USE_JAGEX_FONTS.get(preset)));
       props.setProperty(
           "patch_wrench_menu_spacing", Boolean.toString(PATCH_WRENCH_MENU_SPACING.get(preset)));
       props.setProperty("log_verbosity", Integer.toString(LOG_VERBOSITY.get(preset)));
@@ -3752,6 +3764,7 @@ public class Settings {
     CAMERA_ZOOMABLE_BOOL = CAMERA_ZOOMABLE.get(currentProfile);
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
+    USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
