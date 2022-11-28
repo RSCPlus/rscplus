@@ -171,6 +171,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
+  private JCheckBox generalPanelDisableRandomChatColourCheckbox;
   private JSlider generalPanelViewDistanceSlider;
   private JCheckBox generalPanelLimitFPSCheckbox;
   private JSpinner generalPanelLimitFPSSpinner;
@@ -716,6 +717,10 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
+
+    generalPanelDisableRandomChatColourCheckbox = addCheckbox("Disable \"@ran@\" chat colour effect", generalPanel);
+    generalPanelDisableRandomChatColourCheckbox.setToolTipText(
+            "The random chat colour effect will be no longer be displayed");
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -3264,6 +3269,8 @@ public class ConfigWindow {
     generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
+    generalPanelDisableRandomChatColourCheckbox.setSelected(
+            Settings.DISABLE_RANDOM_CHAT_COLOUR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -3639,6 +3646,8 @@ public class ConfigWindow {
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
     Settings.SOFTWARE_CURSOR.put(
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
+    Settings.DISABLE_RANDOM_CHAT_COLOUR.put(
+            Settings.currentProfile, generalPanelDisableRandomChatColourCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
