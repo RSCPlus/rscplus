@@ -4494,6 +4494,14 @@ public class JClassPatcher {
               methodNode.instructions.insertBefore(
                   start, new JumpInsnNode(Opcodes.IFEQ, defaultRanColorLabel));
               methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 5));
+              methodNode.instructions.insertBefore(
+                  start,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/Renderer",
+                      "getRanEffectOverrideColour",
+                      "(I)I",
+                      false));
               methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, skipRanColorLabel));
               methodNode.instructions.insertBefore(start, defaultRanColorLabel);
               methodNode.instructions.insert(start.getNext().getNext().getNext(), skipRanColorLabel);
