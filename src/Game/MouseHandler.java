@@ -30,8 +30,14 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.SwingUtilities;
 
+import static Game.Menu.spell_swap_idx;
+import static Game.Menu.spell_handle;
+
 /** Listens to mouse events and stores relevant information about them */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
+
+  private static final int MAGIC_SCROLL_LIMIT = 42;
+  private static final int PRAYER_SCROLL_LIMIT = 8;
 
   public static int x = 0;
   public static int y = 0;
@@ -281,12 +287,14 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
+    final int wheelRotation = e.getWheelRotation();
+
     if (Replay.isRecording) {
       Replay.dumpMouseInput(
           Replay.MOUSE_WHEEL_MOVED,
           e.getX(),
           e.getY(),
-          e.getWheelRotation(),
+          wheelRotation,
           e.getModifiers(),
           e.getClickCount(),
           e.getScrollType(),
@@ -297,6 +305,44 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
     x = e.getX();
     y = e.getY();
-    Camera.addZoom(e.getWheelRotation() * 16);
+
+    if (Settings.ENABLE_MOUSEWHEEL_MAGIC_PRAYER.get(Settings.currentProfile) &&
+        Client.show_menu == Client.MENU_MAGIC_PRAYERS) {
+      try {
+        int[] scroll = (int[]) Reflection.menuScroll.get(Menu.spell_menu);
+        int currScrollLimit = spell_swap_idx == 0 ? MAGIC_SCROLL_LIMIT : PRAYER_SCROLL_LIMIT;
+
+        // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to flip directions
+        //  see: https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
+
+        if (wheelRotation > 0) {
+          // down
+          if (scroll[spell_handle] < currScrollLimit) {
+            if (scroll[spell_handle] + wheelRotation > currScrollLimit) {
+              scroll[spell_handle] = currScrollLimit;
+            } else {
+              scroll[spell_handle] += wheelRotation;
+            }
+
+            Reflection.menuScroll.set(Menu.spell_menu, scroll);
+          }
+        } else if (wheelRotation < 0) {
+          // up
+          if (scroll[spell_handle] > 0) {
+            if (scroll[spell_handle] + wheelRotation < 0) {
+              scroll[spell_handle] = 0;
+            } else {
+              scroll[spell_handle] += wheelRotation;
+            }
+
+            Reflection.menuScroll.set(Menu.spell_menu, scroll);
+          }
+        }
+      } catch (Exception ex) {
+        // no-op
+      }
+    } else {
+      Camera.addZoom(wheelRotation * 16);
+    }
   }
 }

@@ -39,7 +39,7 @@ public class Menu {
   public static int spell_handle;
 
   /** Keeps track of the last spell book used. 0 for the Magic tab, 1 for the Prayer tab. */
-  private static int spell_swap_idx = 0;
+  public static int spell_swap_idx = 0;
 
   private static int[] spell_swap_scroll = {0, 0};
 
@@ -96,6 +96,9 @@ public class Menu {
           spell_swap_idx ^= 1;
           scroll[spell_handle] = spell_swap_scroll[spell_swap_idx];
         } else {
+          // Keep track of current view regardless of scrollbar position setting
+          spell_swap_idx ^= 1;
+          // Reset scroll position
           scroll[spell_handle] = 0;
         }
 
