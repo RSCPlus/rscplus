@@ -158,6 +158,7 @@ public class Reflection {
   public static Method getControlText = null;
   public static Method handleMouse = null;
   public static Method handleKey = null;
+  public static Method loadSystemFont = null;
 
   public static Method updateBankItems = null;
 
@@ -255,6 +256,7 @@ public class Reflection {
   private static final String GETCONTROLTEXT = "final java.lang.String qa.g(int,int)";
   private static final String HANDLEMOUSE = "final void qa.b(int,int,int,int,int)";
   private static final String HANDLEKEY = "final void qa.a(int,int)";
+  private static final String LOAD_SYSTEM_FONT = "static final boolean qa.a(e,java.lang.String,int,int)";
 
   private static final String GAMEMODELROTATE = "final void ca.f(int,int,int,int)";
   private static final String GAMEMODELSETLIGHT =
@@ -780,6 +782,10 @@ public class Reflection {
           handleKey = method;
           Logger.Info("Found handleKey");
         }
+        if (method.toGenericString().equals(LOAD_SYSTEM_FONT)) {
+          loadSystemFont = method;
+          Logger.Info("Found loadSystemFont");
+        }
       }
       constructors = c.getDeclaredConstructors();
       for (Constructor constructor : constructors) {
@@ -906,6 +912,7 @@ public class Reflection {
       if (getControlText != null) getControlText.setAccessible(true);
       if (handleMouse != null) handleMouse.setAccessible(true);
       if (handleKey != null) handleKey.setAccessible(true);
+      if (loadSystemFont != null) loadSystemFont.setAccessible(true);
       if (gameReference != null) gameReference.setAccessible(true);
       if (showInputPopup != null) showInputPopup.setAccessible(true);
       if (loadGameConfig != null) loadGameConfig.setAccessible(true);

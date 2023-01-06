@@ -1209,7 +1209,7 @@ public class JClassPatcher {
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "Game/GameApplet",
-                    "loadFontHook",
+                    "loadJfFonts",
                     "()V",
                     false));
             methodNode.instructions.insertBefore(insnNode, label);

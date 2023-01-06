@@ -23,6 +23,7 @@ import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
+import Game.GameApplet;
 import Game.Item;
 import Game.JoystickHandler;
 import Game.KeyboardHandler;
@@ -1125,7 +1126,7 @@ public class ConfigWindow {
         "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
 
     generalPanelUseJagexFontsCheckBox =
-        addCheckbox("Override system font with Jagex fonts (Requires restart)", generalPanel);
+        addCheckbox("Override system font with Jagex fonts", generalPanel);
     generalPanelUseJagexFontsCheckBox.setToolTipText(
         "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
 
@@ -4015,6 +4016,7 @@ public class ConfigWindow {
     QueueWindow.playlistTable.repaint();
     Item.patchItemNames();
     Item.patchItemCommands();
+    GameApplet.syncFontSetting();
   }
 
   public void synchronizePresetOptions() {

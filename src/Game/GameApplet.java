@@ -20,6 +20,7 @@ package Game;
 
 import Client.Launcher;
 import Client.Logger;
+import Client.Settings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,16 @@ import java.net.URL;
 public class GameApplet {
 
   public static byte[][] gameFonts;
+  private static byte[] h11p;
+  private static byte[] h12b;
+  private static byte[] h12p;
+  private static byte[] h13b;
+  private static byte[] h14b;
+  private static byte[] h16b;
+  private static byte[] h20b;
+  private static byte[] h24b;
+
+  private static boolean systemFontLoaded = true;
 
   public static URL cacheURLHook(URL url) {
     String file = url.getFile();
@@ -41,7 +52,7 @@ public class GameApplet {
     return url;
   }
 
-  public static void loadFontHook() {
+  public static void loadJagexFonts() {
     try {
       InputStream h11pInputStream = Launcher.getResourceAsStream("/assets/jf/h11p.jf");
       InputStream h12bInputStream = Launcher.getResourceAsStream("/assets/jf/h12b.jf");
@@ -52,40 +63,94 @@ public class GameApplet {
       InputStream h20bInputStream = Launcher.getResourceAsStream("/assets/jf/h20b.jf");
       InputStream h24bInputStream = Launcher.getResourceAsStream("/assets/jf/h24b.jf");
 
-      byte[] h11p = new byte[h11pInputStream.available()];
+      h11p = new byte[h11pInputStream.available()];
       h11pInputStream.read(h11p);
-      gameFonts[0] = h11p;
-
-      byte[] h12b = new byte[h12bInputStream.available()];
+      h12b = new byte[h12bInputStream.available()];
       h12bInputStream.read(h12b);
-      gameFonts[1] = h12b;
-
-      byte[] h12p = new byte[h12pInputStream.available()];
+      h12p = new byte[h12pInputStream.available()];
       h12pInputStream.read(h12p);
-      gameFonts[2] = h12p;
-
-      byte[] h13b = new byte[h13bInputStream.available()];
+      h13b = new byte[h13bInputStream.available()];
       h13bInputStream.read(h13b);
-      gameFonts[3] = h13b;
-
-      byte[] h14b = new byte[h14bInputStream.available()];
+      h14b = new byte[h14bInputStream.available()];
       h14bInputStream.read(h14b);
-      gameFonts[4] = h14b;
-
-      byte[] h16b = new byte[h16bInputStream.available()];
+      h16b = new byte[h16bInputStream.available()];
       h16bInputStream.read(h16b);
-      gameFonts[5] = h16b;
-
-      byte[] h20b = new byte[h20bInputStream.available()];
+      h20b = new byte[h20bInputStream.available()];
       h20bInputStream.read(h20b);
-      gameFonts[6] = h20b;
-
-      byte[] h24b = new byte[h24bInputStream.available()];
+      h24b = new byte[h24bInputStream.available()];
       h24bInputStream.read(h24b);
-      gameFonts[7] = h24b;
+
     } catch (IOException e) {
       Logger.Error("Error loading jagex font files");
       throw new RuntimeException(e);
+    }
+  }
+
+  // assigns system fonts authentic to after 2009 shenanigans
+  public static boolean loadSystemFonts() {
+    if (!loadSystemFont("h11p", 0)) {
+      return false;
+    }
+    if (!loadSystemFont("h12b", 1)) {
+      return false;
+    }
+    if (!loadSystemFont("h12p", 2)) {
+      return false;
+    }
+    if (!loadSystemFont("h13b", 3)) {
+      return false;
+    }
+    if (!loadSystemFont("h14b", 4)) {
+      return false;
+    }
+    if (!loadSystemFont("h16b", 5)) {
+      return false;
+    }
+    if (!loadSystemFont("h20b", 6)) {
+      return false;
+    }
+    if (!loadSystemFont("h24b", 7)) {
+      return false;
+    }
+    systemFontLoaded = true;
+    return true;
+  }
+
+  // calls wonky 2009+ authentic system font generator
+  private static boolean loadSystemFont(String fontName, int index) {
+      if (Reflection.loadSystemFont == null) return false;
+
+      try {
+        return (boolean) Reflection.loadSystemFont.invoke(Client.instance, Client.instance, fontName, index, 0);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return false;
+  }
+
+  // assigns jf fonts authentic to before 2009 shenanigans
+  // used by hook; do not rename
+  public static void loadJfFonts() {
+      gameFonts[0] = h11p;
+      gameFonts[1] = h12b;
+      gameFonts[2] = h12p;
+      gameFonts[3] = h13b;
+      gameFonts[4] = h14b;
+      gameFonts[5] = h16b;
+      gameFonts[6] = h20b;
+      gameFonts[7] = h24b;
+      systemFontLoaded = false;
+  }
+
+  public static void syncFontSetting() {
+    if (Settings.USE_JAGEX_FONTS.get(Settings.currentProfile)) {
+      if (systemFontLoaded) {
+        loadJfFonts();
+      }
+    } else {
+      if (!systemFontLoaded) {
+        loadSystemFonts();
+      }
     }
   }
 }
