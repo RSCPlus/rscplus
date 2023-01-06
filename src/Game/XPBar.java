@@ -27,6 +27,8 @@ import java.text.NumberFormat;
 public class XPBar {
   public static boolean showingMenu = false;
   public static boolean hoveringOverMenu = false;
+  public static boolean showActionCount = true;
+  public static boolean showTimeCount = true;
   private static float alpha;
   public static boolean pinnedBar = false;
   public static int pinnedSkill = -1;
@@ -36,7 +38,7 @@ public class XPBar {
   public static final String excludeUsername = "excludemefromxpbartracking";
 
   public static Dimension bounds = new Dimension(110, 16);
-  public static Dimension menuBounds = new Dimension(110, 56);
+  public static Dimension menuBounds = new Dimension(110, 80);
   public static int xp_bar_x;
   // Don't need to set this more than once; we are always positioning the xp_bar to be vertically
   // center aligned with
@@ -254,7 +256,31 @@ public class XPBar {
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
       if (MouseHandler.mouseClicked) {
-        togglePinnedBar();
+        Settings.toggleActionCount();
+      }
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false);
+
+    // Option 4
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        Settings.toggleTimeCount();
+      }
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
+
+    // Option 5
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (MouseHandler.mouseClicked) {
+        Settings.toggleXPBarPin();
       }
     } else {
       textColour = Renderer.color_text;
@@ -302,10 +328,6 @@ public class XPBar {
     Settings.save();
   }
 
-  private void togglePinnedBar() {
-    pinnedBar = !pinnedBar;
-  }
-
   private static void drawInfoBox(Graphics2D g, int x, int y, int current_skill, boolean post99xp) {
     // Draw info box
     x = MouseHandler.x;
@@ -319,18 +341,28 @@ public class XPBar {
     int height = 50;
 
     if (Client.getShowXpPerHour()[current_skill]) {
-      height += 24;
+      height += 12; // xp/hr
     }
     if (!post99xp) {
-      height += 20;
+      height += 20; // xp until level
       if (Client.getShowXpPerHour()[current_skill]) {
-        height += 12;
+        if (showActionCount) {
+          height += 12; // actions until level
+        }
+        if (showTimeCount) {
+          height += 12; // time until level
+        }
       }
     }
     if (hasGoalForSkill(current_skill)) {
-      height += 32;
+      height += 32; // xp until level + current goal level
       if (Client.getShowXpPerHour()[current_skill]) {
-        height += 24;
+        if (showActionCount) {
+          height += 12; // actions until goal
+        }
+        if (showTimeCount) {
+          height += 12; // time until goal
+        }
       }
     }
 
@@ -367,27 +399,31 @@ public class XPBar {
           true);
       y += 12;
       if (Client.getShowXpPerHour()[current_skill]) {
-        Renderer.drawColoredText(
-            g,
-            labelColour
-                + "Actions until Level: "
-                + highlightColour
-                + formatXP(
-                    Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
-            x,
-            y,
-            true);
-        y += 12;
+        if (showActionCount) {
+          Renderer.drawColoredText(
+              g,
+              labelColour
+                  + "Actions until Level: "
+                  + highlightColour
+                  + formatXP(
+                  Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
+              x,
+              y,
+              true);
+          y += 12;
+        }
 
-        double hoursToLevel =
-            Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill];
-        Renderer.drawColoredText(
-            g,
-            labelColour + "Time until Level: " + highlightColour + formatHours(hoursToLevel),
-            x,
-            y,
-            true);
-        y += 12;
+        if (showTimeCount) {
+          double hoursToLevel =
+              Client.getXPUntilLevel(current_skill) / Client.getXpPerHour()[current_skill];
+          Renderer.drawColoredText(
+              g,
+              labelColour + "Time until Level: " + highlightColour + formatHours(hoursToLevel),
+              x,
+              y,
+              true);
+          y += 12;
+        }
       }
       y += 8;
     }
@@ -404,27 +440,31 @@ public class XPBar {
           true);
       y += 12;
       if (Client.getShowXpPerHour()[current_skill]) {
-        Renderer.drawColoredText(
-            g,
-            labelColour
-                + "Actions until Goal: "
-                + highlightColour
-                + formatXP(
-                    Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
-            x,
-            y,
-            true);
-        y += 12;
+        if (showActionCount) {
+          Renderer.drawColoredText(
+              g,
+              labelColour
+                  + "Actions until Goal: "
+                  + highlightColour
+                  + formatXP(
+                  Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
+              x,
+              y,
+              true);
+          y += 12;
+        }
 
-        double hoursToGoal =
-            Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill];
-        Renderer.drawColoredText(
-            g,
-            labelColour + "Time until Goal: " + highlightColour + formatHours(hoursToGoal),
-            x,
-            y,
-            true);
-        y += 12;
+        if (showTimeCount) {
+          double hoursToGoal =
+              Client.getXPUntilGoal(current_skill) / Client.getXpPerHour()[current_skill];
+          Renderer.drawColoredText(
+              g,
+              labelColour + "Time until Goal: " + highlightColour + formatHours(hoursToGoal),
+              x,
+              y,
+              true);
+          y += 12;
+        }
       }
       Renderer.drawColoredText(
           g,

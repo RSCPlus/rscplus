@@ -2303,6 +2303,8 @@ public class Settings {
       }
       XPBar.pinnedBar = getPropBoolean(props, "pinXPBar", false);
       XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
+      XPBar.showActionCount = getPropBoolean(props, "showActionCount", true);
+      XPBar.showTimeCount = getPropBoolean(props, "showTimeCount", true);
 
       Logger.Info("Loaded settings");
       return props;
@@ -2858,6 +2860,8 @@ public class Settings {
 
       props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+      props.setProperty("showActionCount", Boolean.toString(XPBar.showActionCount));
+      props.setProperty("showTimeCount", Boolean.toString(XPBar.showTimeCount));
 
       // World Map
       props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
@@ -2979,6 +2983,16 @@ public class Settings {
     if (!XPBar.pinnedBar) Client.displayMessage("@cya@XP Bar is now pinned", Client.CHAT_NONE);
     else Client.displayMessage("@cya@XP Bar is now unpinned", Client.CHAT_NONE);
     XPBar.pinnedBar = !XPBar.pinnedBar;
+    save();
+  }
+
+  public static void toggleActionCount() {
+    XPBar.showActionCount = !XPBar.showActionCount;
+    save();
+  }
+
+  public static void toggleTimeCount() {
+    XPBar.showTimeCount = !XPBar.showTimeCount;
     save();
   }
 
