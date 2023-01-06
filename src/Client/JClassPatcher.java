@@ -4543,6 +4543,55 @@ public class JClassPatcher {
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IILjava/lang/String;IIBI)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();
+
+        // Option to remove @ran@ effect
+        LabelNode defaultRanColorLabel = new LabelNode();
+        LabelNode skipRanColorLabel = new LabelNode();
+
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.LDC) {
+            LdcInsnNode ldcNode = (LdcInsnNode) start;
+
+            if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 1.6777215E7) {
+              methodNode.instructions.insertBefore(
+                  start,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Settings",
+                      "updateInjectedVariables",
+                      "()V",
+                      false));
+              methodNode.instructions.insertBefore(
+                  start,
+                  new FieldInsnNode(
+                      Opcodes.GETSTATIC,
+                      "Client/Settings",
+                      "DISABLE_RANDOM_CHAT_COLOUR_BOOL",
+                      "Z"));
+              methodNode.instructions.insertBefore(
+                  start, new JumpInsnNode(Opcodes.IFEQ, defaultRanColorLabel));
+              methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 5));
+              methodNode.instructions.insertBefore(
+                  start,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Game/Renderer",
+                      "getRanEffectOverrideColour",
+                      "(I)I",
+                      false));
+              methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, skipRanColorLabel));
+              methodNode.instructions.insertBefore(start, defaultRanColorLabel);
+              methodNode.instructions.insert(start.getNext().getNext().getNext(), skipRanColorLabel);
+
+              break;
+            }
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
         while (start != null) {
           if (start.getOpcode() == Opcodes.ALOAD
               && start.getNext().getOpcode() == Opcodes.ILOAD

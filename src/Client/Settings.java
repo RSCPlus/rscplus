@@ -111,6 +111,7 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DISABLE_RANDOM_CHAT_COLOUR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
@@ -327,6 +328,8 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
+  public static boolean DISABLE_RANDOM_CHAT_COLOUR_BOOL = false;
+
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -718,6 +721,15 @@ public class Settings {
     SOFTWARE_CURSOR.put("all", true);
     SOFTWARE_CURSOR.put(
         "custom", getPropBoolean(props, "software_cursor", SOFTWARE_CURSOR.get("default")));
+
+    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla_resizable", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put("lite", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put("default", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put("heavy", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put("all", false);
+    DISABLE_RANDOM_CHAT_COLOUR.put(
+            "custom", getPropBoolean(props, "disable_ran_chat_effect", DISABLE_RANDOM_CHAT_COLOUR.get("default")));
 
     VIEW_DISTANCE.put("vanilla", 2300);
     VIEW_DISTANCE.put("vanilla_resizable", 3000);
@@ -2314,6 +2326,8 @@ public class Settings {
       }
       XPBar.pinnedBar = getPropBoolean(props, "pinXPBar", false);
       XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
+      XPBar.showActionCount = getPropBoolean(props, "showActionCount", true);
+      XPBar.showTimeCount = getPropBoolean(props, "showTimeCount", true);
 
       Logger.Info("Loaded settings");
       return props;
@@ -2598,6 +2612,7 @@ public class Settings {
       props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
+      props.setProperty("disable_ran_chat_effect", Boolean.toString(DISABLE_RANDOM_CHAT_COLOUR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty(
@@ -2870,6 +2885,8 @@ public class Settings {
 
       props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
+      props.setProperty("showActionCount", Boolean.toString(XPBar.showActionCount));
+      props.setProperty("showTimeCount", Boolean.toString(XPBar.showTimeCount));
 
       // World Map
       props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
@@ -2991,6 +3008,16 @@ public class Settings {
     if (!XPBar.pinnedBar) Client.displayMessage("@cya@XP Bar is now pinned", Client.CHAT_NONE);
     else Client.displayMessage("@cya@XP Bar is now unpinned", Client.CHAT_NONE);
     XPBar.pinnedBar = !XPBar.pinnedBar;
+    save();
+  }
+
+  public static void toggleActionCount() {
+    XPBar.showActionCount = !XPBar.showActionCount;
+    save();
+  }
+
+  public static void toggleTimeCount() {
+    XPBar.showTimeCount = !XPBar.showTimeCount;
     save();
   }
 
@@ -3765,6 +3792,7 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
+    DISABLE_RANDOM_CHAT_COLOUR_BOOL = DISABLE_RANDOM_CHAT_COLOUR.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
