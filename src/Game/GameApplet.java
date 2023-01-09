@@ -28,7 +28,11 @@ import java.net.URL;
 
 public class GameApplet {
 
+  public static int gameFontSize;
   public static byte[][] gameFonts;
+  public static boolean[] gameFontStates;
+  public static byte[] gameFontData;
+
   private static byte[] h11p;
   private static byte[] h12b;
   private static byte[] h12p;
@@ -53,6 +57,8 @@ public class GameApplet {
   }
 
   public static void loadJagexFonts() {
+    resetFontVariables();
+
     try {
       InputStream h11pInputStream = Launcher.getResourceAsStream("/assets/jf/h11p.jf");
       InputStream h12bInputStream = Launcher.getResourceAsStream("/assets/jf/h12b.jf");
@@ -131,6 +137,8 @@ public class GameApplet {
   // assigns jf fonts authentic to before 2009 shenanigans
   // used by hook; do not rename
   public static void loadJfFonts() {
+      resetFontVariables();
+
       gameFonts[0] = h11p;
       gameFonts[1] = h12b;
       gameFonts[2] = h12p;
@@ -140,6 +148,14 @@ public class GameApplet {
       gameFonts[6] = h20b;
       gameFonts[7] = h24b;
       systemFontLoaded = false;
+  }
+
+  // resets all static variables related to font data
+  private static void resetFontVariables() {
+    gameFontSize = 0;
+    gameFonts = new byte[50][];
+    gameFontStates = new boolean[]{ false, false, false, false, false, false, false, false, false, false, false, false };
+    gameFontData = new byte[100000];
   }
 
   public static void syncFontSetting() {

@@ -748,6 +748,16 @@ public class JClassPatcher {
           "shellStrings",
           "[Ljava/lang/String;");
 
+      // game font size
+      hookStaticVariable(
+          methodNode,
+          "b",
+          "c",
+          "I",
+          "Game/GameApplet",
+          "gameFontSize",
+          "I");
+
       // game fonts
       hookStaticVariable(
           methodNode,
@@ -757,6 +767,26 @@ public class JClassPatcher {
           "Game/GameApplet",
           "gameFonts",
           "[[B");
+
+      // game font states
+      hookStaticVariable(
+          methodNode,
+          "fb",
+          "k",
+          "[Z",
+          "Game/GameApplet",
+          "gameFontStates",
+          "[Z");
+
+      // game font data
+      hookStaticVariable(
+          methodNode,
+          "qb",
+          "k",
+          "[B",
+          "Game/GameApplet",
+          "gameFontData",
+          "[B");
 
       hookClassVariable(
           methodNode,
