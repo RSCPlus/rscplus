@@ -96,9 +96,9 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_DISK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_SCROLLING = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
       new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_MAGIC_PRAYER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DISABLE_UNDERGROUND_LIGHTING =
       new HashMap<String, Boolean>();
@@ -596,6 +596,19 @@ public class Settings {
     ATTACK_ALWAYS_LEFT_CLICK.put(
         "custom", getPropBoolean(props, "bypass_attack", ATTACK_ALWAYS_LEFT_CLICK.get("default")));
 
+    ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla", false);
+    ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla_resizable", false);
+    ENABLE_MOUSEWHEEL_SCROLLING.put("lite", true);
+    ENABLE_MOUSEWHEEL_SCROLLING.put("default", true);
+    ENABLE_MOUSEWHEEL_SCROLLING.put("heavy", true);
+    ENABLE_MOUSEWHEEL_SCROLLING.put("all", true);
+    ENABLE_MOUSEWHEEL_SCROLLING.put(
+            "custom",
+            getPropBoolean(
+                    props,
+                    "enable_mousewheel_scrolling",
+                    ENABLE_MOUSEWHEEL_SCROLLING.get("default")));
+
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla", false);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla_resizable", false);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("lite", true);
@@ -608,19 +621,6 @@ public class Settings {
             props,
             "keep_scrollbar_pos_magic_prayer",
             KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get("default")));
-
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("vanilla", false);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("vanilla_resizable", false);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("lite", true);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("default", true);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("heavy", true);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put("all", true);
-    ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put(
-        "custom",
-        getPropBoolean(
-            props,
-            "enable_mousewheel_magic_prayer",
-            ENABLE_MOUSEWHEEL_MAGIC_PRAYER.get("default")));
 
     HIDE_ROOFS.put("vanilla", false);
     HIDE_ROOFS.put("vanilla_resizable", false);
@@ -2583,11 +2583,11 @@ public class Settings {
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
       props.setProperty(
+              "enable_mousewheel_scrolling",
+              Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
+      props.setProperty(
           "keep_scrollbar_pos_magic_prayer",
           Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
-      props.setProperty(
-          "enable_mousewheel_magic_prayer",
-          Boolean.toString(ENABLE_MOUSEWHEEL_MAGIC_PRAYER.get(preset)));
       props.setProperty("hide_roofs", Boolean.toString(HIDE_ROOFS.get(preset)));
       props.setProperty(
           "disable_underground_lighting",

@@ -30,14 +30,12 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.SwingUtilities;
 
-import static Game.Menu.spell_swap_idx;
-import static Game.Menu.spell_handle;
-
 /** Listens to mouse events and stores relevant information about them */
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
 
   private static final int MAGIC_SCROLL_LIMIT = 42;
   private static final int PRAYER_SCROLL_LIMIT = 8;
+  private static final int QUEST_SCROLL_LIMIT = 34;
 
   public static int x = 0;
   public static int y = 0;
@@ -306,43 +304,66 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     x = e.getX();
     y = e.getY();
 
-    if (Settings.ENABLE_MOUSEWHEEL_MAGIC_PRAYER.get(Settings.currentProfile) &&
-        Client.show_menu == Client.MENU_MAGIC_PRAYERS) {
+    if (Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile)) {
       try {
-        int[] scroll = (int[]) Reflection.menuScroll.get(Menu.spell_menu);
-        int currScrollLimit = spell_swap_idx == 0 ? MAGIC_SCROLL_LIMIT : PRAYER_SCROLL_LIMIT;
+        if (Client.show_menu == Client.MENU_MAGIC_PRAYERS) {
+          int[] scroll = (int[]) Reflection.menuScroll.get(Menu.spell_menu);
+          int currScrollLimit = Menu.spell_swap_idx == 0 ? MAGIC_SCROLL_LIMIT : PRAYER_SCROLL_LIMIT;
 
-        // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to flip directions
-        //  see: https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
+          handleMenuScroll(wheelRotation, currScrollLimit, scroll, Menu.spell_handle, Menu.spell_menu);
+        } else if (Client.show_menu == Client.MENU_STATS_QUESTS) {
+          int[] scroll = (int[]) Reflection.menuScroll.get(Menu.quest_menu);
 
-        if (wheelRotation > 0) {
-          // down
-          if (scroll[spell_handle] < currScrollLimit) {
-            if (scroll[spell_handle] + wheelRotation > currScrollLimit) {
-              scroll[spell_handle] = currScrollLimit;
-            } else {
-              scroll[spell_handle] += wheelRotation;
-            }
+          handleMenuScroll(wheelRotation, QUEST_SCROLL_LIMIT, scroll, Menu.quest_handle, Menu.quest_menu);
+        } else if (Client.show_menu == Client.MENU_FRIENDS_IGNORE) {
+          int[] scroll = (int[]) Reflection.menuScroll.get(Menu.friend_menu);
+          int currScrollLimit = Menu.friends_swap_idx == 0 ? Client.friends_count - 9 : Client.ignores_count - 9;
 
-            Reflection.menuScroll.set(Menu.spell_menu, scroll);
-          }
-        } else if (wheelRotation < 0) {
-          // up
-          if (scroll[spell_handle] > 0) {
-            if (scroll[spell_handle] + wheelRotation < 0) {
-              scroll[spell_handle] = 0;
-            } else {
-              scroll[spell_handle] += wheelRotation;
-            }
-
-            Reflection.menuScroll.set(Menu.spell_menu, scroll);
-          }
+          handleMenuScroll(wheelRotation, currScrollLimit, scroll, Menu.friend_handle, Menu.friend_menu);
+        } else {
+          zoomCamera(wheelRotation);
         }
-      } catch (Exception ex) {
+      } catch (IllegalAccessException iae) {
         // no-op
       }
     } else {
-      Camera.addZoom(wheelRotation * 16);
+      zoomCamera(wheelRotation);
     }
+  }
+
+  private void handleMenuScroll(int wheelRotation, int currScrollLimit, int[] currMenu, int menuIndex, Object reflectedMenu) {
+    // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to flip directions
+    //  see: https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
+    try {
+      if (wheelRotation > 0) {
+        // down
+        if (currMenu[menuIndex] < currScrollLimit) {
+          if (currMenu[menuIndex] + wheelRotation > currScrollLimit) {
+            currMenu[menuIndex] = currScrollLimit;
+          } else {
+            currMenu[menuIndex] += wheelRotation;
+          }
+
+          Reflection.menuScroll.set(reflectedMenu, currMenu);
+        }
+      } else if (wheelRotation < 0) {
+        // up
+        if (currMenu[menuIndex] > 0) {
+          if (currMenu[menuIndex] + wheelRotation < 0) {
+            currMenu[menuIndex] = 0;
+          } else {
+            currMenu[menuIndex] += wheelRotation;
+          }
+
+          Reflection.menuScroll.set(reflectedMenu, currMenu);
+        }
+      }
+    } catch (Exception ex) {
+      // no-op
+    }
+  }
+
+  private void zoomCamera(int wheelRotation) {
+    Camera.addZoom(wheelRotation * 16);
   }
 }

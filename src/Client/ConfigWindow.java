@@ -160,8 +160,8 @@ public class ConfigWindow {
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
   private JCheckBox generalPanelBypassAttackCheckbox;
+  private JCheckBox generalPanelEnableMouseWheelScrollingCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
-  private JCheckBox generalPanelEnableMouseWheelMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelDisableUndergroundLightingCheckbox;
   private JCheckBox generalPanelDisableMinimapRotationCheckbox;
@@ -989,15 +989,15 @@ public class ConfigWindow {
     generalPanelInventoryFullAlertCheckbox.setToolTipText(
         "Displays a large notice when the inventory is full");
 
+    generalPanelEnableMouseWheelScrollingCheckbox =
+            addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
+    generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
+            "Enables mouse wheel scrolling through menu lists");
+
     generalPanelKeepScrollbarPosMagicPrayerCheckbox =
         addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
         "Keeps the magic & prayers scrollbar position when switching between tabs");
-
-    generalPanelEnableMouseWheelMagicPrayerCheckbox =
-        addCheckbox("Enable Magic & Prayer mouse wheel scrolling", generalPanel);
-    generalPanelEnableMouseWheelMagicPrayerCheckbox.setToolTipText(
-        "Enables mouse wheel scrolling through the magic and prayer lists");
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
@@ -3227,10 +3227,10 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+    generalPanelEnableMouseWheelScrollingCheckbox.setSelected(
+            Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
         Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
-    generalPanelEnableMouseWheelMagicPrayerCheckbox.setSelected(
-        Settings.ENABLE_MOUSEWHEEL_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
     generalPanelDisableUndergroundLightingCheckbox.setSelected(
         Settings.DISABLE_UNDERGROUND_LIGHTING.get(Settings.currentProfile));
@@ -3627,10 +3627,10 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+    Settings.ENABLE_MOUSEWHEEL_SCROLLING.put(
+            Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
         Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
-    Settings.ENABLE_MOUSEWHEEL_MAGIC_PRAYER.put(
-        Settings.currentProfile, generalPanelEnableMouseWheelMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
     Settings.DISABLE_UNDERGROUND_LIGHTING.put(
         Settings.currentProfile, generalPanelDisableUndergroundLightingCheckbox.isSelected());
