@@ -113,7 +113,7 @@ public class TrayHandler implements MouseListener {
 
   @Override
   public void mouseClicked(MouseEvent e) {
-    Game.getInstance().toFront();
+    ScaledWindow.getInstance().toFront();
   }
 
   @Override

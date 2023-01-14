@@ -1057,6 +1057,41 @@ public class JClassPatcher {
           }
         }
       }
+
+      // draw loading screen
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(Ljava/lang/String;II)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && ((MethodInsnNode) insnNode).name.equals("setColor")) {
+
+            insnNode = insnNode.getPrevious().getPrevious().getPrevious();
+
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/ScaledWindow",
+                    "hookLoadingGraphics",
+                    "()Ljava/awt/Graphics;",
+                    false));
+
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.PUTFIELD, "e", "u", "Ljava/awt/Graphics;"));
+
+            break;
+          }
+        }
+      }
+
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IB)V")) {
         // FPS hook
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -1643,6 +1678,31 @@ public class JClassPatcher {
                 call,
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC, "Game/Client", "login_attempt_hook", "(IZ[I)V", false));
+            break;
+          }
+        }
+
+        insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && nextNode.getOpcode() == Opcodes.ICONST_0) {
+            insnNode = nextNode.getNext().getNext();
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 9));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode(-422797528));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -22));
+            methodNode.instructions.insertBefore(
+                insnNode, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "tb", "b", "(II)V", false));
+          }
+
+          if (insnNode.getOpcode() == Opcodes.BIPUSH && ((IntInsnNode) insnNode).operand == -6) {
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -5));
+            methodNode.instructions.remove(insnNode);
             break;
           }
         }
@@ -4521,16 +4581,11 @@ public class JClassPatcher {
         methodNode.instructions.insert(
             findNode,
             new MethodInsnNode(
-                Opcodes.INVOKESTATIC,
-                "Game/Renderer",
-                "present",
-                "(Ljava/awt/Graphics;Ljava/awt/Image;)V",
-                false));
+                Opcodes.INVOKESTATIC, "Game/Renderer", "present", "(Ljava/awt/Image;)V", false));
         methodNode.instructions.insert(
             findNode,
             new FieldInsnNode(Opcodes.GETFIELD, node.name, imageNode.name, imageNode.desc));
         methodNode.instructions.insert(findNode, new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.insert(findNode, new VarInsnNode(Opcodes.ALOAD, 1));
       }
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IILjava/lang/String;IIBI)V")) {
         AbstractInsnNode start = methodNode.instructions.getFirst();

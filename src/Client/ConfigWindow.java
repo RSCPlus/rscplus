@@ -27,6 +27,7 @@ import Game.GameApplet;
 import Game.Item;
 import Game.JoystickHandler;
 import Game.KeyboardHandler;
+import Game.Renderer;
 import Game.Replay;
 import Game.SoundEffects;
 import java.awt.BorderLayout;
@@ -50,8 +51,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,6 +91,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -140,6 +145,15 @@ public class ConfigWindow {
   private JCheckBox generalPanelClientSizeCheckbox;
   private JSpinner generalPanelClientSizeXSpinner;
   private JSpinner generalPanelClientSizeYSpinner;
+  private SpinnerNumberModel spinnerWinXModel;
+  private SpinnerNumberModel spinnerWinYModel;
+  private JCheckBox generalPanelScaleWindowCheckbox;
+  private JRadioButton generalPanelIntegerScalingFocusButton;
+  private JSpinner generalPanelIntegerScalingSpinner;
+  private JRadioButton generalPanelBilinearScalingFocusButton;
+  private JSpinner generalPanelBilinearScalingSpinner;
+  private JRadioButton generalPanelBicubicScalingFocusButton;
+  private JSpinner generalPanelBicubicScalingSpinner;
   private JCheckBox generalPanelCheckUpdates;
   private JCheckBox generalPanelAccountSecurityCheckbox;
   private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
@@ -571,7 +585,7 @@ public class ConfigWindow {
 
               @Override
               public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().saveSettings();
+                Launcher.getConfigWindow().applySettings();
                 Launcher.getConfigWindow().hideConfigWindow();
               }
             });
@@ -582,7 +596,6 @@ public class ConfigWindow {
 
               @Override
               public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().applySettings();
                 Launcher.getConfigWindow().hideConfigWindow();
               }
             });
@@ -666,15 +679,15 @@ public class ConfigWindow {
 
     // TODO: Perhaps change to "Save client size on close"?
     generalPanelClientSizeCheckbox =
-        addCheckbox("Default client size:", generalPanelClientSizePanel);
-    generalPanelClientSizeCheckbox.setToolTipText("Start the client with the supplied window size");
+        addCheckbox("Client window dimensions:", generalPanelClientSizePanel);
+    generalPanelClientSizeCheckbox.setToolTipText("Set the client size to the supplied dimensions");
 
     generalPanelClientSizeXSpinner = new JSpinner();
     generalPanelClientSizePanel.add(generalPanelClientSizeXSpinner);
     generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(58, 22));
     generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(58, 22));
     generalPanelClientSizeXSpinner.setAlignmentY((float) 0.75);
-    generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum)");
+    generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum at 1x scale)");
     generalPanelClientSizeXSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
     JLabel generalPanelClientSizeByLabel = new JLabel("x");
@@ -687,20 +700,241 @@ public class ConfigWindow {
     generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(58, 22));
     generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(58, 22));
     generalPanelClientSizeYSpinner.setAlignmentY((float) 0.75);
-    generalPanelClientSizeYSpinner.setToolTipText("Default client height (346 minimum)");
+    generalPanelClientSizeYSpinner.setToolTipText(
+        "Default client height (346 minimum at 1x scale)");
     generalPanelClientSizeYSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
     // Sanitize JSpinner values
-    SpinnerNumberModel spinnerWinXModel = new SpinnerNumberModel();
+    spinnerWinXModel = new SpinnerNumberModel();
     spinnerWinXModel.setMinimum(512);
     spinnerWinXModel.setValue(512);
     spinnerWinXModel.setStepSize(10);
     generalPanelClientSizeXSpinner.setModel(spinnerWinXModel);
-    SpinnerNumberModel spinnerWinYModel = new SpinnerNumberModel();
+    spinnerWinYModel = new SpinnerNumberModel();
     spinnerWinYModel.setMinimum(346);
     spinnerWinYModel.setValue(346);
     spinnerWinYModel.setStepSize(10);
     generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
+
+    JButton generalPanelClientSizeMaxButton =
+        addButton("Max", generalPanelClientSizePanel, Component.RIGHT_ALIGNMENT);
+    generalPanelClientSizeMaxButton.setAlignmentY(.7f);
+    generalPanelClientSizeMaxButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Dimension maximumWindowSize =
+                ScaledWindow.getInstance().getMaximumEffectiveWindowSize();
+
+            int windowWidth = maximumWindowSize.width;
+            int windowHeight = maximumWindowSize.height;
+
+            // This only changes the values in the boxes
+            spinnerWinXModel.setValue(windowWidth);
+            spinnerWinYModel.setValue(windowHeight);
+          }
+        });
+
+    JButton generalPanelClientSizeResetButton =
+        addButton("Reset", generalPanelClientSizePanel, Component.RIGHT_ALIGNMENT);
+    generalPanelClientSizeResetButton.setAlignmentY(.7f);
+    generalPanelClientSizeResetButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            // This only changes the values in the boxes
+            Dimension scaledMinimumWindowSize =
+                ScaledWindow.getInstance().getMinimumViewportSizeForScalar();
+            spinnerWinXModel.setValue(scaledMinimumWindowSize.width);
+            spinnerWinYModel.setValue(scaledMinimumWindowSize.height);
+          }
+        });
+
+    JLabel generalPanelClientSizeScaleWarning =
+        new JLabel("(Will be reset if window scale changes)");
+    generalPanelClientSizeScaleWarning.setAlignmentY(0.9f);
+    generalPanelClientSizeScaleWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelClientSizePanel.add(generalPanelClientSizeScaleWarning);
+
+    // Scaling options
+    JPanel generalPanelScaleInformation = new JPanel();
+    generalPanel.add(generalPanelScaleInformation);
+    generalPanelScaleInformation.setLayout(
+        new BoxLayout(generalPanelScaleInformation, BoxLayout.X_AXIS));
+    generalPanelScaleInformation.setPreferredSize(new Dimension(0, 24));
+    generalPanelScaleInformation.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelScaleWindowCheckbox = addCheckbox("Scale window:", generalPanelScaleInformation);
+    generalPanelScaleWindowCheckbox.setToolTipText("Enable to scale the game client");
+
+    ButtonGroup generalPanelScaleWindowTypeButtonGroup = new ButtonGroup();
+    String scaleLargerThanResolutionToolTip =
+        "This scale value will produce a window bigger than your screen resolution";
+
+    // Integer scaling
+    JPanel generalPanelIntegerScalingPanel = new JPanel();
+    generalPanel.add(generalPanelIntegerScalingPanel);
+    generalPanelIntegerScalingPanel.setLayout(
+        new BoxLayout(generalPanelIntegerScalingPanel, BoxLayout.X_AXIS));
+    generalPanelIntegerScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelIntegerScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelIntegerScalingFocusButton =
+        addRadioButton("Integer scaling", generalPanelIntegerScalingPanel, 20);
+    generalPanelIntegerScalingFocusButton.setToolTipText(
+        "Uses the nearest neighbor algorithm for pixel-perfect client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelIntegerScalingFocusButton);
+
+    generalPanelIntegerScalingSpinner = new JSpinner();
+    generalPanelIntegerScalingPanel.add(generalPanelIntegerScalingSpinner);
+    String integerScalingSpinnerToolTip =
+        "Integer scaling value " + (int) Renderer.minScalar + "-" + (int) Renderer.maxIntegerScalar;
+    generalPanelIntegerScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelIntegerScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelIntegerScalingSpinner.setAlignmentY(0.625f);
+    generalPanelIntegerScalingSpinner.setToolTipText(integerScalingSpinnerToolTip);
+    generalPanelIntegerScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelIntegerScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelIntegerScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            int scalar = (int) generalPanelIntegerScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelIntegerScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelIntegerScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelIntegerScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelIntegerScalingSpinner.setToolTipText(integerScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitIntegerScaling =
+        new SpinnerNumberModel(2, (int) Renderer.minScalar, (int) Renderer.maxIntegerScalar, 1);
+    generalPanelIntegerScalingSpinner.setModel(spinnerLimitIntegerScaling);
+
+    // Bilinear scaling
+    JPanel generalPanelBilinearScalingPanel = new JPanel();
+    generalPanel.add(generalPanelBilinearScalingPanel);
+    generalPanelBilinearScalingPanel.setLayout(
+        new BoxLayout(generalPanelBilinearScalingPanel, BoxLayout.X_AXIS));
+    generalPanelBilinearScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelBilinearScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelBilinearScalingFocusButton =
+        addRadioButton("Bilinear interpolation", generalPanelBilinearScalingPanel, 20);
+    generalPanelBilinearScalingFocusButton.setToolTipText(
+        "Uses the bilinear interpolation algorithm for client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelBilinearScalingFocusButton);
+
+    generalPanelBilinearScalingSpinner = new JSpinner();
+    generalPanelBilinearScalingPanel.add(generalPanelBilinearScalingSpinner);
+    String bilinearScalingSpinnerToolTip =
+        "Bilinear scaling value " + Renderer.minScalar + "-" + Renderer.maxInterpolationScalar;
+    generalPanelBilinearScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelBilinearScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelBilinearScalingSpinner.setAlignmentY(0.625f);
+    generalPanelBilinearScalingSpinner.setToolTipText(bilinearScalingSpinnerToolTip);
+    generalPanelBilinearScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelBilinearScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelBilinearScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            float scalar = (float) generalPanelBilinearScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelBilinearScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelBilinearScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelBilinearScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelBilinearScalingSpinner.setToolTipText(bilinearScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitBilinearScaling =
+        new SpinnerNumberModel(
+            new Float(1.5f),
+            new Float(Renderer.minScalar),
+            new Float(Renderer.maxInterpolationScalar),
+            new Float(0.1f));
+    generalPanelBilinearScalingSpinner.setModel(spinnerLimitBilinearScaling);
+
+    JLabel bilinearInterpolationScalingWarning =
+        new JLabel("(May affect performance at high scaling values)");
+    bilinearInterpolationScalingWarning.setAlignmentY(0.9f);
+    bilinearInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelBilinearScalingPanel.add(bilinearInterpolationScalingWarning);
+
+    // Bicubic scaling
+    JPanel generalPanelBicubicScalingPanel = new JPanel();
+    generalPanel.add(generalPanelBicubicScalingPanel);
+    generalPanelBicubicScalingPanel.setLayout(
+        new BoxLayout(generalPanelBicubicScalingPanel, BoxLayout.X_AXIS));
+    generalPanelBicubicScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelBicubicScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelBicubicScalingFocusButton =
+        addRadioButton("Bicubic interpolation", generalPanelBicubicScalingPanel, 20);
+    generalPanelBicubicScalingFocusButton.setToolTipText(
+        "Uses the bicubic interpolation algorithm for client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelBicubicScalingFocusButton);
+
+    generalPanelBicubicScalingSpinner = new JSpinner();
+    generalPanelBicubicScalingPanel.add(generalPanelBicubicScalingSpinner);
+    String bicubicScalingSpinnerToolTip =
+        "Bicubic scaling value " + Renderer.minScalar + "-" + Renderer.maxInterpolationScalar;
+    generalPanelBicubicScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelBicubicScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelBicubicScalingSpinner.setAlignmentY(0.625f);
+    generalPanelBicubicScalingSpinner.setToolTipText(bicubicScalingSpinnerToolTip);
+    generalPanelBicubicScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelBicubicScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelBicubicScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            float scalar = (float) generalPanelBicubicScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelBicubicScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelBicubicScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelBicubicScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelBicubicScalingSpinner.setToolTipText(bicubicScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitBicubicScaling =
+        new SpinnerNumberModel(
+            new Float(1.5f),
+            new Float(Renderer.minScalar),
+            new Float(Renderer.maxInterpolationScalar),
+            new Float(0.1f));
+    generalPanelBicubicScalingSpinner.setModel(spinnerLimitBicubicScaling);
+
+    JLabel bicubicInterpolationScalingWarning =
+        new JLabel("(May affect performance at high scaling values)");
+    bicubicInterpolationScalingWarning.setAlignmentY(0.9f);
+    bicubicInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelBicubicScalingPanel.add(bicubicInterpolationScalingWarning);
+    // End scaling options
 
     generalPanelCheckUpdates =
         addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
@@ -2421,6 +2655,16 @@ public class ConfigWindow {
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
     addKeybindSet(
+        keybindContainerPanel, "Toggle scaling", "toggle_scaling", KeyModifier.ALT, KeyEvent.VK_S);
+    addKeybindSet(
+        keybindContainerPanel, "Increase scale", "increase_scale", KeyModifier.ALT, KeyEvent.VK_UP);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Decrease scale",
+        "decrease_scale",
+        KeyModifier.ALT,
+        KeyEvent.VK_DOWN);
+    addKeybindSet(
         keybindContainerPanel,
         "Show settings window",
         "show_config_window",
@@ -2665,7 +2909,7 @@ public class ConfigWindow {
         "Show player controls",
         "show_player_controls",
         KeyModifier.ALT,
-        KeyEvent.VK_UP);
+        KeyEvent.VK_C);
 
     addKeybindCategory(keybindContainerPanel, "Miscellaneous");
     addKeybindSet(
@@ -3417,6 +3661,24 @@ public class ConfigWindow {
         Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile));
     generalPanelClientSizeYSpinner.setValue(
         Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
+    generalPanelScaleWindowCheckbox.setSelected(
+        Settings.SCALED_CLIENT_WINDOW.get(Settings.currentProfile));
+    if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_NEAREST_NEIGHBOR) {
+      generalPanelIntegerScalingFocusButton.setSelected(true);
+    } else if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_BILINEAR) {
+      generalPanelBilinearScalingFocusButton.setSelected(true);
+    } else if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_BICUBIC) {
+      generalPanelBicubicScalingFocusButton.setSelected(true);
+    }
+    generalPanelIntegerScalingSpinner.setValue(
+        Settings.INTEGER_SCALING_FACTOR.get(Settings.currentProfile));
+    generalPanelBilinearScalingSpinner.setValue(
+        Settings.BILINEAR_SCALING_FACTOR.get(Settings.currentProfile));
+    generalPanelBicubicScalingSpinner.setValue(
+        Settings.BICUBIC_SCALING_FACTOR.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
         Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
@@ -3835,6 +4097,36 @@ public class ConfigWindow {
     Settings.CUSTOM_CLIENT_SIZE_Y.put(
         Settings.currentProfile,
         ((SpinnerNumberModel) (generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
+    Settings.SCALED_CLIENT_WINDOW.put(
+        Settings.currentProfile, generalPanelScaleWindowCheckbox.isSelected());
+    Settings.SCALING_ALGORITHM.put(
+        Settings.currentProfile,
+        generalPanelIntegerScalingFocusButton.isSelected()
+            ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR
+            : generalPanelBilinearScalingFocusButton.isSelected()
+                ? AffineTransformOp.TYPE_BILINEAR
+                : AffineTransformOp.TYPE_BICUBIC);
+    Settings.INTEGER_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        ((SpinnerNumberModel) (generalPanelIntegerScalingSpinner.getModel()))
+            .getNumber()
+            .intValue());
+    Settings.BILINEAR_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        BigDecimal.valueOf(
+                ((SpinnerNumberModel) (generalPanelBilinearScalingSpinner.getModel()))
+                    .getNumber()
+                    .floatValue())
+            .setScale(1, RoundingMode.HALF_DOWN)
+            .floatValue());
+    Settings.BICUBIC_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        BigDecimal.valueOf(
+                ((SpinnerNumberModel) (generalPanelBicubicScalingSpinner.getModel()))
+                    .getNumber()
+                    .floatValue())
+            .setScale(1, RoundingMode.HALF_DOWN)
+            .floatValue());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
         Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
@@ -4288,8 +4580,8 @@ public class ConfigWindow {
    */
   public void applySettings() {
     saveSettings();
-    if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile))
-      Game.getInstance().resizeFrameWithContents();
+    // Tell the Renderer to update the scale from its thread to avoid thread-safety issues.
+    Settings.renderingScalarUpdateRequired = true;
     // Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
     Settings.fovUpdateRequired = true;
     Settings.checkSoftwareCursor();
@@ -4560,6 +4852,11 @@ public class ConfigWindow {
                 "%d", (int) Math.floor(JoystickHandler.joystickInputReports.get(compName))));
     joystickPanel.revalidate();
     joystickPanel.repaint();
+  }
+
+  public void updateCustomClientSizeMinValues(Dimension updatedMinimumWindowSize) {
+    spinnerWinXModel.setMinimum(updatedMinimumWindowSize.width);
+    spinnerWinYModel.setMinimum(updatedMinimumWindowSize.height);
   }
 }
 
