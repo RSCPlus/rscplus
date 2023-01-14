@@ -287,6 +287,7 @@ public class ConfigWindow {
 
   //// Notifications tab
   private JCheckBox notificationPanelPMNotifsCheckbox;
+  private JTextField notificationPanelPMDenyListTextField;
   private JCheckBox notificationPanelTradeNotifsCheckbox;
   private JCheckBox notificationPanelDuelNotifsCheckbox;
   private JCheckBox notificationPanelLogoutNotifsCheckbox;
@@ -1893,6 +1894,24 @@ public class ConfigWindow {
     notificationPanelPMNotifsCheckbox.setToolTipText(
         "Shows a system notification when a PM is received");
 
+    // PM notifications denylist
+    JPanel pmDenylistPanel = new JPanel();
+    notificationPanel.add(pmDenylistPanel);
+    pmDenylistPanel.setLayout(new BoxLayout(pmDenylistPanel, BoxLayout.X_AXIS));
+    pmDenylistPanel.setPreferredSize(new Dimension(0, 37));
+    pmDenylistPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    pmDenylistPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+
+    JLabel pmDenyListNameLabel = new JLabel("Disable PM notifications from: ");
+    pmDenylistPanel.add(pmDenyListNameLabel);
+    pmDenyListNameLabel.setAlignmentY((float) 0.9);
+
+    notificationPanelPMDenyListTextField = new JTextField();
+    pmDenylistPanel.add(notificationPanelPMDenyListTextField);
+    notificationPanelPMDenyListTextField.setMinimumSize(new Dimension(100, 28));
+    notificationPanelPMDenyListTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    notificationPanelPMDenyListTextField.setAlignmentY((float) 0.75);
+
     notificationPanelTradeNotifsCheckbox =
         addCheckbox("Enable trade notifications", notificationPanel);
     notificationPanelTradeNotifsCheckbox.setToolTipText(
@@ -3469,6 +3488,8 @@ public class ConfigWindow {
     // Notifications tab
     notificationPanelPMNotifsCheckbox.setSelected(
         Settings.PM_NOTIFICATIONS.get(Settings.currentProfile));
+    notificationPanelPMDenyListTextField.setText(
+        Util.joinAsString(",", Settings.PM_DENYLIST.get("custom")));
     notificationPanelTradeNotifsCheckbox.setSelected(
         Settings.TRADE_NOTIFICATIONS.get(Settings.currentProfile));
     notificationPanelDuelNotifsCheckbox.setSelected(
@@ -3826,6 +3847,8 @@ public class ConfigWindow {
     // Notifications options
     Settings.PM_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelPMNotifsCheckbox.isSelected());
+    Settings.PM_DENYLIST.put(
+        "custom", new ArrayList<>(Arrays.asList(notificationPanelPMDenyListTextField.getText().split(","))));
     Settings.TRADE_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelTradeNotifsCheckbox.isSelected());
     Settings.DUEL_NOTIFICATIONS.put(

@@ -18,6 +18,8 @@
  */
 package Client;
 
+import static Game.Renderer.exactStringIgnoreCaseIsWithinList;
+
 import Game.Client;
 import Game.Game;
 import Game.Replay;
@@ -346,14 +348,15 @@ public class NotificationsHandler {
    * @param type The NotifType to display. This can be one of SYSTEM, PM, TRADE, DUEL LOGOUT, LOWHP,
    *     or FATIGUE as of the writing of this documentation.
    * @param title The title to use for the notification.
+   * @param username The username to use for the notification, if available.
    * @param text Text message of the notification.
    * @return True if at least one type of notification (audio/popup) was attempted; false otherwise
    */
-  public static boolean notify(NotifType type, String title, String text) {
-    return notify(type, title, text, "default");
+  public static boolean notify(NotifType type, String title, String username, String text) {
+    return notify(type, title, username, text, "default");
   }
 
-  public static boolean notify(NotifType type, String title, String text, String sound) {
+  public static boolean notify(NotifType type, String title, String username, String text, String sound) {
     boolean didNotify = false;
 
     if (Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile)) {
@@ -363,7 +366,8 @@ public class NotificationsHandler {
     switch (type) {
       case PM:
         {
-          if (Settings.PM_NOTIFICATIONS.get(Settings.currentProfile)) {
+          if (Settings.PM_NOTIFICATIONS.get(Settings.currentProfile) &&
+              !exactStringIgnoreCaseIsWithinList(username, Settings.PM_DENYLIST.get("custom"))) {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)

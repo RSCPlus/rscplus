@@ -2815,10 +2815,10 @@ public class Client {
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message);
+      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message);
     }
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", message, "sad");
+      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message, "sad");
     }
 
     if (Settings.takingSceneryScreenshots) {
@@ -2863,7 +2863,7 @@ public class Client {
             && message.contains(
                 "You have been standing here for 5 mins! Please move to a new area")) {
           NotificationsHandler.notify(
-              NotifType.LOGOUT, "Logout Notification", "You're about to log out");
+              NotifType.LOGOUT, "Logout Notification", null, "You're about to log out");
         }
         // while the message is really You @gr2@are @gr1@poisioned! @gr2@You @gr3@lose @gr2@3
         // @gr1@health.
@@ -2881,17 +2881,17 @@ public class Client {
         }
       }
     } else if (type == CHAT_PRIVATE) {
-      NotificationsHandler.notify(NotifType.PM, "PM from " + username, message);
+      NotificationsHandler.notify(NotifType.PM, "PM from " + username, username, message);
     } else if (type == CHAT_TRADE_REQUEST_RECEIVED) {
       // as far as I know, this chat type is only used when receiving a trade request.
       // (message == "") is true for trade notifications... could be used if
       // CHAT_TRADE_REQUEST_RECEIVED is used for anything else
       NotificationsHandler.notify(
-          NotifType.TRADE, "Trade Request", username + " wishes to trade with you");
+          NotifType.TRADE, "Trade Request", username, username + " wishes to trade with you");
     } else if (type == CHAT_OTHER) {
       if (message.contains(" wishes to duel with you"))
         NotificationsHandler.notify(
-            NotifType.DUEL, "Duel Request", message.replaceAll("@...@", ""));
+            NotifType.DUEL, "Duel Request", username, message.replaceAll("@...@", ""));
     }
 
     if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
