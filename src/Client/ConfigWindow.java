@@ -23,6 +23,7 @@ import Game.Bank;
 import Game.Camera;
 import Game.Client;
 import Game.Game;
+import Game.GameApplet;
 import Game.Item;
 import Game.JoystickHandler;
 import Game.KeyboardHandler;
@@ -187,6 +188,7 @@ public class ConfigWindow {
       Util.intToColor(Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
   private JCheckBox generalPanelPatchGenderCheckbox;
   private JCheckBox generalPanelPatchHbar512LastPixelCheckbox;
+  private JCheckBox generalPanelUseJagexFontsCheckBox;
   private JCheckBox generalPanelPatchWrenchMenuSpacingCheckbox;
   private JCheckBox generalPanelDebugModeCheckbox;
   private JCheckBox generalPanelExceptionHandlerCheckbox;
@@ -1127,6 +1129,11 @@ public class ConfigWindow {
         addCheckbox("Fix bottom bar's last pixel at 512 width", generalPanel);
     generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
         "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
+
+    generalPanelUseJagexFontsCheckBox =
+        addCheckbox("Override system font with Jagex fonts", generalPanel);
+    generalPanelUseJagexFontsCheckBox.setToolTipText(
+        "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
 
     /*
      * Overlays tab
@@ -3275,6 +3282,8 @@ public class ConfigWindow {
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
         Settings.PATCH_HBAR_512_LAST_PIXEL.get(Settings.currentProfile));
+    generalPanelUseJagexFontsCheckBox.setSelected(
+        Settings.USE_JAGEX_FONTS.get(Settings.currentProfile));
     generalPanelPatchWrenchMenuSpacingCheckbox.setSelected(
         Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile));
     generalPanelPrefersXdgOpenCheckbox.setSelected(
@@ -3669,6 +3678,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelPatchGenderCheckbox.isSelected());
     Settings.PATCH_HBAR_512_LAST_PIXEL.put(
         Settings.currentProfile, generalPanelPatchHbar512LastPixelCheckbox.isSelected());
+    Settings.USE_JAGEX_FONTS.put(
+            Settings.currentProfile, generalPanelUseJagexFontsCheckBox.isSelected());
     Settings.PATCH_WRENCH_MENU_SPACING.put(
         Settings.currentProfile, generalPanelPatchWrenchMenuSpacingCheckbox.isSelected());
 
@@ -4014,6 +4025,7 @@ public class ConfigWindow {
     QueueWindow.playlistTable.repaint();
     Item.patchItemNames();
     Item.patchItemCommands();
+    GameApplet.syncFontSetting();
   }
 
   public void synchronizePresetOptions() {

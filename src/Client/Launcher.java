@@ -20,6 +20,7 @@ package Client;
 
 import Game.Client;
 import Game.Game;
+import Game.GameApplet;
 import Game.SoundEffects;
 import java.applet.Applet;
 import java.awt.Color;
@@ -185,6 +186,9 @@ public class Launcher extends JFrame implements Runnable {
 
     // Extract libraries that only work outside the jar
     extractJInputNatives();
+
+    // Load jf fonts
+    GameApplet.loadJagexFonts();
 
     // Set size
     getContentPane().setPreferredSize(new Dimension(280, 32));

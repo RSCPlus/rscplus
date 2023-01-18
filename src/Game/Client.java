@@ -1855,6 +1855,32 @@ public class Client {
             Settings.takingSceneryScreenshots = false;
             break;
           }
+        case "systemfonts":
+          {
+            if (GameApplet.loadSystemFonts()) {
+              displayMessage("Loaded system fonts", CHAT_QUEST);
+            } else {
+              displayMessage("Unable to load system fonts...", CHAT_QUEST);
+            }
+          }
+          break;
+        case "jffonts":
+        {
+          GameApplet.loadJfFonts();
+          displayMessage("Loaded jf fonts", CHAT_QUEST);
+          break;
+        }
+        case "shellstring": {
+          try {
+            displayMessage(Renderer.shellStrings[Integer.parseInt(commandArray[1])], CHAT_QUEST);
+          } catch (ArrayIndexOutOfBoundsException ex) {
+          } catch (NumberFormatException ex) {
+            displayMessage(
+                    "shell string index not provided.",
+                    CHAT_QUEST);
+            break;
+          }
+        }
         default:
           if (commandArray[0] != null) {
             return "::";

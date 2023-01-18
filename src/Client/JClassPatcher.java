@@ -748,6 +748,46 @@ public class JClassPatcher {
           "shellStrings",
           "[Ljava/lang/String;");
 
+      // game font size
+      hookStaticVariable(
+          methodNode,
+          "b",
+          "c",
+          "I",
+          "Game/GameApplet",
+          "gameFontSize",
+          "I");
+
+      // game fonts
+      hookStaticVariable(
+          methodNode,
+          "m",
+          "b",
+          "[[B",
+          "Game/GameApplet",
+          "gameFonts",
+          "[[B");
+
+      // game font states
+      hookStaticVariable(
+          methodNode,
+          "fb",
+          "k",
+          "[Z",
+          "Game/GameApplet",
+          "gameFontStates",
+          "[Z");
+
+      // game font data
+      hookStaticVariable(
+          methodNode,
+          "qb",
+          "k",
+          "[B",
+          "Game/GameApplet",
+          "gameFontData",
+          "[B");
+
       hookClassVariable(
           methodNode,
           "client",
@@ -1136,6 +1176,73 @@ public class JClassPatcher {
                     "(Ljava/awt/event/MouseEvent;)Z",
                     false));
             methodNode.instructions.remove(insnNode);
+          }
+        }
+      }
+
+      // Patch font loading
+      if (methodNode.name.equals("b") && methodNode.desc.equals("(B)Z")) {
+        Logger.Info("Patching font loading...");
+
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        LabelNode label = new LabelNode();
+        LabelNode skipLabel = new LabelNode();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+            && ((FieldInsnNode) insnNode).name.equals("C")) {
+            methodNode.instructions.insert(
+                    insnNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
+            methodNode.instructions.insert(
+                    insnNode,
+                    new FieldInsnNode(
+                            Opcodes.GETSTATIC,
+                            "Client/Settings",
+                            "USE_JAGEX_FONTS_BOOL",
+                            "Z"));
+            methodNode.instructions.insert(
+                    insnNode,
+                    new MethodInsnNode(
+                            Opcodes.INVOKESTATIC,
+                            "Client/Settings",
+                            "updateInjectedVariables",
+                            "()V",
+                            false));
+          }
+
+          if (insnNode.getOpcode() == Opcodes.ICONST_1 && nextNode.getNext().getOpcode() == Opcodes.IRETURN) {
+            methodNode.instructions.insertBefore(
+                    insnNode,
+                    new MethodInsnNode(
+                            Opcodes.INVOKESTATIC,
+                            "Client/Settings",
+                            "updateInjectedVariables",
+                            "()V",
+                            false));
+            methodNode.instructions.insertBefore(
+                    insnNode,
+                    new FieldInsnNode(
+                            Opcodes.GETSTATIC,
+                            "Client/Settings",
+                            "USE_JAGEX_FONTS_BOOL",
+                            "Z"));
+            methodNode.instructions.insertBefore(
+                    insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/GameApplet",
+                    "loadJfFonts",
+                    "()V",
+                    false));
+            methodNode.instructions.insertBefore(insnNode, label);
           }
         }
       }
