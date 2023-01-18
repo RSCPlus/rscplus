@@ -520,7 +520,7 @@ public class Renderer {
           && lastPercentHP > percentHP
           && lastPercentHP > Settings.LOW_HP_NOTIF_VALUE.get(Settings.currentProfile))
         NotificationsHandler.notify(
-            NotifType.LOWHP, "Low HP Notification", "Your HP is at " + percentHP + "%");
+            NotifType.LOWHP, "Low HP Notification", null, "Your HP is at " + percentHP + "%");
       lastPercentHP = percentHP;
 
       // High fatigue notification
@@ -530,6 +530,7 @@ public class Renderer {
         NotificationsHandler.notify(
             NotifType.FATIGUE,
             "High Fatigue Notification",
+            null,
             "Your fatigue is at " + Client.getFatigue() + "%");
       lastFatigue = Client.getFatigue();
 
@@ -2218,6 +2219,21 @@ public class Renderer {
       String item = String.valueOf(it.next());
       if (item.trim().length() > 0
           && input.trim().toLowerCase().contains(item.trim().toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean exactStringIgnoreCaseIsWithinList(String input, ArrayList<String> items) {
+    if (items.size() <= 0) {
+      return false;
+    }
+    Iterator it = items.iterator();
+    while (it.hasNext()) {
+      String item = String.valueOf(it.next());
+      if (item.trim().length() > 0
+          && input.trim().equalsIgnoreCase(item.trim())) {
         return true;
       }
     }

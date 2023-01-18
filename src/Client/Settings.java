@@ -241,6 +241,8 @@ public class Settings {
   public static HashMap<String, Boolean> SOUND_NOTIFS_ALWAYS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> USE_SYSTEM_NOTIFICATIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PM_NOTIFICATIONS = new HashMap<String, Boolean>();
+  public static HashMap<String, ArrayList<String>> PM_DENYLIST =
+      new HashMap<String, ArrayList<String>>();
   public static HashMap<String, Boolean> TRADE_NOTIFICATIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DUEL_NOTIFICATIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOGOUT_NOTIFICATIONS = new HashMap<String, Boolean>();
@@ -1769,6 +1771,16 @@ public class Settings {
     PM_NOTIFICATIONS.put(
         "custom", getPropBoolean(props, "pm_notifications", PM_NOTIFICATIONS.get("default")));
 
+    PM_DENYLIST.put("vanilla", new ArrayList<String>());
+    PM_DENYLIST.put("vanilla_resizable", new ArrayList<String>());
+    PM_DENYLIST.put("lite", new ArrayList<String>());
+    PM_DENYLIST.put("default", new ArrayList<String>());
+    PM_DENYLIST.put("heavy", new ArrayList<String>());
+    PM_DENYLIST.put("all", new ArrayList<String>());
+    PM_DENYLIST.put(
+        "custom",
+        getPropArrayListString(props, "pm_denylist", PM_DENYLIST.get("default")));
+
     TRADE_NOTIFICATIONS.put("vanilla", false);
     TRADE_NOTIFICATIONS.put("vanilla_resizable", false);
     TRADE_NOTIFICATIONS.put("lite", false);
@@ -2792,6 +2804,8 @@ public class Settings {
       props.setProperty(
           "use_system_notifications", Boolean.toString(USE_SYSTEM_NOTIFICATIONS.get(preset)));
       props.setProperty("pm_notifications", Boolean.toString(PM_NOTIFICATIONS.get(preset)));
+      props.setProperty(
+          "pm_denylist", Util.joinAsString(",", PM_DENYLIST.get(preset)));
       props.setProperty("trade_notifications", Boolean.toString(TRADE_NOTIFICATIONS.get(preset)));
       props.setProperty("duel_notifications", Boolean.toString(DUEL_NOTIFICATIONS.get(preset)));
       props.setProperty("logout_notifications", Boolean.toString(LOGOUT_NOTIFICATIONS.get(preset)));

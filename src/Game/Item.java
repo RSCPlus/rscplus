@@ -231,6 +231,7 @@ public class Item {
                 NotificationsHandler.notify(
                     NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
                     "Highlighted Item Notification",
+                    null,
                     item_name[coolItem.id]
                         + " has been on the ground for "
                         + Settings.HIGHLIGHTED_ITEM_NOTIF_VALUE.get(Settings.currentProfile)
@@ -242,6 +243,7 @@ public class Item {
                 NotificationsHandler.notify(
                     NotificationsHandler.NotifType.HIGHLIGHTEDITEM,
                     "Highlighted Item Notification",
+                    null,
                     item_name[coolItem.id] + " appeared!");
               }
               iterator.remove();
