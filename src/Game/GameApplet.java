@@ -162,11 +162,23 @@ public class GameApplet {
     if (Settings.USE_JAGEX_FONTS.get(Settings.currentProfile)) {
       if (systemFontLoaded) {
         loadJfFonts();
+        syncWikiHbarImageWithFontSetting();
       }
     } else {
       if (!systemFontLoaded) {
         loadSystemFonts();
+        syncWikiHbarImageWithFontSetting();
       }
+    }
+  }
+
+  public static void syncWikiHbarImageWithFontSetting() {
+    if (systemFontLoaded) {
+      Renderer.image_wiki_hbar_active = Renderer.image_wiki_hbar_active_system;
+      Renderer.image_wiki_hbar_inactive = Renderer.image_wiki_hbar_inactive_system;
+    } else {
+      Renderer.image_wiki_hbar_active = Renderer.image_wiki_hbar_active_jf;
+      Renderer.image_wiki_hbar_inactive = Renderer.image_wiki_hbar_inactive_jf;
     }
   }
 }

@@ -101,6 +101,10 @@ public class Renderer {
   public static Image image_bar_frame_short;
   public static Image image_cursor;
   public static Image image_highlighted_item;
+  public static Image image_wiki_hbar_inactive_system;
+  public static Image image_wiki_hbar_active_system;
+  public static Image image_wiki_hbar_inactive_jf;
+  public static Image image_wiki_hbar_active_jf;
   public static Image image_wiki_hbar_inactive;
   public static Image image_wiki_hbar_active;
   private static BufferedImage game_image;
@@ -204,10 +208,15 @@ public class Renderer {
       image_border = ImageIO.read(Launcher.getResource("/assets/hbar/border.png"));
       image_bar_frame = ImageIO.read(Launcher.getResource("/assets/hbar/bar.png"));
       image_bar_frame_short = ImageIO.read(Launcher.getResource("/assets/hbar/bar_short.png"));
-      image_wiki_hbar_inactive =
+      image_wiki_hbar_inactive_system =
           ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive.png"));
-      image_wiki_hbar_active =
+      image_wiki_hbar_active_system =
           ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active.png"));
+      image_wiki_hbar_inactive_jf =
+              ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive_jf.png"));
+      image_wiki_hbar_active_jf =
+              ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active_jf.png"));
+      GameApplet.syncWikiHbarImageWithFontSetting();
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
     } catch (Exception e) {
