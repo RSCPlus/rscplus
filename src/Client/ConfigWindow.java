@@ -2808,7 +2808,15 @@ public class ConfigWindow {
             "<html><head><style>p{font-size:10px; padding-top:15px;}ul{padding-left:0px;margin-left:10px;}</style></head><p><b>RSC</b>Plus is a RuneLite-like client "
                 + "based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>"
                 + "Thanks to the authors who made this software possible:<br/>"
-                + "<ul><li><b>Ornox</b>, for creating the client & most of its features</li><li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li><li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li><li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li><li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li><li><b>nickzuber</b>, fixed some bugs</li><li><b>sammy123k</b>, added an option to center the XP progress bar</li><li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
+                + "<ul><li><b>Ornox</b>, for creating the client & most of its features</li>"
+                + "<li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li>"
+                + "<li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li>"
+                + "<li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li>"
+                + "<li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li>"
+                + "<li><b>conker</b>, client scaling, font consistency, menu scrolling, & other improvements</li>"
+                + "<li><b>nickzuber</b>, fixed some bugs</li>"
+                + "<li><b>sammy123k</b>, added an option to center the XP progress bar</li>"
+                + "<li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
 
     rightPane.add(aboutText, cR);
     c.gridx = 2;
