@@ -32,7 +32,7 @@ public class JoystickHandler {
     }
 
     for (int i = 0; i < controllers.length; i++) {
-      if (!controllers[i].getName().contains("SpaceNavigator")) continue;
+      if (!isSupported3DMouse(controllers[i].getName())) continue;
 
       // process the controller's eventqueue
       controllers[i].poll();
@@ -63,6 +63,11 @@ public class JoystickHandler {
             }
           });
     }
+  }
+
+  private static boolean isSupported3DMouse(String name) {
+    return name.contains("SpaceNavigator") ||
+            name.contains("SpaceMouse");
   }
 
   public static void doJoystickAction(String inputName) {
