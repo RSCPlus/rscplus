@@ -161,6 +161,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
   private JCheckBox generalPanelBypassAttackCheckbox;
+  private JCheckBox generalPanelEnableMouseWheelScrollingCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
   private JCheckBox generalPanelDisableUndergroundLightingCheckbox;
@@ -994,6 +995,11 @@ public class ConfigWindow {
     generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
     generalPanelInventoryFullAlertCheckbox.setToolTipText(
         "Displays a large notice when the inventory is full");
+
+    generalPanelEnableMouseWheelScrollingCheckbox =
+            addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
+    generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
+            "Enables mouse wheel scrolling through menu lists");
 
     generalPanelKeepScrollbarPosMagicPrayerCheckbox =
         addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
@@ -3233,6 +3239,8 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+    generalPanelEnableMouseWheelScrollingCheckbox.setSelected(
+            Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
         Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
@@ -3635,6 +3643,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+    Settings.ENABLE_MOUSEWHEEL_SCROLLING.put(
+            Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
         Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
