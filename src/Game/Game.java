@@ -110,6 +110,8 @@ public class Game extends JFrame
     m_applet.addFocusListener(this);
     m_applet.init();
     m_applet.start();
+
+
   }
 
   public void updateTitle() {

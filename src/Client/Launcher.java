@@ -43,6 +43,7 @@ public class Launcher extends JFrame implements Runnable {
   private static ConfigWindow configWindow;
   private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
+  private static ChatWindow chatWindow;
 
   public static ImageIcon icon = null;
   public static ImageIcon icon_warn = null;
@@ -449,6 +450,8 @@ public class Launcher extends JFrame implements Runnable {
     }
 
     setConfigWindow(new ConfigWindow());
+    setChatWindow(new ChatWindow());
+
     Settings.loadKeybinds(props);
     Settings.successfullyInitted = true;
     setWorldMapWindow(new WorldMapWindow());
@@ -457,6 +460,8 @@ public class Launcher extends JFrame implements Runnable {
     NotificationsHandler.initialize();
     SoundEffects.loadCustomSoundEffects();
     Launcher.getInstance().init();
+
+    Launcher.chatWindow.show();
   }
 
   public static Launcher getInstance() {
@@ -585,6 +590,14 @@ public class Launcher extends JFrame implements Runnable {
   /** @param configWindow the window to set */
   public static void setConfigWindow(ConfigWindow configWindow) {
     Launcher.configWindow = configWindow;
+  }
+
+  public static ChatWindow getChatWindow() {
+    return chatWindow;
+  }
+
+  public static void setChatWindow(ChatWindow chatWindow) {
+    Launcher.chatWindow = chatWindow;
   }
 
   /** @return the window */

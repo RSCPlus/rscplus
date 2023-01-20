@@ -32,6 +32,7 @@ import Client.Speedrun;
 import Client.TwitchIRC;
 import Client.Util;
 import Client.WorldMapWindow;
+import Client.ChatWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.Component;
@@ -2838,6 +2839,9 @@ public class Client {
    */
   public static void messageHook(
       String username, String message, int type, String colorCodeOverride) {
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.registerChatMessage(username, message, type);
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
