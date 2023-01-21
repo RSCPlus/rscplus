@@ -310,16 +310,20 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
           int[] scroll = (int[]) Reflection.menuScroll.get(Menu.spell_menu);
           int currScrollLimit = Menu.spell_swap_idx == 0 ? MAGIC_SCROLL_LIMIT : PRAYER_SCROLL_LIMIT;
 
-          handleMenuScroll(wheelRotation, currScrollLimit, scroll, Menu.spell_handle, Menu.spell_menu);
+          handleMenuScroll(
+              wheelRotation, currScrollLimit, scroll, Menu.spell_handle, Menu.spell_menu);
         } else if (Client.show_menu == Client.MENU_STATS_QUESTS) {
           int[] scroll = (int[]) Reflection.menuScroll.get(Menu.quest_menu);
 
-          handleMenuScroll(wheelRotation, QUEST_SCROLL_LIMIT, scroll, Menu.quest_handle, Menu.quest_menu);
+          handleMenuScroll(
+              wheelRotation, QUEST_SCROLL_LIMIT, scroll, Menu.quest_handle, Menu.quest_menu);
         } else if (Client.show_menu == Client.MENU_FRIENDS_IGNORE) {
           int[] scroll = (int[]) Reflection.menuScroll.get(Menu.friend_menu);
-          int currScrollLimit = Menu.friends_swap_idx == 0 ? Client.friends_count - 9 : Client.ignores_count - 9;
+          int currScrollLimit =
+              Menu.friends_swap_idx == 0 ? Client.friends_count - 9 : Client.ignores_count - 9;
 
-          handleMenuScroll(wheelRotation, currScrollLimit, scroll, Menu.friend_handle, Menu.friend_menu);
+          handleMenuScroll(
+              wheelRotation, currScrollLimit, scroll, Menu.friend_handle, Menu.friend_menu);
         } else {
           zoomCamera(wheelRotation);
         }
@@ -331,9 +335,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     }
   }
 
-  private void handleMenuScroll(int wheelRotation, int currScrollLimit, int[] currMenu, int menuIndex, Object reflectedMenu) {
-    // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to flip directions
-    //  see: https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
+  private void handleMenuScroll(
+      int wheelRotation, int currScrollLimit, int[] currMenu, int menuIndex, Object reflectedMenu) {
+    // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to
+    // flip directions
+    //  see:
+    // https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
     try {
       if (wheelRotation > 0) {
         // down

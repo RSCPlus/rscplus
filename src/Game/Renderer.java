@@ -2232,8 +2232,7 @@ public class Renderer {
     Iterator it = items.iterator();
     while (it.hasNext()) {
       String item = String.valueOf(it.next());
-      if (item.trim().length() > 0
-          && input.trim().equalsIgnoreCase(item.trim())) {
+      if (item.trim().length() > 0 && input.trim().equalsIgnoreCase(item.trim())) {
         return true;
       }
     }
@@ -2532,15 +2531,14 @@ public class Renderer {
   }
 
   /**
-   * Hooks into the original {@code drawstring()} method to override the colour displayed
-   * for the current frame, when the user has activated the "@ran@" chat effect and the
-   * override option has been enabled.
-   * <br><br>
-   * <b>Note:</b> For possible future implementations, the {@code getRGB()} method on a given
-   * {@link Color} object will return its equivalent decimal value.
+   * Hooks into the original {@code drawstring()} method to override the colour displayed for the
+   * current frame, when the user has activated the "@ran@" chat effect and the override option has
+   * been enabled. <br>
+   * <br>
+   * <b>Note:</b> For possible future implementations, the {@code getRGB()} method on a given {@link
+   * Color} object will return its equivalent decimal value.
    *
    * @param defaultColour The original value passed into {@code drawString()}
-   *
    * @return {@code int} rgb value to display for the current frame
    */
   public static int getRanEffectOverrideColour(int defaultColour) {

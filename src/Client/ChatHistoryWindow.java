@@ -1,325 +1,332 @@
 package Client;
 
 import Game.Client;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.text.Document;
 
 public class ChatHistoryWindow {
-    private JFrame frame;
-    private GridBagLayout layout;
-    private GridBagConstraints layoutConstraints;
+  private JFrame frame;
+  private GridBagLayout layout;
+  private GridBagConstraints layoutConstraints;
 
-    // Filter buttons
-    private JPanel filterButtonsPanel;
-    public JRadioButton allFilterButton;
+  // Filter buttons
+  private JPanel filterButtonsPanel;
+  public JRadioButton allFilterButton;
 
-    public JRadioButton globalFilterButton;
-    public JRadioButton chatFilterButton;
-    public JRadioButton questFilterButton;
-    public JRadioButton privateFilterButton;
-    private ButtonGroup filterButtonGroup;
-    private ChatWindowFilterListener filterButtonListener;
+  public JRadioButton globalFilterButton;
+  public JRadioButton chatFilterButton;
+  public JRadioButton questFilterButton;
+  public JRadioButton privateFilterButton;
+  private ButtonGroup filterButtonGroup;
+  private ChatWindowFilterListener filterButtonListener;
 
-    private JScrollPane chatScrollPane;
-    private JTextPane chatTextPane;
+  private JScrollPane chatScrollPane;
+  private JTextPane chatTextPane;
 
-    private int selectedFilter = -1;
+  private int selectedFilter = -1;
 
-    private ArrayList<ChatMessage> allChatMessages;
-    private ArrayList<ChatMessage> filteredChatMessages;
+  private ArrayList<ChatMessage> allChatMessages;
+  private ArrayList<ChatMessage> filteredChatMessages;
 
-    public ChatHistoryWindow() {
-        try {
-            // Set System L&F as a fall-back option.
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    NimbusLookAndFeel laf = (NimbusLookAndFeel) UIManager.getLookAndFeel();
-                    laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
-                    break;
-                }
-            }
-        } catch (UnsupportedLookAndFeelException e) {
-            Logger.Error("Unable to set L&F: Unsupported look and feel");
-        } catch (ClassNotFoundException e) {
-            Logger.Error("Unable to set L&F: Class not found");
-        } catch (InstantiationException e) {
-            Logger.Error("Unable to set L&F: Class object cannot be instantiated");
-        } catch (IllegalAccessException e) {
-            Logger.Error("Unable to set L&F: Illegal access exception");
+  public ChatHistoryWindow() {
+    try {
+      // Set System L&F as a fall-back option.
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+        if ("Nimbus".equals(info.getName())) {
+          UIManager.setLookAndFeel(info.getClassName());
+          NimbusLookAndFeel laf = (NimbusLookAndFeel) UIManager.getLookAndFeel();
+          laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+          break;
         }
-
-        initialize();
+      }
+    } catch (UnsupportedLookAndFeelException e) {
+      Logger.Error("Unable to set L&F: Unsupported look and feel");
+    } catch (ClassNotFoundException e) {
+      Logger.Error("Unable to set L&F: Class not found");
+    } catch (InstantiationException e) {
+      Logger.Error("Unable to set L&F: Class object cannot be instantiated");
+    } catch (IllegalAccessException e) {
+      Logger.Error("Unable to set L&F: Illegal access exception");
     }
 
-    public void showChatHistoryWindow() {
-        frame.setVisible(true);
+    initialize();
+  }
+
+  public void showChatHistoryWindow() {
+    frame.setVisible(true);
+  }
+
+  public void hideChatHistoryWindow() {
+    frame.setVisible(false);
+  }
+
+  public void toggleChatHistoryWindow() {
+    if (frame.isVisible()) {
+      hideChatHistoryWindow();
+    } else {
+      showChatHistoryWindow();
+    }
+  }
+
+  public void disposeJFrame() {
+    frame.dispose();
+  }
+
+  public void setSelectedFilter(int filter) {
+    if (filter == selectedFilter) return; // Do nothing if filter already selected
+
+    selectedFilter = filter;
+
+    if (selectedFilter == -1) {
+      // All messages
+      renderChatMessages(allChatMessages, true);
+      return;
     }
 
-    public void hideChatHistoryWindow() {
-        frame.setVisible(false);
+    // Build list of filtered chat messages
+    filteredChatMessages = new ArrayList<>();
+    for (ChatMessage chatMessage : allChatMessages) {
+      if (chatMessage.getType() == selectedFilter) {
+        filteredChatMessages.add(chatMessage);
+      }
     }
 
-    public void toggleChatHistoryWindow() {
-        if (frame.isVisible()) {
-            hideChatHistoryWindow();
-        } else {
-            showChatHistoryWindow();
-        }
+    renderChatMessages(filteredChatMessages, false);
+  }
+
+  public void registerChatMessage(String username, String message, int type) {
+    // Filter out other types of messages
+    if (type != Client.CHAT_GLOBAL
+        && type != Client.CHAT_CHAT
+        && type != Client.CHAT_QUEST
+        && type != Client.CHAT_PRIVATE) {
+      return;
     }
 
-    public void disposeJFrame() {
-        frame.dispose();
+    // Filter out RSC+ messages
+    if (username == null
+        && (message.contains("Welcome to")
+            || message.contains("for a list of commands")
+            || message.contains("Open the settings by"))) {
+      return;
     }
 
-    public void setSelectedFilter(int filter) {
-        if (filter == selectedFilter) return; // Do nothing if filter already selected
+    // Remove color tags
+    message = ChatMessageFormatter.removeTagsFromMessage(message);
 
-        selectedFilter = filter;
-
-        if (selectedFilter == -1) {
-            // All messages
-            renderChatMessages(allChatMessages, true);
-            return;
-        }
-
-        // Build list of filtered chat messages
-        filteredChatMessages = new ArrayList<>();
-        for (ChatMessage chatMessage : allChatMessages) {
-            if (chatMessage.getType() == selectedFilter) {
-                filteredChatMessages.add(chatMessage);
-            }
-        }
-
-        renderChatMessages(filteredChatMessages, false);
+    // Handle global chats
+    if (username != null && username.equals("Global$")) {
+      int bracket1Loc = message.indexOf("[");
+      int bracket2Loc = message.indexOf("]");
+      username = message.substring(bracket1Loc + 1, bracket2Loc);
+      message = message.substring(bracket2Loc + 3);
+      type = Client.CHAT_GLOBAL;
     }
 
-    public void registerChatMessage(String username, String message, int type) {
-        // Filter out other types of messages
-        if (type != Client.CHAT_GLOBAL && type != Client.CHAT_CHAT && type != Client.CHAT_QUEST && type != Client.CHAT_PRIVATE) {
-            return;
-        }
-
-        // Filter out RSC+ messages
-        if (username == null && (message.contains("Welcome to") || message.contains("for a list of commands") || message.contains("Open the settings by"))) {
-            return;
-        }
-
-        // Remove color tags
-        message = ChatMessageFormatter.removeTagsFromMessage(message);
-
-        // Handle global chats
-        if (username != null && username.equals("Global$")) {
-            int bracket1Loc = message.indexOf("[");
-            int bracket2Loc = message.indexOf("]");
-            username = message.substring(bracket1Loc + 1, bracket2Loc);
-            message = message.substring(bracket2Loc + 3);
-            type = Client.CHAT_GLOBAL;
-        }
-
-        // Handle npc chats
-        if (username == null && type == Client.CHAT_QUEST) {
-            int colonLoc = message.indexOf(":");
-            username = message.substring(0, colonLoc - 1);
-            message = message.substring(colonLoc + 2);
-        }
-
-        ChatMessage chatMessage = new ChatMessage(username, message, type);
-
-        // Add this message to the list of all messages.
-        allChatMessages.add(chatMessage);
-
-        if (selectedFilter == -1 || type == selectedFilter) {
-            Document document = chatTextPane.getDocument();
-            ChatMessageRenderer.renderChatMessage(document, chatMessage, selectedFilter == -1);
-        }
-
-        scrollToBottomIfNecessary();
+    // Handle npc chats
+    if (username == null && type == Client.CHAT_QUEST) {
+      int colonLoc = message.indexOf(":");
+      username = message.substring(0, colonLoc - 1);
+      message = message.substring(colonLoc + 2);
     }
 
-    private void renderChatMessages(ArrayList<ChatMessage> chatMessages, boolean showChatTypeLabel) {
-        Document document = ChatMessageRenderer.renderChatMessages(chatMessages, showChatTypeLabel);
-        chatTextPane.setDocument(document);
-        chatTextPane.revalidate();
+    ChatMessage chatMessage = new ChatMessage(username, message, type);
 
-        scrollToBottom();
+    // Add this message to the list of all messages.
+    allChatMessages.add(chatMessage);
+
+    if (selectedFilter == -1 || type == selectedFilter) {
+      Document document = chatTextPane.getDocument();
+      ChatMessageRenderer.renderChatMessage(document, chatMessage, selectedFilter == -1);
     }
 
-    private void scrollToBottom() {
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar verticalScrollBar = chatScrollPane.getVerticalScrollBar();
-            verticalScrollBar.revalidate();
-            int maxScrollPosition = verticalScrollBar.getMaximum();
-            verticalScrollBar.setValue(maxScrollPosition);
+    scrollToBottomIfNecessary();
+  }
+
+  private void renderChatMessages(ArrayList<ChatMessage> chatMessages, boolean showChatTypeLabel) {
+    Document document = ChatMessageRenderer.renderChatMessages(chatMessages, showChatTypeLabel);
+    chatTextPane.setDocument(document);
+    chatTextPane.revalidate();
+
+    scrollToBottom();
+  }
+
+  private void scrollToBottom() {
+    SwingUtilities.invokeLater(
+        () -> {
+          JScrollBar verticalScrollBar = chatScrollPane.getVerticalScrollBar();
+          verticalScrollBar.revalidate();
+          int maxScrollPosition = verticalScrollBar.getMaximum();
+          verticalScrollBar.setValue(maxScrollPosition);
         });
-    }
+  }
 
-    private void scrollToBottomIfNecessary() {
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar verticalScrollBar = chatScrollPane.getVerticalScrollBar();
-            int scrollPosition = verticalScrollBar.getValue();
-            int margin = 300;
-            int totalScrollPosition = scrollPosition + verticalScrollBar.getVisibleAmount();
-            int maxScroll = verticalScrollBar.getMaximum();
-            int threshold = maxScroll - margin;
+  private void scrollToBottomIfNecessary() {
+    SwingUtilities.invokeLater(
+        () -> {
+          JScrollBar verticalScrollBar = chatScrollPane.getVerticalScrollBar();
+          int scrollPosition = verticalScrollBar.getValue();
+          int margin = 300;
+          int totalScrollPosition = scrollPosition + verticalScrollBar.getVisibleAmount();
+          int maxScroll = verticalScrollBar.getMaximum();
+          int threshold = maxScroll - margin;
 
-            if (totalScrollPosition >= threshold) {
-                verticalScrollBar.setValue(maxScroll);
-            } else {
-                verticalScrollBar.setValue(scrollPosition);
-            }
+          if (totalScrollPosition >= threshold) {
+            verticalScrollBar.setValue(maxScroll);
+          } else {
+            verticalScrollBar.setValue(scrollPosition);
+          }
         });
+  }
+
+  private void runInit() {
+    // Setup the frame
+    frame = new JFrame("Chat History");
+
+    Container content = frame.getContentPane();
+    content.setPreferredSize(new Dimension(512, 346));
+
+    frame.pack();
+    frame.setMinimumSize(new Dimension(325, 150));
+    frame.setLocationRelativeTo(null);
+    frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    URL iconURL = Launcher.getResource("/assets/icon.png");
+    if (iconURL != null) {
+      ImageIcon icon = new ImageIcon(iconURL);
+      frame.setIconImage(icon.getImage());
     }
 
-    private void runInit() {
-        // Setup the frame
-        frame = new JFrame("Chat History");
-        
-        Container content = frame.getContentPane();
-        content.setPreferredSize(new Dimension(512, 346));
+    // Create the layout
+    layout = new GridBagLayout();
+    layoutConstraints = new GridBagConstraints();
+    content.setLayout(layout);
+    content.setBackground(Color.WHITE);
 
-        frame.pack();
-        frame.setMinimumSize(new Dimension(325, 150));
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        URL iconURL = Launcher.getResource("/assets/icon.png");
-        if (iconURL != null) {
-            ImageIcon icon = new ImageIcon(iconURL);
-            frame.setIconImage(icon.getImage());
-        }
+    // Create filter radio buttons
+    allFilterButton = new JRadioButton("All");
+    globalFilterButton = new JRadioButton("Global");
+    chatFilterButton = new JRadioButton("Chat");
+    questFilterButton = new JRadioButton("Quest");
+    privateFilterButton = new JRadioButton("Private");
 
-        // Create the layout
-        layout = new GridBagLayout();
-        layoutConstraints = new GridBagConstraints();
-        content.setLayout(layout);
-        content.setBackground(Color.WHITE);
+    // Add listener
+    filterButtonListener = new ChatWindowFilterListener(this);
+    allFilterButton.addItemListener(filterButtonListener);
+    globalFilterButton.addItemListener(filterButtonListener);
+    chatFilterButton.addItemListener(filterButtonListener);
+    questFilterButton.addItemListener(filterButtonListener);
+    privateFilterButton.addItemListener(filterButtonListener);
 
-        // Create filter radio buttons
-        allFilterButton = new JRadioButton("All");
-        globalFilterButton = new JRadioButton("Global");
-        chatFilterButton = new JRadioButton("Chat");
-        questFilterButton = new JRadioButton("Quest");
-        privateFilterButton = new JRadioButton("Private");
+    // Add radio buttons to a button group
+    filterButtonGroup = new ButtonGroup();
+    filterButtonGroup.add(allFilterButton);
+    filterButtonGroup.add(globalFilterButton);
+    filterButtonGroup.add(chatFilterButton);
+    filterButtonGroup.add(questFilterButton);
+    filterButtonGroup.add(privateFilterButton);
 
-        // Add listener
-        filterButtonListener = new ChatWindowFilterListener(this);
-        allFilterButton.addItemListener(filterButtonListener);
-        globalFilterButton.addItemListener(filterButtonListener);
-        chatFilterButton.addItemListener(filterButtonListener);
-        questFilterButton.addItemListener(filterButtonListener);
-        privateFilterButton.addItemListener(filterButtonListener);
+    // Select "All" by default
+    filterButtonGroup.setSelected(allFilterButton.getModel(), true);
 
-        // Add radio buttons to a button group
-        filterButtonGroup = new ButtonGroup();
-        filterButtonGroup.add(allFilterButton);
-        filterButtonGroup.add(globalFilterButton);
-        filterButtonGroup.add(chatFilterButton);
-        filterButtonGroup.add(questFilterButton);
-        filterButtonGroup.add(privateFilterButton);
+    // Add radio buttons to the frame
+    filterButtonsPanel = new JPanel();
 
-        // Select "All" by default
-        filterButtonGroup.setSelected(allFilterButton.getModel(), true);
+    layoutConstraints.anchor = GridBagConstraints.NORTH;
+    layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+    layoutConstraints.weightx = 1;
+    layoutConstraints.weighty = 0;
+    layoutConstraints.gridx = 0;
+    layoutConstraints.gridy = 0;
+    content.add(filterButtonsPanel, layoutConstraints);
 
-        // Add radio buttons to the frame
-        filterButtonsPanel = new JPanel();
+    filterButtonsPanel.add(allFilterButton);
+    filterButtonsPanel.add(globalFilterButton);
+    filterButtonsPanel.add(chatFilterButton);
+    filterButtonsPanel.add(questFilterButton);
+    filterButtonsPanel.add(privateFilterButton);
 
-        layoutConstraints.anchor = GridBagConstraints.NORTH;
-        layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-        layoutConstraints.weightx = 1;
-        layoutConstraints.weighty = 0;
-        layoutConstraints.gridx = 0;
-        layoutConstraints.gridy = 0;
-        content.add(filterButtonsPanel, layoutConstraints);
+    // Add chat messages list
+    chatTextPane = new JTextPane();
+    chatTextPane.setEditable(false);
 
-        filterButtonsPanel.add(allFilterButton);
-        filterButtonsPanel.add(globalFilterButton);
-        filterButtonsPanel.add(chatFilterButton);
-        filterButtonsPanel.add(questFilterButton);
-        filterButtonsPanel.add(privateFilterButton);
+    int padding = 2;
+    EmptyBorder eb = new EmptyBorder(new Insets(padding, padding, padding, padding));
 
-        // Add chat messages list
-        chatTextPane = new JTextPane();
-        chatTextPane.setEditable(false);
+    chatScrollPane = new JScrollPane(chatTextPane);
+    chatScrollPane.getViewport().setBackground(Color.WHITE);
+    chatScrollPane.setBorder(eb);
 
-        int padding = 2;
-        EmptyBorder eb = new EmptyBorder(new Insets(padding, padding, padding, padding));
+    layoutConstraints.anchor = GridBagConstraints.NORTH;
+    layoutConstraints.fill = GridBagConstraints.BOTH;
+    layoutConstraints.weighty = 1;
+    layoutConstraints.weightx = 1;
+    layoutConstraints.gridx = 0;
+    layoutConstraints.gridy = 1;
+    content.add(chatScrollPane, layoutConstraints);
 
-        chatScrollPane = new JScrollPane(chatTextPane);
-        chatScrollPane.getViewport().setBackground(Color.WHITE);
-        chatScrollPane.setBorder(eb);
+    allChatMessages = new ArrayList<>();
+  }
 
-        layoutConstraints.anchor = GridBagConstraints.NORTH;
-        layoutConstraints.fill = GridBagConstraints.BOTH;
-        layoutConstraints.weighty = 1;
-        layoutConstraints.weightx = 1;
-        layoutConstraints.gridx = 0;
-        layoutConstraints.gridy = 1;
-        content.add(chatScrollPane, layoutConstraints);
+  private void initialize() {
+    Logger.Info("Creating chat history window");
+    try {
+      SwingUtilities.invokeAndWait(
+          new Runnable() {
 
-        allChatMessages = new ArrayList<>();
+            @Override
+            public void run() {
+              runInit();
+            }
+          });
+    } catch (InvocationTargetException e) {
+      Logger.Error("There was a thread-related error while setting up the chat history window!");
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      Logger.Error(
+          "There was a thread-related error while setting up the chat history window! The window may not be initialized properly!");
+      e.printStackTrace();
     }
-
-    private void initialize() {
-        Logger.Info("Creating chat history window");
-        try {
-            SwingUtilities.invokeAndWait(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        runInit();
-                    }
-                });
-        } catch (InvocationTargetException e) {
-            Logger.Error("There was a thread-related error while setting up the chat history window!");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            Logger.Error(
-                "There was a thread-related error while setting up the chat history window! The window may not be initialized properly!");
-            e.printStackTrace();
-        }
-    }
+  }
 }
 
 class ChatWindowFilterListener implements ItemListener {
-    private final ChatHistoryWindow chatHistoryWindow;
+  private final ChatHistoryWindow chatHistoryWindow;
 
-    public ChatWindowFilterListener(ChatHistoryWindow chatHistoryWindow) {
-        this.chatHistoryWindow = chatHistoryWindow;
+  public ChatWindowFilterListener(ChatHistoryWindow chatHistoryWindow) {
+    this.chatHistoryWindow = chatHistoryWindow;
+  }
+
+  @Override
+  public void itemStateChanged(ItemEvent e) {
+    int stateChange = e.getStateChange();
+    if (stateChange == ItemEvent.SELECTED) {
+      JRadioButton button = (JRadioButton) e.getItem();
+
+      if (button == chatHistoryWindow.allFilterButton) {
+        // All
+        chatHistoryWindow.setSelectedFilter(-1);
+      } else if (button == chatHistoryWindow.chatFilterButton) {
+        // Chat
+        chatHistoryWindow.setSelectedFilter(Client.CHAT_CHAT);
+      } else if (button == chatHistoryWindow.globalFilterButton) {
+        // Global
+        chatHistoryWindow.setSelectedFilter(Client.CHAT_GLOBAL);
+      } else if (button == chatHistoryWindow.questFilterButton) {
+        // Quest
+        chatHistoryWindow.setSelectedFilter(Client.CHAT_QUEST);
+      } else if (button == chatHistoryWindow.privateFilterButton) {
+        // Private
+        chatHistoryWindow.setSelectedFilter(Client.CHAT_PRIVATE);
+      }
     }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        int stateChange = e.getStateChange();
-        if (stateChange == ItemEvent.SELECTED) {
-            JRadioButton button = (JRadioButton) e.getItem();
-
-            if (button == chatHistoryWindow.allFilterButton) {
-                // All
-                chatHistoryWindow.setSelectedFilter(-1);
-            } else if (button == chatHistoryWindow.chatFilterButton) {
-                // Chat
-                chatHistoryWindow.setSelectedFilter(Client.CHAT_CHAT);
-            } else if (button == chatHistoryWindow.globalFilterButton) {
-                // Global
-                chatHistoryWindow.setSelectedFilter(Client.CHAT_GLOBAL);
-            } else if (button == chatHistoryWindow.questFilterButton) {
-                // Quest
-                chatHistoryWindow.setSelectedFilter(Client.CHAT_QUEST);
-            } else if (button == chatHistoryWindow.privateFilterButton) {
-                // Private
-                chatHistoryWindow.setSelectedFilter(Client.CHAT_PRIVATE);
-            }
-        }
-    }
+  }
 }
