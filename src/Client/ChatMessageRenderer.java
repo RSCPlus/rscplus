@@ -86,8 +86,6 @@ public class ChatMessageRenderer {
 
   private static String getChatTypeLabel(int type) {
     switch (type) {
-      case Client.CHAT_GLOBAL:
-        return "Global";
       case Client.CHAT_CHAT:
         return "Chat";
       case Client.CHAT_QUEST:

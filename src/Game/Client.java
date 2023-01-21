@@ -134,8 +134,6 @@ public class Client {
   public static final int CHAT_OTHER =
       7; // used for when you send a player a duel/trade request, follow someone, or drop an item
 
-  public static final int CHAT_GLOBAL = 8; // used for Global$ chats
-
   public static final int CHAT_INCOMING_OPTION = 8;
   public static final int CHAT_CHOSEN_OPTION = 9;
   public static final int CHAT_WINDOWED_MSG = 10;

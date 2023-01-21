@@ -21,7 +21,6 @@ public class ChatHistoryWindow {
   private JPanel filterButtonsPanel;
   public JRadioButton allFilterButton;
 
-  public JRadioButton globalFilterButton;
   public JRadioButton chatFilterButton;
   public JRadioButton questFilterButton;
   public JRadioButton privateFilterButton;
@@ -105,10 +104,7 @@ public class ChatHistoryWindow {
 
   public void registerChatMessage(String username, String message, int type) {
     // Filter out other types of messages
-    if (type != Client.CHAT_GLOBAL
-        && type != Client.CHAT_CHAT
-        && type != Client.CHAT_QUEST
-        && type != Client.CHAT_PRIVATE) {
+    if (type != Client.CHAT_CHAT && type != Client.CHAT_QUEST && type != Client.CHAT_PRIVATE) {
       return;
     }
 
@@ -122,15 +118,6 @@ public class ChatHistoryWindow {
 
     // Remove color tags
     message = ChatMessageFormatter.removeTagsFromMessage(message);
-
-    // Handle global chats
-    if (username != null && username.equals("Global$")) {
-      int bracket1Loc = message.indexOf("[");
-      int bracket2Loc = message.indexOf("]");
-      username = message.substring(bracket1Loc + 1, bracket2Loc);
-      message = message.substring(bracket2Loc + 3);
-      type = Client.CHAT_GLOBAL;
-    }
 
     // Handle npc chats
     if (username == null && type == Client.CHAT_QUEST) {
@@ -213,7 +200,6 @@ public class ChatHistoryWindow {
 
     // Create filter radio buttons
     allFilterButton = new JRadioButton("All");
-    globalFilterButton = new JRadioButton("Global");
     chatFilterButton = new JRadioButton("Chat");
     questFilterButton = new JRadioButton("Quest");
     privateFilterButton = new JRadioButton("Private");
@@ -221,7 +207,6 @@ public class ChatHistoryWindow {
     // Add listener
     filterButtonListener = new ChatWindowFilterListener(this);
     allFilterButton.addItemListener(filterButtonListener);
-    globalFilterButton.addItemListener(filterButtonListener);
     chatFilterButton.addItemListener(filterButtonListener);
     questFilterButton.addItemListener(filterButtonListener);
     privateFilterButton.addItemListener(filterButtonListener);
@@ -229,7 +214,6 @@ public class ChatHistoryWindow {
     // Add radio buttons to a button group
     filterButtonGroup = new ButtonGroup();
     filterButtonGroup.add(allFilterButton);
-    filterButtonGroup.add(globalFilterButton);
     filterButtonGroup.add(chatFilterButton);
     filterButtonGroup.add(questFilterButton);
     filterButtonGroup.add(privateFilterButton);
@@ -249,7 +233,6 @@ public class ChatHistoryWindow {
     content.add(filterButtonsPanel, layoutConstraints);
 
     filterButtonsPanel.add(allFilterButton);
-    filterButtonsPanel.add(globalFilterButton);
     filterButtonsPanel.add(chatFilterButton);
     filterButtonsPanel.add(questFilterButton);
     filterButtonsPanel.add(privateFilterButton);
@@ -317,9 +300,6 @@ class ChatWindowFilterListener implements ItemListener {
       } else if (button == chatHistoryWindow.chatFilterButton) {
         // Chat
         chatHistoryWindow.setSelectedFilter(Client.CHAT_CHAT);
-      } else if (button == chatHistoryWindow.globalFilterButton) {
-        // Global
-        chatHistoryWindow.setSelectedFilter(Client.CHAT_GLOBAL);
       } else if (button == chatHistoryWindow.questFilterButton) {
         // Quest
         chatHistoryWindow.setSelectedFilter(Client.CHAT_QUEST);
