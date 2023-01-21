@@ -1,13 +1,16 @@
 package Client;
 
-import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatMessageFormatter {
-    public static SimpleAttributeSet formatChatMessage(ChatMessage chatMessage) {
-        SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+    public static String removeTagsFromMessage(String message) {
+        ArrayList<String> tags = ChatColors.getColorTags();
+        Pattern pattern = Pattern.compile(String.join("|", tags), Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(message);
+        message = matcher.replaceAll("");
 
-        return attributeSet;
+        return message;
     }
 }
