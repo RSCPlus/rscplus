@@ -184,8 +184,11 @@ public class ChatHistoryWindow {
     private void runInit() {
         // Setup the frame
         frame = new JFrame("Chat History");
+        
+        Container content = frame.getContentPane();
+        content.setPreferredSize(new Dimension(512, 346));
+
         frame.pack();
-        frame.setSize(new Dimension(512, 346));
         frame.setMinimumSize(new Dimension(325, 150));
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -198,7 +201,6 @@ public class ChatHistoryWindow {
         // Create the layout
         layout = new GridBagLayout();
         layoutConstraints = new GridBagConstraints();
-        Container content = frame.getContentPane();
         content.setLayout(layout);
         content.setBackground(Color.WHITE);
 
