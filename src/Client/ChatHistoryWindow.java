@@ -124,8 +124,20 @@ public class ChatHistoryWindow {
     // Handle npc chats
     if (username == null && type == Client.CHAT_QUEST) {
       int colonLoc = message.indexOf(":");
-      username = message.substring(0, colonLoc - 1);
-      message = message.substring(colonLoc + 2);
+      if (colonLoc > -1) {
+        username = message.substring(0, colonLoc - 1);
+        message = message.substring(colonLoc + 2);
+      }
+    }
+
+    // Handle null username
+    if (username == null) {
+      username = "";
+    }
+
+    // Handle null message
+    if (message == null) {
+      message = "";
     }
 
     ChatMessage chatMessage = new ChatMessage(username, message, type);

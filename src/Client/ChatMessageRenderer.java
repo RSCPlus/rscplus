@@ -38,10 +38,11 @@ public class ChatMessageRenderer {
       // Attempt to write the username
       String chatTypeLabel = getChatTypeLabel(type);
       if (showChatTypeLabel && chatTypeLabel != null) {
-        username = String.format("[%s] %s", getChatTypeLabel(type), username);
+        username = String.format("[%s] %s", getChatTypeLabel(type), username).trim();
       }
 
       document.insertString(docLength, username + ": ", usernameStyle);
+
     } catch (BadLocationException ex) {
       Logger.Error("Failed to render username:" + username);
     }
