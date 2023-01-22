@@ -17,7 +17,7 @@ public class ChatHistoryWindow {
   private GridBagLayout layout;
   private GridBagConstraints layoutConstraints;
 
-  private Color bgColor = Color.decode("#1c1c1c");
+  private Color bgColor = Color.decode("#282828");
 
   // Filter buttons
   private JPanel filterButtonsPanel;

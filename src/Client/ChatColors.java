@@ -26,7 +26,6 @@ public class ChatColors {
           put("@gr1@", Color.decode("#C0FF00"));
           put("@gr2@", Color.decode("#80FF00"));
           put("@gr3@", Color.decode("#40FF00"));
-          put("@ran@", null);
         }
       };
 
