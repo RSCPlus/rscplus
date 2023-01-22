@@ -98,6 +98,8 @@ public class Game extends JFrame
 
     // Allows drag-n-dropping a replay onto the game window
     setDropTarget(ReplayQueue.dropReplays);
+
+    Launcher.getChatHistoryWindow().showChatHistoryWindow();
   }
 
   public JConfig getJConfig() {

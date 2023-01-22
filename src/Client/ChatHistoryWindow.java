@@ -17,6 +17,8 @@ public class ChatHistoryWindow {
   private GridBagLayout layout;
   private GridBagConstraints layoutConstraints;
 
+  private Color bgColor = Color.decode("#1c1c1c");
+
   // Filter buttons
   private JPanel filterButtonsPanel;
   public JRadioButton allFilterButton;
@@ -117,7 +119,7 @@ public class ChatHistoryWindow {
     }
 
     // Remove color tags
-    message = ChatMessageFormatter.removeTagsFromMessage(message);
+    //        message = ChatMessageFormatter.removeTagsFromMessage(message);
 
     // Handle npc chats
     if (username == null && type == Client.CHAT_QUEST) {
@@ -196,7 +198,7 @@ public class ChatHistoryWindow {
     layout = new GridBagLayout();
     layoutConstraints = new GridBagConstraints();
     content.setLayout(layout);
-    content.setBackground(Color.WHITE);
+    content.setBackground(bgColor);
 
     // Create filter radio buttons
     allFilterButton = new JRadioButton("All");
@@ -237,15 +239,24 @@ public class ChatHistoryWindow {
     filterButtonsPanel.add(questFilterButton);
     filterButtonsPanel.add(privateFilterButton);
 
+    // Workaround for changing JTextPane background color
+    UIManager.put(
+        "TextPane[Enabled].backgroundPainter",
+        (Painter<JComponent>)
+            (g, comp, width, height) -> {
+              g.setColor(bgColor);
+              g.fillRect(0, 0, width, height);
+            });
+
     // Add chat messages list
     chatTextPane = new JTextPane();
     chatTextPane.setEditable(false);
+    chatTextPane.setOpaque(true);
 
     int padding = 2;
     EmptyBorder eb = new EmptyBorder(new Insets(padding, padding, padding, padding));
 
     chatScrollPane = new JScrollPane(chatTextPane);
-    chatScrollPane.getViewport().setBackground(Color.WHITE);
     chatScrollPane.setBorder(eb);
 
     layoutConstraints.anchor = GridBagConstraints.NORTH;
