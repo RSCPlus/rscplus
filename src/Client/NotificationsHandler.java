@@ -356,7 +356,8 @@ public class NotificationsHandler {
     return notify(type, title, username, text, "default");
   }
 
-  public static boolean notify(NotifType type, String title, String username, String text, String sound) {
+  public static boolean notify(
+      NotifType type, String title, String username, String text, String sound) {
     boolean didNotify = false;
 
     if (Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile)) {
@@ -366,8 +367,8 @@ public class NotificationsHandler {
     switch (type) {
       case PM:
         {
-          if (Settings.PM_NOTIFICATIONS.get(Settings.currentProfile) &&
-              !exactStringIgnoreCaseIsWithinList(username, Settings.PM_DENYLIST.get("custom"))) {
+          if (Settings.PM_NOTIFICATIONS.get(Settings.currentProfile)
+              && !exactStringIgnoreCaseIsWithinList(username, Settings.PM_DENYLIST.get("custom"))) {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)

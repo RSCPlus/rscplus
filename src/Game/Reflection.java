@@ -240,7 +240,8 @@ public class Reflection {
   private static final String LOAD_MAPS = "private final void client.m(int)";
   private static final String LOAD_SOUNDS = "private final void client.E(int)";
   private static final String LOAD_DATA_FILE = "final byte[] e.a(java.lang.String,int,int,int)";
-  private static final String LOAD_DATA = "static final byte[] na.a(java.lang.String,int,byte[],int)";
+  private static final String LOAD_DATA =
+      "static final byte[] na.a(java.lang.String,int,byte[],int)";
 
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
   private static final String ADDCENTERTEXT =
@@ -256,7 +257,8 @@ public class Reflection {
   private static final String GETCONTROLTEXT = "final java.lang.String qa.g(int,int)";
   private static final String HANDLEMOUSE = "final void qa.b(int,int,int,int,int)";
   private static final String HANDLEKEY = "final void qa.a(int,int)";
-  private static final String LOAD_SYSTEM_FONT = "static final boolean qa.a(e,java.lang.String,int,int)";
+  private static final String LOAD_SYSTEM_FONT =
+      "static final boolean qa.a(e,java.lang.String,int,int)";
 
   private static final String GAMEMODELROTATE = "final void ca.f(int,int,int,int)";
   private static final String GAMEMODELSETLIGHT =

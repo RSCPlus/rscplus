@@ -40,6 +40,7 @@ public class Menu {
 
   /** Keeps track of the last spell book used. 0 for the Magic tab, 1 for the Prayer tab. */
   public static int spell_swap_idx = 0;
+
   public static int friends_swap_idx = 0;
 
   private static int[] spell_swap_scroll = {0, 0};

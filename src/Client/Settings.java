@@ -96,7 +96,8 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_DISK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_SCROLLING = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_SCROLLING =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> HIDE_ROOFS = new HashMap<String, Boolean>();
@@ -112,7 +113,8 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> DISABLE_RANDOM_CHAT_COLOUR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DISABLE_RANDOM_CHAT_COLOUR =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
@@ -332,7 +334,6 @@ public class Settings {
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
   public static boolean DISABLE_RANDOM_CHAT_COLOUR_BOOL = false;
-
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -610,11 +611,9 @@ public class Settings {
     ENABLE_MOUSEWHEEL_SCROLLING.put("heavy", true);
     ENABLE_MOUSEWHEEL_SCROLLING.put("all", true);
     ENABLE_MOUSEWHEEL_SCROLLING.put(
-            "custom",
-            getPropBoolean(
-                    props,
-                    "enable_mousewheel_scrolling",
-                    ENABLE_MOUSEWHEEL_SCROLLING.get("default")));
+        "custom",
+        getPropBoolean(
+            props, "enable_mousewheel_scrolling", ENABLE_MOUSEWHEEL_SCROLLING.get("default")));
 
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla", false);
     KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put("vanilla_resizable", false);
@@ -745,7 +744,9 @@ public class Settings {
     DISABLE_RANDOM_CHAT_COLOUR.put("heavy", false);
     DISABLE_RANDOM_CHAT_COLOUR.put("all", false);
     DISABLE_RANDOM_CHAT_COLOUR.put(
-            "custom", getPropBoolean(props, "disable_ran_chat_effect", DISABLE_RANDOM_CHAT_COLOUR.get("default")));
+        "custom",
+        getPropBoolean(
+            props, "disable_ran_chat_effect", DISABLE_RANDOM_CHAT_COLOUR.get("default")));
 
     VIEW_DISTANCE.put("vanilla", 2300);
     VIEW_DISTANCE.put("vanilla_resizable", 3000);
@@ -1778,8 +1779,7 @@ public class Settings {
     PM_DENYLIST.put("heavy", new ArrayList<String>());
     PM_DENYLIST.put("all", new ArrayList<String>());
     PM_DENYLIST.put(
-        "custom",
-        getPropArrayListString(props, "pm_denylist", PM_DENYLIST.get("default")));
+        "custom", getPropArrayListString(props, "pm_denylist", PM_DENYLIST.get("default")));
 
     TRADE_NOTIFICATIONS.put("vanilla", false);
     TRADE_NOTIFICATIONS.put("vanilla_resizable", false);
@@ -2620,8 +2620,7 @@ public class Settings {
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
       props.setProperty(
-              "enable_mousewheel_scrolling",
-              Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
+          "enable_mousewheel_scrolling", Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
       props.setProperty(
           "keep_scrollbar_pos_magic_prayer",
           Boolean.toString(KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(preset)));
@@ -2641,7 +2640,8 @@ public class Settings {
       props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
-      props.setProperty("disable_ran_chat_effect", Boolean.toString(DISABLE_RANDOM_CHAT_COLOUR.get(preset)));
+      props.setProperty(
+          "disable_ran_chat_effect", Boolean.toString(DISABLE_RANDOM_CHAT_COLOUR.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty(
@@ -2804,8 +2804,7 @@ public class Settings {
       props.setProperty(
           "use_system_notifications", Boolean.toString(USE_SYSTEM_NOTIFICATIONS.get(preset)));
       props.setProperty("pm_notifications", Boolean.toString(PM_NOTIFICATIONS.get(preset)));
-      props.setProperty(
-          "pm_denylist", Util.joinAsString(",", PM_DENYLIST.get(preset)));
+      props.setProperty("pm_denylist", Util.joinAsString(",", PM_DENYLIST.get(preset)));
       props.setProperty("trade_notifications", Boolean.toString(TRADE_NOTIFICATIONS.get(preset)));
       props.setProperty("duel_notifications", Boolean.toString(DUEL_NOTIFICATIONS.get(preset)));
       props.setProperty("logout_notifications", Boolean.toString(LOGOUT_NOTIFICATIONS.get(preset)));

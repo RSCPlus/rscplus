@@ -21,7 +21,6 @@ package Game;
 import Client.Launcher;
 import Client.Logger;
 import Client.Settings;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -124,37 +123,41 @@ public class GameApplet {
 
   // calls wonky 2009+ authentic system font generator
   private static boolean loadSystemFont(String fontName, int index) {
-      if (Reflection.loadSystemFont == null) return false;
+    if (Reflection.loadSystemFont == null) return false;
 
-      try {
-        return (boolean) Reflection.loadSystemFont.invoke(Client.instance, Client.instance, fontName, index, 0);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return false;
+    try {
+      return (boolean)
+          Reflection.loadSystemFont.invoke(Client.instance, Client.instance, fontName, index, 0);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return false;
   }
 
   // assigns jf fonts authentic to before 2009 shenanigans
   // used by hook; do not rename
   public static void loadJfFonts() {
-      resetFontVariables();
+    resetFontVariables();
 
-      gameFonts[0] = h11p;
-      gameFonts[1] = h12b;
-      gameFonts[2] = h12p;
-      gameFonts[3] = h13b;
-      gameFonts[4] = h14b;
-      gameFonts[5] = h16b;
-      gameFonts[6] = h20b;
-      gameFonts[7] = h24b;
-      systemFontLoaded = false;
+    gameFonts[0] = h11p;
+    gameFonts[1] = h12b;
+    gameFonts[2] = h12p;
+    gameFonts[3] = h13b;
+    gameFonts[4] = h14b;
+    gameFonts[5] = h16b;
+    gameFonts[6] = h20b;
+    gameFonts[7] = h24b;
+    systemFontLoaded = false;
   }
 
   // resets all static variables related to font data
   private static void resetFontVariables() {
     gameFontSize = 0;
     gameFonts = new byte[50][];
-    gameFontStates = new boolean[]{ false, false, false, false, false, false, false, false, false, false, false, false };
+    gameFontStates =
+        new boolean[] {
+          false, false, false, false, false, false, false, false, false, false, false, false
+        };
     gameFontData = new byte[100000];
   }
 

@@ -749,44 +749,16 @@ public class JClassPatcher {
           "[Ljava/lang/String;");
 
       // game font size
-      hookStaticVariable(
-          methodNode,
-          "b",
-          "c",
-          "I",
-          "Game/GameApplet",
-          "gameFontSize",
-          "I");
+      hookStaticVariable(methodNode, "b", "c", "I", "Game/GameApplet", "gameFontSize", "I");
 
       // game fonts
-      hookStaticVariable(
-          methodNode,
-          "m",
-          "b",
-          "[[B",
-          "Game/GameApplet",
-          "gameFonts",
-          "[[B");
+      hookStaticVariable(methodNode, "m", "b", "[[B", "Game/GameApplet", "gameFonts", "[[B");
 
       // game font states
-      hookStaticVariable(
-          methodNode,
-          "fb",
-          "k",
-          "[Z",
-          "Game/GameApplet",
-          "gameFontStates",
-          "[Z");
+      hookStaticVariable(methodNode, "fb", "k", "[Z", "Game/GameApplet", "gameFontStates", "[Z");
 
       // game font data
-      hookStaticVariable(
-          methodNode,
-          "qb",
-          "k",
-          "[B",
-          "Game/GameApplet",
-          "gameFontData",
-          "[B");
+      hookStaticVariable(methodNode, "qb", "k", "[B", "Game/GameApplet", "gameFontData", "[B");
 
       hookClassVariable(
           methodNode,
@@ -1195,53 +1167,42 @@ public class JClassPatcher {
           if (nextNode == null) break;
 
           if (insnNode.getOpcode() == Opcodes.PUTFIELD
-            && ((FieldInsnNode) insnNode).name.equals("C")) {
+              && ((FieldInsnNode) insnNode).name.equals("C")) {
+            methodNode.instructions.insert(insnNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
             methodNode.instructions.insert(
-                    insnNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "USE_JAGEX_FONTS_BOOL", "Z"));
             methodNode.instructions.insert(
-                    insnNode,
-                    new FieldInsnNode(
-                            Opcodes.GETSTATIC,
-                            "Client/Settings",
-                            "USE_JAGEX_FONTS_BOOL",
-                            "Z"));
-            methodNode.instructions.insert(
-                    insnNode,
-                    new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "Client/Settings",
-                            "updateInjectedVariables",
-                            "()V",
-                            false));
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Settings",
+                    "updateInjectedVariables",
+                    "()V",
+                    false));
           }
 
-          if (insnNode.getOpcode() == Opcodes.ICONST_1 && nextNode.getNext().getOpcode() == Opcodes.IRETURN) {
-            methodNode.instructions.insertBefore(
-                    insnNode,
-                    new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "Client/Settings",
-                            "updateInjectedVariables",
-                            "()V",
-                            false));
-            methodNode.instructions.insertBefore(
-                    insnNode,
-                    new FieldInsnNode(
-                            Opcodes.GETSTATIC,
-                            "Client/Settings",
-                            "USE_JAGEX_FONTS_BOOL",
-                            "Z"));
-            methodNode.instructions.insertBefore(
-                    insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
-            methodNode.instructions.insertBefore(insnNode, skipLabel);
+          if (insnNode.getOpcode() == Opcodes.ICONST_1
+              && nextNode.getNext().getOpcode() == Opcodes.IRETURN) {
             methodNode.instructions.insertBefore(
                 insnNode,
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
-                    "Game/GameApplet",
-                    "loadJfFonts",
+                    "Client/Settings",
+                    "updateInjectedVariables",
                     "()V",
                     false));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "USE_JAGEX_FONTS_BOOL", "Z"));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, label));
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/GameApplet", "loadJfFonts", "()V", false));
             methodNode.instructions.insertBefore(insnNode, label);
           }
         }
@@ -4609,9 +4570,11 @@ public class JClassPatcher {
                       "getRanEffectOverrideColour",
                       "(I)I",
                       false));
-              methodNode.instructions.insertBefore(start, new JumpInsnNode(Opcodes.GOTO, skipRanColorLabel));
+              methodNode.instructions.insertBefore(
+                  start, new JumpInsnNode(Opcodes.GOTO, skipRanColorLabel));
               methodNode.instructions.insertBefore(start, defaultRanColorLabel);
-              methodNode.instructions.insert(start.getNext().getNext().getNext(), skipRanColorLabel);
+              methodNode.instructions.insert(
+                  start.getNext().getNext().getNext(), skipRanColorLabel);
 
               break;
             }

@@ -1865,22 +1865,21 @@ public class Client {
           }
           break;
         case "jffonts":
-        {
-          GameApplet.loadJfFonts();
-          displayMessage("Loaded jf fonts", CHAT_QUEST);
-          break;
-        }
-        case "shellstring": {
-          try {
-            displayMessage(Renderer.shellStrings[Integer.parseInt(commandArray[1])], CHAT_QUEST);
-          } catch (ArrayIndexOutOfBoundsException ex) {
-          } catch (NumberFormatException ex) {
-            displayMessage(
-                    "shell string index not provided.",
-                    CHAT_QUEST);
+          {
+            GameApplet.loadJfFonts();
+            displayMessage("Loaded jf fonts", CHAT_QUEST);
             break;
           }
-        }
+        case "shellstring":
+          {
+            try {
+              displayMessage(Renderer.shellStrings[Integer.parseInt(commandArray[1])], CHAT_QUEST);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage("shell string index not provided.", CHAT_QUEST);
+              break;
+            }
+          }
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2841,10 +2840,12 @@ public class Client {
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message);
+      NotificationsHandler.notify(
+          NotifType.IMPORTANT_MESSAGE, "Important message", username, message);
     }
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message, "sad");
+      NotificationsHandler.notify(
+          NotifType.IMPORTANT_MESSAGE, "Important message", username, message, "sad");
     }
 
     if (Settings.takingSceneryScreenshots) {

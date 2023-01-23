@@ -722,9 +722,10 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
 
-    generalPanelDisableRandomChatColourCheckbox = addCheckbox("Disable \"@ran@\" chat colour effect", generalPanel);
+    generalPanelDisableRandomChatColourCheckbox =
+        addCheckbox("Disable \"@ran@\" chat colour effect", generalPanel);
     generalPanelDisableRandomChatColourCheckbox.setToolTipText(
-            "The random chat colour effect will be no longer be displayed");
+        "The random chat colour effect will be no longer be displayed");
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -998,9 +999,9 @@ public class ConfigWindow {
         "Displays a large notice when the inventory is full");
 
     generalPanelEnableMouseWheelScrollingCheckbox =
-            addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
+        addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
     generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
-            "Enables mouse wheel scrolling through menu lists");
+        "Enables mouse wheel scrolling through menu lists");
 
     generalPanelKeepScrollbarPosMagicPrayerCheckbox =
         addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
@@ -3267,7 +3268,7 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
     generalPanelEnableMouseWheelScrollingCheckbox.setSelected(
-            Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
+        Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
         Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
@@ -3312,7 +3313,7 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelDisableRandomChatColourCheckbox.setSelected(
-            Settings.DISABLE_RANDOM_CHAT_COLOUR.get(Settings.currentProfile));
+        Settings.DISABLE_RANDOM_CHAT_COLOUR.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -3673,7 +3674,7 @@ public class ConfigWindow {
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.ENABLE_MOUSEWHEEL_SCROLLING.put(
-            Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
+        Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
         Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
@@ -3695,7 +3696,7 @@ public class ConfigWindow {
     Settings.SOFTWARE_CURSOR.put(
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
     Settings.DISABLE_RANDOM_CHAT_COLOUR.put(
-            Settings.currentProfile, generalPanelDisableRandomChatColourCheckbox.isSelected());
+        Settings.currentProfile, generalPanelDisableRandomChatColourCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
@@ -3718,7 +3719,7 @@ public class ConfigWindow {
     Settings.PATCH_HBAR_512_LAST_PIXEL.put(
         Settings.currentProfile, generalPanelPatchHbar512LastPixelCheckbox.isSelected());
     Settings.USE_JAGEX_FONTS.put(
-            Settings.currentProfile, generalPanelUseJagexFontsCheckBox.isSelected());
+        Settings.currentProfile, generalPanelUseJagexFontsCheckBox.isSelected());
     Settings.PATCH_WRENCH_MENU_SPACING.put(
         Settings.currentProfile, generalPanelPatchWrenchMenuSpacingCheckbox.isSelected());
 
@@ -3877,7 +3878,8 @@ public class ConfigWindow {
     Settings.PM_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelPMNotifsCheckbox.isSelected());
     Settings.PM_DENYLIST.put(
-        "custom", new ArrayList<>(Arrays.asList(notificationPanelPMDenyListTextField.getText().split(","))));
+        "custom",
+        new ArrayList<>(Arrays.asList(notificationPanelPMDenyListTextField.getText().split(","))));
     Settings.TRADE_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelTradeNotifsCheckbox.isSelected());
     Settings.DUEL_NOTIFICATIONS.put(

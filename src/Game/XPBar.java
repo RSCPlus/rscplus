@@ -262,7 +262,8 @@ public class XPBar {
       textColour = Renderer.color_text;
     }
     y += 12;
-    Renderer.drawShadowText(g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false);
+    Renderer.drawShadowText(
+        g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false);
 
     // Option 4
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -274,7 +275,8 @@ public class XPBar {
       textColour = Renderer.color_text;
     }
     y += 12;
-    Renderer.drawShadowText(g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
+    Renderer.drawShadowText(
+        g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
 
     // Option 5
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -406,7 +408,7 @@ public class XPBar {
                   + "Actions until Level: "
                   + highlightColour
                   + formatXP(
-                  Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
+                      Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
               x,
               y,
               true);
@@ -447,7 +449,7 @@ public class XPBar {
                   + "Actions until Goal: "
                   + highlightColour
                   + formatXP(
-                  Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
+                      Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
               x,
               y,
               true);
