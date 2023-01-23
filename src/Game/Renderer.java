@@ -213,9 +213,9 @@ public class Renderer {
       image_wiki_hbar_active_system =
           ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active.png"));
       image_wiki_hbar_inactive_jf =
-              ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive_jf.png"));
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_inactive_jf.png"));
       image_wiki_hbar_active_jf =
-              ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active_jf.png"));
+          ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active_jf.png"));
       GameApplet.syncWikiHbarImageWithFontSetting();
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
