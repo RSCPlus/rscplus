@@ -536,6 +536,7 @@ public class Launcher extends JFrame implements Runnable {
     // Remember world setting
     Client.lastIsMembers = Client.members;
     Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    GameApplet.syncWikiHbarImageWithFontSetting();
     if (Client.firstTime) {
       Client.firstTime = false;
     }
