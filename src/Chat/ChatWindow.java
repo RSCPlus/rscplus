@@ -8,6 +8,7 @@ import java.awt.event.ComponentEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableModel;
@@ -15,6 +16,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 public class ChatWindow {
+
   private final Dimension frameDefaultSize = new Dimension(700, 650);
   private final Dimension frameMinimumSize = new Dimension(625, 400);
   private JFrame frame;
@@ -67,6 +69,12 @@ public class ChatWindow {
     }
 
     initialize();
+  }
+
+  // TODO: remove this when finished debugging
+  public static void main(String[] args) {
+    ChatWindow chatWindow = new ChatWindow();
+    chatWindow.showChatWindow();
   }
 
   public void showChatWindow() {
@@ -193,7 +201,7 @@ public class ChatWindow {
           String.format(
               "[%d] The quick brown fox jumps over a lazy dog is the most famous pangram in English, that is the most short sentence in which all the 26 letters of the alphabet are used. For this reason, it is useful to test the graphic aspect of the fonts, because all the letters are immediately on hand.",
               i);
-      dtm.addRow(new Object[] {"Flowermate:", message});
+      dtm.addRow(new Object[]{"Flowermate:", message});
     }
 
     chatTable = new ChatWindowChatTable();
@@ -204,6 +212,10 @@ public class ChatWindow {
             chatTable,
             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+    chatScrollPane.getViewport().setBackground(chatBgColor);
+    Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    chatScrollPane.setBorder(emptyBorder);
 
     frame.addComponentListener(
         new ComponentAdapter() {

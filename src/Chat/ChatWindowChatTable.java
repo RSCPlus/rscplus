@@ -1,44 +1,51 @@
 package Chat;
 
 import java.awt.*;
-import java.awt.event.HierarchyBoundsAdapter;
-import java.awt.event.HierarchyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class ChatWindowChatTable extends JTable {
+
   private Color backgroundColor = Color.decode("#282828");
-  //    private ChatWindowChatTableCellRenderer cellRenderer;
   private ChatWindowChatTableCellRenderer cellRenderer;
 
   public ChatWindowChatTable() {
     super();
 
     // Create cell renderer
-    //        cellRenderer = new ChatWindowChatTableCellRenderer();
     cellRenderer = new ChatWindowChatTableCellRenderer();
 
     // Setup table look/behavior
-    setCellSelectionEnabled(false);
-    setRowSelectionAllowed(false);
     setShowHorizontalLines(false);
     setTableHeader(null);
-    putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
-    addHierarchyBoundsListener(
-        new HierarchyBoundsAdapter() {
+    addMouseMotionListener(
+        new MouseAdapter() {
           @Override
-          public void ancestorResized(HierarchyEvent e) {
-            super.ancestorResized(e);
+          public void mouseMoved(MouseEvent e) {
+            super.mouseMoved(e);
 
-            //                resizeColumns();
+            Point point = e.getPoint();
+            int columnIndex = columnAtPoint(point);
+            int rowIndex = rowAtPoint(point);
+            ChatWindowChatTableCellRenderer renderer =
+                getPreparedCellRenderer(rowIndex, columnIndex);
+
+            int cursorType = Cursor.DEFAULT_CURSOR;
+            if (columnIndex == 1 && !renderer.getText().equals("")) {
+              cursorType = Cursor.TEXT_CURSOR;
+            }
+
+            setCursor(Cursor.getPredefinedCursor(cursorType));
+            //                System.out.format("[row: %d, column: %d] \n", rowIndex, columnIndex);
           }
         });
 
-    SwingUtilities.invokeLater(this::resizeColumns);
-
     setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    SwingUtilities.invokeLater(this::resizeColumns);
   }
 
   @Override
@@ -49,6 +56,21 @@ public class ChatWindowChatTable extends JTable {
   @Override
   public boolean isCellEditable(int row, int column) {
     return false;
+  }
+
+  @Override
+  public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+    if (columnIndex == 1) {
+      ChatWindowChatTableCellRenderer renderer = getPreparedCellRenderer(rowIndex, columnIndex);
+      Point mousePosition = MouseInfo.getPointerInfo().getLocation();
+      Point componentPosition = renderer.getLocation();
+      Point relativeMousePosition =
+          new Point(mousePosition.x - componentPosition.x, mousePosition.y - componentPosition.y);
+      System.out.println("changing selection: " + relativeMousePosition.toString());
+      renderer.selectAll();
+      System.out.format(
+          "[row: %d, column: %d] text: %s\n", rowIndex, columnIndex, renderer.getText());
+    }
   }
 
   public void resizeColumns() {
@@ -62,7 +84,9 @@ public class ChatWindowChatTable extends JTable {
 
     TableColumn targetColumn = columnModel.getColumn(columnIndex);
     for (int i = 0; i < getColumnCount(); i++) {
-      if (i == columnIndex) continue;
+      if (i == columnIndex) {
+        continue;
+      }
       TableColumn tempColumn = columnModel.getColumn(i);
       int tempColumnWidth = tempColumn.getPreferredWidth() + getIntercellSpacing().width;
       cumulativeWidth += tempColumnWidth;
@@ -81,8 +105,7 @@ public class ChatWindowChatTable extends JTable {
     int maxWidth = tableColumn.getMaxWidth();
 
     for (int row = 0; row < getRowCount(); row++) {
-      TableCellRenderer cellRenderer = getCellRenderer(row, columnIndex);
-      Component c = prepareRenderer(cellRenderer, row, columnIndex);
+      ChatWindowChatTableCellRenderer c = getPreparedCellRenderer(row, columnIndex);
       int width = c.getPreferredSize().width + getIntercellSpacing().width;
       preferredWidth = Math.max(preferredWidth, width);
 
@@ -103,5 +126,10 @@ public class ChatWindowChatTable extends JTable {
     for (int row = 0; row < getRowCount(); row++) {
       cellRenderer.adjustRowHeight(this, row, 1);
     }
+  }
+
+  private ChatWindowChatTableCellRenderer getPreparedCellRenderer(int rowIndex, int columnIndex) {
+    return (ChatWindowChatTableCellRenderer)
+        prepareRenderer(getCellRenderer(rowIndex, columnIndex), rowIndex, columnIndex);
   }
 }

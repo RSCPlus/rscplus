@@ -8,15 +8,14 @@ import javax.swing.text.*;
 
 public class ChatWindowChatTableCellRenderer extends JTextPane implements TableCellRenderer {
   private Color backgroundColor = Color.decode("#282828");
-  private AttributeSet defaultAttribs = getParagraphAttributes();
 
   public ChatWindowChatTableCellRenderer() {
     Border eb = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 
     //        setEditable(false);
     setBorder(eb);
-    //        setOpaque(false);
-    setBackground(Color.CYAN);
+    setBackground(backgroundColor);
+    setOpaque(false);
   }
 
   @Override
@@ -26,9 +25,8 @@ public class ChatWindowChatTableCellRenderer extends JTextPane implements TableC
 
     StyledDocument document = getStyledDocument();
 
-    // Clear existing content in the cell
     try {
-      //            document.setParagraphAttributes(0, document.getLength(), defaultAttribs, true);
+      // Clear existing content in the cell
       document.remove(0, document.getLength());
     } catch (BadLocationException e) {
       throw new RuntimeException(e);
@@ -83,26 +81,7 @@ public class ChatWindowChatTableCellRenderer extends JTextPane implements TableC
     // Important to check if this has been done already
     // to prevent a never-ending loop.
     if (newHeight != currentRowHeight) {
-      //            System.out.format("current row height: %d, new row height: %d\n",
-      // currentRowHeight, rowHeight);
       table.setRowHeight(newHeight);
     }
-  }
-
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    //        g.clearRect(0, 0, 50, 50);
-    //        try {
-    //            int width = getWidth();
-    //            int height = getHeight();
-    //
-    //            g.setColor(Color.BLUE);
-    //            g.fillRect(0, 0, width, height);
-    //
-    //            paintChildren(g);
-    //        } catch (IndexOutOfBoundsException e) {
-    ////            super.paintComponent(g);
-    //        }
   }
 }
