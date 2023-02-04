@@ -18,6 +18,7 @@
  */
 package Client;
 
+import Chat.ChatWindow;
 import Game.Client;
 import Game.Game;
 import Game.GameApplet;
@@ -44,6 +45,7 @@ public class Launcher extends JFrame implements Runnable {
   private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
   private static ChatHistoryWindow chatHistoryWindow;
+  private static ChatWindow chatWindow;
 
   public static ImageIcon icon = null;
   public static ImageIcon icon_warn = null;
@@ -451,6 +453,7 @@ public class Launcher extends JFrame implements Runnable {
 
     setConfigWindow(new ConfigWindow());
     setChatHistoryWindow(new ChatHistoryWindow());
+    setChatWindow(new ChatWindow());
 
     Settings.loadKeybinds(props);
     Settings.successfullyInitted = true;
@@ -460,6 +463,10 @@ public class Launcher extends JFrame implements Runnable {
     NotificationsHandler.initialize();
     SoundEffects.loadCustomSoundEffects();
     Launcher.getInstance().init();
+
+    // TODO: only for debug purposes
+    Logger.Info("Opening chat window");
+    Launcher.getChatWindow().showChatWindow();
   }
 
   public static Launcher getInstance() {
@@ -596,6 +603,14 @@ public class Launcher extends JFrame implements Runnable {
 
   public static void setChatHistoryWindow(ChatHistoryWindow chatHistoryWindow) {
     Launcher.chatHistoryWindow = chatHistoryWindow;
+  }
+
+  public static ChatWindow getChatWindow() {
+    return chatWindow;
+  }
+
+  public static void setChatWindow(ChatWindow chatWindow) {
+    Launcher.chatWindow = chatWindow;
   }
 
   /** @return the window */

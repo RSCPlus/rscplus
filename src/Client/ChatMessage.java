@@ -1,6 +1,6 @@
 package Client;
 
-class ChatMessage {
+public class ChatMessage {
   private final String username;
   private final String message;
   private final int type;

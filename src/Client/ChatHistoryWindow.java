@@ -252,13 +252,13 @@ public class ChatHistoryWindow {
     filterButtonsPanel.add(privateFilterButton);
 
     // Workaround for changing JTextPane background color
-    UIManager.put(
-        "TextPane[Enabled].backgroundPainter",
-        (Painter<JComponent>)
-            (g, comp, width, height) -> {
-              g.setColor(bgColor);
-              g.fillRect(0, 0, width, height);
-            });
+    //    UIManager.put(
+    //        "TextPane[Enabled].backgroundPainter",
+    //        (Painter<JComponent>)
+    //            (g, comp, width, height) -> {
+    //              g.setColor(bgColor);
+    //              g.fillRect(0, 0, width, height);
+    //            });
 
     // Add chat messages list
     chatTextPane = new JTextPane();
