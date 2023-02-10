@@ -7,13 +7,15 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.text.*;
 
 public class ChatWindowChatTableCellRenderer extends JTextPane implements TableCellRenderer {
+
   private Color backgroundColor = Color.decode("#282828");
+  private JTextPane textPane;
 
   public ChatWindowChatTableCellRenderer() {
-    Border eb = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+    textPane = new JTextPane();
 
-    //        setEditable(false);
-    setBorder(eb);
+    Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+    setBorder(emptyBorder);
     setBackground(backgroundColor);
     setOpaque(false);
   }

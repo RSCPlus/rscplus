@@ -2,11 +2,11 @@ package Chat;
 
 import Client.Launcher;
 import Client.Logger;
+import Game.Client;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Calendar;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -17,8 +17,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 public class ChatWindow {
 
-  private final Dimension frameDefaultSize = new Dimension(700, 650);
-  private final Dimension frameMinimumSize = new Dimension(625, 400);
+  private final Dimension frameDefaultSize = new Dimension(825, 650);
+  private final Dimension frameMinimumSize = new Dimension(725, 400);
   private JFrame frame;
   private JSplitPane frameSplitPane;
   private JPanel panelLeft;
@@ -27,12 +27,11 @@ public class ChatWindow {
 
   // Chat UI elements
   private JPanel chatPanel;
+  private ChatWindowHTMLChatView chatView;
   private JPanel inputFieldPanel;
   private JLabel inputFieldLabel;
   private JTextField inputField;
   private JScrollPane chatScrollPane;
-  private JTextPane chatTextPane;
-  private ChatWindowChatTable chatTable;
   private Color chatBgColor = Color.decode("#282828");
 
   // Channel list UI elements
@@ -45,6 +44,7 @@ public class ChatWindow {
   private JPanel friendsPanel;
   private JScrollPane friendsScrollPane;
   private JList friendsList;
+  private DefaultListModel<String> friendsListModel = new DefaultListModel<>();
 
   public ChatWindow() {
     try {
@@ -79,7 +79,6 @@ public class ChatWindow {
 
   public void showChatWindow() {
     frame.setVisible(true);
-    chatTable.resizeColumns();
   }
 
   public void hideChatWindow() {
@@ -117,8 +116,6 @@ public class ChatWindow {
     frame.setPreferredSize(frameDefaultSize);
     frame.setMinimumSize(frameMinimumSize);
     frame.pack();
-    //        frame.setAlwaysOnTop(true);
-    //        frame.setComponentZOrder(frame.get, 100);
     frame.setLocationRelativeTo(null);
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     URL iconURL = Launcher.getResource("/assets/icon.png");
@@ -130,19 +127,19 @@ public class ChatWindow {
     // Setup frame layout
     Container frameContent = frame.getContentPane();
 
-    frameContent.setBackground(Color.PINK);
+    //    frameContent.setBackground(Color.PINK);
 
     // Setup all panels
     BorderLayout panelLeftLayout = new BorderLayout();
 
     panelLeft = new JPanel();
     panelLeft.setLayout(panelLeftLayout);
-    panelLeft.setMinimumSize(new Dimension(300, 0));
-    panelLeft.setBackground(Color.RED);
+    panelLeft.setMinimumSize(new Dimension(450, 0));
+    //    panelLeft.setBackground(Color.RED);
     panelRight = new JPanel();
     panelRight.setLayout(new GridLayout(0, 1));
     panelRight.setMinimumSize(new Dimension(225, 0));
-    panelRight.setBackground(Color.ORANGE);
+    //    panelRight.setBackground(Color.ORANGE);
 
     chatPanel = new JPanel();
     chatPanel.setLayout(new GridLayout(0, 1));
@@ -155,7 +152,7 @@ public class ChatWindow {
     panelLeft.add(inputFieldPanel, BorderLayout.SOUTH);
 
     Font inputFieldFont = createFontBold(12);
-    inputFieldLabel = new JLabel("<USERNAME>");
+    inputFieldLabel = new JLabel("Not logged in");
     inputFieldLabel.setFont(inputFieldFont);
     inputField = new JTextField();
 
@@ -168,28 +165,6 @@ public class ChatWindow {
 
     frameContent.add(frameSplitPane);
 
-    // Workaround for changing JTextPane background color
-    //        SwingUtilities.invokeLater(() -> {
-    //            UIManager.put(
-    //                "TextPane[Enabled].backgroundPainter",
-    //                (Painter<JComponent>)
-    //                    (g, comp, width, height) -> {
-    //                        g.setColor(chatBgColor);
-    //                        g.fillRect(0, 0, width, height);
-    //                    });
-    //        });
-
-    // Init chat UI elements
-    //        chatTextPane = new JTextPane();
-    //        chatTextPane.setEditable(false);
-    //        chatTextPane.setForeground(Color.WHITE);
-    //        try {
-    //            chatTextPane.getDocument().insertString(chatTextPane.getDocument().getLength(),
-    // "hello world", new SimpleAttributeSet());
-    //        } catch (Exception e) {
-    //
-    //        }
-
     // Test table data
     String col[] = {"Username", "Message"};
 
@@ -201,35 +176,20 @@ public class ChatWindow {
           String.format(
               "[%d] The quick brown fox jumps over a lazy dog is the most famous pangram in English, that is the most short sentence in which all the 26 letters of the alphabet are used. For this reason, it is useful to test the graphic aspect of the fonts, because all the letters are immediately on hand.",
               i);
-      dtm.addRow(new Object[]{"Flowermate:", message});
+      dtm.addRow(new Object[] {"Flowermate:", message});
     }
 
-    chatTable = new ChatWindowChatTable();
-    chatTable.setModel(dtm);
+    chatView = new ChatWindowHTMLChatView();
 
     chatScrollPane =
         new JScrollPane(
-            chatTable,
+            chatView,
             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
     chatScrollPane.getViewport().setBackground(chatBgColor);
     Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
     chatScrollPane.setBorder(emptyBorder);
-
-    frame.addComponentListener(
-        new ComponentAdapter() {
-          @Override
-          public void componentResized(ComponentEvent e) {
-            super.componentResized(e);
-            chatTable.resizeColumns();
-          }
-        });
-    frameSplitPane.addPropertyChangeListener(
-        JSplitPane.DIVIDER_LOCATION_PROPERTY,
-        pce -> {
-          SwingUtilities.invokeLater(chatTable::resizeColumns);
-        });
 
     // Init channel list UI elements
     DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("__ROOT__");
@@ -265,6 +225,8 @@ public class ChatWindow {
 
     // Init friends list UI elements
     friendsList = new JList();
+    friendsList.setLayoutOrientation(JList.VERTICAL);
+    friendsList.setModel(friendsListModel);
     friendsScrollPane = new JScrollPane(friendsList);
 
     // -- Add UI elements to frame content --
@@ -277,7 +239,6 @@ public class ChatWindow {
     channelPanel = new JPanel();
     channelPanel.setLayout(new BorderLayout());
     channelPanel.setMinimumSize(new Dimension(0, rightPanelsMinHeight));
-    //        channelPanel.setBackground(Color.BLUE);
 
     // Create padding border for labels
     EmptyBorder labelBorder = createPaddingBorder(4);
@@ -294,7 +255,6 @@ public class ChatWindow {
     friendsPanel = new JPanel();
     friendsPanel.setLayout(new BorderLayout());
     friendsPanel.setMinimumSize(new Dimension(0, rightPanelsMinHeight));
-    //        friendsPanel.setBackground(Color.GREEN);
 
     // Add friends label and make it bold
     JLabel friendsPanelLabel = new JLabel("Friends");
@@ -317,6 +277,44 @@ public class ChatWindow {
 
     // Add friends list
     friendsPanel.add(friendsScrollPane);
+  }
+
+  public void registerChatMessage(String username, String message, int type) {
+    if (username == null) {
+      return;
+    }
+
+    long timestamp = Calendar.getInstance().getTimeInMillis();
+    ChatMessage chatMessage = new ChatMessage(username, message, timestamp, type);
+
+    chatView.registerChatMessage(chatMessage);
+  }
+
+  public void updatePlayerName() {
+    String playerName = Client.player_name;
+    if (playerName == null || playerName.equals("")) {
+      inputFieldLabel.setText("Not logged in");
+    } else {
+      inputFieldLabel.setText(playerName);
+    }
+  }
+
+  public void updateFriendsList() {
+    clearFriendsList();
+
+    for (int i = 0; i < Client.friends_count; i++) {
+      String friendName = Client.friends[i];
+      boolean isOnline = Client.friends_online[i] == 6; // online
+      if (friendName == null || friendName.equals("Global$") || !isOnline) {
+        continue;
+      }
+
+      friendsListModel.addElement(friendName);
+    }
+  }
+
+  public void clearFriendsList() {
+    friendsListModel.clear();
   }
 
   private Font createFont() {
