@@ -2670,6 +2670,8 @@ public class Settings {
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty(
+          "custom_ran_static_colour", Integer.toString(CUSTOM_RAN_STATIC_COLOUR.get(preset)));
+      props.setProperty(
           "custom_skybox_overworld_enabled",
           Boolean.toString(CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(preset)));
       props.setProperty(
