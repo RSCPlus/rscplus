@@ -335,7 +335,6 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
-  public static boolean DISABLE_RANDOM_CHAT_COLOUR_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -712,6 +711,7 @@ public class Settings {
     FOV.put("heavy", 9);
     FOV.put("all", 9);
     FOV.put("custom", 9);
+    // We don't actually want to load this from the settings for usability
     // FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
 
     FPS_LIMIT_ENABLED.put("vanilla", false);
@@ -3849,8 +3849,6 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
-    DISABLE_RANDOM_CHAT_COLOUR_BOOL = true; // TODO: Conker ??? what was the point of this again //
-    // DISABLE_RAN_CHAT_EFFECT.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

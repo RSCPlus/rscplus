@@ -740,60 +740,10 @@ public class ConfigWindow {
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
 
-    JPanel generalPanelLogVerbosityPanel = new JPanel();
-    generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(350, 128));
-    generalPanelLogVerbosityPanel.setLayout(
-        new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
-    generalPanel.add(generalPanelLogVerbosityPanel);
-
-    JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
-    generalPanelLogVerbosityTitle.setToolTipText(
-        "What max level of log text will be shown in the rscplus log/console");
-    generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
-    generalPanelLogVerbosityTitle.setAlignmentY((float) 0.9);
-
-    Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
-        new Hashtable<Integer, JLabel>();
-    generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Info"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(5), new JLabel("Opcode"));
-
-    generalPanelLogVerbositySlider = new JSlider();
-    generalPanelLogVerbositySlider.setMajorTickSpacing(1);
-    generalPanelLogVerbositySlider.setLabelTable(generalPanelLogVerbosityLabelTable);
-    generalPanelLogVerbositySlider.setPaintLabels(true);
-    generalPanelLogVerbositySlider.setPaintTicks(true);
-    generalPanelLogVerbositySlider.setSnapToTicks(true);
-    generalPanelLogVerbositySlider.setMinimum(0);
-    generalPanelLogVerbositySlider.setMaximum(5);
-    generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
-    generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-    generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
-    generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
-
-    generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
-    generalPanelLogTimestampsCheckbox.setToolTipText(
-        "Displays the time text was output to the log");
-
-    generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
-    generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
-
-    generalPanelLogForceTimestampsCheckbox = addCheckbox("Force timestamps in log", generalPanel);
-    generalPanelLogForceTimestampsCheckbox.setToolTipText(
-        "Forces display of the time text was output to the log");
-
-    generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
-    generalPanelLogForceLevelCheckbox.setToolTipText(
-        "Forces display of the log level of output in the log");
-
-    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
-    generalPanelColoredTextCheckbox.setToolTipText(
-        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
+    generalPanelUseJagexFontsCheckBox =
+        addCheckbox("Override system font with Jagex fonts", generalPanel);
+    generalPanelUseJagexFontsCheckBox.setToolTipText(
+        "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
 
     generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
     generalPanelDebugModeCheckbox.setToolTipText(
@@ -1311,10 +1261,65 @@ public class ConfigWindow {
     generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
         "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
 
-    generalPanelUseJagexFontsCheckBox =
-        addCheckbox("Override system font with Jagex fonts", generalPanel);
-    generalPanelUseJagexFontsCheckBox.setToolTipText(
-        "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
+    // Logger settings
+
+    addSettingsHeader(generalPanel, "Logging settings");
+
+    JPanel generalPanelLogVerbosityPanel = new JPanel();
+    generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(350, 128));
+    generalPanelLogVerbosityPanel.setLayout(
+        new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
+    generalPanel.add(generalPanelLogVerbosityPanel);
+
+    JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
+    generalPanelLogVerbosityTitle.setToolTipText(
+        "What max level of log text will be shown in the rscplus log/console");
+    generalPanelLogVerbosityTitle.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
+    generalPanelLogVerbosityTitle.setAlignmentY((float) 1);
+
+    Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Info"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(5), new JLabel("Opcode"));
+
+    generalPanelLogVerbositySlider = new JSlider();
+    generalPanelLogVerbositySlider.setMajorTickSpacing(1);
+    generalPanelLogVerbositySlider.setLabelTable(generalPanelLogVerbosityLabelTable);
+    generalPanelLogVerbositySlider.setPaintLabels(true);
+    generalPanelLogVerbositySlider.setPaintTicks(true);
+    generalPanelLogVerbositySlider.setSnapToTicks(true);
+    generalPanelLogVerbositySlider.setMinimum(0);
+    generalPanelLogVerbositySlider.setMaximum(5);
+    generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
+    generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+    generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
+    generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
+
+    generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
+    generalPanelLogTimestampsCheckbox.setToolTipText(
+        "Displays the time text was output to the log");
+
+    generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
+    generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
+
+    generalPanelLogForceTimestampsCheckbox = addCheckbox("Force timestamps in log", generalPanel);
+    generalPanelLogForceTimestampsCheckbox.setToolTipText(
+        "Forces display of the time text was output to the log");
+
+    generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
+    generalPanelLogForceLevelCheckbox.setToolTipText(
+        "Forces display of the log level of output in the log");
+
+    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+    generalPanelColoredTextCheckbox.setToolTipText(
+        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
 
     /*
      * Overlays tab
