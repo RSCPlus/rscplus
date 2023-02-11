@@ -4566,7 +4566,7 @@ public class JClassPatcher {
                   start,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
-                      "Game/Renderer",
+                      "Client/RanOverrideEffect",
                       "getRanEffectOverrideColour",
                       "(I)I",
                       false));
