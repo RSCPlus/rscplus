@@ -4544,35 +4544,17 @@ public class JClassPatcher {
             LdcInsnNode ldcNode = (LdcInsnNode) start;
 
             if (ldcNode.cst instanceof Double && (double) ldcNode.cst == 1.6777215E7) {
-              methodNode.instructions.insertBefore(
-                  start,
-                  new MethodInsnNode(
-                      Opcodes.INVOKESTATIC,
-                      "Client/Settings",
-                      "updateInjectedVariables",
-                      "()V",
-                      false));
-              methodNode.instructions.insertBefore(
-                  start,
-                  new FieldInsnNode(
-                      Opcodes.GETSTATIC,
-                      "Client/Settings",
-                      "DISABLE_RANDOM_CHAT_COLOUR_BOOL",
-                      "Z"));
-              methodNode.instructions.insertBefore(
-                  start, new JumpInsnNode(Opcodes.IFEQ, defaultRanColorLabel));
               methodNode.instructions.insertBefore(start, new VarInsnNode(Opcodes.ILOAD, 5));
               methodNode.instructions.insertBefore(
                   start,
                   new MethodInsnNode(
                       Opcodes.INVOKESTATIC,
-                      "Game/Renderer",
+                      "Client/RanOverrideEffect",
                       "getRanEffectOverrideColour",
                       "(I)I",
                       false));
               methodNode.instructions.insertBefore(
                   start, new JumpInsnNode(Opcodes.GOTO, skipRanColorLabel));
-              methodNode.instructions.insertBefore(start, defaultRanColorLabel);
               methodNode.instructions.insert(
                   start.getNext().getNext().getNext(), skipRanColorLabel);
 

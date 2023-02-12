@@ -113,8 +113,9 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> DISABLE_RANDOM_CHAT_COLOUR =
-      new HashMap<String, Boolean>();
+  public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
+      new HashMap<String, RanOverrideEffectType>();
+  public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
@@ -125,6 +126,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> CUSTOM_SKYBOX_UNDERGROUND_COLOUR =
       new HashMap<String, Integer>();
+  public static HashMap<String, Integer> CUSTOM_RAN_STATIC_COLOUR = new HashMap<String, Integer>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
@@ -333,7 +335,6 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
-  public static boolean DISABLE_RANDOM_CHAT_COLOUR_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -709,7 +710,9 @@ public class Settings {
     FOV.put("default", 9);
     FOV.put("heavy", 9);
     FOV.put("all", 9);
-    FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
+    FOV.put("custom", 9);
+    // We don't actually want to load this from the settings for usability
+    // FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
 
     FPS_LIMIT_ENABLED.put("vanilla", false);
     FPS_LIMIT_ENABLED.put("vanilla_resizable", false);
@@ -737,16 +740,26 @@ public class Settings {
     SOFTWARE_CURSOR.put(
         "custom", getPropBoolean(props, "software_cursor", SOFTWARE_CURSOR.get("default")));
 
-    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla_resizable", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("lite", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("default", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("heavy", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("all", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put(
+    CUSTOM_RAN_CHAT_EFFECT.put("vanilla", RanOverrideEffectType.VANILLA);
+    CUSTOM_RAN_CHAT_EFFECT.put("vanilla_resizable", RanOverrideEffectType.VANILLA);
+    CUSTOM_RAN_CHAT_EFFECT.put("lite", RanOverrideEffectType.SLOWER);
+    CUSTOM_RAN_CHAT_EFFECT.put("default", RanOverrideEffectType.SLOWER);
+    CUSTOM_RAN_CHAT_EFFECT.put("heavy", RanOverrideEffectType.GLOW1);
+    CUSTOM_RAN_CHAT_EFFECT.put("all", RanOverrideEffectType.GLOW1);
+    CUSTOM_RAN_CHAT_EFFECT.put(
         "custom",
-        getPropBoolean(
-            props, "disable_ran_chat_effect", DISABLE_RANDOM_CHAT_COLOUR.get("default")));
+        RanOverrideEffectType.getById(
+            getPropInt(
+                props, "custom_ran_chat_effect", CUSTOM_RAN_CHAT_EFFECT.get("default").id())));
+
+    RAN_EFFECT_TARGET_FPS.put("vanilla", 50);
+    RAN_EFFECT_TARGET_FPS.put("vanilla_resizable", 50);
+    RAN_EFFECT_TARGET_FPS.put("lite", 10);
+    RAN_EFFECT_TARGET_FPS.put("default", 10);
+    RAN_EFFECT_TARGET_FPS.put("heavy", 10);
+    RAN_EFFECT_TARGET_FPS.put("all", 10);
+    RAN_EFFECT_TARGET_FPS.put(
+        "custom", getPropInt(props, "ran_effect_target_fps", RAN_EFFECT_TARGET_FPS.get("default")));
 
     VIEW_DISTANCE.put("vanilla", 2300);
     VIEW_DISTANCE.put("vanilla_resizable", 3000);
@@ -798,6 +811,16 @@ public class Settings {
             props,
             "custom_skybox_overworld_colour",
             CUSTOM_SKYBOX_OVERWORLD_COLOUR.get("default")));
+
+    CUSTOM_RAN_STATIC_COLOUR.put("vanilla", 0xFFFFFF);
+    CUSTOM_RAN_STATIC_COLOUR.put("vanilla_resizable", 0xFFFFFF);
+    CUSTOM_RAN_STATIC_COLOUR.put("lite", 0x9933FF);
+    CUSTOM_RAN_STATIC_COLOUR.put("default", 0x9933FF); // classic purple
+    CUSTOM_RAN_STATIC_COLOUR.put("heavy", 0x9933FF);
+    CUSTOM_RAN_STATIC_COLOUR.put("all", 0x68478D); // royal purple alternative
+    CUSTOM_RAN_STATIC_COLOUR.put(
+        "custom",
+        getPropInt(props, "custom_ran_static_colour", CUSTOM_RAN_STATIC_COLOUR.get("default")));
 
     CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla", false);
     CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla_resizable", false);
@@ -2641,9 +2664,13 @@ public class Settings {
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty(
-          "disable_ran_chat_effect", Boolean.toString(DISABLE_RANDOM_CHAT_COLOUR.get(preset)));
+          "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
+      props.setProperty(
+          "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
+      props.setProperty(
+          "custom_ran_static_colour", Integer.toString(CUSTOM_RAN_STATIC_COLOUR.get(preset)));
       props.setProperty(
           "custom_skybox_overworld_enabled",
           Boolean.toString(CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(preset)));
@@ -3822,7 +3849,6 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
-    DISABLE_RANDOM_CHAT_COLOUR_BOOL = DISABLE_RANDOM_CHAT_COLOUR.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
