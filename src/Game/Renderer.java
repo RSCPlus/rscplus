@@ -194,8 +194,14 @@ public class Renderer {
     shellStrings[23] = shellStrings[23].replaceAll("2015", "2018");
 
     // Resize game window
-    new_size.width = 512;
-    new_size.height = 346;
+    new_size.width = 512 + (ScaledWindow.getInstance().getWindowWidthInsets() * 2);
+    new_size.height = 346 + (ScaledWindow.getInstance().getWindowHeightInsets() * 2);
+
+    if (Util.isModernWindowsOS()) {
+      new_size.width -= 16;
+      new_size.height -= 16;
+    }
+
     handle_resize();
 
     // Set the rendering scalar according to the user's options

@@ -377,20 +377,20 @@ public class Settings {
         "custom", getPropBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE.get("default")));
 
     CUSTOM_CLIENT_SIZE_X.put("vanilla", 512);
-    CUSTOM_CLIENT_SIZE_X.put("vanilla_resizable", 512);
-    CUSTOM_CLIENT_SIZE_X.put("lite", 512);
-    CUSTOM_CLIENT_SIZE_X.put("default", 512);
-    CUSTOM_CLIENT_SIZE_X.put("heavy", 512);
-    CUSTOM_CLIENT_SIZE_X.put("all", 512);
+    CUSTOM_CLIENT_SIZE_X.put("vanilla_resizable", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("lite", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("default", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("heavy", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("all", 1024);
     CUSTOM_CLIENT_SIZE_X.put(
         "custom", getPropInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X.get("default")));
 
     CUSTOM_CLIENT_SIZE_Y.put("vanilla", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("vanilla_resizable", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("lite", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("default", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("heavy", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("all", 346);
+    CUSTOM_CLIENT_SIZE_Y.put("vanilla_resizable", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("lite", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("default", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("heavy", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("all", 692);
     CUSTOM_CLIENT_SIZE_Y.put(
         "custom", getPropInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y.get("default")));
 
@@ -2490,8 +2490,8 @@ public class Settings {
    * pre-existing keybinding.
    */
   private static void resolveNewDefaults() {
-    // show_player_controls was rebound from alt-up to alt-c
     for (KeybindSet keybind : KeyboardHandler.keybindSetList) {
+      // 02/12/23 - show_player_controls was rebound from alt-up to alt-c
       if (keybind.getCommandName().equals("show_player_controls")) {
         if (keybind.getModifier().equals(KeyModifier.ALT) && keybind.getKey() == KeyEvent.VK_UP) {
           keybind.setModifier(KeyModifier.ALT);
