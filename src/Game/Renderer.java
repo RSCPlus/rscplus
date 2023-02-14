@@ -24,14 +24,17 @@ import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
+import Client.ScaledWindow;
 import Client.Settings;
 import Client.Util;
 import Client.WikiURL;
 import Client.WorldMapWindow;
+import Game.MouseHandler.BufferedMouseClick;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -41,6 +44,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
 import java.awt.image.RasterFormatException;
@@ -53,7 +57,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import javax.imageio.ImageIO;
 
 /** Handles rendering overlays and client adjustments based on window size */
@@ -108,6 +114,11 @@ public class Renderer {
   public static Image image_wiki_hbar_inactive;
   public static Image image_wiki_hbar_active;
   private static BufferedImage game_image;
+  public static int imageType;
+  public static float renderingScalar;
+  public static final float minScalar = 1.0f;
+  public static final float maxIntegerScalar = 15.0f;
+  public static final float maxInterpolationScalar = 5.0f;
 
   private static Dimension new_size = new Dimension(0, 0);
 
@@ -118,7 +129,8 @@ public class Renderer {
 
   private static int frames = 0;
   private static long fps_timer = 0;
-  private static boolean screenshot = false;
+  // Note: this should only ever be called in one place to guarantee queue integrity
+  private static final Queue<Boolean> screenshotFlagBuffer = new LinkedList<>();
   public static int videorecord = 0;
   public static int videolength = 0;
   public static int screenshot_scenery_angle = 0;
@@ -133,8 +145,6 @@ public class Renderer {
   public static int replayOption = 0;
 
   public static String[] shellStrings;
-
-  private static boolean macOS_resize_workaround = Util.isMacOS();
 
   public static boolean quietScreenshot = false;
 
@@ -184,9 +194,18 @@ public class Renderer {
     shellStrings[23] = shellStrings[23].replaceAll("2015", "2018");
 
     // Resize game window
-    new_size.width = 512;
-    new_size.height = 346;
+    new_size.width = 512 + (ScaledWindow.getInstance().getWindowWidthInsets() * 2);
+    new_size.height = 346 + (ScaledWindow.getInstance().getWindowHeightInsets() * 2);
+
+    if (Util.isModernWindowsOS()) {
+      new_size.width -= 16;
+      new_size.height -= 16;
+    }
+
     handle_resize();
+
+    // Set the rendering scalar according to the user's options
+    updateRenderingScalarAndResize(true);
 
     // Load fonts
     try {
@@ -224,6 +243,63 @@ public class Renderer {
     }
   }
 
+  /** Updates the rendering scalar and resizes the window accordingly */
+  private static void updateRenderingScalarAndResize(boolean onInit) {
+    float scalar = getRenderingScalar();
+    imageType = getImageType();
+
+    // Reset the game image with the current type to ensure that affineOp
+    // scaling will always have matching source and destination types
+    game_image = new BufferedImage(width, height, imageType);
+
+    if (scalar != renderingScalar) {
+      // Handle rendering scalar value changes
+      renderingScalar = scalar;
+
+      // Only reset the custom window size spinners after initial loading;
+      // whatever was in the settings file before exiting last time can be
+      // assumed to be valid on startup
+      if (!onInit) {
+        ScaledWindow.getInstance().updateCustomWindowSizeFromSettings();
+      }
+
+      // Resize window only after it has begun rendering the game image,
+      // (ie. not the loading screen)
+      if (ScaledWindow.getInstance().isViewportLoaded()) {
+        ScaledWindow.getInstance().resizeWindowToScalar();
+      }
+    } else {
+      // Handle window size changes when the scalar did not change,
+      // typically due to settings window changes
+      if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
+        int customClientWidth = Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile);
+        int customClientHeight = Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile);
+
+        Dimension maxWindowDimensions = ScaledWindow.getInstance().getMaximumEffectiveWindowSize();
+        int maxWindowWidth = maxWindowDimensions.width;
+        int maxWindowHeight = maxWindowDimensions.height;
+
+        // If window is maximized in the Windows OS sense and custom size matches
+        // max window boundaries, don't resize or realign the window
+        if (ScaledWindow.getInstance().getExtendedState() == Frame.MAXIMIZED_BOTH
+            && customClientWidth == maxWindowWidth
+            && customClientHeight == maxWindowHeight) {
+          return;
+        }
+
+        int frameWidth = customClientWidth + ScaledWindow.getInstance().getWindowWidthInsets();
+        int frameHeight = customClientHeight + ScaledWindow.getInstance().getWindowHeightInsets();
+
+        // Only set the size and align the window if the window actually changed sizes
+        if (ScaledWindow.getInstance().getWidth() != frameWidth
+            || ScaledWindow.getInstance().getHeight() != frameHeight) {
+          ScaledWindow.getInstance().setWindowRealignmentIntent(true);
+          ScaledWindow.getInstance().setSize(new Dimension(frameWidth, frameHeight));
+        }
+      }
+    }
+  }
+
   public static void resize(int w, int h) {
     new_size.width = Math.max(w, 512);
     new_size.height = Math.max(h, 346);
@@ -235,7 +311,8 @@ public class Renderer {
 
     height_client = height - 12;
     pixels = new int[width * height];
-    game_image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+    game_image = new BufferedImage(width, height, getImageType());
 
     Camera.resize();
     Menu.resize();
@@ -256,33 +333,74 @@ public class Renderer {
     }
   }
 
+  /**
+   * Grab the scaling algorithm from the settings, defaulting to {@link BufferedImage#TYPE_INT_RGB}
+   */
+  private static int getImageType() {
+    if (Settings.SCALED_CLIENT_WINDOW.get(Settings.currentProfile)) {
+      if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_NEAREST_NEIGHBOR)) {
+        return BufferedImage.TYPE_INT_RGB;
+      } else if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_BILINEAR)) {
+        return BufferedImage.TYPE_3BYTE_BGR;
+      } else if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_BICUBIC)) {
+        return BufferedImage.TYPE_3BYTE_BGR;
+      }
+    }
+
+    return BufferedImage.TYPE_INT_RGB;
+  }
+
+  /**
+   * Grab the rendering scalar from the settings, depending on the chosen scaling algorithm.
+   * Defaults to {@code 1.0f}
+   */
+  private static float getRenderingScalar() {
+    if (Settings.SCALED_CLIENT_WINDOW.get(Settings.currentProfile)) {
+      if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_NEAREST_NEIGHBOR)) {
+        return Settings.INTEGER_SCALING_FACTOR.get(Settings.currentProfile);
+      } else if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_BILINEAR)) {
+        return Settings.BILINEAR_SCALING_FACTOR.get(Settings.currentProfile);
+      } else if (Settings.SCALING_ALGORITHM
+          .get(Settings.currentProfile)
+          .equals(AffineTransformOp.TYPE_BICUBIC)) {
+        return Settings.BICUBIC_SCALING_FACTOR.get(Settings.currentProfile);
+      }
+    }
+
+    return 1.0f;
+  }
+
   private static int lastPercentHP = 100;
   private static int lastFatigue = 0;
 
   private static float lastBaseDrainRate = 0;
   private static float lastAdjustedDrainRate = 0;
 
-  public static void present(Graphics g, Image image) {
+  public static void present(Image image) {
     // Update timing
     long new_time = System.currentTimeMillis();
     delta_time = (float) (new_time - time) / 1000.0f;
     time = new_time;
     alpha_time = 0.25f + (((float) Math.sin(time / 100) + 1.0f) / 2.0f * 0.75f);
 
-    // This workaround is required to use custom resolution on macOS
-    if (macOS_resize_workaround) {
-      if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
-        Game.getInstance().resizeFrameWithContents();
-      } else {
-        Game.getInstance().pack();
-        Game.getInstance().setLocationRelativeTo(null);
-      }
-      macOS_resize_workaround = false;
-    }
-
     // Reset dialogue option after force pressed in replay
     if (Replay.isPlaying && KeyboardHandler.dialogue_option != -1)
       KeyboardHandler.dialogue_option = -1;
+
+    if (Settings.renderingScalarUpdateRequired) {
+      updateRenderingScalarAndResize(false);
+      Settings.renderingScalarUpdateRequired = false;
+    }
 
     Graphics2D g2 =
         (Graphics2D) game_image.getGraphics(); // TODO: Declare g2 outside of the present method
@@ -294,6 +412,13 @@ public class Renderer {
     g2.drawImage(image_border, startingPixel, height - 13, width - startingPixel, 13, null);
 
     // In-game UI
+
+    // Attempt to grab a buffered mouse click
+    BufferedMouseClick bufferedMouseClick = MouseHandler.getBufferedMouseClick();
+
+    // Grab the screenshot intent from the buffer
+    boolean screenshot = getScreenshotFlag();
+
     if (Client.state == Client.STATE_GAME) {
       int npcCount = 0;
       int playerCount = 0;
@@ -728,7 +853,7 @@ public class Renderer {
       // render XP bar/drop
       Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
-      Client.xpbar.draw(g2);
+      Client.xpbar.draw(g2, bufferedMouseClick);
 
       if (!Client.isSleeping()) {
         Client.updateCurrentFatigue();
@@ -752,7 +877,7 @@ public class Renderer {
         }
       }
       // Handles drawing bank value, bank sort panel, & bank filter panel
-      Bank.drawBankAugmentations(g2);
+      Bank.drawBankAugmentations(g2, bufferedMouseClick);
 
       // World Map
       // Arrow marker for destination
@@ -779,8 +904,8 @@ public class Renderer {
       }
 
       // RSC Wiki integration
-      if (WikiURL.nextClickIsLookup && MouseHandler.mouseClicked) {
-        if (MouseHandler.rightClick) {
+      if (WikiURL.nextClickIsLookup && bufferedMouseClick.isMouseClicked()) {
+        if (bufferedMouseClick.isRightClick()) {
           WikiURL.nextClickIsLookup = false;
           Client.displayMessage("Cancelled lookup.", Client.CHAT_NONE);
         } else {
@@ -812,13 +937,13 @@ public class Renderer {
       if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
         int xCoord = Client.wikiLookupReplacesReportAbuse() ? 410 : 410 + 90 + 12;
         int yCoord = height - 16;
-        // Handle replay play selection click
-        if (MouseHandler.x >= xCoord + 3 // + 3 for hbar shadow included in image
-            && MouseHandler.x <= xCoord + 3 + 90
-            && MouseHandler.y >= height - 16
-            && MouseHandler.y <= height
-            && MouseHandler.mouseClicked) {
-          if (!MouseHandler.rightClick) {
+        // Handle wiki lookup click
+        if (bufferedMouseClick.getX() >= xCoord + 3 // + 3 for hbar shadow included in image
+            && bufferedMouseClick.getX() <= xCoord + 3 + 90
+            && bufferedMouseClick.getY() >= height - 16
+            && bufferedMouseClick.getY() <= height
+            && bufferedMouseClick.isMouseClicked()) {
+          if (!bufferedMouseClick.isRightClick()) {
             Client.displayMessage(
                 "Click on something to look it up on the wiki...", Client.CHAT_NONE);
             WikiURL.nextClickIsLookup = true;
@@ -832,8 +957,8 @@ public class Renderer {
       }
 
       // Hiscores integration
-      if (HiscoresURL.nextClickIsLookup && MouseHandler.mouseClicked) {
-        if (MouseHandler.rightClick) {
+      if (HiscoresURL.nextClickIsLookup && bufferedMouseClick.isMouseClicked()) {
+        if (bufferedMouseClick.isRightClick()) {
           HiscoresURL.nextClickIsLookup = false;
           Client.displayMessage("Cancelled lookup.", Client.CHAT_NONE);
         } else {
@@ -872,9 +997,10 @@ public class Renderer {
       }
 
       // Interface rsc+ buttons
-      // Map Button
       if (Settings.RSCPLUS_BUTTONS_FUNCTIONAL.get(Settings.currentProfile)
           || Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
+
+        // Map Button
         Rectangle mapButtonBounds = new Rectangle(width - 68, 3, 32, 32);
         if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
@@ -891,12 +1017,12 @@ public class Renderer {
                 mapButtonBounds.y + 4);
           }
 
-          // Handle replay play selection click
-          if (MouseHandler.x >= mapButtonBounds.x
-              && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-              && MouseHandler.y >= mapButtonBounds.y
-              && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-              && MouseHandler.mouseClicked) {
+          // Handle map button click
+          if (bufferedMouseClick.getX() >= mapButtonBounds.x
+              && bufferedMouseClick.getX() <= mapButtonBounds.x + mapButtonBounds.width
+              && bufferedMouseClick.getY() >= mapButtonBounds.y
+              && bufferedMouseClick.getY() <= mapButtonBounds.y + mapButtonBounds.height
+              && bufferedMouseClick.isMouseClicked()) {
 
             Launcher.getWorldMapWindow().toggleWorldMapWindow();
           }
@@ -919,12 +1045,12 @@ public class Renderer {
                 mapButtonBounds.y + 4);
           }
 
-          // Handle replay play selection click
-          if (MouseHandler.x >= mapButtonBounds.x
-              && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-              && MouseHandler.y >= mapButtonBounds.y
-              && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-              && MouseHandler.mouseClicked) {
+          // Handle settings button click
+          if (bufferedMouseClick.getX() >= mapButtonBounds.x
+              && bufferedMouseClick.getX() <= mapButtonBounds.x + mapButtonBounds.width
+              && bufferedMouseClick.getY() >= mapButtonBounds.y
+              && bufferedMouseClick.getY() <= mapButtonBounds.y + mapButtonBounds.height
+              && bufferedMouseClick.isMouseClicked()) {
             Launcher.getConfigWindow().toggleConfigWindow();
           }
         }
@@ -947,13 +1073,13 @@ public class Renderer {
                   mapButtonBounds.y + 4);
             }
 
-            // Handle replay play selection click
-            if (MouseHandler.x >= mapButtonBounds.x
-                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                && MouseHandler.y >= mapButtonBounds.y
-                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                && MouseHandler.mouseClicked) {
-              if (!MouseHandler.rightClick) {
+            // Handle magic book button click
+            if (bufferedMouseClick.getX() >= mapButtonBounds.x
+                && bufferedMouseClick.getX() <= mapButtonBounds.x + mapButtonBounds.width
+                && bufferedMouseClick.getY() >= mapButtonBounds.y
+                && bufferedMouseClick.getY() <= mapButtonBounds.y + mapButtonBounds.height
+                && bufferedMouseClick.isMouseClicked()) {
+              if (!bufferedMouseClick.isRightClick()) {
                 Client.displayMessage(
                     "Click on something to look it up on the wiki...", Client.CHAT_NONE);
                 WikiURL.nextClickIsLookup = true;
@@ -981,13 +1107,13 @@ public class Renderer {
                   mapButtonBounds.y + 4);
             }
 
-            // Handle replay play selection click
-            if (MouseHandler.x >= mapButtonBounds.x
-                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                && MouseHandler.y >= mapButtonBounds.y
-                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                && MouseHandler.mouseClicked) {
-              if (MouseHandler.rightClick) {
+            // Handle friends button click
+            if (bufferedMouseClick.getX() >= mapButtonBounds.x
+                && bufferedMouseClick.getX() <= mapButtonBounds.x + mapButtonBounds.width
+                && bufferedMouseClick.getY() >= mapButtonBounds.y
+                && bufferedMouseClick.getY() <= mapButtonBounds.y + mapButtonBounds.height
+                && bufferedMouseClick.isMouseClicked()) {
+              if (bufferedMouseClick.isRightClick()) {
                 if (Settings.MOTIVATIONAL_QUOTES_BUTTON.get(Settings.currentProfile)) {
                   Client.displayMotivationalQuote();
                 }
@@ -1031,13 +1157,13 @@ public class Renderer {
                   mapButtonBounds.y + 4);
             }
 
-            // Handle replay play selection click
-            if (MouseHandler.x >= mapButtonBounds.x
-                && MouseHandler.x <= mapButtonBounds.x + mapButtonBounds.width
-                && MouseHandler.y >= mapButtonBounds.y
-                && MouseHandler.y <= mapButtonBounds.y + mapButtonBounds.height
-                && MouseHandler.mouseClicked) {
-              if (MouseHandler.rightClick) {
+            // Handle stats menu click
+            if (bufferedMouseClick.getX() >= mapButtonBounds.x
+                && bufferedMouseClick.getX() <= mapButtonBounds.x + mapButtonBounds.width
+                && bufferedMouseClick.getY() >= mapButtonBounds.y
+                && bufferedMouseClick.getY() <= mapButtonBounds.y + mapButtonBounds.height
+                && bufferedMouseClick.isMouseClicked()) {
+              if (bufferedMouseClick.isRightClick()) {
                 Settings.toggleXPBar();
               } else {
                 Settings.toggleXPBarPin();
@@ -1050,26 +1176,26 @@ public class Renderer {
       // Handle setting XP Bar stat from STATS menu
       if (Client.show_menu == Client.MENU_STATS_QUESTS
           && Client.show_stats_or_quests == Client.MENU_STATS
-          && MouseHandler.mouseClicked) {
+          && bufferedMouseClick.isMouseClicked()) {
         int xOffset = width - 199;
         int yOffset = 85;
         boolean clickedSkill = false;
         int selectedSkill = -1;
         for (int skillIdx = 0; skillIdx < 9; ++skillIdx) {
           // Column 1
-          if (MouseHandler.x > xOffset + 3
-              && MouseHandler.x < xOffset + 90
-              && MouseHandler.y >= yOffset - 11
-              && MouseHandler.y < yOffset + 2) {
+          if (bufferedMouseClick.getX() > xOffset + 3
+              && bufferedMouseClick.getX() < xOffset + 90
+              && bufferedMouseClick.getY() >= yOffset - 11
+              && bufferedMouseClick.getY() < yOffset + 2) {
             selectedSkill = skillIdx;
             clickedSkill = true;
             break;
           }
           // Column 2
-          if (MouseHandler.x >= xOffset + 90
-              && MouseHandler.x < xOffset + 196
-              && MouseHandler.y >= yOffset - 24
-              && MouseHandler.y < yOffset - 11) {
+          if (bufferedMouseClick.getX() >= xOffset + 90
+              && bufferedMouseClick.getX() < xOffset + 196
+              && bufferedMouseClick.getY() >= yOffset - 24
+              && bufferedMouseClick.getY() < yOffset - 11) {
             selectedSkill = skillIdx + 9;
             clickedSkill = true;
             break;
@@ -1404,11 +1530,11 @@ public class Renderer {
             g2, worldString, bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true);
 
         // Handle world selection click
-        if (MouseHandler.x >= bounds.x
-            && MouseHandler.x <= bounds.x + bounds.width
-            && MouseHandler.y >= bounds.y
-            && MouseHandler.y <= bounds.y + bounds.height
-            && MouseHandler.mouseClicked) {
+        if (bufferedMouseClick.getX() >= bounds.x
+            && bufferedMouseClick.getX() <= bounds.x + bounds.width
+            && bufferedMouseClick.getY() >= bounds.y
+            && bufferedMouseClick.getY() <= bounds.y + bounds.height
+            && bufferedMouseClick.isMouseClicked()) {
           Game.getInstance().getJConfig().changeWorld(i);
         }
       }
@@ -1522,11 +1648,11 @@ public class Renderer {
             true);
 
         // Handle replay record selection click
-        if (MouseHandler.x >= recordButtonBounds.x
-            && MouseHandler.x <= recordButtonBounds.x + recordButtonBounds.width
-            && MouseHandler.y >= recordButtonBounds.y
-            && MouseHandler.y <= recordButtonBounds.y + recordButtonBounds.height
-            && MouseHandler.mouseClicked) {
+        if (bufferedMouseClick.getX() >= recordButtonBounds.x
+            && bufferedMouseClick.getX() <= recordButtonBounds.x + recordButtonBounds.width
+            && bufferedMouseClick.getY() >= recordButtonBounds.y
+            && bufferedMouseClick.getY() <= recordButtonBounds.y + recordButtonBounds.height
+            && bufferedMouseClick.isMouseClicked()) {
           Client.showRecordAlwaysDialogue = true;
 
           if (replayOption == 1) {
@@ -1565,11 +1691,11 @@ public class Renderer {
             true);
 
         // Handle replay play selection click
-        if (MouseHandler.x >= playButtonBounds.x
-            && MouseHandler.x <= playButtonBounds.x + playButtonBounds.width
-            && MouseHandler.y >= playButtonBounds.y
-            && MouseHandler.y <= playButtonBounds.y + playButtonBounds.height
-            && MouseHandler.mouseClicked) {
+        if (bufferedMouseClick.getX() >= playButtonBounds.x
+            && bufferedMouseClick.getX() <= playButtonBounds.x + playButtonBounds.width
+            && bufferedMouseClick.getY() >= playButtonBounds.y
+            && bufferedMouseClick.getY() <= playButtonBounds.y + playButtonBounds.height
+            && bufferedMouseClick.isMouseClicked()) {
           if (replayOption == 2) {
             replayOption = 0;
           } else {
@@ -1719,7 +1845,7 @@ public class Renderer {
               true,
               0);
 
-          if (!Replay.isSeeking && MouseHandler.mouseClicked) Replay.seek(timestamp);
+          if (!Replay.isSeeking && bufferedMouseClick.isMouseClicked()) Replay.seek(timestamp);
         }
 
         if (Replay.isSeeking) {
@@ -1774,8 +1900,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, previousBounds.y + 2, shapeHeight, "previous");
 
-          if (MouseHandler.inPlaybackButtonBounds(previousBounds) && MouseHandler.mouseClicked)
-            Replay.controlPlayback("prev");
+          if (MouseHandler.inPlaybackButtonBounds(previousBounds)
+              && bufferedMouseClick.isMouseClicked()) Replay.controlPlayback("prev");
 
           // slowdown button
           slowForwardBounds =
@@ -1809,7 +1935,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, slowForwardBounds.y + 2, shapeHeight, "slowforward");
 
-          if (MouseHandler.inPlaybackButtonBounds(slowForwardBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(slowForwardBounds)
+              && bufferedMouseClick.isMouseClicked()) {
             Replay.controlPlayback("ff_minus");
           }
 
@@ -1842,7 +1969,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, playPauseBounds.y + 2, shapeHeight, "playpause");
 
-          if (MouseHandler.inPlaybackButtonBounds(playPauseBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(playPauseBounds)
+              && bufferedMouseClick.isMouseClicked()) {
             Replay.togglePause();
           }
           // fastforward button
@@ -1877,7 +2005,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, fastForwardBounds.y + 2, shapeHeight, "fastforward");
 
-          if (MouseHandler.inPlaybackButtonBounds(fastForwardBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(fastForwardBounds)
+              && bufferedMouseClick.isMouseClicked()) {
             Replay.controlPlayback("ff_plus");
           }
 
@@ -1906,8 +2035,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, nextBounds.y + 2, shapeHeight, "next");
 
-          if (MouseHandler.inPlaybackButtonBounds(nextBounds) && MouseHandler.mouseClicked)
-            Replay.controlPlayback("next");
+          if (MouseHandler.inPlaybackButtonBounds(nextBounds)
+              && bufferedMouseClick.isMouseClicked()) Replay.controlPlayback("next");
 
           // open queue button (right aligned)
           queueBounds =
@@ -1939,7 +2068,8 @@ public class Renderer {
               color_white,
               false);
 
-          if (MouseHandler.inPlaybackButtonBounds(queueBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(queueBounds)
+              && bufferedMouseClick.isMouseClicked()) {
             Launcher.getQueueWindow().showQueueWindow();
           }
 
@@ -1968,7 +2098,8 @@ public class Renderer {
                   - (int) ((float) shapeHeight / 2.0);
           drawPlayerControlShape(g2, shapeX, stopBounds.y + 2, shapeHeight, "stop");
 
-          if (MouseHandler.inPlaybackButtonBounds(stopBounds) && MouseHandler.mouseClicked) {
+          if (MouseHandler.inPlaybackButtonBounds(stopBounds)
+              && bufferedMouseClick.isMouseClicked()) {
             Replay.controlPlayback("stop");
           }
         }
@@ -1983,6 +2114,9 @@ public class Renderer {
 
     g2.dispose();
 
+    // Forward the image to be drawn by ScaledWindow.java
+    ScaledWindow.getInstance().setGameImage(game_image);
+
     // Right now is a good time to take a screenshot if one is requested
     if (screenshot) {
       try {
@@ -1996,7 +2130,6 @@ public class Renderer {
               "@cya@Screenshot saved to '" + screenshotFile.toString() + "'", Client.CHAT_NONE);
       } catch (Exception e) {
       }
-      screenshot = false;
     }
 
     if (videorecord > 0) {
@@ -2063,8 +2196,6 @@ public class Renderer {
         Camera.delta_rotation = (float) Camera.rotation;
       }
     }
-
-    g.drawImage(game_image, 0, 0, null);
 
     frames++;
 
@@ -2140,14 +2271,13 @@ public class Renderer {
     }
 
     // handle resize
-    if (width != new_size.width || height != new_size.height) handle_resize();
+    if (width != new_size.width || height != new_size.height) {
+      handle_resize();
+    }
     if (Settings.fovUpdateRequired) {
       Camera.setFoV(Settings.FOV.get(Settings.currentProfile));
       Settings.fovUpdateRequired = false;
     }
-
-    // Reset the mouse click handler
-    MouseHandler.mouseClicked = false;
 
     // state of show_bank "last frame"
     show_bank_last = Client.show_bank;
@@ -2548,9 +2678,20 @@ public class Renderer {
     }
   }
 
+  /** Grabs a screenshot intent from the buffer */
+  public static boolean getScreenshotFlag() {
+    if (screenshotFlagBuffer.peek() == null) {
+      return false;
+    }
+
+    return screenshotFlagBuffer.poll();
+  }
+
   public static void takeScreenshot(boolean quiet) {
     quietScreenshot = quiet;
-    screenshot = true;
+
+    // Add a screenshot intent to the buffer
+    screenshotFlagBuffer.add(true);
   }
 
   private static String fixLengthString(String string) {

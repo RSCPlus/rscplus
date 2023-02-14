@@ -40,6 +40,7 @@ public class Launcher extends JFrame implements Runnable {
 
   // Singleton
   private static Launcher instance;
+  private static ScaledWindow scaledWindow;
   private static ConfigWindow configWindow;
   private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
@@ -71,6 +72,8 @@ public class Launcher extends JFrame implements Runnable {
   // then we won't need to cheat by loading images of text like this
   public static ImageIcon icon_filter_text = null;
   public static ImageIcon icon_sort_text = null;
+
+  public static int numCores;
 
   private JProgressBar m_progressBar;
   private JClassLoader m_classLoader;
@@ -433,6 +436,12 @@ public class Launcher extends JFrame implements Runnable {
   }
 
   public static void main(String[] args) {
+    // Do this before anything else runs to override OS-level
+    // dpi settings, since we have in-client scaling now
+    System.setProperty("sun.java2d.uiScale.enabled", "false");
+    System.setProperty("sun.java2d.uiScale", "1");
+    numCores = Runtime.getRuntime().availableProcessors();
+
     Logger.start();
     Settings.initDir();
     Properties props = Settings.initSettings();
@@ -448,6 +457,7 @@ public class Launcher extends JFrame implements Runnable {
               + "You may encounter additional bugs, for best results use version 8.");
     }
 
+    setScaledWindow(ScaledWindow.getInstance());
     setConfigWindow(new ConfigWindow());
     Settings.loadKeybinds(props);
     Settings.successfullyInitted = true;
@@ -596,6 +606,16 @@ public class Launcher extends JFrame implements Runnable {
   /** @param worldMapWindow the window to set */
   public static void setWorldMapWindow(WorldMapWindow worldMapWindow) {
     Launcher.worldMapWindow = worldMapWindow;
+  }
+
+  /** @return the window */
+  public static ScaledWindow getScaledWindow() {
+    return scaledWindow;
+  }
+
+  /** @param scaledWindow the window to set */
+  public static void setScaledWindow(ScaledWindow scaledWindow) {
+    Launcher.scaledWindow = scaledWindow;
   }
 
   /** @return the window */

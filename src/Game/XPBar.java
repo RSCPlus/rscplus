@@ -20,6 +20,7 @@ package Game;
 
 import Client.Logger;
 import Client.Settings;
+import Game.MouseHandler.BufferedMouseClick;
 import java.awt.*;
 import java.text.NumberFormat;
 
@@ -70,7 +71,7 @@ public class XPBar {
    *
    * @param g the Graphics2D object
    */
-  void draw(Graphics2D g) {
+  void draw(Graphics2D g, BufferedMouseClick bufferedMouseClick) {
     if (Client.show_bank || Client.show_sleeping) {
       // looks ugly & covers text, must hide.
       return;
@@ -161,7 +162,7 @@ public class XPBar {
             && showingMenu);
 
     if (hoveringOverBar()) {
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isRightClick()) {
         showingMenu = true;
       } else {
         if (!showingMenu) {
@@ -184,7 +185,7 @@ public class XPBar {
       }
     }
 
-    if (showingMenu) drawMenu(g, x, y);
+    if (showingMenu) drawMenu(g, x, y, bufferedMouseClick);
 
     Renderer.setAlpha(g, 1.0f);
   }
@@ -198,7 +199,7 @@ public class XPBar {
         && alpha > 0.01;
   }
 
-  private void drawMenu(Graphics2D g, int x, int y) {
+  private void drawMenu(Graphics2D g, int x, int y, BufferedMouseClick bufferedMouseClick) {
     x = xp_bar_x;
     y = xp_bar_y + bounds.height;
 
@@ -217,7 +218,7 @@ public class XPBar {
     // Option 0
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         resetXPGainStart();
       }
     } else {
@@ -229,7 +230,7 @@ public class XPBar {
     // Option 1
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         setXPGoal();
       }
     } else {
@@ -242,7 +243,7 @@ public class XPBar {
     // Option 2
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         pinSkill();
       }
     } else {
@@ -255,7 +256,7 @@ public class XPBar {
     // Option 3
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         Settings.toggleActionCount();
       }
     } else {
@@ -268,7 +269,7 @@ public class XPBar {
     // Option 4
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         Settings.toggleTimeCount();
       }
     } else {
@@ -281,7 +282,7 @@ public class XPBar {
     // Option 5
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
-      if (MouseHandler.mouseClicked) {
+      if (bufferedMouseClick.isMouseClicked()) {
         Settings.toggleXPBarPin();
       }
     } else {

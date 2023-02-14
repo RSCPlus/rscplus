@@ -1671,6 +1671,15 @@ public class Client {
       String[] commandArray = line.substring(2, line.length()).toLowerCase().split(" ");
 
       switch (commandArray[0]) {
+        case "togglescaling":
+          Settings.toggleWindowScaling();
+          break;
+        case "scaleup":
+          Settings.increaseScale();
+          break;
+        case "scaledown":
+          Settings.decreaseScale();
+          break;
         case "togglebypassattack":
           Settings.toggleAttackAlwaysLeftClick();
           break;
