@@ -226,7 +226,6 @@ public class ScaledWindow extends JFrame
 
   /** Opens the window */
   public void launchScaledWindow() {
-    setSize(512 + getWindowWidthInsets(), 346 + getWindowHeightInsets());
     setLocationRelativeTo(null);
     setVisible(true);
   }
