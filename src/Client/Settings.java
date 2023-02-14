@@ -123,6 +123,8 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
+      new HashMap<String, Boolean>();
   public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
@@ -798,6 +800,17 @@ public class Settings {
     SOFTWARE_CURSOR.put("all", true);
     SOFTWARE_CURSOR.put(
         "custom", getPropBoolean(props, "software_cursor", SOFTWARE_CURSOR.get("default")));
+
+    SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla_resizable", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("lite", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("default", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("heavy", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("all", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put(
+        "custom",
+        getPropBoolean(
+            props, "shift_scroll_camera_rotation", SHIFT_SCROLL_CAMERA_ROTATION.get("default")));
 
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla", RanOverrideEffectType.VANILLA);
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla_resizable", RanOverrideEffectType.VANILLA);
@@ -2753,6 +2766,9 @@ public class Settings {
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty(
+          "shift_scroll_camera_rotation",
+          Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
+      props.setProperty(
           "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
       props.setProperty(
           "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
@@ -3568,6 +3584,19 @@ public class Settings {
     save();
   }
 
+  public static void toggleTrackpadRotation() {
+    SHIFT_SCROLL_CAMERA_ROTATION.put(
+        currentProfile, !SHIFT_SCROLL_CAMERA_ROTATION.get(currentProfile));
+
+    if (SHIFT_SCROLL_CAMERA_ROTATION.get(currentProfile)) {
+      Client.displayMessage("@cya@Trackpad Camera Rotation is now enabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Trackpad Camera Rotation is now disabled", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void toggleColorTerminal() {
     COLORIZE_CONSOLE_TEXT.put(currentProfile, !COLORIZE_CONSOLE_TEXT.get(currentProfile));
 
@@ -3836,6 +3865,9 @@ public class Settings {
         return true;
       case "reset_rotation":
         Camera.resetRotation();
+        return true;
+      case "toggle_trackpad_camera_rotation":
+        Settings.toggleTrackpadRotation();
         return true;
       case "toggle_colorize":
         Settings.toggleColorTerminal();
