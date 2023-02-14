@@ -3238,6 +3238,7 @@ public class ConfigWindow {
                 + "<li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li>"
                 + "<li><b>conker</b>, client scaling, font consistency, menu scrolling, & other improvements</li>"
                 + "<li><b>nickzuber</b>, fixed some bugs</li>"
+                + "<li><b>Yumeko</b>, fixed Twitch chat integration in 2023</li>"
                 + "<li><b>sammy123k</b>, added an option to center the XP progress bar</li>"
                 + "<li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
 
