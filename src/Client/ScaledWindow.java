@@ -227,7 +227,6 @@ public class ScaledWindow extends JFrame
   /** Opens the window */
   public void launchScaledWindow() {
     setSize(512 + getWindowWidthInsets(), 346 + getWindowHeightInsets());
-    setResizable(false);
     setLocationRelativeTo(null);
     setVisible(true);
   }
@@ -252,8 +251,6 @@ public class ScaledWindow extends JFrame
 
     if (scaledViewport.isViewportImageLoaded()) {
       if (initialRender) {
-        setResizable(true);
-
         // Resize to the custom window size, if it is defined
         if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
           int customClientWidth = Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile);
