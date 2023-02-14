@@ -440,6 +440,7 @@ public class Launcher extends JFrame implements Runnable {
     // dpi settings, since we have in-client scaling now
     System.setProperty("sun.java2d.uiScale.enabled", "false");
     System.setProperty("sun.java2d.uiScale", "1");
+
     numCores = Runtime.getRuntime().availableProcessors();
 
     Logger.start();

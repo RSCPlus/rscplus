@@ -187,6 +187,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
+  private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
   private JCheckBox generalPanelCustomRandomChatColourCheckbox;
   private JRadioButton generalPanelRanEntirelyDisableButton;
   private JRadioButton generalPanelRanReduceFrequencyButton;
@@ -968,6 +969,11 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
+
+    generalPanelShiftScrollCameraRotationCheckbox =
+        addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
+    generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
+        "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -2750,6 +2756,12 @@ public class ConfigWindow {
         "reset_rotation",
         KeyModifier.ALT,
         KeyEvent.VK_N);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle trackpad camera rotation",
+        "toggle_trackpad_camera_rotation",
+        KeyModifier.ALT,
+        KeyEvent.VK_D);
 
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
@@ -3755,6 +3767,8 @@ public class ConfigWindow {
     generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
+    generalPanelShiftScrollCameraRotationCheckbox.setSelected(
+        Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -4216,6 +4230,8 @@ public class ConfigWindow {
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
     Settings.SOFTWARE_CURSOR.put(
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
+    Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
+        Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());

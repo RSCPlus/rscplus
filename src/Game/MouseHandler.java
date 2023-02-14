@@ -427,7 +427,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   }
 
   private void zoomCamera(MouseWheelEvent e) {
-    if (e.isShiftDown()) {
+    if (e.isShiftDown() && Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile)) {
       // Allows compatible trackpads to rotate the camera on 2-finger swipe
       // motions. Also rotates the camera when holding shift in general.
       Camera.addRotation(e.getWheelRotation() * -4);
