@@ -106,6 +106,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_DISK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> NUMBERED_DIALOGUE_OPTIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_SCROLLING =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
@@ -665,6 +666,15 @@ public class Settings {
     ATTACK_ALWAYS_LEFT_CLICK.put("all", true);
     ATTACK_ALWAYS_LEFT_CLICK.put(
         "custom", getPropBoolean(props, "bypass_attack", ATTACK_ALWAYS_LEFT_CLICK.get("default")));
+
+    NUMBERED_DIALOGUE_OPTIONS.put("vanilla", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("vanilla_resizable", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("lite", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("default", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("heavy", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("all", true);
+    NUMBERED_DIALOGUE_OPTIONS.put(
+        "custom", getPropBoolean(props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
 
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla", false);
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla_resizable", false);
@@ -2744,6 +2754,7 @@ public class Settings {
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
+      props.setProperty("numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
       props.setProperty(
           "enable_mousewheel_scrolling", Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
       props.setProperty(
@@ -3244,6 +3255,21 @@ public class Settings {
     } else {
       Client.displayMessage(
           "@cya@You are no longer able to left click attack all monsters", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleNumberedDialogue() {
+    NUMBERED_DIALOGUE_OPTIONS.put(
+        currentProfile, new Boolean(!NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)));
+
+    if (NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@No longer displaying numbered dialogue options", Client.CHAT_NONE);
     }
 
     save();
@@ -3937,6 +3963,9 @@ public class Settings {
         return true;
       case "toggle_bypass_attack":
         Settings.toggleAttackAlwaysLeftClick();
+        return true;
+      case "toggle_numbered_dialogue":
+        Settings.toggleNumberedDialogue();
         return true;
       case "toggle_roof_hiding":
         Settings.toggleHideRoofs();

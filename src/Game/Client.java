@@ -2715,6 +2715,14 @@ public class Client {
     if (Settings.PARSE_OPCODES.get(Settings.currentProfile)
         && (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) return;
 
+    if (Settings.NUMBERED_DIALOGUE_OPTIONS.get(Settings.currentProfile)) {
+      for (int i = 0; i < 5; i++) {
+        if (menuOptions[i] != null) {
+          menuOptions[i] = "(" + (i + 1) + ") " + menuOptions[i];
+        }
+      }
+    }
+
     Client.printReceivedOptions(menuOptions, count);
   }
 
