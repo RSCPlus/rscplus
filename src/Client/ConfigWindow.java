@@ -175,6 +175,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
   private JCheckBox generalPanelBypassAttackCheckbox;
+  private JCheckBox generalPanelNumberedDialogueOptionsCheckbox;
   private JCheckBox generalPanelEnableMouseWheelScrollingCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
@@ -1407,6 +1408,10 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
     generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    generalPanelNumberedDialogueOptionsCheckbox = addCheckbox("Display numbers next to dialogue options", generalPanel);
+    generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
+        "Displays a number next to each option within a conversational menu");
 
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
@@ -2678,6 +2683,12 @@ public class ConfigWindow {
         KeyEvent.VK_O);
     addKeybindSet(
         keybindContainerPanel,
+        "Toggle numbered dialogue",
+        "toggle_numbered_dialogue",
+        KeyModifier.ALT,
+        KeyEvent.VK_B);
+    addKeybindSet(
+        keybindContainerPanel,
         "Show world map window",
         "show_worldmap_window",
         KeyModifier.ALT,
@@ -3720,6 +3731,8 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+    generalPanelNumberedDialogueOptionsCheckbox.setSelected(
+        Settings.NUMBERED_DIALOGUE_OPTIONS.get(Settings.currentProfile));
     generalPanelEnableMouseWheelScrollingCheckbox.setSelected(
         Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
@@ -4208,6 +4221,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+    Settings.NUMBERED_DIALOGUE_OPTIONS.put(
+        Settings.currentProfile, generalPanelNumberedDialogueOptionsCheckbox.isSelected());
     Settings.ENABLE_MOUSEWHEEL_SCROLLING.put(
         Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
