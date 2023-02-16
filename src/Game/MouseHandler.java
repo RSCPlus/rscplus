@@ -43,6 +43,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   public static boolean rightClick = false;
   public static MouseListener listener_mouse = null;
   public static MouseMotionListener listener_mouse_motion = null;
+  public static Rectangle chatScrollbarBounds = null;
 
   private boolean m_rotating = false;
   private Point m_rotatePosition;
@@ -380,6 +381,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
           handleMenuScroll(
               wheelRotation, currScrollLimit, scroll, Menu.friend_handle, Menu.friend_menu);
+        } else if (shouldScrollChat()) {
+          int[] scroll = (int[]) Reflection.menuScroll.get(Menu.chat_menu);
+
+          int currentChatMenu = getCurrentChatType();
+
+          handleMenuScroll(wheelRotation, 20, scroll, currentChatMenu, Menu.chat_menu);
         } else {
           zoomCamera(e);
         }
@@ -389,6 +396,53 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     } else {
       zoomCamera(e);
     }
+  }
+
+  private boolean shouldScrollChat() {
+    // Exit if not in-game
+    if (Menu.chat_menu == null || Reflection.menuX == null) {
+      return false;
+    }
+
+    // Scroll bar must be showing
+    try {
+      int currentChatType = getCurrentChatType();
+      if (currentChatType == -1) {
+        return false;
+      }
+
+      int[] chatMessages = (int[]) Reflection.menuItemArray.get(Menu.chat_menu);
+      int messageCount = chatMessages[currentChatType];
+      if (messageCount < 5) {
+        return false;
+      }
+    } catch (IllegalAccessException e) {
+      return false; // just in case
+    }
+
+    // Either holding control
+    if (Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile) && KeyboardHandler.keyControl) {
+      return true;
+    }
+
+    // Or hovering over scrollbar bounds
+    chatScrollbarBounds = new Rectangle(Renderer.width - 16, Renderer.height - 75, 12, 58);
+    return x >= chatScrollbarBounds.x
+        && x <= chatScrollbarBounds.x + chatScrollbarBounds.width
+        && y >= chatScrollbarBounds.y
+        && y <= chatScrollbarBounds.y + chatScrollbarBounds.height;
+  }
+
+  private int getCurrentChatType() {
+    if (Menu.chat_selected == 1) {
+      return Menu.chat_type1;
+    } else if (Menu.chat_selected == 2) {
+      return Menu.chat_type2;
+    } else if (Menu.chat_selected == 3) {
+      return Menu.chat_type3;
+    }
+
+    return -1;
   }
 
   private void handleMenuScroll(

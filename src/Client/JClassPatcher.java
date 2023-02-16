@@ -627,13 +627,15 @@ public class JClassPatcher {
           "Ljava/lang/Object;",
           true,
           false);
-      hookClassVariable(
+      hookClassVariable( // Selected tab
+          methodNode, "client", "Zh", "I", "Game/Menu", "chat_selected", "I", true, false);
+      hookClassVariable( // Chat history
           methodNode, "client", "Fh", "I", "Game/Menu", "chat_type1", "I", true, false);
-      hookClassVariable(
+      hookClassVariable( // All messages
           methodNode, "client", "bh", "I", "Game/Menu", "chat_input", "I", true, false);
-      hookClassVariable(
+      hookClassVariable( // Quest history
           methodNode, "client", "ud", "I", "Game/Menu", "chat_type2", "I", true, false);
-      hookClassVariable(
+      hookClassVariable( // Private history
           methodNode, "client", "mc", "I", "Game/Menu", "chat_type3", "I", true, false);
 
       // Quest menu

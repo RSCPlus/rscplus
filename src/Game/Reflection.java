@@ -70,6 +70,7 @@ public class Reflection {
   public static Field menuTextSize = null;
   public static Field menuText = null;
   public static Field menuCount = null;
+  public static Field menuItemArray = null;
 
   public static Field memberMapPack = null;
   public static Field memberLandscapePack = null;
@@ -734,6 +735,7 @@ public class Reflection {
       menuTextSize = c.getDeclaredField("k");
       menuText = c.getDeclaredField("yb");
       menuCount = c.getDeclaredField("eb");
+      menuItemArray = c.getDeclaredField("pb");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
         if (method.toGenericString().equals(ADDBUTTONBACK)) {
@@ -847,6 +849,7 @@ public class Reflection {
       if (menuTextSize != null) menuTextSize.setAccessible(true);
       if (menuText != null) menuText.setAccessible(true);
       if (menuCount != null) menuCount.setAccessible(true);
+      if (menuItemArray != null) menuItemArray.setAccessible(true);
       if (getParameter != null) getParameter.setAccessible(true);
       if (displayMessage != null) displayMessage.setAccessible(true);
       if (setCameraSize != null) setCameraSize.setAccessible(true);
