@@ -3508,7 +3508,7 @@ public class Client {
       // both wiki lookup and report abuse button are enabled
       // want to make room for hp/prayer/fatigue overlay if possible
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)
-      && !Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
+          && !Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
         // there is a 90 pixel region where HP/Prayer/Fatigue overlay can't be drawn, but both
         // Report Abuse & Wiki lookup can
         return (Renderer.width < 900 && Renderer.width >= 704) || Renderer.width < 512 + 90 + 12;

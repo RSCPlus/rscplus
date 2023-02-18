@@ -676,7 +676,9 @@ public class Settings {
     NUMBERED_DIALOGUE_OPTIONS.put("heavy", false);
     NUMBERED_DIALOGUE_OPTIONS.put("all", true);
     NUMBERED_DIALOGUE_OPTIONS.put(
-        "custom", getPropBoolean(props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
+        "custom",
+        getPropBoolean(
+            props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
 
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla", false);
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla_resizable", false);
@@ -1465,7 +1467,10 @@ public class Settings {
     ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("all", false);
     ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
         "custom",
-        getPropBoolean(props, "always_show_statusdisplay_text", ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get("default")));
+        getPropBoolean(
+            props,
+            "always_show_statusdisplay_text",
+            ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get("default")));
 
     SHOW_BUFFS.put("vanilla", false);
     SHOW_BUFFS.put("vanilla_resizable", false);
@@ -2766,7 +2771,8 @@ public class Settings {
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
-      props.setProperty("numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
+      props.setProperty(
+          "numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
       props.setProperty(
           "enable_mousewheel_scrolling", Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
       props.setProperty(
@@ -2897,7 +2903,8 @@ public class Settings {
       props.setProperty(
           "show_statusdisplay", Boolean.toString(SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
       props.setProperty(
-          "always_show_statusdisplay_text", Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
+          "always_show_statusdisplay_text",
+          Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
@@ -3279,8 +3286,7 @@ public class Settings {
         currentProfile, new Boolean(!NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)));
 
     if (NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)) {
-      Client.displayMessage(
-          "@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
+      Client.displayMessage("@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
     } else {
       Client.displayMessage(
           "@cya@No longer displaying numbered dialogue options", Client.CHAT_NONE);
@@ -3429,19 +3435,6 @@ public class Settings {
       Client.displayMessage("@cya@HP/Prayer/Fatigue are now shown", Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@HP/Prayer/Fatigue are now hidden", Client.CHAT_NONE);
-    }
-
-    save();
-  }
-
-  public static void toggleHpPrayerFatigueOverlayAlwaysText() {
-    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
-        currentProfile, !ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(currentProfile));
-
-    if (ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(currentProfile)) {
-      Client.displayMessage("@cya@HP/Prayer/Fatigue will always show as text", Client.CHAT_NONE);
-    } else {
-      Client.displayMessage("@cya@HP/Prayer/Fatigue will no longer always show as text", Client.CHAT_NONE);
     }
 
     save();

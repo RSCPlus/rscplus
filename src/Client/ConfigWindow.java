@@ -1410,7 +1410,8 @@ public class ConfigWindow {
         "Left click attack monsters regardless of level difference");
     generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
-    generalPanelNumberedDialogueOptionsCheckbox = addCheckbox("Display numbers next to dialogue options", generalPanel);
+    generalPanelNumberedDialogueOptionsCheckbox =
+        addCheckbox("Display numbers next to dialogue options", generalPanel);
     generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
         "Displays a number next to each option within a conversational menu");
 
@@ -1580,8 +1581,10 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
-    overlayPanelStatusAlwaysTextCheckbox = addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
-    overlayPanelStatusAlwaysTextCheckbox.setToolTipText("Always show the status display as text even at larger client sizes");
+    overlayPanelStatusAlwaysTextCheckbox =
+        addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
+    overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
+        "Always show the status display as text even at larger client sizes");
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
