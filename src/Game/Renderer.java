@@ -690,7 +690,7 @@ public class Renderer {
       }
 
       if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
-        if (!roomInHbarForHPPrayerFatigueOverlay()) {
+        if (!roomInHbarForHPPrayerFatigueOverlay() || Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
           if (!Client.isInterfaceOpen() && !Client.show_questionmenu) {
             setAlpha(g2, alphaHP);
             drawShadowText(
