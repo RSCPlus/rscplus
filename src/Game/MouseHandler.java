@@ -426,7 +426,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     }
 
     // Or hovering over scrollbar bounds
-    chatScrollbarBounds = new Rectangle(Renderer.width - 16, Renderer.height - 75, 12, 58);
+    chatScrollbarBounds = new Rectangle(Renderer.width - 16, Renderer.height - 75, 16, 58);
     return x >= chatScrollbarBounds.x
         && x <= chatScrollbarBounds.x + chatScrollbarBounds.width
         && y >= chatScrollbarBounds.y
