@@ -188,6 +188,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
+  private JCheckBox generalPanelCtrlScrollChatCheckbox;
   private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
   private JCheckBox generalPanelCustomRandomChatColourCheckbox;
   private JRadioButton generalPanelRanEntirelyDisableButton;
@@ -971,6 +972,11 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
 
+    generalPanelCtrlScrollChatCheckbox =
+        addCheckbox("Hold ctrl to scroll through chat history from anywhere", generalPanel);
+    generalPanelCtrlScrollChatCheckbox.setToolTipText(
+        "Holding CTRL allows you to scroll through the currently-selected chat history from anywhere");
+
     generalPanelShiftScrollCameraRotationCheckbox =
         addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
     generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
@@ -1409,7 +1415,8 @@ public class ConfigWindow {
         "Left click attack monsters regardless of level difference");
     generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
-    generalPanelNumberedDialogueOptionsCheckbox = addCheckbox("Display numbers next to dialogue options", generalPanel);
+    generalPanelNumberedDialogueOptionsCheckbox =
+        addCheckbox("Display numbers next to dialogue options", generalPanel);
     generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
         "Displays a number next to each option within a conversational menu");
 
@@ -2773,7 +2780,12 @@ public class ConfigWindow {
         "toggle_trackpad_camera_rotation",
         KeyModifier.ALT,
         KeyEvent.VK_D);
-
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle ctrl to scroll chat history",
+        "toggle_ctrl_scroll",
+        KeyModifier.ALT,
+        KeyEvent.VK_H);
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
         keybindContainerPanel,
@@ -3780,6 +3792,8 @@ public class ConfigWindow {
     generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
+    generalPanelCtrlScrollChatCheckbox.setSelected(
+        Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
     generalPanelShiftScrollCameraRotationCheckbox.setSelected(
         Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
@@ -4245,6 +4259,8 @@ public class ConfigWindow {
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
     Settings.SOFTWARE_CURSOR.put(
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
+    Settings.CTRL_SCROLL_CHAT.put(
+        Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
     Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
         Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
     Settings.AUTO_SCREENSHOT.put(

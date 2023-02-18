@@ -28,6 +28,7 @@ public class Menu {
   public static int chat_type2;
   public static int chat_type3;
   public static int chat_input;
+  public static int chat_selected;
 
   public static Object quest_menu;
   public static int quest_handle;

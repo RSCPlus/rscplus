@@ -124,6 +124,7 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
   public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
@@ -674,7 +675,9 @@ public class Settings {
     NUMBERED_DIALOGUE_OPTIONS.put("heavy", false);
     NUMBERED_DIALOGUE_OPTIONS.put("all", true);
     NUMBERED_DIALOGUE_OPTIONS.put(
-        "custom", getPropBoolean(props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
+        "custom",
+        getPropBoolean(
+            props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
 
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla", false);
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla_resizable", false);
@@ -810,6 +813,15 @@ public class Settings {
     SOFTWARE_CURSOR.put("all", true);
     SOFTWARE_CURSOR.put(
         "custom", getPropBoolean(props, "software_cursor", SOFTWARE_CURSOR.get("default")));
+
+    CTRL_SCROLL_CHAT.put("vanilla", false);
+    CTRL_SCROLL_CHAT.put("vanilla_resizable", false);
+    CTRL_SCROLL_CHAT.put("lite", false);
+    CTRL_SCROLL_CHAT.put("default", true);
+    CTRL_SCROLL_CHAT.put("heavy", true);
+    CTRL_SCROLL_CHAT.put("all", true);
+    CTRL_SCROLL_CHAT.put(
+        "custom", getPropBoolean(props, "ctrl_scroll_chat", CTRL_SCROLL_CHAT.get("default")));
 
     SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla", false);
     SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla_resizable", false);
@@ -2754,7 +2766,8 @@ public class Settings {
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
-      props.setProperty("numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
+      props.setProperty(
+          "numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
       props.setProperty(
           "enable_mousewheel_scrolling", Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
       props.setProperty(
@@ -2776,6 +2789,7 @@ public class Settings {
       props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
+      props.setProperty("ctrl_scroll_chat", Boolean.toString(CTRL_SCROLL_CHAT.get(preset)));
       props.setProperty(
           "shift_scroll_camera_rotation",
           Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
@@ -3265,8 +3279,7 @@ public class Settings {
         currentProfile, new Boolean(!NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)));
 
     if (NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)) {
-      Client.displayMessage(
-          "@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
+      Client.displayMessage("@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
     } else {
       Client.displayMessage(
           "@cya@No longer displaying numbered dialogue options", Client.CHAT_NONE);
@@ -3623,6 +3636,22 @@ public class Settings {
     save();
   }
 
+  public static void toggleCtrlScroll() {
+    CTRL_SCROLL_CHAT.put(currentProfile, !CTRL_SCROLL_CHAT.get(currentProfile));
+
+    if (CTRL_SCROLL_CHAT.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Hold CTRL to scroll through chat history from anywhere is now enabled",
+          Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@Hold CTRL to scroll through chat history from anywhere is now disabled",
+          Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void toggleColorTerminal() {
     COLORIZE_CONSOLE_TEXT.put(currentProfile, !COLORIZE_CONSOLE_TEXT.get(currentProfile));
 
@@ -3894,6 +3923,9 @@ public class Settings {
         return true;
       case "toggle_trackpad_camera_rotation":
         Settings.toggleTrackpadRotation();
+        return true;
+      case "toggle_ctrl_scroll":
+        Settings.toggleCtrlScroll();
         return true;
       case "toggle_colorize":
         Settings.toggleColorTerminal();
