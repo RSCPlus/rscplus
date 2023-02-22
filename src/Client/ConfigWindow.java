@@ -265,6 +265,7 @@ public class ConfigWindow {
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
+  private JSlider audioPanelSfxVolumeSlider;
   private JCheckBox audioPanelLouderSoundEffectsCheckbox;
   private JCheckBox audioPanelOverrideAudioSettingCheckbox;
   private JRadioButton audioPanelOverrideAudioSettingOnButton;
@@ -1837,9 +1838,36 @@ public class ConfigWindow {
     audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
     audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
+    JLabel audioPanelSfxVolumeLabel = new JLabel("Sound effects volume");
+    audioPanelSfxVolumeLabel.setToolTipText("Sets the volume for game sound effects");
+    audioPanelSfxVolumeLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    audioPanel.add(audioPanelSfxVolumeLabel);
+    audioPanelSfxVolumeLabel.setAlignmentY((float) 1);
+
+    audioPanelSfxVolumeSlider = new JSlider();
+
+    audioPanel.add(audioPanelSfxVolumeSlider);
+    audioPanelSfxVolumeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelSfxVolumeSlider.setMaximumSize(new Dimension(350, 55));
+    audioPanelSfxVolumeSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    audioPanelSfxVolumeSlider.setMinorTickSpacing(5);
+    audioPanelSfxVolumeSlider.setMajorTickSpacing(10);
+    audioPanelSfxVolumeSlider.setMinimum(0);
+    audioPanelSfxVolumeSlider.setMaximum(100);
+    audioPanelSfxVolumeSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> audioPanelSfxVolumeTable = new Hashtable<Integer, JLabel>();
+    audioPanelSfxVolumeTable.put(new Integer(0), new JLabel("0"));
+    audioPanelSfxVolumeTable.put(new Integer(25), new JLabel("25"));
+    audioPanelSfxVolumeTable.put(new Integer(50), new JLabel("50"));
+    audioPanelSfxVolumeTable.put(new Integer(75), new JLabel("75"));
+    audioPanelSfxVolumeTable.put(new Integer(100), new JLabel("100"));
+    audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
+    audioPanelSfxVolumeSlider.setPaintLabels(true);
+
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
-        "Play sound effects twice at the same time so that it's louder.");
+        "Doubles the current volume for all sound effects.");
 
     audioPanelOverrideAudioSettingCheckbox =
         addCheckbox("Override server's remembered audio on/off setting", audioPanel);
@@ -3941,6 +3969,7 @@ public class ConfigWindow {
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
+    audioPanelSfxVolumeSlider.setValue(Settings.SFX_VOLUME.get(Settings.currentProfile));
     audioPanelLouderSoundEffectsCheckbox.setSelected(
         Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile));
     audioPanelOverrideAudioSettingCheckbox.setSelected(
@@ -4359,6 +4388,7 @@ public class ConfigWindow {
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());
+    Settings.SFX_VOLUME.put(Settings.currentProfile, audioPanelSfxVolumeSlider.getValue());
     Settings.LOUDER_SOUND_EFFECTS.put(
         Settings.currentProfile, audioPanelLouderSoundEffectsCheckbox.isSelected());
     Settings.OVERRIDE_AUDIO_SETTING.put(
@@ -4640,6 +4670,7 @@ public class ConfigWindow {
     Item.patchItemNames();
     Item.patchItemCommands();
     GameApplet.syncFontSetting();
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public void synchronizePresetOptions() {

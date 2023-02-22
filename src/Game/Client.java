@@ -1219,6 +1219,9 @@ public class Client {
     state = STATE_GAME;
     // bank_active_page = 0; // TODO: config option? don't think this is very important.
     // combat_timer = 0;
+
+    // Set the client volume
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public static void login_hook() {
@@ -1889,6 +1892,11 @@ public class Client {
               break;
             }
           }
+        case "sfx_volume":
+          if (commandArray.length > 1) {
+            Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";

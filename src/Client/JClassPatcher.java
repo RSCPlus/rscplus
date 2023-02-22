@@ -514,6 +514,16 @@ public class JClassPatcher {
           methodNode, "client", "Kg", "Z", "Game/Client", "show_appearance", "Z", true, true);
       hookClassVariable(
           methodNode, "client", "ne", "Z", "Game/SoundEffects", "sounds_disabled", "Z", true, true);
+      hookClassVariable(
+          methodNode,
+          "pb",
+          "w",
+          "Ljavax/sound/sampled/SourceDataLine;",
+          "Game/SoundEffects",
+          "mudClientSourceDataLine",
+          "Ljavax/sound/sampled/SourceDataLine;",
+          true,
+          true);
 
       hookClassVariable(
           methodNode,
