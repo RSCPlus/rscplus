@@ -190,6 +190,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JCheckBox generalPanelCtrlScrollChatCheckbox;
   private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
+  private JSlider generalPanelTrackpadRotationSlider;
   private JCheckBox generalPanelCustomRandomChatColourCheckbox;
   private JRadioButton generalPanelRanEntirelyDisableButton;
   private JRadioButton generalPanelRanReduceFrequencyButton;
@@ -981,6 +982,35 @@ public class ConfigWindow {
         addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
     generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
         "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
+
+    JLabel generalPanelTrackpadRotationLabel = new JLabel("Camera rotation trackpad sensitivity");
+    generalPanelTrackpadRotationLabel.setToolTipText(
+        "Sets the camera rotation trackpad sensitivity (Default: 8)");
+    generalPanelTrackpadRotationLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanel.add(generalPanelTrackpadRotationLabel);
+    generalPanelTrackpadRotationLabel.setAlignmentY((float) 1);
+
+    generalPanelTrackpadRotationSlider = new JSlider();
+
+    generalPanel.add(generalPanelTrackpadRotationSlider);
+    generalPanelTrackpadRotationSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelTrackpadRotationSlider.setMaximumSize(new Dimension(200, 55));
+    generalPanelTrackpadRotationSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    generalPanelTrackpadRotationSlider.setMajorTickSpacing(2);
+    generalPanelTrackpadRotationSlider.setMinorTickSpacing(1);
+    generalPanelTrackpadRotationSlider.setMinimum(0);
+    generalPanelTrackpadRotationSlider.setMaximum(16);
+    generalPanelTrackpadRotationSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> generalPanelTrackpadRotationLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelTrackpadRotationLabelTable.put(new Integer(0), new JLabel("0"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(4), new JLabel("4"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(8), new JLabel("8"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(12), new JLabel("12"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(16), new JLabel("16"));
+    generalPanelTrackpadRotationSlider.setLabelTable(generalPanelTrackpadRotationLabelTable);
+    generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -3796,6 +3826,8 @@ public class ConfigWindow {
         Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
     generalPanelShiftScrollCameraRotationCheckbox.setSelected(
         Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
+    generalPanelTrackpadRotationSlider.setValue(
+        Settings.TRACKPAD_ROTATION_SENSITIVITY.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -4263,6 +4295,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
     Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
         Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
+    Settings.TRACKPAD_ROTATION_SENSITIVITY.put(
+        Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());

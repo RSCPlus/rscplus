@@ -127,6 +127,8 @@ public class Settings {
   public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> TRACKPAD_ROTATION_SENSITIVITY =
+      new HashMap<String, Integer>();
   public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
@@ -833,6 +835,17 @@ public class Settings {
         "custom",
         getPropBoolean(
             props, "shift_scroll_camera_rotation", SHIFT_SCROLL_CAMERA_ROTATION.get("default")));
+
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla_resizable", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("lite", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("default", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("heavy", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("all", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put(
+        "custom",
+        getPropInt(
+            props, "trackpad_rotation_sensitivity", TRACKPAD_ROTATION_SENSITIVITY.get("default")));
 
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla", RanOverrideEffectType.VANILLA);
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla_resizable", RanOverrideEffectType.VANILLA);
@@ -2342,6 +2355,14 @@ public class Settings {
       save("custom");
     }
 
+    if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") < 0) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 0);
+      save("custom");
+    } else if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") > 16) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 16);
+      save("custom");
+    }
+
     if (COMBAT_STYLE.get("custom") < Client.COMBAT_CONTROLLED) {
       COMBAT_STYLE.put("custom", Client.COMBAT_CONTROLLED);
       save("custom");
@@ -2793,6 +2814,9 @@ public class Settings {
       props.setProperty(
           "shift_scroll_camera_rotation",
           Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
+      props.setProperty(
+          "trackpad_rotation_sensitivity",
+          Integer.toString(TRACKPAD_ROTATION_SENSITIVITY.get(preset)));
       props.setProperty(
           "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
       props.setProperty(
