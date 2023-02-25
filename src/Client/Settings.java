@@ -2345,6 +2345,14 @@ public class Settings {
       save("custom");
     }
 
+    if (SFX_VOLUME.get("custom") < 0) {
+      SFX_VOLUME.put("custom", 0);
+      save("custom");
+    } else if (SFX_VOLUME.get("custom") > 100) {
+      SFX_VOLUME.put("custom", 100);
+      save("custom");
+    }
+
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       save("custom");
