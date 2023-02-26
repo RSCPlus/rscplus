@@ -40,6 +40,7 @@ public class ScaledWindow extends JFrame
   // Singleton
   private static ScaledWindow instance = null;
   private static boolean initialRender = true;
+  private static boolean isMacOS = false;
   private static boolean shouldRealign = false;
   private int frameWidth = 0;
   private int frameHeight = 0;
@@ -104,7 +105,9 @@ public class ScaledWindow extends JFrame
     setDropTarget(ReplayQueue.dropReplays);
 
     // Enable macOS fullscreen button, if possible
-    if (Util.isMacOS()) {
+    isMacOS = Util.isMacOS();
+
+    if (isMacOS) {
       try {
         Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
         Class params[] = new Class[] {Window.class, Boolean.TYPE};
@@ -466,6 +469,8 @@ public class ScaledWindow extends JFrame
   @Override
   public void componentResized(ComponentEvent e) {
     resizeApplet();
+    frameWidth = e.getComponent().getWidth();
+    frameHeight = e.getComponent().getHeight();
   }
 
   @Override
@@ -688,6 +693,12 @@ public class ScaledWindow extends JFrame
       // Nearest-neighbor scaling performs roughly 3x better when resized via drawImage(),
       // whereas interpolation scaling performs better using AffineTransformOp.
       if (isIntegerScaling()) {
+        // Workaround for direct drawImage warping which seems to only
+        // affect macOS on JDK 19
+        if (isMacOS && Settings.javaVersion >= 19) {
+          g.setClip(0, 0, newWidth, newHeight);
+        }
+
         g.drawImage(viewportImage, 0, 0, newWidth, newHeight, null);
       } else {
         if (interpolationBackground == null) {
