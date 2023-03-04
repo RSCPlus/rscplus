@@ -616,8 +616,8 @@ public class Settings {
     DISABLE_NAT_RUNE_ALCH.put("heavy", true);
     DISABLE_NAT_RUNE_ALCH.put("all", true);
     DISABLE_NAT_RUNE_ALCH.put(
-            "custom", getPropBoolean(props, "disable_nat_rune_alch", DISABLE_NAT_RUNE_ALCH.get("default")));
-
+        "custom",
+        getPropBoolean(props, "disable_nat_rune_alch", DISABLE_NAT_RUNE_ALCH.get("default")));
 
     /**
      * LEGACY, NOT USED EXCEPT TO MIGRATE SETTINGS Defines to what extent fix the item commands
@@ -2773,7 +2773,8 @@ public class Settings {
       props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT.get(preset)));
       props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT.get(preset)));
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
-      props.setProperty("disable_nat_rune_alch", Boolean.toString(DISABLE_NAT_RUNE_ALCH.get(preset)));
+      props.setProperty(
+          "disable_nat_rune_alch", Boolean.toString(DISABLE_NAT_RUNE_ALCH.get(preset)));
       props.setProperty("command_patch_quest", Boolean.toString(COMMAND_PATCH_QUEST.get(preset)));
       props.setProperty(
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
