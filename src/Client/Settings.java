@@ -101,6 +101,7 @@ public class Settings {
   public static HashMap<String, Boolean> INVENTORY_FULL_ALERT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> COMMAND_PATCH_LEGACY = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> DISABLE_NAT_RUNE_ALCH = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_QUEST = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_EDIBLE_RARES =
       new HashMap<String, Boolean>();
@@ -349,6 +350,7 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
+  public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -606,6 +608,16 @@ public class Settings {
     NAME_PATCH_TYPE.put("all", 3);
     NAME_PATCH_TYPE.put(
         "custom", getPropInt(props, "name_patch_type", NAME_PATCH_TYPE.get("default")));
+
+    DISABLE_NAT_RUNE_ALCH.put("vanilla", false);
+    DISABLE_NAT_RUNE_ALCH.put("vanilla_resizable", false);
+    DISABLE_NAT_RUNE_ALCH.put("lite", true);
+    DISABLE_NAT_RUNE_ALCH.put("default", true);
+    DISABLE_NAT_RUNE_ALCH.put("heavy", true);
+    DISABLE_NAT_RUNE_ALCH.put("all", true);
+    DISABLE_NAT_RUNE_ALCH.put(
+            "custom", getPropBoolean(props, "disable_nat_rune_alch", DISABLE_NAT_RUNE_ALCH.get("default")));
+
 
     /**
      * LEGACY, NOT USED EXCEPT TO MIGRATE SETTINGS Defines to what extent fix the item commands
@@ -2761,6 +2773,7 @@ public class Settings {
       props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT.get(preset)));
       props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT.get(preset)));
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
+      props.setProperty("disable_nat_rune_alch", Boolean.toString(DISABLE_NAT_RUNE_ALCH.get(preset)));
       props.setProperty("command_patch_quest", Boolean.toString(COMMAND_PATCH_QUEST.get(preset)));
       props.setProperty(
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
@@ -4206,6 +4219,7 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
+    PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

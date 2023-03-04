@@ -2869,6 +2869,54 @@ public class JClassPatcher {
             break;
           }
         }
+
+        // patch nature rune alching
+        LabelNode itemLabel = new LabelNode();
+        LabelNode originalLabel = new LabelNode();
+        LabelNode skipLabel = new LabelNode();
+
+
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.ICONST_4) {
+            insnNode = insnNodeList.next().getPrevious().getPrevious().getPrevious();
+
+            methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "Client/Settings", "updateInjectedVariables", "()V", false));
+            methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Client/Settings", "PROTECT_NAT_RUNE_ALCH_BOOL", "Z"));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IFEQ, originalLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 10));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IF_ICMPEQ, itemLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 5));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 28));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IF_ICMPNE, originalLabel));
+            methodNode.instructions.insertBefore(insnNode, itemLabel);
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "vf", "[I"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 40));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.IF_ICMPNE, originalLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ACONST_NULL));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("@whi@Nature rune alchemy protection is currently enabled"));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_3));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ACONST_NULL));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ACONST_NULL));
+            methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESPECIAL, "client", "a", "(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V", false));
+            methodNode.instructions.insertBefore(insnNode, new JumpInsnNode(Opcodes.GOTO, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, originalLabel);
+            for (int i = 0; i < 21; i++) insnNode = insnNode.getNext();
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
+
+            break;
+          }
+        }
       }
 
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IBI)V")) {
