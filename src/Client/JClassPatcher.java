@@ -1637,6 +1637,49 @@ public class JClassPatcher {
           }
         }
       }
+
+      // resetGame
+      if (methodNode.name.equals("i") && methodNode.desc.equals("(I)V")) {
+
+        // Skip clearing chat history when enabled
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.GETFIELD) {
+            FieldInsnNode field = (FieldInsnNode) insnNode;
+            if (field.owner.equals("client") && field.name.equals("yd")) {
+              LabelNode skipLabel = new LabelNode();
+
+              insnNode = insnNode.getPrevious();
+
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKESTATIC,
+                      "Client/Settings",
+                      "updateInjectedVariables",
+                      "()V",
+                      false));
+
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new FieldInsnNode(
+                      Opcodes.GETSTATIC, "Client/Settings", "LOAD_CHAT_HISTORY_BOOL", "Z"));
+
+              methodNode.instructions.insertBefore(
+                  insnNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
+
+              for (int i = 0; i < 19; i++) insnNode = insnNode.getNext();
+
+              methodNode.instructions.insertBefore(insnNode, skipLabel);
+
+              break;
+            }
+          }
+        }
+      }
+
       if (methodNode.name.equals("a")
           && methodNode.desc.equals("(ILjava/lang/String;Ljava/lang/String;Z)V")) {
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
