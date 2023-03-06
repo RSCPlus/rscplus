@@ -2871,15 +2871,15 @@ public class JClassPatcher {
         }
 
         // patch nature rune alching
-        LabelNode itemLabel = new LabelNode();
-        LabelNode originalLabel = new LabelNode();
-        LabelNode skipLabel = new LabelNode();
-
         insnNodeList = methodNode.instructions.iterator();
         while (insnNodeList.hasNext()) {
           AbstractInsnNode insnNode = insnNodeList.next();
 
           if (insnNode.getOpcode() == Opcodes.ICONST_4) {
+            LabelNode itemLabel = new LabelNode();
+            LabelNode originalLabel = new LabelNode();
+            LabelNode skipLabel = new LabelNode();
+
             insnNode = insnNodeList.next().getPrevious().getPrevious().getPrevious();
 
             methodNode.instructions.insertBefore(
