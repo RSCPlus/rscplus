@@ -510,14 +510,14 @@ public class ScaledWindow extends JFrame
   public void mouseEntered(MouseEvent e) {
     if (Client.handler_mouse == null || Renderer.renderingScalar == 0.0f) return;
 
-    Client.handler_mouse.mouseEntered(e);
+    Client.handler_mouse.mouseEntered(mapMouseEvent(e));
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
     if (Client.handler_mouse == null || Renderer.renderingScalar == 0.0f) return;
 
-    Client.handler_mouse.mouseExited(e);
+    Client.handler_mouse.mouseExited(mapMouseEvent(e));
   }
 
   @Override
