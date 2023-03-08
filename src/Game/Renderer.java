@@ -441,12 +441,18 @@ public class Renderer {
         List<Rectangle> player_hitbox = new ArrayList<>();
         List<Point> entity_text_loc = new ArrayList<>();
 
+        Client.npc_list.sort(
+            Comparator.comparing(npc -> npc.name, Comparator.nullsLast(Comparator.naturalOrder())));
+
         for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext(); ) {
           NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
           Color color = color_low;
 
           boolean showName = false;
-          if (npc.type == NPC.TYPE_PLAYER) {
+          if (npc.type == NPC.TYPE_PLAYER 
+              && npc.name != null
+              && Client.player_name != null
+              && !npc.name.equals(Client.player_name)) {
             color = color_fatigue;
 
             if (Client.isFriend(npc.name)) {
