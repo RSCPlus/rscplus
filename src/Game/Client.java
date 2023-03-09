@@ -20,6 +20,7 @@ package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
 
+import Chat.ChatWindow;
 import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
@@ -32,7 +33,6 @@ import Client.Speedrun;
 import Client.TwitchIRC;
 import Client.Util;
 import Client.WorldMapWindow;
-import Client.ChatWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.Component;
@@ -1296,6 +1296,10 @@ public class Client {
     player_name = "";
     knowWhoIAm = false;
     Client.tipOfDay = -1;
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.updatePlayerName();
+    chatWindow.clearFriendsList();
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -1393,6 +1397,16 @@ public class Client {
       // sleep exit packet, restore whatever was in pm
       pm_enteredText = pm_enteredTextCopy;
       pm_enteredTextCopy = "";
+    } else if (opcode == 183) {
+      // No logout allowed
+      Client.getPlayerName();
+
+      ChatWindow chatWindow = Launcher.getChatWindow();
+      chatWindow.updatePlayerName();
+      chatWindow.updateFriendsList();
+    } else if (opcode == 234) {
+      // Should have friends list at this point
+      Launcher.getChatWindow().updateFriendsList();
     }
 
     if (Bank.processPacket(opcode, psize)) {
@@ -1580,6 +1594,8 @@ public class Client {
         if (!name.equals(player_name)) {
           player_name = name;
           Camera.reset_lookat();
+
+          Launcher.getChatWindow().updatePlayerName();
         }
       }
     } catch (IllegalArgumentException | IllegalAccessException e1) {
@@ -2277,6 +2293,7 @@ public class Client {
 
     try {
       Reflection.logout.invoke(Client.instance, 0);
+      Launcher.getChatWindow().updatePlayerName();
     } catch (Exception e) {
     }
   }

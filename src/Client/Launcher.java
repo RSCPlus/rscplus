@@ -18,6 +18,7 @@
  */
 package Client;
 
+import Chat.ChatWindow;
 import Game.Client;
 import Game.Game;
 import Game.GameApplet;
@@ -44,6 +45,7 @@ public class Launcher extends JFrame implements Runnable {
   private static ConfigWindow configWindow;
   private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
+
   private static ChatWindow chatWindow;
 
   public static ImageIcon icon = null;
@@ -472,7 +474,7 @@ public class Launcher extends JFrame implements Runnable {
     SoundEffects.loadCustomSoundEffects();
     Launcher.getInstance().init();
 
-    Launcher.chatWindow.show();
+    Launcher.chatWindow.showChatWindow();
   }
 
   public static Launcher getInstance() {

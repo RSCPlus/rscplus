@@ -113,8 +113,6 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     m_config.changeWorld(Settings.WORLD.get(Settings.currentProfile));
     m_applet.init();
     m_applet.start();
-
-
   }
 
   public void updateTitle() {
@@ -202,6 +200,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     Launcher.getConfigWindow().disposeJFrame();
     Launcher.getQueueWindow().disposeJFrame();
     Launcher.getWorldMapWindow().disposeJFrame();
+    Launcher.getChatWindow().disposeJFrame();
     TrayHandler.removeTrayIcon();
     NotificationsHandler.closeNotificationSoundClip();
     NotificationsHandler.disposeNotificationHandler();

@@ -1,0 +1,97 @@
+package Chat;
+
+import java.awt.Color;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTMLDocument;
+
+public class ChatWindowHTMLChatRenderer {
+
+  public static HashMap<String, Color> usernameColors = new HashMap<>();
+
+  public static void renderChatDocument(
+      ChatWindowHTMLChatView chatView, ArrayList<ChatMessage> chatMessages) {
+    String htmlTemplate = "<html>" + "<body>" + "%s" + "</body>" + "</html>";
+
+    String tableTemplate =
+        "<table id=\"chat-table\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
+            + "%s"
+            + "</table>";
+
+    StringBuilder rowsBuilder = new StringBuilder();
+
+    for (ChatMessage chatMessage : chatMessages) {
+      String rowStr = createChatMessageRow(chatMessage);
+      rowsBuilder.append(rowStr);
+    }
+
+    String rowsStr = rowsBuilder.toString();
+
+    tableTemplate = String.format(tableTemplate, rowsStr);
+    htmlTemplate = String.format(htmlTemplate, tableTemplate);
+
+    chatView.setText(htmlTemplate);
+  }
+
+  public static void appendChatMessage(ChatWindowHTMLChatView chatView, ChatMessage chatMessage) {
+    HTMLDocument document = (HTMLDocument) chatView.getDocument();
+    Element chatTableBody = document.getElement("chat-table");
+
+    if (chatTableBody != null) {
+      String rowStr = createChatMessageRow(chatMessage);
+
+      try {
+        document.insertBeforeEnd(chatTableBody, rowStr);
+      } catch (Exception e) {
+        System.out.println("Failed to append chat message: " + chatMessage.getMessage());
+      }
+    }
+  }
+
+  private static String createChatMessageRow(ChatMessage chatMessage) {
+    String username = chatMessage.getUsername();
+    String usernameRgbColor = getUsernameRgbColor(username);
+    String message = chatMessage.getMessage();
+    long timestamp = chatMessage.getTimestamp();
+
+    DateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
+    String timestampStr = dateFormat.format(timestamp);
+
+    String rowStr =
+        "<tr valign=\"top\">"
+            + "<td><div class=\"timestamp-cell\">[%s]</div></td>"
+            + "<td style=\"color: %s;\"><div class=\"username-cell\">%s:</div></td>"
+            + "<td><div class=\"message-cell\">%s</div></td>"
+            + "</tr>";
+
+    return String.format(rowStr, timestampStr, usernameRgbColor, username, message);
+  }
+
+  private static String getUsernameRgbColor(String username) {
+    Color usernameColor = usernameColors.get(username);
+    if (usernameColor == null) {
+      usernameColor = createUsernameColor();
+      usernameColors.put(username, usernameColor);
+    }
+
+    String rgbValues =
+        usernameColor.getRed() + ", " + usernameColor.getGreen() + ", " + usernameColor.getBlue();
+    return String.format("rgb(%s)", rgbValues);
+  }
+
+  private static Color createUsernameColor() {
+    Random random = new Random();
+
+    final float hue = random.nextFloat();
+    // Saturation between 0.1 and 0.3
+    final float saturation = (random.nextInt(2000) + 2000) / 10000f;
+    final float luminance = .9f;
+    final Color color = Color.getHSBColor(hue, saturation, luminance);
+
+    return color;
+  }
+}
