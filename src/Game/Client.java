@@ -21,7 +21,6 @@ package Game;
 import static Replay.game.constants.Game.itemActionMap;
 
 import Chat.ChatWindow;
-import Client.ChatHistoryWindow;
 import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
@@ -514,16 +513,12 @@ public class Client {
 
   public static void PrintException(Throwable e, int index) {
     String printMessage = "Caller: " + JClassPatcher.ExceptionSignatures.get(index) + "\n\n";
-    if (e.getMessage() != null) {
-      printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
-    }
+    if (e.getMessage() != null) printMessage = "Message: " + e.getMessage() + "\n" + printMessage;
     StackTraceElement[] stacktrace = e.getStackTrace();
     for (int i = 0; i < stacktrace.length; i++) {
       StackTraceElement element = stacktrace[i];
       printMessage += element.getClassName() + "." + element.getMethodName() + "(UNKNOWN)";
-      if (i != stacktrace.length - 1) {
-        printMessage += "\n";
-      }
+      if (i != stacktrace.length - 1) printMessage += "\n";
     }
 
     // Add tracer information
@@ -540,24 +535,18 @@ public class Client {
         String instruction = (String) tracer[i];
         if (instruction != null) {
           printMessage += instruction;
-          if (i != tracer.length - 1) {
-            printMessage += "\n";
-          }
+          if (i != tracer.length - 1) printMessage += "\n";
         }
       }
 
-      if (tracerIterator.hasNext()) {
-        printMessage += "\n\n";
-      }
+      if (tracerIterator.hasNext()) printMessage += "\n\n";
     }
 
     Logger.Error("EXCEPTION\n" + printMessage);
   }
 
   public static Throwable HandleException(Throwable e, int index) {
-    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) {
-      return e;
-    }
+    if (!Settings.EXCEPTION_HANDLER.get(Settings.currentProfile)) return e;
 
     PrintException(e, index);
 
@@ -566,12 +555,8 @@ public class Client {
 
   public static void TracerHandler(int indexHigh, int indexLow) {
     // Convert index
-    if (indexHigh < 0) {
-      indexHigh += Short.MAX_VALUE * 2;
-    }
-    if (indexLow < 0) {
-      indexLow += Short.MAX_VALUE * 2;
-    }
+    if (indexHigh < 0) indexHigh += Short.MAX_VALUE * 2;
+    if (indexLow < 0) indexLow += Short.MAX_VALUE * 2;
     int index = (indexHigh << 16) | indexLow;
 
     Thread thread = Thread.currentThread();
@@ -588,9 +573,7 @@ public class Client {
             @Override
             public boolean add(String object) {
               boolean result;
-              if (this.size() >= TRACER_LINES) {
-                removeFirst();
-              }
+              if (this.size() >= TRACER_LINES) removeFirst();
               synchronized (threadLock) {
                 result = super.add(object);
               }
@@ -611,9 +594,7 @@ public class Client {
               String[] result;
               synchronized (threadLock) {
                 result = new String[size()];
-                for (int i = 0; i < size(); i++) {
-                  result[i] = get(i);
-                }
+                for (int i = 0; i < size(); i++) result[i] = get(i);
               }
               return result;
             }
@@ -645,7 +626,6 @@ public class Client {
     }
 
     try {
-
       InputStream input = null;
       String zipPath =
           Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
@@ -734,9 +714,7 @@ public class Client {
     if (chunkX >= AreaDefinition.SIZE_X + AreaDefinition.REGION_X_OFFSET
         || chunkY >= AreaDefinition.SIZE_Y + AreaDefinition.REGION_Y_OFFSET
         || chunkX < AreaDefinition.REGION_X_OFFSET
-        || chunkY < AreaDefinition.REGION_Y_OFFSET) {
-      return AreaDefinition.DEFAULT;
-    }
+        || chunkY < AreaDefinition.REGION_Y_OFFSET) return AreaDefinition.DEFAULT;
 
     return areaDefinitions[getFloor()][chunkX][chunkY];
   }
@@ -783,9 +761,7 @@ public class Client {
     applet.addKeyListener(handler_keyboard);
     applet.setFocusTraversalKeysEnabled(false);
 
-    if (Settings.DISASSEMBLE.get(Settings.currentProfile)) {
-      dumpStrings();
-    }
+    if (Settings.DISASSEMBLE.get(Settings.currentProfile)) dumpStrings();
 
     // Initialize login
     init_login();
@@ -916,17 +892,13 @@ public class Client {
     for (int i = 0; i < objectCount; i++) {
       int worldX = regionX + objectX[i];
       int worldY = regionY + objectY[i];
-      if (worldX == x && worldY == y) {
-        return i;
-      }
+      if (worldX == x && worldY == y) return i;
     }
     return -1;
   }
 
   public static void setGameObjectDirection(int modelIndex, int direction) {
-    if (modelIndex == -1) {
-      return;
-    }
+    if (modelIndex == -1) return;
 
     // Only update direction if it needs to be
     if (objectDirections[modelIndex] != direction) {
@@ -946,12 +918,10 @@ public class Client {
     // historical: RSC+ changed version here from 234 to 235 from 2016-10-10 up until 2022-01-16
     // version = 235;
 
-    if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT)) {
+    if (!exponent.toString().equals(JConfig.SERVER_RSA_EXPONENT))
       exponent = new BigInteger(JConfig.SERVER_RSA_EXPONENT);
-    }
-    if (!modulus.toString().equals(JConfig.SERVER_RSA_MODULUS)) {
+    if (!modulus.toString().equals(JConfig.SERVER_RSA_MODULUS))
       modulus = new BigInteger(JConfig.SERVER_RSA_MODULUS);
-    }
 
     long time = System.currentTimeMillis();
     long nanoTime = System.nanoTime();
@@ -993,21 +963,17 @@ public class Client {
 
     Renderer.setClearColor(0);
     if (Settings.RS2HD_SKY.get(Settings.currentProfile)) {
-      if (isUnderground()) {
-        Renderer.setClearColor(Renderer.rs2hd_color_skyunderground);
-      } else {
-        Renderer.setClearColor(Renderer.rs2hd_color_skyoverworld);
-      }
+      if (isUnderground()) Renderer.setClearColor(Renderer.rs2hd_color_skyunderground);
+      else Renderer.setClearColor(Renderer.rs2hd_color_skyoverworld);
     } else {
       if (Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(Settings.currentProfile)) {
         Renderer.setClearColor(
             Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.get(Settings.currentProfile));
       }
       if (Settings.CUSTOM_SKYBOX_UNDERGROUND_ENABLED.get(Settings.currentProfile)) {
-        if (isUnderground()) {
+        if (isUnderground())
           Renderer.setClearColor(
               Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.get(Settings.currentProfile));
-        }
       }
     }
     if (Settings.takingSceneryScreenshots) {
@@ -1053,6 +1019,7 @@ public class Client {
       Client.getPlayerName();
       Client.adaptLoginInfo();
     }
+
     Game.getInstance().updateTitle();
 
     if (forceDisconnect) {
@@ -1122,10 +1089,9 @@ public class Client {
       xpLast.get(xpUsername)[skill] += xpGain[skill];
 
       if (xpGain[skill] > 0.0f) {
-        if (Settings.SHOW_XPDROPS.get(Settings.currentProfile)) {
+        if (Settings.SHOW_XPDROPS.get(Settings.currentProfile))
           xpdrop_handler.add(
               "+" + xpGain[skill] + " (" + skill_name[skill] + ")", Renderer.color_text);
-        }
 
         // XP/hr calculations
 
@@ -1156,9 +1122,7 @@ public class Client {
         lastXpGain.get(xpUsername)[skill][TIME_OF_LAST_XP_DROP] =
             (double) System.currentTimeMillis();
 
-        if (skill == SKILL_HP && xpbar.current_skill != -1) {
-          continue;
-        }
+        if (skill == SKILL_HP && xpbar.current_skill != -1) continue;
 
         xpbar.setSkill(skill);
       }
@@ -1175,9 +1139,8 @@ public class Client {
             "+"
                 + trimNumber(fatigueGain, Settings.FATIGUE_FIGURES.get(Settings.currentProfile))
                 + "% (Fatigue)";
-        if (Settings.SHOW_FATIGUEUNITS.get(Settings.currentProfile)) {
+        if (Settings.SHOW_FATIGUEUNITS.get(Settings.currentProfile))
           gainText += (" [" + fatigueUnitsGain + " U]");
-        }
         xpdrop_handler.add(gainText, Renderer.color_fatigue);
         currentFatigue = actualFatigue;
         current_fatigue_units = fatigue;
@@ -1257,15 +1220,16 @@ public class Client {
     state = STATE_GAME;
     // bank_active_page = 0; // TODO: config option? don't think this is very important.
     // combat_timer = 0;
+
+    // Set the client volume
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public static void login_hook() {
     // Order of comparison matters here
     Replay.init(ReplayQueue.currentReplayName);
     if (Renderer.replayOption == 2) {
-      if (!Replay.initializeReplayPlayback()) {
-        Renderer.replayOption = 0;
-      }
+      if (!Replay.initializeReplayPlayback()) Renderer.replayOption = 0;
     } else if (Renderer.replayOption == 1
         || Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile)
         || Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
@@ -1312,9 +1276,7 @@ public class Client {
           CHAT_QUEST);
     }
 
-    if (TwitchIRC.isUsing()) {
-      twitch.connect();
-    }
+    if (TwitchIRC.isUsing()) twitch.connect();
 
     // Check for updates every login at most once per hour,
     // so users are notified when an update is available
@@ -1380,9 +1342,7 @@ public class Client {
 
     // Remove top-left action text in extended mode
     if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)
-        && Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) {
-      return "";
-    }
+        && Settings.SHOW_EXTENDED_TOOLTIP.get(Settings.currentProfile)) return "";
 
     return tooltipMessage;
   }
@@ -1429,11 +1389,6 @@ public class Client {
    */
   public static boolean gameOpcodeReceivedHook(int opcode, int psize) {
     boolean needsProcess = true;
-
-    if (opcode != 191 && opcode != 79) {
-      System.out.println("RECEIVED OPCODE: " + opcode);
-      //      System.out.println("FRIENDS ON OPCODE " + opcode + ": " + Arrays.toString(friends));
-    }
 
     if (opcode == 117) {
       // sleep enter packet, get whatever was in pm to de-duplex when sleep and pm are active
@@ -1736,6 +1691,15 @@ public class Client {
       String[] commandArray = line.substring(2, line.length()).toLowerCase().split(" ");
 
       switch (commandArray[0]) {
+        case "togglescaling":
+          Settings.toggleWindowScaling();
+          break;
+        case "scaleup":
+          Settings.increaseScale();
+          break;
+        case "scaledown":
+          Settings.decreaseScale();
+          break;
         case "togglebypassattack":
           Settings.toggleAttackAlwaysLeftClick();
           break;
@@ -1779,13 +1743,9 @@ public class Client {
           if (commandArray.length > 1) {
             StringBuilder sb = new StringBuilder();
             for (int i = 1; i < commandArray.length; i++) {
-              if (commandArray[i].trim().equals("")) {
-                continue;
-              }
+              if (commandArray[i].trim().equals("")) continue;
               sb.append(commandArray[i].trim().toLowerCase());
-              if (i < commandArray.length - 1) {
-                sb.append(" ");
-              }
+              if (i < commandArray.length - 1) sb.append(" ");
             }
             Settings.toggleStartSearchedBank(sb.toString(), true);
           } else {
@@ -1859,12 +1819,8 @@ public class Client {
         case "set_pitch":
           try {
             Camera.pitch_rscplus = Integer.parseInt(commandArray[1]);
-            if (Camera.pitch_rscplus < 0) {
-              Camera.pitch_rscplus = 0;
-            }
-            if (Camera.pitch_rscplus > 1023) {
-              Camera.pitch_rscplus = 1023;
-            }
+            if (Camera.pitch_rscplus < 0) Camera.pitch_rscplus = 0;
+            if (Camera.pitch_rscplus > 1023) Camera.pitch_rscplus = 1023;
           } catch (ArrayIndexOutOfBoundsException ex) {
             displayMessage(
                 "You must specify a number to set the pitch to. 112 is default.", CHAT_QUEST);
@@ -1953,6 +1909,11 @@ public class Client {
               break;
             }
           }
+        case "sfx_volume":
+          if (commandArray.length > 1) {
+            Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2095,7 +2056,7 @@ public class Client {
       }
 
       for (int skill = 0; skill < NUM_SKILLS; skill++) {
-        if (command.equalsIgnoreCase(skill_name[skill])) {
+        if (command.equalsIgnoreCase(skill_name[skill]))
           return "My "
               + skill_name[skill]
               + " level is "
@@ -2103,7 +2064,6 @@ public class Client {
               + " ("
               + getXP(skill)
               + " xp).";
-        }
       }
     }
 
@@ -2117,9 +2077,7 @@ public class Client {
    * @param chat_type the type of message to send
    */
   public static synchronized void displayMessage(String message, int chat_type) {
-    if (Client.state != Client.STATE_GAME || Reflection.displayMessage == null) {
-      return;
-    }
+    if (Client.state != Client.STATE_GAME || Reflection.displayMessage == null) return;
 
     try {
       Reflection.displayMessage.invoke(
@@ -2137,9 +2095,7 @@ public class Client {
    * @param line2 the top part of text
    */
   public static void setResponseMessage(String line1, String line2) {
-    if (Reflection.setLoginText == null) {
-      return;
-    }
+    if (Reflection.setLoginText == null) return;
 
     try {
       if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
@@ -2243,9 +2199,7 @@ public class Client {
   }
 
   public static void closeConnection(boolean sendPacket31) {
-    if (Reflection.closeConnection == null) {
-      return;
-    }
+    if (Reflection.closeConnection == null) return;
 
     try {
       Reflection.closeConnection.invoke(Client.instance, sendPacket31, 31);
@@ -2254,9 +2208,7 @@ public class Client {
   }
 
   public static void loseConnection(boolean close) {
-    if (Reflection.loseConnection == null) {
-      return;
-    }
+    if (Reflection.loseConnection == null) return;
 
     try {
       Reflection.loseConnection.invoke(Client.clientStream, close);
@@ -2273,12 +2225,8 @@ public class Client {
 
   /** Send over the instruction of sleep, if player has sleeping bag with them */
   public static void sleep() {
-    if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
-      return;
-    }
-    if (Reflection.itemClick == null) {
-      return;
-    }
+    if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return;
+    if (Reflection.itemClick == null) return;
 
     try {
       int idx = -1;
@@ -2330,9 +2278,7 @@ public class Client {
    * @param pass
    */
   public static void login(boolean reconnecting, String user, String pass) {
-    if (Reflection.login == null) {
-      return;
-    }
+    if (Reflection.login == null) return;
 
     try {
       Client.autologin_timeout = 2;
@@ -2343,9 +2289,7 @@ public class Client {
 
   /** Logs the user out of the game. */
   public static void logout() {
-    if (Reflection.logout == null) {
-      return;
-    }
+    if (Reflection.logout == null) return;
 
     try {
       Reflection.logout.invoke(Client.instance, 0);
@@ -2356,9 +2300,7 @@ public class Client {
 
   /** Gets a parameter defined from world config */
   public static String getParameter(String parameter) {
-    if (Reflection.getParameter == null) {
-      return null;
-    }
+    if (Reflection.getParameter == null) return null;
     String result = null;
 
     try {
@@ -2369,9 +2311,7 @@ public class Client {
   }
 
   public static void clearScreen() {
-    if (Reflection.clearScreen == null) {
-      return;
-    }
+    if (Reflection.clearScreen == null) return;
 
     try {
       Reflection.clearScreen.invoke(Renderer.instance, true);
@@ -2380,9 +2320,7 @@ public class Client {
   }
 
   public static void setInterlace(boolean value) {
-    if (Reflection.interlace == null) {
-      return;
-    }
+    if (Reflection.interlace == null) return;
 
     try {
       Reflection.interlace.set(Renderer.instance, value);
@@ -2399,9 +2337,7 @@ public class Client {
   }
 
   public static void drawGraphics() {
-    if (Reflection.drawGraphics == null) {
-      return;
-    }
+    if (Reflection.drawGraphics == null) return;
 
     try {
       Reflection.drawGraphics.invoke(Renderer.instance, Renderer.graphicsInstance, 0, 256, 0);
@@ -2410,9 +2346,7 @@ public class Client {
   }
 
   public static void preGameDisplay() {
-    if (Reflection.preGameDisplay == null) {
-      return;
-    }
+    if (Reflection.preGameDisplay == null) return;
 
     try {
       Reflection.preGameDisplay.invoke(Client.instance, 2540);
@@ -2421,9 +2355,7 @@ public class Client {
   }
 
   public static void resetTimings() {
-    if (Reflection.resetTimings == null) {
-      return;
-    }
+    if (Reflection.resetTimings == null) return;
 
     try {
       Reflection.resetTimings.invoke(Client.instance, -28492);
@@ -2505,9 +2437,7 @@ public class Client {
     if (surfaceInstance != null) {
       if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
         int offset = 0;
-        if (Client.is_in_wild) {
-          offset = 70;
-        }
+        if (Client.is_in_wild) offset = 70;
         try {
           Reflection.drawString.invoke(
               surfaceInstance,
@@ -2632,9 +2562,7 @@ public class Client {
       if (action.containsWorldPoint == 1) {
         Client.displayMenuAction(action.name, idxOrDeltaX + regionX, idxOrDeltaY + regionY);
       } else if (action.containsWorldPoint == 2) {
-        if (Reflection.getNpc == null) {
-          return;
-        }
+        if (Reflection.getNpc == null) return;
         try {
           res = Reflection.getNpc.invoke(Client.instance, idxOrDeltaX, (byte) -123);
           mx = (Reflection.characterX.getInt(res) - 64) / Client.tileSize;
@@ -2643,9 +2571,7 @@ public class Client {
         } catch (Exception e) {
         }
       } else if (action.containsWorldPoint == 3) {
-        if (Reflection.getPlayer == null) {
-          return;
-        }
+        if (Reflection.getPlayer == null) return;
         try {
           res = Reflection.getPlayer.invoke(Client.instance, idxOrDeltaX, 220);
           mx = (Reflection.characterX.getInt(res) - 64) / Client.tileSize;
@@ -2813,8 +2739,14 @@ public class Client {
    */
   public static void receivedOptionsHook(String[] menuOptions, int count) {
     if (Settings.PARSE_OPCODES.get(Settings.currentProfile)
-        && (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) {
-      return;
+        && (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) return;
+
+    if (Settings.NUMBERED_DIALOGUE_OPTIONS.get(Settings.currentProfile)) {
+      for (int i = 0; i < 5; i++) {
+        if (menuOptions[i] != null) {
+          menuOptions[i] = "(" + (i + 1) + ") " + menuOptions[i];
+        }
+      }
     }
 
     Client.printReceivedOptions(menuOptions, count);
@@ -2843,18 +2775,14 @@ public class Client {
    */
   public static void selectedOptionHook(String[] possibleOptions, int selection) {
     // Do not run anything below here while seeking or playing as is handled separately
-    if (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting) {
-      return;
-    }
+    if (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting) return;
 
     Client.printSelectedOption(possibleOptions, selection);
   }
 
   public static void printSelectedOption(String[] possibleOptions, int selection) {
     int type = CHAT_CHOSEN_OPTION;
-    if (selection < 0) {
-      return;
-    }
+    if (selection < 0) return;
 
     int select =
         (KeyboardHandler.dialogue_option == -1) ? selection : KeyboardHandler.dialogue_option;
@@ -2874,9 +2802,7 @@ public class Client {
       String colorizedLog =
           "@|white (" + formatChatType(type) + ")|@ " + colorizeMessage(lastServerMessage, type);
       Logger.Chat(colorizedLog, originalLog);
-      if (fontData != null) {
-        windowedForm(lastServerMessage);
-      }
+      if (fontData != null) windowedForm(lastServerMessage);
     }
   }
 
@@ -2955,9 +2881,6 @@ public class Client {
   public static void messageHook(
       String username, String message, int type, String colorCodeOverride) {
 
-    ChatHistoryWindow chatHistoryWindow = Launcher.getChatHistoryWindow();
-    chatHistoryWindow.registerChatMessage(username, message, type);
-
     ChatWindow chatWindow = Launcher.getChatWindow();
     chatWindow.registerChatMessage(username, message, type);
 
@@ -2983,9 +2906,8 @@ public class Client {
     }
 
     if (colorCodeOverride != null) {
-      if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@"))) {
+      if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@")))
         message = colorCodeOverride + message;
-      }
     }
 
     // Close dialogues when player says something in-game in quest chat
@@ -2996,15 +2918,11 @@ public class Client {
     }
 
     if (username != null)
-    // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
-    {
+      // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
       username = username.replace("\u00A0", " ");
-    }
     if (message != null)
-    // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
-    {
+      // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
       message = message.replace("\u00A0", " ");
-    }
 
     if (message != null && username != null) {
       Speedrun.checkMessageCompletions(message);
@@ -3012,9 +2930,9 @@ public class Client {
 
     if (type == CHAT_NONE) {
       if (username == null && message != null) {
-        if (message.contains("The spell fails! You may try again in 20 seconds")) {
+        if (message.contains("The spell fails! You may try again in 20 seconds"))
           magic_timer = Renderer.time + 21000L;
-        } else if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)
+        else if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)
             && message.contains(
                 "You have been standing here for 5 mins! Please move to a new area")) {
           NotificationsHandler.notify(
@@ -3044,25 +2962,19 @@ public class Client {
       NotificationsHandler.notify(
           NotifType.TRADE, "Trade Request", username, username + " wishes to trade with you");
     } else if (type == CHAT_OTHER) {
-      if (message.contains(" wishes to duel with you")) {
+      if (message.contains(" wishes to duel with you"))
         NotificationsHandler.notify(
             NotifType.DUEL, "Duel Request", username, message.replaceAll("@...@", ""));
-      }
     }
 
     if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
-      if (username != null) {
-        lastpm_username = username;
-      }
+      if (username != null) lastpm_username = username;
     }
 
     // Don't output private messages if option is turned on and replaying
     if (Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile) && Replay.isPlaying) {
-      if (type == CHAT_PRIVATE_LOG_IN_OUT
-          || type == CHAT_PRIVATE
-          || type == CHAT_PRIVATE_OUTGOING) {
+      if (type == CHAT_PRIVATE_LOG_IN_OUT || type == CHAT_PRIVATE || type == CHAT_PRIVATE_OUTGOING)
         return;
-      }
     }
 
     String originalLog =
@@ -3085,9 +2997,7 @@ public class Client {
 
     // Make text fixed width so it aligns properly
     final int fixedWidth = getChatTypeName(CHAT_INCOMING_OPTION).length();
-    while (chatType.length() < fixedWidth) {
-      chatType = " " + chatType;
-    }
+    while (chatType.length() < fixedWidth) chatType = " " + chatType;
 
     return chatType;
   }
@@ -3122,9 +3032,7 @@ public class Client {
   }
 
   public static String formatText(String inputText, int length) {
-    if (Reflection.resetTimings == null) {
-      return null;
-    }
+    if (Reflection.resetTimings == null) return null;
     String outputText = null;
 
     try {
@@ -3360,9 +3268,7 @@ public class Client {
       // This probably doesn't ever happen since our lookup table already goes to virtual level 150.
       // levels 1 to 120 are from the official game, level 121 to 150 are from this formula below
       float xp = 0.0f;
-      for (int x = 1; x < level; x++) {
-        xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
-      }
+      for (int x = 1; x < level; x++) xp += Math.floor(x + 300 * Math.pow(2, x / 7.0f)) / 4.0f;
       return (float) Math.floor(xp);
     }
 
@@ -3422,9 +3328,7 @@ public class Client {
    */
   public static int getTotalLevel() {
     int total = 0;
-    for (int skill = 0; skill < NUM_SKILLS; skill++) {
-      total += Client.base_level[skill];
-    }
+    for (int skill = 0; skill < NUM_SKILLS; skill++) total += Client.base_level[skill];
     return total;
   }
 
@@ -3435,9 +3339,7 @@ public class Client {
    */
   public static float getTotalXP() {
     float xp = 0;
-    for (int skill = 0; skill < NUM_SKILLS; skill++) {
-      xp += getXP(skill);
-    }
+    for (int skill = 0; skill < NUM_SKILLS; skill++) xp += getXP(skill);
     return xp;
   }
 
@@ -3510,9 +3412,7 @@ public class Client {
    */
   public static boolean isFriend(String name) {
     for (int i = 0; i < friends_count; i++) {
-      if (friends[i] != null && friends[i].equals(name)) {
-        return true;
-      }
+      if (friends[i] != null && friends[i].equals(name)) return true;
     }
 
     return false;
@@ -3606,9 +3506,7 @@ public class Client {
       writer = new BufferedWriter(new FileWriter(file));
 
       writer.write("Client:\n\n");
-      for (int i = 0; i < strings.length; i++) {
-        writer.write(i + ": " + strings[i] + "\n");
-      }
+      for (int i = 0; i < strings.length; i++) writer.write(i + ": " + strings[i] + "\n");
 
       writer.close();
     } catch (Exception e) {
@@ -3638,7 +3536,8 @@ public class Client {
       }
       // both wiki lookup and report abuse button are enabled
       // want to make room for hp/prayer/fatigue overlay if possible
-      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
+      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)
+          && !Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
         // there is a 90 pixel region where HP/Prayer/Fatigue overlay can't be drawn, but both
         // Report Abuse & Wiki lookup can
         return (Renderer.width < 900 && Renderer.width >= 704) || Renderer.width < 512 + 90 + 12;
@@ -3660,7 +3559,6 @@ public class Client {
 
 // set Client.loginMessageBottom/Top before calling if you want something else to show up
 class LoginMessageHandler implements Runnable {
-
   @Override
   public void run() {
     try {

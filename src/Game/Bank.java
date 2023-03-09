@@ -21,6 +21,7 @@ package Game;
 import Client.Launcher;
 import Client.Logger;
 import Client.Settings;
+import Game.MouseHandler.BufferedMouseClick;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
@@ -702,7 +703,7 @@ public class Bank {
   }
 
   // Draws extra buttons on the side of the bank to control filtering
-  public static void drawBankAugmentations(Graphics2D g2) {
+  public static void drawBankAugmentations(Graphics2D g2, BufferedMouseClick bufferedMouseClick) {
     if (Client.show_bank) {
       if (Settings.SORT_FILTER_BANK.get(Settings.currentProfile)) {
         // existing bank interface dimensions
@@ -1021,16 +1022,16 @@ public class Bank {
                 && MouseHandler.y < y + 32);
 
         // Handle button presses
-        if (MouseHandler.mouseClicked && shouldConsume()) {
+        if (bufferedMouseClick.isMouseClicked() && shouldConsume()) {
           for (i = 0; i < 12; i++) {
             if (hoveringOverButton[i]) {
               if (i != 5 && i != 11) {
-                if (!MouseHandler.rightClick) {
+                if (!bufferedMouseClick.isRightClick()) {
                   ++buttonMode[i];
                 } else {
                   --buttonMode[i];
                 }
-                if (i == 4 && buttonActive[i] && MouseHandler.rightClick) {
+                if (i == 4 && buttonActive[i] && bufferedMouseClick.isRightClick()) {
                   // maintain right click search if active
                 } else if (buttonMode[i] > buttonModeLimits[i]) {
                   buttonMode[i] = 0;
@@ -1063,7 +1064,7 @@ public class Bank {
                       buttonActive[j] = false;
                     }
                   } else if (i == 4) {
-                    if (Client.singleButtonMode || MouseHandler.rightClick) {
+                    if (Client.singleButtonMode || bufferedMouseClick.isRightClick()) {
                       // right click bank search opens popup
                       if (Client.showNativeInputPopup(
                           Client.POPUP_BANK_SEARCH, Bank.bankSearchText, true)) {
@@ -1086,7 +1087,7 @@ public class Bank {
             }
           }
 
-          if (MouseHandler.mouseClicked && shouldConsume()) {
+          if (bufferedMouseClick.isMouseClicked() && shouldConsume()) {
             if (buttonActive[5] || buttonActive[11]) {
               resetSearch();
             }

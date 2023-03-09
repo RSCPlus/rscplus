@@ -22,6 +22,7 @@ import Client.JConfig;
 import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
+import Client.ScaledWindow;
 import Client.Settings;
 import Client.TrayHandler;
 import Client.Util;
@@ -35,9 +36,20 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import javax.swing.JFrame;
 
-/** Singleton class that handles packaging the client into a JFrame and starting the applet. */
-public class Game extends JFrame
-    implements AppletStub, ComponentListener, WindowListener, FocusListener {
+/**
+ * Singleton class that handles packaging the client into a JFrame and starting the applet. <br>
+ * <br>
+ * This frame is never shown to the user, as all graphics rendered by the applet are displayed
+ * within {@link ScaledWindow}, which in turn forwards all user input and window management events
+ * back to this class, such that they may be received by the applet. <br>
+ * <br>
+ * This design is necessary due to the fact that the applet performs rendering calculations based on
+ * the current window size, so in order to accommodate client scaling, we must trick the applet into
+ * thinking it is always at a fixed window size. Resizes of the {@link ScaledWindow} will tell the
+ * applet to resize itself, which will actually render outside the window bounds of the {@link Game}
+ * window, though it is acceptable to do so, as the {@link Game} window is never shown to the user.
+ */
+public class Game extends JFrame implements AppletStub, ComponentListener, WindowListener {
 
   // Singleton
   private static Game instance = null;
@@ -63,11 +75,8 @@ public class Game extends JFrame
   public void start() {
     if (m_applet == null) return;
 
-    // Set window icon
-    setIconImage(Launcher.icon.getImage());
-
     // Set window properties
-    setResizable(true);
+    setResizable(true); // Must be enabled to accommodate the current loading behavior
     addWindowListener(this);
     setMinimumSize(new Dimension(1, 1));
 
@@ -78,12 +87,14 @@ public class Game extends JFrame
     addComponentListener(this);
     pack();
 
-    // Hide cursor if software cursor
-    Settings.checkSoftwareCursor();
-
-    // Position window and make it visible
+    // Position window, but do not display it,
+    // as all graphics from the applet are
+    // forwarded to the ScaledWindow class
     setLocationRelativeTo(null);
-    setVisible(true);
+    setVisible(false);
+
+    // Launch delegated rendering window
+    ScaledWindow.getInstance().launchScaledWindow();
 
     updateTitle();
 
@@ -91,13 +102,6 @@ public class Game extends JFrame
     Reflection.Load();
     Renderer.init();
     JoystickHandler.init();
-
-    if (!Util.isMacOS() && Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile)) {
-      Game.getInstance().resizeFrameWithContents();
-    }
-
-    // Allows drag-n-dropping a replay onto the game window
-    setDropTarget(ReplayQueue.dropReplays);
   }
 
   public JConfig getJConfig() {
@@ -107,7 +111,6 @@ public class Game extends JFrame
   /** Starts the game applet. */
   public void launchGame() {
     m_config.changeWorld(Settings.WORLD.get(Settings.currentProfile));
-    m_applet.addFocusListener(this);
     m_applet.init();
     m_applet.start();
   }
@@ -142,22 +145,8 @@ public class Game extends JFrame
     }
     m_title = title;
     super.setTitle(m_title);
-  }
 
-  /*
-   * FocusListener methods
-   */
-
-  @Override
-  public final void focusGained(FocusEvent e) {}
-
-  @Override
-  public final void focusLost(FocusEvent e) {
-    KeyboardHandler.keyUp = false;
-    KeyboardHandler.keyDown = false;
-    KeyboardHandler.keyLeft = false;
-    KeyboardHandler.keyRight = false;
-    KeyboardHandler.keyShift = false;
+    ScaledWindow.getInstance().setTitle(m_title);
   }
 
   /*
@@ -207,10 +196,10 @@ public class Game extends JFrame
   @Override
   public final void windowClosing(WindowEvent e) {
     dispose();
+    Launcher.getScaledWindow().disposeJFrame();
     Launcher.getConfigWindow().disposeJFrame();
     Launcher.getQueueWindow().disposeJFrame();
     Launcher.getWorldMapWindow().disposeJFrame();
-    Launcher.getChatHistoryWindow().disposeJFrame();
     Launcher.getChatWindow().disposeJFrame();
     TrayHandler.removeTrayIcon();
     NotificationsHandler.closeNotificationSoundClip();
@@ -251,16 +240,7 @@ public class Game extends JFrame
     if (getMinimumSize().width == 1) {
       setMinimumSize(getSize());
       launchGame();
-
-      // This workaround appears to be for a bug in the macOS JVM
-      // Without it, mac users get very angry
-      if (Util.isMacOS()) {
-        setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        setLocationRelativeTo(null);
-      }
     }
-
-    Renderer.resize(getContentPane().getWidth(), getContentPane().getHeight());
   }
 
   @Override
@@ -278,22 +258,5 @@ public class Game extends JFrame
       }
     }
     return instance;
-  }
-
-  /**
-   * Resizes the Game window to match the X and Y values stored in Settings. The applet's size will
-   * be recalculated on the next rendering tick.
-   */
-  public void resizeFrameWithContents() {
-    int windowWidth =
-        Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile)
-            + getInsets().left
-            + getInsets().right;
-    int windowHeight =
-        Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile)
-            + getInsets().top
-            + getInsets().bottom;
-    setSize(windowWidth, windowHeight);
-    setLocationRelativeTo(null);
   }
 }

@@ -71,12 +71,6 @@ public class ChatWindow {
     initialize();
   }
 
-  // TODO: remove this when finished debugging
-  public static void main(String[] args) {
-    ChatWindow chatWindow = new ChatWindow();
-    chatWindow.showChatWindow();
-  }
-
   public void showChatWindow() {
     frame.setVisible(true);
   }

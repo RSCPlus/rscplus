@@ -27,7 +27,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,7 @@ public class ReplayQueue {
     return false;
   }
 
-  static DropTarget dropReplays =
+  public static DropTarget dropReplays =
       new DropTarget() {
         public synchronized void drop(DropTargetDropEvent evt) {
           try {

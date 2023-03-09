@@ -19,6 +19,7 @@
 package Game;
 
 import Client.HiscoresURL;
+import Client.ScaledWindow;
 import Client.Settings;
 import Client.WikiURL;
 import java.awt.Point;
@@ -39,10 +40,10 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   public static int x = 0;
   public static int y = 0;
-  public static boolean mouseClicked = false;
   public static boolean rightClick = false;
   public static MouseListener listener_mouse = null;
   public static MouseMotionListener listener_mouse_motion = null;
+  public static Rectangle chatScrollbarBounds = null;
 
   private boolean m_rotating = false;
   private Point m_rotatePosition;
@@ -73,6 +74,57 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
         || Bank.shouldConsume()
         || WikiURL.shouldConsume()
         || HiscoresURL.shouldConsume();
+  }
+
+  /**
+   * POJO responsible for storing properties about a mouse click, to be used for tracking clicks on
+   * custom elements introduced by RSC+ such as the bank interface.
+   */
+  public static class BufferedMouseClick {
+    private final boolean mouseClicked;
+    private final boolean rightClick;
+    private final int x;
+    private final int y;
+
+    public BufferedMouseClick(boolean mouseClicked, boolean rightClick, int x, int y) {
+      this.mouseClicked = mouseClicked;
+      this.rightClick = rightClick;
+      this.x = x;
+      this.y = y;
+    }
+
+    public boolean isMouseClicked() {
+      return mouseClicked;
+    }
+
+    public boolean isRightClick() {
+      return rightClick;
+    }
+
+    public int getX() {
+      return x;
+    }
+
+    public int getY() {
+      return y;
+    }
+  }
+
+  /**
+   * Grabs a {@link BufferedMouseClick} from the buffer, if available <br>
+   * <br>
+   * Note: this should only ever be called in one place to guarantee queue integrity
+   */
+  public static BufferedMouseClick getBufferedMouseClick() {
+    BufferedMouseClick bufferedMouseClick = ScaledWindow.getInstance().getInputBuffer().peek();
+
+    // Return a dummy instance when nothing is available in the queue, such
+    // that we don't need to do null checks everywhere on the object.
+    if (bufferedMouseClick == null) {
+      return new BufferedMouseClick(false, false, -1, -1);
+    }
+
+    return ScaledWindow.getInstance().getInputBuffer().poll();
   }
 
   @Override
@@ -106,6 +158,9 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   @Override
   public void mouseEntered(MouseEvent e) {
     if (listener_mouse == null) return;
+
+    // Re-render the software cursor
+    Settings.checkSoftwareCursor();
 
     if (Replay.isRecording) {
       Replay.dumpMouseInput(
@@ -186,8 +241,10 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
       listener_mouse.mousePressed(e);
     }
 
-    mouseClicked = true;
+    // TODO: Determine if required
     rightClick = SwingUtilities.isRightMouseButton(e);
+
+    ScaledWindow.getInstance().getInputBuffer().add(new BufferedMouseClick(true, rightClick, x, y));
   }
 
   @Override
@@ -324,15 +381,68 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
           handleMenuScroll(
               wheelRotation, currScrollLimit, scroll, Menu.friend_handle, Menu.friend_menu);
+        } else if (shouldScrollChat()) {
+          int[] scroll = (int[]) Reflection.menuScroll.get(Menu.chat_menu);
+
+          int currentChatMenu = getCurrentChatType();
+
+          handleMenuScroll(wheelRotation, 20, scroll, currentChatMenu, Menu.chat_menu);
         } else {
-          zoomCamera(wheelRotation);
+          zoomCamera(e);
         }
       } catch (IllegalAccessException iae) {
         // no-op
       }
     } else {
-      zoomCamera(wheelRotation);
+      zoomCamera(e);
     }
+  }
+
+  private boolean shouldScrollChat() {
+    // Exit if not in-game
+    if (Menu.chat_menu == null || Reflection.menuX == null) {
+      return false;
+    }
+
+    // Scroll bar must be showing
+    try {
+      int currentChatType = getCurrentChatType();
+      if (currentChatType == -1) {
+        return false;
+      }
+
+      int[] chatMessages = (int[]) Reflection.menuItemArray.get(Menu.chat_menu);
+      int messageCount = chatMessages[currentChatType];
+      if (messageCount < 5) {
+        return false;
+      }
+    } catch (IllegalAccessException e) {
+      return false; // just in case
+    }
+
+    // Either holding control
+    if (Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile) && KeyboardHandler.keyControl) {
+      return true;
+    }
+
+    // Or hovering over scrollbar bounds
+    chatScrollbarBounds = new Rectangle(Renderer.width - 16, Renderer.height - 75, 16, 58);
+    return x >= chatScrollbarBounds.x
+        && x <= chatScrollbarBounds.x + chatScrollbarBounds.width
+        && y >= chatScrollbarBounds.y
+        && y <= chatScrollbarBounds.y + chatScrollbarBounds.height;
+  }
+
+  private int getCurrentChatType() {
+    if (Menu.chat_selected == 1) {
+      return Menu.chat_type1;
+    } else if (Menu.chat_selected == 2) {
+      return Menu.chat_type2;
+    } else if (Menu.chat_selected == 3) {
+      return Menu.chat_type3;
+    }
+
+    return -1;
   }
 
   private void handleMenuScroll(
@@ -370,7 +480,15 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
     }
   }
 
-  private void zoomCamera(int wheelRotation) {
-    Camera.addZoom(wheelRotation * 16);
+  private void zoomCamera(MouseWheelEvent e) {
+    if (e.isShiftDown() && Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile)) {
+      // Allows compatible trackpads to rotate the camera on 2-finger swipe
+      // motions. Also rotates the camera when holding shift in general.
+      Camera.addRotation(
+          e.getWheelRotation()
+              * -(Settings.TRACKPAD_ROTATION_SENSITIVITY.get(Settings.currentProfile) / 2.0f));
+    } else {
+      Camera.addZoom(e.getWheelRotation() * 16);
+    }
   }
 }

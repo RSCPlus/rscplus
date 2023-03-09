@@ -60,7 +60,7 @@ public class MusicPlayer implements Runnable {
               try {
                 if (null != input) {
                   Logger.Info("Loading " + switchTrack.filename + "." + switchTrack.filetype);
-                  Sound.play(Sound.loadSound(new BufferedInputStream(input)));
+                  Sound.play(Sound.loadSound(new BufferedInputStream(input)), false);
                 }
               } catch (UnsupportedAudioFileException | IOException e) {
                 e.printStackTrace();

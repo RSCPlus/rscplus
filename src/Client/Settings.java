@@ -26,13 +26,18 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+import Game.SoundEffects;
 import Game.XPBar;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -44,9 +49,10 @@ public class Settings {
 
   // Internally used variables
   public static boolean fovUpdateRequired;
+  public static boolean renderingScalarUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20221122.131313;
+  public static final double VERSION_NUMBER = 20230214.143000;
   public static boolean successfullyInitted = false;
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -71,6 +77,11 @@ public class Settings {
 
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_X = new HashMap<String, Integer>();
   public static HashMap<String, Integer> CUSTOM_CLIENT_SIZE_Y = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> SCALED_CLIENT_WINDOW = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> SCALING_ALGORITHM = new HashMap<String, Integer>();
+  public static HashMap<String, Integer> INTEGER_SCALING_FACTOR = new HashMap<String, Integer>();
+  public static HashMap<String, Float> BILINEAR_SCALING_FACTOR = new HashMap<String, Float>();
+  public static HashMap<String, Float> BICUBIC_SCALING_FACTOR = new HashMap<String, Float>();
   public static HashMap<String, Boolean> CHECK_UPDATES = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ACCOUNT_SECURITY_SETTINGS =
       new HashMap<String, Boolean>();
@@ -96,6 +107,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_DISK = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ATTACK_ALWAYS_LEFT_CLICK = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> NUMBERED_DIALOGUE_OPTIONS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> ENABLE_MOUSEWHEEL_SCROLLING =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> KEEP_SCROLLBAR_POS_MAGIC_PRAYER =
@@ -113,8 +125,14 @@ public class Settings {
   public static HashMap<String, Boolean> FPS_LIMIT_ENABLED = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
-  public static HashMap<String, Boolean> DISABLE_RANDOM_CHAT_COLOUR =
+  public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> TRACKPAD_ROTATION_SENSITIVITY =
+      new HashMap<String, Integer>();
+  public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
+      new HashMap<String, RanOverrideEffectType>();
+  public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
@@ -125,6 +143,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> CUSTOM_SKYBOX_UNDERGROUND_COLOUR =
       new HashMap<String, Integer>();
+  public static HashMap<String, Integer> CUSTOM_RAN_STATIC_COLOUR = new HashMap<String, Integer>();
   public static HashMap<String, Integer> VIEW_DISTANCE = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> PATCH_GENDER = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PATCH_HBAR_512_LAST_PIXEL = new HashMap<String, Boolean>();
@@ -137,10 +156,11 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
-  //// music
+  //// audio settings
   public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
   public static final double MIDI_VOLUME = 0.01;
   public static HashMap<String, Boolean> CUSTOM_MUSIC = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> SFX_VOLUME = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOUDER_SOUND_EFFECTS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
@@ -186,6 +206,8 @@ public class Settings {
 
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_MOUSE_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_EXTENDED_TOOLTIP = new HashMap<String, Boolean>();
@@ -333,7 +355,6 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
-  public static boolean DISABLE_RANDOM_CHAT_COLOUR_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -366,22 +387,71 @@ public class Settings {
         "custom", getPropBoolean(props, "custom_client_size", CUSTOM_CLIENT_SIZE.get("default")));
 
     CUSTOM_CLIENT_SIZE_X.put("vanilla", 512);
-    CUSTOM_CLIENT_SIZE_X.put("vanilla_resizable", 512);
-    CUSTOM_CLIENT_SIZE_X.put("lite", 512);
-    CUSTOM_CLIENT_SIZE_X.put("default", 512);
-    CUSTOM_CLIENT_SIZE_X.put("heavy", 512);
-    CUSTOM_CLIENT_SIZE_X.put("all", 512);
+    CUSTOM_CLIENT_SIZE_X.put("vanilla_resizable", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("lite", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("default", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("heavy", 1024);
+    CUSTOM_CLIENT_SIZE_X.put("all", 1024);
     CUSTOM_CLIENT_SIZE_X.put(
         "custom", getPropInt(props, "custom_client_size_x", CUSTOM_CLIENT_SIZE_X.get("default")));
 
     CUSTOM_CLIENT_SIZE_Y.put("vanilla", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("vanilla_resizable", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("lite", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("default", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("heavy", 346);
-    CUSTOM_CLIENT_SIZE_Y.put("all", 346);
+    CUSTOM_CLIENT_SIZE_Y.put("vanilla_resizable", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("lite", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("default", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("heavy", 692);
+    CUSTOM_CLIENT_SIZE_Y.put("all", 692);
     CUSTOM_CLIENT_SIZE_Y.put(
         "custom", getPropInt(props, "custom_client_size_y", CUSTOM_CLIENT_SIZE_Y.get("default")));
+
+    SCALED_CLIENT_WINDOW.put("vanilla", false);
+    SCALED_CLIENT_WINDOW.put("vanilla_resizable", true);
+    SCALED_CLIENT_WINDOW.put("lite", true);
+    SCALED_CLIENT_WINDOW.put("default", true);
+    SCALED_CLIENT_WINDOW.put("heavy", true);
+    SCALED_CLIENT_WINDOW.put("all", true);
+    SCALED_CLIENT_WINDOW.put(
+        "custom",
+        getPropBoolean(props, "enable_window_scaling", SCALED_CLIENT_WINDOW.get("default")));
+
+    SCALING_ALGORITHM.put("vanilla", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put("vanilla_resizable", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put("lite", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put("default", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put("heavy", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put("all", AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    SCALING_ALGORITHM.put(
+        "custom", getPropInt(props, "scaling_algorithm", SCALING_ALGORITHM.get("default")));
+
+    INTEGER_SCALING_FACTOR.put("vanilla", 2);
+    INTEGER_SCALING_FACTOR.put("vanilla_resizable", 2);
+    INTEGER_SCALING_FACTOR.put("lite", 2);
+    INTEGER_SCALING_FACTOR.put("default", 2);
+    INTEGER_SCALING_FACTOR.put("heavy", 2);
+    INTEGER_SCALING_FACTOR.put("all", 2);
+    INTEGER_SCALING_FACTOR.put(
+        "custom",
+        getPropInt(props, "integer_scaling_factor", INTEGER_SCALING_FACTOR.get("default")));
+
+    BILINEAR_SCALING_FACTOR.put("vanilla", 1.5f);
+    BILINEAR_SCALING_FACTOR.put("vanilla_resizable", 1.5f);
+    BILINEAR_SCALING_FACTOR.put("lite", 1.5f);
+    BILINEAR_SCALING_FACTOR.put("default", 1.5f);
+    BILINEAR_SCALING_FACTOR.put("heavy", 1.5f);
+    BILINEAR_SCALING_FACTOR.put("all", 1.5f);
+    BILINEAR_SCALING_FACTOR.put(
+        "custom",
+        getPropFloat(props, "bilinear_scaling_factor", BILINEAR_SCALING_FACTOR.get("default")));
+
+    BICUBIC_SCALING_FACTOR.put("vanilla", 1.5f);
+    BICUBIC_SCALING_FACTOR.put("vanilla_resizable", 1.5f);
+    BICUBIC_SCALING_FACTOR.put("lite", 1.5f);
+    BICUBIC_SCALING_FACTOR.put("default", 1.5f);
+    BICUBIC_SCALING_FACTOR.put("heavy", 1.5f);
+    BICUBIC_SCALING_FACTOR.put("all", 1.5f);
+    BICUBIC_SCALING_FACTOR.put(
+        "custom",
+        getPropFloat(props, "bicubic_scaling_factor", BICUBIC_SCALING_FACTOR.get("default")));
 
     CHECK_UPDATES.put("vanilla", true);
     CHECK_UPDATES.put("vanilla_resizable", true);
@@ -604,6 +674,17 @@ public class Settings {
     ATTACK_ALWAYS_LEFT_CLICK.put(
         "custom", getPropBoolean(props, "bypass_attack", ATTACK_ALWAYS_LEFT_CLICK.get("default")));
 
+    NUMBERED_DIALOGUE_OPTIONS.put("vanilla", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("vanilla_resizable", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("lite", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("default", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("heavy", false);
+    NUMBERED_DIALOGUE_OPTIONS.put("all", true);
+    NUMBERED_DIALOGUE_OPTIONS.put(
+        "custom",
+        getPropBoolean(
+            props, "numbered_dialogue_options", NUMBERED_DIALOGUE_OPTIONS.get("default")));
+
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla", false);
     ENABLE_MOUSEWHEEL_SCROLLING.put("vanilla_resizable", false);
     ENABLE_MOUSEWHEEL_SCROLLING.put("lite", true);
@@ -709,7 +790,9 @@ public class Settings {
     FOV.put("default", 9);
     FOV.put("heavy", 9);
     FOV.put("all", 9);
-    FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
+    FOV.put("custom", 9);
+    // We don't actually want to load this from the settings for usability
+    // FOV.put("custom", getPropInt(props, "fov", FOV.get("default")));
 
     FPS_LIMIT_ENABLED.put("vanilla", false);
     FPS_LIMIT_ENABLED.put("vanilla_resizable", false);
@@ -737,16 +820,57 @@ public class Settings {
     SOFTWARE_CURSOR.put(
         "custom", getPropBoolean(props, "software_cursor", SOFTWARE_CURSOR.get("default")));
 
-    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("vanilla_resizable", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("lite", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("default", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("heavy", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put("all", false);
-    DISABLE_RANDOM_CHAT_COLOUR.put(
+    CTRL_SCROLL_CHAT.put("vanilla", false);
+    CTRL_SCROLL_CHAT.put("vanilla_resizable", false);
+    CTRL_SCROLL_CHAT.put("lite", false);
+    CTRL_SCROLL_CHAT.put("default", true);
+    CTRL_SCROLL_CHAT.put("heavy", true);
+    CTRL_SCROLL_CHAT.put("all", true);
+    CTRL_SCROLL_CHAT.put(
+        "custom", getPropBoolean(props, "ctrl_scroll_chat", CTRL_SCROLL_CHAT.get("default")));
+
+    SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla_resizable", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("lite", false);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("default", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("heavy", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put("all", true);
+    SHIFT_SCROLL_CAMERA_ROTATION.put(
         "custom",
         getPropBoolean(
-            props, "disable_ran_chat_effect", DISABLE_RANDOM_CHAT_COLOUR.get("default")));
+            props, "shift_scroll_camera_rotation", SHIFT_SCROLL_CAMERA_ROTATION.get("default")));
+
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla_resizable", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("lite", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("default", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("heavy", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("all", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put(
+        "custom",
+        getPropInt(
+            props, "trackpad_rotation_sensitivity", TRACKPAD_ROTATION_SENSITIVITY.get("default")));
+
+    CUSTOM_RAN_CHAT_EFFECT.put("vanilla", RanOverrideEffectType.VANILLA);
+    CUSTOM_RAN_CHAT_EFFECT.put("vanilla_resizable", RanOverrideEffectType.VANILLA);
+    CUSTOM_RAN_CHAT_EFFECT.put("lite", RanOverrideEffectType.SLOWER);
+    CUSTOM_RAN_CHAT_EFFECT.put("default", RanOverrideEffectType.SLOWER);
+    CUSTOM_RAN_CHAT_EFFECT.put("heavy", RanOverrideEffectType.GLOW1);
+    CUSTOM_RAN_CHAT_EFFECT.put("all", RanOverrideEffectType.GLOW1);
+    CUSTOM_RAN_CHAT_EFFECT.put(
+        "custom",
+        RanOverrideEffectType.getById(
+            getPropInt(
+                props, "custom_ran_chat_effect", CUSTOM_RAN_CHAT_EFFECT.get("default").id())));
+
+    RAN_EFFECT_TARGET_FPS.put("vanilla", 50);
+    RAN_EFFECT_TARGET_FPS.put("vanilla_resizable", 50);
+    RAN_EFFECT_TARGET_FPS.put("lite", 10);
+    RAN_EFFECT_TARGET_FPS.put("default", 10);
+    RAN_EFFECT_TARGET_FPS.put("heavy", 10);
+    RAN_EFFECT_TARGET_FPS.put("all", 10);
+    RAN_EFFECT_TARGET_FPS.put(
+        "custom", getPropInt(props, "ran_effect_target_fps", RAN_EFFECT_TARGET_FPS.get("default")));
 
     VIEW_DISTANCE.put("vanilla", 2300);
     VIEW_DISTANCE.put("vanilla_resizable", 3000);
@@ -798,6 +922,16 @@ public class Settings {
             props,
             "custom_skybox_overworld_colour",
             CUSTOM_SKYBOX_OVERWORLD_COLOUR.get("default")));
+
+    CUSTOM_RAN_STATIC_COLOUR.put("vanilla", 0xFFFFFF);
+    CUSTOM_RAN_STATIC_COLOUR.put("vanilla_resizable", 0xFFFFFF);
+    CUSTOM_RAN_STATIC_COLOUR.put("lite", 0x9933FF);
+    CUSTOM_RAN_STATIC_COLOUR.put("default", 0x9933FF); // classic purple
+    CUSTOM_RAN_STATIC_COLOUR.put("heavy", 0x9933FF);
+    CUSTOM_RAN_STATIC_COLOUR.put("all", 0x68478D); // royal purple alternative
+    CUSTOM_RAN_STATIC_COLOUR.put(
+        "custom",
+        getPropInt(props, "custom_ran_static_colour", CUSTOM_RAN_STATIC_COLOUR.get("default")));
 
     CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla", false);
     CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put("vanilla_resizable", false);
@@ -919,7 +1053,7 @@ public class Settings {
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
 
-    //// music
+    //// audio settings
     CUSTOM_MUSIC.put("vanilla", false);
     CUSTOM_MUSIC.put("vanilla_resizable", false);
     CUSTOM_MUSIC.put("lite", false);
@@ -936,6 +1070,15 @@ public class Settings {
     CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
     CUSTOM_MUSIC_PATH.put(
         "custom", getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
+
+    SFX_VOLUME.put("vanilla", 100);
+    SFX_VOLUME.put("vanilla_resizable", 100);
+    SFX_VOLUME.put("lite", 100);
+    SFX_VOLUME.put("default", 100);
+    SFX_VOLUME.put("heavy", 100);
+    SFX_VOLUME.put("all", 100);
+    SFX_VOLUME.put("custom", 100);
+    SFX_VOLUME.put("custom", getPropInt(props, "sfx_volume", SFX_VOLUME.get("default")));
 
     LOUDER_SOUND_EFFECTS.put("vanilla", false);
     LOUDER_SOUND_EFFECTS.put("vanilla_resizable", false);
@@ -1349,6 +1492,19 @@ public class Settings {
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         "custom",
         getPropBoolean(props, "show_statusdisplay", SHOW_HP_PRAYER_FATIGUE_OVERLAY.get("default")));
+
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla_resizable", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("lite", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("default", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("heavy", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("all", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "always_show_statusdisplay_text",
+            ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get("default")));
 
     SHOW_BUFFS.put("vanilla", false);
     SHOW_BUFFS.put("vanilla_resizable", false);
@@ -2217,11 +2373,27 @@ public class Settings {
       save("custom");
     }
 
+    if (SFX_VOLUME.get("custom") < 0) {
+      SFX_VOLUME.put("custom", 0);
+      save("custom");
+    } else if (SFX_VOLUME.get("custom") > 100) {
+      SFX_VOLUME.put("custom", 100);
+      save("custom");
+    }
+
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       save("custom");
     } else if (VIEW_DISTANCE.get("custom") > 20000) {
       VIEW_DISTANCE.put("custom", 20000);
+      save("custom");
+    }
+
+    if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") < 0) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 0);
+      save("custom");
+    } else if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") > 16) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 16);
       save("custom");
     }
 
@@ -2391,12 +2563,33 @@ public class Settings {
     if (props == null) {
       props = loadProps();
     }
+
     for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
       String keybindCombo =
           getPropString(
               props, "key_" + kbs.commandName, "" + getPropIntForKeyModifier(kbs) + "*" + kbs.key);
       kbs.modifier = getKeyModifierFromString(keybindCombo);
       kbs.key = Integer.parseInt(keybindCombo.substring(2));
+    }
+
+    resolveNewDefaults();
+  }
+
+  /**
+   * Resolves conflicting keybindings when a new merge has decided to steal and replace a
+   * pre-existing keybinding.
+   */
+  private static void resolveNewDefaults() {
+    for (KeybindSet keybind : KeyboardHandler.keybindSetList) {
+      // 02/12/23 - show_player_controls was rebound from alt-up to alt-c
+      if (keybind.getCommandName().equals("show_player_controls")) {
+        if (keybind.getModifier().equals(KeyModifier.ALT) && keybind.getKey() == KeyEvent.VK_UP) {
+          keybind.setModifier(KeyModifier.ALT);
+          keybind.setKey(KeyEvent.VK_C);
+
+          break;
+        }
+      }
     }
   }
 
@@ -2416,7 +2609,7 @@ public class Settings {
     int i = 1;
     if (fList != null) {
       for (File worldFile : fList) {
-        if (!worldFile.isDirectory()) {
+        if (!worldFile.isDirectory() && !worldFile.getName().equals(".DS_Store")) {
           Properties worldProps = new Properties();
           try {
             FileInputStream in = new FileInputStream(worldFile);
@@ -2592,6 +2785,15 @@ public class Settings {
       props.setProperty("custom_client_size", Boolean.toString(CUSTOM_CLIENT_SIZE.get(preset)));
       props.setProperty("custom_client_size_x", Integer.toString(CUSTOM_CLIENT_SIZE_X.get(preset)));
       props.setProperty("custom_client_size_y", Integer.toString(CUSTOM_CLIENT_SIZE_Y.get(preset)));
+      props.setProperty(
+          "enable_window_scaling", Boolean.toString(SCALED_CLIENT_WINDOW.get(preset)));
+      props.setProperty("scaling_algorithm", Integer.toString(SCALING_ALGORITHM.get(preset)));
+      props.setProperty(
+          "integer_scaling_factor", Integer.toString(INTEGER_SCALING_FACTOR.get(preset)));
+      props.setProperty(
+          "bilinear_scaling_factor", Float.toString(BILINEAR_SCALING_FACTOR.get(preset)));
+      props.setProperty(
+          "bicubic_scaling_factor", Float.toString(BICUBIC_SCALING_FACTOR.get(preset)));
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
       props.setProperty(
           "show_account_security_settings",
@@ -2620,6 +2822,8 @@ public class Settings {
       props.setProperty("command_patch_disk", Boolean.toString(COMMAND_PATCH_DISK.get(preset)));
       props.setProperty("bypass_attack", Boolean.toString(ATTACK_ALWAYS_LEFT_CLICK.get(preset)));
       props.setProperty(
+          "numbered_dialogue_options", Boolean.toString(NUMBERED_DIALOGUE_OPTIONS.get(preset)));
+      props.setProperty(
           "enable_mousewheel_scrolling", Boolean.toString(ENABLE_MOUSEWHEEL_SCROLLING.get(preset)));
       props.setProperty(
           "keep_scrollbar_pos_magic_prayer",
@@ -2640,10 +2844,21 @@ public class Settings {
       props.setProperty("fps_limit_enabled", Boolean.toString(FPS_LIMIT_ENABLED.get(preset)));
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
+      props.setProperty("ctrl_scroll_chat", Boolean.toString(CTRL_SCROLL_CHAT.get(preset)));
       props.setProperty(
-          "disable_ran_chat_effect", Boolean.toString(DISABLE_RANDOM_CHAT_COLOUR.get(preset)));
+          "shift_scroll_camera_rotation",
+          Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
+      props.setProperty(
+          "trackpad_rotation_sensitivity",
+          Integer.toString(TRACKPAD_ROTATION_SENSITIVITY.get(preset)));
+      props.setProperty(
+          "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
+      props.setProperty(
+          "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
+      props.setProperty(
+          "custom_ran_static_colour", Integer.toString(CUSTOM_RAN_STATIC_COLOUR.get(preset)));
       props.setProperty(
           "custom_skybox_overworld_enabled",
           Boolean.toString(CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(preset)));
@@ -2670,9 +2885,10 @@ public class Settings {
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
       props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
 
-      //// music
+      //// audio settings
       props.setProperty("custom_music", Boolean.toString(CUSTOM_MUSIC.get(preset)));
       props.setProperty("custom_music_path", CUSTOM_MUSIC_PATH.get(preset));
+      props.setProperty("sfx_volume", Integer.toString(SFX_VOLUME.get(preset)));
       props.setProperty("louder_sound_effects", Boolean.toString(LOUDER_SOUND_EFFECTS.get(preset)));
       props.setProperty(
           "override_audio_setting", Boolean.toString(OVERRIDE_AUDIO_SETTING.get(preset)));
@@ -2741,6 +2957,9 @@ public class Settings {
       //// overlays
       props.setProperty(
           "show_statusdisplay", Boolean.toString(SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
+      props.setProperty(
+          "always_show_statusdisplay_text",
+          Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
@@ -2958,6 +3177,150 @@ public class Settings {
    * Setting toggle methods
    */
 
+  public static void toggleWindowScaling() {
+    if (ScaledWindow.getInstance().isViewportLoaded()) {
+      SCALED_CLIENT_WINDOW.put(
+          currentProfile, new Boolean(!SCALED_CLIENT_WINDOW.get(currentProfile)));
+
+      if (SCALED_CLIENT_WINDOW.get(currentProfile)) {
+        Client.displayMessage("@cya@Client scaling is now enabled", Client.CHAT_NONE);
+      } else {
+        Client.displayMessage("@cya@Client scaling is now disabled", Client.CHAT_NONE);
+      }
+
+      Settings.renderingScalarUpdateRequired = true;
+
+      save();
+    }
+  }
+
+  public static void increaseScale() {
+    if (ScaledWindow.getInstance().isViewportLoaded()) {
+      float scalingDelta = 0f;
+
+      if (!SCALED_CLIENT_WINDOW.get(currentProfile)) {
+        Client.displayMessage(
+            "@cya@Enable client scaling before attempting to increase the scale value",
+            Client.CHAT_NONE);
+        return;
+      }
+
+      String scaleLimitReached = "@cya@Cannot increase the scale further";
+
+      if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_NEAREST_NEIGHBOR)) {
+        int currentIntegerScalingFactor = INTEGER_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 1.0f;
+
+        if (currentIntegerScalingFactor < (int) Renderer.maxIntegerScalar) {
+          int newScale = currentIntegerScalingFactor + (int) scalingDelta;
+
+          INTEGER_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Increased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      } else if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_BILINEAR)) {
+        float currentBilinearScalingFactor = BILINEAR_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 0.1f;
+
+        if (currentBilinearScalingFactor < Renderer.maxInterpolationScalar) {
+          float newScale =
+              BigDecimal.valueOf(currentBilinearScalingFactor + scalingDelta)
+                  .setScale(1, RoundingMode.HALF_DOWN)
+                  .floatValue();
+          BILINEAR_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Increased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      } else if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_BICUBIC)) {
+        float currentBicubicScalingFactor = BICUBIC_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 0.1f;
+
+        if (currentBicubicScalingFactor < Renderer.maxInterpolationScalar) {
+          float newScale =
+              BigDecimal.valueOf(currentBicubicScalingFactor + scalingDelta)
+                  .setScale(1, RoundingMode.HALF_DOWN)
+                  .floatValue();
+          BICUBIC_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Increased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      }
+
+      Settings.renderingScalarUpdateRequired = true;
+
+      save();
+    }
+  }
+
+  public static void decreaseScale() {
+    if (ScaledWindow.getInstance().isViewportLoaded()) {
+      float scalingDelta = 0;
+
+      if (!SCALED_CLIENT_WINDOW.get(currentProfile)) {
+        Client.displayMessage(
+            "@cya@Enable client scaling before attempting to decrease the scale value",
+            Client.CHAT_NONE);
+        return;
+      }
+
+      String scaleLimitReached = "@cya@Cannot decrease the scale further";
+
+      if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_NEAREST_NEIGHBOR)) {
+        int currentIntegerScalingFactor = INTEGER_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 1.0f;
+
+        if (currentIntegerScalingFactor > (int) Renderer.minScalar) {
+          int newScale = currentIntegerScalingFactor - (int) scalingDelta;
+          INTEGER_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Decreased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      } else if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_BILINEAR)) {
+        float currentBilinearScalingFactor = BILINEAR_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 0.1f;
+
+        if (currentBilinearScalingFactor > Renderer.minScalar) {
+          float newScale =
+              BigDecimal.valueOf(currentBilinearScalingFactor - scalingDelta)
+                  .setScale(1, RoundingMode.HALF_DOWN)
+                  .floatValue();
+          BILINEAR_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Decreased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      } else if (SCALING_ALGORITHM.get(currentProfile).equals(AffineTransformOp.TYPE_BICUBIC)) {
+        float currentBicubicScalingFactor = BICUBIC_SCALING_FACTOR.get(currentProfile);
+        scalingDelta = 0.1f;
+
+        if (currentBicubicScalingFactor > Renderer.minScalar) {
+          float newScale =
+              BigDecimal.valueOf(currentBicubicScalingFactor - scalingDelta)
+                  .setScale(1, RoundingMode.HALF_DOWN)
+                  .floatValue();
+          BICUBIC_SCALING_FACTOR.put(currentProfile, newScale);
+          Client.displayMessage("@cya@Decreased scale to " + newScale + "x", Client.CHAT_NONE);
+        } else {
+          Client.displayMessage(scaleLimitReached, Client.CHAT_NONE);
+          return;
+        }
+      }
+
+      Settings.renderingScalarUpdateRequired = true;
+
+      save();
+    }
+  }
+
   public static void toggleAttackAlwaysLeftClick() {
     ATTACK_ALWAYS_LEFT_CLICK.put(
         currentProfile, new Boolean(!ATTACK_ALWAYS_LEFT_CLICK.get(currentProfile)));
@@ -2968,6 +3331,20 @@ public class Settings {
     } else {
       Client.displayMessage(
           "@cya@You are no longer able to left click attack all monsters", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleNumberedDialogue() {
+    NUMBERED_DIALOGUE_OPTIONS.put(
+        currentProfile, new Boolean(!NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)));
+
+    if (NUMBERED_DIALOGUE_OPTIONS.get(currentProfile)) {
+      Client.displayMessage("@cya@Displaying numbered dialogue options", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@No longer displaying numbered dialogue options", Client.CHAT_NONE);
     }
 
     save();
@@ -3308,6 +3685,35 @@ public class Settings {
     save();
   }
 
+  public static void toggleTrackpadRotation() {
+    SHIFT_SCROLL_CAMERA_ROTATION.put(
+        currentProfile, !SHIFT_SCROLL_CAMERA_ROTATION.get(currentProfile));
+
+    if (SHIFT_SCROLL_CAMERA_ROTATION.get(currentProfile)) {
+      Client.displayMessage("@cya@Trackpad Camera Rotation is now enabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Trackpad Camera Rotation is now disabled", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleCtrlScroll() {
+    CTRL_SCROLL_CHAT.put(currentProfile, !CTRL_SCROLL_CHAT.get(currentProfile));
+
+    if (CTRL_SCROLL_CHAT.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Hold CTRL to scroll through chat history from anywhere is now enabled",
+          Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@Hold CTRL to scroll through chat history from anywhere is now disabled",
+          Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void toggleColorTerminal() {
     COLORIZE_CONSOLE_TEXT.put(currentProfile, !COLORIZE_CONSOLE_TEXT.get(currentProfile));
 
@@ -3333,17 +3739,19 @@ public class Settings {
   }
 
   public static void checkSoftwareCursor() {
-    if (SOFTWARE_CURSOR.get(currentProfile)) {
-      Game.getInstance()
+    // Only load the software cursor if setting is enabled and
+    // the game has begun rendering post-loading
+    if (SOFTWARE_CURSOR.get(currentProfile) && ScaledWindow.getInstance().isViewportLoaded()) {
+      ScaledWindow.getInstance()
           .setCursor(
-              Game.getInstance()
+              ScaledWindow.getInstance()
                   .getToolkit()
                   .createCustomCursor(
                       new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB),
                       new Point(0, 0),
                       "null"));
     } else {
-      Game.getInstance().setCursor(Cursor.getDefaultCursor());
+      ScaledWindow.getInstance().setCursor(Cursor.getDefaultCursor());
     }
   }
 
@@ -3428,6 +3836,32 @@ public class Settings {
     save();
   }
 
+  public static void setSfxVolume(String volumeLevel) {
+    String outOfBoundsMessage =
+        "@whi@Please use an @lre@integer@whi@ between 0 and 100 (default = 100)";
+
+    try {
+      int newVolume = Integer.parseInt(volumeLevel);
+
+      // Warn if value out of bounds
+      if (newVolume < 0 || newVolume > 100) {
+        Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+        return;
+      }
+
+      SFX_VOLUME.put(currentProfile, newVolume);
+      SoundEffects.adjustMudClientSfxVolume();
+      Client.displayMessage(
+          "@cya@Volume of sound effects was changed to " + volumeLevel + "%", Client.CHAT_NONE);
+
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    } catch (Exception e) {
+      Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+    }
+
+    save();
+  }
+
   /**
    * Gets the String value of a Properties object for the specified key. If no value is defined for
    * that key, it returns the specified default value.
@@ -3486,6 +3920,26 @@ public class Settings {
   }
 
   /**
+   * Gets the Float value of a Properties object for the specified key. If no value is defined for
+   * that key, it returns the specified default value.
+   *
+   * @param props the Properties object to read
+   * @param key the name of the property to lookup
+   * @param defaultProp the default Float value of the specified property
+   * @return a Float value corresponding to the specified property
+   */
+  private static float getPropFloat(Properties props, String key, float defaultProp) {
+    String value = props.getProperty(key);
+    if (value == null) return defaultProp;
+
+    try {
+      return Float.parseFloat(value);
+    } catch (Exception e) {
+      return defaultProp;
+    }
+  }
+
+  /**
    * Gets the Boolean value of a Properties object for the specified key. If no value is defined for
    * that key, it returns the specified default value.
    *
@@ -3537,6 +3991,15 @@ public class Settings {
       case "screenshot":
         Renderer.takeScreenshot(false);
         return true;
+      case "toggle_scaling":
+        Settings.toggleWindowScaling();
+        return true;
+      case "increase_scale":
+        Settings.increaseScale();
+        return true;
+      case "decrease_scale":
+        Settings.decreaseScale();
+        return true;
       case "toggle_indicators":
         Settings.toggleLagIndicator();
         return true;
@@ -3545,6 +4008,12 @@ public class Settings {
         return true;
       case "reset_rotation":
         Camera.resetRotation();
+        return true;
+      case "toggle_trackpad_camera_rotation":
+        Settings.toggleTrackpadRotation();
+        return true;
+      case "toggle_ctrl_scroll":
+        Settings.toggleCtrlScroll();
         return true;
       case "toggle_colorize":
         Settings.toggleColorTerminal();
@@ -3615,6 +4084,9 @@ public class Settings {
       case "toggle_bypass_attack":
         Settings.toggleAttackAlwaysLeftClick();
         return true;
+      case "toggle_numbered_dialogue":
+        Settings.toggleNumberedDialogue();
+        return true;
       case "toggle_roof_hiding":
         Settings.toggleHideRoofs();
         return true;
@@ -3646,9 +4118,6 @@ public class Settings {
             || Replay.isSeeking
             || Replay.isRestarting
             || Client.state == Client.STATE_LOGIN) Launcher.getQueueWindow().showQueueWindow();
-        return true;
-      case "show_chat_history_window":
-        Launcher.getChatHistoryWindow().toggleChatHistoryWindow();
         return true;
       case "world_1":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(1);
@@ -3825,7 +4294,6 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
-    DISABLE_RANDOM_CHAT_COLOUR_BOOL = DISABLE_RANDOM_CHAT_COLOUR.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
@@ -3839,10 +4307,9 @@ public class Settings {
    * @return if it is recommended to use system notifications
    */
   public static boolean isRecommendedToUseSystemNotifs() {
-    // Users on Windows 8.1 or 10 are recommend to set USE_SYSTEM_NOTIFICATIONS = true
-    if (System.getProperty("os.name").contains("Windows")) {
-      return "Windows 10".equals(System.getProperty("os.name"))
-          || "Windows 8.1".equals(System.getProperty("os.name"));
+    // Users on Windows 8.1+ are recommend to set USE_SYSTEM_NOTIFICATIONS = true
+    if (Util.isWindowsOS()) {
+      return Util.isModernWindowsOS();
     } else { // Linux, macOS, etc.
       return NotificationsHandler.hasNotifySend;
     }

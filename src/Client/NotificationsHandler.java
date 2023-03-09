@@ -21,7 +21,6 @@ package Client;
 import static Game.Renderer.exactStringIgnoreCaseIsWithinList;
 
 import Game.Client;
-import Game.Game;
 import Game.Replay;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -372,7 +371,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -380,7 +379,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "normal");
                 didNotify = true;
               }
@@ -394,7 +393,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -402,7 +401,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "normal");
                 didNotify = true;
               }
@@ -416,7 +415,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -424,7 +423,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "normal");
                 didNotify = true;
               }
@@ -438,7 +437,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -446,7 +445,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "critical");
                 didNotify = true;
               }
@@ -460,7 +459,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -468,7 +467,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "critical");
                 didNotify = true;
               }
@@ -482,7 +481,7 @@ public class NotificationsHandler {
             if (Settings.NOTIFICATION_SOUNDS.get(Settings.currentProfile)) {
               // If always notification sounds or if game isn't focused, play audio
               if (Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 playNotificationSound(sound);
                 didNotify = true;
               }
@@ -490,7 +489,7 @@ public class NotificationsHandler {
             if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)) {
               // If always tray notifications or if game isn't focused, display tray notification
               if (Settings.TRAY_NOTIFS_ALWAYS.get(Settings.currentProfile)
-                  || (!Game.getInstance().getContentPane().hasFocus())) {
+                  || (!ScaledWindow.getInstance().getContentPane().hasFocus())) {
                 displayNotification(title, text, "critical");
                 didNotify = true;
               }
@@ -681,7 +680,7 @@ class NotifsShowGameMouseListener implements MouseListener {
 
   @Override
   public void mouseClicked(MouseEvent arg0) {
-    Game.getInstance().toFront();
+    ScaledWindow.getInstance().toFront();
     NotificationsHandler.setNotificationWindowVisible(false);
   }
 
