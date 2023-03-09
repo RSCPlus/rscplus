@@ -225,6 +225,7 @@ public class ConfigWindow {
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
+  private JCheckBox overlayPanelStatusAlwaysTextCheckbox;
   private JCheckBox overlayPanelBuffsCheckbox;
   private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
@@ -1585,6 +1586,11 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    overlayPanelStatusAlwaysTextCheckbox =
+        addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
+    overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
+        "Always show the status display as text even at larger client sizes");
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -3866,6 +3872,8 @@ public class ConfigWindow {
     // Overlays tab
     overlayPanelStatusDisplayCheckbox.setSelected(
         Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
+    overlayPanelStatusAlwaysTextCheckbox.setSelected(
+        Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile));
     overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
     overlayPanelLastMenuActionCheckbox.setSelected(
         Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
@@ -4297,6 +4305,8 @@ public class ConfigWindow {
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
+    Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        Settings.currentProfile, overlayPanelStatusAlwaysTextCheckbox.isSelected());
     Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
     Settings.SHOW_LAST_MENU_ACTION.put(
         Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());

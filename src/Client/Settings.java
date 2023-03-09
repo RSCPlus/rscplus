@@ -203,6 +203,8 @@ public class Settings {
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_MOUSE_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_EXTENDED_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
@@ -1466,6 +1468,19 @@ public class Settings {
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         "custom",
         getPropBoolean(props, "show_statusdisplay", SHOW_HP_PRAYER_FATIGUE_OVERLAY.get("default")));
+
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla_resizable", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("lite", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("default", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("heavy", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("all", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "always_show_statusdisplay_text",
+            ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get("default")));
 
     SHOW_BUFFS.put("vanilla", false);
     SHOW_BUFFS.put("vanilla_resizable", false);
@@ -2898,6 +2913,9 @@ public class Settings {
       //// overlays
       props.setProperty(
           "show_statusdisplay", Boolean.toString(SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
+      props.setProperty(
+          "always_show_statusdisplay_text",
+          Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
