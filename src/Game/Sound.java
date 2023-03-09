@@ -56,7 +56,7 @@ public class Sound {
     return new Sound(samples, decodedFormat);
   }
 
-  public static void play(Sound sound) {
+  public static void play(Sound sound, boolean isSoundEffect) {
     InputStream source = new ByteArrayInputStream(sound.getSamples());
     AudioFormat format = sound.getFormat();
     // use a short, 100ms (1/10th sec) buffer for real-time changes to the sound stream
@@ -69,6 +69,10 @@ public class Sound {
       DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
       line = (SourceDataLine) AudioSystem.getLine(info);
       line.open(format, bufferSize);
+
+      if (isSoundEffect) {
+        SoundEffects.adjustSfxVolume(line);
+      }
     } catch (LineUnavailableException ex) {
       ex.printStackTrace();
       return;

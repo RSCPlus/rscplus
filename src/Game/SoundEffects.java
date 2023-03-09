@@ -5,6 +5,8 @@ import Client.Logger;
 import Client.Settings;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundEffects {
@@ -12,6 +14,8 @@ public class SoundEffects {
       204; // handling here to selectively enable/disable all sounds except prayeron/off
   static final int SET_SETTINGS = 240; // handling here to better control setting sounds_disabled
   public static boolean sounds_disabled;
+
+  public static SourceDataLine mudClientSourceDataLine;
 
   public static Sound combat1;
 
@@ -84,19 +88,12 @@ public class SoundEffects {
 
   public static void playSound(String filename) {
     if (filename.equals("combat1")) {
-      if (!sounds_disabled) Sound.play(combat1);
+      if (!sounds_disabled) Sound.play(combat1, true);
       return;
     }
 
-    if (Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile)) {
-      // playing a second time will overlap with the first call, increasing the volume in a hacky
-      // way
-      playSoundReflectionCall(filename);
-      playSoundReflectionCall(filename);
-    } else {
-      // play the sound effect using the original method
-      playSoundReflectionCall(filename);
-    }
+    // play the sound effect using the original method
+    playSoundReflectionCall(filename);
   }
 
   private static void playSoundReflectionCall(String filename) {
@@ -188,6 +185,27 @@ public class SoundEffects {
         return Settings.SOUND_EFFECT_VICTORY.get(Settings.currentProfile);
       default:
         return true;
+    }
+  }
+
+  public static void adjustMudClientSfxVolume() {
+    adjustSfxVolume(mudClientSourceDataLine);
+  }
+
+  public static void adjustSfxVolume(SourceDataLine sourceDataLine) {
+    if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+      float volumePercent = Settings.SFX_VOLUME.get(Settings.currentProfile);
+
+      FloatControl gainControl =
+          (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+
+      if (Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile)) {
+        volumePercent *= 2;
+      }
+
+      float volumeInDecibels = 20f * (float) Math.log10(volumePercent / 100f);
+
+      gainControl.setValue(volumeInDecibels);
     }
   }
 }

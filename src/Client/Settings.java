@@ -26,6 +26,7 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+import Game.SoundEffects;
 import Game.XPBar;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -153,10 +154,11 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
-  //// music
+  //// audio settings
   public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
   public static final double MIDI_VOLUME = 0.01;
   public static HashMap<String, Boolean> CUSTOM_MUSIC = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> SFX_VOLUME = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOUDER_SOUND_EFFECTS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
@@ -1038,7 +1040,7 @@ public class Settings {
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
 
-    //// music
+    //// audio settings
     CUSTOM_MUSIC.put("vanilla", false);
     CUSTOM_MUSIC.put("vanilla_resizable", false);
     CUSTOM_MUSIC.put("lite", false);
@@ -1055,6 +1057,15 @@ public class Settings {
     CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
     CUSTOM_MUSIC_PATH.put(
         "custom", getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
+
+    SFX_VOLUME.put("vanilla", 100);
+    SFX_VOLUME.put("vanilla_resizable", 100);
+    SFX_VOLUME.put("lite", 100);
+    SFX_VOLUME.put("default", 100);
+    SFX_VOLUME.put("heavy", 100);
+    SFX_VOLUME.put("all", 100);
+    SFX_VOLUME.put("custom", 100);
+    SFX_VOLUME.put("custom", getPropInt(props, "sfx_volume", SFX_VOLUME.get("default")));
 
     LOUDER_SOUND_EFFECTS.put("vanilla", false);
     LOUDER_SOUND_EFFECTS.put("vanilla_resizable", false);
@@ -2349,6 +2360,14 @@ public class Settings {
       save("custom");
     }
 
+    if (SFX_VOLUME.get("custom") < 0) {
+      SFX_VOLUME.put("custom", 0);
+      save("custom");
+    } else if (SFX_VOLUME.get("custom") > 100) {
+      SFX_VOLUME.put("custom", 100);
+      save("custom");
+    }
+
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       save("custom");
@@ -2842,9 +2861,10 @@ public class Settings {
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
       props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
 
-      //// music
+      //// audio settings
       props.setProperty("custom_music", Boolean.toString(CUSTOM_MUSIC.get(preset)));
       props.setProperty("custom_music_path", CUSTOM_MUSIC_PATH.get(preset));
+      props.setProperty("sfx_volume", Integer.toString(SFX_VOLUME.get(preset)));
       props.setProperty("louder_sound_effects", Boolean.toString(LOUDER_SOUND_EFFECTS.get(preset)));
       props.setProperty(
           "override_audio_setting", Boolean.toString(OVERRIDE_AUDIO_SETTING.get(preset)));
@@ -3789,6 +3809,32 @@ public class Settings {
       Client.displayMessage(
           "@whi@Please use an @lre@integer@whi@ between 7 and 16 (default = 9)", Client.CHAT_QUEST);
     }
+    save();
+  }
+
+  public static void setSfxVolume(String volumeLevel) {
+    String outOfBoundsMessage =
+        "@whi@Please use an @lre@integer@whi@ between 0 and 100 (default = 100)";
+
+    try {
+      int newVolume = Integer.parseInt(volumeLevel);
+
+      // Warn if value out of bounds
+      if (newVolume < 0 || newVolume > 100) {
+        Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+        return;
+      }
+
+      SFX_VOLUME.put(currentProfile, newVolume);
+      SoundEffects.adjustMudClientSfxVolume();
+      Client.displayMessage(
+          "@cya@Volume of sound effects was changed to " + volumeLevel + "%", Client.CHAT_NONE);
+
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    } catch (Exception e) {
+      Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+    }
+
     save();
   }
 
