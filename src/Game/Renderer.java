@@ -449,10 +449,7 @@ public class Renderer {
           Color color = color_low;
 
           boolean showName = false;
-          if (npc.type == NPC.TYPE_PLAYER 
-              && npc.name != null
-              && Client.player_name != null
-              && !npc.name.equals(Client.player_name)) {
+          if (npc.type == NPC.TYPE_PLAYER) {
             color = color_fatigue;
 
             if (Client.isFriend(npc.name)) {
@@ -461,7 +458,14 @@ public class Renderer {
                   || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
                 showName = true;
               }
-            } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
+            } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)
+                && npc.name != null
+                && Client.player_name != null
+                && !npc.name.equals(Client.player_name)) {
+              showName = true;
+            } else if (Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile)
+                && npc.name != null
+                && npc.name.equals(Client.player_name)) {
               showName = true;
             }
           } else if (npc.type == NPC.TYPE_MOB
@@ -1317,7 +1321,8 @@ public class Renderer {
 
         x = 380;
         y = 32;
-        drawShadowText(g2, Client.player_name, x, y, color_text, false);
+        drawShadowText(
+            g2, Client.player_name + " (pid: " + Client.player_id + ")", x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Player Count: " + playerCount, x, y, color_text, false);
         y += 16;

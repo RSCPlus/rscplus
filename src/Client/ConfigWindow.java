@@ -243,6 +243,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
   private JCheckBox overlayPanelPlayerNamesCheckbox;
+  private JCheckBox overlayPanelOwnNameCheckbox;
   private JCheckBox overlayPanelFriendNamesCheckbox;
   private JCheckBox overlayPanelNPCNamesCheckbox;
   private JCheckBox overlayPanelIDsCheckbox;
@@ -1767,6 +1768,9 @@ public class ConfigWindow {
     overlayPanelPlayerNamesCheckbox.setToolTipText(
         "Shows players' display names over their character");
 
+    overlayPanelOwnNameCheckbox = addCheckbox("Show your own name over your head", overlayPanel);
+    overlayPanelOwnNameCheckbox.setToolTipText("Shows your own display name over your character");
+
     overlayPanelFriendNamesCheckbox =
         addCheckbox("Show nearby friend names over their heads", overlayPanel);
     overlayPanelFriendNamesCheckbox.setToolTipText(
@@ -2839,6 +2843,12 @@ public class ConfigWindow {
         KeyEvent.VK_P);
     addKeybindSet(
         keybindContainerPanel,
+        "Toggle own name overlay",
+        "toggle_own_name_overlay",
+        KeyModifier.ALT,
+        KeyEvent.VK_J);
+    addKeybindSet(
+        keybindContainerPanel,
         "Toggle friend name overlay",
         "toggle_friend_name_overlay",
         KeyModifier.CTRL,
@@ -3900,6 +3910,8 @@ public class ConfigWindow {
         Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
     overlayPanelPlayerNamesCheckbox.setSelected(
         Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
+    overlayPanelOwnNameCheckbox.setSelected(
+        Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelFriendNamesCheckbox.setSelected(
         Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelNPCNamesCheckbox.setSelected(
@@ -4330,6 +4342,8 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
     Settings.SHOW_PLAYER_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
+    Settings.SHOW_OWN_NAME_OVERLAY.put(
+        Settings.currentProfile, overlayPanelOwnNameCheckbox.isSelected());
     Settings.SHOW_FRIEND_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelFriendNamesCheckbox.isSelected());
     Settings.SHOW_NPC_NAME_OVERLAY.put(
