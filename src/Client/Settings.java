@@ -506,7 +506,7 @@ public class Settings {
     LOAD_CHAT_HISTORY.put("vanilla", false);
     LOAD_CHAT_HISTORY.put("vanilla_resizable", false);
     LOAD_CHAT_HISTORY.put("lite", false);
-    LOAD_CHAT_HISTORY.put("default", false);
+    LOAD_CHAT_HISTORY.put("default", true);
     LOAD_CHAT_HISTORY.put("heavy", true);
     LOAD_CHAT_HISTORY.put("all", true);
     LOAD_CHAT_HISTORY.put(
