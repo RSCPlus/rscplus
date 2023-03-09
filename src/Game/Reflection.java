@@ -70,6 +70,7 @@ public class Reflection {
   public static Field menuTextSize = null;
   public static Field menuText = null;
   public static Field menuCount = null;
+  public static Field menuItemArray = null;
 
   public static Field memberMapPack = null;
   public static Field memberLandscapePack = null;
@@ -240,7 +241,8 @@ public class Reflection {
   private static final String LOAD_MAPS = "private final void client.m(int)";
   private static final String LOAD_SOUNDS = "private final void client.E(int)";
   private static final String LOAD_DATA_FILE = "final byte[] e.a(java.lang.String,int,int,int)";
-  private static final String LOAD_DATA = "static final byte[] na.a(java.lang.String,int,byte[],int)";
+  private static final String LOAD_DATA =
+      "static final byte[] na.a(java.lang.String,int,byte[],int)";
 
   private static final String ADDBUTTONBACK = "final int qa.c(int,int,int,int,int)";
   private static final String ADDCENTERTEXT =
@@ -256,7 +258,8 @@ public class Reflection {
   private static final String GETCONTROLTEXT = "final java.lang.String qa.g(int,int)";
   private static final String HANDLEMOUSE = "final void qa.b(int,int,int,int,int)";
   private static final String HANDLEKEY = "final void qa.a(int,int)";
-  private static final String LOAD_SYSTEM_FONT = "static final boolean qa.a(e,java.lang.String,int,int)";
+  private static final String LOAD_SYSTEM_FONT =
+      "static final boolean qa.a(e,java.lang.String,int,int)";
 
   private static final String GAMEMODELROTATE = "final void ca.f(int,int,int,int)";
   private static final String GAMEMODELSETLIGHT =
@@ -732,6 +735,7 @@ public class Reflection {
       menuTextSize = c.getDeclaredField("k");
       menuText = c.getDeclaredField("yb");
       menuCount = c.getDeclaredField("eb");
+      menuItemArray = c.getDeclaredField("pb");
       methods = c.getDeclaredMethods();
       for (Method method : methods) {
         if (method.toGenericString().equals(ADDBUTTONBACK)) {
@@ -845,6 +849,7 @@ public class Reflection {
       if (menuTextSize != null) menuTextSize.setAccessible(true);
       if (menuText != null) menuText.setAccessible(true);
       if (menuCount != null) menuCount.setAccessible(true);
+      if (menuItemArray != null) menuItemArray.setAccessible(true);
       if (getParameter != null) getParameter.setAccessible(true);
       if (displayMessage != null) displayMessage.setAccessible(true);
       if (setCameraSize != null) setCameraSize.setAccessible(true);

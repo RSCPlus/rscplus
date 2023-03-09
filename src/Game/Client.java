@@ -1220,6 +1220,9 @@ public class Client {
     state = STATE_GAME;
     // bank_active_page = 0; // TODO: config option? don't think this is very important.
     // combat_timer = 0;
+
+    // Set the client volume
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public static void login_hook() {
@@ -1672,6 +1675,15 @@ public class Client {
       String[] commandArray = line.substring(2, line.length()).toLowerCase().split(" ");
 
       switch (commandArray[0]) {
+        case "togglescaling":
+          Settings.toggleWindowScaling();
+          break;
+        case "scaleup":
+          Settings.increaseScale();
+          break;
+        case "scaledown":
+          Settings.decreaseScale();
+          break;
         case "togglebypassattack":
           Settings.toggleAttackAlwaysLeftClick();
           break;
@@ -1866,22 +1878,26 @@ public class Client {
           }
           break;
         case "jffonts":
-        {
-          GameApplet.loadJfFonts();
-          displayMessage("Loaded jf fonts", CHAT_QUEST);
-          break;
-        }
-        case "shellstring": {
-          try {
-            displayMessage(Renderer.shellStrings[Integer.parseInt(commandArray[1])], CHAT_QUEST);
-          } catch (ArrayIndexOutOfBoundsException ex) {
-          } catch (NumberFormatException ex) {
-            displayMessage(
-                    "shell string index not provided.",
-                    CHAT_QUEST);
+          {
+            GameApplet.loadJfFonts();
+            displayMessage("Loaded jf fonts", CHAT_QUEST);
             break;
           }
-        }
+        case "shellstring":
+          {
+            try {
+              displayMessage(Renderer.shellStrings[Integer.parseInt(commandArray[1])], CHAT_QUEST);
+            } catch (ArrayIndexOutOfBoundsException ex) {
+            } catch (NumberFormatException ex) {
+              displayMessage("shell string index not provided.", CHAT_QUEST);
+              break;
+            }
+          }
+        case "sfx_volume":
+          if (commandArray.length > 1) {
+            Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2708,6 +2724,14 @@ public class Client {
     if (Settings.PARSE_OPCODES.get(Settings.currentProfile)
         && (Replay.isPlaying || Replay.isSeeking || Replay.isRestarting)) return;
 
+    if (Settings.NUMBERED_DIALOGUE_OPTIONS.get(Settings.currentProfile)) {
+      for (int i = 0; i < 5; i++) {
+        if (menuOptions[i] != null) {
+          menuOptions[i] = "(" + (i + 1) + ") " + menuOptions[i];
+        }
+      }
+    }
+
     Client.printReceivedOptions(menuOptions, count);
   }
 
@@ -2845,10 +2869,12 @@ public class Client {
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message);
+      NotificationsHandler.notify(
+          NotifType.IMPORTANT_MESSAGE, "Important message", username, message);
     }
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_SAD_MESSAGES.get("custom"))) {
-      NotificationsHandler.notify(NotifType.IMPORTANT_MESSAGE, "Important message", username, message, "sad");
+      NotificationsHandler.notify(
+          NotifType.IMPORTANT_MESSAGE, "Important message", username, message, "sad");
     }
 
     if (Settings.takingSceneryScreenshots) {
@@ -3493,7 +3519,8 @@ public class Client {
       }
       // both wiki lookup and report abuse button are enabled
       // want to make room for hp/prayer/fatigue overlay if possible
-      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
+      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)
+          && !Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
         // there is a 90 pixel region where HP/Prayer/Fatigue overlay can't be drawn, but both
         // Report Abuse & Wiki lookup can
         return (Renderer.width < 900 && Renderer.width >= 704) || Renderer.width < 512 + 90 + 12;

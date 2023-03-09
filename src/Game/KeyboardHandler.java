@@ -36,6 +36,7 @@ public class KeyboardHandler implements KeyListener {
   public static boolean keyUp = false;
   public static boolean keyDown = false;
   public static boolean keyShift = false;
+  public static boolean keyControl = false;
 
   /** ArrayList containing all registered KeybindSet values */
   public static ArrayList<KeybindSet> keybindSetList = new ArrayList<KeybindSet>();
@@ -168,6 +169,7 @@ public class KeyboardHandler implements KeyListener {
       }
 
       keyShift = e.isShiftDown();
+      keyControl = e.isControlDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {
@@ -210,6 +212,7 @@ public class KeyboardHandler implements KeyListener {
       }
 
       keyShift = e.isShiftDown();
+      keyControl = e.isControlDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {
@@ -246,6 +249,7 @@ public class KeyboardHandler implements KeyListener {
       }
 
       keyShift = e.isShiftDown();
+      keyControl = e.isControlDown();
     }
 
     if (listener_key != null && !e.isConsumed()) {

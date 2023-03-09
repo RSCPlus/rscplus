@@ -66,8 +66,7 @@ public class JoystickHandler {
   }
 
   private static boolean isSupported3DMouse(String name) {
-    return name.contains("SpaceNavigator") ||
-            name.contains("SpaceMouse");
+    return name.contains("SpaceNavigator") || name.contains("SpaceMouse");
   }
 
   public static void doJoystickAction(String inputName) {

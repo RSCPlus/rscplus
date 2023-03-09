@@ -259,6 +259,16 @@ public class Util {
     return Settings.Dir.JAR;
   }
 
+  public static boolean isWindowsOS() {
+    return System.getProperty("os.name").contains("Windows");
+  }
+
+  public static boolean isModernWindowsOS() {
+    return "Windows 11".equals(System.getProperty("os.name"))
+        || "Windows 10".equals(System.getProperty("os.name"))
+        || "Windows 8.1".equals(System.getProperty("os.name"));
+  }
+
   public static boolean isMacOS() {
     String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     return (os.contains("mac") || os.contains("darwin"));

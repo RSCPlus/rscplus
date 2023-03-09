@@ -27,6 +27,7 @@ import Game.GameApplet;
 import Game.Item;
 import Game.JoystickHandler;
 import Game.KeyboardHandler;
+import Game.Renderer;
 import Game.Replay;
 import Game.SoundEffects;
 import java.awt.BorderLayout;
@@ -50,8 +51,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,6 +91,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -140,6 +145,15 @@ public class ConfigWindow {
   private JCheckBox generalPanelClientSizeCheckbox;
   private JSpinner generalPanelClientSizeXSpinner;
   private JSpinner generalPanelClientSizeYSpinner;
+  private SpinnerNumberModel spinnerWinXModel;
+  private SpinnerNumberModel spinnerWinYModel;
+  private JCheckBox generalPanelScaleWindowCheckbox;
+  private JRadioButton generalPanelIntegerScalingFocusButton;
+  private JSpinner generalPanelIntegerScalingSpinner;
+  private JRadioButton generalPanelBilinearScalingFocusButton;
+  private JSpinner generalPanelBilinearScalingSpinner;
+  private JRadioButton generalPanelBicubicScalingFocusButton;
+  private JSpinner generalPanelBicubicScalingSpinner;
   private JCheckBox generalPanelCheckUpdates;
   private JCheckBox generalPanelAccountSecurityCheckbox;
   private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
@@ -161,6 +175,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
   private JCheckBox generalPanelBypassAttackCheckbox;
+  private JCheckBox generalPanelNumberedDialogueOptionsCheckbox;
   private JCheckBox generalPanelEnableMouseWheelScrollingCheckbox;
   private JCheckBox generalPanelKeepScrollbarPosMagicPrayerCheckbox;
   private JCheckBox generalPanelRoofHidingCheckbox;
@@ -173,10 +188,24 @@ public class ConfigWindow {
   private JCheckBox generalPanelColoredTextCheckbox;
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
-  private JCheckBox generalPanelDisableRandomChatColourCheckbox;
+  private JCheckBox generalPanelCtrlScrollChatCheckbox;
+  private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
+  private JSlider generalPanelTrackpadRotationSlider;
+  private JCheckBox generalPanelCustomRandomChatColourCheckbox;
+  private JRadioButton generalPanelRanEntirelyDisableButton;
+  private JRadioButton generalPanelRanReduceFrequencyButton;
+  private JRadioButton generalPanelVanillaRanHiddenButton;
+  private JRadioButton generalPanelRanRS2EffectButton;
+  private JComboBox generalPanelRS2ChatEffectComboBox;
+  private JRadioButton generalPanelRanSelectColourButton;
+  private JPanel generalPanelRanStaticColourSubpanel;
+  private JRadioButton generalPanelRanRGBRotationButton;
+  private Color ranStaticColour =
+      Util.intToColor(Settings.CUSTOM_RAN_STATIC_COLOUR.get(Settings.currentProfile));
   private JSlider generalPanelViewDistanceSlider;
   private JCheckBox generalPanelLimitFPSCheckbox;
   private JSpinner generalPanelLimitFPSSpinner;
+  private JSpinner generalPanelLimitRanFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
   private JCheckBox generalPanelRS2HDSkyCheckbox;
   private JCheckBox generalPanelCustomSkyboxOverworldCheckbox;
@@ -197,6 +226,7 @@ public class ConfigWindow {
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
+  private JCheckBox overlayPanelStatusAlwaysTextCheckbox;
   private JCheckBox overlayPanelBuffsCheckbox;
   private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
@@ -237,6 +267,7 @@ public class ConfigWindow {
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
+  private JSlider audioPanelSfxVolumeSlider;
   private JCheckBox audioPanelLouderSoundEffectsCheckbox;
   private JCheckBox audioPanelOverrideAudioSettingCheckbox;
   private JRadioButton audioPanelOverrideAudioSettingOnButton;
@@ -560,7 +591,7 @@ public class ConfigWindow {
 
               @Override
               public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().saveSettings();
+                Launcher.getConfigWindow().applySettings();
                 Launcher.getConfigWindow().hideConfigWindow();
               }
             });
@@ -571,7 +602,6 @@ public class ConfigWindow {
 
               @Override
               public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().applySettings();
                 Launcher.getConfigWindow().hideConfigWindow();
               }
             });
@@ -655,15 +685,15 @@ public class ConfigWindow {
 
     // TODO: Perhaps change to "Save client size on close"?
     generalPanelClientSizeCheckbox =
-        addCheckbox("Default client size:", generalPanelClientSizePanel);
-    generalPanelClientSizeCheckbox.setToolTipText("Start the client with the supplied window size");
+        addCheckbox("Client window dimensions:", generalPanelClientSizePanel);
+    generalPanelClientSizeCheckbox.setToolTipText("Set the client size to the supplied dimensions");
 
     generalPanelClientSizeXSpinner = new JSpinner();
     generalPanelClientSizePanel.add(generalPanelClientSizeXSpinner);
     generalPanelClientSizeXSpinner.setMaximumSize(new Dimension(58, 22));
     generalPanelClientSizeXSpinner.setMinimumSize(new Dimension(58, 22));
     generalPanelClientSizeXSpinner.setAlignmentY((float) 0.75);
-    generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum)");
+    generalPanelClientSizeXSpinner.setToolTipText("Default client width (512 minimum at 1x scale)");
     generalPanelClientSizeXSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
     JLabel generalPanelClientSizeByLabel = new JLabel("x");
@@ -676,20 +706,241 @@ public class ConfigWindow {
     generalPanelClientSizeYSpinner.setMaximumSize(new Dimension(58, 22));
     generalPanelClientSizeYSpinner.setMinimumSize(new Dimension(58, 22));
     generalPanelClientSizeYSpinner.setAlignmentY((float) 0.75);
-    generalPanelClientSizeYSpinner.setToolTipText("Default client height (346 minimum)");
+    generalPanelClientSizeYSpinner.setToolTipText(
+        "Default client height (346 minimum at 1x scale)");
     generalPanelClientSizeYSpinner.putClientProperty("JComponent.sizeVariant", "mini");
 
     // Sanitize JSpinner values
-    SpinnerNumberModel spinnerWinXModel = new SpinnerNumberModel();
+    spinnerWinXModel = new SpinnerNumberModel();
     spinnerWinXModel.setMinimum(512);
     spinnerWinXModel.setValue(512);
     spinnerWinXModel.setStepSize(10);
     generalPanelClientSizeXSpinner.setModel(spinnerWinXModel);
-    SpinnerNumberModel spinnerWinYModel = new SpinnerNumberModel();
+    spinnerWinYModel = new SpinnerNumberModel();
     spinnerWinYModel.setMinimum(346);
     spinnerWinYModel.setValue(346);
     spinnerWinYModel.setStepSize(10);
     generalPanelClientSizeYSpinner.setModel(spinnerWinYModel);
+
+    JButton generalPanelClientSizeMaxButton =
+        addButton("Max", generalPanelClientSizePanel, Component.RIGHT_ALIGNMENT);
+    generalPanelClientSizeMaxButton.setAlignmentY(.7f);
+    generalPanelClientSizeMaxButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Dimension maximumWindowSize =
+                ScaledWindow.getInstance().getMaximumEffectiveWindowSize();
+
+            int windowWidth = maximumWindowSize.width;
+            int windowHeight = maximumWindowSize.height;
+
+            // This only changes the values in the boxes
+            spinnerWinXModel.setValue(windowWidth);
+            spinnerWinYModel.setValue(windowHeight);
+          }
+        });
+
+    JButton generalPanelClientSizeResetButton =
+        addButton("Reset", generalPanelClientSizePanel, Component.RIGHT_ALIGNMENT);
+    generalPanelClientSizeResetButton.setAlignmentY(.7f);
+    generalPanelClientSizeResetButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            // This only changes the values in the boxes
+            Dimension scaledMinimumWindowSize =
+                ScaledWindow.getInstance().getMinimumViewportSizeForScalar();
+            spinnerWinXModel.setValue(scaledMinimumWindowSize.width);
+            spinnerWinYModel.setValue(scaledMinimumWindowSize.height);
+          }
+        });
+
+    JLabel generalPanelClientSizeScaleWarning =
+        new JLabel("(Will be reset if window scale changes)");
+    generalPanelClientSizeScaleWarning.setAlignmentY(0.9f);
+    generalPanelClientSizeScaleWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelClientSizePanel.add(generalPanelClientSizeScaleWarning);
+
+    // Scaling options
+    JPanel generalPanelScaleInformation = new JPanel();
+    generalPanel.add(generalPanelScaleInformation);
+    generalPanelScaleInformation.setLayout(
+        new BoxLayout(generalPanelScaleInformation, BoxLayout.X_AXIS));
+    generalPanelScaleInformation.setPreferredSize(new Dimension(0, 24));
+    generalPanelScaleInformation.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelScaleWindowCheckbox = addCheckbox("Scale window:", generalPanelScaleInformation);
+    generalPanelScaleWindowCheckbox.setToolTipText("Enable to scale the game client");
+
+    ButtonGroup generalPanelScaleWindowTypeButtonGroup = new ButtonGroup();
+    String scaleLargerThanResolutionToolTip =
+        "This scale value will produce a window bigger than your screen resolution";
+
+    // Integer scaling
+    JPanel generalPanelIntegerScalingPanel = new JPanel();
+    generalPanel.add(generalPanelIntegerScalingPanel);
+    generalPanelIntegerScalingPanel.setLayout(
+        new BoxLayout(generalPanelIntegerScalingPanel, BoxLayout.X_AXIS));
+    generalPanelIntegerScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelIntegerScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelIntegerScalingFocusButton =
+        addRadioButton("Integer scaling", generalPanelIntegerScalingPanel, 20);
+    generalPanelIntegerScalingFocusButton.setToolTipText(
+        "Uses the nearest neighbor algorithm for pixel-perfect client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelIntegerScalingFocusButton);
+
+    generalPanelIntegerScalingSpinner = new JSpinner();
+    generalPanelIntegerScalingPanel.add(generalPanelIntegerScalingSpinner);
+    String integerScalingSpinnerToolTip =
+        "Integer scaling value " + (int) Renderer.minScalar + "-" + (int) Renderer.maxIntegerScalar;
+    generalPanelIntegerScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelIntegerScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelIntegerScalingSpinner.setAlignmentY(0.625f);
+    generalPanelIntegerScalingSpinner.setToolTipText(integerScalingSpinnerToolTip);
+    generalPanelIntegerScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelIntegerScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelIntegerScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            int scalar = (int) generalPanelIntegerScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelIntegerScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelIntegerScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelIntegerScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelIntegerScalingSpinner.setToolTipText(integerScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitIntegerScaling =
+        new SpinnerNumberModel(2, (int) Renderer.minScalar, (int) Renderer.maxIntegerScalar, 1);
+    generalPanelIntegerScalingSpinner.setModel(spinnerLimitIntegerScaling);
+
+    // Bilinear scaling
+    JPanel generalPanelBilinearScalingPanel = new JPanel();
+    generalPanel.add(generalPanelBilinearScalingPanel);
+    generalPanelBilinearScalingPanel.setLayout(
+        new BoxLayout(generalPanelBilinearScalingPanel, BoxLayout.X_AXIS));
+    generalPanelBilinearScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelBilinearScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelBilinearScalingFocusButton =
+        addRadioButton("Bilinear interpolation", generalPanelBilinearScalingPanel, 20);
+    generalPanelBilinearScalingFocusButton.setToolTipText(
+        "Uses the bilinear interpolation algorithm for client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelBilinearScalingFocusButton);
+
+    generalPanelBilinearScalingSpinner = new JSpinner();
+    generalPanelBilinearScalingPanel.add(generalPanelBilinearScalingSpinner);
+    String bilinearScalingSpinnerToolTip =
+        "Bilinear scaling value " + Renderer.minScalar + "-" + Renderer.maxInterpolationScalar;
+    generalPanelBilinearScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelBilinearScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelBilinearScalingSpinner.setAlignmentY(0.625f);
+    generalPanelBilinearScalingSpinner.setToolTipText(bilinearScalingSpinnerToolTip);
+    generalPanelBilinearScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelBilinearScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelBilinearScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            float scalar = (float) generalPanelBilinearScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelBilinearScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelBilinearScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelBilinearScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelBilinearScalingSpinner.setToolTipText(bilinearScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitBilinearScaling =
+        new SpinnerNumberModel(
+            new Float(1.5f),
+            new Float(Renderer.minScalar),
+            new Float(Renderer.maxInterpolationScalar),
+            new Float(0.1f));
+    generalPanelBilinearScalingSpinner.setModel(spinnerLimitBilinearScaling);
+
+    JLabel bilinearInterpolationScalingWarning =
+        new JLabel("(May affect performance at high scaling values)");
+    bilinearInterpolationScalingWarning.setAlignmentY(0.9f);
+    bilinearInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelBilinearScalingPanel.add(bilinearInterpolationScalingWarning);
+
+    // Bicubic scaling
+    JPanel generalPanelBicubicScalingPanel = new JPanel();
+    generalPanel.add(generalPanelBicubicScalingPanel);
+    generalPanelBicubicScalingPanel.setLayout(
+        new BoxLayout(generalPanelBicubicScalingPanel, BoxLayout.X_AXIS));
+    generalPanelBicubicScalingPanel.setPreferredSize(new Dimension(0, 32));
+    generalPanelBicubicScalingPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelBicubicScalingFocusButton =
+        addRadioButton("Bicubic interpolation", generalPanelBicubicScalingPanel, 20);
+    generalPanelBicubicScalingFocusButton.setToolTipText(
+        "Uses the bicubic interpolation algorithm for client scaling");
+    generalPanelScaleWindowTypeButtonGroup.add(generalPanelBicubicScalingFocusButton);
+
+    generalPanelBicubicScalingSpinner = new JSpinner();
+    generalPanelBicubicScalingPanel.add(generalPanelBicubicScalingSpinner);
+    String bicubicScalingSpinnerToolTip =
+        "Bicubic scaling value " + Renderer.minScalar + "-" + Renderer.maxInterpolationScalar;
+    generalPanelBicubicScalingSpinner.setMaximumSize(new Dimension(49, 26));
+    generalPanelBicubicScalingSpinner.setMinimumSize(new Dimension(49, 26));
+    generalPanelBicubicScalingSpinner.setAlignmentY(0.625f);
+    generalPanelBicubicScalingSpinner.setToolTipText(bicubicScalingSpinnerToolTip);
+    generalPanelBicubicScalingSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+    generalPanelBicubicScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+    generalPanelBicubicScalingSpinner.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            Dimension maximumWindowSize = ScaledWindow.getInstance().getMaximumWindowSize();
+            float scalar = (float) generalPanelBicubicScalingSpinner.getValue();
+
+            if (((512 * scalar) + ScaledWindow.getInstance().getWindowWidthInsets()
+                    > maximumWindowSize.getWidth())
+                || ((346 * scalar) + ScaledWindow.getInstance().getWindowHeightInsets()
+                    > maximumWindowSize.getHeight())) {
+              generalPanelBicubicScalingSpinner.setBorder(new LineBorder(Color.orange, 2));
+              generalPanelBicubicScalingSpinner.setToolTipText(scaleLargerThanResolutionToolTip);
+            } else {
+              generalPanelBicubicScalingSpinner.setBorder(new EmptyBorder(2, 2, 2, 2));
+              generalPanelBicubicScalingSpinner.setToolTipText(bicubicScalingSpinnerToolTip);
+            }
+          }
+        });
+
+    SpinnerNumberModel spinnerLimitBicubicScaling =
+        new SpinnerNumberModel(
+            new Float(1.5f),
+            new Float(Renderer.minScalar),
+            new Float(Renderer.maxInterpolationScalar),
+            new Float(0.1f));
+    generalPanelBicubicScalingSpinner.setModel(spinnerLimitBicubicScaling);
+
+    JLabel bicubicInterpolationScalingWarning =
+        new JLabel("(May affect performance at high scaling values)");
+    bicubicInterpolationScalingWarning.setAlignmentY(0.9f);
+    bicubicInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
+    generalPanelBicubicScalingPanel.add(bicubicInterpolationScalingWarning);
+    // End scaling options
 
     generalPanelCheckUpdates =
         addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
@@ -697,7 +948,9 @@ public class ConfigWindow {
         "When enabled, rscplus will check for client updates before launching the game and install them when prompted");
 
     generalPanelWelcomeEnabled =
-        addCheckbox("Remind you how to open the Settings every time you log in", generalPanel);
+        addCheckbox(
+            "<html><head><style>span{color:red;}</style></head>Remind you how to open the Settings every time you log in <span>(!!! Disable this if you know how to open the settings)</span></html>",
+            generalPanel);
     generalPanelWelcomeEnabled.setToolTipText(
         "When enabled, rscplus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
 
@@ -722,14 +975,159 @@ public class ConfigWindow {
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
 
-    generalPanelDisableRandomChatColourCheckbox = addCheckbox("Disable \"@ran@\" chat colour effect", generalPanel);
-    generalPanelDisableRandomChatColourCheckbox.setToolTipText(
-            "The random chat colour effect will be no longer be displayed");
+    generalPanelCtrlScrollChatCheckbox =
+        addCheckbox("Hold ctrl to scroll through chat history from anywhere", generalPanel);
+    generalPanelCtrlScrollChatCheckbox.setToolTipText(
+        "Holding CTRL allows you to scroll through the currently-selected chat history from anywhere");
+
+    generalPanelShiftScrollCameraRotationCheckbox =
+        addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
+    generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
+        "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
+
+    JLabel generalPanelTrackpadRotationLabel = new JLabel("Camera rotation trackpad sensitivity");
+    generalPanelTrackpadRotationLabel.setToolTipText(
+        "Sets the camera rotation trackpad sensitivity (Default: 8)");
+    generalPanelTrackpadRotationLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanel.add(generalPanelTrackpadRotationLabel);
+    generalPanelTrackpadRotationLabel.setAlignmentY((float) 1);
+
+    generalPanelTrackpadRotationSlider = new JSlider();
+
+    generalPanel.add(generalPanelTrackpadRotationSlider);
+    generalPanelTrackpadRotationSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelTrackpadRotationSlider.setMaximumSize(new Dimension(200, 55));
+    generalPanelTrackpadRotationSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    generalPanelTrackpadRotationSlider.setMajorTickSpacing(2);
+    generalPanelTrackpadRotationSlider.setMinorTickSpacing(1);
+    generalPanelTrackpadRotationSlider.setMinimum(0);
+    generalPanelTrackpadRotationSlider.setMaximum(16);
+    generalPanelTrackpadRotationSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> generalPanelTrackpadRotationLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelTrackpadRotationLabelTable.put(new Integer(0), new JLabel("0"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(4), new JLabel("4"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(8), new JLabel("8"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(12), new JLabel("12"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(16), new JLabel("16"));
+    generalPanelTrackpadRotationSlider.setLabelTable(generalPanelTrackpadRotationLabelTable);
+    generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
+
+    generalPanelUseJagexFontsCheckBox =
+        addCheckbox("Override system font with Jagex fonts", generalPanel);
+    generalPanelUseJagexFontsCheckBox.setToolTipText(
+        "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
+
+    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
+    generalPanelDebugModeCheckbox.setToolTipText(
+        "Shows debug overlays and enables debug text in the console");
+
+    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
+    generalPanelExceptionHandlerCheckbox.setToolTipText(
+        "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
+
+    generalPanelPrefersXdgOpenCheckbox =
+        addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
+    generalPanelPrefersXdgOpenCheckbox.setToolTipText(
+        "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+
+    /// "Gameplay settings" are settings that can be seen inside the game
+    addSettingsHeader(generalPanel, "Gameplay settings");
+
+    // Commented out b/c probably no one will ever implement this
+    // generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not
+    // implemented yet)", generalPanel);
+    // generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+    // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
+    // history is implemented
+
+    generalPanelCombatXPMenuCheckbox =
+        addCheckbox("Combat style menu shown outside of combat", generalPanel);
+    generalPanelCombatXPMenuCheckbox.setToolTipText(
+        "Always show the combat style menu when out of combat");
+    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    generalPanelCombatXPMenuHiddenCheckbox =
+        addCheckbox("Combat style menu hidden when in combat", generalPanel);
+    generalPanelCombatXPMenuHiddenCheckbox.setToolTipText("Hide combat style menu when in combat");
+
+    generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
+    generalPanelFatigueAlertCheckbox.setToolTipText(
+        "Displays a large notice when fatigue approaches 100%");
+
+    generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
+    generalPanelInventoryFullAlertCheckbox.setToolTipText(
+        "Displays a large notice when the inventory is full");
+
+    generalPanelEnableMouseWheelScrollingCheckbox =
+        addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
+    generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
+        "Enables mouse wheel scrolling through menu lists");
+
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox =
+        addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
+    generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
+        "Keeps the magic & prayers scrollbar position when switching between tabs");
+
+    generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
+    generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+
+    generalPanelDisableMinimapRotationCheckbox =
+        addCheckbox("Disable random minimap rotation", generalPanel);
+    generalPanelDisableMinimapRotationCheckbox.setToolTipText(
+        "The random minimap rotation when opening minimap will no longer be applied");
+
+    generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
+    generalPanelCameraZoomableCheckbox.setToolTipText(
+        "Zoom the camera in and out with the mouse wheel, and no longer zooms in inside buildings");
+
+    generalPanelCameraRotatableCheckbox = addCheckbox("Camera rotation enhancement", generalPanel);
+    generalPanelCameraRotatableCheckbox.setToolTipText(
+        "Rotate the camera with middle mouse click, among other things");
+
+    generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
+    generalPanelCameraMovableCheckbox.setToolTipText(
+        "Makes the camera follow the player more closely, and allow camera movement while holding shift, and pressing arrow keys");
+
+    generalPanelCameraMovableRelativeCheckbox =
+        addCheckbox("Camera movement is relative to player", generalPanel);
+    generalPanelCameraMovableRelativeCheckbox.setToolTipText(
+        "Camera movement will follow the player position");
+
+    addSettingsHeader(generalPanel, "Graphical effect changes");
+
+    JLabel generalPanelViewDistanceLabel = new JLabel("View distance (affects the black fog)");
+    generalPanelViewDistanceLabel.setToolTipText(
+        "Sets the max render distance of structures and landscape");
+    generalPanelViewDistanceLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanel.add(generalPanelViewDistanceLabel);
+    generalPanelViewDistanceLabel.setAlignmentY((float) 1);
+
+    generalPanelViewDistanceSlider = new JSlider();
+
+    generalPanel.add(generalPanelViewDistanceSlider);
+    generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelViewDistanceSlider.setMaximumSize(new Dimension(350, 55));
+    generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    generalPanelViewDistanceSlider.setMinorTickSpacing(500);
+    generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
+    generalPanelViewDistanceSlider.setMinimum(2300);
+    generalPanelViewDistanceSlider.setMaximum(20000);
+    generalPanelViewDistanceSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
+    generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
+    generalPanelViewDistanceLabelTable.put(new Integer(20000), new JLabel("20,000"));
+    generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
+    generalPanelViewDistanceSlider.setPaintLabels(true);
 
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
@@ -827,52 +1225,193 @@ public class ConfigWindow {
         });
     generalPanelSkyUndergroundColourPanel.add(undergroundSkyColourChooserButton);
     undergroundSkyColourChooserButton.setAlignmentY(.7f);
+    /////
 
-    // sliders
-    JLabel generalPanelFoVLabel = new JLabel("Field of view (Default 9)");
-    generalPanelFoVLabel.setToolTipText("Sets the field of view (not recommended past 10)");
+    // FOV slider
+    JLabel generalPanelFoVLabel =
+        new JLabel("Field of view (Resets to default on client restart, can be set with ::fov)");
+    generalPanelFoVLabel.setToolTipText(
+        "Sets the field of view (Default 9, non-default values not recommended for general use)");
     generalPanel.add(generalPanelFoVLabel);
-    generalPanelFoVLabel.setAlignmentY((float) 0.9);
+    generalPanelFoVLabel.setAlignmentY((float) 1);
 
     generalPanelFoVSlider = new JSlider();
 
     generalPanel.add(generalPanelFoVSlider);
     generalPanelFoVSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelFoVSlider.setMaximumSize(new Dimension(200, 55));
-    generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+    generalPanelFoVSlider.setMaximumSize(new Dimension(300, 55));
+    generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
     generalPanelFoVSlider.setMinimum(7);
     generalPanelFoVSlider.setMaximum(16);
     generalPanelFoVSlider.setMajorTickSpacing(1);
     generalPanelFoVSlider.setPaintTicks(true);
     generalPanelFoVSlider.setPaintLabels(true);
+    //////
 
-    JLabel generalPanelViewDistanceLabel = new JLabel("View distance");
-    generalPanelViewDistanceLabel.setToolTipText(
-        "Sets the max render distance of structures and landscape");
-    generalPanel.add(generalPanelViewDistanceLabel);
-    generalPanelViewDistanceLabel.setAlignmentY((float) 0.9);
+    generalPanelDisableUndergroundLightingCheckbox =
+        addCheckbox("Disable underground lighting flicker", generalPanel);
+    generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
+        "Underground lighting will no longer flicker");
+    // TODO: should introduce lighting flicker interval reduction as an option
 
-    generalPanelViewDistanceSlider = new JSlider();
+    ButtonGroup ranChatEffectButtonGroup = new ButtonGroup();
 
-    generalPanel.add(generalPanelViewDistanceSlider);
-    generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelViewDistanceSlider.setMaximumSize(new Dimension(200, 55));
-    generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-    generalPanelViewDistanceSlider.setMinorTickSpacing(500);
-    generalPanelViewDistanceSlider.setMajorTickSpacing(1000);
-    generalPanelViewDistanceSlider.setMinimum(2300);
-    generalPanelViewDistanceSlider.setMaximum(20000);
-    generalPanelViewDistanceSlider.setPaintTicks(true);
+    generalPanelCustomRandomChatColourCheckbox =
+        addCheckbox("Use custom \"@ran@\" chat colour effect", generalPanel);
+    generalPanelCustomRandomChatColourCheckbox.setToolTipText(
+        "The random chat colour effect will be altered per the settings below");
 
-    Hashtable<Integer, JLabel> generalPanelViewDistanceLabelTable =
-        new Hashtable<Integer, JLabel>();
-    generalPanelViewDistanceLabelTable.put(new Integer(2300), new JLabel("2,300"));
-    generalPanelViewDistanceLabelTable.put(new Integer(10000), new JLabel("10,000"));
-    generalPanelViewDistanceLabelTable.put(new Integer(20000), new JLabel("20,000"));
-    generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
-    generalPanelViewDistanceSlider.setPaintLabels(true);
+    // limit ran fps panel
+    JPanel generalPanelLimitRanFPSPanel = new JPanel();
+    generalPanel.add(generalPanelLimitRanFPSPanel);
+    generalPanelLimitRanFPSPanel.setLayout(
+        new BoxLayout(generalPanelLimitRanFPSPanel, BoxLayout.X_AXIS));
+    generalPanelLimitRanFPSPanel.setPreferredSize(new Dimension(0, 26));
+    generalPanelLimitRanFPSPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelRanReduceFrequencyButton =
+        addRadioButton(
+            "Reduce frequency, similar to low FPS on an older computer",
+            generalPanelLimitRanFPSPanel,
+            20);
+    generalPanelRanReduceFrequencyButton.setToolTipText(
+        "The randomn colour effect is exactly the same, but at a frequency to what Andrew would have seen when designing the chat effect.");
+
+    generalPanelLimitRanFPSSpinner = new JSpinner();
+    generalPanelLimitRanFPSPanel.add(generalPanelLimitRanFPSSpinner);
+    generalPanelLimitRanFPSSpinner.setMaximumSize(new Dimension(45, 22));
+    generalPanelLimitRanFPSSpinner.setMinimumSize(new Dimension(45, 22));
+    generalPanelLimitRanFPSSpinner.setAlignmentY((float) 0.75);
+    generalPanelLimitRanFPSSpinner.setToolTipText("Target FPS");
+    generalPanelLimitRanFPSSpinner.putClientProperty("JComponent.sizeVariant", "mini");
+
+    // Sanitize JSpinner value
+    SpinnerNumberModel spinnerLimitRanFpsModel = new SpinnerNumberModel();
+    spinnerLimitRanFpsModel.setMinimum(1);
+    spinnerLimitRanFpsModel.setMaximum(50);
+    spinnerLimitRanFpsModel.setValue(10);
+    spinnerLimitRanFpsModel.setStepSize(1);
+    generalPanelLimitRanFPSSpinner.setModel(spinnerLimitRanFpsModel);
+    ///////
+
+    // colour choose ran static color sub-panel
+    JPanel generalPanelRanStaticColourPanel = new JPanel();
+    generalPanel.add(generalPanelRanStaticColourPanel);
+    generalPanelRanStaticColourPanel.setLayout(
+        new BoxLayout(generalPanelRanStaticColourPanel, BoxLayout.X_AXIS));
+    generalPanelRanStaticColourPanel.setPreferredSize(new Dimension(0, 26));
+    generalPanelRanStaticColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelRanSelectColourButton =
+        addRadioButton("Replace with a static colour", generalPanelRanStaticColourPanel, 20);
+    generalPanelRanSelectColourButton.setToolTipText(
+        "Sets a static color to replace the flashing colour effect.");
+
+    generalPanelRanStaticColourSubpanel = new JPanel();
+    generalPanelRanStaticColourPanel.add(generalPanelRanStaticColourSubpanel);
+    generalPanelRanStaticColourSubpanel.setAlignmentY((float) 0.7f);
+    generalPanelRanStaticColourSubpanel.setMinimumSize(new Dimension(32, 20));
+    generalPanelRanStaticColourSubpanel.setPreferredSize(new Dimension(32, 20));
+    generalPanelRanStaticColourSubpanel.setMaximumSize(new Dimension(32, 20));
+    generalPanelRanStaticColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    generalPanelRanStaticColourSubpanel.setBackground(ranStaticColour);
+
+    JPanel generalPanelRanStaticColourSpacingPanel = new JPanel();
+    generalPanelRanStaticColourPanel.add(generalPanelRanStaticColourSpacingPanel);
+    generalPanelRanStaticColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    generalPanelRanStaticColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    generalPanelRanStaticColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton ranStaticColourChooserButton = new JButton("Choose colour");
+    ranStaticColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose @ran@ Static Colour", ranStaticColour);
+            if (null != selected) {
+              ranStaticColour = selected;
+            }
+            generalPanelRanStaticColourSubpanel.setBackground(ranStaticColour);
+          }
+        });
+    generalPanelRanStaticColourPanel.add(ranStaticColourChooserButton);
+    ranStaticColourChooserButton.setAlignmentY(0.7f);
+
+    ////////////
+
+    generalPanelRanRGBRotationButton =
+        addRadioButton("Replace with a continuous rainbow colour sweep", generalPanel, 20);
+    generalPanelRanRGBRotationButton.setToolTipText(
+        "The effect is similar to RGB gamer PC lighting.");
+    generalPanelRanRGBRotationButton.setBorder(BorderFactory.createEmptyBorder(5, 20, 7, 5));
+
+    ////////////
+
+    JPanel generalPanelRanRs2EffectPanel = new JPanel();
+    generalPanel.add(generalPanelRanRs2EffectPanel);
+    generalPanelRanRs2EffectPanel.setLayout(
+        new BoxLayout(generalPanelRanRs2EffectPanel, BoxLayout.X_AXIS));
+    generalPanelRanRs2EffectPanel.setPreferredSize(new Dimension(0, 28));
+    generalPanelRanRs2EffectPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    generalPanelRanRS2EffectButton =
+        addRadioButton("Use an RS2 chat effect", generalPanelRanRs2EffectPanel, 20);
+    generalPanelRanRS2EffectButton.setToolTipText("Selects an RS2 chat effect to display instead.");
+
+    String[] rs2ChatEffectTypes = {"Flash1", "Flash2", "Flash3", "Glow1", "Glow2", "Glow3"};
+    generalPanelRS2ChatEffectComboBox = new JComboBox(rs2ChatEffectTypes);
+
+    generalPanelRS2ChatEffectComboBox.setMinimumSize(new Dimension(80, 28));
+    generalPanelRS2ChatEffectComboBox.setMaximumSize(new Dimension(80, 28));
+    generalPanelRS2ChatEffectComboBox.setPreferredSize(new Dimension(80, 28));
+    generalPanelRS2ChatEffectComboBox.setAlignmentY((float) 0.75);
+    generalPanelRS2ChatEffectComboBox.setSelectedIndex(3);
+    generalPanelRanRs2EffectPanel.add(generalPanelRS2ChatEffectComboBox);
 
     //////
+
+    generalPanelRanEntirelyDisableButton =
+        addRadioButton("Entirely disable @ran@", generalPanel, 20);
+    generalPanelRanEntirelyDisableButton.setToolTipText(
+        "Text occurring after the @ran@ tag will remain the same color as before.");
+    generalPanelRanEntirelyDisableButton.setBorder(BorderFactory.createEmptyBorder(5, 20, 7, 5));
+
+    generalPanelVanillaRanHiddenButton = new JRadioButton("vanilla");
+
+    ranChatEffectButtonGroup.add(generalPanelVanillaRanHiddenButton);
+    ranChatEffectButtonGroup.add(generalPanelRanReduceFrequencyButton);
+    ranChatEffectButtonGroup.add(generalPanelRanRGBRotationButton);
+    ranChatEffectButtonGroup.add(generalPanelRanSelectColourButton);
+    ranChatEffectButtonGroup.add(generalPanelRanRS2EffectButton);
+    ranChatEffectButtonGroup.add(generalPanelRanEntirelyDisableButton);
+
+    ActionListener customRanSelectedActionListener =
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+          }
+        };
+    generalPanelRanReduceFrequencyButton.addActionListener(customRanSelectedActionListener);
+    generalPanelRanRGBRotationButton.addActionListener(customRanSelectedActionListener);
+    generalPanelRanSelectColourButton.addActionListener(customRanSelectedActionListener);
+    generalPanelRanRS2EffectButton.addActionListener(customRanSelectedActionListener);
+    generalPanelRanEntirelyDisableButton.addActionListener(customRanSelectedActionListener);
+
+    generalPanelCustomRandomChatColourCheckbox.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (generalPanelCustomRandomChatColourCheckbox.isSelected()) {
+              generalPanelRanReduceFrequencyButton.setSelected(true);
+            } else {
+              generalPanelVanillaRanHiddenButton.setSelected(true);
+            }
+          }
+        });
+
+    // FPS limit
     JPanel generalPanelLimitFPSPanel = new JPanel();
     generalPanel.add(generalPanelLimitFPSPanel);
     generalPanelLimitFPSPanel.setLayout(new BoxLayout(generalPanelLimitFPSPanel, BoxLayout.X_AXIS));
@@ -901,148 +1440,17 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setModel(spinnerLimitFpsModel);
     //////
 
-    JPanel generalPanelLogVerbosityPanel = new JPanel();
-    generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(350, 128));
-    generalPanelLogVerbosityPanel.setLayout(
-        new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
-    generalPanel.add(generalPanelLogVerbosityPanel);
-
-    JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
-    generalPanelLogVerbosityTitle.setToolTipText(
-        "What max level of log text will be shown in the rscplus log/console");
-    generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
-    generalPanelLogVerbosityTitle.setAlignmentY((float) 0.9);
-
-    Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
-        new Hashtable<Integer, JLabel>();
-    generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Info"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
-    generalPanelLogVerbosityLabelTable.put(new Integer(5), new JLabel("Opcode"));
-
-    generalPanelLogVerbositySlider = new JSlider();
-    generalPanelLogVerbositySlider.setMajorTickSpacing(1);
-    generalPanelLogVerbositySlider.setLabelTable(generalPanelLogVerbosityLabelTable);
-    generalPanelLogVerbositySlider.setPaintLabels(true);
-    generalPanelLogVerbositySlider.setPaintTicks(true);
-    generalPanelLogVerbositySlider.setSnapToTicks(true);
-    generalPanelLogVerbositySlider.setMinimum(0);
-    generalPanelLogVerbositySlider.setMaximum(5);
-    generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
-    generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
-    generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
-    generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
-    generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
-
-    generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
-    generalPanelLogTimestampsCheckbox.setToolTipText(
-        "Displays the time text was output to the log");
-
-    generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
-    generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
-
-    generalPanelLogForceTimestampsCheckbox = addCheckbox("Force timestamps in log", generalPanel);
-    generalPanelLogForceTimestampsCheckbox.setToolTipText(
-        "Forces display of the time text was output to the log");
-
-    generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
-    generalPanelLogForceLevelCheckbox.setToolTipText(
-        "Forces display of the log level of output in the log");
-
-    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
-    generalPanelColoredTextCheckbox.setToolTipText(
-        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
-
-    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
-    generalPanelDebugModeCheckbox.setToolTipText(
-        "Shows debug overlays and enables debug text in the console");
-
-    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
-    generalPanelExceptionHandlerCheckbox.setToolTipText(
-        "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
-
-    generalPanelPrefersXdgOpenCheckbox =
-        addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
-    generalPanelPrefersXdgOpenCheckbox.setToolTipText(
-        "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
-
-    /// "Gameplay settings" are settings that can be seen inside the game
-    addSettingsHeader(generalPanel, "Gameplay settings");
-
-    // Commented out b/c probably no one will ever implement this
-    // generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not
-    // implemented yet)", generalPanel);
-    // generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-    // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
-    // history is implemented
-
-    generalPanelCombatXPMenuCheckbox =
-        addCheckbox("Combat style menu shown outside of combat", generalPanel);
-    generalPanelCombatXPMenuCheckbox.setToolTipText(
-        "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
-
-    generalPanelCombatXPMenuHiddenCheckbox =
-        addCheckbox("Combat style menu hidden when in combat", generalPanel);
-    generalPanelCombatXPMenuHiddenCheckbox.setToolTipText("Hide combat style menu when in combat");
-
-    generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
-    generalPanelFatigueAlertCheckbox.setToolTipText(
-        "Displays a large notice when fatigue approaches 100%");
-
-    generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
-    generalPanelInventoryFullAlertCheckbox.setToolTipText(
-        "Displays a large notice when the inventory is full");
-
-    generalPanelEnableMouseWheelScrollingCheckbox =
-            addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
-    generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
-            "Enables mouse wheel scrolling through menu lists");
-
-    generalPanelKeepScrollbarPosMagicPrayerCheckbox =
-        addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
-    generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
-        "Keeps the magic & prayers scrollbar position when switching between tabs");
-
-    generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
-    generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
-
-    generalPanelDisableUndergroundLightingCheckbox =
-        addCheckbox("Disable underground lighting flicker", generalPanel);
-    generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
-        "Underground lighting will no longer flicker");
-
-    generalPanelDisableMinimapRotationCheckbox =
-        addCheckbox("Disable random minimap rotation", generalPanel);
-    generalPanelDisableMinimapRotationCheckbox.setToolTipText(
-        "The random minimap rotation when opening minimap will no longer be applied");
-
-    generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
-    generalPanelCameraZoomableCheckbox.setToolTipText(
-        "Zoom the camera in and out with the mouse wheel, and no longer zooms in inside buildings");
-
-    generalPanelCameraRotatableCheckbox = addCheckbox("Camera rotation enhancement", generalPanel);
-    generalPanelCameraRotatableCheckbox.setToolTipText(
-        "Rotate the camera with middle mouse click, among other things");
-
-    generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
-    generalPanelCameraMovableCheckbox.setToolTipText(
-        "Makes the camera follow the player more closely, and allow camera movement while holding shift, and pressing arrow keys");
-
-    generalPanelCameraMovableRelativeCheckbox =
-        addCheckbox("Camera movement is relative to player", generalPanel);
-    generalPanelCameraMovableRelativeCheckbox.setToolTipText(
-        "Camera movement will follow the player position");
-
     addSettingsHeader(generalPanel, "Menu/Item patching");
 
     generalPanelBypassAttackCheckbox = addCheckbox("Always left click to attack", generalPanel);
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
     generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    generalPanelNumberedDialogueOptionsCheckbox =
+        addCheckbox("Display numbers next to dialogue options", generalPanel);
+    generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
+        "Displays a number next to each option within a conversational menu");
 
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
@@ -1137,10 +1545,65 @@ public class ConfigWindow {
     generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
         "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
 
-    generalPanelUseJagexFontsCheckBox =
-        addCheckbox("Override system font with Jagex fonts", generalPanel);
-    generalPanelUseJagexFontsCheckBox.setToolTipText(
-        "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
+    // Logger settings
+
+    addSettingsHeader(generalPanel, "Logging settings");
+
+    JPanel generalPanelLogVerbosityPanel = new JPanel();
+    generalPanelLogVerbosityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelLogVerbosityPanel.setMaximumSize(new Dimension(350, 128));
+    generalPanelLogVerbosityPanel.setLayout(
+        new BoxLayout(generalPanelLogVerbosityPanel, BoxLayout.Y_AXIS));
+    generalPanel.add(generalPanelLogVerbosityPanel);
+
+    JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
+    generalPanelLogVerbosityTitle.setToolTipText(
+        "What max level of log text will be shown in the rscplus log/console");
+    generalPanelLogVerbosityTitle.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
+    generalPanelLogVerbosityTitle.setAlignmentY((float) 1);
+
+    Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelLogVerbosityLabelTable.put(new Integer(0), new JLabel("Error"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(1), new JLabel("Warning"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(2), new JLabel("Game"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(3), new JLabel("Info"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(4), new JLabel("Debug"));
+    generalPanelLogVerbosityLabelTable.put(new Integer(5), new JLabel("Opcode"));
+
+    generalPanelLogVerbositySlider = new JSlider();
+    generalPanelLogVerbositySlider.setMajorTickSpacing(1);
+    generalPanelLogVerbositySlider.setLabelTable(generalPanelLogVerbosityLabelTable);
+    generalPanelLogVerbositySlider.setPaintLabels(true);
+    generalPanelLogVerbositySlider.setPaintTicks(true);
+    generalPanelLogVerbositySlider.setSnapToTicks(true);
+    generalPanelLogVerbositySlider.setMinimum(0);
+    generalPanelLogVerbositySlider.setMaximum(5);
+    generalPanelLogVerbositySlider.setPreferredSize(new Dimension(200, 55));
+    generalPanelLogVerbositySlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
+    generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
+    generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
+
+    generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
+    generalPanelLogTimestampsCheckbox.setToolTipText(
+        "Displays the time text was output to the log");
+
+    generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
+    generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
+
+    generalPanelLogForceTimestampsCheckbox = addCheckbox("Force timestamps in log", generalPanel);
+    generalPanelLogForceTimestampsCheckbox.setToolTipText(
+        "Forces display of the time text was output to the log");
+
+    generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
+    generalPanelLogForceLevelCheckbox.setToolTipText(
+        "Forces display of the log level of output in the log");
+
+    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+    generalPanelColoredTextCheckbox.setToolTipText(
+        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
 
     /*
      * Overlays tab
@@ -1154,6 +1617,11 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+
+    overlayPanelStatusAlwaysTextCheckbox =
+        addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
+    overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
+        "Always show the status display as text even at larger client sizes");
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -1406,9 +1874,36 @@ public class ConfigWindow {
     audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
     audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
+    JLabel audioPanelSfxVolumeLabel = new JLabel("Sound effects volume");
+    audioPanelSfxVolumeLabel.setToolTipText("Sets the volume for game sound effects");
+    audioPanelSfxVolumeLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    audioPanel.add(audioPanelSfxVolumeLabel);
+    audioPanelSfxVolumeLabel.setAlignmentY((float) 1);
+
+    audioPanelSfxVolumeSlider = new JSlider();
+
+    audioPanel.add(audioPanelSfxVolumeSlider);
+    audioPanelSfxVolumeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelSfxVolumeSlider.setMaximumSize(new Dimension(350, 55));
+    audioPanelSfxVolumeSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    audioPanelSfxVolumeSlider.setMinorTickSpacing(5);
+    audioPanelSfxVolumeSlider.setMajorTickSpacing(10);
+    audioPanelSfxVolumeSlider.setMinimum(0);
+    audioPanelSfxVolumeSlider.setMaximum(100);
+    audioPanelSfxVolumeSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> audioPanelSfxVolumeTable = new Hashtable<Integer, JLabel>();
+    audioPanelSfxVolumeTable.put(new Integer(0), new JLabel("0"));
+    audioPanelSfxVolumeTable.put(new Integer(25), new JLabel("25"));
+    audioPanelSfxVolumeTable.put(new Integer(50), new JLabel("50"));
+    audioPanelSfxVolumeTable.put(new Integer(75), new JLabel("75"));
+    audioPanelSfxVolumeTable.put(new Integer(100), new JLabel("100"));
+    audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
+    audioPanelSfxVolumeSlider.setPaintLabels(true);
+
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
-        "Play sound effects twice at the same time so that it's louder.");
+        "Doubles the current volume for all sound effects.");
 
     audioPanelOverrideAudioSettingCheckbox =
         addCheckbox("Override server's remembered audio on/off setting", audioPanel);
@@ -2242,11 +2737,27 @@ public class ConfigWindow {
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
     addKeybindSet(
+        keybindContainerPanel, "Toggle scaling", "toggle_scaling", KeyModifier.ALT, KeyEvent.VK_S);
+    addKeybindSet(
+        keybindContainerPanel, "Increase scale", "increase_scale", KeyModifier.ALT, KeyEvent.VK_UP);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Decrease scale",
+        "decrease_scale",
+        KeyModifier.ALT,
+        KeyEvent.VK_DOWN);
+    addKeybindSet(
         keybindContainerPanel,
         "Show settings window",
         "show_config_window",
         KeyModifier.CTRL,
         KeyEvent.VK_O);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle numbered dialogue",
+        "toggle_numbered_dialogue",
+        KeyModifier.ALT,
+        KeyEvent.VK_B);
     addKeybindSet(
         keybindContainerPanel,
         "Show world map window",
@@ -2327,7 +2838,18 @@ public class ConfigWindow {
         "reset_rotation",
         KeyModifier.ALT,
         KeyEvent.VK_N);
-
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle trackpad camera rotation",
+        "toggle_trackpad_camera_rotation",
+        KeyModifier.ALT,
+        KeyEvent.VK_D);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle ctrl to scroll chat history",
+        "toggle_ctrl_scroll",
+        KeyModifier.ALT,
+        KeyEvent.VK_H);
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
         keybindContainerPanel,
@@ -2486,7 +3008,7 @@ public class ConfigWindow {
         "Show player controls",
         "show_player_controls",
         KeyModifier.ALT,
-        KeyEvent.VK_UP);
+        KeyEvent.VK_C);
 
     addKeybindCategory(keybindContainerPanel, "Miscellaneous");
     addKeybindSet(
@@ -2815,6 +3337,7 @@ public class ConfigWindow {
                 + "<li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li>"
                 + "<li><b>conker</b>, client scaling, font consistency, menu scrolling, & other improvements</li>"
                 + "<li><b>nickzuber</b>, fixed some bugs</li>"
+                + "<li><b>Yumeko</b>, fixed Twitch chat integration in 2023</li>"
                 + "<li><b>sammy123k</b>, added an option to center the XP progress bar</li>"
                 + "<li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
 
@@ -3238,6 +3761,24 @@ public class ConfigWindow {
         Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile));
     generalPanelClientSizeYSpinner.setValue(
         Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile));
+    generalPanelScaleWindowCheckbox.setSelected(
+        Settings.SCALED_CLIENT_WINDOW.get(Settings.currentProfile));
+    if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_NEAREST_NEIGHBOR) {
+      generalPanelIntegerScalingFocusButton.setSelected(true);
+    } else if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_BILINEAR) {
+      generalPanelBilinearScalingFocusButton.setSelected(true);
+    } else if (Settings.SCALING_ALGORITHM.get(Settings.currentProfile)
+        == AffineTransformOp.TYPE_BICUBIC) {
+      generalPanelBicubicScalingFocusButton.setSelected(true);
+    }
+    generalPanelIntegerScalingSpinner.setValue(
+        Settings.INTEGER_SCALING_FACTOR.get(Settings.currentProfile));
+    generalPanelBilinearScalingSpinner.setValue(
+        Settings.BILINEAR_SCALING_FACTOR.get(Settings.currentProfile));
+    generalPanelBicubicScalingSpinner.setValue(
+        Settings.BICUBIC_SCALING_FACTOR.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
         Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
@@ -3266,8 +3807,10 @@ public class ConfigWindow {
         Settings.COMMAND_PATCH_DISK.get(Settings.currentProfile));
     generalPanelBypassAttackCheckbox.setSelected(
         Settings.ATTACK_ALWAYS_LEFT_CLICK.get(Settings.currentProfile));
+    generalPanelNumberedDialogueOptionsCheckbox.setSelected(
+        Settings.NUMBERED_DIALOGUE_OPTIONS.get(Settings.currentProfile));
     generalPanelEnableMouseWheelScrollingCheckbox.setSelected(
-            Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
+        Settings.ENABLE_MOUSEWHEEL_SCROLLING.get(Settings.currentProfile));
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setSelected(
         Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.get(Settings.currentProfile));
     generalPanelRoofHidingCheckbox.setSelected(Settings.HIDE_ROOFS.get(Settings.currentProfile));
@@ -3295,6 +3838,8 @@ public class ConfigWindow {
     generalPanelFoVSlider.setValue(Settings.FOV.get(Settings.currentProfile));
     generalPanelLimitFPSCheckbox.setSelected(
         Settings.FPS_LIMIT_ENABLED.get(Settings.currentProfile));
+    generalPanelLimitRanFPSSpinner.setValue(
+        Settings.RAN_EFFECT_TARGET_FPS.get(Settings.currentProfile));
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
@@ -3311,8 +3856,12 @@ public class ConfigWindow {
     generalPanelSkyUndergroundColourColourPanel.setBackground(undergroundSkyColour);
     generalPanelCustomCursorCheckbox.setSelected(
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
-    generalPanelDisableRandomChatColourCheckbox.setSelected(
-            Settings.DISABLE_RANDOM_CHAT_COLOUR.get(Settings.currentProfile));
+    generalPanelCtrlScrollChatCheckbox.setSelected(
+        Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
+    generalPanelShiftScrollCameraRotationCheckbox.setSelected(
+        Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
+    generalPanelTrackpadRotationSlider.setValue(
+        Settings.TRACKPAD_ROTATION_SENSITIVITY.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -3323,6 +3872,40 @@ public class ConfigWindow {
         Settings.PATCH_WRENCH_MENU_SPACING.get(Settings.currentProfile));
     generalPanelPrefersXdgOpenCheckbox.setSelected(
         Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile));
+
+    switch (Settings.CUSTOM_RAN_CHAT_EFFECT.get(Settings.currentProfile)) {
+      case DISABLED:
+        generalPanelRanEntirelyDisableButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+        break;
+      case VANILLA:
+        generalPanelVanillaRanHiddenButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(false);
+        break;
+      case SLOWER:
+        generalPanelRanReduceFrequencyButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+        break;
+      case RGB_WAVE:
+        generalPanelRanRGBRotationButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+        break;
+      case STATIC:
+        generalPanelRanSelectColourButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+        break;
+      case FLASH1:
+      case FLASH2:
+      case FLASH3:
+      case GLOW1:
+      case GLOW2:
+      case GLOW3:
+        generalPanelRanRS2EffectButton.setSelected(true);
+        generalPanelCustomRandomChatColourCheckbox.setSelected(true);
+        generalPanelRS2ChatEffectComboBox.setSelectedIndex(
+            Settings.CUSTOM_RAN_CHAT_EFFECT.get(Settings.currentProfile).id() - 6);
+        break;
+    }
 
     // Sets the text associated with the name patch slider.
     switch (generalPanelNamePatchModeSlider.getValue()) {
@@ -3349,6 +3932,8 @@ public class ConfigWindow {
     // Overlays tab
     overlayPanelStatusDisplayCheckbox.setSelected(
         Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
+    overlayPanelStatusAlwaysTextCheckbox.setSelected(
+        Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile));
     overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
     overlayPanelLastMenuActionCheckbox.setSelected(
         Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
@@ -3424,6 +4009,7 @@ public class ConfigWindow {
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
+    audioPanelSfxVolumeSlider.setValue(Settings.SFX_VOLUME.get(Settings.currentProfile));
     audioPanelLouderSoundEffectsCheckbox.setSelected(
         Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile));
     audioPanelOverrideAudioSettingCheckbox.setSelected(
@@ -3622,6 +4208,36 @@ public class ConfigWindow {
     Settings.CUSTOM_CLIENT_SIZE_Y.put(
         Settings.currentProfile,
         ((SpinnerNumberModel) (generalPanelClientSizeYSpinner.getModel())).getNumber().intValue());
+    Settings.SCALED_CLIENT_WINDOW.put(
+        Settings.currentProfile, generalPanelScaleWindowCheckbox.isSelected());
+    Settings.SCALING_ALGORITHM.put(
+        Settings.currentProfile,
+        generalPanelIntegerScalingFocusButton.isSelected()
+            ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR
+            : generalPanelBilinearScalingFocusButton.isSelected()
+                ? AffineTransformOp.TYPE_BILINEAR
+                : AffineTransformOp.TYPE_BICUBIC);
+    Settings.INTEGER_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        ((SpinnerNumberModel) (generalPanelIntegerScalingSpinner.getModel()))
+            .getNumber()
+            .intValue());
+    Settings.BILINEAR_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        BigDecimal.valueOf(
+                ((SpinnerNumberModel) (generalPanelBilinearScalingSpinner.getModel()))
+                    .getNumber()
+                    .floatValue())
+            .setScale(1, RoundingMode.HALF_DOWN)
+            .floatValue());
+    Settings.BICUBIC_SCALING_FACTOR.put(
+        Settings.currentProfile,
+        BigDecimal.valueOf(
+                ((SpinnerNumberModel) (generalPanelBicubicScalingSpinner.getModel()))
+                    .getNumber()
+                    .floatValue())
+            .setScale(1, RoundingMode.HALF_DOWN)
+            .floatValue());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
         Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());
@@ -3664,6 +4280,22 @@ public class ConfigWindow {
     Settings.PREFERS_XDG_OPEN.put(
         Settings.currentProfile, generalPanelPrefersXdgOpenCheckbox.isSelected());
 
+    if (generalPanelRanEntirelyDisableButton.isSelected()) {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(Settings.currentProfile, RanOverrideEffectType.DISABLED);
+    } else if (generalPanelRanReduceFrequencyButton.isSelected()) {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(Settings.currentProfile, RanOverrideEffectType.SLOWER);
+    } else if (generalPanelRanRGBRotationButton.isSelected()) {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(Settings.currentProfile, RanOverrideEffectType.RGB_WAVE);
+    } else if (generalPanelRanSelectColourButton.isSelected()) {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(Settings.currentProfile, RanOverrideEffectType.STATIC);
+    } else if (generalPanelRanRS2EffectButton.isSelected()) {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(
+          Settings.currentProfile,
+          RanOverrideEffectType.getById(generalPanelRS2ChatEffectComboBox.getSelectedIndex() + 6));
+    } else {
+      Settings.CUSTOM_RAN_CHAT_EFFECT.put(Settings.currentProfile, RanOverrideEffectType.VANILLA);
+    }
+
     Settings.COMMAND_PATCH_DISK.put(
         Settings.currentProfile, generalPanelCommandPatchDiskOfReturningCheckbox.isSelected());
     Settings.COMMAND_PATCH_EDIBLE_RARES.put(
@@ -3672,8 +4304,10 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
+    Settings.NUMBERED_DIALOGUE_OPTIONS.put(
+        Settings.currentProfile, generalPanelNumberedDialogueOptionsCheckbox.isSelected());
     Settings.ENABLE_MOUSEWHEEL_SCROLLING.put(
-            Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
+        Settings.currentProfile, generalPanelEnableMouseWheelScrollingCheckbox.isSelected());
     Settings.KEEP_SCROLLBAR_POS_MAGIC_PRAYER.put(
         Settings.currentProfile, generalPanelKeepScrollbarPosMagicPrayerCheckbox.isSelected());
     Settings.HIDE_ROOFS.put(Settings.currentProfile, generalPanelRoofHidingCheckbox.isSelected());
@@ -3694,8 +4328,12 @@ public class ConfigWindow {
     Settings.FOV.put(Settings.currentProfile, generalPanelFoVSlider.getValue());
     Settings.SOFTWARE_CURSOR.put(
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
-    Settings.DISABLE_RANDOM_CHAT_COLOUR.put(
-            Settings.currentProfile, generalPanelDisableRandomChatColourCheckbox.isSelected());
+    Settings.CTRL_SCROLL_CHAT.put(
+        Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
+    Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
+        Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
+    Settings.TRACKPAD_ROTATION_SENSITIVITY.put(
+        Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
@@ -3703,6 +4341,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCustomSkyboxOverworldCheckbox.isSelected());
     Settings.CUSTOM_SKYBOX_UNDERGROUND_ENABLED.put(
         Settings.currentProfile, generalPanelCustomSkyboxUndergroundCheckbox.isSelected());
+    Settings.CUSTOM_RAN_STATIC_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(ranStaticColour));
     Settings.CUSTOM_SKYBOX_OVERWORLD_COLOUR.put(
         Settings.currentProfile, Util.colorToInt(overworldSkyColour));
     Settings.CUSTOM_SKYBOX_UNDERGROUND_COLOUR.put(
@@ -3710,6 +4350,9 @@ public class ConfigWindow {
     Settings.VIEW_DISTANCE.put(Settings.currentProfile, generalPanelViewDistanceSlider.getValue());
     Settings.FPS_LIMIT_ENABLED.put(
         Settings.currentProfile, generalPanelLimitFPSCheckbox.isSelected());
+    Settings.RAN_EFFECT_TARGET_FPS.put(
+        Settings.currentProfile,
+        ((SpinnerNumberModel) (generalPanelLimitRanFPSSpinner.getModel())).getNumber().intValue());
     Settings.FPS_LIMIT.put(
         Settings.currentProfile,
         ((SpinnerNumberModel) (generalPanelLimitFPSSpinner.getModel())).getNumber().intValue());
@@ -3718,13 +4361,15 @@ public class ConfigWindow {
     Settings.PATCH_HBAR_512_LAST_PIXEL.put(
         Settings.currentProfile, generalPanelPatchHbar512LastPixelCheckbox.isSelected());
     Settings.USE_JAGEX_FONTS.put(
-            Settings.currentProfile, generalPanelUseJagexFontsCheckBox.isSelected());
+        Settings.currentProfile, generalPanelUseJagexFontsCheckBox.isSelected());
     Settings.PATCH_WRENCH_MENU_SPACING.put(
         Settings.currentProfile, generalPanelPatchWrenchMenuSpacingCheckbox.isSelected());
 
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
+    Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        Settings.currentProfile, overlayPanelStatusAlwaysTextCheckbox.isSelected());
     Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
     Settings.SHOW_LAST_MENU_ACTION.put(
         Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());
@@ -3787,6 +4432,7 @@ public class ConfigWindow {
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());
+    Settings.SFX_VOLUME.put(Settings.currentProfile, audioPanelSfxVolumeSlider.getValue());
     Settings.LOUDER_SOUND_EFFECTS.put(
         Settings.currentProfile, audioPanelLouderSoundEffectsCheckbox.isSelected());
     Settings.OVERRIDE_AUDIO_SETTING.put(
@@ -3877,7 +4523,8 @@ public class ConfigWindow {
     Settings.PM_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelPMNotifsCheckbox.isSelected());
     Settings.PM_DENYLIST.put(
-        "custom", new ArrayList<>(Arrays.asList(notificationPanelPMDenyListTextField.getText().split(","))));
+        "custom",
+        new ArrayList<>(Arrays.asList(notificationPanelPMDenyListTextField.getText().split(","))));
     Settings.TRADE_NOTIFICATIONS.put(
         Settings.currentProfile, notificationPanelTradeNotifsCheckbox.isSelected());
     Settings.DUEL_NOTIFICATIONS.put(
@@ -4055,8 +4702,8 @@ public class ConfigWindow {
    */
   public void applySettings() {
     saveSettings();
-    if (Settings.CUSTOM_CLIENT_SIZE.get(Settings.currentProfile))
-      Game.getInstance().resizeFrameWithContents();
+    // Tell the Renderer to update the scale from its thread to avoid thread-safety issues.
+    Settings.renderingScalarUpdateRequired = true;
     // Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
     Settings.fovUpdateRequired = true;
     Settings.checkSoftwareCursor();
@@ -4067,6 +4714,7 @@ public class ConfigWindow {
     Item.patchItemNames();
     Item.patchItemCommands();
     GameApplet.syncFontSetting();
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public void synchronizePresetOptions() {
@@ -4327,6 +4975,11 @@ public class ConfigWindow {
                 "%d", (int) Math.floor(JoystickHandler.joystickInputReports.get(compName))));
     joystickPanel.revalidate();
     joystickPanel.repaint();
+  }
+
+  public void updateCustomClientSizeMinValues(Dimension updatedMinimumWindowSize) {
+    spinnerWinXModel.setMinimum(updatedMinimumWindowSize.width);
+    spinnerWinYModel.setMinimum(updatedMinimumWindowSize.height);
   }
 }
 

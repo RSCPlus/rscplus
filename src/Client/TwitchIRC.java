@@ -28,7 +28,7 @@ import java.net.Socket;
 /** Handles communication with a Twitch chat channel. */
 public class TwitchIRC implements Runnable {
 
-  public static final String SERVER = "irc.twitch.tv";
+  public static final String SERVER = "irc.chat.twitch.tv";
   public static final int PORT = 6667;
 
   /**
@@ -55,7 +55,7 @@ public class TwitchIRC implements Runnable {
       m_writer = new BufferedWriter(new OutputStreamWriter(m_socket.getOutputStream()));
       m_reader = new BufferedReader(new InputStreamReader(m_socket.getInputStream()));
 
-      m_writer.write("PASS " + Settings.TWITCH_OAUTH.get(Settings.currentProfile) + "\r\n");
+      m_writer.write("PASS oauth:" + Settings.TWITCH_OAUTH.get(Settings.currentProfile) + "\r\n");
       m_writer.write(
           "NICK " + Settings.TWITCH_USERNAME.get(Settings.currentProfile).toLowerCase() + "\r\n");
       m_writer.flush();
