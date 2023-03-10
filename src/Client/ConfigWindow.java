@@ -159,7 +159,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
   private JCheckBox generalPanelShowSecurityTipsAtLoginCheckbox;
   private JCheckBox generalPanelWelcomeEnabled;
-  // private JCheckBox generalPanelChatHistoryCheckbox;
+  private JCheckBox generalPanelChatHistoryCheckbox;
   private JCheckBox generalPanelCombatXPMenuCheckbox;
   private JCheckBox generalPanelCombatXPMenuHiddenCheckbox;
   private JCheckBox generalPanelFatigueAlertCheckbox;
@@ -1040,18 +1040,15 @@ public class ConfigWindow {
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
-    // Commented out b/c probably no one will ever implement this
-    // generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not
-    // implemented yet)", generalPanel);
-    // generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-    // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
-    // history is implemented
+    generalPanelChatHistoryCheckbox =
+        addCheckbox("Load chat history after relogging", generalPanel);
+    generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+    generalPanelChatHistoryCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuCheckbox =
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -3788,7 +3785,8 @@ public class ConfigWindow {
         Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
         Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
-    // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
+    generalPanelChatHistoryCheckbox.setSelected(
+        Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile));
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
     generalPanelCombatXPMenuHiddenCheckbox.setSelected(
@@ -4247,8 +4245,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelShowSecurityTipsAtLoginCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
         Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
-    // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
-    // generalPanelChatHistoryCheckbox.isSelected());
+    Settings.LOAD_CHAT_HISTORY.put(
+        Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(
         Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
     Settings.COMBAT_MENU_HIDDEN.put(
