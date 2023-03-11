@@ -171,6 +171,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogForceLevelCheckbox;
   private JCheckBox generalPanelPrefersXdgOpenCheckbox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
+  private JCheckBox generalPanelDisableNatureRuneAlchCheckbox;
   private JCheckBox generalPanelCommandPatchQuestCheckbox;
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
@@ -1448,6 +1449,11 @@ public class ConfigWindow {
         addCheckbox("Display numbers next to dialogue options", generalPanel);
     generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
         "Displays a number next to each option within a conversational menu");
+
+    generalPanelDisableNatureRuneAlchCheckbox =
+        addCheckbox("Disable the ability to cast alchemy spells on nature runes", generalPanel);
+    generalPanelDisableNatureRuneAlchCheckbox.setToolTipText(
+        "Protect yourself from a terrible fate");
 
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
@@ -3797,6 +3803,8 @@ public class ConfigWindow {
         Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
     generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelLogVerbositySlider.setValue(Settings.LOG_VERBOSITY.get(Settings.currentProfile));
+    generalPanelDisableNatureRuneAlchCheckbox.setSelected(
+        Settings.DISABLE_NAT_RUNE_ALCH.get(Settings.currentProfile));
     generalPanelCommandPatchQuestCheckbox.setSelected(
         Settings.COMMAND_PATCH_QUEST.get(Settings.currentProfile));
     generalPanelCommandPatchEdibleRaresCheckbox.setSelected(
@@ -4300,6 +4308,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchEdibleRaresCheckbox.isSelected());
     Settings.COMMAND_PATCH_QUEST.put(
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
+    Settings.DISABLE_NAT_RUNE_ALCH.put(
+        Settings.currentProfile, generalPanelDisableNatureRuneAlchCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.NUMBERED_DIALOGUE_OPTIONS.put(
