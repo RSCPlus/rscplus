@@ -179,6 +179,7 @@ public class Client {
   public static long poison_timer = 0L;
   public static boolean is_poisoned = false;
   public static boolean is_in_wild;
+  public static int wild_level;
   // fatigue units as sent by the server
   public static int fatigue;
   // fatigue in units
@@ -1599,6 +1600,16 @@ public class Client {
     } catch (Exception e) {
     }
     return pid;
+  }
+
+  public static int getPlayerLevel() {
+    int level = -1;
+    try {
+      level = (int) Reflection.characterLevel.get(player_object);
+      return level;
+    } catch (Exception e) {
+    }
+    return level;
   }
 
   public static int getPlayerWaypointX() {
@@ -3246,14 +3257,57 @@ public class Client {
       int currentHits,
       int maxHits,
       int id,
-      int id2) {
+      int id2,
+      int currentX,
+      int currentY) {
     // ILOAD 6 is index
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB, currentHits, maxHits, id, id2));
+    // npc level set to -1, would have to be calculated using the cmb lvl formula with values
+    // retrieved from the various GameData arrays
+    npc_list.add(
+        new NPC(
+            x,
+            y,
+            width,
+            height,
+            name,
+            NPC.TYPE_MOB,
+            currentHits,
+            maxHits,
+            id,
+            id2,
+            -1,
+            currentX,
+            currentY));
   }
 
   public static void drawPlayer(
-      int x, int y, int width, int height, String name, int currentHits, int maxHits, int id2) {
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER, currentHits, maxHits, 0, id2));
+      int x,
+      int y,
+      int width,
+      int height,
+      String name,
+      int currentHits,
+      int maxHits,
+      int id2,
+      int level,
+      int currentX,
+      int currentY) {
+    // ILOAD 8 is index
+    npc_list.add(
+        new NPC(
+            x,
+            y,
+            width,
+            height,
+            name,
+            NPC.TYPE_PLAYER,
+            currentHits,
+            maxHits,
+            0,
+            id2,
+            level,
+            currentX,
+            currentY));
   }
 
   public static void drawItem(int x, int y, int width, int height, int id) {

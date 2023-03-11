@@ -230,6 +230,8 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_PVP_NAME_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> PVP_NAMES_COLOUR = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SHOW_OWN_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_NPC_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -364,7 +366,6 @@ public class Settings {
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
   public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
-
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -1686,6 +1687,24 @@ public class Settings {
     SHOW_PLAYER_NAME_OVERLAY.put(
         "custom",
         getPropBoolean(props, "show_playerinfo", SHOW_PLAYER_NAME_OVERLAY.get("default")));
+
+    SHOW_PVP_NAME_OVERLAY.put("vanilla", false);
+    SHOW_PVP_NAME_OVERLAY.put("vanilla_resizable", false);
+    SHOW_PVP_NAME_OVERLAY.put("lite", false);
+    SHOW_PVP_NAME_OVERLAY.put("default", false);
+    SHOW_PVP_NAME_OVERLAY.put("heavy", false);
+    SHOW_PVP_NAME_OVERLAY.put("all", true);
+    SHOW_PVP_NAME_OVERLAY.put(
+        "custom", getPropBoolean(props, "show_pvpinfo", SHOW_PVP_NAME_OVERLAY.get("default")));
+
+    PVP_NAMES_COLOUR.put("vanilla", 0x990000); // red berry
+    PVP_NAMES_COLOUR.put("vanilla_resizable", 0x990000);
+    PVP_NAMES_COLOUR.put("lite", 0x990000);
+    PVP_NAMES_COLOUR.put("default", 0x990000);
+    PVP_NAMES_COLOUR.put("heavy", 0x990000);
+    PVP_NAMES_COLOUR.put("all", 0x990000);
+    PVP_NAMES_COLOUR.put(
+        "custom", getPropInt(props, "pvp_names_colour", PVP_NAMES_COLOUR.get("default")));
 
     SHOW_OWN_NAME_OVERLAY.put("vanilla", false);
     SHOW_OWN_NAME_OVERLAY.put("vanilla_resizable", false);
@@ -3041,6 +3060,8 @@ public class Settings {
           Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
+      props.setProperty("show_pvpinfo", Boolean.toString(SHOW_PVP_NAME_OVERLAY.get(preset)));
+      props.setProperty("pvp_names_colour", Integer.toString(PVP_NAMES_COLOUR.get(preset)));
       props.setProperty("show_owninfo", Boolean.toString(SHOW_OWN_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
       props.setProperty("show_npcinfo", Boolean.toString(SHOW_NPC_NAME_OVERLAY.get(preset)));

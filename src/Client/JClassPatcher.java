@@ -2000,10 +2000,24 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
         methodNode.instructions.insertBefore(
             insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "b", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "i", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Tb", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 6));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "K", "I"));
         methodNode.instructions.insertBefore(
             insnNode,
             new MethodInsnNode(
-                Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;IIII)V"));
+                Opcodes.INVOKESTATIC, "Game/Client", "drawNPC", "(IIIILjava/lang/String;IIIIII)V"));
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIIII)V")) {
         // Draw Player hook
@@ -2041,10 +2055,34 @@ public class JClassPatcher {
         methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
         methodNode.instructions.insertBefore(
             insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "b", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "s", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "i", "I"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "rg", "[Lta;"));
+        methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+        methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+        methodNode.instructions.insertBefore(
+            insnNode, new FieldInsnNode(Opcodes.GETFIELD, "ta", "K", "I"));
         methodNode.instructions.insertBefore(
             insnNode,
             new MethodInsnNode(
-                Opcodes.INVOKESTATIC, "Game/Client", "drawPlayer", "(IIIILjava/lang/String;III)V"));
+                Opcodes.INVOKESTATIC,
+                "Game/Client",
+                "drawPlayer",
+                "(IIIILjava/lang/String;IIIIII)V"));
       }
       if (methodNode.name.equals("b") && methodNode.desc.equals("(IIIIIII)V")) {
         // Draw Item hook
@@ -2381,6 +2419,9 @@ public class JClassPatcher {
               methodNode.instructions.insertBefore(
                   insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Renderer", "width", "I"));
               methodNode.instructions.insert(
+                  insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "wild_level", "I"));
+              methodNode.instructions.insert(insnNode, new VarInsnNode(Opcodes.ILOAD, 3));
+              methodNode.instructions.insert(
                   insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_in_wild", "Z"));
               methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ICONST_1));
               methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.ISUB));
@@ -2395,6 +2436,9 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
             methodNode.instructions.insertBefore(
                 insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "is_in_wild", "Z"));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_M1));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "wild_level", "I"));
           }
         }
 

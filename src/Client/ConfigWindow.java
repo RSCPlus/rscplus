@@ -246,6 +246,10 @@ public class ConfigWindow {
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
   private JCheckBox overlayPanelPlayerNamesCheckbox;
+  private JCheckBox overlayPanelPvpNamesCheckbox;
+  private JPanel overlayPanelPvpNamesColourSubpanel;
+  private Color pvpNamesColour =
+      Util.intToColor(Settings.PVP_NAMES_COLOUR.get(Settings.currentProfile));
   private JCheckBox overlayPanelOwnNameCheckbox;
   private JCheckBox overlayPanelFriendNamesCheckbox;
   private JCheckBox overlayPanelNPCNamesCheckbox;
@@ -1811,6 +1815,51 @@ public class ConfigWindow {
         addCheckbox("Show player names over their heads", overlayPanel);
     overlayPanelPlayerNamesCheckbox.setToolTipText(
         "Shows players' display names over their character");
+
+    // pvp names sub-panel
+    JPanel overlayPanelPvpNamesPanel = new JPanel();
+    overlayPanel.add(overlayPanelPvpNamesPanel);
+    overlayPanelPvpNamesPanel.setLayout(new BoxLayout(overlayPanelPvpNamesPanel, BoxLayout.X_AXIS));
+    overlayPanelPvpNamesPanel.setPreferredSize(new Dimension(0, 26));
+    overlayPanelPvpNamesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    overlayPanelPvpNamesCheckbox =
+        addCheckbox(
+            "Show attackable players' names in a separate colour", overlayPanelPvpNamesPanel);
+    overlayPanelPvpNamesCheckbox.setToolTipText(
+        "Changes the color of players' names when they are within attacking range in the wilderness");
+
+    overlayPanelPvpNamesColourSubpanel = new JPanel();
+    overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesColourSubpanel);
+    overlayPanelPvpNamesColourSubpanel.setAlignmentY((float) 0.7f);
+    overlayPanelPvpNamesColourSubpanel.setMinimumSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setPreferredSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setMaximumSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    overlayPanelPvpNamesColourSubpanel.setBackground(pvpNamesColour);
+
+    JPanel overlayPanelPvpNamesSpacingPanel = new JPanel();
+    overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesSpacingPanel);
+    overlayPanelPvpNamesSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    overlayPanelPvpNamesSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    overlayPanelPvpNamesSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton pvpNamesColourChooserButton = new JButton("Choose colour");
+    pvpNamesColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose PVP display name colour", pvpNamesColour);
+            if (null != selected) {
+              pvpNamesColour = selected;
+            }
+            overlayPanelPvpNamesColourSubpanel.setBackground(pvpNamesColour);
+          }
+        });
+    overlayPanelPvpNamesPanel.add(pvpNamesColourChooserButton);
+    pvpNamesColourChooserButton.setAlignmentY(0.7f);
+    ////////////
 
     overlayPanelOwnNameCheckbox =
         addCheckbox(
@@ -4041,6 +4090,9 @@ public class ConfigWindow {
         Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
     overlayPanelPlayerNamesCheckbox.setSelected(
         Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
+    overlayPanelPvpNamesCheckbox.setSelected(
+        Settings.SHOW_PVP_NAME_OVERLAY.get(Settings.currentProfile));
+    pvpNamesColour = Util.intToColor(Settings.PVP_NAMES_COLOUR.get(Settings.currentProfile));
     overlayPanelOwnNameCheckbox.setSelected(
         Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelFriendNamesCheckbox.setSelected(
@@ -4484,6 +4536,9 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
     Settings.SHOW_PLAYER_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
+    Settings.SHOW_PVP_NAME_OVERLAY.put(
+        Settings.currentProfile, overlayPanelPvpNamesCheckbox.isSelected());
+    Settings.PVP_NAMES_COLOUR.put(Settings.currentProfile, Util.colorToInt(pvpNamesColour));
     Settings.SHOW_OWN_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelOwnNameCheckbox.isSelected());
     Settings.SHOW_FRIEND_NAME_OVERLAY.put(
