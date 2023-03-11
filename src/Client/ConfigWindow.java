@@ -159,7 +159,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
   private JCheckBox generalPanelShowSecurityTipsAtLoginCheckbox;
   private JCheckBox generalPanelWelcomeEnabled;
-  // private JCheckBox generalPanelChatHistoryCheckbox;
+  private JCheckBox generalPanelChatHistoryCheckbox;
   private JCheckBox generalPanelCombatXPMenuCheckbox;
   private JCheckBox generalPanelCombatXPMenuHiddenCheckbox;
   private JCheckBox generalPanelFatigueAlertCheckbox;
@@ -191,6 +191,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JCheckBox generalPanelCtrlScrollChatCheckbox;
   private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
+  private JSlider generalPanelTrackpadRotationSlider;
   private JCheckBox generalPanelCustomRandomChatColourCheckbox;
   private JRadioButton generalPanelRanEntirelyDisableButton;
   private JRadioButton generalPanelRanReduceFrequencyButton;
@@ -226,6 +227,7 @@ public class ConfigWindow {
 
   //// Overlays tab
   private JCheckBox overlayPanelStatusDisplayCheckbox;
+  private JCheckBox overlayPanelStatusAlwaysTextCheckbox;
   private JCheckBox overlayPanelBuffsCheckbox;
   private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
@@ -266,6 +268,7 @@ public class ConfigWindow {
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
+  private JSlider audioPanelSfxVolumeSlider;
   private JCheckBox audioPanelLouderSoundEffectsCheckbox;
   private JCheckBox audioPanelOverrideAudioSettingCheckbox;
   private JRadioButton audioPanelOverrideAudioSettingOnButton;
@@ -983,6 +986,35 @@ public class ConfigWindow {
     generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
         "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
 
+    JLabel generalPanelTrackpadRotationLabel = new JLabel("Camera rotation trackpad sensitivity");
+    generalPanelTrackpadRotationLabel.setToolTipText(
+        "Sets the camera rotation trackpad sensitivity (Default: 8)");
+    generalPanelTrackpadRotationLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    generalPanel.add(generalPanelTrackpadRotationLabel);
+    generalPanelTrackpadRotationLabel.setAlignmentY((float) 1);
+
+    generalPanelTrackpadRotationSlider = new JSlider();
+
+    generalPanel.add(generalPanelTrackpadRotationSlider);
+    generalPanelTrackpadRotationSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelTrackpadRotationSlider.setMaximumSize(new Dimension(200, 55));
+    generalPanelTrackpadRotationSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    generalPanelTrackpadRotationSlider.setMajorTickSpacing(2);
+    generalPanelTrackpadRotationSlider.setMinorTickSpacing(1);
+    generalPanelTrackpadRotationSlider.setMinimum(0);
+    generalPanelTrackpadRotationSlider.setMaximum(16);
+    generalPanelTrackpadRotationSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> generalPanelTrackpadRotationLabelTable =
+        new Hashtable<Integer, JLabel>();
+    generalPanelTrackpadRotationLabelTable.put(new Integer(0), new JLabel("0"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(4), new JLabel("4"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(8), new JLabel("8"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(12), new JLabel("12"));
+    generalPanelTrackpadRotationLabelTable.put(new Integer(16), new JLabel("16"));
+    generalPanelTrackpadRotationSlider.setLabelTable(generalPanelTrackpadRotationLabelTable);
+    generalPanelTrackpadRotationSlider.setPaintLabels(true);
+
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
     generalPanelAutoScreenshotCheckbox.setToolTipText(
@@ -1009,18 +1041,15 @@ public class ConfigWindow {
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
-    // Commented out b/c probably no one will ever implement this
-    // generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not
-    // implemented yet)", generalPanel);
-    // generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-    // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
-    // history is implemented
+    generalPanelChatHistoryCheckbox =
+        addCheckbox("Load chat history after relogging", generalPanel);
+    generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+    generalPanelChatHistoryCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuCheckbox =
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -1592,6 +1621,11 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
+    overlayPanelStatusAlwaysTextCheckbox =
+        addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
+    overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
+        "Always show the status display as text even at larger client sizes");
+
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
     overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
@@ -1843,9 +1877,36 @@ public class ConfigWindow {
     audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
     audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
+    JLabel audioPanelSfxVolumeLabel = new JLabel("Sound effects volume");
+    audioPanelSfxVolumeLabel.setToolTipText("Sets the volume for game sound effects");
+    audioPanelSfxVolumeLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
+    audioPanel.add(audioPanelSfxVolumeLabel);
+    audioPanelSfxVolumeLabel.setAlignmentY((float) 1);
+
+    audioPanelSfxVolumeSlider = new JSlider();
+
+    audioPanel.add(audioPanelSfxVolumeSlider);
+    audioPanelSfxVolumeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelSfxVolumeSlider.setMaximumSize(new Dimension(350, 55));
+    audioPanelSfxVolumeSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
+    audioPanelSfxVolumeSlider.setMinorTickSpacing(5);
+    audioPanelSfxVolumeSlider.setMajorTickSpacing(10);
+    audioPanelSfxVolumeSlider.setMinimum(0);
+    audioPanelSfxVolumeSlider.setMaximum(100);
+    audioPanelSfxVolumeSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> audioPanelSfxVolumeTable = new Hashtable<Integer, JLabel>();
+    audioPanelSfxVolumeTable.put(new Integer(0), new JLabel("0"));
+    audioPanelSfxVolumeTable.put(new Integer(25), new JLabel("25"));
+    audioPanelSfxVolumeTable.put(new Integer(50), new JLabel("50"));
+    audioPanelSfxVolumeTable.put(new Integer(75), new JLabel("75"));
+    audioPanelSfxVolumeTable.put(new Integer(100), new JLabel("100"));
+    audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
+    audioPanelSfxVolumeSlider.setPaintLabels(true);
+
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
-        "Play sound effects twice at the same time so that it's louder.");
+        "Doubles the current volume for all sound effects.");
 
     audioPanelOverrideAudioSettingCheckbox =
         addCheckbox("Override server's remembered audio on/off setting", audioPanel);
@@ -3730,7 +3791,8 @@ public class ConfigWindow {
         Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
         Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
-    // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
+    generalPanelChatHistoryCheckbox.setSelected(
+        Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile));
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
     generalPanelCombatXPMenuHiddenCheckbox.setSelected(
@@ -3804,6 +3866,8 @@ public class ConfigWindow {
         Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
     generalPanelShiftScrollCameraRotationCheckbox.setSelected(
         Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
+    generalPanelTrackpadRotationSlider.setValue(
+        Settings.TRACKPAD_ROTATION_SENSITIVITY.get(Settings.currentProfile));
     generalPanelViewDistanceSlider.setValue(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
     generalPanelPatchGenderCheckbox.setSelected(Settings.PATCH_GENDER.get(Settings.currentProfile));
     generalPanelPatchHbar512LastPixelCheckbox.setSelected(
@@ -3874,6 +3938,8 @@ public class ConfigWindow {
     // Overlays tab
     overlayPanelStatusDisplayCheckbox.setSelected(
         Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile));
+    overlayPanelStatusAlwaysTextCheckbox.setSelected(
+        Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile));
     overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
     overlayPanelLastMenuActionCheckbox.setSelected(
         Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
@@ -3949,6 +4015,7 @@ public class ConfigWindow {
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
+    audioPanelSfxVolumeSlider.setValue(Settings.SFX_VOLUME.get(Settings.currentProfile));
     audioPanelLouderSoundEffectsCheckbox.setSelected(
         Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile));
     audioPanelOverrideAudioSettingCheckbox.setSelected(
@@ -4186,8 +4253,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelShowSecurityTipsAtLoginCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
         Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
-    // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
-    // generalPanelChatHistoryCheckbox.isSelected());
+    Settings.LOAD_CHAT_HISTORY.put(
+        Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(
         Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
     Settings.COMBAT_MENU_HIDDEN.put(
@@ -4273,6 +4340,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
     Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
         Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
+    Settings.TRACKPAD_ROTATION_SENSITIVITY.put(
+        Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
@@ -4307,6 +4376,8 @@ public class ConfigWindow {
     // Overlays options
     Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         Settings.currentProfile, overlayPanelStatusDisplayCheckbox.isSelected());
+    Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        Settings.currentProfile, overlayPanelStatusAlwaysTextCheckbox.isSelected());
     Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
     Settings.SHOW_LAST_MENU_ACTION.put(
         Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());
@@ -4369,6 +4440,7 @@ public class ConfigWindow {
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());
+    Settings.SFX_VOLUME.put(Settings.currentProfile, audioPanelSfxVolumeSlider.getValue());
     Settings.LOUDER_SOUND_EFFECTS.put(
         Settings.currentProfile, audioPanelLouderSoundEffectsCheckbox.isSelected());
     Settings.OVERRIDE_AUDIO_SETTING.put(
@@ -4650,6 +4722,7 @@ public class ConfigWindow {
     Item.patchItemNames();
     Item.patchItemCommands();
     GameApplet.syncFontSetting();
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public void synchronizePresetOptions() {

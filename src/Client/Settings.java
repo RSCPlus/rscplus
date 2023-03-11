@@ -26,6 +26,7 @@ import Game.Game;
 import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
+import Game.SoundEffects;
 import Game.XPBar;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -128,6 +129,8 @@ public class Settings {
   public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> TRACKPAD_ROTATION_SENSITIVITY =
+      new HashMap<String, Integer>();
   public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
@@ -154,10 +157,11 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
 
-  //// music
+  //// audio settings
   public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
   public static final double MIDI_VOLUME = 0.01;
   public static HashMap<String, Boolean> CUSTOM_MUSIC = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> SFX_VOLUME = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> LOUDER_SOUND_EFFECTS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
@@ -203,6 +207,8 @@ public class Settings {
 
   //// overlays
   public static HashMap<String, Boolean> SHOW_HP_PRAYER_FATIGUE_OVERLAY =
+      new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_MOUSE_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_EXTENDED_TOOLTIP = new HashMap<String, Boolean>();
@@ -351,6 +357,8 @@ public class Settings {
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
+  public static boolean LOAD_CHAT_HISTORY_BOOL = false;
+
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -507,7 +515,7 @@ public class Settings {
     LOAD_CHAT_HISTORY.put("vanilla", false);
     LOAD_CHAT_HISTORY.put("vanilla_resizable", false);
     LOAD_CHAT_HISTORY.put("lite", false);
-    LOAD_CHAT_HISTORY.put("default", false);
+    LOAD_CHAT_HISTORY.put("default", true);
     LOAD_CHAT_HISTORY.put("heavy", true);
     LOAD_CHAT_HISTORY.put("all", true);
     LOAD_CHAT_HISTORY.put(
@@ -846,6 +854,17 @@ public class Settings {
         getPropBoolean(
             props, "shift_scroll_camera_rotation", SHIFT_SCROLL_CAMERA_ROTATION.get("default")));
 
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("vanilla_resizable", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("lite", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("default", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("heavy", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put("all", 8);
+    TRACKPAD_ROTATION_SENSITIVITY.put(
+        "custom",
+        getPropInt(
+            props, "trackpad_rotation_sensitivity", TRACKPAD_ROTATION_SENSITIVITY.get("default")));
+
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla", RanOverrideEffectType.VANILLA);
     CUSTOM_RAN_CHAT_EFFECT.put("vanilla_resizable", RanOverrideEffectType.VANILLA);
     CUSTOM_RAN_CHAT_EFFECT.put("lite", RanOverrideEffectType.SLOWER);
@@ -1048,7 +1067,7 @@ public class Settings {
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
 
-    //// music
+    //// audio settings
     CUSTOM_MUSIC.put("vanilla", false);
     CUSTOM_MUSIC.put("vanilla_resizable", false);
     CUSTOM_MUSIC.put("lite", false);
@@ -1065,6 +1084,15 @@ public class Settings {
     CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
     CUSTOM_MUSIC_PATH.put(
         "custom", getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
+
+    SFX_VOLUME.put("vanilla", 100);
+    SFX_VOLUME.put("vanilla_resizable", 100);
+    SFX_VOLUME.put("lite", 100);
+    SFX_VOLUME.put("default", 100);
+    SFX_VOLUME.put("heavy", 100);
+    SFX_VOLUME.put("all", 100);
+    SFX_VOLUME.put("custom", 100);
+    SFX_VOLUME.put("custom", getPropInt(props, "sfx_volume", SFX_VOLUME.get("default")));
 
     LOUDER_SOUND_EFFECTS.put("vanilla", false);
     LOUDER_SOUND_EFFECTS.put("vanilla_resizable", false);
@@ -1478,6 +1506,19 @@ public class Settings {
     SHOW_HP_PRAYER_FATIGUE_OVERLAY.put(
         "custom",
         getPropBoolean(props, "show_statusdisplay", SHOW_HP_PRAYER_FATIGUE_OVERLAY.get("default")));
+
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("vanilla_resizable", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("lite", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("default", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("heavy", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put("all", false);
+    ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "always_show_statusdisplay_text",
+            ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get("default")));
 
     SHOW_BUFFS.put("vanilla", false);
     SHOW_BUFFS.put("vanilla_resizable", false);
@@ -2346,11 +2387,27 @@ public class Settings {
       save("custom");
     }
 
+    if (SFX_VOLUME.get("custom") < 0) {
+      SFX_VOLUME.put("custom", 0);
+      save("custom");
+    } else if (SFX_VOLUME.get("custom") > 100) {
+      SFX_VOLUME.put("custom", 100);
+      save("custom");
+    }
+
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       save("custom");
     } else if (VIEW_DISTANCE.get("custom") > 20000) {
       VIEW_DISTANCE.put("custom", 20000);
+      save("custom");
+    }
+
+    if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") < 0) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 0);
+      save("custom");
+    } else if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") > 16) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 16);
       save("custom");
     }
 
@@ -2808,6 +2865,9 @@ public class Settings {
           "shift_scroll_camera_rotation",
           Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
       props.setProperty(
+          "trackpad_rotation_sensitivity",
+          Integer.toString(TRACKPAD_ROTATION_SENSITIVITY.get(preset)));
+      props.setProperty(
           "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
       props.setProperty(
           "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
@@ -2841,9 +2901,10 @@ public class Settings {
       props.setProperty("log_force_level", Boolean.toString(LOG_FORCE_LEVEL.get(preset)));
       props.setProperty("prefers_xdg_open", Boolean.toString(PREFERS_XDG_OPEN.get(preset)));
 
-      //// music
+      //// audio settings
       props.setProperty("custom_music", Boolean.toString(CUSTOM_MUSIC.get(preset)));
       props.setProperty("custom_music_path", CUSTOM_MUSIC_PATH.get(preset));
+      props.setProperty("sfx_volume", Integer.toString(SFX_VOLUME.get(preset)));
       props.setProperty("louder_sound_effects", Boolean.toString(LOUDER_SOUND_EFFECTS.get(preset)));
       props.setProperty(
           "override_audio_setting", Boolean.toString(OVERRIDE_AUDIO_SETTING.get(preset)));
@@ -2912,6 +2973,9 @@ public class Settings {
       //// overlays
       props.setProperty(
           "show_statusdisplay", Boolean.toString(SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(preset)));
+      props.setProperty(
+          "always_show_statusdisplay_text",
+          Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
@@ -3788,6 +3852,32 @@ public class Settings {
     save();
   }
 
+  public static void setSfxVolume(String volumeLevel) {
+    String outOfBoundsMessage =
+        "@whi@Please use an @lre@integer@whi@ between 0 and 100 (default = 100)";
+
+    try {
+      int newVolume = Integer.parseInt(volumeLevel);
+
+      // Warn if value out of bounds
+      if (newVolume < 0 || newVolume > 100) {
+        Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+        return;
+      }
+
+      SFX_VOLUME.put(currentProfile, newVolume);
+      SoundEffects.adjustMudClientSfxVolume();
+      Client.displayMessage(
+          "@cya@Volume of sound effects was changed to " + volumeLevel + "%", Client.CHAT_NONE);
+
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    } catch (Exception e) {
+      Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+    }
+
+    save();
+  }
+
   /**
    * Gets the String value of a Properties object for the specified key. If no value is defined for
    * that key, it returns the specified default value.
@@ -4221,6 +4311,7 @@ public class Settings {
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
+    LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

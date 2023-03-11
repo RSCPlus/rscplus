@@ -1219,6 +1219,9 @@ public class Client {
     state = STATE_GAME;
     // bank_active_page = 0; // TODO: config option? don't think this is very important.
     // combat_timer = 0;
+
+    // Set the client volume
+    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public static void login_hook() {
@@ -1889,6 +1892,11 @@ public class Client {
               break;
             }
           }
+        case "sfx_volume":
+          if (commandArray.length > 1) {
+            Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -3507,7 +3515,8 @@ public class Client {
       }
       // both wiki lookup and report abuse button are enabled
       // want to make room for hp/prayer/fatigue overlay if possible
-      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)) {
+      if (Settings.SHOW_HP_PRAYER_FATIGUE_OVERLAY.get(Settings.currentProfile)
+          && !Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile)) {
         // there is a 90 pixel region where HP/Prayer/Fatigue overlay can't be drawn, but both
         // Report Abuse & Wiki lookup can
         return (Renderer.width < 900 && Renderer.width >= 704) || Renderer.width < 512 + 90 + 12;
