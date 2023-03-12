@@ -441,8 +441,15 @@ public class Renderer {
         List<Rectangle> player_hitbox = new ArrayList<>();
         List<Point> entity_text_loc = new ArrayList<>();
 
-        Client.npc_list.sort(
-            Comparator.comparing(npc -> npc.name, Comparator.nullsLast(Comparator.naturalOrder())));
+        try {
+          Client.npc_list.sort(
+              Comparator.comparing(
+                  npc -> npc.name, Comparator.nullsLast(Comparator.naturalOrder())));
+        } catch (Exception e) {
+          // Sometimes Java helpfully complains that the sorting method violates its general
+          // contract.
+          e.printStackTrace();
+        }
 
         for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext(); ) {
           NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
