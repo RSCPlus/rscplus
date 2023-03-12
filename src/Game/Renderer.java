@@ -448,7 +448,6 @@ public class Renderer {
         } catch (Exception e) {
           // Sometimes Java helpfully complains that the sorting method violates its general
           // contract.
-          e.printStackTrace();
         }
 
         for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext(); ) {
@@ -539,7 +538,6 @@ public class Renderer {
           } catch (Exception e) {
             // Sometimes Java helpfully complains that the sorting method violates its general
             // contract.
-            e.printStackTrace();
           }
         }
 
