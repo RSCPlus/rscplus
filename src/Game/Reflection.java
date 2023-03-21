@@ -49,6 +49,7 @@ public class Reflection {
   public static Field characterWaypointY = null;
   public static Field attackingPlayerIdx = null;
   public static Field attackingNpcIdx = null;
+  public static Field isSkulled = null;
   public static Field lastMouseAction = null;
 
   public static Field maxInventory = null;
@@ -104,6 +105,7 @@ public class Reflection {
   public static Method drawLineVert = null;
   public static Method drawSprite = null;
   public static Method parseSprite = null;
+  public static Method drawItemSprite = null;
 
   public static Method newPacket = null;
   public static Method getUnsignedByte = null;
@@ -199,6 +201,8 @@ public class Reflection {
   private static final String DRAWLINEVERT = "final void ua.b(int,int,int,int,int)";
   private static final String DRAWSPRITE = "final void ua.b(int,int,int,int)";
   private static final String PARSESPRITE = "final void ua.a(int,int,byte[],int,byte[])";
+  private static final String DRAWITEMSPRITE =
+      "final void ua.a(int,int,int,boolean,int,int,int,int,int,int)";
   private static final String SHOW_INPUT_POPUP =
       "private final void client.a(java.lang.String[],int,int,boolean)";
 
@@ -689,6 +693,10 @@ public class Reflection {
           parseSprite = method;
           Logger.Info("Found parseSprite");
         }
+        if (method.toGenericString().equals(DRAWITEMSPRITE)) {
+          drawItemSprite = method;
+          Logger.Info("Found drawItemSprite");
+        }
       }
 
       // Character
@@ -706,6 +714,7 @@ public class Reflection {
       characterWaypointY = c.getDeclaredField("K");
       attackingPlayerIdx = c.getDeclaredField("z");
       attackingNpcIdx = c.getDeclaredField("h");
+      isSkulled = c.getDeclaredField("J");
       if (characterName != null) characterName.setAccessible(true);
       if (characterId != null) characterId.setAccessible(true);
       if (characterDisplayName != null) characterDisplayName.setAccessible(true);
@@ -719,6 +728,7 @@ public class Reflection {
       if (characterWaypointY != null) characterWaypointY.setAccessible(true);
       if (attackingPlayerIdx != null) attackingPlayerIdx.setAccessible(true);
       if (attackingNpcIdx != null) attackingNpcIdx.setAccessible(true);
+      if (isSkulled != null) isSkulled.setAccessible(true);
 
       // Menu
       c = classLoader.loadClass("qa");
@@ -875,6 +885,7 @@ public class Reflection {
       if (drawLineVert != null) drawLineVert.setAccessible(true);
       if (drawSprite != null) drawSprite.setAccessible(true);
       if (parseSprite != null) parseSprite.setAccessible(true);
+      if (drawItemSprite != null) drawItemSprite.setAccessible(true);
       if (stream != null) stream.setAccessible(true);
       if (newPacket != null) newPacket.setAccessible(true);
       if (getUnsignedByte != null) getUnsignedByte.setAccessible(true);

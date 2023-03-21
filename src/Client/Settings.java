@@ -213,6 +213,8 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_MOUSE_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_EXTENDED_TOOLTIP = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DEATH_ITEMS = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DEATH_ITEMS_WILD = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT_COLOURS = new HashMap<String, Boolean>();
@@ -1535,6 +1537,23 @@ public class Settings {
     SHOW_BUFFS.put("heavy", true);
     SHOW_BUFFS.put("all", true);
     SHOW_BUFFS.put("custom", getPropBoolean(props, "show_buffs", SHOW_BUFFS.get("default")));
+
+    DEATH_ITEMS.put("vanilla", false);
+    DEATH_ITEMS.put("vanilla_resizable", false);
+    DEATH_ITEMS.put("lite", false);
+    DEATH_ITEMS.put("default", false);
+    DEATH_ITEMS.put("heavy", true);
+    DEATH_ITEMS.put("all", true);
+    DEATH_ITEMS.put("custom", getPropBoolean(props, "death_items", DEATH_ITEMS.get("default")));
+
+    DEATH_ITEMS_WILD.put("vanilla", false);
+    DEATH_ITEMS_WILD.put("vanilla_resizable", false);
+    DEATH_ITEMS_WILD.put("lite", false);
+    DEATH_ITEMS_WILD.put("default", false);
+    DEATH_ITEMS_WILD.put("heavy", false);
+    DEATH_ITEMS_WILD.put("all", false);
+    DEATH_ITEMS_WILD.put(
+        "custom", getPropBoolean(props, "death_items_wild", DEATH_ITEMS_WILD.get("default")));
 
     SHOW_LAST_MENU_ACTION.put("vanilla", false);
     SHOW_LAST_MENU_ACTION.put("vanilla_resizable", false);
@@ -3063,6 +3082,8 @@ public class Settings {
           "always_show_statusdisplay_text",
           Boolean.toString(ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(preset)));
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
+      props.setProperty("death_items", Boolean.toString(DEATH_ITEMS.get(preset)));
+      props.setProperty("death_items_wild", Boolean.toString(DEATH_ITEMS_WILD.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
       props.setProperty("show_mouse_tooltip", Boolean.toString(SHOW_MOUSE_TOOLTIP.get(preset)));
@@ -3594,6 +3615,18 @@ public class Settings {
       Client.displayMessage("@cya@Combat (de)buffs and cooldowns are now shown", Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@Combat (de)buffs and cooldowns are now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleDeathItems() {
+    DEATH_ITEMS.put(currentProfile, !DEATH_ITEMS.get(currentProfile));
+
+    if (DEATH_ITEMS.get(currentProfile)) {
+      Client.displayMessage("@cya@Items kept on death are now shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Items kept on death are now hidden", Client.CHAT_NONE);
     }
 
     save();
@@ -4192,6 +4225,9 @@ public class Settings {
         return true;
       case "toggle_buffs_display":
         Settings.toggleBuffs();
+        return true;
+      case "toggle_death_items":
+        Settings.toggleDeathItems();
         return true;
       case "toggle_hpprayerfatigue_display":
         Settings.toggleHpPrayerFatigueOverlay();

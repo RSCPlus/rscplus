@@ -229,6 +229,8 @@ public class ConfigWindow {
   private JCheckBox overlayPanelStatusDisplayCheckbox;
   private JCheckBox overlayPanelStatusAlwaysTextCheckbox;
   private JCheckBox overlayPanelBuffsCheckbox;
+  private JCheckBox overlayPanelKeptItemsCheckbox;
+  private JCheckBox overlayPanelKeptItemsWildCheckbox;
   private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
   private JCheckBox overlayPanelExtendedTooltipCheckbox;
@@ -1642,6 +1644,15 @@ public class ConfigWindow {
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
     overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
 
+    overlayPanelKeptItemsCheckbox = addCheckbox("Show items kept on death", overlayPanel);
+    overlayPanelKeptItemsCheckbox.setToolTipText(
+        "Displays a skull in your inventory next to the items that you will retain upon dying");
+
+    overlayPanelKeptItemsWildCheckbox =
+        addCheckbox("Only show items kept on death while in the wilderness", overlayPanel);
+    overlayPanelKeptItemsWildCheckbox.setToolTipText(
+        "Only displays the \"kept items\" skull when you are in the wilderness");
+
     overlayPanelLastMenuActionCheckbox = addCheckbox("Show last menu action display", overlayPanel);
     overlayPanelLastMenuActionCheckbox.setToolTipText("Toggle last menu action used display");
 
@@ -3011,6 +3022,12 @@ public class ConfigWindow {
         KeyModifier.CTRL,
         KeyEvent.VK_Y);
     addKeybindSet(
+        keybindContainerPanel,
+        "Toggle items kept on death display",
+        "toggle_death_items",
+        KeyModifier.CTRL,
+        KeyEvent.VK_D);
+    addKeybindSet(
         keybindContainerPanel, "Toggle XP bar", "toggle_xp_bar", KeyModifier.CTRL, KeyEvent.VK_K);
     addKeybindSet(
         keybindContainerPanel,
@@ -3084,14 +3101,6 @@ public class ConfigWindow {
         "toggle_health_regen_timer",
         KeyModifier.CTRL,
         KeyEvent.VK_X);
-    // TODO: When replaced with upcoming "show items kept on death"
-    //  feature, bind to CTRL+D and add to resolveNewDefaults()
-    //    addKeybindSet(
-    //        keybindContainerPanel,
-    //        "Toggle debug mode",
-    //        "toggle_debug",
-    //        KeyModifier.CTRL,
-    //        KeyEvent.VK_D);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle Wiki Hbar Button",
@@ -4094,6 +4103,9 @@ public class ConfigWindow {
     overlayPanelStatusAlwaysTextCheckbox.setSelected(
         Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.get(Settings.currentProfile));
     overlayPanelBuffsCheckbox.setSelected(Settings.SHOW_BUFFS.get(Settings.currentProfile));
+    overlayPanelKeptItemsCheckbox.setSelected(Settings.DEATH_ITEMS.get(Settings.currentProfile));
+    overlayPanelKeptItemsWildCheckbox.setSelected(
+        Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile));
     overlayPanelLastMenuActionCheckbox.setSelected(
         Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
     overlayPanelMouseTooltipCheckbox.setSelected(
@@ -4551,6 +4563,9 @@ public class ConfigWindow {
     Settings.ALWAYS_SHOW_HP_PRAYER_FATIGUE_AS_TEXT.put(
         Settings.currentProfile, overlayPanelStatusAlwaysTextCheckbox.isSelected());
     Settings.SHOW_BUFFS.put(Settings.currentProfile, overlayPanelBuffsCheckbox.isSelected());
+    Settings.DEATH_ITEMS.put(Settings.currentProfile, overlayPanelKeptItemsCheckbox.isSelected());
+    Settings.DEATH_ITEMS_WILD.put(
+        Settings.currentProfile, overlayPanelKeptItemsWildCheckbox.isSelected());
     Settings.SHOW_LAST_MENU_ACTION.put(
         Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());
     Settings.SHOW_MOUSE_TOOLTIP.put(

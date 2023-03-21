@@ -32,6 +32,8 @@ public class Item {
 
   public static String[] item_name;
   public static String[] item_commands;
+  public static int[] item_price;
+  public static int[] item_stackable;
   public static List<Item> cool_items = new ArrayList<>();
 
   private static int name_patch_last = 0;

@@ -270,6 +270,9 @@ public class JClassPatcher {
       hookClassVariable(methodNode, "ba", "k", "I", "Game/Renderer", "height", "I", false, true);
       hookClassVariable(methodNode, "ba", "rb", "[I", "Game/Renderer", "pixels", "[I", true, true);
 
+      hookStaticVariable(methodNode, "ua", "Bb", "[I", "Game/Renderer", "itemSprites", "[I");
+      hookStaticVariable(methodNode, "h", "c", "[I", "Game/Renderer", "itemSpriteMasks", "[I");
+
       hookStaticVariable(methodNode, "u", "e", "I", "Game/Client", "shadowSleepCount", "I");
       hookStaticVariable(methodNode, "n", "g", "I", "Game/Client", "friends_count", "I");
       hookStaticVariable(methodNode, "n", "a", "[I", "Game/GameApplet", "characterWidth", "[I");
@@ -389,6 +392,8 @@ public class JClassPatcher {
           "Game/Item",
           "item_commands",
           "[Ljava/lang/String;");
+      hookStaticVariable(methodNode, "kb", "b", "[I", "Game/Item", "item_price", "[I");
+      hookStaticVariable(methodNode, "fa", "e", "[I", "Game/Item", "item_stackable", "[I");
 
       hookConditionalClassVariable(
           methodNode,
