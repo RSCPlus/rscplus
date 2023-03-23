@@ -250,6 +250,8 @@ public class Settings {
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
+      new HashMap<String, Boolean>();
 
   //// bank
   public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT =
@@ -358,7 +360,7 @@ public class Settings {
   public static boolean USE_JAGEX_FONTS_BOOL = false;
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
-
+  public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -1836,6 +1838,19 @@ public class Settings {
     BLOCKED_ITEMS.put(
         "custom", getPropArrayListString(props, "blocked_items", BLOCKED_ITEMS.get("default")));
 
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla_resizable", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("lite", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("default", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("heavy", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("all", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "highlight_items_right_click_menu",
+            HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get("default")));
+
     //// bank
     START_REMEMBERED_FILTER_SORT.put("vanilla", false);
     START_REMEMBERED_FILTER_SORT.put("vanilla_resizable", false);
@@ -3022,6 +3037,9 @@ public class Settings {
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
+      props.setProperty(
+          "highlight_items_right_click_menu",
+          Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
 
       //// bank
       props.setProperty("show_bank_value", Boolean.toString(SHOW_BANK_VALUE.get(preset)));
@@ -4312,6 +4330,7 @@ public class Settings {
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
     LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
+    HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

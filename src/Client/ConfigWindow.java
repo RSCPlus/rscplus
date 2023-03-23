@@ -265,6 +265,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
+  private JCheckBox overlayPanelHighlightRightClickCheckbox;
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
@@ -1863,6 +1864,11 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+
+    overlayPanelHighlightRightClickCheckbox =
+        addCheckbox("Highlight item names in the right-click menu", overlayPanel);
+    overlayPanelHighlightRightClickCheckbox.setToolTipText(
+        "Highlights item names from the above list in the right-click menu");
 
     /*
      * Audio tab
@@ -4012,6 +4018,8 @@ public class ConfigWindow {
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
+    overlayPanelHighlightRightClickCheckbox.setSelected(
+        Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(Settings.currentProfile));
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
@@ -4437,6 +4445,8 @@ public class ConfigWindow {
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+    Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
+        Settings.currentProfile, overlayPanelHighlightRightClickCheckbox.isSelected());
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());
