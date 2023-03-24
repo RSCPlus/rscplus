@@ -1,5 +1,7 @@
 package Chat;
 
+import org.jsoup.Jsoup;
+
 public class ChatMessage {
 
   private final String username;
@@ -10,7 +12,7 @@ public class ChatMessage {
 
   public ChatMessage(String username, String message, long timestamp, int type) {
     this.username = username;
-    this.message = message;
+    this.message = Jsoup.parse(message).text();
     this.timestamp = timestamp;
     this.type = type;
   }
