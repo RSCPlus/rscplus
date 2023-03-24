@@ -1,11 +1,14 @@
 package Chat;
 
+
 import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
@@ -58,6 +61,8 @@ public class ChatWindowHTMLChatRenderer {
     String message = chatMessage.getMessage();
     long timestamp = chatMessage.getTimestamp();
 
+    message = parseChatMessage(message);
+
     DateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
     String timestampStr = dateFormat.format(timestamp);
 
@@ -78,9 +83,7 @@ public class ChatWindowHTMLChatRenderer {
       usernameColors.put(username, usernameColor);
     }
 
-    String rgbValues =
-        usernameColor.getRed() + ", " + usernameColor.getGreen() + ", " + usernameColor.getBlue();
-    return String.format("rgb(%s)", rgbValues);
+    return getColorRGB(usernameColor);
   }
 
   private static Color createUsernameColor() {
@@ -93,5 +96,72 @@ public class ChatWindowHTMLChatRenderer {
     final Color color = Color.getHSBColor(hue, saturation, luminance);
 
     return color;
+  }
+
+  private static String parseChatMessage(String message) {
+    try {
+      Pattern pattern = Pattern.compile("@[a-zA-Z]{3}@", Pattern.CASE_INSENSITIVE);
+      Matcher matcher = pattern.matcher(message);
+
+      ArrayList<Integer> tagStartIndices = new ArrayList<>();
+      ArrayList<Integer> tagEndIndices = new ArrayList<>();
+      ArrayList<Color> tagColors = new ArrayList<>();
+      ArrayList<String> htmlMessageSegments = new ArrayList<>();
+
+      while(matcher.find()) {
+        String tag = matcher.group().toLowerCase();
+        Color tagColor = ChatColors.getColorForTag(tag);
+
+        tagColors.add(tagColor);
+        tagStartIndices.add(matcher.start());
+        tagEndIndices.add(matcher.end());
+      }
+
+      if(tagColors.size() > 0) {
+        for(int i = 0; i < tagColors.size(); i++) {
+          int tagEndIndex = tagEndIndices.get(i);
+          Color tagColor = tagColors.get(i);
+
+          // Look ahead
+          int j = i + 1;
+
+          if(j >= tagColors.size()) {
+            // There isn't a next message segment so just get the whole message after the tag
+            String messageSegment = message.substring(tagEndIndex);
+            String htmlMessageSegment = createHTMLMessageSegment(messageSegment, tagColor);
+
+            htmlMessageSegments.add(htmlMessageSegment);
+          } else {
+            int nextTagStartIndex = tagStartIndices.get(j);
+
+            // Get the actual message segment
+            String messageSegment = message.substring(tagEndIndex, nextTagStartIndex);
+            String htmlMessageSegment = createHTMLMessageSegment(messageSegment, tagColor);
+
+            htmlMessageSegments.add(htmlMessageSegment);
+          }
+        }
+      } else {
+        return message;
+      }
+
+      return String.join("", htmlMessageSegments);
+    } catch (Exception e) {
+      return message;
+    }
+  }
+
+  private static String createHTMLMessageSegment(String messageSegment, Color color) {
+    if(color == null) {
+      return "<span>" + messageSegment + "</span>";
+    }
+
+    String colorRGB = getColorRGB(color);
+    return "<span style=\"color: " + colorRGB + "\">" + messageSegment + "</span>";
+  }
+
+  private static String getColorRGB(Color color) {
+    String rgbValues = new String(color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
+    return String.format("rgb(%s)", rgbValues);
   }
 }
