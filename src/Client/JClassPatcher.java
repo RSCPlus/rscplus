@@ -5104,11 +5104,10 @@ public class JClassPatcher {
 
       // Hook right-click menu draw
       if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIZ)I")) {
-        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        AbstractInsnNode start = methodNode.instructions.getFirst();
 
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode start = insnNodeList.next();
-
+        // Highlighting items in the right-click menu
+        while (start != null) {
           if (start.getOpcode() == Opcodes.DUP) {
             LabelNode skipLabel = new LabelNode();
 
@@ -5251,6 +5250,8 @@ public class JClassPatcher {
 
             break;
           }
+
+          start = start.getNext();
         }
       }
     }
