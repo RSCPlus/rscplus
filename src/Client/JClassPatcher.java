@@ -916,6 +916,18 @@ public class JClassPatcher {
           methodNode, "client", "Gj", "[I", "Game/Item", "groundItemId", "[I", true, false);
       hookClassVariable(
           methodNode, "client", "Ah", "I", "Game/Item", "groundItemCount", "I", true, false);
+
+      // Showing right-click menu hook
+      hookClassVariable(
+          methodNode,
+          "client",
+          "se",
+          "Z",
+          "Game/Renderer",
+          "showingRightClickMenu",
+          "Z",
+          true,
+          false);
     }
   }
 
@@ -5250,6 +5262,37 @@ public class JClassPatcher {
             AbstractInsnNode insnNode2 = start;
             for (int i = 0; i < 26; i++) insnNode2 = insnNode2.getNext();
             methodNode.instructions.insertBefore(insnNode2, skipLabel2);
+
+            break;
+          }
+
+          start = start.getNext();
+        }
+
+        start = methodNode.instructions.getFirst();
+
+        // Set right click menu bounds
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) start).operand == 160) {
+            AbstractInsnNode insnNode = start;
+            insnNode = insnNode.getPrevious().getPrevious();
+
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 3));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "D", "I"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "I", "I"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Renderer",
+                    "setRightClickMenuBounds",
+                    "(IIII)V",
+                    false));
 
             break;
           }
