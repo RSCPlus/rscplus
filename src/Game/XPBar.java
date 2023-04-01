@@ -31,6 +31,7 @@ public class XPBar {
   public static boolean showActionCount = true;
   public static boolean showTimeCount = true;
   private static float alpha;
+  public static boolean skillClickPinning = true;
   public static boolean pinnedBar = false;
   public static int pinnedSkill = -1;
   public static int drawGoalInputState = 0;
@@ -39,7 +40,7 @@ public class XPBar {
   public static final String excludeUsername = "excludemefromxpbartracking";
 
   public static Dimension bounds = new Dimension(110, 16);
-  public static Dimension menuBounds = new Dimension(110, 80);
+  public static Dimension menuBounds = new Dimension(110, 92);
   public static int xp_bar_x;
   // Don't need to set this more than once; we are always positioning the xp_bar to be vertically
   // center aligned with
@@ -280,6 +281,24 @@ public class XPBar {
         g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
 
     // Option 5
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (bufferedMouseClick.isMouseClicked()) {
+        Settings.toggleSkillClickPinning();
+      }
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(
+        g,
+        skillClickPinning ? "Skill clicking: on" : "Skill clicking: off",
+        x,
+        y,
+        textColour,
+        false);
+
+    // Option 6
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
       if (bufferedMouseClick.isMouseClicked()) {

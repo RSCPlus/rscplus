@@ -359,7 +359,6 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
 
-
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
 
@@ -2540,6 +2539,7 @@ public class Settings {
       XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
       XPBar.showActionCount = getPropBoolean(props, "showActionCount", true);
       XPBar.showTimeCount = getPropBoolean(props, "showTimeCount", true);
+      XPBar.skillClickPinning = getPropBoolean(props, "skillClickPinning", true);
 
       Logger.Info("Loaded settings");
       return props;
@@ -3152,6 +3152,7 @@ public class Settings {
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
       props.setProperty("showActionCount", Boolean.toString(XPBar.showActionCount));
       props.setProperty("showTimeCount", Boolean.toString(XPBar.showTimeCount));
+      props.setProperty("skillClickPinning", Boolean.toString(XPBar.skillClickPinning));
 
       // World Map
       props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
@@ -3423,6 +3424,11 @@ public class Settings {
     if (SHOW_XP_BAR.get(currentProfile))
       Client.displayMessage("@cya@XP Bar is now shown", Client.CHAT_NONE);
     else Client.displayMessage("@cya@XP Bar is now hidden", Client.CHAT_NONE);
+    save();
+  }
+
+  public static void toggleSkillClickPinning() {
+    XPBar.skillClickPinning = !XPBar.skillClickPinning;
     save();
   }
 
