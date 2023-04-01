@@ -89,7 +89,7 @@ public class XPBar {
     ));
   }};
 
-  private int menuItemSpacing = 4;
+  private int menuItemSpacing = 6;
   private int menuItemHeight = 12;
 
   public XPBar() {
