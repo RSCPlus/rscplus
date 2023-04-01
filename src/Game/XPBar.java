@@ -23,6 +23,7 @@ import Client.Settings;
 import Game.MouseHandler.BufferedMouseClick;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 /** Handles rendering the XP bar and hover information */
 public class XPBar {
@@ -39,7 +40,7 @@ public class XPBar {
   public static final String excludeUsername = "excludemefromxpbartracking";
 
   public static Dimension bounds = new Dimension(110, 16);
-  public static Dimension menuBounds = new Dimension(110, 80);
+  public static Dimension menuBounds = new Dimension(110, 0); // height calculated on init
   public static int xp_bar_x;
   // Don't need to set this more than once; we are always positioning the xp_bar to be vertically
   // center aligned with
@@ -56,8 +57,41 @@ public class XPBar {
 
   private long m_timer;
 
+  private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>() {{
+    add(new MenuItem(
+      () -> "Reset XP period",
+      () -> resetXPGainStart()
+    ));
+    add(new MenuItem(
+      () -> hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal",
+      () -> setXPGoal()
+    ));
+    add(new MenuItem(
+      () -> pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill",
+      () -> pinSkill()
+    ));
+    add(new MenuItem(
+      () -> showActionCount ? "Hide actions" : "Show actions",
+      () -> Settings.toggleActionCount()
+    ));
+    add(new MenuItem(
+      () -> showTimeCount ? "Hide times" : "Show times",
+      () -> Settings.toggleTimeCount()
+    ));
+    add(new MenuItem(
+      () -> pinnedBar ? "Unpin bar" : "Pin bar",
+      () -> Settings.toggleXPBarPin()
+    ));
+  }};
+
+  private int menuItemSpacing = 4;
+  private int menuItemHeight = 12;
+
   public XPBar() {
     current_skill = -1;
+    menuBounds.height = (menuItemSpacing * 1.5) + (
+      menuItems.size() * (menuItemSpacing + menuItemHeight)
+    );
   }
 
   void setSkill(int skill) {
@@ -210,86 +244,31 @@ public class XPBar {
     Renderer.setAlpha(g, 1.0f);
 
     x += 8;
-    Color textColour;
+    Color textColour = Renderer.color_text;
 
     int offset = 2;
     int textHeight = 12 + offset;
 
-    // Option 0
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-      textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        resetXPGainStart();
-      }
-    } else {
-      textColour = Renderer.color_text;
-    }
-    y += 12;
-    Renderer.drawShadowText(g, "Reset XP period", x, y, textColour, false);
+    // Draw the menu items
+    for (MenuItem menuItem : menuItems) {
+      y = drawMenuItem(g, x, y, bufferedMouseClick.isMouseClicked(), menuItem);
+    };
+  }
 
-    // Option 1
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-      textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        setXPGoal();
-      }
-    } else {
-      textColour = Renderer.color_text;
-    }
-    y += 12;
-    Renderer.drawShadowText(
-        g, hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal", x, y, textColour, false);
+  private int drawMenuItem(Graphics2D g, int x, int y, boolean clicking, MenuItem menuItem) {
+    int yTop = y + menuItemSpacing;
+    int yBottom = yTop + menuItemHeight;
+    boolean hovering = MouseHandler.y > yTop && MouseHandler.y < yBottom;
+    Color textColour = Renderer.color_text;
 
-    // Option 2
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+    if (hovering) {
       textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        pinSkill();
-      }
-    } else {
-      textColour = Renderer.color_text;
+      if (clicking) menuItem.action.run();
     }
-    y += 12;
-    Renderer.drawShadowText(
-        g, pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill", x, y, textColour, false);
 
-    // Option 3
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-      textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        Settings.toggleActionCount();
-      }
-    } else {
-      textColour = Renderer.color_text;
-    }
-    y += 12;
-    Renderer.drawShadowText(
-        g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false);
+    Renderer.drawShadowText(g, menuItem.label.run(), x, yBottom, textColour, false);
 
-    // Option 4
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-      textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        Settings.toggleTimeCount();
-      }
-    } else {
-      textColour = Renderer.color_text;
-    }
-    y += 12;
-    Renderer.drawShadowText(
-        g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
-
-    // Option 5
-    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
-      textColour = Renderer.color_yellow;
-      if (bufferedMouseClick.isMouseClicked()) {
-        Settings.toggleXPBarPin();
-      }
-    } else {
-      textColour = Renderer.color_text;
-    }
-    y += 12;
-    Renderer.drawShadowText(g, pinnedBar ? "Unpin bar" : "Pin bar", x, y, textColour, false);
+    return yBottom;
   }
 
   private void pinSkill() {
@@ -622,5 +601,23 @@ public class XPBar {
         return;
       }
     }
+  }
+
+  private class MenuItem {
+    private MenuItemLabel label;
+    private MenuItemAction action;
+
+    public MenuItem(MenuItemLabel itemLabel, MenuItemAction itemAction) {
+      label = itemLabel;
+      action = itemAction;
+    };
+  }
+
+  private interface MenuItemAction {
+    void run();
+  }
+
+  private interface MenuItemLabel {
+    String run();
   }
 }
