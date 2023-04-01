@@ -89,7 +89,8 @@ public class XPBar {
   public XPBar() {
     current_skill = -1;
     menuBounds.height =
-        (menuItemSpacing * 1.5) + (menuItems.size() * (menuItemSpacing + menuItemHeight));
+        (int) Math.ceil(menuItemSpacing * 1.5)
+            + (menuItems.size() * (menuItemSpacing + menuItemHeight));
   }
 
   void setSkill(int skill) {
