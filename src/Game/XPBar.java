@@ -57,41 +57,39 @@ public class XPBar {
 
   private long m_timer;
 
-  private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>() {{
-    add(new MenuItem(
-      () -> "Reset XP period",
-      () -> resetXPGainStart()
-    ));
-    add(new MenuItem(
-      () -> hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal",
-      () -> setXPGoal()
-    ));
-    add(new MenuItem(
-      () -> pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill",
-      () -> pinSkill()
-    ));
-    add(new MenuItem(
-      () -> showActionCount ? "Hide actions" : "Show actions",
-      () -> Settings.toggleActionCount()
-    ));
-    add(new MenuItem(
-      () -> showTimeCount ? "Hide times" : "Show times",
-      () -> Settings.toggleTimeCount()
-    ));
-    add(new MenuItem(
-      () -> pinnedBar ? "Unpin bar" : "Pin bar",
-      () -> Settings.toggleXPBarPin()
-    ));
-  }};
+  private ArrayList<MenuItem> menuItems =
+      new ArrayList<MenuItem>() {
+        {
+          add(new MenuItem(() -> "Reset XP period", () -> resetXPGainStart()));
+          add(
+              new MenuItem(
+                  () -> hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal",
+                  () -> setXPGoal()));
+          add(
+              new MenuItem(
+                  () -> pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill",
+                  () -> pinSkill()));
+          add(
+              new MenuItem(
+                  () -> showActionCount ? "Hide actions" : "Show actions",
+                  () -> Settings.toggleActionCount()));
+          add(
+              new MenuItem(
+                  () -> showTimeCount ? "Hide times" : "Show times",
+                  () -> Settings.toggleTimeCount()));
+          add(
+              new MenuItem(
+                  () -> pinnedBar ? "Unpin bar" : "Pin bar", () -> Settings.toggleXPBarPin()));
+        }
+      };
 
   private int menuItemSpacing = 6;
   private int menuItemHeight = 12;
 
   public XPBar() {
     current_skill = -1;
-    menuBounds.height = (menuItemSpacing * 1.5) + (
-      menuItems.size() * (menuItemSpacing + menuItemHeight)
-    );
+    menuBounds.height =
+        (menuItemSpacing * 1.5) + (menuItems.size() * (menuItemSpacing + menuItemHeight));
   }
 
   void setSkill(int skill) {
@@ -252,7 +250,8 @@ public class XPBar {
     // Draw the menu items
     for (MenuItem menuItem : menuItems) {
       y = drawMenuItem(g, x, y, bufferedMouseClick.isMouseClicked(), menuItem);
-    };
+    }
+    ;
   }
 
   private int drawMenuItem(Graphics2D g, int x, int y, boolean clicking, MenuItem menuItem) {
