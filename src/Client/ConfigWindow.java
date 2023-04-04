@@ -53,15 +53,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -72,6 +75,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -94,6 +98,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 /**
@@ -140,6 +146,8 @@ public class ConfigWindow {
   /*
    * JComponent variables which hold configuration data
    */
+
+  private ConfigItems configItems = new ConfigItems();
 
   //// General tab
   private JCheckBox generalPanelClientSizeCheckbox;
@@ -410,6 +418,31 @@ public class ConfigWindow {
   private HashMap<String, JLabel> joystickInputValueJlabels = new HashMap<String, JLabel>();
   private JPanel joystickPanel = new JPanel();
 
+  private enum ConfigWindowTabs {
+    PRESETS("Presets"),
+    GENERAL("General"),
+    OVERLAYS("Overlays"),
+    AUDIO("Audio"),
+    BANK("Bank"),
+    NOTIFICATIONS("Notifications"),
+    STREAMING_PRIVACY("Streaming & Privacy"),
+    KEYBINDS("Keybinds"),
+    REPLAY("Replay"),
+    WORLD_LIST("World List"),
+    JOYSTICK("Joystick"),
+    AUTHORS("Authors");
+
+    public String label;
+
+    private ConfigWindowTabs(String label) {
+      this.label = label;
+    }
+
+    public boolean equals(ConfigWindowTabs tab) {
+      return tab.label.equals(label);
+    }
+  }
+
   public ConfigWindow() {
     try {
       // Set System L&F as a fall-back option.
@@ -494,6 +527,8 @@ public class ConfigWindow {
     }
 
     // Container declarations
+    /** The JPanel containing the search bar */
+    JPanel searchPanel = new JPanel();
     /** The tabbed pane holding the five configuration tabs */
     tabbedPane = new JTabbedPane();
     /**
@@ -528,21 +563,22 @@ public class ConfigWindow {
     worldListPanel = new JPanel();
     JPanel authorsPanel = new JPanel();
 
+    frame.getContentPane().add(searchPanel, BorderLayout.PAGE_START);
     frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_END);
 
-    tabbedPane.addTab("Presets", null, presetsScrollPane, null);
-    tabbedPane.addTab("General", null, generalScrollPane, null);
-    tabbedPane.addTab("Overlays", null, overlayScrollPane, null);
-    tabbedPane.addTab("Audio", null, audioScrollPane, null);
-    tabbedPane.addTab("Bank", null, bankScrollPane, null);
-    tabbedPane.addTab("Notifications", null, notificationScrollPane, null);
-    tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null);
-    tabbedPane.addTab("Keybinds", null, keybindScrollPane, null);
-    tabbedPane.addTab("Replay", null, replayScrollPane, null);
-    tabbedPane.addTab("World List", null, worldListScrollPane, null);
-    tabbedPane.addTab("Joystick", null, joystickScrollPane, null);
-    tabbedPane.addTab("Authors", null, authorsScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.PRESETS.label, null, presetsScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.GENERAL.label, null, generalScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.OVERLAYS.label, null, overlayScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.AUDIO.label, null, audioScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.BANK.label, null, bankScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.NOTIFICATIONS.label, null, notificationScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.STREAMING_PRIVACY.label, null, streamingScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.KEYBINDS.label, null, keybindScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.REPLAY.label, null, replayScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.WORLD_LIST.label, null, worldListScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.JOYSTICK.label, null, joystickScrollPane, null);
+    tabbedPane.addTab(ConfigWindowTabs.AUTHORS.label, null, authorsScrollPane, null);
 
     presetsScrollPane.setViewportView(presetsPanel);
     generalScrollPane.setViewportView(generalPanel);
@@ -558,6 +594,7 @@ public class ConfigWindow {
     joystickScrollPane.setViewportView(joystickPanel);
 
     // Adding padding for aesthetics
+    searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 7, 10));
     navigationPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 10));
     presetsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -584,6 +621,42 @@ public class ConfigWindow {
     setScrollSpeed(worldListScrollPane, 20, 15);
     setScrollSpeed(authorsScrollPane, 20, 15);
     setScrollSpeed(joystickScrollPane, 20, 15);
+
+    /*
+     * Search buttons
+     */
+    searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+
+    JLabel searchNameLabel = new JLabel("Search settings: ");
+    searchPanel.add(searchNameLabel);
+    searchNameLabel.setAlignmentY((float) 0.9);
+
+    JTextField searchTextField = new JTextField();
+    searchPanel.add(searchTextField);
+    searchTextField.setMinimumSize(new Dimension(100, 28));
+    searchTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    searchTextField.setAlignmentY((float) 0.75);
+
+    searchTextField.getDocument().addDocumentListener(new DocumentListener() {
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        doSearch();
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        doSearch();
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        doSearch();
+      }
+
+      private void doSearch() {
+        configItems.filter(searchTextField.getText());
+      }
+    });
 
     /*
      * Navigation buttons
@@ -767,6 +840,7 @@ public class ConfigWindow {
     generalPanelClientSizeScaleWarning.setAlignmentY(0.9f);
     generalPanelClientSizeScaleWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
     generalPanelClientSizePanel.add(generalPanelClientSizeScaleWarning);
+    configItems.add(generalPanelClientSizePanel, ConfigWindowTabs.GENERAL);
 
     // Scaling options
     JPanel generalPanelScaleInformation = new JPanel();
@@ -946,12 +1020,20 @@ public class ConfigWindow {
     bicubicInterpolationScalingWarning.setAlignmentY(0.9f);
     bicubicInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
     generalPanelBicubicScalingPanel.add(bicubicInterpolationScalingWarning);
+
+    configItems.add(List.of(
+      generalPanelScaleInformation,
+      generalPanelIntegerScalingPanel,
+      generalPanelBilinearScalingPanel,
+      generalPanelBicubicScalingPanel
+    ), ConfigWindowTabs.GENERAL);
     // End scaling options
 
     generalPanelCheckUpdates =
         addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
     generalPanelCheckUpdates.setToolTipText(
         "When enabled, rscplus will check for client updates before launching the game and install them when prompted");
+    configItems.add(generalPanelCheckUpdates, ConfigWindowTabs.GENERAL);
 
     generalPanelWelcomeEnabled =
         addCheckbox(
@@ -959,37 +1041,44 @@ public class ConfigWindow {
             generalPanel);
     generalPanelWelcomeEnabled.setToolTipText(
         "When enabled, rscplus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
+    configItems.add(generalPanelWelcomeEnabled, ConfigWindowTabs.GENERAL);
 
     generalPanelAccountSecurityCheckbox =
         addCheckbox(
             "Show Account Creation and Security Settings (Requires restart for Account Creation and Recovery)",
-            generalPanel);
+        generalPanel);
     generalPanelAccountSecurityCheckbox.setToolTipText(
         "Makes old RSC account creation, password recovery and in-game security settings");
+    configItems.add(generalPanelAccountSecurityCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelConfirmCancelRecoveryChangeCheckbox =
         addCheckbox("Show Cancel Recovery Change Confirmation Box", generalPanel);
     generalPanelConfirmCancelRecoveryChangeCheckbox.setToolTipText(
         "Displays a confirmation dialog box when clicking cancel recovery question change of welcome screen");
+    configItems.add(generalPanelConfirmCancelRecoveryChangeCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelShowSecurityTipsAtLoginCheckbox =
         addCheckbox("Show Security tip of the day at login welcome screen", generalPanel);
     generalPanelShowSecurityTipsAtLoginCheckbox.setToolTipText(
         "Displays old RSC Security tip of the day at welcome screen if player has recovery questions permanently set");
+    configItems.add(generalPanelShowSecurityTipsAtLoginCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCustomCursorCheckbox = addCheckbox("Use custom mouse cursor", generalPanel);
     generalPanelCustomCursorCheckbox.setToolTipText(
         "Switch to using a custom mouse cursor instead of the system default");
+    configItems.add(generalPanelCustomCursorCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCtrlScrollChatCheckbox =
         addCheckbox("Hold ctrl to scroll through chat history from anywhere", generalPanel);
     generalPanelCtrlScrollChatCheckbox.setToolTipText(
         "Holding CTRL allows you to scroll through the currently-selected chat history from anywhere");
+    configItems.add(generalPanelCtrlScrollChatCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelShiftScrollCameraRotationCheckbox =
         addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
     generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
         "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
+    configItems.add(generalPanelShiftScrollCameraRotationCheckbox, ConfigWindowTabs.GENERAL);
 
     JLabel generalPanelTrackpadRotationLabel = new JLabel("Camera rotation trackpad sensitivity");
     generalPanelTrackpadRotationLabel.setToolTipText(
@@ -1020,28 +1109,38 @@ public class ConfigWindow {
     generalPanelTrackpadRotationSlider.setLabelTable(generalPanelTrackpadRotationLabelTable);
     generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
+    configItems.add(
+      List.of(generalPanelTrackpadRotationLabel, generalPanelTrackpadRotationSlider),
+      ConfigWindowTabs.GENERAL
+    );
+
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and quest completion");
+    configItems.add(generalPanelAutoScreenshotCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelUseJagexFontsCheckBox =
         addCheckbox("Override system font with Jagex fonts", generalPanel);
     generalPanelUseJagexFontsCheckBox.setToolTipText(
         "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
+    configItems.add(generalPanelUseJagexFontsCheckBox, ConfigWindowTabs.GENERAL);
 
     generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
     generalPanelDebugModeCheckbox.setToolTipText(
         "Shows debug overlays and enables debug text in the console");
+    configItems.add(generalPanelDebugModeCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
     generalPanelExceptionHandlerCheckbox.setToolTipText(
         "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
+    configItems.add(generalPanelExceptionHandlerCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelPrefersXdgOpenCheckbox =
         addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
     generalPanelPrefersXdgOpenCheckbox.setToolTipText(
         "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+    configItems.add(generalPanelPrefersXdgOpenCheckbox, ConfigWindowTabs.GENERAL);
 
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
@@ -1050,58 +1149,71 @@ public class ConfigWindow {
         addCheckbox("Load chat history after relogging", generalPanel);
     generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
     generalPanelChatHistoryCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(generalPanelChatHistoryCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCombatXPMenuCheckbox =
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
+    configItems.add(generalPanelCombatXPMenuCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
     generalPanelCombatXPMenuHiddenCheckbox.setToolTipText("Hide combat style menu when in combat");
+    configItems.add(generalPanelCombatXPMenuHiddenCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelFatigueAlertCheckbox = addCheckbox("Fatigue alert", generalPanel);
     generalPanelFatigueAlertCheckbox.setToolTipText(
         "Displays a large notice when fatigue approaches 100%");
+    configItems.add(generalPanelFatigueAlertCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelInventoryFullAlertCheckbox = addCheckbox("Inventory full alert", generalPanel);
     generalPanelInventoryFullAlertCheckbox.setToolTipText(
         "Displays a large notice when the inventory is full");
+    configItems.add(generalPanelInventoryFullAlertCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelEnableMouseWheelScrollingCheckbox =
         addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
     generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
         "Enables mouse wheel scrolling through menu lists");
+    configItems.add(generalPanelEnableMouseWheelScrollingCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelKeepScrollbarPosMagicPrayerCheckbox =
         addCheckbox("Keep Magic & Prayer scrollbar position", generalPanel);
     generalPanelKeepScrollbarPosMagicPrayerCheckbox.setToolTipText(
         "Keeps the magic & prayers scrollbar position when switching between tabs");
+    configItems.add(generalPanelKeepScrollbarPosMagicPrayerCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+    configItems.add(generalPanelRoofHidingCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelDisableMinimapRotationCheckbox =
         addCheckbox("Disable random minimap rotation", generalPanel);
     generalPanelDisableMinimapRotationCheckbox.setToolTipText(
         "The random minimap rotation when opening minimap will no longer be applied");
+    configItems.add(generalPanelDisableMinimapRotationCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCameraZoomableCheckbox = addCheckbox("Camera zoom enhancement", generalPanel);
     generalPanelCameraZoomableCheckbox.setToolTipText(
         "Zoom the camera in and out with the mouse wheel, and no longer zooms in inside buildings");
+    configItems.add(generalPanelCameraZoomableCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCameraRotatableCheckbox = addCheckbox("Camera rotation enhancement", generalPanel);
     generalPanelCameraRotatableCheckbox.setToolTipText(
         "Rotate the camera with middle mouse click, among other things");
+    configItems.add(generalPanelCameraRotatableCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
     generalPanelCameraMovableCheckbox.setToolTipText(
         "Makes the camera follow the player more closely, and allow camera movement while holding shift, and pressing arrow keys");
+    configItems.add(generalPanelCameraMovableCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCameraMovableRelativeCheckbox =
         addCheckbox("Camera movement is relative to player", generalPanel);
     generalPanelCameraMovableRelativeCheckbox.setToolTipText(
         "Camera movement will follow the player position");
+    configItems.add(generalPanelCameraMovableRelativeCheckbox, ConfigWindowTabs.GENERAL);
 
     addSettingsHeader(generalPanel, "Graphical effect changes");
 
@@ -1132,9 +1244,15 @@ public class ConfigWindow {
     generalPanelViewDistanceSlider.setLabelTable(generalPanelViewDistanceLabelTable);
     generalPanelViewDistanceSlider.setPaintLabels(true);
 
+    configItems.add(
+      List.of(generalPanelViewDistanceLabel, generalPanelViewDistanceSlider),
+      ConfigWindowTabs.GENERAL
+    );
+
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
     generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colours from RS2: HD");
+    configItems.add(generalPanelRS2HDSkyCheckbox, ConfigWindowTabs.GENERAL);
 
     // colour choose overworld sub-panel
     JPanel generalPanelSkyOverworldColourPanel = new JPanel();
@@ -1180,6 +1298,7 @@ public class ConfigWindow {
         });
     generalPanelSkyOverworldColourPanel.add(overworldSkyColourChooserButton);
     overworldSkyColourChooserButton.setAlignmentY(.7f);
+    configItems.add(generalPanelSkyOverworldColourPanel, ConfigWindowTabs.GENERAL);
 
     // choose colour for underground subpanel
     JPanel generalPanelSkyUndergroundColourPanel = new JPanel();
@@ -1228,6 +1347,7 @@ public class ConfigWindow {
         });
     generalPanelSkyUndergroundColourPanel.add(undergroundSkyColourChooserButton);
     undergroundSkyColourChooserButton.setAlignmentY(.7f);
+    configItems.add(generalPanelSkyUndergroundColourPanel, ConfigWindowTabs.GENERAL);
     /////
 
     // FOV slider
@@ -1249,12 +1369,14 @@ public class ConfigWindow {
     generalPanelFoVSlider.setMajorTickSpacing(1);
     generalPanelFoVSlider.setPaintTicks(true);
     generalPanelFoVSlider.setPaintLabels(true);
+    configItems.add(List.of(generalPanelFoVLabel, generalPanelFoVSlider), ConfigWindowTabs.GENERAL);
     //////
 
     generalPanelDisableUndergroundLightingCheckbox =
         addCheckbox("Disable underground lighting flicker", generalPanel);
     generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
         "Underground lighting will no longer flicker");
+    configItems.add(generalPanelDisableUndergroundLightingCheckbox, ConfigWindowTabs.GENERAL);
     // TODO: should introduce lighting flicker interval reduction as an option
 
     ButtonGroup ranChatEffectButtonGroup = new ButtonGroup();
@@ -1414,6 +1536,15 @@ public class ConfigWindow {
           }
         });
 
+    configItems.add(List.of(
+      generalPanelCustomRandomChatColourCheckbox,
+      generalPanelLimitRanFPSPanel,
+      generalPanelRanStaticColourPanel,
+      generalPanelRanRGBRotationButton,
+      generalPanelRanRs2EffectPanel,
+      generalPanelRanEntirelyDisableButton
+    ), ConfigWindowTabs.GENERAL);
+
     // FPS limit
     JPanel generalPanelLimitFPSPanel = new JPanel();
     generalPanel.add(generalPanelLimitFPSPanel);
@@ -1441,6 +1572,11 @@ public class ConfigWindow {
     spinnerLimitFpsModel.setValue(10);
     spinnerLimitFpsModel.setStepSize(1);
     generalPanelLimitFPSSpinner.setModel(spinnerLimitFpsModel);
+
+    configItems.add(
+      List.of(generalPanelLimitFPSPanel, generalPanelLimitFPSCheckbox),
+      ConfigWindowTabs.GENERAL
+    );
     //////
 
     addSettingsHeader(generalPanel, "Menu/Item patching");
@@ -1449,31 +1585,37 @@ public class ConfigWindow {
     generalPanelBypassAttackCheckbox.setToolTipText(
         "Left click attack monsters regardless of level difference");
     generalPanelBypassAttackCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(generalPanelBypassAttackCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelNumberedDialogueOptionsCheckbox =
         addCheckbox("Display numbers next to dialogue options", generalPanel);
     generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
         "Displays a number next to each option within a conversational menu");
+    configItems.add(generalPanelNumberedDialogueOptionsCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelDisableNatureRuneAlchCheckbox =
         addCheckbox("Disable the ability to cast alchemy spells on nature runes", generalPanel);
     generalPanelDisableNatureRuneAlchCheckbox.setToolTipText(
         "Protect yourself from a terrible fate");
+    configItems.add(generalPanelDisableNatureRuneAlchCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
     generalPanelCommandPatchEdibleRaresCheckbox.setToolTipText(
         "Applies to the Easter Egg, Pumpkin, and the Half Wine.");
+    configItems.add(generalPanelCommandPatchEdibleRaresCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCommandPatchQuestCheckbox =
         addCheckbox("Swap eat & use options on Quest Items", generalPanel);
     generalPanelCommandPatchQuestCheckbox.setToolTipText(
         "Applies to giant Carp, Draynor Malt Whisky, Rock cake, and Nightshade.");
+    configItems.add(generalPanelCommandPatchQuestCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelCommandPatchDiskOfReturningCheckbox =
         addCheckbox("Remove the spin option from the Disk of Returning", generalPanel);
     generalPanelCommandPatchDiskOfReturningCheckbox.setToolTipText(
         "There is no reason to want to do this. Kept in RSC+ as a historic option.");
+    configItems.add(generalPanelCommandPatchDiskOfReturningCheckbox, ConfigWindowTabs.GENERAL);
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1508,6 +1650,22 @@ public class ConfigWindow {
     generalPanelNamePatchModeDesc = new JLabel("");
     generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 
+    JLabel generalPanelNamePatchModeLevel3 = new JLabel(
+            "<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+    generalPanelNamePatchModeLevel3.setVisible(false);
+    JLabel generalPanelNamePatchModeLevel2 = new JLabel(
+            "<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+    generalPanelNamePatchModeLevel2.setVisible(false);
+    JLabel generalPanelNamePatchModeLevel1 = new JLabel(
+            "<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
+    generalPanelNamePatchModeLevel1.setVisible(false);
+    JLabel generalPanelNamePatchModeLevel0 = new JLabel("<html>No item name patching</html>");
+    generalPanelNamePatchModeLevel0.setVisible(false);
+    generalPanelNamePatchModePanel.add(generalPanelNamePatchModeLevel3);
+    generalPanelNamePatchModePanel.add(generalPanelNamePatchModeLevel2);
+    generalPanelNamePatchModePanel.add(generalPanelNamePatchModeLevel1);
+    generalPanelNamePatchModePanel.add(generalPanelNamePatchModeLevel0);
+
     generalPanelNamePatchModeSlider.addChangeListener(
         new ChangeListener() {
 
@@ -1515,19 +1673,16 @@ public class ConfigWindow {
           public void stateChanged(ChangeEvent e) {
             switch (generalPanelNamePatchModeSlider.getValue()) {
               case 3:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+                generalPanelNamePatchModeDesc.setText(generalPanelNamePatchModeLevel3.getText());
                 break;
               case 2:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+                generalPanelNamePatchModeDesc.setText(generalPanelNamePatchModeLevel2.getText());
                 break;
               case 1:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
+                generalPanelNamePatchModeDesc.setText(generalPanelNamePatchModeLevel1.getText());
                 break;
               case 0:
-                generalPanelNamePatchModeDesc.setText("<html>No item name patching</html>");
+                generalPanelNamePatchModeDesc.setText(generalPanelNamePatchModeLevel0.getText());
                 break;
               default:
                 Logger.Error("Invalid name patch mode value");
@@ -1535,6 +1690,7 @@ public class ConfigWindow {
             }
           }
         });
+    configItems.add(generalPanelNamePatchModePanel, ConfigWindowTabs.GENERAL);
 
     generalPanelPatchGenderCheckbox =
         addCheckbox(
@@ -1542,16 +1698,19 @@ public class ConfigWindow {
             generalPanel);
     generalPanelPatchGenderCheckbox.setToolTipText(
         "When selected, says \"Body Type\" instead of \"Gender\" on the character creation/appearance screen");
+    configItems.add(generalPanelPatchGenderCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelPatchWrenchMenuSpacingCheckbox =
         addCheckbox("Fix 5 pixel vertical spacing bug in wrench menu", generalPanel);
     generalPanelPatchWrenchMenuSpacingCheckbox.setToolTipText(
         "When the \"Security settings\" section was removed from the wrench menu, Jagex also deleted 5 pixels of vertical space needed to properly align the next section.");
+    configItems.add(generalPanelPatchWrenchMenuSpacingCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelPatchHbar512LastPixelCheckbox =
         addCheckbox("Fix bottom bar's last pixel at 512 width", generalPanel);
     generalPanelPatchHbar512LastPixelCheckbox.setToolTipText(
         "Even since very early versions of the client, the horizontal blue bar at the bottom has been misaligned so that 1 pixel shines through at the end");
+    configItems.add(generalPanelPatchHbar512LastPixelCheckbox, ConfigWindowTabs.GENERAL);
 
     // Logger settings
 
@@ -1593,25 +1752,31 @@ public class ConfigWindow {
     generalPanelLogVerbositySlider.setBorder(new EmptyBorder(0, 0, 5, 0));
     generalPanelLogVerbositySlider.setOrientation(SwingConstants.HORIZONTAL);
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbositySlider);
+    configItems.add(generalPanelLogVerbosityPanel, ConfigWindowTabs.GENERAL);
 
     generalPanelLogTimestampsCheckbox = addCheckbox("Show timestamps in log", generalPanel);
     generalPanelLogTimestampsCheckbox.setToolTipText(
         "Displays the time text was output to the log");
+    configItems.add(generalPanelLogTimestampsCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelLogLevelCheckbox = addCheckbox("Show log level in log", generalPanel);
     generalPanelLogLevelCheckbox.setToolTipText("Displays the log level of output in the log");
+    configItems.add(generalPanelLogLevelCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelLogForceTimestampsCheckbox = addCheckbox("Force timestamps in log", generalPanel);
     generalPanelLogForceTimestampsCheckbox.setToolTipText(
         "Forces display of the time text was output to the log");
+    configItems.add(generalPanelLogForceTimestampsCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelLogForceLevelCheckbox = addCheckbox("Force log level in log", generalPanel);
     generalPanelLogForceLevelCheckbox.setToolTipText(
         "Forces display of the log level of output in the log");
+    configItems.add(generalPanelLogForceLevelCheckbox, ConfigWindowTabs.GENERAL);
 
     generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
     generalPanelColoredTextCheckbox.setToolTipText(
         "When running the client from a console, chat messages in the console will reflect the colors they are in game");
+    configItems.add(generalPanelColoredTextCheckbox, ConfigWindowTabs.GENERAL);
 
     /*
      * Overlays tab
@@ -1625,60 +1790,74 @@ public class ConfigWindow {
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(overlayPanelStatusDisplayCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelStatusAlwaysTextCheckbox =
         addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
     overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
         "Always show the status display as text even at larger client sizes");
+    configItems.add(overlayPanelStatusAlwaysTextCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
     overlayPanelBuffsCheckbox.setToolTipText("Toggle combat (de)buffs and cooldowns display");
+    configItems.add(overlayPanelBuffsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelLastMenuActionCheckbox = addCheckbox("Show last menu action display", overlayPanel);
     overlayPanelLastMenuActionCheckbox.setToolTipText("Toggle last menu action used display");
+    configItems.add(overlayPanelLastMenuActionCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelMouseTooltipCheckbox =
         addCheckbox("Show mouse hover action at mouse cursor", overlayPanel);
     overlayPanelMouseTooltipCheckbox.setToolTipText(
         "Shows important actions from the text at the top left of the game near the mouse cursor");
+    configItems.add(overlayPanelMouseTooltipCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelExtendedTooltipCheckbox =
         addCheckbox("Extend mouse hover action at mouse cursor", overlayPanel);
     overlayPanelExtendedTooltipCheckbox.setToolTipText(
         "Shows the text at the top left of the game near the mouse cursor");
+    configItems.add(overlayPanelExtendedTooltipCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelInvCountCheckbox = addCheckbox("Display inventory count", overlayPanel);
     overlayPanelInvCountCheckbox.setToolTipText("Shows the number of items in your inventory");
+    configItems.add(overlayPanelInvCountCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelInvCountColoursCheckbox =
         addCheckbox("Additional inventory count colours", overlayPanel);
     overlayPanelInvCountColoursCheckbox.setToolTipText(
         "Adds additional colours to the inventory count to indicate fullness levels");
+    configItems.add(overlayPanelInvCountColoursCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
     overlayPanelRemoveReportAbuseButtonHbarCheckbox.setToolTipText(
         "mudclient149 added the Report Abuse button. You will still be able to report players with right click menu if this option is enabled.");
+    configItems.add(overlayPanelRemoveReportAbuseButtonHbarCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelPositionCheckbox = addCheckbox("Display position", overlayPanel);
     overlayPanelPositionCheckbox.setToolTipText("Shows the player's global position");
+    configItems.add(overlayPanelPositionCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
     overlayPanelRetroFpsCheckbox.setToolTipText(
         "Shows the FPS like it used to be displayed in RSC");
+    configItems.add(overlayPanelRetroFpsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelShowCombatInfoCheckbox = addCheckbox("Show NPC HP info", overlayPanel);
     overlayPanelShowCombatInfoCheckbox.setToolTipText(
         "Shows the HP info for the NPC you're in combat with");
+    configItems.add(overlayPanelShowCombatInfoCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelUsePercentageCheckbox = addCheckbox("Use percentage for NPC HP info", overlayPanel);
     overlayPanelUsePercentageCheckbox.setToolTipText(
         "Uses percentage for NPC HP info instead of actual HP");
+    configItems.add(overlayPanelUsePercentageCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
     overlayPanelLagIndicatorCheckbox.setToolTipText(
         "When there's a problem with your connection, rscplus will tell you in the bottom right");
+    configItems.add(overlayPanelLagIndicatorCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelFoodHealingCheckbox =
         addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
@@ -1686,6 +1865,8 @@ public class ConfigWindow {
         "When hovering on food, shows the HP a consumable recovers");
     // TODO: Remove this line when food healing overlay is implemented
     overlayPanelFoodHealingCheckbox.setEnabled(false);
+    // TODO: Uncomment this line when food healing overlay is implemented
+    // configItems.add(overlayPanelFoodHealingCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelHPRegenTimerCheckbox =
         addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
@@ -1693,6 +1874,8 @@ public class ConfigWindow {
         "Shows the seconds until your HP will naturally regenerate");
     // TODO: Remove this line when the HP regen timer is implemented
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
+    // TODO: Uncomment this line when the HP regen timer is implemented
+    // configItems.add(overlayPanelHPRegenTimerCheckbox, ConfigWindowTabs.OVERLAYS);
 
     /// In-game buttons
     addSettingsHeader(overlayPanel, "In-game buttons");
@@ -1701,6 +1884,7 @@ public class ConfigWindow {
         addCheckbox("Display + indicators over the activated in-game buttons", overlayPanel);
     overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
     overlayPanelRscPlusButtonsCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(overlayPanelRscPlusButtonsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelRscPlusButtonsFunctionalCheckbox =
         addCheckbox(
@@ -1708,11 +1892,13 @@ public class ConfigWindow {
             overlayPanel);
     overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText(
         "Able to click in-game Wrench & Map buttons to activate RSC+ features");
+    configItems.add(overlayPanelRscPlusButtonsFunctionalCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelWikiLookupOnMagicBookCheckbox =
         addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
     overlayPanelWikiLookupOnMagicBookCheckbox.setToolTipText(
         "Click the spell book, then click on anything else, and it will look it up on the RSC wiki.");
+    configItems.add(overlayPanelWikiLookupOnMagicBookCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelWikiLookupOnHbarCheckbox =
         addCheckbox(
@@ -1720,6 +1906,7 @@ public class ConfigWindow {
             overlayPanel);
     overlayPanelWikiLookupOnHbarCheckbox.setToolTipText(
         "Click the button on the bottom bar, then click on anything else, and it will look it up on the RSC wiki.");
+    configItems.add(overlayPanelWikiLookupOnHbarCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelToggleXPBarOnStatsButtonCheckbox =
         addCheckbox(
@@ -1727,24 +1914,28 @@ public class ConfigWindow {
             overlayPanel);
     overlayPanelToggleXPBarOnStatsButtonCheckbox.setToolTipText(
         "Left click pins/unpins the XP Bar, Right click enables/disables the XP Bar");
+    configItems.add(overlayPanelToggleXPBarOnStatsButtonCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPaneHiscoresLookupButtonCheckbox =
         addCheckbox(
             "Look up players in hiscores by left clicking the Friends button", overlayPanel);
     overlayPaneHiscoresLookupButtonCheckbox.setToolTipText(
         "Must be a hiscores that supports looking up player by username. Hiscores URL defined per-world.");
+    configItems.add(overlayPaneHiscoresLookupButtonCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelToggleMotivationalQuotesCheckbox =
         addCheckbox(
             "Right click on the Friends button to display a motivational quote", overlayPanel);
     overlayPanelToggleMotivationalQuotesCheckbox.setToolTipText(
         "Motivational quotes are displayed when you need motivation.");
+    configItems.add(overlayPanelToggleMotivationalQuotesCheckbox, ConfigWindowTabs.OVERLAYS);
 
     /// XP Bar
     addSettingsHeader(overlayPanel, "XP bar");
     overlayPanelXPBarCheckbox = addCheckbox("Show an XP bar", overlayPanel);
     overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar to the left of the wrench");
     overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(overlayPanelXPBarCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelXPDropsCheckbox = addCheckbox("Show XP drops", overlayPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
@@ -1760,10 +1951,16 @@ public class ConfigWindow {
         "The XP bar and XP drops will be shown at the top-middle of the screen.");
     XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
     XPAlignButtonGroup.add(overlayPanelXPCenterAlignFocusButton);
+    configItems.add(List.of(
+      overlayPanelXPDropsCheckbox,
+      overlayPanelXPRightAlignFocusButton,
+      overlayPanelXPCenterAlignFocusButton
+    ), ConfigWindowTabs.OVERLAYS);
 
     overlayPanelFatigueDropsCheckbox = addCheckbox("Show Fatigue drops", overlayPanel);
     overlayPanelFatigueDropsCheckbox.setToolTipText(
         "Show the fatigue gained as an overlay each time fatigue is received");
+    configItems.add(overlayPanelFatigueDropsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     JPanel generalPanelFatigueFigsPanel = new JPanel();
     overlayPanel.add(generalPanelFatigueFigsPanel);
@@ -1793,10 +1990,12 @@ public class ConfigWindow {
     spinnerNumModel.setMaximum(7);
     spinnerNumModel.setValue(2);
     overlayPanelFatigueFigSpinner.setModel(spinnerNumModel);
+    configItems.add(generalPanelFatigueFigsPanel, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelFatigueUnitsCheckbox = addCheckbox("Fatigue units", overlayPanel);
     overlayPanelFatigueUnitsCheckbox.setToolTipText(
         "Show the fatigue units gained additional to fatigue percentage");
+    configItems.add(overlayPanelFatigueUnitsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     /// "In World" Overlays move with the camera, and modify objects that the are rendered in the
     // world
@@ -1806,34 +2005,41 @@ public class ConfigWindow {
     overlayPanelHitboxCheckbox.setToolTipText(
         "Shows the clickable areas on NPCs, players, and items");
     overlayPanelHitboxCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(overlayPanelHitboxCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelPlayerNamesCheckbox =
         addCheckbox("Show player names over their heads", overlayPanel);
     overlayPanelPlayerNamesCheckbox.setToolTipText(
         "Shows players' display names over their character");
+    configItems.add(overlayPanelPlayerNamesCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelOwnNameCheckbox =
         addCheckbox(
             "Show your own name over your head when player names are enabled", overlayPanel);
     overlayPanelOwnNameCheckbox.setToolTipText(
         "Shows your own display name over your character when player names are shown");
+    configItems.add(overlayPanelOwnNameCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelFriendNamesCheckbox =
         addCheckbox("Show nearby friend names over their heads", overlayPanel);
     overlayPanelFriendNamesCheckbox.setToolTipText(
         "Shows your friends' display names over their character");
+    configItems.add(overlayPanelFriendNamesCheckbox, ConfigWindowTabs.OVERLAYS);
 
     // even the animated axe has an "axe head". All NPCs have a head until proven otherwise
     overlayPanelNPCNamesCheckbox = addCheckbox("Show NPC names over their heads", overlayPanel);
     overlayPanelNPCNamesCheckbox.setToolTipText("Shows NPC names over the NPC");
+    configItems.add(overlayPanelNPCNamesCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelIDsCheckbox = addCheckbox("Extend names by showing IDs", overlayPanel);
     overlayPanelIDsCheckbox.setToolTipText(
         "Displays IDs of NPCs and Players if their name overlay is present");
+    configItems.add(overlayPanelIDsCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelObjectInfoCheckbox = addCheckbox("Trace object info", overlayPanel);
     overlayPanelObjectInfoCheckbox.setToolTipText(
         "Displays object information after their name on the right click examine");
+    configItems.add(overlayPanelObjectInfoCheckbox, ConfigWindowTabs.OVERLAYS);
 
     overlayPanelItemNamesCheckbox =
         addCheckbox("Display the names of items on the ground", overlayPanel);
@@ -1917,13 +2123,20 @@ public class ConfigWindow {
         });
     overlayPanelItemHighlightColourPanel.add(rightClickHighlightColourChooserButton);
     rightClickHighlightColourChooserButton.setAlignmentY(0.7f);
-    ////////////
 
     overlayPanelHighlightRightClickCheckbox =
         addCheckbox("Highlight items in the right-click menu", overlayPanel);
     overlayPanelHighlightRightClickCheckbox.setToolTipText(
         "Highlights items from the above list in the right-click menu");
     overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
+
+    configItems.add(List.of(
+        overlayPanelItemNamesCheckbox,
+        blockedItemsPanel,
+        highlightedItemsPanel,
+        overlayPanelItemHighlightColourPanel,
+        overlayPanelHighlightRightClickCheckbox
+    ), ConfigWindowTabs.OVERLAYS);
 
     /*
      * Audio tab
@@ -1937,6 +2150,7 @@ public class ConfigWindow {
         addCheckbox("Enable Music (Must have music pack installed)", audioPanel);
     audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
     audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
+    configItems.add(audioPanelEnableMusicCheckbox, ConfigWindowTabs.AUDIO);
 
     JLabel audioPanelSfxVolumeLabel = new JLabel("Sound effects volume");
     audioPanelSfxVolumeLabel.setToolTipText("Sets the volume for game sound effects");
@@ -1964,10 +2178,12 @@ public class ConfigWindow {
     audioPanelSfxVolumeTable.put(new Integer(100), new JLabel("100"));
     audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
     audioPanelSfxVolumeSlider.setPaintLabels(true);
+    configItems.add(List.of(audioPanelSfxVolumeLabel, audioPanelSfxVolumeSlider), ConfigWindowTabs.AUDIO);
 
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
         "Doubles the current volume for all sound effects.");
+    configItems.add(audioPanelLouderSoundEffectsCheckbox, ConfigWindowTabs.AUDIO);
 
     audioPanelOverrideAudioSettingCheckbox =
         addCheckbox("Override server's remembered audio on/off setting", audioPanel);
@@ -1985,11 +2201,17 @@ public class ConfigWindow {
         "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
+    configItems.add(List.of(
+      audioPanelOverrideAudioSettingCheckbox,
+      audioPanelOverrideAudioSettingOnButton,
+      audioPanelOverrideAudioSettingOffButton
+    ), ConfigWindowTabs.AUDIO);
 
     audioPanelFixSpiderWebDummySoundCheckbox =
         addCheckbox("Fix web slicing & dummy hitting sound effect", audioPanel);
     audioPanelFixSpiderWebDummySoundCheckbox.setToolTipText(
         "The RSC server authentically tells your client to play a sound effect when slicing a web or hitting a dummy, but that sound effect doesn't exist in an unmodified client cache.");
+    configItems.add(audioPanelFixSpiderWebDummySoundCheckbox, ConfigWindowTabs.AUDIO);
 
     addSettingsHeader(audioPanel, "Toggle individual sound effects");
 
@@ -2007,14 +2229,16 @@ public class ConfigWindow {
     audioPanelToggleAllPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     audioPanelToggleAllPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-    addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
+    JButton audioPanelEnableAllButton =
+            addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+    audioPanelEnableAllButton.addActionListener(
             new ActionListener() {
               @Override
               public void actionPerformed(ActionEvent e) {
                 setAllSoundeffects(true);
               }
             });
+    configItems.add("Enable All Sound Effects", audioPanelEnableAllButton, ConfigWindowTabs.AUDIO);
 
     JPanel audioPanelToggleAllPanelSpacingPanel = new JPanel();
     audioPanelToggleAllPanel.add(audioPanelToggleAllPanelSpacingPanel);
@@ -2022,254 +2246,61 @@ public class ConfigWindow {
     audioPanelToggleAllPanelSpacingPanel.setPreferredSize(new Dimension(6, 20));
     audioPanelToggleAllPanelSpacingPanel.setMaximumSize(new Dimension(6, 20));
 
-    addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
+    JButton audioPanelDisableAllButton =
+            addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+    audioPanelDisableAllButton.addActionListener(
             new ActionListener() {
               @Override
               public void actionPerformed(ActionEvent e) {
                 setAllSoundeffects(false);
               }
             });
+    configItems.add("Disable All Sound Effects", audioPanelDisableAllButton, ConfigWindowTabs.AUDIO);
 
     audioPanel.add(audioPanelToggleAllPanel);
+    configItems.add( // yes, this is required
+      "Enable All Sound Effects Disable All Sound Effects",
+      audioPanelToggleAllPanel,
+      ConfigWindowTabs.AUDIO
+    );
 
-    JPanel advancePanel = makeSoundEffectPanel("advance");
-    soundEffectAdvanceCheckbox = addCheckbox("advance", advancePanel);
-    soundEffectAdvanceCheckbox.setToolTipText("Plays when advancing a level.");
-    soundEffectAdvanceCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(advancePanel);
-
-    JPanel anvilPanel = makeSoundEffectPanel("anvil");
-    soundEffectAnvilCheckbox = addCheckbox("anvil", anvilPanel);
-    soundEffectAnvilCheckbox.setToolTipText("Plays when hammering on an anvil.");
-    soundEffectAnvilCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(anvilPanel);
-
-    JPanel chiselPanel = makeSoundEffectPanel("chisel");
-    soundEffectChiselCheckbox = addCheckbox("chisel", chiselPanel);
-    soundEffectChiselCheckbox.setToolTipText("Plays when cutting a gemstone.");
-    soundEffectChiselCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(chiselPanel);
-
-    JPanel clickPanel = makeSoundEffectPanel("click");
-    soundEffectClickCheckbox = addCheckbox("click", clickPanel);
-    soundEffectClickCheckbox.setToolTipText("Plays when equipping or unequipping your equipment.");
-    soundEffectClickCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(clickPanel);
-
-    JPanel closedoorPanel = makeSoundEffectPanel("closedoor");
-    soundEffectClosedoorCheckbox = addCheckbox("closedoor", closedoorPanel);
-    soundEffectClosedoorCheckbox.setToolTipText("Plays when a door opens or closes.");
-    soundEffectClosedoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(closedoorPanel);
-
-    JPanel coinsPanel = makeSoundEffectPanel("coins");
-    soundEffectCoinsCheckbox = addCheckbox("coins", coinsPanel);
-    soundEffectCoinsCheckbox.setToolTipText("Plays when buying or selling to a shop.");
-    soundEffectCoinsCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(coinsPanel);
-
-    JPanel combat1aPanel = makeSoundEffectPanel("combat1a");
-    soundEffectCombat1aCheckbox = addCheckbox("combat1a", combat1aPanel);
-    soundEffectCombat1aCheckbox.setToolTipText(
-        "Plays when no damage is done without a weapon wielded.");
-    soundEffectCombat1aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat1aPanel);
-
-    JPanel combat1bPanel = makeSoundEffectPanel("combat1b");
-    soundEffectCombat1bCheckbox = addCheckbox("combat1b", combat1bPanel);
-    soundEffectCombat1bCheckbox.setToolTipText(
-        "Plays when damage is done in combat without a weapon wielded.");
-    soundEffectCombat1bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat1bPanel);
-
-    JPanel combat2aPanel = makeSoundEffectPanel("combat2a");
-    soundEffectCombat2aCheckbox = addCheckbox("combat2a", combat2aPanel);
-    soundEffectCombat2aCheckbox.setToolTipText(
-        "Plays when no damage is done with a sharp weapon wielded.");
-    soundEffectCombat2aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat2aPanel);
-
-    JPanel combat2bPanel = makeSoundEffectPanel("combat2b");
-    soundEffectCombat2bCheckbox = addCheckbox("combat2b", combat2bPanel);
-    soundEffectCombat2bCheckbox.setToolTipText(
-        "Plays when damage is done with a sharp weapon wielded.");
-    soundEffectCombat2bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat2bPanel);
-
-    JPanel combat3aPanel = makeSoundEffectPanel("combat3a");
-    soundEffectCombat3aCheckbox = addCheckbox("combat3a", combat3aPanel);
-    soundEffectCombat3aCheckbox.setToolTipText(
-        "Plays when no damage is done against an undead opponent.");
-    soundEffectCombat3aCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat3aPanel);
-
-    JPanel combat3bPanel = makeSoundEffectPanel("combat3b");
-    soundEffectCombat3bCheckbox = addCheckbox("combat3b", combat3bPanel);
-    soundEffectCombat3bCheckbox.setToolTipText(
-        "Plays when damage is done against an undead opponent.");
-    soundEffectCombat3bCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(combat3bPanel);
-
-    JPanel cookingPanel = makeSoundEffectPanel("cooking");
-    soundEffectCookingCheckbox = addCheckbox("cooking", cookingPanel);
-    soundEffectCookingCheckbox.setToolTipText("Plays when cooking food on a range or fire.");
-    soundEffectCookingCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(cookingPanel);
-
-    JPanel deathPanel = makeSoundEffectPanel("death");
-    soundEffectDeathCheckbox = addCheckbox("death", deathPanel);
-    soundEffectDeathCheckbox.setToolTipText("Plays when the player dies.");
-    soundEffectDeathCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(deathPanel);
-
-    JPanel dropobjectPanel = makeSoundEffectPanel("dropobject");
-    soundEffectDropobjectCheckbox = addCheckbox("dropobject", dropobjectPanel);
-    soundEffectDropobjectCheckbox.setToolTipText("Plays when you drop an item.");
-    soundEffectDropobjectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(dropobjectPanel);
-
-    JPanel eatPanel = makeSoundEffectPanel("eat");
-    soundEffectEatCheckbox = addCheckbox("eat", eatPanel);
-    soundEffectEatCheckbox.setToolTipText("Plays when you eat food.");
-    soundEffectEatCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(eatPanel);
-
-    JPanel filljugPanel = makeSoundEffectPanel("filljug");
-    soundEffectFilljugCheckbox = addCheckbox("filljug", filljugPanel);
-    soundEffectFilljugCheckbox.setToolTipText("Plays when filling things with water.");
-    soundEffectFilljugCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(filljugPanel);
-
-    JPanel fishPanel = makeSoundEffectPanel("fish");
-    soundEffectFishCheckbox = addCheckbox("fish", fishPanel);
-    soundEffectFishCheckbox.setToolTipText("Plays when fishing.");
-    soundEffectFishCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(fishPanel);
-
-    JPanel foundgemPanel = makeSoundEffectPanel("foundgem");
-    soundEffectFoundgemCheckbox = addCheckbox("foundgem", foundgemPanel);
-    soundEffectFoundgemCheckbox.setToolTipText("Plays when you find a gem while fishing.");
-    soundEffectFoundgemCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(foundgemPanel);
-
-    JPanel mechanicalPanel = makeSoundEffectPanel("mechanical");
-    soundEffectMechanicalCheckbox = addCheckbox("mechanical", mechanicalPanel);
-    soundEffectMechanicalCheckbox.setToolTipText(
-        "Plays when using a hopper, spinning wheel, making pottery.");
-    soundEffectMechanicalCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(mechanicalPanel);
-
-    JPanel minePanel = makeSoundEffectPanel("mine");
-    soundEffectMineCheckbox = addCheckbox("mine", minePanel);
-    soundEffectMineCheckbox.setToolTipText("Plays when mining.");
-    soundEffectMineCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(minePanel);
-
-    JPanel mixPanel = makeSoundEffectPanel("mix");
-    soundEffectMixCheckbox = addCheckbox("mix", mixPanel);
-    soundEffectMixCheckbox.setToolTipText(
-        "Plays when mixing ingredients, particularly in Herblaw.");
-    soundEffectMixCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(mixPanel);
-
-    JPanel opendoorPanel = makeSoundEffectPanel("opendoor");
-    soundEffectOpendoorCheckbox = addCheckbox("opendoor", opendoorPanel);
-    soundEffectOpendoorCheckbox.setToolTipText("The sound of a door opening.");
-    soundEffectOpendoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(opendoorPanel);
-
-    JPanel outofammoPanel = makeSoundEffectPanel("outofammo");
-    soundEffectOutofammoCheckbox = addCheckbox("outofammo", outofammoPanel);
-    soundEffectOutofammoCheckbox.setToolTipText("Plays when you run out of ammo while ranging.");
-    soundEffectOutofammoCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(outofammoPanel);
-
-    JPanel potatoPanel = makeSoundEffectPanel("potato");
-    soundEffectPotatoCheckbox = addCheckbox("potato", potatoPanel);
-    soundEffectPotatoCheckbox.setToolTipText("Plays when harvesting crops from a field.");
-    soundEffectPotatoCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(potatoPanel);
-
-    JPanel prayeroffPanel = makeSoundEffectPanel("prayeroff");
-    soundEffectPrayeroffCheckbox = addCheckbox("prayeroff", prayeroffPanel);
-    soundEffectPrayeroffCheckbox.setToolTipText("Plays when disabling a prayer.");
-    soundEffectPrayeroffCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    soundEffectPrayeroffCheckbox.setEnabled(
-        false); // TODO: would need to either reimplement opcode 206 or go disable it in there
-    // (preferred)
-    audioPanel.add(prayeroffPanel);
-
-    JPanel prayeronPanel = makeSoundEffectPanel("prayeron");
-    soundEffectPrayeronCheckbox = addCheckbox("prayeron", prayeronPanel);
-    soundEffectPrayeronCheckbox.setToolTipText("Plays when enabling a prayer.");
-    soundEffectPrayeronCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    soundEffectPrayeronCheckbox.setEnabled(
-        false); // TODO: would need to either reimplement opcode 206 or go disable it in there
-    // (preferred)
-    audioPanel.add(prayeronPanel);
-
-    JPanel prospectPanel = makeSoundEffectPanel("prospect");
-    soundEffectProspectCheckbox = addCheckbox("prospect", prospectPanel);
-    soundEffectProspectCheckbox.setToolTipText("Plays when prospecting a mining resource.");
-    soundEffectProspectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(prospectPanel);
-
-    JPanel rechargePanel = makeSoundEffectPanel("recharge");
-    soundEffectRechargeCheckbox = addCheckbox("recharge", rechargePanel);
-    soundEffectRechargeCheckbox.setToolTipText("Plays when praying at an altar.");
-    soundEffectRechargeCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(rechargePanel);
-
-    JPanel retreatPanel = makeSoundEffectPanel("retreat");
-    soundEffectRetreatCheckbox = addCheckbox("retreat", retreatPanel);
-    soundEffectRetreatCheckbox.setToolTipText("Plays when you or your opponent flee from combat.");
-    soundEffectRetreatCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(retreatPanel);
-
-    JPanel secretdoorPanel = makeSoundEffectPanel("secretdoor");
-    soundEffectSecretdoorCheckbox = addCheckbox("secretdoor", secretdoorPanel);
-    soundEffectSecretdoorCheckbox.setToolTipText(
-        "Plays when passing through a secret door (e.g. in Karamja dungeon)");
-    soundEffectSecretdoorCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(secretdoorPanel);
-
-    JPanel shootPanel = makeSoundEffectPanel("shoot");
-    soundEffectShootCheckbox = addCheckbox("shoot", shootPanel);
-    soundEffectShootCheckbox.setToolTipText("Plays when using the ranged skill.");
-    soundEffectShootCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(shootPanel);
-
-    JPanel spellfailPanel = makeSoundEffectPanel("spellfail");
-    soundEffectSpellfailCheckbox = addCheckbox("spellfail", spellfailPanel);
-    soundEffectSpellfailCheckbox.setToolTipText(
-        "Plays when you fail to cast a spell successfully.");
-    soundEffectSpellfailCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(spellfailPanel);
-
-    JPanel spellokPanel = makeSoundEffectPanel("spellok");
-    soundEffectSpellokCheckbox = addCheckbox("spellok", spellokPanel);
-    soundEffectSpellokCheckbox.setToolTipText("Plays when you successfully cast a spell.");
-    soundEffectSpellokCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(spellokPanel);
-
-    JPanel takeobjectPanel = makeSoundEffectPanel("takeobject");
-    soundEffectTakeobjectCheckbox = addCheckbox("takeobject", takeobjectPanel);
-    soundEffectTakeobjectCheckbox.setToolTipText("Plays when you pick up an item.");
-    soundEffectTakeobjectCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(takeobjectPanel);
-
-    JPanel underattackPanel = makeSoundEffectPanel("underattack");
-    soundEffectUnderattackCheckbox = addCheckbox("underattack", underattackPanel);
-    soundEffectUnderattackCheckbox.setToolTipText("Plays when you are attacked.");
-    soundEffectUnderattackCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(underattackPanel);
-
-    JPanel victoryPanel = makeSoundEffectPanel("victory");
-    soundEffectVictoryCheckbox = addCheckbox("victory", victoryPanel);
-    soundEffectVictoryCheckbox.setToolTipText("Plays when you have won a fight.");
-    soundEffectVictoryCheckbox.setBorder(new EmptyBorder(7, 0, 6, 0));
-    audioPanel.add(victoryPanel);
+    addAudioEffectCheckbox(audioPanel, "advance", "Plays when advancing a level.");
+    addAudioEffectCheckbox(audioPanel, "anvil", "Plays when hammering on an anvil.");
+    addAudioEffectCheckbox(audioPanel, "chisel", "Plays when cutting a gemstone.");
+    addAudioEffectCheckbox(audioPanel, "click", "Plays when equipping or unequipping your equipment.");
+    addAudioEffectCheckbox(audioPanel, "closedoor", "Plays when a door opens or closes.");
+    addAudioEffectCheckbox(audioPanel, "coins", "Plays when buying or selling to a shop.");
+    addAudioEffectCheckbox(audioPanel, "combat1a", "Plays when no damage is done without a weapon wielded.");
+    addAudioEffectCheckbox(audioPanel, "combat1b", "Plays when damage is done in combat without a weapon wielded.");
+    addAudioEffectCheckbox(audioPanel, "combat2a", "Plays when no damage is done with a sharp weapon wielded.");
+    addAudioEffectCheckbox(audioPanel, "combat2b", "Plays when damage is done with a sharp weapon wielded.");
+    addAudioEffectCheckbox(audioPanel, "combat3a", "Plays when no damage is done against an undead opponent.");
+    addAudioEffectCheckbox(audioPanel, "combat3b", "Plays when damage is done against an undead opponent.");
+    addAudioEffectCheckbox(audioPanel, "cooking", "Plays when cooking food on a range or fire.");
+    addAudioEffectCheckbox(audioPanel, "death", "Plays when the player dies.");
+    addAudioEffectCheckbox(audioPanel, "dropobject", "Plays when you drop an item.");
+    addAudioEffectCheckbox(audioPanel, "eat", "Plays when you eat food.");
+    addAudioEffectCheckbox(audioPanel, "filljug", "Plays when filling things with water.");
+    addAudioEffectCheckbox(audioPanel, "fish", "Plays when fishing.");
+    addAudioEffectCheckbox(audioPanel, "foundgem", "Plays when you find a gem while fishing.");
+    addAudioEffectCheckbox(audioPanel, "mechanical", "Plays when using a hopper, spinning wheel, making pottery.");
+    addAudioEffectCheckbox(audioPanel, "mine", "Plays when mining.");
+    addAudioEffectCheckbox(audioPanel, "mix", "Plays when mixing ingredients, particularly in Herblaw.");
+    addAudioEffectCheckbox(audioPanel, "opendoor", "The sound of a door opening.");
+    addAudioEffectCheckbox(audioPanel, "outofammo", "Plays when you run out of ammo while ranging.");
+    addAudioEffectCheckbox(audioPanel, "potato", "Plays when harvesting crops from a field.");
+    addAudioEffectCheckbox(audioPanel, "prayeroff", "Plays when disabling a prayer.", false);
+    addAudioEffectCheckbox(audioPanel, "prayeron", "Plays when enabling a prayer.", false);
+    addAudioEffectCheckbox(audioPanel, "prospect", "Plays when prospecting a mining resource.");
+    addAudioEffectCheckbox(audioPanel, "recharge", "Plays when praying at an altar.");
+    addAudioEffectCheckbox(audioPanel, "retreat", "Plays when you or your opponent flee from combat.");
+    addAudioEffectCheckbox(audioPanel, "secretdoor", "Plays when passing through a secret door (e.g. in Karamja dungeon)");
+    addAudioEffectCheckbox(audioPanel, "shoot", "Plays when using the ranged skill.");
+    addAudioEffectCheckbox(audioPanel, "spellfail", "Plays when you fail to cast a spell successfully.");
+    addAudioEffectCheckbox(audioPanel, "spellok", "Plays when you successfully cast a spell.");
+    addAudioEffectCheckbox(audioPanel, "takeobject", "Plays when you pick up an item.");
+    addAudioEffectCheckbox(audioPanel, "underattack", "Plays when you are attacked.");
+    addAudioEffectCheckbox(audioPanel, "victory", "Plays when you have won a fight.");
 
     /*
      * Bank tab
@@ -2286,14 +2317,17 @@ public class ConfigWindow {
     bankPanelCalculateBankValueCheckbox.setToolTipText(
         "Calculates the value of your bank and displays it in the bank interface");
     bankPanelCalculateBankValueCheckbox.setBorder(new EmptyBorder(0, 0, 10, 0));
+    configItems.add(bankPanelCalculateBankValueCheckbox, ConfigWindowTabs.BANK);
 
     bankPanelSortFilterAugmentCheckbox = addCheckbox("Sort or Filter your Bank!!", bankPanel);
     bankPanelSortFilterAugmentCheckbox.setToolTipText(
         "Displays the RSC+ Sort and Filtering interface! Authentic!");
+    configItems.add(bankPanelSortFilterAugmentCheckbox, ConfigWindowTabs.BANK);
 
     bankPanelStartSearchedBankCheckbox = addCheckbox("Remember Filter/Sort", bankPanel);
     bankPanelStartSearchedBankCheckbox.setToolTipText(
         "Always start with your last filtered/sorted bank settings");
+    configItems.add(bankPanelStartSearchedBankCheckbox, ConfigWindowTabs.BANK);
 
     JPanel searchBankPanel = new JPanel();
     bankPanel.add(searchBankPanel);
@@ -2321,6 +2355,7 @@ public class ConfigWindow {
                 + "</p></html>");
     bankPanel.add(banksearchExplanation);
     banksearchExplanation.setBorder(new EmptyBorder(0, 0, 12, 0));
+    configItems.add(List.of(searchBankPanel, banksearchExplanation), ConfigWindowTabs.BANK);
 
     addSettingsHeader(bankPanel, "Custom bank order");
     JLabel exportExplanation =
@@ -2411,6 +2446,7 @@ public class ConfigWindow {
     bankPanelImportLabel.setAlignmentY((float) 0.7);
     bankPanelImportLabel.setBorder(new EmptyBorder(0, 0, 7, 0));
     importPanel.add(bankPanelImportLabel);
+    configItems.add(List.of(exportExplanation, exportPanel, importExplanation, importPanel), ConfigWindowTabs.BANK);
 
     /*
      * Notifications tab
@@ -2433,6 +2469,11 @@ public class ConfigWindow {
         addRadioButton("Regardless of client focus", notificationPanel, 20);
     trayPopupButtonGroup.add(notificationPanelTrayPopupClientFocusButton);
     trayPopupButtonGroup.add(notificationPanelTrayPopupAnyFocusButton);
+    configItems.add(List.of(
+      notificationPanelTrayPopupCheckbox,
+      notificationPanelTrayPopupClientFocusButton,
+      notificationPanelTrayPopupAnyFocusButton
+    ), ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelNotifSoundsCheckbox =
         addCheckbox("Enable notification sounds", notificationPanel);
@@ -2447,6 +2488,11 @@ public class ConfigWindow {
         addRadioButton("Regardless of client focus", notificationPanel, 20);
     notifSoundButtonGroup.add(notificationPanelNotifSoundClientFocusButton);
     notifSoundButtonGroup.add(notificationPanelNotifSoundAnyFocusButton);
+    configItems.add(List.of(
+      notificationPanelNotifSoundsCheckbox,
+      notificationPanelNotifSoundClientFocusButton,
+      notificationPanelNotifSoundAnyFocusButton
+    ), ConfigWindowTabs.NOTIFICATIONS);
 
     if (SystemTray.isSupported())
       notificationPanelUseSystemNotifsCheckbox =
@@ -2458,6 +2504,10 @@ public class ConfigWindow {
     }
     notificationPanelUseSystemNotifsCheckbox.setToolTipText(
         "Uses built-in system notifications. Enable this to attempt to use your operating system's notification system instead of the built-in pop-up");
+
+    if (SystemTray.isSupported()) {
+      configItems.add(notificationPanelUseSystemNotifsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
+    }
 
     addSettingsHeader(notificationPanel, "Notifications");
 
@@ -2483,21 +2533,25 @@ public class ConfigWindow {
     notificationPanelPMDenyListTextField.setMinimumSize(new Dimension(100, 28));
     notificationPanelPMDenyListTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     notificationPanelPMDenyListTextField.setAlignmentY((float) 0.75);
+    configItems.add(List.of(notificationPanelPMNotifsCheckbox, pmDenylistPanel), ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelTradeNotifsCheckbox =
         addCheckbox("Enable trade notifications", notificationPanel);
     notificationPanelTradeNotifsCheckbox.setToolTipText(
         "Shows a system notification when a trade request is received");
+    configItems.add(notificationPanelTradeNotifsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelDuelNotifsCheckbox =
         addCheckbox("Enable duel notifications", notificationPanel);
     notificationPanelDuelNotifsCheckbox.setToolTipText(
         "Shows a system notification when a duel request is received");
+    configItems.add(notificationPanelDuelNotifsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelLogoutNotifsCheckbox =
         addCheckbox("Enable logout notification", notificationPanel);
     notificationPanelLogoutNotifsCheckbox.setToolTipText(
         "Shows a system notification when about to idle out");
+    configItems.add(notificationPanelLogoutNotifsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
 
     JPanel notificationPanelLowHPNotifsPanel = new JPanel();
     notificationPanel.add(notificationPanelLowHPNotifsPanel);
@@ -2529,6 +2583,7 @@ public class ConfigWindow {
     spinnerHPNumModel.setMaximum(99);
     spinnerHPNumModel.setValue(25);
     notificationPanelLowHPNotifsSpinner.setModel(spinnerHPNumModel);
+    configItems.add(notificationPanelLowHPNotifsPanel, ConfigWindowTabs.NOTIFICATIONS);
 
     JPanel notificationPanelFatigueNotifsPanel = new JPanel();
     notificationPanel.add(notificationPanelFatigueNotifsPanel);
@@ -2560,6 +2615,7 @@ public class ConfigWindow {
     spinnerFatigueNumModel.setMaximum(100);
     spinnerFatigueNumModel.setValue(98);
     notificationPanelFatigueNotifsSpinner.setModel(spinnerFatigueNumModel);
+    configItems.add(notificationPanelFatigueNotifsPanel, ConfigWindowTabs.NOTIFICATIONS);
 
     JPanel warnHighlightedOnGroundPanel = new JPanel();
     notificationPanel.add(warnHighlightedOnGroundPanel);
@@ -2603,6 +2659,11 @@ public class ConfigWindow {
     highlightedItemSecondsModel.setValue(100);
     notificationPanelHighlightedItemTimerSpinner.setModel(highlightedItemSecondsModel);
 
+    configItems.add(List.of(
+      warnHighlightedOnGroundPanel,
+      highlightedItemsSuggestionJLabel
+    ), ConfigWindowTabs.NOTIFICATIONS);
+
     // Important messages
     JPanel importantMessagesPanel = new JPanel();
     notificationPanel.add(importantMessagesPanel);
@@ -2620,6 +2681,7 @@ public class ConfigWindow {
     importantMessagesTextField.setMinimumSize(new Dimension(100, 28));
     importantMessagesTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     importantMessagesTextField.setAlignmentY((float) 0.75);
+    configItems.add(importantMessagesTextField, ConfigWindowTabs.NOTIFICATIONS);
 
     // Important sad messages
     JPanel importantSadMessagesPanel = new JPanel();
@@ -2638,11 +2700,13 @@ public class ConfigWindow {
     importantSadMessagesTextField.setMinimumSize(new Dimension(100, 28));
     importantSadMessagesTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     importantSadMessagesTextField.setAlignmentY((float) 0.75);
+    configItems.add(importantSadMessagesPanel, ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelMuteImportantMessageSoundsCheckbox =
         addCheckbox("Mute the alert sound even if it's an important message", notificationPanel);
     notificationPanelMuteImportantMessageSoundsCheckbox.setToolTipText(
         "Muting for Important Messages (defined in text fields above)");
+    configItems.add(notificationPanelMuteImportantMessageSoundsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
 
     /*
      * Streaming & Privacy tab
@@ -2657,10 +2721,12 @@ public class ConfigWindow {
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setToolTipText(
         "If this box is checked, and the 3 relevant text fields are filled out, you will connect to a chat channel on login.");
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(0, 0, 7, 0));
+    configItems.add(streamingPanelTwitchChatIntegrationEnabledCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
     streamingPanelTwitchChatCheckbox.setToolTipText(
         "Don't show chat from other Twitch users, but still be able to send Twitch chat");
+    configItems.add(streamingPanelTwitchChatCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     JPanel streamingPanelTwitchChannelNamePanel = new JPanel();
     streamingPanel.add(streamingPanelTwitchChannelNamePanel);
@@ -2680,6 +2746,7 @@ public class ConfigWindow {
     streamingPanelTwitchChannelNameTextField.setMinimumSize(new Dimension(100, 28));
     streamingPanelTwitchChannelNameTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     streamingPanelTwitchChannelNameTextField.setAlignmentY((float) 0.75);
+    configItems.add(streamingPanelTwitchChannelNamePanel, ConfigWindowTabs.STREAMING_PRIVACY);
 
     JPanel streamingPanelTwitchUserPanel = new JPanel();
     streamingPanel.add(streamingPanelTwitchUserPanel);
@@ -2699,6 +2766,7 @@ public class ConfigWindow {
     streamingPanelTwitchUserTextField.setMinimumSize(new Dimension(100, 28));
     streamingPanelTwitchUserTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     streamingPanelTwitchUserTextField.setAlignmentY((float) 0.75);
+    configItems.add(streamingPanelTwitchUserPanel, ConfigWindowTabs.STREAMING_PRIVACY);
 
     JPanel streamingPanelTwitchOAuthPanel = new JPanel();
     streamingPanel.add(streamingPanelTwitchOAuthPanel);
@@ -2719,20 +2787,24 @@ public class ConfigWindow {
     streamingPanelTwitchOAuthTextField.setMinimumSize(new Dimension(100, 28));
     streamingPanelTwitchOAuthTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     streamingPanelTwitchOAuthTextField.setAlignmentY((float) 0.75);
+    configItems.add(streamingPanelTwitchOAuthPanel, ConfigWindowTabs.STREAMING_PRIVACY);
 
     streamingPanelIPAtLoginCheckbox =
         addCheckbox("Show IP details at login welcome screen", streamingPanel);
     streamingPanelIPAtLoginCheckbox.setToolTipText(
         "Shows the last IP you last logged in from when you log in (Disable this if you're streaming)");
+    configItems.add(streamingPanelIPAtLoginCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     streamingPanelSaveLoginCheckbox =
         addCheckbox("Save login information between logins (Requires restart)", streamingPanel);
     streamingPanelSaveLoginCheckbox.setToolTipText(
         "Preserves login details between logins (Disable this if you're streaming)");
+    configItems.add(streamingPanelSaveLoginCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     streamingPanelStartLoginCheckbox = addCheckbox("Start game at login screen", streamingPanel);
     streamingPanelStartLoginCheckbox.setToolTipText(
         "Starts the game at the login screen and return to it on logout");
+    configItems.add(streamingPanelStartLoginCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     JLabel spacerLabel =
         new JLabel("<html><head><style>p{font-size:10px;}</style></head><p>&nbsp;</p>");
@@ -2752,6 +2824,12 @@ public class ConfigWindow {
         new JLabel(
             "<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
     streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
+
+    configItems.add(List.of(
+      speedrunnerModeExplanation,
+      streamingPanelSpeedrunnerCheckbox,
+      speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation
+    ), ConfigWindowTabs.STREAMING_PRIVACY);
 
     /* shame to write all this code and then not need it...
     JPanel streamingPanelSpeedRunnerNamePanel = new JPanel();
@@ -3158,43 +3236,51 @@ public class ConfigWindow {
         addCheckbox("Record your play sessions by default", replayPanel);
     replayPanelRecordAutomaticallyCheckbox.setToolTipText(
         "Record your play sessions without having to click the record button every time you log in");
+    configItems.add(replayPanelRecordAutomaticallyCheckbox, ConfigWindowTabs.REPLAY);
 
     replayPanelRecordKBMouseCheckbox =
         addCheckbox("Record Keyboard and Mouse input in replay recordings", replayPanel);
     replayPanelRecordKBMouseCheckbox.setToolTipText(
         "Additionally record mouse and keyboard inputs when recording a session");
+    configItems.add(replayPanelRecordKBMouseCheckbox, ConfigWindowTabs.REPLAY);
 
     addSettingsHeader(replayPanel, "Playback settings");
 
     replayPanelParseOpcodesCheckbox = addCheckbox("Use opcode parsing on playback", replayPanel);
     replayPanelParseOpcodesCheckbox.setToolTipText(
         "Uses opcode parsing for better playback & visual data of outgoing packets");
+    configItems.add(replayPanelParseOpcodesCheckbox, ConfigWindowTabs.REPLAY);
 
     replayPanelFastDisconnectCheckbox = addCheckbox("Fast reconnect (Hack)", replayPanel);
     replayPanelFastDisconnectCheckbox.setToolTipText(
         "When a disconnect happens in replay playback, it will reconnect as quick as it can");
+    configItems.add(replayPanelFastDisconnectCheckbox, ConfigWindowTabs.REPLAY);
 
     addSettingsHeader(replayPanel, "Interface modifications");
 
     replayPanelShowSeekBarCheckbox = addCheckbox("Show seek bar during replay", replayPanel);
     replayPanelShowSeekBarCheckbox.setToolTipText(
         "Displays an incredibly helpful seek bar that you can use to move your position in the replay");
+    configItems.add(replayPanelShowSeekBarCheckbox, ConfigWindowTabs.REPLAY);
 
     replayPanelShowPlayerControlsCheckbox =
         addCheckbox("Show control buttons under the seek bar", replayPanel);
     replayPanelShowPlayerControlsCheckbox.setToolTipText(
         "Buttons you can click on to increase speed, decrease speed, restart, play/pause");
+    configItems.add(replayPanelShowPlayerControlsCheckbox, ConfigWindowTabs.REPLAY);
 
     replayPanelHidePrivateMessagesCheckbox =
         addCheckbox(
             "Prevent private messages from being output to the console during replay", replayPanel);
     replayPanelHidePrivateMessagesCheckbox.setToolTipText(
         "Message types 1, 2, and 5 will not be output to the console when this is selected"); // TODO: possibly don't show in client either
+    configItems.add(replayPanelHidePrivateMessagesCheckbox, ConfigWindowTabs.REPLAY);
 
     replayPanelTriggerAlertsReplayCheckbox =
         addCheckbox("Prevent system alerts from triggering during replay", replayPanel);
     replayPanelTriggerAlertsReplayCheckbox.setToolTipText(
         "Overrides the system alerts setting during replay");
+    configItems.add(replayPanelTriggerAlertsReplayCheckbox, ConfigWindowTabs.REPLAY);
 
     addSettingsHeader(replayPanel, "Replay Queue Window");
 
@@ -3218,6 +3304,7 @@ public class ConfigWindow {
     replayPanelReplayFolderBasePathTextField.setMinimumSize(new Dimension(100, 28));
     replayPanelReplayFolderBasePathTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     replayPanelReplayFolderBasePathTextField.setAlignmentY((float) 0.75);
+    configItems.add(replayPanelReplayFolderBasePathTextFieldPanel, ConfigWindowTabs.REPLAY);
 
     JPanel replayPanelDateFormatTextFieldPanel = new JPanel();
     replayPanel.add(replayPanelDateFormatTextFieldPanel);
@@ -3238,19 +3325,25 @@ public class ConfigWindow {
     replayPanelDateFormatTextField.setMinimumSize(new Dimension(100, 28));
     replayPanelDateFormatTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     replayPanelDateFormatTextField.setAlignmentY((float) 0.75);
+    configItems.add(replayPanelDateFormatTextFieldPanel, ConfigWindowTabs.REPLAY);
 
     replayPanelShowWorldColumnCheckbox = addCheckbox("Show \"World\" Column", replayPanel);
     replayPanelShowWorldColumnCheckbox.setToolTipText(
         "Displays \"Friendly Name\" for IPs that RSC+ recognizes, and just the IP address otherwise.");
+    configItems.add(replayPanelShowWorldColumnCheckbox, ConfigWindowTabs.REPLAY);
+
     replayPanelShowConversionSettingsCheckbox =
         addCheckbox(
             "Show RSCMinus \"Conversion Settings\" Column (Chat Stripping, etc)", replayPanel);
     replayPanelShowConversionSettingsCheckbox.setToolTipText(
         "Chat Stripping, Private Chat Stripping, Whether or not it has been converted, etc.");
+    configItems.add(replayPanelShowConversionSettingsCheckbox, ConfigWindowTabs.REPLAY);
+
     replayPanelShowUserFieldCheckbox =
         addCheckbox("Show \"User Field\" Column (1st bit used for F2P)", replayPanel);
     replayPanelShowUserFieldCheckbox.setToolTipText(
         "This int field when introduced did absolutely nothing and acts as \"Reserved Bits\" for the metadata.bin format. Users may feel free to use it for whatever they can think of.");
+    configItems.add(replayPanelShowUserFieldCheckbox, ConfigWindowTabs.REPLAY);
 
     /*
      * Presets tab
@@ -3272,14 +3365,14 @@ public class ConfigWindow {
     presetsPanel.add(presetsPanelPresetSliderPanel);
 
     // these JLabels are purposely mispelled to give it that authentic RS1 feel
+    List<String> presetsPanelPresetSliderLabels =
+            List.of("All", "Heavy", "Recommended", "Lite", "Vanilla (Resizable)", "Vanilla");
     Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable =
         new Hashtable<Integer, JLabel>();
-    presetsPanelPresetSliderLabelTable.put(new Integer(0), new JLabel("All"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(1), new JLabel("Heavy"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(2), new JLabel("Recommended"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(3), new JLabel("Lite"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(4), new JLabel("Vanilla (Resizable)"));
-    presetsPanelPresetSliderLabelTable.put(new Integer(5), new JLabel("Vanilla"));
+
+    for (int i = 0; i < presetsPanelPresetSliderLabels.size(); i++) {
+      presetsPanelPresetSliderLabelTable.put(new Integer(i), new JLabel(presetsPanelPresetSliderLabels.get(i)));
+    }
 
     presetsPanelPresetSlider = new JSlider();
     presetsPanelPresetSlider.setMajorTickSpacing(1);
@@ -3295,6 +3388,11 @@ public class ConfigWindow {
     presetsPanelPresetSlider.setOrientation(SwingConstants.VERTICAL);
     presetsPanelPresetSliderPanel.add(presetsPanelPresetSlider);
 
+    configItems.add(
+      List.of(presetsPanelCustomSettingsCheckbox, presetsPanelPresetSliderPanel),
+      ConfigWindowTabs.PRESETS
+    );
+
     JPanel presetsButtonPanel = new JPanel();
     presetsButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     presetsButtonPanel.setMaximumSize(new Dimension(300, 50));
@@ -3302,7 +3400,7 @@ public class ConfigWindow {
     presetsButtonPanel.setLayout(new BoxLayout(presetsButtonPanel, BoxLayout.X_AXIS));
 
     replaceConfigButton =
-        addButton("Replace Config with Preset", presetsButtonPanel, Component.LEFT_ALIGNMENT);
+            addButton("Replace Config with Preset", presetsButtonPanel, Component.LEFT_ALIGNMENT, ConfigWindowTabs.PRESETS);
     replaceConfigButton.addActionListener(
         new ActionListener() {
           @Override
@@ -3321,7 +3419,7 @@ public class ConfigWindow {
             Settings.save(Settings.currentProfile);
           }
         });
-    resetPresetsButton = addButton("Reset Presets", presetsButtonPanel, Component.RIGHT_ALIGNMENT);
+    resetPresetsButton = addButton("Reset Presets", presetsButtonPanel, Component.RIGHT_ALIGNMENT, ConfigWindowTabs.PRESETS);
     resetPresetsButton.addActionListener(
         new ActionListener() {
           @Override
@@ -3355,6 +3453,7 @@ public class ConfigWindow {
       addWorldFields(i);
     }
     addAddWorldButton();
+    configItems.add(worldListPanel, ConfigWindowTabs.WORLD_LIST);
 
     // Authors Tab
     JPanel logoPanel = new JPanel();
@@ -3442,6 +3541,7 @@ public class ConfigWindow {
     thirdsPanel.add(bottomPane, c);
 
     authorsPanel.add(thirdsPanel);
+    configItems.add(List.of(authorsPanel, RSCPlusText, aboutText, licenseText), ConfigWindowTabs.AUTHORS);
 
     // Joystick Tab
 
@@ -3493,6 +3593,35 @@ public class ConfigWindow {
           joystickPanel.add(joystickInputValueJlabels.get(key));
           joystickPanel.add(new JLabel("<html><br/></html>"));
         });
+
+    configItems.add(joystickPanel, ConfigWindowTabs.JOYSTICK);
+  }
+
+  private void addAudioEffectCheckbox(JPanel parent, String label, String tooltip) {
+    addAudioEffectCheckbox(parent, label, tooltip, true);
+  }
+
+  private void addAudioEffectCheckbox(JPanel parent, String label, String tooltip, Boolean enabled) {
+    JPanel panel = makeSoundEffectPanel(label);
+    JCheckBox checkbox = addCheckbox(label, panel);
+    checkbox.setToolTipText(tooltip);
+    checkbox.setBorder(new EmptyBorder(7, 0, 6, 0));
+    parent.add(panel);
+
+    if (enabled) {
+      configItems.add(label + " " + tooltip, panel, ConfigWindowTabs.AUDIO);
+    } else {
+      checkbox.setEnabled(false);
+    }
+
+    try {
+      Field checkboxField = this.getClass().getDeclaredField(
+        "soundEffect" + label.substring(0, 1).toUpperCase() + label.substring(1) + "Checkbox"
+      );
+      checkboxField.setAccessible(true);
+      checkboxField.set(this, checkbox);
+    } catch (Exception e) {
+    }
   }
 
   private void setAllSoundeffects(boolean setting) {
@@ -3585,7 +3714,7 @@ public class ConfigWindow {
       String commandID,
       KeyModifier defaultModifier,
       int defaultKeyValue) {
-    addKeybindLabel(panel, labelText);
+    JLabel label = addKeybindLabel(panel, labelText);
     String buttonText = defaultModifier.toString() + " + " + KeyEvent.getKeyText(defaultKeyValue);
     if (defaultKeyValue == -1) buttonText = "NONE";
     JButton b = addKeybindButton(panel, buttonText);
@@ -3601,6 +3730,8 @@ public class ConfigWindow {
     // Default KeybindSet
     KeyboardHandler.defaultKeybindSetList.put(
         commandID, new KeybindSet(null, commandID, defaultModifier, defaultKeyValue));
+
+    configItems.add(List.of(label, b), ConfigWindowTabs.KEYBINDS);
   }
 
   /**
@@ -3764,6 +3895,21 @@ public class ConfigWindow {
   }
 
   /**
+   * Adds a preconfigured JCheckbox to the specified container, setting its alignment constraint to
+   * left and adding an empty padding border.
+   *
+   * @param text The text of the checkbox
+   * @param container The container to add the checkbox to.
+   * @return The newly created JCheckBox.
+   */
+  private JCheckBox addCheckbox(String text, Container container, ConfigWindowTabs tab) {
+    JCheckBox checkbox = addCheckbox(text, container);
+    configItems.add(text, checkbox, tab);
+
+    return checkbox;
+  }
+
+  /**
    * Adds a preconfigured JButton to the specified container using the specified alignment
    * constraint. Does not modify the button's border.
    *
@@ -3776,6 +3922,23 @@ public class ConfigWindow {
     JButton button = new JButton(text);
     button.setAlignmentX(alignment);
     container.add(button);
+    return button;
+  }
+
+  /**
+   * Adds a preconfigured JButton to the specified container using the specified alignment
+   * constraint. Does not modify the button's border.
+   *
+   * @param text The text of the button
+   * @param container The container to add the button to
+   * @param alignment The alignment of the button.
+   * @param tab Makes this element searchable, and specifies which tab it belongs to
+   * @return The newly created JButton.
+   */
+  private JButton addButton(String text, Container container, float alignment, ConfigWindowTabs tab) {
+    JButton button = addButton(text, container, alignment);
+    configItems.add(text, button, tab);
+
     return button;
   }
 
@@ -5067,6 +5230,138 @@ public class ConfigWindow {
   public void updateCustomClientSizeMinValues(Dimension updatedMinimumWindowSize) {
     spinnerWinXModel.setMinimum(updatedMinimumWindowSize.width);
     spinnerWinYModel.setMinimum(updatedMinimumWindowSize.height);
+  }
+
+  private class ConfigItems {
+    public ArrayList<ConfigItem> items = new ArrayList<ConfigItem>();
+
+    public void add(ConfigItem item) {
+      for (ConfigItem filteredItem : items) {
+        if (filteredItem.equals(item)) {
+          return;
+        }
+      }
+
+      items.add(item);
+    }
+
+    public void add(String label, JComponent control, ConfigWindowTabs parentTab) {
+      add(new ConfigItem(label, control, parentTab));
+    }
+
+    public void add(List<JComponent> controls, ConfigWindowTabs parentTab) {
+      StringBuilder label = new StringBuilder();
+      for (JComponent control : controls) {
+        List<Component> components = new ArrayList<>(Arrays.asList(control.getComponents()));
+        components.add(control);
+
+        for (Component jc : components) {
+          if (jc instanceof JPanel) {
+            JPanel jComponent = (JPanel) jc;
+            label.append(" " + jComponent.getToolTipText());
+          }
+          if (jc instanceof JLabel) {
+            JLabel jComponent = (JLabel) jc;
+            label.append(" " + jComponent.getText());
+            label.append(" " + jComponent.getToolTipText());
+          } else if (jc instanceof JCheckBox) {
+            JCheckBox jComponent = (JCheckBox) jc;
+            label.append(" " + jComponent.getText());
+            label.append(" " + jComponent.getToolTipText());
+          } else if (jc instanceof JRadioButton) {
+            JRadioButton jComponent = (JRadioButton) jc;
+            label.append(" " + jComponent.getText());
+            label.append(" " + jComponent.getToolTipText());
+          } else if (jc instanceof JSpinner) {
+            JSpinner jComponent = (JSpinner) jc;
+            label.append(" " + jComponent.getToolTipText());
+          } else if (jc instanceof JSlider) {
+            JSlider jComponent = (JSlider) jc;
+            Enumeration sliderLabels = jComponent.getLabelTable().elements();
+            label.append(" " + jComponent.getToolTipText());
+
+            while (sliderLabels.hasMoreElements()) {
+              JLabel element = (JLabel) sliderLabels.nextElement();
+              label.append(" " + element.getText());
+            }
+          }
+        }
+      }
+
+      add(label.toString(), controls, parentTab);
+    }
+
+    public void add(JComponent control, ConfigWindowTabs parentTab) {
+      add(List.of(control), parentTab);
+    }
+
+    public void add(String label, List<JComponent> controls, ConfigWindowTabs parentTab) {
+      add(new ConfigItem(label, controls, parentTab));
+    }
+
+    public void filter(String text) {
+      ArrayList<String> visibleTabs = new ArrayList<String>();
+
+      // Hide show config items based on whether they match the search term
+      for (ConfigItem configItem : configItems.items) {
+        boolean configItemVisible = configItem.showIfContains(text);
+        if (configItemVisible && !visibleTabs.contains(configItem.tab.label)) {
+          visibleTabs.add(configItem.tab.label);
+        }
+      }
+
+      // Hide/show tabs based on if they have any visible config items
+      int totalTabs = tabbedPane.getTabCount();
+      int firstEnabledTab = -1;
+      for (int i = 0; i < totalTabs; i++) {
+        boolean tabIsEnabled = text.isEmpty() || visibleTabs.contains(tabbedPane.getTitleAt(i));
+        tabbedPane.setEnabledAt(i, tabIsEnabled);
+
+        if (tabIsEnabled && firstEnabledTab == -1) {
+          firstEnabledTab = i;
+        }
+      }
+
+      if (firstEnabledTab > -1 && !tabbedPane.isEnabledAt(tabbedPane.getSelectedIndex())) {
+        tabbedPane.setSelectedIndex(firstEnabledTab);
+      }
+    }
+  }
+
+  private class ConfigItem {
+    public String label;
+    private List<JComponent> controls;
+    private ConfigWindowTabs tab;
+
+    public ConfigItem(String itemLabel, JComponent itemControl, ConfigWindowTabs parentTab) {
+      label = itemLabel.toLowerCase();
+      controls = List.of(itemControl);
+      tab = parentTab;
+    }
+
+    public ConfigItem(String itemLabel, List<JComponent> itemControls, ConfigWindowTabs parentTab) {
+      label = itemLabel.toLowerCase();
+      controls = itemControls;
+      tab = parentTab;
+    }
+
+    public boolean showIfContains(String text) {
+      boolean visible = label.indexOf(text.toLowerCase()) > -1;
+
+      for (JComponent control : controls) {
+        control.setVisible(visible);
+      }
+
+      return visible;
+    }
+
+    public boolean equals(ConfigItem item) {
+      return item.label.equals(label);
+    }
+
+    public boolean isIn(ConfigWindowTabs possibleTab) {
+      return tab.equals(possibleTab.label);
+    }
   }
 }
 
