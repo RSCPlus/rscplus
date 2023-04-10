@@ -1,6 +1,9 @@
 package Chat;
 
 
+import Game.Client;
+import org.apache.commons.compress.archivers.sevenz.CLI;
+
 import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,24 +59,40 @@ public class ChatWindowHTMLChatRenderer {
   }
 
   private static String createChatMessageRow(ChatMessage chatMessage) {
-    String username = chatMessage.getUsername();
-    String usernameRgbColor = getUsernameRgbColor(username);
     String message = chatMessage.getMessage();
     long timestamp = chatMessage.getTimestamp();
+    int messageType = chatMessage.getType();
 
     message = parseChatMessage(message);
-
     DateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
     String timestampStr = dateFormat.format(timestamp);
 
-    String rowStr =
-        "<tr valign=\"top\">"
-            + "<td><div class=\"timestamp-cell\">[%s]</div></td>"
-            + "<td style=\"color: %s;\"><div class=\"username-cell\">%s:</div></td>"
-            + "<td><div class=\"message-cell\">%s</div></td>"
-            + "</tr>";
+    String username = chatMessage.getUsername();
+    String messageTypeStr = "";
 
-    return String.format(rowStr, timestampStr, usernameRgbColor, username, message);
+    if(messageType == Client.CHAT_PRIVATE) {
+      messageTypeStr = "PRIVATE";
+    } else if(messageType == Client.CHAT_PRIVATE_OUTGOING) {
+      messageTypeStr = "PRIVATE";
+      username = Client.player_name;
+    } else if(messageType == Client.CHAT_QUEST) {
+      messageTypeStr = "QUEST";
+    } else if(messageType == Client.CHAT_CHAT) {
+      messageTypeStr = "CHAT";
+    }
+
+    String usernameRgbColor = getUsernameRgbColor(username);
+    String usernameHTML = String.format("<span style=\"color: %s; font-weight: 600;\">%s</span>", usernameRgbColor, username);
+
+    String rowStr =
+      "<tr valign=\"top\">"
+              + "<td><div class=\"timestamp-cell\">[%s]</div></td>"
+              + "<td><div class=\"message-type-cell\">[%s]</div></td>"
+              + "<td><div class=\"username-cell\">%s:</div></td>"
+              + "<td><div class=\"message-cell\">%s</div></td>"
+              + "</tr>";
+
+    return String.format(rowStr, timestampStr, messageTypeStr, usernameHTML, message);
   }
 
   private static String getUsernameRgbColor(String username) {

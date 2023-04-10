@@ -1397,17 +1397,10 @@ public class Client {
       // sleep exit packet, restore whatever was in pm
       pm_enteredText = pm_enteredTextCopy;
       pm_enteredTextCopy = "";
-    } else if (opcode == 183) {
-      // No logout allowed
-      Client.getPlayerName();
-
-      ChatWindow chatWindow = Launcher.getChatWindow();
-      chatWindow.updatePlayerName();
-      chatWindow.updateFriendsList();
-    } else if (opcode == 234) {
-      // Should have friends list at this point
-      Launcher.getChatWindow().updateFriendsList();
     }
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.processPacket(opcode, psize);
 
     if (Bank.processPacket(opcode, psize)) {
       needsProcess = false;

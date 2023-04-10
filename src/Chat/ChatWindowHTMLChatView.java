@@ -38,8 +38,9 @@ public class ChatWindowHTMLChatView extends JEditorPane {
     //    styleSheet.addRule(
     //        ".chat-divider { margin-left: 134px; width: 20px; height: 1px; border-left: 2px solid
     // #74747c; }");
-    styleSheet.addRule(".timestamp-cell {  }");
-    styleSheet.addRule(".username-cell { text-align: right; width: 85px; font-weight: 600; }");
+    styleSheet.addRule(".timestamp-cell { width: 60px; }");
+    styleSheet.addRule(".message-type-cell { width: 40px }");
+    styleSheet.addRule(".username-cell { text-align: right; width: 85px; }");
     styleSheet.addRule(".message-cell { padding-left: 4px; padding-bottom: 4px; }");
 
     //    ".message-cell { padding-left: 4px; padding-bottom: 4px; padding-right: 4px; border-left:

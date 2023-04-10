@@ -73,6 +73,8 @@ public class ChatWindow {
 
   public void showChatWindow() {
     frame.setVisible(true);
+    updatePlayerName();
+    updateFriendsList();
   }
 
   public void hideChatWindow() {
@@ -309,6 +311,31 @@ public class ChatWindow {
 
   public void clearFriendsList() {
     friendsListModel.clear();
+  }
+
+  public void processPacket(int opcode, int psize) {
+    System.out.println("OP CODE: " + opcode);
+
+    if(opcode == 183) {
+      // "DENY_LOGOUT"
+      Client.getPlayerName();
+
+      updatePlayerName();
+      updateFriendsList();
+    } else if(opcode == 234) {
+      // "UPDATE_PLAYERS"
+
+      // Should have friends list at this point
+      updateFriendsList();
+    } else if(opcode == 149) {
+      // "UPDATE_FRIEND"
+      updateFriendsList();
+    } else if(opcode == 191) {
+      // "PLAYER_COORDS"
+
+      // I guess the best way to always have accurate friends list?
+      updateFriendsList();
+    }
   }
 
   private Font createFont() {
