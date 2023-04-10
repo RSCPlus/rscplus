@@ -359,7 +359,6 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
 
-
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
 
