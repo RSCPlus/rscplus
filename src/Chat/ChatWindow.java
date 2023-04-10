@@ -207,6 +207,22 @@ public class ChatWindow {
 
     channelsTree = new JTree(rootNode);
     channelsTree.setRootVisible(false);
+    channelsTree.setSelectionRow(0);
+
+    channelsTree.addTreeSelectionListener(e -> {
+      DefaultMutableTreeNode component = (DefaultMutableTreeNode) e.getPath().getPathComponent(1);
+      if(component == allMessagesNode) {
+        chatView.setChatFilter(new int[]{ -1 });
+      } else if(component == chatMessagesNode) {
+        chatView.setChatFilter(new int[]{ Client.CHAT_CHAT });
+      } else if(component == questMessagesNode) {
+        chatView.setChatFilter(new int[]{ Client.CHAT_QUEST });
+      } else if(component == privateMessagesNode) {
+        chatView.setChatFilter(new int[]{ Client.CHAT_PRIVATE, Client.CHAT_PRIVATE_OUTGOING });
+      } else if(component == otherMessagesNode) {
+        chatView.setChatFilter(new int[]{ Client.CHAT_OTHER });
+      }
+    });
 
     // Override default renderer to hide leaf icons
     DefaultTreeCellRenderer channelsTreeCellRenderer =
@@ -314,7 +330,7 @@ public class ChatWindow {
   }
 
   public void processPacket(int opcode, int psize) {
-    System.out.println("OP CODE: " + opcode);
+//    System.out.println("OP CODE: " + opcode);
 
     if(opcode == 183) {
       // "DENY_LOGOUT"

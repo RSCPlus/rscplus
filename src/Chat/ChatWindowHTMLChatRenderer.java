@@ -16,8 +16,13 @@ import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
 public class ChatWindowHTMLChatRenderer {
-
   public static HashMap<String, Color> usernameColors = new HashMap<>();
+
+  private static boolean showChatTypeCell = true;
+
+  public static void setShowChatTypeCell(boolean showChatTypeCell) {
+    ChatWindowHTMLChatRenderer.showChatTypeCell = showChatTypeCell;
+  }
 
   public static void renderChatDocument(
       ChatWindowHTMLChatView chatView, ArrayList<ChatMessage> chatMessages) {
@@ -86,13 +91,21 @@ public class ChatWindowHTMLChatRenderer {
 
     String rowStr =
       "<tr valign=\"top\">"
-              + "<td><div class=\"timestamp-cell\">[%s]</div></td>"
-              + "<td><div class=\"message-type-cell\">[%s]</div></td>"
-              + "<td><div class=\"username-cell\">%s:</div></td>"
-              + "<td><div class=\"message-cell\">%s</div></td>"
-              + "</tr>";
+              + "<td><div class=\"timestamp-cell\">[%s]</div></td>";
 
-    return String.format(rowStr, timestampStr, messageTypeStr, usernameHTML, message);
+    if(showChatTypeCell) {
+      rowStr += "<td class=\"message-type-cell-container\"><div class=\"message-type-cell\">[%s]</div></td>";
+    }
+
+    rowStr += "<td><div class=\"username-cell\">%s:</div></td>"
+      + "<td><div class=\"message-cell\">%s</div></td>"
+      + "</tr>";
+
+    if(showChatTypeCell) {
+      return String.format(rowStr, timestampStr, messageTypeStr, usernameHTML, message);
+    } else {
+      return String.format(rowStr, timestampStr, usernameHTML, message);
+    }
   }
 
   private static String getUsernameRgbColor(String username) {

@@ -2,7 +2,9 @@ package Chat;
 
 import Game.Client;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.border.Border;
@@ -14,8 +16,15 @@ public class ChatWindowHTMLChatView extends JEditorPane {
 
   private HTMLEditorKit kit = new HTMLEditorKit();
   private ArrayList<ChatMessage> chatMessages = new ArrayList<>();
+  private ArrayList<ChatMessage> filteredChatMessages = new ArrayList<>();
   private HTMLDocument document;
   private StyleSheet styleSheet;
+  private ArrayList<Integer> chatFilter = new ArrayList<Integer>() {
+    {
+
+      add(-1);
+    }
+  };
 
   private int fontSize = 12;
 
@@ -39,7 +48,7 @@ public class ChatWindowHTMLChatView extends JEditorPane {
     //        ".chat-divider { margin-left: 134px; width: 20px; height: 1px; border-left: 2px solid
     // #74747c; }");
     styleSheet.addRule(".timestamp-cell { width: 60px; }");
-    styleSheet.addRule(".message-type-cell { width: 40px }");
+    styleSheet.addRule(".message-type-cell { text-align: right; width: 50px }");
     styleSheet.addRule(".username-cell { text-align: right; width: 85px; }");
     styleSheet.addRule(".message-cell { padding-left: 4px; padding-bottom: 4px; }");
 
@@ -54,6 +63,33 @@ public class ChatWindowHTMLChatView extends JEditorPane {
     setFontSize(12);
   }
 
+  public void setChatFilter(int[] chatFilter) {
+    this.chatFilter.clear();
+    for(int filter : chatFilter) {
+      this.chatFilter.add(filter);
+    }
+
+    if(this.chatFilter.indexOf(-1) == 0) {
+      ChatWindowHTMLChatRenderer.setShowChatTypeCell(true);
+      ChatWindowHTMLChatRenderer.renderChatDocument(this, chatMessages);
+    } else {
+      ChatWindowHTMLChatRenderer.setShowChatTypeCell(false);
+      filteredChatMessages = (ArrayList<ChatMessage>) chatMessages.stream().filter(message -> {
+        for(int filterType : this.chatFilter) {
+          if(message.getType() == filterType) {
+            return true;
+          }
+
+          return false;
+        }
+
+        return false;
+      }).collect(Collectors.toList());
+
+      ChatWindowHTMLChatRenderer.renderChatDocument(this, filteredChatMessages);
+    }
+  }
+
   public void setFontSize(int fontSize) {
     this.fontSize = fontSize;
 
@@ -63,7 +99,11 @@ public class ChatWindowHTMLChatView extends JEditorPane {
   public void registerChatMessage(ChatMessage chatMessage) {
     chatMessages.add(chatMessage);
 
-    ChatWindowHTMLChatRenderer.appendChatMessage(this, chatMessage);
+    if(this.chatFilter == null) return;
+
+    if(this.chatFilter.indexOf(-1) == 0 || this.chatFilter.contains(chatMessage.getType())) {
+      ChatWindowHTMLChatRenderer.appendChatMessage(this, chatMessage);
+    }
   }
 
   private void registerTestMessages() {
