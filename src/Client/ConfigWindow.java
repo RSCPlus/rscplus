@@ -637,26 +637,29 @@ public class ConfigWindow {
     searchTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     searchTextField.setAlignmentY((float) 0.75);
 
-    searchTextField.getDocument().addDocumentListener(new DocumentListener() {
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        doSearch();
-      }
+    searchTextField
+        .getDocument()
+        .addDocumentListener(
+            new DocumentListener() {
+              @Override
+              public void changedUpdate(DocumentEvent e) {
+                doSearch();
+              }
 
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        doSearch();
-      }
+              @Override
+              public void removeUpdate(DocumentEvent e) {
+                doSearch();
+              }
 
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        doSearch();
-      }
+              @Override
+              public void insertUpdate(DocumentEvent e) {
+                doSearch();
+              }
 
-      private void doSearch() {
-        configItems.filter(searchTextField.getText());
-      }
-    });
+              private void doSearch() {
+                configItems.filter(searchTextField.getText());
+              }
+            });
 
     /*
      * Navigation buttons
@@ -1021,12 +1024,13 @@ public class ConfigWindow {
     bicubicInterpolationScalingWarning.setBorder(new EmptyBorder(0, 2, 0, 0));
     generalPanelBicubicScalingPanel.add(bicubicInterpolationScalingWarning);
 
-    configItems.add(List.of(
-      generalPanelScaleInformation,
-      generalPanelIntegerScalingPanel,
-      generalPanelBilinearScalingPanel,
-      generalPanelBicubicScalingPanel
-    ), ConfigWindowTabs.GENERAL);
+    configItems.add(
+        List.of(
+            generalPanelScaleInformation,
+            generalPanelIntegerScalingPanel,
+            generalPanelBilinearScalingPanel,
+            generalPanelBicubicScalingPanel),
+        ConfigWindowTabs.GENERAL);
     // End scaling options
 
     generalPanelCheckUpdates =
@@ -1046,7 +1050,7 @@ public class ConfigWindow {
     generalPanelAccountSecurityCheckbox =
         addCheckbox(
             "Show Account Creation and Security Settings (Requires restart for Account Creation and Recovery)",
-        generalPanel);
+            generalPanel);
     generalPanelAccountSecurityCheckbox.setToolTipText(
         "Makes old RSC account creation, password recovery and in-game security settings");
     configItems.add(generalPanelAccountSecurityCheckbox, ConfigWindowTabs.GENERAL);
@@ -1110,9 +1114,8 @@ public class ConfigWindow {
     generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
     configItems.add(
-      List.of(generalPanelTrackpadRotationLabel, generalPanelTrackpadRotationSlider),
-      ConfigWindowTabs.GENERAL
-    );
+        List.of(generalPanelTrackpadRotationLabel, generalPanelTrackpadRotationSlider),
+        ConfigWindowTabs.GENERAL);
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -1245,9 +1248,8 @@ public class ConfigWindow {
     generalPanelViewDistanceSlider.setPaintLabels(true);
 
     configItems.add(
-      List.of(generalPanelViewDistanceLabel, generalPanelViewDistanceSlider),
-      ConfigWindowTabs.GENERAL
-    );
+        List.of(generalPanelViewDistanceLabel, generalPanelViewDistanceSlider),
+        ConfigWindowTabs.GENERAL);
 
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
@@ -1536,14 +1538,15 @@ public class ConfigWindow {
           }
         });
 
-    configItems.add(List.of(
-      generalPanelCustomRandomChatColourCheckbox,
-      generalPanelLimitRanFPSPanel,
-      generalPanelRanStaticColourPanel,
-      generalPanelRanRGBRotationButton,
-      generalPanelRanRs2EffectPanel,
-      generalPanelRanEntirelyDisableButton
-    ), ConfigWindowTabs.GENERAL);
+    configItems.add(
+        List.of(
+            generalPanelCustomRandomChatColourCheckbox,
+            generalPanelLimitRanFPSPanel,
+            generalPanelRanStaticColourPanel,
+            generalPanelRanRGBRotationButton,
+            generalPanelRanRs2EffectPanel,
+            generalPanelRanEntirelyDisableButton),
+        ConfigWindowTabs.GENERAL);
 
     // FPS limit
     JPanel generalPanelLimitFPSPanel = new JPanel();
@@ -1574,9 +1577,7 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setModel(spinnerLimitFpsModel);
 
     configItems.add(
-      List.of(generalPanelLimitFPSPanel, generalPanelLimitFPSCheckbox),
-      ConfigWindowTabs.GENERAL
-    );
+        List.of(generalPanelLimitFPSPanel, generalPanelLimitFPSCheckbox), ConfigWindowTabs.GENERAL);
     //////
 
     addSettingsHeader(generalPanel, "Menu/Item patching");
@@ -1650,13 +1651,15 @@ public class ConfigWindow {
     generalPanelNamePatchModeDesc = new JLabel("");
     generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 
-    JLabel generalPanelNamePatchModeLevel3 = new JLabel(
+    JLabel generalPanelNamePatchModeLevel3 =
+        new JLabel(
             "<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
     generalPanelNamePatchModeLevel3.setVisible(false);
-    JLabel generalPanelNamePatchModeLevel2 = new JLabel(
-            "<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+    JLabel generalPanelNamePatchModeLevel2 =
+        new JLabel("<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
     generalPanelNamePatchModeLevel2.setVisible(false);
-    JLabel generalPanelNamePatchModeLevel1 = new JLabel(
+    JLabel generalPanelNamePatchModeLevel1 =
+        new JLabel(
             "<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
     generalPanelNamePatchModeLevel1.setVisible(false);
     JLabel generalPanelNamePatchModeLevel0 = new JLabel("<html>No item name patching</html>");
@@ -1951,11 +1954,12 @@ public class ConfigWindow {
         "The XP bar and XP drops will be shown at the top-middle of the screen.");
     XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
     XPAlignButtonGroup.add(overlayPanelXPCenterAlignFocusButton);
-    configItems.add(List.of(
-      overlayPanelXPDropsCheckbox,
-      overlayPanelXPRightAlignFocusButton,
-      overlayPanelXPCenterAlignFocusButton
-    ), ConfigWindowTabs.OVERLAYS);
+    configItems.add(
+        List.of(
+            overlayPanelXPDropsCheckbox,
+            overlayPanelXPRightAlignFocusButton,
+            overlayPanelXPCenterAlignFocusButton),
+        ConfigWindowTabs.OVERLAYS);
 
     overlayPanelFatigueDropsCheckbox = addCheckbox("Show Fatigue drops", overlayPanel);
     overlayPanelFatigueDropsCheckbox.setToolTipText(
@@ -2178,7 +2182,8 @@ public class ConfigWindow {
     audioPanelSfxVolumeTable.put(new Integer(100), new JLabel("100"));
     audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
     audioPanelSfxVolumeSlider.setPaintLabels(true);
-    configItems.add(List.of(audioPanelSfxVolumeLabel, audioPanelSfxVolumeSlider), ConfigWindowTabs.AUDIO);
+    configItems.add(
+        List.of(audioPanelSfxVolumeLabel, audioPanelSfxVolumeSlider), ConfigWindowTabs.AUDIO);
 
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
@@ -2201,11 +2206,12 @@ public class ConfigWindow {
         "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
-    configItems.add(List.of(
-      audioPanelOverrideAudioSettingCheckbox,
-      audioPanelOverrideAudioSettingOnButton,
-      audioPanelOverrideAudioSettingOffButton
-    ), ConfigWindowTabs.AUDIO);
+    configItems.add(
+        List.of(
+            audioPanelOverrideAudioSettingCheckbox,
+            audioPanelOverrideAudioSettingOnButton,
+            audioPanelOverrideAudioSettingOffButton),
+        ConfigWindowTabs.AUDIO);
 
     audioPanelFixSpiderWebDummySoundCheckbox =
         addCheckbox("Fix web slicing & dummy hitting sound effect", audioPanel);
@@ -2230,14 +2236,14 @@ public class ConfigWindow {
     audioPanelToggleAllPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
 
     JButton audioPanelEnableAllButton =
-            addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+        addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
     audioPanelEnableAllButton.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                setAllSoundeffects(true);
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            setAllSoundeffects(true);
+          }
+        });
     configItems.add("Enable All Sound Effects", audioPanelEnableAllButton, ConfigWindowTabs.AUDIO);
 
     JPanel audioPanelToggleAllPanelSpacingPanel = new JPanel();
@@ -2247,35 +2253,42 @@ public class ConfigWindow {
     audioPanelToggleAllPanelSpacingPanel.setMaximumSize(new Dimension(6, 20));
 
     JButton audioPanelDisableAllButton =
-            addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+        addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
     audioPanelDisableAllButton.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                setAllSoundeffects(false);
-              }
-            });
-    configItems.add("Disable All Sound Effects", audioPanelDisableAllButton, ConfigWindowTabs.AUDIO);
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            setAllSoundeffects(false);
+          }
+        });
+    configItems.add(
+        "Disable All Sound Effects", audioPanelDisableAllButton, ConfigWindowTabs.AUDIO);
 
     audioPanel.add(audioPanelToggleAllPanel);
     configItems.add( // yes, this is required
-      "Enable All Sound Effects Disable All Sound Effects",
-      audioPanelToggleAllPanel,
-      ConfigWindowTabs.AUDIO
-    );
+        "Enable All Sound Effects Disable All Sound Effects",
+        audioPanelToggleAllPanel,
+        ConfigWindowTabs.AUDIO);
 
     addAudioEffectCheckbox(audioPanel, "advance", "Plays when advancing a level.");
     addAudioEffectCheckbox(audioPanel, "anvil", "Plays when hammering on an anvil.");
     addAudioEffectCheckbox(audioPanel, "chisel", "Plays when cutting a gemstone.");
-    addAudioEffectCheckbox(audioPanel, "click", "Plays when equipping or unequipping your equipment.");
+    addAudioEffectCheckbox(
+        audioPanel, "click", "Plays when equipping or unequipping your equipment.");
     addAudioEffectCheckbox(audioPanel, "closedoor", "Plays when a door opens or closes.");
     addAudioEffectCheckbox(audioPanel, "coins", "Plays when buying or selling to a shop.");
-    addAudioEffectCheckbox(audioPanel, "combat1a", "Plays when no damage is done without a weapon wielded.");
-    addAudioEffectCheckbox(audioPanel, "combat1b", "Plays when damage is done in combat without a weapon wielded.");
-    addAudioEffectCheckbox(audioPanel, "combat2a", "Plays when no damage is done with a sharp weapon wielded.");
-    addAudioEffectCheckbox(audioPanel, "combat2b", "Plays when damage is done with a sharp weapon wielded.");
-    addAudioEffectCheckbox(audioPanel, "combat3a", "Plays when no damage is done against an undead opponent.");
-    addAudioEffectCheckbox(audioPanel, "combat3b", "Plays when damage is done against an undead opponent.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat1a", "Plays when no damage is done without a weapon wielded.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat1b", "Plays when damage is done in combat without a weapon wielded.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat2a", "Plays when no damage is done with a sharp weapon wielded.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat2b", "Plays when damage is done with a sharp weapon wielded.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat3a", "Plays when no damage is done against an undead opponent.");
+    addAudioEffectCheckbox(
+        audioPanel, "combat3b", "Plays when damage is done against an undead opponent.");
     addAudioEffectCheckbox(audioPanel, "cooking", "Plays when cooking food on a range or fire.");
     addAudioEffectCheckbox(audioPanel, "death", "Plays when the player dies.");
     addAudioEffectCheckbox(audioPanel, "dropobject", "Plays when you drop an item.");
@@ -2283,20 +2296,28 @@ public class ConfigWindow {
     addAudioEffectCheckbox(audioPanel, "filljug", "Plays when filling things with water.");
     addAudioEffectCheckbox(audioPanel, "fish", "Plays when fishing.");
     addAudioEffectCheckbox(audioPanel, "foundgem", "Plays when you find a gem while fishing.");
-    addAudioEffectCheckbox(audioPanel, "mechanical", "Plays when using a hopper, spinning wheel, making pottery.");
+    addAudioEffectCheckbox(
+        audioPanel, "mechanical", "Plays when using a hopper, spinning wheel, making pottery.");
     addAudioEffectCheckbox(audioPanel, "mine", "Plays when mining.");
-    addAudioEffectCheckbox(audioPanel, "mix", "Plays when mixing ingredients, particularly in Herblaw.");
+    addAudioEffectCheckbox(
+        audioPanel, "mix", "Plays when mixing ingredients, particularly in Herblaw.");
     addAudioEffectCheckbox(audioPanel, "opendoor", "The sound of a door opening.");
-    addAudioEffectCheckbox(audioPanel, "outofammo", "Plays when you run out of ammo while ranging.");
+    addAudioEffectCheckbox(
+        audioPanel, "outofammo", "Plays when you run out of ammo while ranging.");
     addAudioEffectCheckbox(audioPanel, "potato", "Plays when harvesting crops from a field.");
     addAudioEffectCheckbox(audioPanel, "prayeroff", "Plays when disabling a prayer.", false);
     addAudioEffectCheckbox(audioPanel, "prayeron", "Plays when enabling a prayer.", false);
     addAudioEffectCheckbox(audioPanel, "prospect", "Plays when prospecting a mining resource.");
     addAudioEffectCheckbox(audioPanel, "recharge", "Plays when praying at an altar.");
-    addAudioEffectCheckbox(audioPanel, "retreat", "Plays when you or your opponent flee from combat.");
-    addAudioEffectCheckbox(audioPanel, "secretdoor", "Plays when passing through a secret door (e.g. in Karamja dungeon)");
+    addAudioEffectCheckbox(
+        audioPanel, "retreat", "Plays when you or your opponent flee from combat.");
+    addAudioEffectCheckbox(
+        audioPanel,
+        "secretdoor",
+        "Plays when passing through a secret door (e.g. in Karamja dungeon)");
     addAudioEffectCheckbox(audioPanel, "shoot", "Plays when using the ranged skill.");
-    addAudioEffectCheckbox(audioPanel, "spellfail", "Plays when you fail to cast a spell successfully.");
+    addAudioEffectCheckbox(
+        audioPanel, "spellfail", "Plays when you fail to cast a spell successfully.");
     addAudioEffectCheckbox(audioPanel, "spellok", "Plays when you successfully cast a spell.");
     addAudioEffectCheckbox(audioPanel, "takeobject", "Plays when you pick up an item.");
     addAudioEffectCheckbox(audioPanel, "underattack", "Plays when you are attacked.");
@@ -2446,7 +2467,9 @@ public class ConfigWindow {
     bankPanelImportLabel.setAlignmentY((float) 0.7);
     bankPanelImportLabel.setBorder(new EmptyBorder(0, 0, 7, 0));
     importPanel.add(bankPanelImportLabel);
-    configItems.add(List.of(exportExplanation, exportPanel, importExplanation, importPanel), ConfigWindowTabs.BANK);
+    configItems.add(
+        List.of(exportExplanation, exportPanel, importExplanation, importPanel),
+        ConfigWindowTabs.BANK);
 
     /*
      * Notifications tab
@@ -2469,11 +2492,12 @@ public class ConfigWindow {
         addRadioButton("Regardless of client focus", notificationPanel, 20);
     trayPopupButtonGroup.add(notificationPanelTrayPopupClientFocusButton);
     trayPopupButtonGroup.add(notificationPanelTrayPopupAnyFocusButton);
-    configItems.add(List.of(
-      notificationPanelTrayPopupCheckbox,
-      notificationPanelTrayPopupClientFocusButton,
-      notificationPanelTrayPopupAnyFocusButton
-    ), ConfigWindowTabs.NOTIFICATIONS);
+    configItems.add(
+        List.of(
+            notificationPanelTrayPopupCheckbox,
+            notificationPanelTrayPopupClientFocusButton,
+            notificationPanelTrayPopupAnyFocusButton),
+        ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelNotifSoundsCheckbox =
         addCheckbox("Enable notification sounds", notificationPanel);
@@ -2488,11 +2512,12 @@ public class ConfigWindow {
         addRadioButton("Regardless of client focus", notificationPanel, 20);
     notifSoundButtonGroup.add(notificationPanelNotifSoundClientFocusButton);
     notifSoundButtonGroup.add(notificationPanelNotifSoundAnyFocusButton);
-    configItems.add(List.of(
-      notificationPanelNotifSoundsCheckbox,
-      notificationPanelNotifSoundClientFocusButton,
-      notificationPanelNotifSoundAnyFocusButton
-    ), ConfigWindowTabs.NOTIFICATIONS);
+    configItems.add(
+        List.of(
+            notificationPanelNotifSoundsCheckbox,
+            notificationPanelNotifSoundClientFocusButton,
+            notificationPanelNotifSoundAnyFocusButton),
+        ConfigWindowTabs.NOTIFICATIONS);
 
     if (SystemTray.isSupported())
       notificationPanelUseSystemNotifsCheckbox =
@@ -2533,7 +2558,9 @@ public class ConfigWindow {
     notificationPanelPMDenyListTextField.setMinimumSize(new Dimension(100, 28));
     notificationPanelPMDenyListTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     notificationPanelPMDenyListTextField.setAlignmentY((float) 0.75);
-    configItems.add(List.of(notificationPanelPMNotifsCheckbox, pmDenylistPanel), ConfigWindowTabs.NOTIFICATIONS);
+    configItems.add(
+        List.of(notificationPanelPMNotifsCheckbox, pmDenylistPanel),
+        ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelTradeNotifsCheckbox =
         addCheckbox("Enable trade notifications", notificationPanel);
@@ -2659,10 +2686,9 @@ public class ConfigWindow {
     highlightedItemSecondsModel.setValue(100);
     notificationPanelHighlightedItemTimerSpinner.setModel(highlightedItemSecondsModel);
 
-    configItems.add(List.of(
-      warnHighlightedOnGroundPanel,
-      highlightedItemsSuggestionJLabel
-    ), ConfigWindowTabs.NOTIFICATIONS);
+    configItems.add(
+        List.of(warnHighlightedOnGroundPanel, highlightedItemsSuggestionJLabel),
+        ConfigWindowTabs.NOTIFICATIONS);
 
     // Important messages
     JPanel importantMessagesPanel = new JPanel();
@@ -2706,7 +2732,8 @@ public class ConfigWindow {
         addCheckbox("Mute the alert sound even if it's an important message", notificationPanel);
     notificationPanelMuteImportantMessageSoundsCheckbox.setToolTipText(
         "Muting for Important Messages (defined in text fields above)");
-    configItems.add(notificationPanelMuteImportantMessageSoundsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
+    configItems.add(
+        notificationPanelMuteImportantMessageSoundsCheckbox, ConfigWindowTabs.NOTIFICATIONS);
 
     /*
      * Streaming & Privacy tab
@@ -2721,7 +2748,8 @@ public class ConfigWindow {
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setToolTipText(
         "If this box is checked, and the 3 relevant text fields are filled out, you will connect to a chat channel on login.");
     streamingPanelTwitchChatIntegrationEnabledCheckbox.setBorder(new EmptyBorder(0, 0, 7, 0));
-    configItems.add(streamingPanelTwitchChatIntegrationEnabledCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
+    configItems.add(
+        streamingPanelTwitchChatIntegrationEnabledCheckbox, ConfigWindowTabs.STREAMING_PRIVACY);
 
     streamingPanelTwitchChatCheckbox = addCheckbox("Hide incoming Twitch chat", streamingPanel);
     streamingPanelTwitchChatCheckbox.setToolTipText(
@@ -2825,11 +2853,12 @@ public class ConfigWindow {
             "<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
     streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
 
-    configItems.add(List.of(
-      speedrunnerModeExplanation,
-      streamingPanelSpeedrunnerCheckbox,
-      speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation
-    ), ConfigWindowTabs.STREAMING_PRIVACY);
+    configItems.add(
+        List.of(
+            speedrunnerModeExplanation,
+            streamingPanelSpeedrunnerCheckbox,
+            speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation),
+        ConfigWindowTabs.STREAMING_PRIVACY);
 
     /* shame to write all this code and then not need it...
     JPanel streamingPanelSpeedRunnerNamePanel = new JPanel();
@@ -3366,12 +3395,13 @@ public class ConfigWindow {
 
     // these JLabels are purposely mispelled to give it that authentic RS1 feel
     List<String> presetsPanelPresetSliderLabels =
-            List.of("All", "Heavy", "Recommended", "Lite", "Vanilla (Resizable)", "Vanilla");
+        List.of("All", "Heavy", "Recommended", "Lite", "Vanilla (Resizable)", "Vanilla");
     Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable =
         new Hashtable<Integer, JLabel>();
 
     for (int i = 0; i < presetsPanelPresetSliderLabels.size(); i++) {
-      presetsPanelPresetSliderLabelTable.put(new Integer(i), new JLabel(presetsPanelPresetSliderLabels.get(i)));
+      presetsPanelPresetSliderLabelTable.put(
+          new Integer(i), new JLabel(presetsPanelPresetSliderLabels.get(i)));
     }
 
     presetsPanelPresetSlider = new JSlider();
@@ -3389,9 +3419,8 @@ public class ConfigWindow {
     presetsPanelPresetSliderPanel.add(presetsPanelPresetSlider);
 
     configItems.add(
-      List.of(presetsPanelCustomSettingsCheckbox, presetsPanelPresetSliderPanel),
-      ConfigWindowTabs.PRESETS
-    );
+        List.of(presetsPanelCustomSettingsCheckbox, presetsPanelPresetSliderPanel),
+        ConfigWindowTabs.PRESETS);
 
     JPanel presetsButtonPanel = new JPanel();
     presetsButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -3400,7 +3429,11 @@ public class ConfigWindow {
     presetsButtonPanel.setLayout(new BoxLayout(presetsButtonPanel, BoxLayout.X_AXIS));
 
     replaceConfigButton =
-            addButton("Replace Config with Preset", presetsButtonPanel, Component.LEFT_ALIGNMENT, ConfigWindowTabs.PRESETS);
+        addButton(
+            "Replace Config with Preset",
+            presetsButtonPanel,
+            Component.LEFT_ALIGNMENT,
+            ConfigWindowTabs.PRESETS);
     replaceConfigButton.addActionListener(
         new ActionListener() {
           @Override
@@ -3419,7 +3452,12 @@ public class ConfigWindow {
             Settings.save(Settings.currentProfile);
           }
         });
-    resetPresetsButton = addButton("Reset Presets", presetsButtonPanel, Component.RIGHT_ALIGNMENT, ConfigWindowTabs.PRESETS);
+    resetPresetsButton =
+        addButton(
+            "Reset Presets",
+            presetsButtonPanel,
+            Component.RIGHT_ALIGNMENT,
+            ConfigWindowTabs.PRESETS);
     resetPresetsButton.addActionListener(
         new ActionListener() {
           @Override
@@ -3541,7 +3579,8 @@ public class ConfigWindow {
     thirdsPanel.add(bottomPane, c);
 
     authorsPanel.add(thirdsPanel);
-    configItems.add(List.of(authorsPanel, RSCPlusText, aboutText, licenseText), ConfigWindowTabs.AUTHORS);
+    configItems.add(
+        List.of(authorsPanel, RSCPlusText, aboutText, licenseText), ConfigWindowTabs.AUTHORS);
 
     // Joystick Tab
 
@@ -3601,7 +3640,8 @@ public class ConfigWindow {
     addAudioEffectCheckbox(parent, label, tooltip, true);
   }
 
-  private void addAudioEffectCheckbox(JPanel parent, String label, String tooltip, Boolean enabled) {
+  private void addAudioEffectCheckbox(
+      JPanel parent, String label, String tooltip, Boolean enabled) {
     JPanel panel = makeSoundEffectPanel(label);
     JCheckBox checkbox = addCheckbox(label, panel);
     checkbox.setToolTipText(tooltip);
@@ -3615,9 +3655,13 @@ public class ConfigWindow {
     }
 
     try {
-      Field checkboxField = this.getClass().getDeclaredField(
-        "soundEffect" + label.substring(0, 1).toUpperCase() + label.substring(1) + "Checkbox"
-      );
+      Field checkboxField =
+          this.getClass()
+              .getDeclaredField(
+                  "soundEffect"
+                      + label.substring(0, 1).toUpperCase()
+                      + label.substring(1)
+                      + "Checkbox");
       checkboxField.setAccessible(true);
       checkboxField.set(this, checkbox);
     } catch (Exception e) {
@@ -3935,7 +3979,8 @@ public class ConfigWindow {
    * @param tab Makes this element searchable, and specifies which tab it belongs to
    * @return The newly created JButton.
    */
-  private JButton addButton(String text, Container container, float alignment, ConfigWindowTabs tab) {
+  private JButton addButton(
+      String text, Container container, float alignment, ConfigWindowTabs tab) {
     JButton button = addButton(text, container, alignment);
     configItems.add(text, button, tab);
 
