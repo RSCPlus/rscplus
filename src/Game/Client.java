@@ -349,6 +349,9 @@ public class Client {
   /** The client version */
   public static int version;
 
+  public static String inputFilterChars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"\u00a3$%^&*()-_=+[{]};:\'@#~,<.>/?\\| ";
+
   public static String[] menuOptions;
 
   public static int tileSize;
@@ -845,8 +848,6 @@ public class Client {
       fontData = null;
     }
 
-    String inputFilterChars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"\u00a3$%^&*()-_=+[{]};:\'@#~,<.>/?\\| ";
     inputFilterCharFontAddr = new int[256];
     for (int code = 0; code < 256; ++code) {
       int index = inputFilterChars.indexOf(code);
@@ -1929,6 +1930,11 @@ public class Client {
         case "sfx_volume":
           if (commandArray.length > 1) {
             Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
+        case "overlayfont":
+          if (commandArray.length > 1) {
+            Settings.setOverlayFontStyle(commandArray[1]);
           }
           break;
         default:

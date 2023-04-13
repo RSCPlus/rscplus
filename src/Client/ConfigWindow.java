@@ -274,6 +274,9 @@ public class ConfigWindow {
   private Color itemHighlightColour =
       Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
   private JCheckBox overlayPanelHighlightRightClickCheckbox;
+  //   private JRadioButton overlayPanelFontStyleJagexFocusButton;
+  private JRadioButton overlayPanelFontStyleJagexBorderedFocusButton;
+  private JRadioButton overlayPanelFontStyleLegacyFocusButton;
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
@@ -1972,7 +1975,31 @@ public class ConfigWindow {
         addCheckbox("Highlight items in the right-click menu", overlayPanel);
     overlayPanelHighlightRightClickCheckbox.setToolTipText(
         "Highlights items from the above list in the right-click menu");
-    overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
+    overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 10, 0));
+
+    addSettingsHeader(overlayPanel, "General overlay settings");
+
+    JLabel overlayFontStyleNameLabel = new JLabel("Overlay font style:");
+    overlayFontStyleNameLabel.setAlignmentY((float) 0.9);
+    overlayFontStyleNameLabel.setBorder(new EmptyBorder(7, 0, 10, 0));
+    overlayPanel.add(overlayFontStyleNameLabel);
+
+    ButtonGroup overlayPanelFontStyleButtonGroup = new ButtonGroup();
+    // overlayPanelFontStyleJagexFocusButton = addRadioButton("Use the Jagex font", overlayPanel,
+    // 20);
+    // overlayPanelFontStyleJagexFocusButton.setToolTipText(
+    //         "Use the standard Jagex font for all custom overlay text");
+    overlayPanelFontStyleJagexBorderedFocusButton =
+        addRadioButton("Use bordered Jagex fonts", overlayPanel, 20);
+    overlayPanelFontStyleJagexBorderedFocusButton.setToolTipText(
+        "Use a bordered version of the standard Jagex font for custom overlay text");
+    overlayPanelFontStyleLegacyFocusButton =
+        addRadioButton("Use legacy RSC+ font", overlayPanel, 20);
+    overlayPanelFontStyleLegacyFocusButton.setToolTipText(
+        "Use the legacy RSC+ font for custom overlay text");
+    // overlayPanelFontStyleButtonGroup.add(overlayPanelFontStyleJagexFocusButton);
+    overlayPanelFontStyleButtonGroup.add(overlayPanelFontStyleJagexBorderedFocusButton);
+    overlayPanelFontStyleButtonGroup.add(overlayPanelFontStyleLegacyFocusButton);
 
     /*
      * Audio tab
@@ -4139,6 +4166,16 @@ public class ConfigWindow {
         Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
     overlayPanelHighlightRightClickCheckbox.setSelected(
         Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(Settings.currentProfile));
+    // if (Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile)
+    //         == Renderer.OverlayFontStyle.JAGEX.getValue()) {
+    //   overlayPanelFontStyleJagexFocusButton.setSelected(true);
+    if (Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile)
+        == Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue()) {
+      overlayPanelFontStyleJagexBorderedFocusButton.setSelected(true);
+    } else if (Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile)
+        == Renderer.OverlayFontStyle.LEGACY.getValue()) {
+      overlayPanelFontStyleLegacyFocusButton.setSelected(true);
+    }
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
@@ -4573,6 +4610,13 @@ public class ConfigWindow {
         Settings.currentProfile, Util.colorToInt(itemHighlightColour));
     Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
         Settings.currentProfile, overlayPanelHighlightRightClickCheckbox.isSelected());
+    Settings.OVERLAY_FONT_STYLE.put(
+        Settings.currentProfile,
+        // overlayPanelFontStyleJagexFocusButton.isSelected()
+        //         ? Renderer.OverlayFontStyle.JAGEX.getValue() :
+        overlayPanelFontStyleJagexBorderedFocusButton.isSelected()
+            ? Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue()
+            : Renderer.OverlayFontStyle.LEGACY.getValue());
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());

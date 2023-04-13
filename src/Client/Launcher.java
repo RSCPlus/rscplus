@@ -549,8 +549,14 @@ public class Launcher extends JFrame implements Runnable {
   public static void finishedLoading() {
     // Remember world setting
     Client.lastIsMembers = Client.members;
+
     Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+
     GameApplet.syncWikiHbarImageWithFontSetting();
+
+    // Load glyph data for custom Jagex fonts
+    GameApplet.loadGlyphData();
+
     if (Client.firstTime) {
       Client.firstTime = false;
     }

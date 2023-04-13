@@ -316,7 +316,8 @@ public class WorldMapWindow {
           else if (plane == 0 || plane == 3) g.setColor(color_scenery_normal);
           else g.setColor(color_scenery_indoors);
 
-          // Renderer.drawShadowText(g, scenery.id + "", p.x, p.y - 16, Renderer.color_text, true);
+          // Renderer.drawShadowText(g, scenery.id + "", p.x, p.y - 16, Renderer.color_text, true,
+          // false, true);
           drawMapPoint(g, p.x, p.y);
         }
       }
@@ -452,7 +453,8 @@ public class WorldMapWindow {
         bounds.y + (bounds.height / 2),
         Renderer.color_text,
         true,
-        false);
+        false,
+        true);
   }
 
   private static void buildSearchResults() {
@@ -599,7 +601,8 @@ public class WorldMapWindow {
         bounds.y + (bounds.height / 2) + 4,
         searchColor,
         false,
-        false);
+        false,
+        true);
 
     if (searchResults != null || searchOverflow) {
       // Calculate height
@@ -648,7 +651,8 @@ public class WorldMapWindow {
             bounds.y - 8 - (i * 16),
             resultColor,
             false,
-            false);
+            false,
+            true);
 
         // Only 1 result
         if (searchResults.length == 1) break;
@@ -662,7 +666,8 @@ public class WorldMapWindow {
             bounds.y - 8,
             Renderer.color_text,
             false,
-            false);
+            false,
+            true);
       } else if (searchResults.length == 0) {
         Renderer.drawShadowText(
             g,
@@ -671,7 +676,8 @@ public class WorldMapWindow {
             bounds.y - 8,
             Renderer.color_text,
             false,
-            false);
+            false,
+            true);
       } else {
         if (searchResults.length > SEARCH_RESULTS_MAX) {
           int remaining = searchResults.length - searchIndex;
@@ -684,7 +690,8 @@ public class WorldMapWindow {
               bounds.y - 8 - (SEARCH_RESULTS_MAX * 16),
               Renderer.color_text,
               false,
-              false);
+              false,
+              true);
         }
       }
     }
@@ -1687,7 +1694,7 @@ public class WorldMapWindow {
         labelColor = Renderer.color_item_highlighted;
 
       Renderer.drawShadowText(
-          g, line, x - offsetX + width / 2, y + offsetY, labelColor, false, false);
+          g, line, x - offsetX + width / 2, y + offsetY, labelColor, false, false, true);
       y += height;
     }
   }
@@ -1806,7 +1813,14 @@ public class WorldMapWindow {
             p.y - pointImage.getHeight(null) / 2 + (tileSize / 2),
             null);
         Renderer.drawShadowText(
-            g, "Your destination", p.x + tileSize / 2, p.y - 28, Renderer.color_low, true, false);
+            g,
+            "Your destination",
+            p.x + tileSize / 2,
+            p.y - 28,
+            Renderer.color_low,
+            true,
+            false,
+            true);
         setAlpha(g, 1.0f);
       }
 
@@ -1827,7 +1841,8 @@ public class WorldMapWindow {
             p.y - 28,
             Renderer.color_item_highlighted,
             true,
-            false);
+            false,
+            true);
         setAlpha(g, 1.0f);
       }
 
@@ -1835,7 +1850,14 @@ public class WorldMapWindow {
       g.setFont(Renderer.font_main);
       if (developmentMode) {
         Renderer.drawShadowText(
-            g, "DEVELOPMENT MODE", posTextBounds.x, renderY, Renderer.color_text, false, false);
+            g,
+            "DEVELOPMENT MODE",
+            posTextBounds.x,
+            renderY,
+            Renderer.color_text,
+            false,
+            false,
+            true);
         renderY += 16;
       }
       Renderer.drawShadowText(
@@ -1845,14 +1867,15 @@ public class WorldMapWindow {
           renderY,
           Renderer.color_fatigue,
           false,
-          false);
+          false,
+          true);
 
       drawButton(g, "^", floorUpBounds);
       drawButton(g, "v", floorDownBounds);
       drawButton(g, "-", zoomDownBounds);
       drawButton(g, "+", zoomUpBounds);
       // Renderer.drawShadowText(g, "Floor", floorTextBounds.x, floorTextBounds.y - 54,
-      // Renderer.color_text, true);
+      // Renderer.color_text, true, false, true);
       g.setFont(Renderer.font_big);
 
       final String[] floorNames = {"G", "1", "2", "B"};
@@ -1864,7 +1887,8 @@ public class WorldMapWindow {
           floorTextBounds.y,
           Renderer.color_text,
           true,
-          false);
+          false,
+          true);
       Renderer.drawShadowText(
           g,
           Integer.toString((int) zoom) + "x",
@@ -1872,7 +1896,8 @@ public class WorldMapWindow {
           zoomTextBounds.y,
           Renderer.color_text,
           true,
-          false);
+          false,
+          true);
 
       if (renderChunkLabelling) {
         drawButton(g, "Disable Chunk Labelling", chunkLabellingBounds);
@@ -1951,7 +1976,7 @@ public class WorldMapWindow {
               y + offsetY + (7 - legends[i].getHeight(null) / 2),
               null);
           Renderer.drawShadowText(
-              g, legendText[i], x + 18, y + offsetY + 12, Renderer.color_text, false, false);
+              g, legendText[i], x + 18, y + offsetY + 12, Renderer.color_text, false, false, true);
           offsetY += 16;
           if (offsetY >= maxY) {
             x += 150;

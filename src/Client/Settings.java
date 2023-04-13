@@ -256,6 +256,7 @@ public class Settings {
   public static HashMap<String, Integer> ITEM_HIGHLIGHT_COLOUR = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> OVERLAY_FONT_STYLE = new HashMap<>();
 
   //// bank
   public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT =
@@ -1892,6 +1893,16 @@ public class Settings {
             "highlight_items_right_click_menu",
             HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get("default")));
 
+    OVERLAY_FONT_STYLE.put("vanilla", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put(
+        "vanilla_resizable", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put("lite", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put("default", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put("heavy", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put("all", Renderer.OverlayFontStyle.JAGEX_BORDERED.getValue());
+    OVERLAY_FONT_STYLE.put(
+        "custom", getPropInt(props, "overlay_font_style", OVERLAY_FONT_STYLE.get("default")));
+
     //// bank
     START_REMEMBERED_FILTER_SORT.put("vanilla", false);
     START_REMEMBERED_FILTER_SORT.put("vanilla_resizable", false);
@@ -3105,6 +3116,7 @@ public class Settings {
       props.setProperty(
           "highlight_items_right_click_menu",
           Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
+      props.setProperty("overlay_font_style", Integer.toString(OVERLAY_FONT_STYLE.get(preset)));
 
       //// bank
       props.setProperty("show_bank_value", Boolean.toString(SHOW_BANK_VALUE.get(preset)));
@@ -3976,6 +3988,29 @@ public class Settings {
       Launcher.getConfigWindow().synchronizeGuiValues();
     } catch (Exception e) {
       Client.displayMessage(outOfBoundsMessage, Client.CHAT_QUEST);
+    }
+
+    save();
+  }
+
+  public static void setOverlayFontStyle(String styleString) {
+    String invalidValueMessage = "@whi@Please select a value of 1 or 2";
+
+    try {
+      int style = Integer.parseInt(styleString);
+
+      if (style < 1 || style > 2) {
+        Client.displayMessage(invalidValueMessage, Client.CHAT_QUEST);
+        return;
+      }
+
+      OVERLAY_FONT_STYLE.put(currentProfile, style);
+      Client.displayMessage(
+          "@cya@Overlay font style set to: " + Renderer.OverlayFontStyle.from(style).name(),
+          Client.CHAT_NONE);
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    } catch (Exception e) {
+      Client.displayMessage(invalidValueMessage, Client.CHAT_QUEST);
     }
 
     save();

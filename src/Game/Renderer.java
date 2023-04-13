@@ -46,13 +46,19 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBufferInt;
 import java.awt.image.ImageConsumer;
+import java.awt.image.Raster;
 import java.awt.image.RasterFormatException;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -2467,7 +2473,7 @@ public class Renderer {
 
   public static void drawShadowText(
       Graphics2D g, String text, int x, int y, Color textColor, boolean center) {
-    drawShadowText(g, text, x, y, textColor, center, true);
+    drawShadowText(g, text, x, y, textColor, center, true, false);
   }
 
   public static void drawShadowText(
@@ -2478,8 +2484,43 @@ public class Renderer {
       Color textColor,
       boolean center,
       boolean hideForRightClickMenu) {
+    drawShadowText(g, text, x, y, textColor, center, hideForRightClickMenu, false);
+  }
+
+  public static void drawShadowText(
+      Graphics2D g,
+      String text,
+      int x,
+      int y,
+      Color textColor,
+      boolean center,
+      boolean hideForRightClickMenu,
+      boolean forceLegacyFont) {
+
+    final OverlayFontStyle overlayFontStyle;
+
+    // TODO: Use custom fonts for all the various text sizes in WorldMapWindow,
+    //  then remove the force flag option and the method overload that accommodates it.
+    if (forceLegacyFont) {
+      overlayFontStyle = OverlayFontStyle.LEGACY;
+    } else {
+      overlayFontStyle =
+          OverlayFontStyle.from(Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile));
+    }
+
+    boolean isJagexFont = overlayFontStyle != OverlayFontStyle.LEGACY;
+
+    final GameApplet.GlyphData glyphData;
+
+    // Defaults to h11b unless it's explicitly using font_big
+    if (g.getFont().equals(font_big)) {
+      glyphData = GameApplet.h22bGlyphData;
+    } else {
+      glyphData = GameApplet.h11bGlyphData;
+    }
+
     int textX = x;
-    int textY = y;
+    int textY = y - (isJagexFont ? glyphData.getBaseLine() : 0);
 
     Dimension bounds = getStringBounds(g, text);
 
@@ -2491,7 +2532,10 @@ public class Renderer {
     if (hideForRightClickMenu && showingRightClickMenu) {
       Rectangle drawBounds =
           new Rectangle(
-              textX - 2, textY - (bounds.height - 2), bounds.width + 2, bounds.height + 2);
+              textX - 2,
+              textY + (isJagexFont ? glyphData.getBaseLine() : 0) - (bounds.height - 2),
+              bounds.width + 2,
+              bounds.height + 2);
       Rectangle menuBounds =
           new Rectangle(
               rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
@@ -2501,14 +2545,27 @@ public class Renderer {
       }
     }
 
-    g.setColor(color_shadow);
-    g.drawString(text, textX + 1, textY);
-    g.drawString(text, textX - 1, textY);
-    g.drawString(text, textX, textY + 1);
-    g.drawString(text, textX, textY - 1);
+    switch (overlayFontStyle) {
+      default:
+        // case JAGEX:
+        //   renderText(g, glyphData, text, textX, textY, textColor);
+        //   g.setColor(textColor);
+        //   break;
+      case JAGEX_BORDERED:
+        renderTextBordered(g, glyphData, text, textX, textY, textColor);
+        g.setColor(textColor);
+        break;
+      case LEGACY:
+        g.setColor(color_shadow);
+        g.drawString(text, textX + 1, textY);
+        g.drawString(text, textX - 1, textY);
+        g.drawString(text, textX, textY + 1);
+        g.drawString(text, textX, textY - 1);
 
-    g.setColor(textColor);
-    g.drawString(text, textX, textY);
+        g.setColor(textColor);
+        g.drawString(text, textX, textY);
+        break;
+    }
   }
 
   public static void drawColoredText(Graphics2D g, String text, int x, int y, boolean center) {
@@ -2517,8 +2574,22 @@ public class Renderer {
 
   public static void drawColoredText(
       Graphics2D g, String text, int x, int y, boolean center, boolean hideForRightClickMenu) {
+    final OverlayFontStyle overlayFontStyle =
+        OverlayFontStyle.from(Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile));
+
+    boolean isJagexFont = overlayFontStyle != OverlayFontStyle.LEGACY;
+
+    final GameApplet.GlyphData glyphData;
+
+    // Defaults to h11b unless it's explicitly using font_big
+    if (g.getFont().equals(font_big)) {
+      glyphData = GameApplet.h22bGlyphData;
+    } else {
+      glyphData = GameApplet.h11bGlyphData;
+    }
+
     int textX = x;
-    int textY = y;
+    int textY = y - (isJagexFont ? glyphData.getBaseLine() : 0);
 
     Dimension bounds = getStringBounds(g, text.replaceAll("@...@", ""));
 
@@ -2530,7 +2601,10 @@ public class Renderer {
     if (hideForRightClickMenu && showingRightClickMenu) {
       Rectangle drawBounds =
           new Rectangle(
-              textX - 2, textY - (bounds.height - 2), bounds.width + 2, bounds.height + 2);
+              textX - 2,
+              textY + (isJagexFont ? glyphData.getBaseLine() : 0) - (bounds.height - 2),
+              bounds.width + 2,
+              bounds.height + 2);
       Rectangle menuBounds =
           new Rectangle(
               rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
@@ -2552,14 +2626,28 @@ public class Renderer {
 
       if (currentColor != outputColor) {
         if (outputText.length() > 0) {
-          g.setColor(color_shadow);
-          g.drawString(outputText, textX + 1, textY);
-          g.drawString(outputText, textX - 1, textY);
-          g.drawString(outputText, textX, textY + 1);
-          g.drawString(outputText, textX, textY - 1);
 
-          g.setColor(currentColor);
-          g.drawString(outputText, textX, textY);
+          switch (overlayFontStyle) {
+            default:
+              // case JAGEX:
+              //   renderText(g, glyphData, outputText, textX, textY, textColor);
+              //   g.setColor(currentColor);
+              //   break;
+            case JAGEX_BORDERED:
+              renderTextBordered(g, glyphData, outputText, textX, textY, currentColor);
+              g.setColor(currentColor);
+              break;
+            case LEGACY:
+              g.setColor(color_shadow);
+              g.drawString(outputText, textX + 1, textY);
+              g.drawString(outputText, textX - 1, textY);
+              g.drawString(outputText, textX, textY + 1);
+              g.drawString(outputText, textX, textY - 1);
+
+              g.setColor(currentColor);
+              g.drawString(outputText, textX, textY);
+              break;
+          }
           textX += getStringBounds(g, outputText).width;
         }
         currentColor = outputColor;
@@ -2569,14 +2657,27 @@ public class Renderer {
       outputText += text.charAt(i);
     }
 
-    g.setColor(color_shadow);
-    g.drawString(outputText, textX + 1, textY);
-    g.drawString(outputText, textX - 1, textY);
-    g.drawString(outputText, textX, textY + 1);
-    g.drawString(outputText, textX, textY - 1);
+    switch (overlayFontStyle) {
+      default:
+        // case JAGEX:
+        //   renderText(g, glyphData, outputText, textX, textY, textColor);
+        //   g.setColor(currentColor);
+        //   break;
+      case JAGEX_BORDERED:
+        renderTextBordered(g, glyphData, outputText, textX, textY, currentColor);
+        g.setColor(currentColor);
+        break;
+      case LEGACY:
+        g.setColor(color_shadow);
+        g.drawString(outputText, textX + 1, textY);
+        g.drawString(outputText, textX - 1, textY);
+        g.drawString(outputText, textX, textY + 1);
+        g.drawString(outputText, textX, textY - 1);
 
-    g.setColor(currentColor);
-    g.drawString(outputText, textX, textY);
+        g.setColor(currentColor);
+        g.drawString(outputText, textX, textY);
+        break;
+    }
   }
 
   public static void drawShadowTextBorder(
@@ -2590,8 +2691,23 @@ public class Renderer {
       boolean border,
       boolean hideForRightClickMenu,
       int borderSize) {
+
+    final OverlayFontStyle overlayFontStyle =
+        OverlayFontStyle.from(Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile));
+
+    boolean isJagexFont = overlayFontStyle != OverlayFontStyle.LEGACY;
+
+    final GameApplet.GlyphData glyphData;
+
+    // Defaults to h11b unless it's explicitly using font_big
+    if (g.getFont().equals(font_big)) {
+      glyphData = GameApplet.h22bGlyphData;
+    } else {
+      glyphData = GameApplet.h11bGlyphData;
+    }
+
     int textX = x;
-    int textY = y;
+    int textY = y - (isJagexFont ? glyphData.getBaseLine() : 0);
     Dimension bounds = getStringBounds(g, text);
     textX -= (bounds.width / 2);
     textY += (bounds.height / 2);
@@ -2619,13 +2735,83 @@ public class Renderer {
     setAlpha(g, boxAlpha);
     g.fillRect(rectX, rectY, rectWidth, rectHeight);
     setAlpha(g, alpha);
-    g.drawString(text, textX + 1, textY);
-    g.drawString(text, textX - 1, textY);
-    g.drawString(text, textX, textY + 1);
-    g.drawString(text, textX, textY - 1);
 
-    g.setColor(textColor);
-    g.drawString(text, textX, textY);
+    switch (overlayFontStyle) {
+      default:
+        // case JAGEX:
+        //   renderText(g, glyphData, text, textX, textY, textColor);
+        //   g.setColor(textColor);
+        //   break;
+      case JAGEX_BORDERED:
+        renderTextBordered(g, glyphData, text, textX, textY, textColor);
+        g.setColor(textColor);
+        break;
+      case LEGACY:
+        g.drawString(text, textX + 1, textY);
+        g.drawString(text, textX - 1, textY);
+        g.drawString(text, textX, textY + 1);
+        g.drawString(text, textX, textY - 1);
+
+        g.setColor(textColor);
+        g.drawString(text, textX, textY);
+        break;
+    }
+  }
+
+  /**
+   * Renders text from provided {@link GameApplet.GlyphData}, with a regular Jagex-style shadow
+   * TODO: Use at some point in the future
+   */
+  public static void renderText(
+      Graphics g2, GameApplet.GlyphData glyphData, String text, int locX, int locY, Color colour) {
+    renderText(g2, glyphData, text, locX, locY, colour, false);
+  }
+
+  /**
+   * Renders text from provided {@link GameApplet.GlyphData}, with a full surrounding black 1px
+   * border
+   */
+  public static void renderTextBordered(
+      Graphics g2, GameApplet.GlyphData glyphData, String text, int locX, int locY, Color colour) {
+    locX--; // Adjust for the 1px shadow offset
+    renderText(g2, glyphData, text, locX, locY, colour, true);
+  }
+
+  /**
+   * Renders text from provided {@link GameApplet.GlyphData}, drawing it onto a {@link Graphics}
+   * object
+   */
+  private static void renderText(
+      Graphics g2,
+      GameApplet.GlyphData glyphData,
+      String text,
+      int locX,
+      int locY,
+      Color colour,
+      boolean bordered) {
+    int[][] pixelMap = GameApplet.getTextPixelMap(glyphData, text, colour, bordered);
+
+    int w = pixelMap[0].length;
+    int h = pixelMap.length;
+
+    // Flatten pixelMap
+    int[] data = new int[w * h];
+    int idx = 0;
+    for (int[] bytes : pixelMap) {
+      for (int j = 0; j < w; j++) {
+        data[idx++] = bytes[j];
+      }
+    }
+
+    // Create BufferedImage from data buffer
+    DataBufferInt db = new DataBufferInt(data, w * h);
+    ColorModel cm = ColorModel.getRGBdefault();
+    SampleModel sm = cm.createCompatibleSampleModel(w, h);
+    WritableRaster wr = Raster.createWritableRaster(sm, db, null);
+    BufferedImage textImage = new BufferedImage(cm, wr, false, null);
+
+    // Draw the BufferedImage
+    g2.drawImage(textImage, locX, locY, null);
   }
 
   // rather than import someone else's font and try to get the unicode to work,
@@ -2952,6 +3138,29 @@ public class Renderer {
     Camera.add_lookat_y = 0;
     Camera.rotation = screenshot_scenery_angle;
     Camera.delta_rotation = (float) Camera.rotation;
+  }
+
+  public enum OverlayFontStyle {
+    //    JAGEX(1),
+    JAGEX_BORDERED(1),
+    LEGACY(2);
+
+    private final int overlayFontStyle;
+
+    OverlayFontStyle(int overlayFontStyle) {
+      this.overlayFontStyle = overlayFontStyle;
+    }
+
+    public int getValue() {
+      return overlayFontStyle;
+    }
+
+    public static OverlayFontStyle from(int value) {
+      return Arrays.stream(values())
+          .filter(type -> type.getValue() == value)
+          .findFirst()
+          .orElse(OverlayFontStyle.JAGEX_BORDERED);
+    }
   }
 }
 
