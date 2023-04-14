@@ -1889,11 +1889,11 @@ public class ConfigWindow {
     overlayPanelItemHighlightColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
     overlayPanelItemHighlightColourSubpanel.setBackground(itemHighlightColour);
 
-    JPanel overlayPanelPvpNamesSpacingPanel = new JPanel();
-    overlayPanelItemHighlightColourPanel.add(overlayPanelPvpNamesSpacingPanel);
-    overlayPanelPvpNamesSpacingPanel.setMinimumSize(new Dimension(4, 20));
-    overlayPanelPvpNamesSpacingPanel.setPreferredSize(new Dimension(4, 20));
-    overlayPanelPvpNamesSpacingPanel.setMaximumSize(new Dimension(4, 20));
+    JPanel overlayPanelItemHighlightColourSpacingPanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSpacingPanel);
+    overlayPanelItemHighlightColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
 
     JButton rightClickHighlightColourChooserButton = new JButton("Choose colour");
     rightClickHighlightColourChooserButton.addActionListener(
