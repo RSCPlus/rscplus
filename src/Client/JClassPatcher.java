@@ -5230,7 +5230,10 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 15));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IADD));
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
-            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode(16766720));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "ITEM_HIGHLIGHT_COLOUR_INT", "I"));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
             methodNode.instructions.insertBefore(

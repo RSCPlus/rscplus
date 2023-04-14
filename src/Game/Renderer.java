@@ -583,7 +583,8 @@ public class Renderer {
 
               // Check if item is in highlighted list
               if (itemInHighlightList(item.getName())) {
-                itemColor = color_item_highlighted;
+                itemColor =
+                    Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
                 drawHighlighImage(g2, itemText, x, y);
               }
 

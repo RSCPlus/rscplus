@@ -250,6 +250,7 @@ public class Settings {
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, Integer> ITEM_HIGHLIGHT_COLOUR = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
       new HashMap<String, Boolean>();
 
@@ -361,6 +362,7 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
+  public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -1838,6 +1840,15 @@ public class Settings {
     BLOCKED_ITEMS.put(
         "custom", getPropArrayListString(props, "blocked_items", BLOCKED_ITEMS.get("default")));
 
+    ITEM_HIGHLIGHT_COLOUR.put("vanilla", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("vanilla_resizable", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("lite", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("default", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("heavy", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("all", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put(
+        "custom", getPropInt(props, "item_highlight_colour", ITEM_HIGHLIGHT_COLOUR.get("default")));
+
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla", false);
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla_resizable", false);
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("lite", false);
@@ -3037,6 +3048,8 @@ public class Settings {
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
+      props.setProperty(
+          "item_highlight_colour", Integer.toString(ITEM_HIGHLIGHT_COLOUR.get(preset)));
       props.setProperty(
           "highlight_items_right_click_menu",
           Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
@@ -4331,6 +4344,7 @@ public class Settings {
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
     LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
     HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
+    ITEM_HIGHLIGHT_COLOUR_INT = ITEM_HIGHLIGHT_COLOUR.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {
