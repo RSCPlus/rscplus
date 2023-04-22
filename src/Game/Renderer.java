@@ -464,15 +464,13 @@ public class Renderer {
                   || Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile))) {
                 showName = true;
               }
-            } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)
-                && npc.name != null
-                && Client.player_name != null
-                && !npc.name.equals(Client.player_name)) {
-              showName = true;
-            } else if (Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile)
-                && npc.name != null
-                && npc.name.equals(Client.player_name)) {
-              showName = true;
+            } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
+              boolean isOwnName = npc.name != null && npc.name.equals(Client.player_name);
+              if (isOwnName) {
+                showName = Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile);
+              } else {
+                showName = true;
+              }
             }
           } else if (npc.type == NPC.TYPE_MOB
               && Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile)) {

@@ -1768,8 +1768,8 @@ public class ConfigWindow {
     overlayPanelPlayerNamesCheckbox.setToolTipText(
         "Shows players' display names over their character");
 
-    overlayPanelOwnNameCheckbox = addCheckbox("Show your own name over your head", overlayPanel);
-    overlayPanelOwnNameCheckbox.setToolTipText("Shows your own display name over your character");
+    overlayPanelOwnNameCheckbox = addCheckbox("Show your own name over your head when player names are enabled", overlayPanel);
+    overlayPanelOwnNameCheckbox.setToolTipText("Shows your own display name over your character when player names are shown");
 
     overlayPanelFriendNamesCheckbox =
         addCheckbox("Show nearby friend names over their heads", overlayPanel);
