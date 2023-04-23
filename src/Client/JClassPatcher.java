@@ -79,6 +79,7 @@ public class JClassPatcher {
     else if (node.name.equals("da")) patchGameApplet(node);
     else if (node.name.equals("lb")) patchRendererHelper(node);
     else if (node.name.equals("sa")) patchSoundHelper(node);
+    else if (node.name.equals("wb")) patchRightClickMenu(node);
 
     // Patch applied to all classes
     patchGeneric(node);
@@ -5089,6 +5090,171 @@ public class JClassPatcher {
 
             break;
           }
+        }
+      }
+    }
+  }
+
+  private void patchRightClickMenu(ClassNode node) {
+    Logger.Info("Patching right-click menu (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      // Hook right-click menu draw
+      if (methodNode.name.equals("a") && methodNode.desc.equals("(IIIIIZ)I")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+
+        // Highlighting items in the right-click menu
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.DUP) {
+            LabelNode skipLabel = new LabelNode();
+
+            AbstractInsnNode insnNode = start;
+            insnNode = insnNode.getPrevious().getPrevious().getPrevious();
+
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 13));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Settings",
+                    "updateInjectedVariables",
+                    "()V",
+                    false));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "HIGHLIGHT_ITEMS_MENU_BOOL", "Z"));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFEQ, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "b", "[Lt;"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "t", "o", "Ljava/lang/String;"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 14));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "b", "[Lt;"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 10));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.AALOAD));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "t", "p", "Ljava/lang/String;"));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("Take"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "java/lang/String",
+                    "equals",
+                    "(Ljava/lang/Object;)Z",
+                    false));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFEQ, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 14));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("@lre@"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "java/lang/String",
+                    "startsWith",
+                    "(Ljava/lang/String;)Z",
+                    false));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFEQ, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 14));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Renderer",
+                    "itemInHighlightList",
+                    "(Ljava/lang/String;)Z",
+                    false));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.DUP));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 13));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFEQ, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 14));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("@lre@"));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode(""));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "java/lang/String",
+                    "replaceFirst",
+                    "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+                    false));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 14));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("Take "));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "calcStringLength",
+                    "(Ljava/lang/String;)I",
+                    false));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 15));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "t", "Lba;"));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("Take "));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -2));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ISUB));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 11));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "i", "I"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL, "ba", "a", "(Ljava/lang/String;IIIZI)V", false));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "t", "Lba;"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 14));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.BIPUSH, -2));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ISUB));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 15));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IADD));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "ITEM_HIGHLIGHT_COLOUR_INT", "I"));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETFIELD, "wb", "i", "I"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL, "ba", "a", "(Ljava/lang/String;IIIZI)V", false));
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
+            LabelNode skipLabel2 = new LabelNode();
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 13));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFNE, skipLabel2));
+            AbstractInsnNode insnNode2 = start;
+            for (int i = 0; i < 26; i++) insnNode2 = insnNode2.getNext();
+            methodNode.instructions.insertBefore(insnNode2, skipLabel2);
+
+            break;
+          }
+
+          start = start.getNext();
         }
       }
     }
