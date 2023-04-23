@@ -2134,13 +2134,14 @@ public class ConfigWindow {
         "Highlights items from the above list in the right-click menu");
     overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
 
-    configItems.add(List.of(
-        overlayPanelItemNamesCheckbox,
-        blockedItemsPanel,
-        highlightedItemsPanel,
-        overlayPanelItemHighlightColourPanel,
-        overlayPanelHighlightRightClickCheckbox
-    ), ConfigWindowTabs.OVERLAYS);
+    configItems.add(
+        List.of(
+            overlayPanelItemNamesCheckbox,
+            blockedItemsPanel,
+            highlightedItemsPanel,
+            overlayPanelItemHighlightColourPanel,
+            overlayPanelHighlightRightClickCheckbox),
+        ConfigWindowTabs.OVERLAYS);
 
     /*
      * Audio tab
