@@ -475,6 +475,27 @@ public class Renderer {
               if (isOwnName) {
                 showName = Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile);
               } else {
+                if (Settings.SHOW_PVP_NAME_OVERLAY.get(Settings.currentProfile)) {
+                  if (Client.is_in_wild && npc.getWildernessLevel() > 0) {
+                    boolean canAttack = false;
+
+                    if (Client.wild_level >= npc.getWildernessLevel()) {
+                      if (Math.abs(Client.getPlayerLevel() - npc.level)
+                          <= npc.getWildernessLevel()) {
+                        canAttack = true;
+                      }
+                    } else {
+                      if (Math.abs(Client.getPlayerLevel() - npc.level) <= Client.wild_level) {
+                        canAttack = true;
+                      }
+                    }
+
+                    if (canAttack) {
+                      color =
+                          Util.intToColor(Settings.PVP_NAMES_COLOUR.get(Settings.currentProfile));
+                    }
+                  }
+                }
                 showName = true;
               }
             }
