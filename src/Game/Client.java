@@ -221,6 +221,7 @@ public class Client {
 
   public static Object player_object;
   public static String player_name = "";
+  public static int player_id = -1;
   public static String xpUsername = "";
   public static boolean knowWhoIAm = false;
   public static int player_posX = -1;
@@ -1016,6 +1017,7 @@ public class Client {
 
     if (state == STATE_GAME) {
       Client.getPlayerName();
+      player_id = Client.getPlayerId();
       Client.adaptLoginInfo();
     }
 
@@ -1211,6 +1213,7 @@ public class Client {
     Replay.closeReplayRecording();
     adaptStrings();
     player_name = "";
+    player_id = -1;
   }
 
   public static void init_game() {
@@ -1293,6 +1296,7 @@ public class Client {
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
     player_name = "";
+    player_id = -1;
     knowWhoIAm = false;
     Client.tipOfDay = -1;
   }
@@ -1586,6 +1590,17 @@ public class Client {
     }
   }
 
+  /** Stores the user's pid in {@link #player_id}. */
+  public static int getPlayerId() {
+    int pid = -1;
+    try {
+      pid = (int) Reflection.characterId.get(player_object);
+      return pid;
+    } catch (Exception e) {
+    }
+    return pid;
+  }
+
   public static int getPlayerWaypointX() {
     int x = 0;
     try {
@@ -1706,6 +1721,9 @@ public class Client {
           break;
         case "toggleplayerinfo":
           Settings.toggleShowPlayerNameOverlay();
+          break;
+        case "toggleowninfo":
+          Settings.toggleShowOwnNameOverlay();
           break;
         case "togglefriendinfo":
           Settings.toggleShowFriendNameOverlay();

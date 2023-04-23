@@ -441,6 +441,15 @@ public class Renderer {
         List<Rectangle> player_hitbox = new ArrayList<>();
         List<Point> entity_text_loc = new ArrayList<>();
 
+        try {
+          Client.npc_list.sort(
+              Comparator.comparing(
+                  npc -> npc.name, Comparator.nullsLast(Comparator.naturalOrder())));
+        } catch (Exception e) {
+          // Sometimes Java helpfully complains that the sorting method violates its general
+          // contract.
+        }
+
         for (Iterator<NPC> iterator = Client.npc_list.iterator(); iterator.hasNext(); ) {
           NPC npc = iterator.next(); // TODO: Remove unnecessary allocations
           Color color = color_low;
@@ -456,7 +465,12 @@ public class Renderer {
                 showName = true;
               }
             } else if (Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile)) {
-              showName = true;
+              boolean isOwnName = npc.name != null && npc.name.equals(Client.player_name);
+              if (isOwnName) {
+                showName = Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile);
+              } else {
+                showName = true;
+              }
             }
           } else if (npc.type == NPC.TYPE_MOB
               && Settings.SHOW_NPC_NAME_OVERLAY.get(Settings.currentProfile)) {
@@ -522,7 +536,6 @@ public class Renderer {
           } catch (Exception e) {
             // Sometimes Java helpfully complains that the sorting method violates its general
             // contract.
-            e.printStackTrace();
           }
         }
 
@@ -1314,7 +1327,8 @@ public class Renderer {
 
         x = 380;
         y = 32;
-        drawShadowText(g2, Client.player_name, x, y, color_text, false);
+        drawShadowText(
+            g2, Client.player_name + " (pid: " + Client.player_id + ")", x, y, color_text, false);
         y += 16;
         drawShadowText(g2, "Player Count: " + playerCount, x, y, color_text, false);
         y += 16;

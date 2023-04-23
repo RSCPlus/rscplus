@@ -230,6 +230,7 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_OWN_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_NPC_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> EXTEND_IDS_OVERLAY = new HashMap<String, Boolean>();
@@ -1686,6 +1687,15 @@ public class Settings {
         "custom",
         getPropBoolean(props, "show_playerinfo", SHOW_PLAYER_NAME_OVERLAY.get("default")));
 
+    SHOW_OWN_NAME_OVERLAY.put("vanilla", false);
+    SHOW_OWN_NAME_OVERLAY.put("vanilla_resizable", false);
+    SHOW_OWN_NAME_OVERLAY.put("lite", false);
+    SHOW_OWN_NAME_OVERLAY.put("default", false);
+    SHOW_OWN_NAME_OVERLAY.put("heavy", false);
+    SHOW_OWN_NAME_OVERLAY.put("all", true);
+    SHOW_OWN_NAME_OVERLAY.put(
+        "custom", getPropBoolean(props, "show_owninfo", SHOW_OWN_NAME_OVERLAY.get("default")));
+
     SHOW_FRIEND_NAME_OVERLAY.put("vanilla", false);
     SHOW_FRIEND_NAME_OVERLAY.put("vanilla_resizable", false);
     SHOW_FRIEND_NAME_OVERLAY.put("lite", false);
@@ -3031,6 +3041,7 @@ public class Settings {
           Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
+      props.setProperty("show_owninfo", Boolean.toString(SHOW_OWN_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
       props.setProperty("show_npcinfo", Boolean.toString(SHOW_NPC_NAME_OVERLAY.get(preset)));
       props.setProperty("extend_idsinfo", Boolean.toString(EXTEND_IDS_OVERLAY.get(preset)));
@@ -3597,6 +3608,20 @@ public class Settings {
     save();
   }
 
+  public static void toggleShowOwnNameOverlay() {
+    SHOW_OWN_NAME_OVERLAY.put(currentProfile, !SHOW_OWN_NAME_OVERLAY.get(currentProfile));
+
+    if (SHOW_OWN_NAME_OVERLAY.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Your own name is now shown when player names are enabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@Your own name is no longer shown when player names are enabled", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void toggleExtendIdsOverlay() {
     EXTEND_IDS_OVERLAY.put(currentProfile, !EXTEND_IDS_OVERLAY.get(currentProfile));
 
@@ -4135,6 +4160,9 @@ public class Settings {
         return true;
       case "toggle_player_name_overlay":
         Settings.toggleShowPlayerNameOverlay();
+        return true;
+      case "toggle_own_name_overlay":
+        Settings.toggleShowOwnNameOverlay();
         return true;
       case "toggle_bypass_attack":
         Settings.toggleAttackAlwaysLeftClick();
