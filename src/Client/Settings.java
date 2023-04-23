@@ -3495,9 +3495,11 @@ public class Settings {
     SHOW_OWN_NAME_OVERLAY.put(currentProfile, !SHOW_OWN_NAME_OVERLAY.get(currentProfile));
 
     if (SHOW_OWN_NAME_OVERLAY.get(currentProfile)) {
-      Client.displayMessage("@cya@Your own name is now shown", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@Your own name is now shown when player names are enabled", Client.CHAT_NONE);
     } else {
-      Client.displayMessage("@cya@Your own name is now hidden", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@Your own name is no longer shown when player names are enabled", Client.CHAT_NONE);
     }
 
     save();
