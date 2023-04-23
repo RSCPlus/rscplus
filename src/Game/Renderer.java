@@ -582,8 +582,9 @@ public class Renderer {
               String itemText = item.getName() + ((freq == 1) ? "" : " (" + freq + ")");
 
               // Check if item is in highlighted list
-              if (stringIsWithinList(item.getName(), Settings.HIGHLIGHTED_ITEMS.get("custom"))) {
-                itemColor = color_item_highlighted;
+              if (itemInHighlightList(item.getName())) {
+                itemColor =
+                    Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
                 drawHighlighImage(g2, itemText, x, y);
               }
 
@@ -2343,6 +2344,10 @@ public class Renderer {
 
   public static void setAlpha(Graphics2D g, float alpha) {
     g.setComposite(AlphaComposite.SrcOver.derive(alpha));
+  }
+
+  public static boolean itemInHighlightList(String itemName) {
+    return Renderer.stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"));
   }
 
   public static boolean stringIsWithinList(String input, ArrayList<String> items) {

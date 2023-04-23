@@ -265,6 +265,10 @@ public class ConfigWindow {
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
+  private JPanel overlayPanelItemHighlightColourSubpanel;
+  private Color itemHighlightColour =
+      Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+  private JCheckBox overlayPanelHighlightRightClickCheckbox;
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
@@ -1863,6 +1867,56 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+
+    // Highlight colour panel
+    JPanel overlayPanelItemHighlightColourPanel = new JPanel();
+    overlayPanel.add(overlayPanelItemHighlightColourPanel);
+    overlayPanelItemHighlightColourPanel.setLayout(
+        new BoxLayout(overlayPanelItemHighlightColourPanel, BoxLayout.X_AXIS));
+    overlayPanelItemHighlightColourPanel.setPreferredSize(new Dimension(0, 26));
+    overlayPanelItemHighlightColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JLabel highlightedItemColourPanelNameLabel = new JLabel("Highlight colour ");
+    overlayPanelItemHighlightColourPanel.add(highlightedItemColourPanelNameLabel);
+    highlightedItemColourPanelNameLabel.setAlignmentY((float) 0.9);
+
+    overlayPanelItemHighlightColourSubpanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSubpanel);
+    overlayPanelItemHighlightColourSubpanel.setAlignmentY((float) 0.7f);
+    overlayPanelItemHighlightColourSubpanel.setMinimumSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setPreferredSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setMaximumSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    overlayPanelItemHighlightColourSubpanel.setBackground(itemHighlightColour);
+
+    JPanel overlayPanelItemHighlightColourSpacingPanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSpacingPanel);
+    overlayPanelItemHighlightColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton rightClickHighlightColourChooserButton = new JButton("Choose colour");
+    rightClickHighlightColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose item highlight colour", itemHighlightColour);
+            if (null != selected) {
+              itemHighlightColour = selected;
+            }
+            overlayPanelItemHighlightColourSubpanel.setBackground(itemHighlightColour);
+          }
+        });
+    overlayPanelItemHighlightColourPanel.add(rightClickHighlightColourChooserButton);
+    rightClickHighlightColourChooserButton.setAlignmentY(0.7f);
+    ////////////
+
+    overlayPanelHighlightRightClickCheckbox =
+        addCheckbox("Highlight items in the right-click menu", overlayPanel);
+    overlayPanelHighlightRightClickCheckbox.setToolTipText(
+        "Highlights items from the above list in the right-click menu");
+    overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
 
     /*
      * Audio tab
@@ -4012,6 +4066,10 @@ public class ConfigWindow {
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
+    itemHighlightColour =
+        Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+    overlayPanelHighlightRightClickCheckbox.setSelected(
+        Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(Settings.currentProfile));
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
@@ -4437,6 +4495,10 @@ public class ConfigWindow {
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+    Settings.ITEM_HIGHLIGHT_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(itemHighlightColour));
+    Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
+        Settings.currentProfile, overlayPanelHighlightRightClickCheckbox.isSelected());
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());

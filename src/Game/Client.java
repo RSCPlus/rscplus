@@ -2471,6 +2471,24 @@ public class Client {
   }
 
   /**
+   * Calculates the mudclient display length of a given string
+   *
+   * @param text Provided string
+   * @return Pixel length of string
+   */
+  public static int calcStringLength(String text) {
+    int x = 0;
+
+    for (int idx = 0; idx < text.length(); ++idx) {
+      int chr = text.charAt(idx);
+      int width = inputFilterCharFontAddr[chr];
+      x += fontData[7 + width];
+    }
+
+    return x;
+  }
+
+  /**
    * Index fix after menu swap of redrawMenuHook
    *
    * @param menuindex - the index of the menu
