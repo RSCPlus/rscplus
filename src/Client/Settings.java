@@ -365,7 +365,6 @@ public class Settings {
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
   public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
-
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
 

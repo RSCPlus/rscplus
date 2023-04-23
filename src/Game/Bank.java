@@ -1104,7 +1104,8 @@ public class Bank {
             269, // TODO: this will have to be adjusted once the bank is resizable
             21,
             Renderer.color_yellow,
-            true);
+            true,
+            false);
       }
     }
   }

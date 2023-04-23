@@ -140,6 +140,12 @@ public class Renderer {
   public static int screenshot_scenery_zoom = 750;
   public static int screenshot_scenery_bgcolor = 0x00FF00FF;
 
+  public static boolean showingRightClickMenu = false;
+  public static int rightClickMenuX = -1;
+  public static int rightClickMenuY = -1;
+  public static int rightClickMenuWidth = -1;
+  public static int rightClickMenuHeight = -1;
+
   public static boolean combat_menu_shown = false;
 
   public static int replayOption = 0;
@@ -598,7 +604,7 @@ public class Renderer {
               if (itemInHighlightList(item.getName())) {
                 itemColor =
                     Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
-                drawHighlighImage(g2, itemText, x, y);
+                drawHighlightImage(g2, itemText, x, y);
               }
 
               // Note that it is not possible to show how many of a
@@ -909,7 +915,8 @@ public class Renderer {
             x,
             y,
             Renderer.color_low,
-            true);
+            true,
+            false);
         setAlpha(g2, 1.0f);
       }
 
@@ -1506,10 +1513,10 @@ public class Renderer {
           g2.setColor(color_shadow);
           g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
           setAlpha(g2, 1.0f);
-          drawColoredText(g2, MouseText.getMouseOverText(), x, y);
+          drawColoredText(g2, MouseText.getMouseOverText(), x, y, false);
           x += extraOptionsOffsetX;
           y += extraOptionsOffsetY;
-          drawColoredText(g2, "@whi@" + MouseText.extraOptions, x, y);
+          drawColoredText(g2, "@whi@" + MouseText.extraOptions, x, y, false);
         } else {
           if (!MouseText.getMouseOverText().contains("Walk here")
               && !MouseText.getMouseOverText().contains("Choose a target")) {
@@ -1517,7 +1524,7 @@ public class Renderer {
             g2.setColor(color_shadow);
             g2.fillRect(x - 4, y - 12, bounds.width + 8, bounds.height - 8);
             setAlpha(g2, 1.0f);
-            drawColoredText(g2, MouseText.getMouseOverText(), x, y);
+            drawColoredText(g2, MouseText.getMouseOverText(), x, y, false);
           }
         }
       }
@@ -1526,7 +1533,7 @@ public class Renderer {
         drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
 
       // Draw world list
-      drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true);
+      drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true, false);
       for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
         Rectangle bounds = new Rectangle(134 + (i * 18), height - 12, 16, 12);
         Color color = color_text;
@@ -1539,7 +1546,7 @@ public class Renderer {
         setAlpha(g2, 1.0f);
         String worldString = Integer.toString(i);
         drawShadowText(
-            g2, worldString, bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true);
+            g2, worldString, bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true, false);
 
         // Handle world selection click
         if (bufferedMouseClick.getX() >= bounds.x
@@ -1583,7 +1590,8 @@ public class Renderer {
               recordButtonBounds.x + 48,
               recordButtonBounds.y - 10,
               color_fatigue,
-              true);
+              true,
+              false);
         } else {
           if (Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
             recordButtonBounds = new Rectangle(512 - 33, 250 - 12, 25, 25);
@@ -1657,7 +1665,8 @@ public class Renderer {
             recordButtonBounds.x + (recordButtonBounds.width / 2) + 1,
             recordButtonBounds.y + (longForm ? 6 : 10),
             color_text,
-            true);
+            true,
+            false);
 
         // Handle replay record selection click
         if (bufferedMouseClick.getX() >= recordButtonBounds.x
@@ -1700,7 +1709,8 @@ public class Renderer {
             playButtonBounds.x + (playButtonBounds.width / 2) + 1,
             playButtonBounds.y + (longForm ? 6 : 7),
             color_text,
-            true);
+            true,
+            false);
 
         // Handle replay play selection click
         if (bufferedMouseClick.getX() >= playButtonBounds.x
@@ -1763,6 +1773,7 @@ public class Renderer {
           width - 164,
           height - 2,
           color_text,
+          false,
           false);
     }
 
@@ -1825,7 +1836,8 @@ public class Renderer {
               barBounds.x + (barBounds.width / 2),
               barBounds.y + barBounds.height + 8,
               color_replay,
-              true);
+              true,
+              false);
         }
 
         float percentClient = (float) Replay.getClientRead() / Replay.getClientWrite();
@@ -1855,6 +1867,7 @@ public class Renderer {
               1.0f,
               0.75f,
               true,
+              false,
               0);
 
           if (!Replay.isSeeking && bufferedMouseClick.isMouseClicked()) Replay.seek(timestamp);
@@ -1869,6 +1882,7 @@ public class Renderer {
               color_fatigue,
               1.0f,
               0.75f,
+              false,
               false,
               2);
         }
@@ -2078,6 +2092,7 @@ public class Renderer {
               queueBounds.x + BUTTON_OFFSET_X + (int) (shapeHeight * 2),
               queueBounds.y + queueBounds.height - 2,
               color_white,
+              false,
               false);
 
           if (MouseHandler.inPlaybackButtonBounds(queueBounds)
@@ -2354,7 +2369,8 @@ public class Renderer {
         x + (image.getWidth(null) / 2),
         y + (image.getHeight(null) / 2) - 2,
         color_text,
-        true);
+        true,
+        false);
   }
 
   public static void setAlpha(Graphics2D g, float alpha) {
@@ -2363,6 +2379,13 @@ public class Renderer {
 
   public static boolean itemInHighlightList(String itemName) {
     return Renderer.stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"));
+  }
+
+  public static void setRightClickMenuBounds(int x, int y, int width, int height) {
+    rightClickMenuX = x;
+    rightClickMenuY = y;
+    rightClickMenuWidth = width;
+    rightClickMenuHeight = height;
   }
 
   public static boolean stringIsWithinList(String input, ArrayList<String> items) {
@@ -2394,24 +2417,67 @@ public class Renderer {
     return false;
   }
 
-  public static void drawHighlighImage(Graphics2D g, String text, int x, int y) {
+  public static void drawHighlightImage(Graphics2D g, String text, int x, int y) {
     int correctedX = x;
     int correctedY = y;
     // Adjust for centering
     Dimension bounds = getStringBounds(g, text);
     correctedX -= (bounds.width / 2);
     correctedY += (bounds.height / 2);
+
+    if (showingRightClickMenu) {
+      Rectangle drawBounds =
+          new Rectangle(
+              correctedX - 15 - 2,
+              correctedY - (bounds.height - 2),
+              bounds.width + 15 + 2,
+              bounds.height + 2);
+      Rectangle menuBounds =
+          new Rectangle(
+              rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
+
+      if (drawBounds.intersects(menuBounds)) {
+        return;
+      }
+    }
+
     g.drawImage(image_highlighted_item, correctedX - 15, correctedY - 10, null);
   }
 
   public static void drawShadowText(
       Graphics2D g, String text, int x, int y, Color textColor, boolean center) {
+    drawShadowText(g, text, x, y, textColor, center, true);
+  }
+
+  public static void drawShadowText(
+      Graphics2D g,
+      String text,
+      int x,
+      int y,
+      Color textColor,
+      boolean center,
+      boolean hideForRightClickMenu) {
     int textX = x;
     int textY = y;
+
+    Dimension bounds = getStringBounds(g, text);
+
     if (center) {
-      Dimension bounds = getStringBounds(g, text);
       textX -= (bounds.width / 2);
       textY += (bounds.height / 2);
+    }
+
+    if (hideForRightClickMenu && showingRightClickMenu) {
+      Rectangle drawBounds =
+          new Rectangle(
+              textX - 2, textY - (bounds.height - 2), bounds.width + 2, bounds.height + 2);
+      Rectangle menuBounds =
+          new Rectangle(
+              rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
+
+      if (drawBounds.intersects(menuBounds)) {
+        return;
+      }
     }
 
     g.setColor(color_shadow);
@@ -2424,18 +2490,33 @@ public class Renderer {
     g.drawString(text, textX, textY);
   }
 
-  public static void drawColoredText(Graphics2D g, String text, int x, int y) {
-    drawColoredText(g, text, x, y, false);
+  public static void drawColoredText(Graphics2D g, String text, int x, int y, boolean center) {
+    drawColoredText(g, text, x, y, center, true);
   }
 
-  public static void drawColoredText(Graphics2D g, String text, int x, int y, boolean center) {
+  public static void drawColoredText(
+      Graphics2D g, String text, int x, int y, boolean center, boolean hideForRightClickMenu) {
     int textX = x;
     int textY = y;
 
+    Dimension bounds = getStringBounds(g, text.replaceAll("@...@", ""));
+
     if (center) {
-      Dimension bounds = getStringBounds(g, text.replaceAll("@...@", ""));
       textX -= (bounds.width / 2);
       textY += (bounds.height / 2);
+    }
+
+    if (hideForRightClickMenu && showingRightClickMenu) {
+      Rectangle drawBounds =
+          new Rectangle(
+              textX - 2, textY - (bounds.height - 2), bounds.width + 2, bounds.height + 2);
+      Rectangle menuBounds =
+          new Rectangle(
+              rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
+
+      if (drawBounds.intersects(menuBounds)) {
+        return;
+      }
     }
 
     String outputText = "";
@@ -2486,6 +2567,7 @@ public class Renderer {
       float alpha,
       float boxAlpha,
       boolean border,
+      boolean hideForRightClickMenu,
       int borderSize) {
     int textX = x;
     int textY = y;
@@ -2498,6 +2580,17 @@ public class Renderer {
     int rectY = y - (bounds.height / 2) + 2 - borderSize;
     int rectWidth = bounds.width + 2 + (borderSize * 2);
     int rectHeight = bounds.height + (borderSize * 2);
+
+    if (hideForRightClickMenu && showingRightClickMenu) {
+      Rectangle drawBounds = new Rectangle(rectX, rectY, rectWidth, rectHeight);
+      Rectangle menuBounds =
+          new Rectangle(
+              rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
+      if (drawBounds.intersects(menuBounds)) {
+        return;
+      }
+    }
+
     if (border) {
       setAlpha(g, 1.0f);
       g.drawRect(rectX, rectY, rectWidth, rectHeight);
@@ -2777,7 +2870,8 @@ public class Renderer {
           x + (bounds.width / 2),
           y + (bounds.height / 2) + 8,
           color_text,
-          true);
+          true,
+          false);
     else
       drawShadowText(
           g,
@@ -2785,11 +2879,12 @@ public class Renderer {
           x + (bounds.width / 2),
           y + (bounds.height / 2) + 8,
           color_text,
-          true);
+          true,
+          false);
 
     // NPC name
     drawShadowText(
-        g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 12, color_text, true);
+        g, npc.name, x + (bounds.width / 2), y + (bounds.height / 2) - 12, color_text, true, false);
   }
 
   public static void prepareNewSceneryScreenshotSession(int id) {
