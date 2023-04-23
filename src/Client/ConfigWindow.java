@@ -1025,7 +1025,7 @@ public class ConfigWindow {
     generalPanelBicubicScalingPanel.add(bicubicInterpolationScalingWarning);
 
     configItems.add(
-        List.of(
+        Arrays.asList(
             generalPanelScaleInformation,
             generalPanelIntegerScalingPanel,
             generalPanelBilinearScalingPanel,
@@ -1114,7 +1114,7 @@ public class ConfigWindow {
     generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
     configItems.add(
-        List.of(generalPanelTrackpadRotationLabel, generalPanelTrackpadRotationSlider),
+        Arrays.asList(generalPanelTrackpadRotationLabel, generalPanelTrackpadRotationSlider),
         ConfigWindowTabs.GENERAL);
 
     generalPanelAutoScreenshotCheckbox =
@@ -1248,7 +1248,7 @@ public class ConfigWindow {
     generalPanelViewDistanceSlider.setPaintLabels(true);
 
     configItems.add(
-        List.of(generalPanelViewDistanceLabel, generalPanelViewDistanceSlider),
+        Arrays.asList(generalPanelViewDistanceLabel, generalPanelViewDistanceSlider),
         ConfigWindowTabs.GENERAL);
 
     generalPanelRS2HDSkyCheckbox =
@@ -1371,7 +1371,8 @@ public class ConfigWindow {
     generalPanelFoVSlider.setMajorTickSpacing(1);
     generalPanelFoVSlider.setPaintTicks(true);
     generalPanelFoVSlider.setPaintLabels(true);
-    configItems.add(List.of(generalPanelFoVLabel, generalPanelFoVSlider), ConfigWindowTabs.GENERAL);
+    configItems.add(
+        Arrays.asList(generalPanelFoVLabel, generalPanelFoVSlider), ConfigWindowTabs.GENERAL);
     //////
 
     generalPanelDisableUndergroundLightingCheckbox =
@@ -1539,7 +1540,7 @@ public class ConfigWindow {
         });
 
     configItems.add(
-        List.of(
+        Arrays.asList(
             generalPanelCustomRandomChatColourCheckbox,
             generalPanelLimitRanFPSPanel,
             generalPanelRanStaticColourPanel,
@@ -1577,7 +1578,8 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setModel(spinnerLimitFpsModel);
 
     configItems.add(
-        List.of(generalPanelLimitFPSPanel, generalPanelLimitFPSCheckbox), ConfigWindowTabs.GENERAL);
+        Arrays.asList(generalPanelLimitFPSPanel, generalPanelLimitFPSCheckbox),
+        ConfigWindowTabs.GENERAL);
     //////
 
     addSettingsHeader(generalPanel, "Menu/Item patching");
@@ -1955,7 +1957,7 @@ public class ConfigWindow {
     XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
     XPAlignButtonGroup.add(overlayPanelXPCenterAlignFocusButton);
     configItems.add(
-        List.of(
+        Arrays.asList(
             overlayPanelXPDropsCheckbox,
             overlayPanelXPRightAlignFocusButton,
             overlayPanelXPCenterAlignFocusButton),
@@ -2135,7 +2137,7 @@ public class ConfigWindow {
     overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
 
     configItems.add(
-        List.of(
+        Arrays.asList(
             overlayPanelItemNamesCheckbox,
             blockedItemsPanel,
             highlightedItemsPanel,
@@ -2184,7 +2186,7 @@ public class ConfigWindow {
     audioPanelSfxVolumeSlider.setLabelTable(audioPanelSfxVolumeTable);
     audioPanelSfxVolumeSlider.setPaintLabels(true);
     configItems.add(
-        List.of(audioPanelSfxVolumeLabel, audioPanelSfxVolumeSlider), ConfigWindowTabs.AUDIO);
+        Arrays.asList(audioPanelSfxVolumeLabel, audioPanelSfxVolumeSlider), ConfigWindowTabs.AUDIO);
 
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
@@ -2208,7 +2210,7 @@ public class ConfigWindow {
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
     configItems.add(
-        List.of(
+        Arrays.asList(
             audioPanelOverrideAudioSettingCheckbox,
             audioPanelOverrideAudioSettingOnButton,
             audioPanelOverrideAudioSettingOffButton),
@@ -2377,7 +2379,7 @@ public class ConfigWindow {
                 + "</p></html>");
     bankPanel.add(banksearchExplanation);
     banksearchExplanation.setBorder(new EmptyBorder(0, 0, 12, 0));
-    configItems.add(List.of(searchBankPanel, banksearchExplanation), ConfigWindowTabs.BANK);
+    configItems.add(Arrays.asList(searchBankPanel, banksearchExplanation), ConfigWindowTabs.BANK);
 
     addSettingsHeader(bankPanel, "Custom bank order");
     JLabel exportExplanation =
@@ -2469,7 +2471,7 @@ public class ConfigWindow {
     bankPanelImportLabel.setBorder(new EmptyBorder(0, 0, 7, 0));
     importPanel.add(bankPanelImportLabel);
     configItems.add(
-        List.of(exportExplanation, exportPanel, importExplanation, importPanel),
+        Arrays.asList(exportExplanation, exportPanel, importExplanation, importPanel),
         ConfigWindowTabs.BANK);
 
     /*
@@ -2494,7 +2496,7 @@ public class ConfigWindow {
     trayPopupButtonGroup.add(notificationPanelTrayPopupClientFocusButton);
     trayPopupButtonGroup.add(notificationPanelTrayPopupAnyFocusButton);
     configItems.add(
-        List.of(
+        Arrays.asList(
             notificationPanelTrayPopupCheckbox,
             notificationPanelTrayPopupClientFocusButton,
             notificationPanelTrayPopupAnyFocusButton),
@@ -2514,7 +2516,7 @@ public class ConfigWindow {
     notifSoundButtonGroup.add(notificationPanelNotifSoundClientFocusButton);
     notifSoundButtonGroup.add(notificationPanelNotifSoundAnyFocusButton);
     configItems.add(
-        List.of(
+        Arrays.asList(
             notificationPanelNotifSoundsCheckbox,
             notificationPanelNotifSoundClientFocusButton,
             notificationPanelNotifSoundAnyFocusButton),
@@ -2560,7 +2562,7 @@ public class ConfigWindow {
     notificationPanelPMDenyListTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     notificationPanelPMDenyListTextField.setAlignmentY((float) 0.75);
     configItems.add(
-        List.of(notificationPanelPMNotifsCheckbox, pmDenylistPanel),
+        Arrays.asList(notificationPanelPMNotifsCheckbox, pmDenylistPanel),
         ConfigWindowTabs.NOTIFICATIONS);
 
     notificationPanelTradeNotifsCheckbox =
@@ -2688,7 +2690,7 @@ public class ConfigWindow {
     notificationPanelHighlightedItemTimerSpinner.setModel(highlightedItemSecondsModel);
 
     configItems.add(
-        List.of(warnHighlightedOnGroundPanel, highlightedItemsSuggestionJLabel),
+        Arrays.asList(warnHighlightedOnGroundPanel, highlightedItemsSuggestionJLabel),
         ConfigWindowTabs.NOTIFICATIONS);
 
     // Important messages
@@ -2855,7 +2857,7 @@ public class ConfigWindow {
     streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
 
     configItems.add(
-        List.of(
+        Arrays.asList(
             speedrunnerModeExplanation,
             streamingPanelSpeedrunnerCheckbox,
             speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation),
@@ -3396,7 +3398,7 @@ public class ConfigWindow {
 
     // these JLabels are purposely mispelled to give it that authentic RS1 feel
     List<String> presetsPanelPresetSliderLabels =
-        List.of("All", "Heavy", "Recommended", "Lite", "Vanilla (Resizable)", "Vanilla");
+        Arrays.asList("All", "Heavy", "Recommended", "Lite", "Vanilla (Resizable)", "Vanilla");
     Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable =
         new Hashtable<Integer, JLabel>();
 
@@ -3420,7 +3422,7 @@ public class ConfigWindow {
     presetsPanelPresetSliderPanel.add(presetsPanelPresetSlider);
 
     configItems.add(
-        List.of(presetsPanelCustomSettingsCheckbox, presetsPanelPresetSliderPanel),
+        Arrays.asList(presetsPanelCustomSettingsCheckbox, presetsPanelPresetSliderPanel),
         ConfigWindowTabs.PRESETS);
 
     JPanel presetsButtonPanel = new JPanel();
@@ -3581,7 +3583,7 @@ public class ConfigWindow {
 
     authorsPanel.add(thirdsPanel);
     configItems.add(
-        List.of(authorsPanel, RSCPlusText, aboutText, licenseText), ConfigWindowTabs.AUTHORS);
+        Arrays.asList(authorsPanel, RSCPlusText, aboutText, licenseText), ConfigWindowTabs.AUTHORS);
 
     // Joystick Tab
 
@@ -3776,7 +3778,7 @@ public class ConfigWindow {
     KeyboardHandler.defaultKeybindSetList.put(
         commandID, new KeybindSet(null, commandID, defaultModifier, defaultKeyValue));
 
-    configItems.add(List.of(label, b), ConfigWindowTabs.KEYBINDS);
+    configItems.add(Arrays.asList(label, b), ConfigWindowTabs.KEYBINDS);
   }
 
   /**
@@ -5338,7 +5340,7 @@ public class ConfigWindow {
     }
 
     public void add(JComponent control, ConfigWindowTabs parentTab) {
-      add(List.of(control), parentTab);
+      add(Arrays.asList(control), parentTab);
     }
 
     public void add(String label, List<JComponent> controls, ConfigWindowTabs parentTab) {
@@ -5381,7 +5383,7 @@ public class ConfigWindow {
 
     public ConfigItem(String itemLabel, JComponent itemControl, ConfigWindowTabs parentTab) {
       label = itemLabel.toLowerCase();
-      controls = List.of(itemControl);
+      controls = Arrays.asList(itemControl);
       tab = parentTab;
     }
 
