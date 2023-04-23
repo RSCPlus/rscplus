@@ -155,6 +155,7 @@ public class ScaledWindow extends JFrame
   @Override
   public void setSize(int width, int height) {
     super.setSize(width, height);
+
     frameWidth = width;
     frameHeight = height;
   }
@@ -279,8 +280,6 @@ public class ScaledWindow extends JFrame
 
       viewportWidth = gameImage.getWidth();
       viewportHeight = gameImage.getHeight();
-
-      validateAppletSize();
     }
 
     if (Renderer.renderingScalar == 1.0f) {
@@ -407,8 +406,8 @@ public class ScaledWindow extends JFrame
     }
   }
 
-  /** Resizes the mudclient if its dimensions don't align with the current frame size */
-  private void validateAppletSize() {
+  /** Resizes the mudclient if its dimensions don't match the current frame size */
+  public void validateAppletSize() {
     Applet mudclient = Game.getInstance().getApplet();
 
     if (mudclient == null) return;
@@ -486,6 +485,7 @@ public class ScaledWindow extends JFrame
   @Override
   public void componentResized(ComponentEvent e) {
     resizeApplet();
+
     frameWidth = e.getComponent().getWidth();
     frameHeight = e.getComponent().getHeight();
   }
