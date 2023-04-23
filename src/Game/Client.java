@@ -1927,20 +1927,7 @@ public class Client {
         // this command over PM to rs2/rs3
         return "@whi@My Combat is Level "
             + "@gre@"
-            +
-            // basic melee stats
-            ((base_level[SKILL_ATTACK]
-                        + base_level[SKILL_STRENGTH]
-                        + base_level[SKILL_DEFENSE]
-                        + base_level[SKILL_HP])
-                    * 0.25
-                // add ranged levels if ranger
-                + ((base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])
-                        < base_level[SKILL_RANGED] * 1.5
-                    ? base_level[SKILL_RANGED] * 0.25
-                    : 0)
-                // prayer and mage
-                + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
+            + calcCombatLevel()
             + " @lre@A:@whi@ "
             + base_level[SKILL_ATTACK]
             + " @lre@S:@whi@ "
@@ -1959,18 +1946,7 @@ public class Client {
           .equals(command)) { // this command stays within character limits and is safe.
         return "My Combat is Level "
             // basic melee stats
-            + ((base_level[SKILL_ATTACK]
-                        + base_level[SKILL_STRENGTH]
-                        + base_level[SKILL_DEFENSE]
-                        + base_level[SKILL_HP])
-                    * 0.25
-                // add ranged levels if ranger
-                + ((base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])
-                        < base_level[SKILL_RANGED] * 1.5
-                    ? base_level[SKILL_RANGED] * 0.25
-                    : 0)
-                // prayer and mage
-                + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
+            + calcCombatLevel()
             + " A:"
             + base_level[SKILL_ATTACK]
             + " S:"
@@ -2051,6 +2027,22 @@ public class Client {
     }
 
     return line;
+  }
+
+  /** @return the player's combat level */
+  public static double calcCombatLevel() {
+    if (base_level[SKILL_RANGED] * 1.5 > (base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])) {
+      return (base_level[SKILL_RANGED] * 0.375
+              + (base_level[SKILL_DEFENSE] + base_level[SKILL_HP]) / 4.0)
+          + ((base_level[SKILL_MAGIC] + base_level[SKILL_PRAYER]) / 8.0);
+    } else {
+      return ((base_level[SKILL_ATTACK]
+                  + base_level[SKILL_STRENGTH]
+                  + base_level[SKILL_DEFENSE]
+                  + base_level[SKILL_HP])
+              / 4.0)
+          + ((base_level[SKILL_MAGIC] + base_level[SKILL_PRAYER]) / 8.0);
+    }
   }
 
   /**
