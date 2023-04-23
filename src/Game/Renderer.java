@@ -1173,6 +1173,7 @@ public class Renderer {
       // Handle setting XP Bar stat from STATS menu
       if (Client.show_menu == Client.MENU_STATS_QUESTS
           && Client.show_stats_or_quests == Client.MENU_STATS
+          && XPBar.skillClickPinning
           && bufferedMouseClick.isMouseClicked()) {
         int xOffset = width - 199;
         int yOffset = 85;
