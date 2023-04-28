@@ -179,7 +179,7 @@ public class Item {
         boolean addingAnItem = (remove & 0x80) >> 7 != 1;
         if (addingAnItem) {
           if (Renderer.stringIsWithinList(
-              item_name[itemId], Settings.HIGHLIGHTED_ITEMS.get("custom"))) {
+              item_name[itemId], Settings.HIGHLIGHTED_ITEMS.get("custom"), true)) {
             cool_items.add(new Item(x, y, itemId, System.currentTimeMillis()));
           }
         } else {

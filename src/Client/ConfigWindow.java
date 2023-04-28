@@ -1888,6 +1888,9 @@ public class ConfigWindow {
         addCheckbox("Display the names of items on the ground", overlayPanel);
     overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
 
+    String itemInputToolTip =
+        "Surround with \" \" for exact matches (not case-sensitive). Block list takes priority over highlight list.";
+
     // Blocked Items
     JPanel blockedItemsPanel = new JPanel();
     overlayPanel.add(blockedItemsPanel);
@@ -1895,6 +1898,7 @@ public class ConfigWindow {
     blockedItemsPanel.setPreferredSize(new Dimension(0, 37));
     blockedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     blockedItemsPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    blockedItemsPanel.setToolTipText(itemInputToolTip);
 
     JLabel blockedItemsPanelNameLabel = new JLabel("Blocked items: ");
     blockedItemsPanel.add(blockedItemsPanelNameLabel);
@@ -1905,6 +1909,7 @@ public class ConfigWindow {
     blockedItemsTextField.setMinimumSize(new Dimension(100, 28));
     blockedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     blockedItemsTextField.setAlignmentY((float) 0.75);
+    blockedItemsTextField.setToolTipText(itemInputToolTip);
 
     // Highlighted Items
     JPanel highlightedItemsPanel = new JPanel();
@@ -1913,6 +1918,7 @@ public class ConfigWindow {
     highlightedItemsPanel.setPreferredSize(new Dimension(0, 37));
     highlightedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     highlightedItemsPanel.setBorder(new EmptyBorder(0, 0, 9, 0));
+    highlightedItemsPanel.setToolTipText(itemInputToolTip);
 
     JLabel highlightedItemsPanelNameLabel = new JLabel("Highlighted items: ");
     highlightedItemsPanel.add(highlightedItemsPanelNameLabel);
@@ -1923,6 +1929,7 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+    highlightedItemsTextField.setToolTipText(itemInputToolTip);
 
     // Highlight colour panel
     JPanel overlayPanelItemHighlightColourPanel = new JPanel();
