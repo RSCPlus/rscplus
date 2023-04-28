@@ -56,7 +56,7 @@ public class KeyboardHandler implements KeyListener {
 
     boolean altgr = e.isControlDown() && e.isAltDown() || e.isAltGraphDown();
 
-    // Handle CTRL + Alt
+    // Handle CTRL + Alt modifiers
     //  Note: KeybindSet does not support multiple modifiers
     if (e.isControlDown() && e.isAltDown() && !e.isAltGraphDown()) {
 
