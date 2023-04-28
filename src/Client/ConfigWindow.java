@@ -3050,12 +3050,14 @@ public class ConfigWindow {
         "toggle_health_regen_timer",
         KeyModifier.CTRL,
         KeyEvent.VK_X);
-    addKeybindSet(
-        keybindContainerPanel,
-        "Toggle debug mode",
-        "toggle_debug",
-        KeyModifier.CTRL,
-        KeyEvent.VK_D);
+    // TODO: When replaced with upcoming "show items kept on death"
+    //  feature, bind to CTRL+D and add to resolveNewDefaults()
+    //    addKeybindSet(
+    //        keybindContainerPanel,
+    //        "Toggle debug mode",
+    //        "toggle_debug",
+    //        KeyModifier.CTRL,
+    //        KeyEvent.VK_D);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle Wiki Hbar Button",

@@ -52,14 +52,26 @@ public class KeyboardHandler implements KeyListener {
   // TODO: Make spacebar clear the login message screen
   @Override
   public void keyPressed(KeyEvent e) {
-    boolean shouldConsume;
+    boolean shouldConsume = false;
 
-    boolean altgr = false;
-    if (e.isControlDown() && e.isAltDown() || e.isAltGraphDown()) {
-      altgr = true;
-    }
+    boolean altgr = e.isControlDown() && e.isAltDown() || e.isAltGraphDown();
 
-    if (e.isControlDown() && !altgr) {
+    // Handle CTRL + Alt
+    //  Note: KeybindSet does not support multiple modifiers
+    if (e.isControlDown() && e.isAltDown() && !e.isAltGraphDown()) {
+
+      // Special debug key combo
+      if (e.getKeyCode() == KeyEvent.VK_D) {
+        Settings.toggleDebug();
+        shouldConsume = true;
+      }
+
+      if (shouldConsume) {
+        e.consume();
+      }
+
+      // Handle CTRL modifier
+    } else if (e.isControlDown() && !altgr) {
       for (KeybindSet kbs : keybindSetList) {
         if (kbs.getModifier() == KeyModifier.CTRL && e.getKeyCode() == kbs.getKey()) {
           shouldConsume = Settings.processKeybindCommand(kbs.getCommandName());
@@ -69,6 +81,7 @@ public class KeyboardHandler implements KeyListener {
         }
       }
 
+      // Handle shift modifier
     } else if (e.isShiftDown()) {
       for (KeybindSet kbs : keybindSetList) {
         if (kbs.getModifier() == KeyModifier.SHIFT && e.getKeyCode() == kbs.getKey()) {
@@ -79,6 +92,7 @@ public class KeyboardHandler implements KeyListener {
         }
       }
 
+      // Handle Alt modifier
     } else if (e.isAltDown() && !altgr) {
       for (KeybindSet kbs : keybindSetList) {
         if (kbs.getModifier() == KeyModifier.ALT && e.getKeyCode() == kbs.getKey()) {
@@ -89,6 +103,7 @@ public class KeyboardHandler implements KeyListener {
         }
       }
 
+      // Handle all other keys
     } else {
       for (KeybindSet kbs : keybindSetList) {
         if (kbs.getModifier() == KeyModifier.NONE && e.getKeyCode() == kbs.getKey()) {
@@ -100,11 +115,13 @@ public class KeyboardHandler implements KeyListener {
       }
     }
 
+    // Handle replay key captures
     if (Replay.isRecording && !e.isConsumed()) {
       Replay.dumpKeyboardInput(
           e.getKeyCode(), Replay.KEYBOARD_PRESSED, e.getKeyChar(), e.getModifiers());
     }
 
+    // Handle dialogue menu selection
     if (Client.show_questionmenu && !e.isConsumed() && !Replay.isPlaying) {
       if (e.getKeyCode() == KeyEvent.VK_1 || e.getKeyCode() == KeyEvent.VK_NUMPAD1)
         dialogue_option = 0;
