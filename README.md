@@ -85,6 +85,8 @@ keyword stored.
 
 *::toggleplayerinfo* - Toggle Player info
 
+*::toggleowninfo* - Toggle own player info
+
 *::togglehitbox* - Toggle hitboxes for NPC info
 
 *::togglexpdrops* - Toggle XP drops

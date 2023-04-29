@@ -439,10 +439,13 @@ public class Launcher extends JFrame implements Runnable {
   }
 
   public static void main(String[] args) {
-    // Do this before anything else runs to override OS-level
-    // dpi settings, since we have in-client scaling now
-    System.setProperty("sun.java2d.uiScale.enabled", "false");
-    System.setProperty("sun.java2d.uiScale", "1");
+    // Do this before anything else runs to override OS-level dpi settings,
+    // since we have in-client scaling now (not applicable to macOS, which
+    // implements OS-scaling in a different fashion)
+    if (!Util.isMacOS()) {
+      System.setProperty("sun.java2d.uiScale.enabled", "false");
+      System.setProperty("sun.java2d.uiScale", "1");
+    }
 
     numCores = Runtime.getRuntime().availableProcessors();
 

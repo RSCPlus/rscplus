@@ -31,6 +31,7 @@ public class XPBar {
   public static boolean showActionCount = true;
   public static boolean showTimeCount = true;
   private static float alpha;
+  public static boolean skillClickPinning = true;
   public static boolean pinnedBar = false;
   public static int pinnedSkill = -1;
   public static int drawGoalInputState = 0;
@@ -39,7 +40,7 @@ public class XPBar {
   public static final String excludeUsername = "excludemefromxpbartracking";
 
   public static Dimension bounds = new Dimension(110, 16);
-  public static Dimension menuBounds = new Dimension(110, 80);
+  public static Dimension menuBounds = new Dimension(110, 92);
   public static int xp_bar_x;
   // Don't need to set this more than once; we are always positioning the xp_bar to be vertically
   // center aligned with
@@ -151,7 +152,8 @@ public class XPBar {
         x + (bounds.width / 2),
         y + (bounds.height / 2) - 2,
         Renderer.color_text,
-        true);
+        true,
+        false);
 
     // Draw additional menus
     hoveringOverMenu =
@@ -225,7 +227,7 @@ public class XPBar {
       textColour = Renderer.color_text;
     }
     y += 12;
-    Renderer.drawShadowText(g, "Reset XP period", x, y, textColour, false);
+    Renderer.drawShadowText(g, "Reset XP period", x, y, textColour, false, false);
 
     // Option 1
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -238,7 +240,13 @@ public class XPBar {
     }
     y += 12;
     Renderer.drawShadowText(
-        g, hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal", x, y, textColour, false);
+        g,
+        hasGoalForSkill(current_skill) ? "Clear Goal" : "Set Goal",
+        x,
+        y,
+        textColour,
+        false,
+        false);
 
     // Option 2
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -251,7 +259,13 @@ public class XPBar {
     }
     y += 12;
     Renderer.drawShadowText(
-        g, pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill", x, y, textColour, false);
+        g,
+        pinnedSkill >= 0 ? "Use recent skill" : "Keep this skill",
+        x,
+        y,
+        textColour,
+        false,
+        false);
 
     // Option 3
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -264,7 +278,7 @@ public class XPBar {
     }
     y += 12;
     Renderer.drawShadowText(
-        g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false);
+        g, showActionCount ? "Hide actions" : "Show actions", x, y, textColour, false, false);
 
     // Option 4
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
@@ -277,9 +291,27 @@ public class XPBar {
     }
     y += 12;
     Renderer.drawShadowText(
-        g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false);
+        g, showTimeCount ? "Hide times" : "Show times", x, y, textColour, false, false);
 
     // Option 5
+    if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
+      textColour = Renderer.color_yellow;
+      if (bufferedMouseClick.isMouseClicked()) {
+        Settings.toggleSkillClickPinning();
+      }
+    } else {
+      textColour = Renderer.color_text;
+    }
+    y += 12;
+    Renderer.drawShadowText(
+        g,
+        skillClickPinning ? "Skill clicking: on" : "Skill clicking: off",
+        x,
+        y,
+        textColour,
+        false);
+
+    // Option 6
     if (MouseHandler.y > y + offset && MouseHandler.y < y + textHeight) {
       textColour = Renderer.color_yellow;
       if (bufferedMouseClick.isMouseClicked()) {
@@ -289,7 +321,7 @@ public class XPBar {
       textColour = Renderer.color_text;
     }
     y += 12;
-    Renderer.drawShadowText(g, pinnedBar ? "Unpin bar" : "Pin bar", x, y, textColour, false);
+    Renderer.drawShadowText(g, pinnedBar ? "Unpin bar" : "Pin bar", x, y, textColour, false, false);
   }
 
   private void pinSkill() {
@@ -376,7 +408,12 @@ public class XPBar {
     y += 12;
 
     Renderer.drawColoredText(
-        g, labelColour + "XP: " + textColour + formatXP(Client.getXP(current_skill)), x, y, true);
+        g,
+        labelColour + "XP: " + textColour + formatXP(Client.getXP(current_skill)),
+        x,
+        y,
+        true,
+        false);
     y += 12;
     if (Client.getShowXpPerHour()[current_skill]) {
       Renderer.drawColoredText(
@@ -384,7 +421,8 @@ public class XPBar {
           labelColour + "XP/Hr: " + textColour + formatXP(Client.getXpPerHour()[current_skill]),
           x,
           y,
-          true);
+          true,
+          false);
       y += 12;
     }
 
@@ -399,7 +437,8 @@ public class XPBar {
               + formatXP(Client.getXPUntilLevel(current_skill)),
           x,
           y,
-          true);
+          true,
+          false);
       y += 12;
       if (Client.getShowXpPerHour()[current_skill]) {
         if (showActionCount) {
@@ -412,7 +451,8 @@ public class XPBar {
                       Client.getXPUntilLevel(current_skill) / Client.getLastXpGain(current_skill)),
               x,
               y,
-              true);
+              true,
+              false);
           y += 12;
         }
 
@@ -424,7 +464,8 @@ public class XPBar {
               labelColour + "Time until Level: " + highlightColour + formatHours(hoursToLevel),
               x,
               y,
-              true);
+              true,
+              false);
           y += 12;
         }
       }
@@ -440,7 +481,8 @@ public class XPBar {
               + formatXP(Client.getXPUntilGoal(current_skill)),
           x,
           y,
-          true);
+          true,
+          false);
       y += 12;
       if (Client.getShowXpPerHour()[current_skill]) {
         if (showActionCount) {
@@ -453,7 +495,8 @@ public class XPBar {
                       Client.getXPUntilGoal(current_skill) / Client.getLastXpGain(current_skill)),
               x,
               y,
-              true);
+              true,
+              false);
           y += 12;
         }
 
@@ -465,7 +508,8 @@ public class XPBar {
               labelColour + "Time until Goal: " + highlightColour + formatHours(hoursToGoal),
               x,
               y,
-              true);
+              true,
+              false);
           y += 12;
         }
       }
@@ -477,11 +521,13 @@ public class XPBar {
               + Client.lvlGoals.get(Client.xpUsername)[current_skill],
           x,
           y,
-          true);
+          true,
+          false);
       y += 12;
       y += 8;
     }
-    Renderer.drawShadowText(g, "Right-click for more options", x, y, Renderer.color_text, true);
+    Renderer.drawShadowText(
+        g, "Right-click for more options", x, y, Renderer.color_text, true, false);
   }
 
   public static boolean hasGoalForSkill(int skill) {

@@ -159,7 +159,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelConfirmCancelRecoveryChangeCheckbox;
   private JCheckBox generalPanelShowSecurityTipsAtLoginCheckbox;
   private JCheckBox generalPanelWelcomeEnabled;
-  // private JCheckBox generalPanelChatHistoryCheckbox;
+  private JCheckBox generalPanelChatHistoryCheckbox;
   private JCheckBox generalPanelCombatXPMenuCheckbox;
   private JCheckBox generalPanelCombatXPMenuHiddenCheckbox;
   private JCheckBox generalPanelFatigueAlertCheckbox;
@@ -171,6 +171,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogForceLevelCheckbox;
   private JCheckBox generalPanelPrefersXdgOpenCheckbox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
+  private JCheckBox generalPanelDisableNatureRuneAlchCheckbox;
   private JCheckBox generalPanelCommandPatchQuestCheckbox;
   private JCheckBox generalPanelCommandPatchEdibleRaresCheckbox;
   private JCheckBox generalPanelCommandPatchDiskOfReturningCheckbox;
@@ -245,6 +246,11 @@ public class ConfigWindow {
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
   private JCheckBox overlayPanelPlayerNamesCheckbox;
+  private JCheckBox overlayPanelPvpNamesCheckbox;
+  private JPanel overlayPanelPvpNamesColourSubpanel;
+  private Color pvpNamesColour =
+      Util.intToColor(Settings.PVP_NAMES_COLOUR.get(Settings.currentProfile));
+  private JCheckBox overlayPanelOwnNameCheckbox;
   private JCheckBox overlayPanelFriendNamesCheckbox;
   private JCheckBox overlayPanelNPCNamesCheckbox;
   private JCheckBox overlayPanelIDsCheckbox;
@@ -264,6 +270,10 @@ public class ConfigWindow {
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
+  private JPanel overlayPanelItemHighlightColourSubpanel;
+  private Color itemHighlightColour =
+      Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+  private JCheckBox overlayPanelHighlightRightClickCheckbox;
 
   //// Audio tab
   private JCheckBox audioPanelEnableMusicCheckbox;
@@ -1040,18 +1050,15 @@ public class ConfigWindow {
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
 
-    // Commented out b/c probably no one will ever implement this
-    // generalPanelChatHistoryCheckbox = addCheckbox("Load chat history after relogging (Not
-    // implemented yet)", generalPanel);
-    // generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
-    // generalPanelChatHistoryCheckbox.setEnabled(false); // TODO: Remove this line when chat
-    // history is implemented
+    generalPanelChatHistoryCheckbox =
+        addCheckbox("Load chat history after relogging", generalPanel);
+    generalPanelChatHistoryCheckbox.setToolTipText("Make chat history persist between logins");
+    generalPanelChatHistoryCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuCheckbox =
         addCheckbox("Combat style menu shown outside of combat", generalPanel);
     generalPanelCombatXPMenuCheckbox.setToolTipText(
         "Always show the combat style menu when out of combat");
-    generalPanelCombatXPMenuCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
     generalPanelCombatXPMenuHiddenCheckbox =
         addCheckbox("Combat style menu hidden when in combat", generalPanel);
@@ -1452,6 +1459,11 @@ public class ConfigWindow {
     generalPanelNumberedDialogueOptionsCheckbox.setToolTipText(
         "Displays a number next to each option within a conversational menu");
 
+    generalPanelDisableNatureRuneAlchCheckbox =
+        addCheckbox("Disable the ability to cast alchemy spells on nature runes", generalPanel);
+    generalPanelDisableNatureRuneAlchCheckbox.setToolTipText(
+        "Protect yourself from a terrible fate");
+
     generalPanelCommandPatchEdibleRaresCheckbox =
         addCheckbox("Disable the ability to ingest holiday items or rares", generalPanel);
     generalPanelCommandPatchEdibleRaresCheckbox.setToolTipText(
@@ -1804,6 +1816,57 @@ public class ConfigWindow {
     overlayPanelPlayerNamesCheckbox.setToolTipText(
         "Shows players' display names over their character");
 
+    // pvp names sub-panel
+    JPanel overlayPanelPvpNamesPanel = new JPanel();
+    overlayPanel.add(overlayPanelPvpNamesPanel);
+    overlayPanelPvpNamesPanel.setLayout(new BoxLayout(overlayPanelPvpNamesPanel, BoxLayout.X_AXIS));
+    overlayPanelPvpNamesPanel.setPreferredSize(new Dimension(0, 26));
+    overlayPanelPvpNamesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    overlayPanelPvpNamesCheckbox =
+        addCheckbox(
+            "Show attackable players' names in a separate colour", overlayPanelPvpNamesPanel);
+    overlayPanelPvpNamesCheckbox.setToolTipText(
+        "Changes the color of players' names when they are within attacking range in the wilderness");
+
+    overlayPanelPvpNamesColourSubpanel = new JPanel();
+    overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesColourSubpanel);
+    overlayPanelPvpNamesColourSubpanel.setAlignmentY((float) 0.7f);
+    overlayPanelPvpNamesColourSubpanel.setMinimumSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setPreferredSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setMaximumSize(new Dimension(32, 20));
+    overlayPanelPvpNamesColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    overlayPanelPvpNamesColourSubpanel.setBackground(pvpNamesColour);
+
+    JPanel overlayPanelPvpNamesSpacingPanel = new JPanel();
+    overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesSpacingPanel);
+    overlayPanelPvpNamesSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    overlayPanelPvpNamesSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    overlayPanelPvpNamesSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton pvpNamesColourChooserButton = new JButton("Choose colour");
+    pvpNamesColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose PVP display name colour", pvpNamesColour);
+            if (null != selected) {
+              pvpNamesColour = selected;
+            }
+            overlayPanelPvpNamesColourSubpanel.setBackground(pvpNamesColour);
+          }
+        });
+    overlayPanelPvpNamesPanel.add(pvpNamesColourChooserButton);
+    pvpNamesColourChooserButton.setAlignmentY(0.7f);
+    ////////////
+
+    overlayPanelOwnNameCheckbox =
+        addCheckbox(
+            "Show your own name over your head when player names are enabled", overlayPanel);
+    overlayPanelOwnNameCheckbox.setToolTipText(
+        "Shows your own display name over your character when player names are shown");
+
     overlayPanelFriendNamesCheckbox =
         addCheckbox("Show nearby friend names over their heads", overlayPanel);
     overlayPanelFriendNamesCheckbox.setToolTipText(
@@ -1860,6 +1923,56 @@ public class ConfigWindow {
     highlightedItemsTextField.setMinimumSize(new Dimension(100, 28));
     highlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
     highlightedItemsTextField.setAlignmentY((float) 0.75);
+
+    // Highlight colour panel
+    JPanel overlayPanelItemHighlightColourPanel = new JPanel();
+    overlayPanel.add(overlayPanelItemHighlightColourPanel);
+    overlayPanelItemHighlightColourPanel.setLayout(
+        new BoxLayout(overlayPanelItemHighlightColourPanel, BoxLayout.X_AXIS));
+    overlayPanelItemHighlightColourPanel.setPreferredSize(new Dimension(0, 26));
+    overlayPanelItemHighlightColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JLabel highlightedItemColourPanelNameLabel = new JLabel("Highlight colour ");
+    overlayPanelItemHighlightColourPanel.add(highlightedItemColourPanelNameLabel);
+    highlightedItemColourPanelNameLabel.setAlignmentY((float) 0.9);
+
+    overlayPanelItemHighlightColourSubpanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSubpanel);
+    overlayPanelItemHighlightColourSubpanel.setAlignmentY((float) 0.7f);
+    overlayPanelItemHighlightColourSubpanel.setMinimumSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setPreferredSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setMaximumSize(new Dimension(32, 20));
+    overlayPanelItemHighlightColourSubpanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    overlayPanelItemHighlightColourSubpanel.setBackground(itemHighlightColour);
+
+    JPanel overlayPanelItemHighlightColourSpacingPanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSpacingPanel);
+    overlayPanelItemHighlightColourSpacingPanel.setMinimumSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setPreferredSize(new Dimension(4, 20));
+    overlayPanelItemHighlightColourSpacingPanel.setMaximumSize(new Dimension(4, 20));
+
+    JButton rightClickHighlightColourChooserButton = new JButton("Choose colour");
+    rightClickHighlightColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(null, "Choose item highlight colour", itemHighlightColour);
+            if (null != selected) {
+              itemHighlightColour = selected;
+            }
+            overlayPanelItemHighlightColourSubpanel.setBackground(itemHighlightColour);
+          }
+        });
+    overlayPanelItemHighlightColourPanel.add(rightClickHighlightColourChooserButton);
+    rightClickHighlightColourChooserButton.setAlignmentY(0.7f);
+    ////////////
+
+    overlayPanelHighlightRightClickCheckbox =
+        addCheckbox("Highlight items in the right-click menu", overlayPanel);
+    overlayPanelHighlightRightClickCheckbox.setToolTipText(
+        "Highlights items from the above list in the right-click menu");
+    overlayPanelHighlightRightClickCheckbox.setBorder(new EmptyBorder(9, 0, 0, 0));
 
     /*
      * Audio tab
@@ -2903,6 +3016,12 @@ public class ConfigWindow {
         KeyEvent.VK_P);
     addKeybindSet(
         keybindContainerPanel,
+        "Toggle own name overlay",
+        "toggle_own_name_overlay",
+        KeyModifier.ALT,
+        KeyEvent.VK_J);
+    addKeybindSet(
+        keybindContainerPanel,
         "Toggle friend name overlay",
         "toggle_friend_name_overlay",
         KeyModifier.CTRL,
@@ -3788,7 +3907,8 @@ public class ConfigWindow {
         Settings.SHOW_SECURITY_TIP_DAY.get(Settings.currentProfile));
     generalPanelWelcomeEnabled.setSelected(
         Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile));
-    // generalPanelChatHistoryCheckbox.setSelected(Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile)); // TODO: Implement this feature
+    generalPanelChatHistoryCheckbox.setSelected(
+        Settings.LOAD_CHAT_HISTORY.get(Settings.currentProfile));
     generalPanelCombatXPMenuCheckbox.setSelected(
         Settings.COMBAT_MENU_SHOWN.get(Settings.currentProfile));
     generalPanelCombatXPMenuHiddenCheckbox.setSelected(
@@ -3799,6 +3919,8 @@ public class ConfigWindow {
         Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
     generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelLogVerbositySlider.setValue(Settings.LOG_VERBOSITY.get(Settings.currentProfile));
+    generalPanelDisableNatureRuneAlchCheckbox.setSelected(
+        Settings.DISABLE_NAT_RUNE_ALCH.get(Settings.currentProfile));
     generalPanelCommandPatchQuestCheckbox.setSelected(
         Settings.COMMAND_PATCH_QUEST.get(Settings.currentProfile));
     generalPanelCommandPatchEdibleRaresCheckbox.setSelected(
@@ -3968,6 +4090,11 @@ public class ConfigWindow {
         Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
     overlayPanelPlayerNamesCheckbox.setSelected(
         Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
+    overlayPanelPvpNamesCheckbox.setSelected(
+        Settings.SHOW_PVP_NAME_OVERLAY.get(Settings.currentProfile));
+    pvpNamesColour = Util.intToColor(Settings.PVP_NAMES_COLOUR.get(Settings.currentProfile));
+    overlayPanelOwnNameCheckbox.setSelected(
+        Settings.SHOW_OWN_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelFriendNamesCheckbox.setSelected(
         Settings.SHOW_FRIEND_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelNPCNamesCheckbox.setSelected(
@@ -4006,6 +4133,10 @@ public class ConfigWindow {
     highlightedItemsTextField.setText(
         Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
+    itemHighlightColour =
+        Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+    overlayPanelHighlightRightClickCheckbox.setSelected(
+        Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(Settings.currentProfile));
 
     // Audio tab
     audioPanelEnableMusicCheckbox.setSelected(Settings.CUSTOM_MUSIC.get(Settings.currentProfile));
@@ -4247,8 +4378,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelShowSecurityTipsAtLoginCheckbox.isSelected());
     Settings.REMIND_HOW_TO_OPEN_SETTINGS.put(
         Settings.currentProfile, generalPanelWelcomeEnabled.isSelected());
-    // Settings.LOAD_CHAT_HISTORY.put(Settings.currentProfile,
-    // generalPanelChatHistoryCheckbox.isSelected());
+    Settings.LOAD_CHAT_HISTORY.put(
+        Settings.currentProfile, generalPanelChatHistoryCheckbox.isSelected());
     Settings.COMBAT_MENU_SHOWN.put(
         Settings.currentProfile, generalPanelCombatXPMenuCheckbox.isSelected());
     Settings.COMBAT_MENU_HIDDEN.put(
@@ -4302,6 +4433,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCommandPatchEdibleRaresCheckbox.isSelected());
     Settings.COMMAND_PATCH_QUEST.put(
         Settings.currentProfile, generalPanelCommandPatchQuestCheckbox.isSelected());
+    Settings.DISABLE_NAT_RUNE_ALCH.put(
+        Settings.currentProfile, generalPanelDisableNatureRuneAlchCheckbox.isSelected());
     Settings.ATTACK_ALWAYS_LEFT_CLICK.put(
         Settings.currentProfile, generalPanelBypassAttackCheckbox.isSelected());
     Settings.NUMBERED_DIALOGUE_OPTIONS.put(
@@ -4403,6 +4536,11 @@ public class ConfigWindow {
         Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
     Settings.SHOW_PLAYER_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
+    Settings.SHOW_PVP_NAME_OVERLAY.put(
+        Settings.currentProfile, overlayPanelPvpNamesCheckbox.isSelected());
+    Settings.PVP_NAMES_COLOUR.put(Settings.currentProfile, Util.colorToInt(pvpNamesColour));
+    Settings.SHOW_OWN_NAME_OVERLAY.put(
+        Settings.currentProfile, overlayPanelOwnNameCheckbox.isSelected());
     Settings.SHOW_FRIEND_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelFriendNamesCheckbox.isSelected());
     Settings.SHOW_NPC_NAME_OVERLAY.put(
@@ -4429,6 +4567,10 @@ public class ConfigWindow {
         "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
     Settings.BLOCKED_ITEMS.put(
         "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+    Settings.ITEM_HIGHLIGHT_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(itemHighlightColour));
+    Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
+        Settings.currentProfile, overlayPanelHighlightRightClickCheckbox.isSelected());
 
     // Audio options
     Settings.CUSTOM_MUSIC.put(Settings.currentProfile, audioPanelEnableMusicCheckbox.isSelected());

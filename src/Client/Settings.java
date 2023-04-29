@@ -102,6 +102,7 @@ public class Settings {
   public static HashMap<String, Boolean> INVENTORY_FULL_ALERT = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> COMMAND_PATCH_LEGACY = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> DISABLE_NAT_RUNE_ALCH = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_QUEST = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> COMMAND_PATCH_EDIBLE_RARES =
       new HashMap<String, Boolean>();
@@ -229,6 +230,9 @@ public class Settings {
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_PVP_NAME_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> PVP_NAMES_COLOUR = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> SHOW_OWN_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_FRIEND_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_NPC_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> EXTEND_IDS_OVERLAY = new HashMap<String, Boolean>();
@@ -249,6 +253,9 @@ public class Settings {
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, Integer> ITEM_HIGHLIGHT_COLOUR = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
+      new HashMap<String, Boolean>();
 
   //// bank
   public static HashMap<String, Boolean> START_REMEMBERED_FILTER_SORT =
@@ -355,6 +362,10 @@ public class Settings {
   public static boolean VIEW_DISTANCE_BOOL = false;
   public static boolean FOV_BOOL = false;
   public static boolean USE_JAGEX_FONTS_BOOL = false;
+  public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
+  public static boolean LOAD_CHAT_HISTORY_BOOL = false;
+  public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
+  public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -511,7 +522,7 @@ public class Settings {
     LOAD_CHAT_HISTORY.put("vanilla", false);
     LOAD_CHAT_HISTORY.put("vanilla_resizable", false);
     LOAD_CHAT_HISTORY.put("lite", false);
-    LOAD_CHAT_HISTORY.put("default", false);
+    LOAD_CHAT_HISTORY.put("default", true);
     LOAD_CHAT_HISTORY.put("heavy", true);
     LOAD_CHAT_HISTORY.put("all", true);
     LOAD_CHAT_HISTORY.put(
@@ -612,6 +623,16 @@ public class Settings {
     NAME_PATCH_TYPE.put("all", 3);
     NAME_PATCH_TYPE.put(
         "custom", getPropInt(props, "name_patch_type", NAME_PATCH_TYPE.get("default")));
+
+    DISABLE_NAT_RUNE_ALCH.put("vanilla", false);
+    DISABLE_NAT_RUNE_ALCH.put("vanilla_resizable", false);
+    DISABLE_NAT_RUNE_ALCH.put("lite", true);
+    DISABLE_NAT_RUNE_ALCH.put("default", true);
+    DISABLE_NAT_RUNE_ALCH.put("heavy", true);
+    DISABLE_NAT_RUNE_ALCH.put("all", true);
+    DISABLE_NAT_RUNE_ALCH.put(
+        "custom",
+        getPropBoolean(props, "disable_nat_rune_alch", DISABLE_NAT_RUNE_ALCH.get("default")));
 
     /**
      * LEGACY, NOT USED EXCEPT TO MIGRATE SETTINGS Defines to what extent fix the item commands
@@ -1667,6 +1688,33 @@ public class Settings {
         "custom",
         getPropBoolean(props, "show_playerinfo", SHOW_PLAYER_NAME_OVERLAY.get("default")));
 
+    SHOW_PVP_NAME_OVERLAY.put("vanilla", false);
+    SHOW_PVP_NAME_OVERLAY.put("vanilla_resizable", false);
+    SHOW_PVP_NAME_OVERLAY.put("lite", false);
+    SHOW_PVP_NAME_OVERLAY.put("default", false);
+    SHOW_PVP_NAME_OVERLAY.put("heavy", false);
+    SHOW_PVP_NAME_OVERLAY.put("all", true);
+    SHOW_PVP_NAME_OVERLAY.put(
+        "custom", getPropBoolean(props, "show_pvpinfo", SHOW_PVP_NAME_OVERLAY.get("default")));
+
+    PVP_NAMES_COLOUR.put("vanilla", 0x990000); // red berry
+    PVP_NAMES_COLOUR.put("vanilla_resizable", 0x990000);
+    PVP_NAMES_COLOUR.put("lite", 0x990000);
+    PVP_NAMES_COLOUR.put("default", 0x990000);
+    PVP_NAMES_COLOUR.put("heavy", 0x990000);
+    PVP_NAMES_COLOUR.put("all", 0x990000);
+    PVP_NAMES_COLOUR.put(
+        "custom", getPropInt(props, "pvp_names_colour", PVP_NAMES_COLOUR.get("default")));
+
+    SHOW_OWN_NAME_OVERLAY.put("vanilla", false);
+    SHOW_OWN_NAME_OVERLAY.put("vanilla_resizable", false);
+    SHOW_OWN_NAME_OVERLAY.put("lite", false);
+    SHOW_OWN_NAME_OVERLAY.put("default", false);
+    SHOW_OWN_NAME_OVERLAY.put("heavy", false);
+    SHOW_OWN_NAME_OVERLAY.put("all", true);
+    SHOW_OWN_NAME_OVERLAY.put(
+        "custom", getPropBoolean(props, "show_owninfo", SHOW_OWN_NAME_OVERLAY.get("default")));
+
     SHOW_FRIEND_NAME_OVERLAY.put("vanilla", false);
     SHOW_FRIEND_NAME_OVERLAY.put("vanilla_resizable", false);
     SHOW_FRIEND_NAME_OVERLAY.put("lite", false);
@@ -1821,6 +1869,28 @@ public class Settings {
     BLOCKED_ITEMS.put("all", new ArrayList<String>());
     BLOCKED_ITEMS.put(
         "custom", getPropArrayListString(props, "blocked_items", BLOCKED_ITEMS.get("default")));
+
+    ITEM_HIGHLIGHT_COLOUR.put("vanilla", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("vanilla_resizable", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("lite", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("default", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("heavy", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put("all", 0xFFD700);
+    ITEM_HIGHLIGHT_COLOUR.put(
+        "custom", getPropInt(props, "item_highlight_colour", ITEM_HIGHLIGHT_COLOUR.get("default")));
+
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla_resizable", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("lite", false);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("default", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("heavy", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("all", true);
+    HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "highlight_items_right_click_menu",
+            HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get("default")));
 
     //// bank
     START_REMEMBERED_FILTER_SORT.put("vanilla", false);
@@ -2365,6 +2435,24 @@ public class Settings {
       save("custom");
     }
 
+    if (INTEGER_SCALING_FACTOR.get("custom") < (int) Renderer.minScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.minScalar);
+    } else if (INTEGER_SCALING_FACTOR.get("custom") > (int) Renderer.maxIntegerScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.maxIntegerScalar);
+    }
+
+    if (BILINEAR_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.minScalar);
+    } else if (BILINEAR_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+    }
+
+    if (BICUBIC_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.minScalar);
+    } else if (BICUBIC_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+    }
+
     if (WORLD.get("custom") < 0) {
       WORLD.put("custom", 0);
       save("custom");
@@ -2526,6 +2614,7 @@ public class Settings {
       XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
       XPBar.showActionCount = getPropBoolean(props, "showActionCount", true);
       XPBar.showTimeCount = getPropBoolean(props, "showTimeCount", true);
+      XPBar.skillClickPinning = getPropBoolean(props, "skillClickPinning", true);
 
       Logger.Info("Loaded settings");
       return props;
@@ -2816,6 +2905,8 @@ public class Settings {
       props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT.get(preset)));
       props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT.get(preset)));
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
+      props.setProperty(
+          "disable_nat_rune_alch", Boolean.toString(DISABLE_NAT_RUNE_ALCH.get(preset)));
       props.setProperty("command_patch_quest", Boolean.toString(COMMAND_PATCH_QUEST.get(preset)));
       props.setProperty(
           "command_patch_edible_rares", Boolean.toString(COMMAND_PATCH_EDIBLE_RARES.get(preset)));
@@ -2987,6 +3078,9 @@ public class Settings {
           Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
+      props.setProperty("show_pvpinfo", Boolean.toString(SHOW_PVP_NAME_OVERLAY.get(preset)));
+      props.setProperty("pvp_names_colour", Integer.toString(PVP_NAMES_COLOUR.get(preset)));
+      props.setProperty("show_owninfo", Boolean.toString(SHOW_OWN_NAME_OVERLAY.get(preset)));
       props.setProperty("show_friendinfo", Boolean.toString(SHOW_FRIEND_NAME_OVERLAY.get(preset)));
       props.setProperty("show_npcinfo", Boolean.toString(SHOW_NPC_NAME_OVERLAY.get(preset)));
       props.setProperty("extend_idsinfo", Boolean.toString(EXTEND_IDS_OVERLAY.get(preset)));
@@ -3006,6 +3100,11 @@ public class Settings {
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
+      props.setProperty(
+          "item_highlight_colour", Integer.toString(ITEM_HIGHLIGHT_COLOUR.get(preset)));
+      props.setProperty(
+          "highlight_items_right_click_menu",
+          Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
 
       //// bank
       props.setProperty("show_bank_value", Boolean.toString(SHOW_BANK_VALUE.get(preset)));
@@ -3136,6 +3235,7 @@ public class Settings {
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
       props.setProperty("showActionCount", Boolean.toString(XPBar.showActionCount));
       props.setProperty("showTimeCount", Boolean.toString(XPBar.showTimeCount));
+      props.setProperty("skillClickPinning", Boolean.toString(XPBar.skillClickPinning));
 
       // World Map
       props.setProperty("worldmap_show_icons", Boolean.toString(WorldMapWindow.showIcons));
@@ -3410,6 +3510,11 @@ public class Settings {
     save();
   }
 
+  public static void toggleSkillClickPinning() {
+    XPBar.skillClickPinning = !XPBar.skillClickPinning;
+    save();
+  }
+
   public static void toggleXPBarPin() {
     SHOW_XP_BAR.put(currentProfile, true);
     if (!XPBar.pinnedBar) Client.displayMessage("@cya@XP Bar is now pinned", Client.CHAT_NONE);
@@ -3537,6 +3642,20 @@ public class Settings {
       Client.displayMessage("@cya@Player names are now shown", Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@Player names are now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleShowOwnNameOverlay() {
+    SHOW_OWN_NAME_OVERLAY.put(currentProfile, !SHOW_OWN_NAME_OVERLAY.get(currentProfile));
+
+    if (SHOW_OWN_NAME_OVERLAY.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Your own name is now shown when player names are enabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@Your own name is no longer shown when player names are enabled", Client.CHAT_NONE);
     }
 
     save();
@@ -4081,6 +4200,9 @@ public class Settings {
       case "toggle_player_name_overlay":
         Settings.toggleShowPlayerNameOverlay();
         return true;
+      case "toggle_own_name_overlay":
+        Settings.toggleShowOwnNameOverlay();
+        return true;
       case "toggle_bypass_attack":
         Settings.toggleAttackAlwaysLeftClick();
         return true;
@@ -4294,6 +4416,10 @@ public class Settings {
     CAMERA_ROTATABLE_BOOL = CAMERA_ROTATABLE.get(currentProfile);
     CAMERA_MOVABLE_BOOL = CAMERA_MOVABLE.get(currentProfile);
     USE_JAGEX_FONTS_BOOL = USE_JAGEX_FONTS.get(currentProfile);
+    PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
+    LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
+    HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
+    ITEM_HIGHLIGHT_COLOUR_INT = ITEM_HIGHLIGHT_COLOUR.get(currentProfile);
   }
 
   public static void outputInjectedVariables() {

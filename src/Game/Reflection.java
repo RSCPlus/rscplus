@@ -37,7 +37,9 @@ public class Reflection {
   public static Constructor buffer = null;
 
   public static Field characterName = null;
+  public static Field characterId = null;
   public static Field characterDisplayName = null;
+  public static Field characterLevel = null;
   public static Field characterX = null;
   public static Field characterY = null;
   public static Field characterDamageTaken = null;
@@ -692,7 +694,9 @@ public class Reflection {
       // Character
       c = classLoader.loadClass("ta");
       characterName = c.getDeclaredField("C");
+      characterId = c.getDeclaredField("b");
       characterDisplayName = c.getDeclaredField("c");
+      characterLevel = c.getDeclaredField("s");
       characterX = c.getDeclaredField("i");
       characterY = c.getDeclaredField("K");
       characterDamageTaken = c.getDeclaredField("u");
@@ -703,7 +707,9 @@ public class Reflection {
       attackingPlayerIdx = c.getDeclaredField("z");
       attackingNpcIdx = c.getDeclaredField("h");
       if (characterName != null) characterName.setAccessible(true);
+      if (characterId != null) characterId.setAccessible(true);
       if (characterDisplayName != null) characterDisplayName.setAccessible(true);
+      if (characterLevel != null) characterLevel.setAccessible(true);
       if (characterX != null) characterX.setAccessible(true);
       if (characterY != null) characterY.setAccessible(true);
       if (characterDamageTaken != null) characterDamageTaken.setAccessible(true);

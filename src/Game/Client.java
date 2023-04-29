@@ -28,6 +28,7 @@ import Client.Launcher;
 import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
+import Client.ScaledWindow;
 import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
@@ -180,6 +181,7 @@ public class Client {
   public static long poison_timer = 0L;
   public static boolean is_poisoned = false;
   public static boolean is_in_wild;
+  public static int wild_level;
   // fatigue units as sent by the server
   public static int fatigue;
   // fatigue in units
@@ -222,6 +224,7 @@ public class Client {
 
   public static Object player_object;
   public static String player_name = "";
+  public static int player_id = -1;
   public static String xpUsername = "";
   public static boolean knowWhoIAm = false;
   public static int player_posX = -1;
@@ -1017,6 +1020,7 @@ public class Client {
 
     if (state == STATE_GAME) {
       Client.getPlayerName();
+      player_id = Client.getPlayerId();
       Client.adaptLoginInfo();
     }
 
@@ -1212,6 +1216,7 @@ public class Client {
     Replay.closeReplayRecording();
     adaptStrings();
     player_name = "";
+    player_id = -1;
   }
 
   public static void init_game() {
@@ -1287,6 +1292,10 @@ public class Client {
     }
 
     resetFatigueXPDrops(false);
+
+    // Re-validate the current scaling upon logging in, in case something
+    // went wrong during the initial window creation and resizing.
+    ScaledWindow.getInstance().validateAppletSize();
   }
 
   public static void disconnect_hook() {
@@ -1294,6 +1303,7 @@ public class Client {
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
     player_name = "";
+    player_id = -1;
     knowWhoIAm = false;
     Client.tipOfDay = -1;
 
@@ -1596,6 +1606,27 @@ public class Client {
     }
   }
 
+  /** Stores the user's pid in {@link #player_id}. */
+  public static int getPlayerId() {
+    int pid = -1;
+    try {
+      pid = (int) Reflection.characterId.get(player_object);
+      return pid;
+    } catch (Exception e) {
+    }
+    return pid;
+  }
+
+  public static int getPlayerLevel() {
+    int level = -1;
+    try {
+      level = (int) Reflection.characterLevel.get(player_object);
+      return level;
+    } catch (Exception e) {
+    }
+    return level;
+  }
+
   public static int getPlayerWaypointX() {
     int x = 0;
     try {
@@ -1716,6 +1747,9 @@ public class Client {
           break;
         case "toggleplayerinfo":
           Settings.toggleShowPlayerNameOverlay();
+          break;
+        case "toggleowninfo":
+          Settings.toggleShowOwnNameOverlay();
           break;
         case "togglefriendinfo":
           Settings.toggleShowFriendNameOverlay();
@@ -1937,20 +1971,7 @@ public class Client {
         // this command over PM to rs2/rs3
         return "@whi@My Combat is Level "
             + "@gre@"
-            +
-            // basic melee stats
-            ((base_level[SKILL_ATTACK]
-                        + base_level[SKILL_STRENGTH]
-                        + base_level[SKILL_DEFENSE]
-                        + base_level[SKILL_HP])
-                    * 0.25
-                // add ranged levels if ranger
-                + ((base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])
-                        < base_level[SKILL_RANGED] * 1.5
-                    ? base_level[SKILL_RANGED] * 0.25
-                    : 0)
-                // prayer and mage
-                + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
+            + calcCombatLevel()
             + " @lre@A:@whi@ "
             + base_level[SKILL_ATTACK]
             + " @lre@S:@whi@ "
@@ -1969,18 +1990,7 @@ public class Client {
           .equals(command)) { // this command stays within character limits and is safe.
         return "My Combat is Level "
             // basic melee stats
-            + ((base_level[SKILL_ATTACK]
-                        + base_level[SKILL_STRENGTH]
-                        + base_level[SKILL_DEFENSE]
-                        + base_level[SKILL_HP])
-                    * 0.25
-                // add ranged levels if ranger
-                + ((base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])
-                        < base_level[SKILL_RANGED] * 1.5
-                    ? base_level[SKILL_RANGED] * 0.25
-                    : 0)
-                // prayer and mage
-                + (base_level[SKILL_PRAYER] + base_level[SKILL_MAGIC]) * 0.125)
+            + calcCombatLevel()
             + " A:"
             + base_level[SKILL_ATTACK]
             + " S:"
@@ -2061,6 +2071,22 @@ public class Client {
     }
 
     return line;
+  }
+
+  /** @return the player's combat level */
+  public static double calcCombatLevel() {
+    if (base_level[SKILL_RANGED] * 1.5 > (base_level[SKILL_ATTACK] + base_level[SKILL_STRENGTH])) {
+      return (base_level[SKILL_RANGED] * 0.375
+              + (base_level[SKILL_DEFENSE] + base_level[SKILL_HP]) / 4.0)
+          + ((base_level[SKILL_MAGIC] + base_level[SKILL_PRAYER]) / 8.0);
+    } else {
+      return ((base_level[SKILL_ATTACK]
+                  + base_level[SKILL_STRENGTH]
+                  + base_level[SKILL_DEFENSE]
+                  + base_level[SKILL_HP])
+              / 4.0)
+          + ((base_level[SKILL_MAGIC] + base_level[SKILL_PRAYER]) / 8.0);
+    }
   }
 
   /**
@@ -2479,6 +2505,24 @@ public class Client {
     } else {
       return "";
     }
+  }
+
+  /**
+   * Calculates the mudclient display length of a given string
+   *
+   * @param text Provided string
+   * @return Pixel length of string
+   */
+  public static int calcStringLength(String text) {
+    int x = 0;
+
+    for (int idx = 0; idx < text.length(); ++idx) {
+      int chr = text.charAt(idx);
+      int width = inputFilterCharFontAddr[chr];
+      x += fontData[7 + width];
+    }
+
+    return x;
   }
 
   /**
@@ -3232,14 +3276,57 @@ public class Client {
       int currentHits,
       int maxHits,
       int id,
-      int id2) {
+      int id2,
+      int currentX,
+      int currentY) {
     // ILOAD 6 is index
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_MOB, currentHits, maxHits, id, id2));
+    // npc level set to -1, would have to be calculated using the cmb lvl formula with values
+    // retrieved from the various GameData arrays
+    npc_list.add(
+        new NPC(
+            x,
+            y,
+            width,
+            height,
+            name,
+            NPC.TYPE_MOB,
+            currentHits,
+            maxHits,
+            id,
+            id2,
+            -1,
+            currentX,
+            currentY));
   }
 
   public static void drawPlayer(
-      int x, int y, int width, int height, String name, int currentHits, int maxHits, int id2) {
-    npc_list.add(new NPC(x, y, width, height, name, NPC.TYPE_PLAYER, currentHits, maxHits, 0, id2));
+      int x,
+      int y,
+      int width,
+      int height,
+      String name,
+      int currentHits,
+      int maxHits,
+      int id2,
+      int level,
+      int currentX,
+      int currentY) {
+    // ILOAD 8 is index
+    npc_list.add(
+        new NPC(
+            x,
+            y,
+            width,
+            height,
+            name,
+            NPC.TYPE_PLAYER,
+            currentHits,
+            maxHits,
+            0,
+            id2,
+            level,
+            currentX,
+            currentY));
   }
 
   public static void drawItem(int x, int y, int width, int height, int id) {

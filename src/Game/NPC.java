@@ -33,6 +33,9 @@ class NPC {
   public int type;
   public int currentHits;
   public int maxHits;
+  public int level;
+  public int currentX;
+  public int currentY;
 
   public NPC(
       int x,
@@ -44,7 +47,10 @@ class NPC {
       int currentHits,
       int maxHits,
       int id,
-      int id2) {
+      int id2,
+      int level,
+      int currentX,
+      int currentY) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -55,5 +61,26 @@ class NPC {
     this.maxHits = maxHits;
     this.id = id;
     this.id2 = id2;
+    this.level = level;
+    this.currentX = currentX;
+    this.currentY = currentY;
+  }
+
+  public int getWildernessLevel() {
+    // division by 128 gives the localRegion values
+    int worldX = (currentX / 128) + Client.regionX;
+    int worldY = (currentY / 128) + Client.regionY;
+
+    int wild = 2203 - (worldY + (1776 - (944 * (worldY / 944))));
+
+    if (worldX + 2304 >= 2640) {
+      wild = -50;
+    }
+
+    if (wild > 0) {
+      return 1 + wild / 6;
+    }
+
+    return 0;
   }
 }
