@@ -2435,6 +2435,24 @@ public class Settings {
       save("custom");
     }
 
+    if (INTEGER_SCALING_FACTOR.get("custom") < (int) Renderer.minScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.minScalar);
+    } else if (INTEGER_SCALING_FACTOR.get("custom") > (int) Renderer.maxIntegerScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.maxIntegerScalar);
+    }
+
+    if (BILINEAR_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.minScalar);
+    } else if (BILINEAR_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+    }
+
+    if (BICUBIC_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.minScalar);
+    } else if (BICUBIC_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+    }
+
     if (WORLD.get("custom") < 0) {
       WORLD.put("custom", 0);
       save("custom");
