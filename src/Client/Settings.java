@@ -4241,6 +4241,9 @@ public class Settings {
             || Replay.isRestarting
             || Client.state == Client.STATE_LOGIN) Launcher.getQueueWindow().showQueueWindow();
         return true;
+      case "show_chat_window":
+        Launcher.getChatWindow().toggleChatWindow();
+        return true;
       case "world_1":
         if (Client.state == Client.STATE_LOGIN) Game.getInstance().getJConfig().changeWorld(1);
         return true;

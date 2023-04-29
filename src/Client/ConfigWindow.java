@@ -2885,6 +2885,12 @@ public class ConfigWindow {
         KeyEvent.VK_Q);
     addKeybindSet(
         keybindContainerPanel,
+        "Show chat window",
+        "show_chat_window",
+        KeyModifier.ALT,
+        KeyEvent.VK_G);
+    addKeybindSet(
+        keybindContainerPanel,
         "Toggle combat XP menu persistence",
         "toggle_combat_xp_menu",
         KeyModifier.CTRL,

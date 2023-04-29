@@ -1,9 +1,6 @@
 package Chat;
 
-
 import Game.Client;
-import org.apache.commons.compress.archivers.sevenz.CLI;
-
 import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -75,33 +72,35 @@ public class ChatWindowHTMLChatRenderer {
     String username = chatMessage.getUsername();
     String messageTypeStr = "";
 
-    if(messageType == Client.CHAT_PRIVATE) {
+    if (messageType == Client.CHAT_PRIVATE) {
       messageTypeStr = "PRIVATE";
-    } else if(messageType == Client.CHAT_PRIVATE_OUTGOING) {
+    } else if (messageType == Client.CHAT_PRIVATE_OUTGOING) {
       messageTypeStr = "PRIVATE";
       username = Client.player_name;
-    } else if(messageType == Client.CHAT_QUEST) {
+    } else if (messageType == Client.CHAT_QUEST) {
       messageTypeStr = "QUEST";
-    } else if(messageType == Client.CHAT_CHAT) {
+    } else if (messageType == Client.CHAT_CHAT) {
       messageTypeStr = "CHAT";
     }
 
     String usernameRgbColor = getUsernameRgbColor(username);
-    String usernameHTML = String.format("<span style=\"color: %s; font-weight: 600;\">%s</span>", usernameRgbColor, username);
+    String usernameHTML =
+        String.format(
+            "<span style=\"color: %s; font-weight: 600;\">%s</span>", usernameRgbColor, username);
 
-    String rowStr =
-      "<tr valign=\"top\">"
-              + "<td><div class=\"timestamp-cell\">[%s]</div></td>";
+    String rowStr = "<tr valign=\"top\">" + "<td><div class=\"timestamp-cell\">[%s]</div></td>";
 
-    if(showChatTypeCell) {
-      rowStr += "<td class=\"message-type-cell-container\"><div class=\"message-type-cell\">[%s]</div></td>";
+    if (showChatTypeCell) {
+      rowStr +=
+          "<td class=\"message-type-cell-container\"><div class=\"message-type-cell\">[%s]</div></td>";
     }
 
-    rowStr += "<td><div class=\"username-cell\">%s:</div></td>"
-      + "<td><div class=\"message-cell\">%s</div></td>"
-      + "</tr>";
+    rowStr +=
+        "<td><div class=\"username-cell\">%s:</div></td>"
+            + "<td><div class=\"message-cell\">%s</div></td>"
+            + "</tr>";
 
-    if(showChatTypeCell) {
+    if (showChatTypeCell) {
       return String.format(rowStr, timestampStr, messageTypeStr, usernameHTML, message);
     } else {
       return String.format(rowStr, timestampStr, usernameHTML, message);
@@ -140,7 +139,7 @@ public class ChatWindowHTMLChatRenderer {
       ArrayList<Color> tagColors = new ArrayList<>();
       ArrayList<String> htmlMessageSegments = new ArrayList<>();
 
-      while(matcher.find()) {
+      while (matcher.find()) {
         String tag = matcher.group().toLowerCase();
         Color tagColor = ChatColors.getColorForTag(tag);
 
@@ -149,15 +148,15 @@ public class ChatWindowHTMLChatRenderer {
         tagEndIndices.add(matcher.end());
       }
 
-      if(tagColors.size() > 0) {
-        for(int i = 0; i < tagColors.size(); i++) {
+      if (tagColors.size() > 0) {
+        for (int i = 0; i < tagColors.size(); i++) {
           int tagEndIndex = tagEndIndices.get(i);
           Color tagColor = tagColors.get(i);
 
           // Look ahead
           int j = i + 1;
 
-          if(j >= tagColors.size()) {
+          if (j >= tagColors.size()) {
             // There isn't a next message segment so just get the whole message after the tag
             String messageSegment = message.substring(tagEndIndex);
             String htmlMessageSegment = createHTMLMessageSegment(messageSegment, tagColor);
@@ -184,7 +183,7 @@ public class ChatWindowHTMLChatRenderer {
   }
 
   private static String createHTMLMessageSegment(String messageSegment, Color color) {
-    if(color == null) {
+    if (color == null) {
       return "<span>" + messageSegment + "</span>";
     }
 
@@ -193,7 +192,8 @@ public class ChatWindowHTMLChatRenderer {
   }
 
   private static String getColorRGB(Color color) {
-    String rgbValues = new String(color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
+    String rgbValues =
+        new String(color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
     return String.format("rgb(%s)", rgbValues);
   }
 }

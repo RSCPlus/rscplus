@@ -476,8 +476,6 @@ public class Launcher extends JFrame implements Runnable {
     NotificationsHandler.initialize();
     SoundEffects.loadCustomSoundEffects();
     Launcher.getInstance().init();
-
-    Launcher.chatWindow.showChatWindow();
   }
 
   public static Launcher getInstance() {

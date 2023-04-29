@@ -2,7 +2,6 @@ package Chat;
 
 import Game.Client;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
@@ -19,12 +18,12 @@ public class ChatWindowHTMLChatView extends JEditorPane {
   private ArrayList<ChatMessage> filteredChatMessages = new ArrayList<>();
   private HTMLDocument document;
   private StyleSheet styleSheet;
-  private ArrayList<Integer> chatFilter = new ArrayList<Integer>() {
-    {
-
-      add(-1);
-    }
-  };
+  private ArrayList<Integer> chatFilter =
+      new ArrayList<Integer>() {
+        {
+          add(-1);
+        }
+      };
 
   private int fontSize = 12;
 
@@ -65,26 +64,32 @@ public class ChatWindowHTMLChatView extends JEditorPane {
 
   public void setChatFilter(int[] chatFilter) {
     this.chatFilter.clear();
-    for(int filter : chatFilter) {
+    for (int filter : chatFilter) {
       this.chatFilter.add(filter);
     }
 
-    if(this.chatFilter.indexOf(-1) == 0) {
+    if (this.chatFilter.indexOf(-1) == 0) {
       ChatWindowHTMLChatRenderer.setShowChatTypeCell(true);
       ChatWindowHTMLChatRenderer.renderChatDocument(this, chatMessages);
     } else {
       ChatWindowHTMLChatRenderer.setShowChatTypeCell(false);
-      filteredChatMessages = (ArrayList<ChatMessage>) chatMessages.stream().filter(message -> {
-        for(int filterType : this.chatFilter) {
-          if(message.getType() == filterType) {
-            return true;
-          }
+      filteredChatMessages =
+          (ArrayList<ChatMessage>)
+              chatMessages
+                  .stream()
+                  .filter(
+                      message -> {
+                        for (int filterType : this.chatFilter) {
+                          if (message.getType() == filterType) {
+                            return true;
+                          }
 
-          return false;
-        }
+                          return false;
+                        }
 
-        return false;
-      }).collect(Collectors.toList());
+                        return false;
+                      })
+                  .collect(Collectors.toList());
 
       ChatWindowHTMLChatRenderer.renderChatDocument(this, filteredChatMessages);
     }
@@ -99,9 +104,9 @@ public class ChatWindowHTMLChatView extends JEditorPane {
   public void registerChatMessage(ChatMessage chatMessage) {
     chatMessages.add(chatMessage);
 
-    if(this.chatFilter == null) return;
+    if (this.chatFilter == null) return;
 
-    if(this.chatFilter.indexOf(-1) == 0 || this.chatFilter.contains(chatMessage.getType())) {
+    if (this.chatFilter.indexOf(-1) == 0 || this.chatFilter.contains(chatMessage.getType())) {
       ChatWindowHTMLChatRenderer.appendChatMessage(this, chatMessage);
     }
   }
