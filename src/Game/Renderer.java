@@ -450,7 +450,7 @@ public class Renderer {
         try {
           Client.npc_list.sort(
               Comparator.comparing(
-                  npc -> npc.name, Comparator.nullsLast(Comparator.naturalOrder())));
+                  npc -> npc.name, Comparator.nullsLast(Comparator.reverseOrder())));
         } catch (Exception e) {
           // Sometimes Java helpfully complains that the sorting method violates its general
           // contract.
