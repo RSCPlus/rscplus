@@ -607,7 +607,7 @@ public class Renderer {
 
             // Check if item is in blocked list
             boolean itemIsBlocked =
-                stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS.get("custom"));
+                stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS.get("custom"), true);
 
             // We've sorted item list in such a way that it is possible to not draw the ITEMINFO
             // unless it's the first time we've tried to for this itemid at that location
@@ -628,7 +628,8 @@ public class Renderer {
               String itemText = item.getName() + ((freq == 1) ? "" : " (" + freq + ")");
 
               // Check if item is in highlighted list
-              if (itemInHighlightList(item.getName())) {
+              if (Renderer.stringIsWithinList(
+                  item.getName(), Settings.HIGHLIGHTED_ITEMS.get("custom"), true)) {
                 itemColor =
                     Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
                 drawHighlightImage(g2, itemText, x, y);
@@ -2404,10 +2405,22 @@ public class Renderer {
     g.setComposite(AlphaComposite.SrcOver.derive(alpha));
   }
 
+  // Method hooked in JClassPatcher
   public static boolean itemInHighlightList(String itemName) {
-    return Renderer.stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"));
+    // Strip color if the name comes from the right-click menu
+    if (itemName.startsWith("@lre@")) {
+      itemName = itemName.substring(5);
+    }
+
+    // Ignore blocked items
+    if (stringIsWithinList(itemName, Settings.BLOCKED_ITEMS.get("custom"), true)) {
+      return false;
+    }
+
+    return Renderer.stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true);
   }
 
+  // Method hooked in JClassPatcher
   public static void setRightClickMenuBounds(int x, int y, int width, int height) {
     rightClickMenuX = x;
     rightClickMenuY = y;
@@ -2415,16 +2428,45 @@ public class Renderer {
     rightClickMenuHeight = height;
   }
 
+  /**
+   * Checks if a given string is contained within a list of strings. When surrounded by quotes,
+   * input strings will not check for exact matches and the quotes will be treated as part of the
+   * input string.
+   *
+   * @param input Input string
+   * @param items {@link ArrayList} of Strings
+   * @return {@code boolean} if the string is found
+   */
   public static boolean stringIsWithinList(String input, ArrayList<String> items) {
+    return stringIsWithinList(input, items, false);
+  }
+
+  /**
+   * Checks if a given string is contained within a list of strings.
+   *
+   * @param input Input string
+   * @param items {@link ArrayList} of Strings
+   * @param checkExactMatches {@code boolean} indicating whether to check for exact matches when the
+   *     input string is surrounded with quotes.
+   * @return {@code boolean} if the string is found
+   */
+  public static boolean stringIsWithinList(
+      String input, ArrayList<String> items, boolean checkExactMatches) {
     if (items.size() <= 0) {
       return false;
     }
     Iterator it = items.iterator();
     while (it.hasNext()) {
-      String item = String.valueOf(it.next());
-      if (item.trim().length() > 0
-          && input.trim().toLowerCase().contains(item.trim().toLowerCase())) {
-        return true;
+      String item = String.valueOf(it.next()).trim();
+      if (item.length() > 0) {
+        if (checkExactMatches
+            && item.startsWith("\"")
+            && item.endsWith("\"")
+            && input.trim().equalsIgnoreCase(item.substring(1, item.length() - 1))) {
+          return true;
+        } else if (input.trim().toLowerCase().contains(item.toLowerCase())) {
+          return true;
+        }
       }
     }
     return false;
