@@ -272,6 +272,7 @@ public class JClassPatcher {
 
       hookStaticVariable(methodNode, "u", "e", "I", "Game/Client", "shadowSleepCount", "I");
       hookStaticVariable(methodNode, "n", "g", "I", "Game/Client", "friends_count", "I");
+      hookStaticVariable(methodNode, "n", "a", "[I", "Game/GameApplet", "characterWidth", "[I");
       hookStaticVariable(
           methodNode,
           "ua",
