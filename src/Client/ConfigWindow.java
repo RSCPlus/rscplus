@@ -3489,9 +3489,10 @@ public class ConfigWindow {
                 + "<li><b>Logg</b>, currently maintains RSC+, new interfaces & improvements</li>"
                 + "<li><b>Brian</b>, who laid a lot of the groundwork for the user interface</li>"
                 + "<li><b>Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li>"
-                + "<li><b>Talkarcabbage</b>, generic notifications, ui backend, & keybind overhaul</li>"
-                + "<li><b>conker</b>, client scaling, font consistency, menu scrolling, & other improvements</li>"
-                + "<li><b>nickzuber</b>, fixed some bugs</li>"
+                + "<li><b>conker</b>, client scaling, fonts, general UX, & other improvements</li>"
+                + "<li><b>Talkarcabbage</b>, generic notifications, UI backend, & keybind overhaul</li>"
+                + "<li><b>nickzuber</b>, fixed some bugs, highlight/block items</li>"
+                + "<li><b>Ryan</b>, keybind to reset camera zoom, toggle statuses in corner always</li>"
                 + "<li><b>Yumeko</b>, fixed Twitch chat integration in 2023</li>"
                 + "<li><b>sammy123k</b>, added an option to center the XP progress bar</li>"
                 + "<li><b>The Jagex team of 2000 to 2004</b></li></ul></p></html>");
