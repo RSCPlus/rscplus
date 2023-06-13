@@ -193,19 +193,24 @@ public class SoundEffects {
   }
 
   public static void adjustSfxVolume(SourceDataLine sourceDataLine) {
-    if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-      float volumePercent = Settings.SFX_VOLUME.get(Settings.currentProfile);
+    try {
+      if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+        float volumePercent = Settings.SFX_VOLUME.get(Settings.currentProfile);
 
-      FloatControl gainControl =
-          (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+        FloatControl gainControl =
+            (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
 
-      if (Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile)) {
-        volumePercent *= 2;
+        if (Settings.LOUDER_SOUND_EFFECTS.get(Settings.currentProfile)) {
+          volumePercent *= 2;
+        }
+
+        float volumeInDecibels = 20f * (float) Math.log10(volumePercent / 100f);
+
+        gainControl.setValue(volumeInDecibels);
       }
-
-      float volumeInDecibels = 20f * (float) Math.log10(volumePercent / 100f);
-
-      gainControl.setValue(volumeInDecibels);
+    } catch (Exception e) {
+      Logger.Error("Error adjusting the sfx volume");
+      e.printStackTrace();
     }
   }
 }
