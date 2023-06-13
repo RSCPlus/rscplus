@@ -1636,6 +1636,17 @@ public class Client {
     return y;
   }
 
+  public static boolean getPlayerSkulled() {
+    boolean skulled = false;
+    try {
+      int skulledInt = (int) Reflection.isSkulled.get(player_object);
+      return skulledInt == 1;
+    } catch (Exception e) {
+      Logger.Warn("Could not determine player skulled status");
+    }
+    return skulled;
+  }
+
   /** Returns the coordinates of the player */
   public static String getCoords() {
     return "(" + worldX + "," + worldY + ")";
@@ -1817,6 +1828,9 @@ public class Client {
           break;
         case "togglebuffs":
           Settings.toggleBuffs();
+          break;
+        case "toggledeathitems":
+          Settings.toggleDeathItems();
           break;
         case "togglestatusdisplay":
           Settings.toggleHpPrayerFatigueOverlay();

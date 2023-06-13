@@ -62,9 +62,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import javax.imageio.ImageIO;
 
@@ -79,6 +81,8 @@ public class Renderer {
   public static int height_client;
   public static int[] pixels;
   public static int sprite_media;
+  public static int[] itemSprites;
+  public static int[] itemSpriteMasks;
 
   public static int rs2hd_color_skyoverworld = 0xFFCAC1AB;
   public static int rs2hd_color_skyunderground = 0xFF1D150E;
@@ -119,6 +123,7 @@ public class Renderer {
   public static Image image_wiki_hbar_active_jf;
   public static Image image_wiki_hbar_inactive;
   public static Image image_wiki_hbar_active;
+  public static Image image_small_skull;
   private static BufferedImage game_image;
   public static int imageType;
   public static float renderingScalar;
@@ -245,6 +250,7 @@ public class Renderer {
       GameApplet.syncWikiHbarImageWithFontSetting();
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
+      image_small_skull = ImageIO.read(Launcher.getResource("/assets/small_skull.png"));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -803,6 +809,15 @@ public class Renderer {
               Client.current_level[Client.SKILL_HP],
               Client.base_level[Client.SKILL_HP]);
           x2 -= barSize;
+        }
+      }
+
+      // Draw items kept on death
+      if (Client.show_menu == Client.MENU_INVENTORY
+          && Settings.DEATH_ITEMS.get(Settings.currentProfile)) {
+        if (!Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile)
+            || (Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile) && Client.is_in_wild)) {
+          drawDeathItems(g2);
         }
       }
 
@@ -2338,6 +2353,56 @@ public class Renderer {
     show_bank_last = Client.show_bank;
   }
 
+  private static void drawDeathItems(Graphics2D g2) {
+    // Note: This function many not be entirely authentic because we don't
+    // currently know if certain items besides stackable items were
+    // always dropped on death, such as the quest item "Liquid Honey"
+    Map<Integer, Integer> inventoryValues = new HashMap<>();
+
+    if (Client.inventory_count < 1) return;
+
+    int protectItemOffset = Client.prayers_on[8] ? 1 : 0;
+    int numItemsToKeep = (Client.getPlayerSkulled() ? 0 : 3) + protectItemOffset;
+
+    for (int i = 0; i < Client.inventory_count; i++) {
+      // Only consider non-stackable items
+      if (Item.item_stackable[Client.inventory_items[i]] == 1) {
+        inventoryValues.put(i, Item.item_price[Client.inventory_items[i]]);
+      }
+    }
+
+    int skullImageWidth = image_small_skull.getWidth(null);
+    int skullImageHeight = image_small_skull.getHeight(null);
+
+    inventoryValues
+        .entrySet()
+        .stream()
+        .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+        .limit(numItemsToKeep)
+        .map(Map.Entry::getKey)
+        .forEach(
+            inventorySlot -> {
+              int x = width - 200 - skullImageWidth + ((inventorySlot % 5) * 49);
+              int y = 45 + skullImageHeight + ((inventorySlot / 5) * 34);
+
+              if (showingRightClickMenu) {
+                Rectangle drawBounds = new Rectangle(x, y, skullImageWidth, skullImageHeight);
+                Rectangle menuBounds =
+                    new Rectangle(
+                        rightClickMenuX,
+                        rightClickMenuY,
+                        rightClickMenuWidth,
+                        rightClickMenuHeight);
+
+                if (drawBounds.intersects(menuBounds)) {
+                  return;
+                }
+              }
+
+              g2.drawImage(image_small_skull, x, y, null);
+            });
+  }
+
   private static Color getInventoryCountColor() {
     if (Settings.SHOW_INVCOUNT_COLOURS.get(Settings.currentProfile)) {
       if (Client.inventory_count == 0) {
@@ -3032,6 +3097,16 @@ public class Renderer {
 
     try {
       Reflection.drawSprite.invoke(instance, -1, id, y, x);
+    } catch (Exception e) {
+    }
+  }
+
+  public static void drawItemSprite(int x, int y, int id) {
+    if (Reflection.drawItemSprite == null) return;
+
+    try {
+      Reflection.drawItemSprite.invoke(
+          instance, y, itemSpriteMasks[id], 0, false, 0, 2150 + itemSprites[id], 32, 48, x, -36);
     } catch (Exception e) {
     }
   }
