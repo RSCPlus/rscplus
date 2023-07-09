@@ -109,34 +109,49 @@ import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
- * within an interface.
+ * within an interface.<br>
+ * <br>
  *
- * <p><b>To add a new configuration option to the GUI,</b> <br>
- * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI from
- * ConfigWindow.initialize() (see existing examples) <br>
- * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the
- * element that is returned in the ConfigWindow.initialize() method. See existing code for examples.
+ * <p>To add a new configuration option to the GUI:
+ *
+ * <ol>
+ *   <li>Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI
+ *       from {@link #initialize}. Multiple components belonging to the same setting should be
+ *       grouped within a common parent JPanel, or tagged with {@link
+ *       SearchUtils#setRelatedSearchComponent} <i>(see existing examples)</i>
+ *   <li>If there is a helper method such as {@link #addCheckbox}, use that method to create and
+ *       store the element that is returned in the {@link #initialize} method. <i>(see existing
+ *       examples)</i>
+ *   <li>Configure search-related properties as-needed, such as metadata. See methods in {@link
+ *       SearchUtils} for more information.
+ *   <li><sup>^</sup>Add an appropriate variable to the {@link Settings} class as a class variable,
+ *       <i>and</i> as an assignment in the appropriate restore default method below.
+ *   <li>Add an entry in the {@link #executeSynchronizeGuiValues} method that references the
+ *       variable, as per the already-existing examples.
+ *   <li>Add an entry in the {@link #saveSettings} method referencing the variable, as per the
+ *       already-existing examples.
+ *   <li><sup>^</sup>Add an entry in the {@link Settings#save(String)} method to save the option to
+ *       file.
+ *   <li><sup>^</sup>Add an entry in the {@link Settings#definePresets} method to load the option
+ *       from file.
+ *   <li><i>(Optional)</i> If a method needs to be called to adjust settings other than the setting
+ *       value itself, add it to the {@link #applySettings} method below.
+ * </ol>
+ *
+ * <p><i>Entries marked with a <sup>^</sup> are steps used to add settings that are not included in
+ * the GUI.</i><br>
  * <br>
- * 2.) ^Add an appropriate variable to the Settings class as a class variable, <i>and</i> as an
- * assignment in the appropriate restore default method below. <br>
- * 3.) Add an entry in the ConfigWindow.synchronizeGuiValues() method that references the variable,
- * as per the already-existing examples.<br>
- * 4.) Add an entry in the ConfigWindow.saveSettings() method referencing the variable, as per the
- * already-existing examples.<br>
- * 5.) ^Add an entry in the Settings.Save() class save method to save the option to file.<br>
- * 6.) ^Add an entry in the Settings.Load() class load method to load the option from file.<br>
- * 7.) (Optional) If a method needs to be called to adjust settings other than the setting value
- * itself, add it to the ConfigWindow.applySettings() method below.<br>
- * <br>
- * <i>Entries marked with a ^ are steps used to add settings that are not included in the GUI.</i>
- * <br>
- * <br>
- * <b>To add a new keybind,</b><br>
- * 1.) Add a call in the initialize method to addKeybind with appropriate parameters.<br>
- * 2.) Add an entry to the command switch statement in Settings to process the command when its
- * keybind is pressed.<br>
- * 3.) Optional, recommended: Separate the command from its functionality by making a toggleBlah
- * method and calling it from the switch statement.<br>
+ *
+ * <p><b>To add a new keybind:</b>
+ *
+ * <ol>
+ *   <li>Add a call in the {@link #initialize} method to {@link #addKeybindSet} with appropriate
+ *       parameters.
+ *   <li>Add an entry to the command switch statement in {@link Settings#processKeybindCommand} to
+ *       process the command when its keybind is pressed.
+ *   <li><i>(Optional, recommended)</i>: Separate the command from its functionality by making a
+ *       "toggleBlah" method and calling it from the switch statement.
+ * </ol>
  */
 public class ConfigWindow {
 
@@ -1237,7 +1252,7 @@ public class ConfigWindow {
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
-    SearchUtils.addSearchMetadata(generalPanelRoofHidingCheckbox, "roofs rooves");
+    SearchUtils.addSearchMetadata(generalPanelRoofHidingCheckbox, "roofs", "rooves");
 
     generalPanelDisableMinimapRotationCheckbox =
         addCheckbox("Disable random minimap rotation", generalPanel);
@@ -1299,7 +1314,7 @@ public class ConfigWindow {
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
     generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colours from RS2: HD");
-    SearchUtils.addSearchMetadata(generalPanelRS2HDSkyCheckbox, "colors");
+    SearchUtils.addSearchMetadata(generalPanelRS2HDSkyCheckbox, CommonMetadata.COLOURS.getText());
 
     // colour choose overworld sub-panel
     JPanel generalPanelSkyOverworldColourPanel = new JPanel();
@@ -1313,7 +1328,8 @@ public class ConfigWindow {
         addCheckbox("Use a custom colour for the sky", generalPanelSkyOverworldColourPanel);
     generalPanelCustomSkyboxOverworldCheckbox.setToolTipText(
         "You can set your own preferred colour for what you think the sky should have");
-    SearchUtils.addSearchMetadata(generalPanelCustomSkyboxOverworldCheckbox, "color");
+    SearchUtils.addSearchMetadata(
+        generalPanelCustomSkyboxOverworldCheckbox, CommonMetadata.COLOUR.getText());
 
     generalPanelSkyOverworldColourColourPanel = new JPanel();
     generalPanelSkyOverworldColourPanel.add(generalPanelSkyOverworldColourColourPanel);
@@ -1361,7 +1377,8 @@ public class ConfigWindow {
             generalPanelSkyUndergroundColourPanel);
     generalPanelCustomSkyboxUndergroundCheckbox.setToolTipText(
         "You can set your own preferred colour for what you think the sky should have (underground)");
-    SearchUtils.addSearchMetadata(generalPanelCustomSkyboxUndergroundCheckbox, "color");
+    SearchUtils.addSearchMetadata(
+        generalPanelCustomSkyboxUndergroundCheckbox, CommonMetadata.COLOUR.getText());
 
     generalPanelSkyUndergroundColourColourPanel = new JPanel();
     generalPanelSkyUndergroundColourPanel.add(generalPanelSkyUndergroundColourColourPanel);
@@ -1457,7 +1474,8 @@ public class ConfigWindow {
             20);
     generalPanelRanReduceFrequencyButton.setToolTipText(
         "The randomn colour effect is exactly the same, but at a frequency to what Andrew would have seen when designing the chat effect.");
-    SearchUtils.addSearchMetadata(generalPanelRanReduceFrequencyButton, "frames per second");
+    SearchUtils.addSearchMetadata(
+        generalPanelRanReduceFrequencyButton, CommonMetadata.FPS.getText());
 
     generalPanelLimitRanFPSSpinner = new JSpinner();
     generalPanelLimitRanFPSPanel.add(generalPanelLimitRanFPSSpinner);
@@ -1605,7 +1623,8 @@ public class ConfigWindow {
         addCheckbox("FPS limit (doubled while F1 interlaced):", generalPanelLimitFPSPanel);
     generalPanelLimitFPSCheckbox.setToolTipText(
         "Limit FPS for a more 2001 feeling (or to save battery)");
-    SearchUtils.addSearchMetadata(generalPanelLimitFPSCheckbox, "frames per second limiter");
+    SearchUtils.addSearchMetadata(
+        generalPanelLimitFPSCheckbox, CommonMetadata.FPS.getText(), "limiter");
 
     generalPanelLimitFPSSpinner = new JSpinner();
     generalPanelLimitFPSPanel.add(generalPanelLimitFPSSpinner);
@@ -1760,7 +1779,7 @@ public class ConfigWindow {
     generalPanelLogVerbosityTitle.setBorder(new EmptyBorder(7, 0, 0, 0));
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
     generalPanelLogVerbosityTitle.setAlignmentY((float) 1);
-    SearchUtils.addSearchMetadata(generalPanelLogVerbosityTitle, "logger logging");
+    SearchUtils.addSearchMetadata(generalPanelLogVerbosityTitle, "logger", "logging");
 
     Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
         new Hashtable<Integer, JLabel>();
@@ -1803,7 +1822,8 @@ public class ConfigWindow {
     generalPanelColoredTextCheckbox = addCheckbox("Coloured console text", generalPanel);
     generalPanelColoredTextCheckbox.setToolTipText(
         "When running the client from a console, chat messages in the console will reflect the colours they are in game");
-    SearchUtils.addSearchMetadata(generalPanelColoredTextCheckbox, "colors");
+    SearchUtils.addSearchMetadata(
+        generalPanelColoredTextCheckbox, CommonMetadata.COLOURS.getText());
 
     /*
      * Overlays tab
@@ -1815,6 +1835,7 @@ public class ConfigWindow {
     /// the screen because they are designed to modify just the interface of RSC+
     addSettingsHeader(overlayPanel, "Interface overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
+    SearchUtils.addSearchMetadata(overlayPanelStatusDisplayCheckbox, CommonMetadata.HP.getText());
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
@@ -1822,6 +1843,8 @@ public class ConfigWindow {
         addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
     overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
         "Always show the status display as text even at larger client sizes");
+    SearchUtils.addSearchMetadata(
+        overlayPanelStatusAlwaysTextCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -1856,7 +1879,8 @@ public class ConfigWindow {
         addCheckbox("Additional inventory count colours", overlayPanel);
     overlayPanelInvCountColoursCheckbox.setToolTipText(
         "Adds additional colours to the inventory count to indicate fullness levels");
-    SearchUtils.addSearchMetadata(overlayPanelInvCountColoursCheckbox, "colors");
+    SearchUtils.addSearchMetadata(
+        overlayPanelInvCountColoursCheckbox, CommonMetadata.COLOURS.getText());
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -1869,15 +1893,17 @@ public class ConfigWindow {
     overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
     overlayPanelRetroFpsCheckbox.setToolTipText(
         "Shows the FPS like it used to be displayed in RSC");
-    SearchUtils.addSearchMetadata(overlayPanelRetroFpsCheckbox, "frames per second");
+    SearchUtils.addSearchMetadata(overlayPanelRetroFpsCheckbox, CommonMetadata.FPS.getText());
 
     overlayPanelShowCombatInfoCheckbox = addCheckbox("Show NPC HP info", overlayPanel);
     overlayPanelShowCombatInfoCheckbox.setToolTipText(
         "Shows the HP info for the NPC you're in combat with");
+    SearchUtils.addSearchMetadata(overlayPanelShowCombatInfoCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelUsePercentageCheckbox = addCheckbox("Use percentage for NPC HP info", overlayPanel);
     overlayPanelUsePercentageCheckbox.setToolTipText(
         "Uses percentage for NPC HP info instead of actual HP");
+    SearchUtils.addSearchMetadata(overlayPanelUsePercentageCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
     overlayPanelLagIndicatorCheckbox.setToolTipText(
@@ -1887,6 +1913,7 @@ public class ConfigWindow {
         addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
     overlayPanelFoodHealingCheckbox.setToolTipText(
         "When hovering on food, shows the HP a consumable recovers");
+    SearchUtils.addSearchMetadata(overlayPanelFoodHealingCheckbox, CommonMetadata.HP.getText());
     // TODO: Remove this line when food healing overlay is implemented
     overlayPanelFoodHealingCheckbox.setEnabled(false);
 
@@ -1894,6 +1921,7 @@ public class ConfigWindow {
         addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
     overlayPanelHPRegenTimerCheckbox.setToolTipText(
         "Shows the seconds until your HP will naturally regenerate");
+    SearchUtils.addSearchMetadata(overlayPanelHPRegenTimerCheckbox, CommonMetadata.HP.getText());
     // TODO: Remove this line when the HP regen timer is implemented
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
 
@@ -2033,7 +2061,7 @@ public class ConfigWindow {
             "Show attackable players' names in a separate colour", overlayPanelPvpNamesPanel);
     overlayPanelPvpNamesCheckbox.setToolTipText(
         "Changes the colour of players' names when they are within attacking range in the wilderness");
-    SearchUtils.addSearchMetadata(overlayPanelPvpNamesCheckbox, "color");
+    SearchUtils.addSearchMetadata(overlayPanelPvpNamesCheckbox, CommonMetadata.COLOUR.getText());
 
     overlayPanelPvpNamesColourSubpanel = new JPanel();
     overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesColourSubpanel);
@@ -2154,7 +2182,8 @@ public class ConfigWindow {
     JLabel highlightedItemColourPanelNameLabel = new JLabel("Highlight colour ");
     overlayPanelItemHighlightColourPanel.add(highlightedItemColourPanelNameLabel);
     highlightedItemColourPanelNameLabel.setAlignmentY((float) 0.9);
-    SearchUtils.addSearchMetadata(highlightedItemColourPanelNameLabel, "color");
+    SearchUtils.addSearchMetadata(
+        highlightedItemColourPanelNameLabel, CommonMetadata.COLOUR.getText());
 
     overlayPanelItemHighlightColourSubpanel = new JPanel();
     overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSubpanel);
@@ -2247,7 +2276,7 @@ public class ConfigWindow {
     audioPanelSfxVolumeLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
     audioPanelSfxVolumePanel.add(audioPanelSfxVolumeLabel);
     audioPanelSfxVolumeLabel.setAlignmentY((float) 1);
-    SearchUtils.addSearchMetadata(audioPanelSfxVolumeLabel, "sfx");
+    SearchUtils.addSearchMetadata(audioPanelSfxVolumeLabel, CommonMetadata.SFX.getText());
 
     audioPanelSfxVolumeSlider = new JSlider();
 
@@ -2273,7 +2302,8 @@ public class ConfigWindow {
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
         "Doubles the current volume for all sound effects.");
-    SearchUtils.addSearchMetadata(audioPanelLouderSoundEffectsCheckbox, "sfx");
+    SearchUtils.addSearchMetadata(
+        audioPanelLouderSoundEffectsCheckbox, CommonMetadata.SFX.getText());
 
     JPanel audioPanelOverrideAudioSettingsPanel = new JPanel();
     audioPanel.add(audioPanelOverrideAudioSettingsPanel);
@@ -2286,19 +2316,22 @@ public class ConfigWindow {
             audioPanelOverrideAudioSettingsPanel);
     audioPanelOverrideAudioSettingCheckbox.setToolTipText(
         "Let RSC+ control whether or not sound effects are played (useful for watching replays)");
-    SearchUtils.addSearchMetadata(audioPanelOverrideAudioSettingCheckbox, "sfx");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingCheckbox, CommonMetadata.SFX.getText());
 
     ButtonGroup overrideAudioSettingGroup = new ButtonGroup();
     audioPanelOverrideAudioSettingOnButton =
         addRadioButton("Sound effects always on", audioPanelOverrideAudioSettingsPanel, 20);
     audioPanelOverrideAudioSettingOnButton.setToolTipText(
         "Even if the server remembers that the user's audio should be off, RSC+ will play sound effects.");
-    SearchUtils.addSearchMetadata(audioPanelOverrideAudioSettingOnButton, "sfx");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingOnButton, CommonMetadata.SFX.getText());
     audioPanelOverrideAudioSettingOffButton =
         addRadioButton("Sound effects always off", audioPanelOverrideAudioSettingsPanel, 20);
     audioPanelOverrideAudioSettingOffButton.setToolTipText(
         "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
-    SearchUtils.addSearchMetadata(audioPanelOverrideAudioSettingOffButton, "sfx");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingOffButton, CommonMetadata.SFX.getText());
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
 
@@ -2306,7 +2339,8 @@ public class ConfigWindow {
         addCheckbox("Fix web slicing & dummy hitting sound effect", audioPanel);
     audioPanelFixSpiderWebDummySoundCheckbox.setToolTipText(
         "The RSC server authentically tells your client to play a sound effect when slicing a web or hitting a dummy, but that sound effect doesn't exist in an unmodified client cache.");
-    SearchUtils.addSearchMetadata(audioPanelFixSpiderWebDummySoundCheckbox, "sfx");
+    SearchUtils.addSearchMetadata(
+        audioPanelFixSpiderWebDummySoundCheckbox, CommonMetadata.SFX.getText());
 
     addSettingsHeader(audioPanel, "Toggle individual sound effects");
 
@@ -2340,7 +2374,7 @@ public class ConfigWindow {
             setAllSoundeffects(true);
           }
         });
-    SearchUtils.addSearchMetadata(audioPanelEnableAllSfxButton, "sfx");
+    SearchUtils.addSearchMetadata(audioPanelEnableAllSfxButton, CommonMetadata.SFX.getText());
 
     JPanel audioPanelToggleAllPanelSpacingPanel = new JPanel();
     audioPanelToggleAllPanel.add(audioPanelToggleAllPanelSpacingPanel);
@@ -2357,7 +2391,7 @@ public class ConfigWindow {
             setAllSoundeffects(false);
           }
         });
-    SearchUtils.addSearchMetadata(audioPanelDisableAllSfxButton, "sfx");
+    SearchUtils.addSearchMetadata(audioPanelDisableAllSfxButton, CommonMetadata.SFX.getText());
 
     audioPanelEnableAllSfxPanel.add(audioPanelToggleAllPanel);
 
@@ -2852,6 +2886,8 @@ public class ConfigWindow {
         addCheckbox("Enable low HP notification at", notificationPanelLowHPNotifsPanel);
     notificationPanelLowHPNotifsCheckbox.setToolTipText(
         "Shows a system notification when your HP drops below the specified value");
+    SearchUtils.addSearchMetadata(
+        notificationPanelLowHPNotifsCheckbox, CommonMetadata.HP.getText());
 
     notificationPanelLowHPNotifsSpinner = new JSpinner();
     notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(45, 22));
@@ -3302,7 +3338,8 @@ public class ConfigWindow {
         "Toggle HP/prayer/fatigue display",
         "toggle_hpprayerfatigue_display",
         KeyModifier.CTRL,
-        KeyEvent.VK_U);
+        KeyEvent.VK_U,
+        CommonMetadata.HP.getText());
     addKeybindSet(
         keybindContainerPanel,
         "Toggle combat buffs and cooldowns display         ", // TODO: remove this spacing
@@ -3390,7 +3427,8 @@ public class ConfigWindow {
         "Toggle time until health regen",
         "toggle_health_regen_timer",
         KeyModifier.CTRL,
-        KeyEvent.VK_X);
+        KeyEvent.VK_X,
+        CommonMetadata.HP.getText());
     addKeybindSet(
         keybindContainerPanel,
         "Toggle Wiki Hbar Button",
@@ -3899,6 +3937,25 @@ public class ConfigWindow {
     indexSearch();
   }
 
+  /** Collection of frequently-used metadata values */
+  private enum CommonMetadata {
+    HP("health", "hits", "hp"),
+    SFX("sfx", "sound effects"),
+    FPS("fps", "frames per second"),
+    COLOUR("colour", "color"),
+    COLOURS("colours", "colors");
+
+    public final String text;
+
+    CommonMetadata(String... text) {
+      this.text = String.join(" ", text);
+    }
+
+    public String getText() {
+      return text;
+    }
+  }
+
   /**
    * Given a {@link ConfigTab} object, get the tab index
    *
@@ -3926,17 +3983,17 @@ public class ConfigWindow {
    * list of the actual swing components belonging to it, their visibility states, and the compiled
    * searchable text. When a search is performed, the user's input is tested against the searchable
    * text within each SearchItem, hiding all components that do not match and restoring visibility
-   * to components that do, if they were previously visible prior to the search. Config tabs which
-   * no longer contain any visible components will be temporarily disabled.
+   * to components that do, if they were visible prior to the search. Config tabs which no longer
+   * contain any visible components will be temporarily disabled.
    *
    * <p>The searchable text for each SearchItem is a composite of all displayed, tooltip, metadata,
    * and user-entered text for all components belonging to the SearchItem, as well as any related
    * components that a developer may choose to assign. Metadata text is only used for searching and
    * is never displayed to the user. It exists primarily as a means to enhance search usability and
-   * may be added to a component via {@link SearchUtils#addSearchMetadata(JComponent, String)}. By
-   * contrast, there may be situations where it is not desirable to include text from a particular
-   * component within a SearchItem, such as long description labels. This may be accomplished via
-   * {@link SearchUtils#skipSearchText(JComponent)}.
+   * may be added to a component via {@link SearchUtils#addSearchMetadata(JComponent, String...)}.
+   * By contrast, there may be situations where it is not desirable to include text from a
+   * particular component within a SearchItem, such as long description labels. This may be
+   * accomplished via {@link SearchUtils#skipSearchText(JComponent)}.
    *
    * <p>During indexing, components are automatically grouped together within a SearchItem when they
    * belong to the same parent JPanel within a panel tab. As such, JPanels <i>should</i> be used to
@@ -5661,8 +5718,7 @@ public class ConfigWindow {
    */
   private void applySettings() {
     // Wrap entire function to ensure search is cleared prior to any other executions that may
-    // involve
-    // reading from or updating GUI values
+    // involve reading from or updating GUI values
     reindexSearch(
         () -> {
           saveSettings();
@@ -5966,8 +6022,7 @@ public class ConfigWindow {
 
   public void updateJoystickInput(String compName) {
     // Note: the joystick input JLabels do not have their search text indexed, as that would be
-    // overkill.
-    // As such, we don't need to be worried about reindexing when these get updated.
+    // overkill. As such, we don't need to be worried about reindexing when these get updated.
     joystickInputValueJlabels
         .get(compName)
         .setText(
@@ -6310,10 +6365,10 @@ public class ConfigWindow {
      * </ol>
      *
      * @param component The {@link JComponent} in context
-     * @param text The {@code String} text to add
+     * @param text The {@code String}s of text to add
      */
-    private static void addSearchMetadata(JComponent component, String text) {
-      component.putClientProperty(SEARCH_METADATA, text);
+    private static void addSearchMetadata(JComponent component, String... text) {
+      component.putClientProperty(SEARCH_METADATA, String.join(" ", text));
     }
 
     /**
