@@ -200,6 +200,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     Launcher.getConfigWindow().disposeJFrame();
     Launcher.getQueueWindow().disposeJFrame();
     Launcher.getWorldMapWindow().disposeJFrame();
+    Launcher.getChatWindow().disposeJFrame();
     TrayHandler.removeTrayIcon();
     NotificationsHandler.closeNotificationSoundClip();
     NotificationsHandler.disposeNotificationHandler();

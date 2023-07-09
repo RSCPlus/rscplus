@@ -20,6 +20,7 @@ package Game;
 
 import static Replay.game.constants.Game.itemActionMap;
 
+import Chat.ChatWindow;
 import Client.JClassPatcher;
 import Client.JConfig;
 import Client.KeybindSet;
@@ -1306,6 +1307,10 @@ public class Client {
     player_id = -1;
     knowWhoIAm = false;
     Client.tipOfDay = -1;
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.updatePlayerName();
+    chatWindow.clearFriendsList();
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
@@ -1404,6 +1409,9 @@ public class Client {
       pm_enteredText = pm_enteredTextCopy;
       pm_enteredTextCopy = "";
     }
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.processPacket(opcode, psize);
 
     if (Bank.processPacket(opcode, psize)) {
       needsProcess = false;
@@ -1590,6 +1598,8 @@ public class Client {
         if (!name.equals(player_name)) {
           player_name = name;
           Camera.reset_lookat();
+
+          Launcher.getChatWindow().updatePlayerName();
         }
       }
     } catch (IllegalArgumentException | IllegalAccessException e1) {
@@ -2322,6 +2332,7 @@ public class Client {
 
     try {
       Reflection.logout.invoke(Client.instance, 0);
+      Launcher.getChatWindow().updatePlayerName();
     } catch (Exception e) {
     }
   }
@@ -2926,6 +2937,9 @@ public class Client {
    */
   public static void messageHook(
       String username, String message, int type, String colorCodeOverride) {
+
+    ChatWindow chatWindow = Launcher.getChatWindow();
+    chatWindow.registerChatMessage(username, message, type);
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {

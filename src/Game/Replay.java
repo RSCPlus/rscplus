@@ -46,6 +46,7 @@ import java.util.zip.GZIPInputStream;
 import javax.swing.JOptionPane;
 
 public class Replay {
+
   // If we ever change replays in a way that breaks backwards compatibility,
   // we need to increment this
   public static int VERSION = 5;
@@ -168,7 +169,9 @@ public class Replay {
   }
 
   public static int getSeekEnd() {
-    if (replayServer == null) return 0;
+    if (replayServer == null) {
+      return 0;
+    }
 
     return replayServer.timestamp_new;
   }
@@ -262,7 +265,9 @@ public class Replay {
       return false;
     }
     Game.getInstance().getJConfig().changeWorld(Settings.WORLDS_TO_DISPLAY + 1);
-    if (replayServer != null) replayServer.isDone = true;
+    if (replayServer != null) {
+      replayServer.isDone = true;
+    }
     replayServer = new ReplayServer(replayDirectory);
     replayThread = new Thread(replayServer);
     replayThread.start();
@@ -277,7 +282,9 @@ public class Replay {
 
     // Wait
     try {
-      while (!replayServer.isReady) Thread.sleep(1);
+      while (!replayServer.isReady) {
+        Thread.sleep(1);
+      }
     } catch (Exception e) {
     }
     Client.switchLiveToReplay(true);
@@ -287,7 +294,9 @@ public class Replay {
   }
 
   public static void restartReplayPlayback() {
-    if (timestamp == 0 || isRestarting || play_keys == null) return;
+    if (timestamp == 0 || isRestarting || play_keys == null) {
+      return;
+    }
 
     try {
       isRestarting = true;
@@ -309,7 +318,9 @@ public class Replay {
   }
 
   public static void handleReplayClosing() {
-    if (play_keys == null) return;
+    if (play_keys == null) {
+      return;
+    }
 
     replayServer.isDone = true;
     try {
@@ -345,7 +356,9 @@ public class Replay {
 
   public static void initializeReplayRecording() {
     // No username specified, exit
-    if (Client.username_login.length() == 0) return;
+    if (Client.username_login.length() == 0) {
+      return;
+    }
 
     String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH.mm.ss").format(new Date());
 
@@ -420,7 +433,9 @@ public class Replay {
   }
 
   public static void closeReplayRecording() {
-    if (input == null) return;
+    if (input == null) {
+      return;
+    }
 
     try {
       // since we are working with packet retention, last packet on memory has not been written,
@@ -550,19 +565,26 @@ public class Replay {
 
       if (closeDialogue) {
         // Close welcome screen
-        if (Client.isWelcomeScreen()) Client.show_welcome = false;
+        if (Client.isWelcomeScreen()) {
+          Client.show_welcome = false;
+        }
 
         KeyboardHandler.dialogue_option = 1;
         closeDialogue = false;
       }
 
       // Replay server is no longer running
-      if (replayServer.isDone) closeReplayPlayback();
+      if (replayServer.isDone) {
+        closeReplayPlayback();
+      }
     }
 
     // Increment the replay timestamp
-    if (!Replay.isPlaying) Replay.incrementTimestamp();
-    else Replay.incrementTimestampClient();
+    if (!Replay.isPlaying) {
+      Replay.incrementTimestamp();
+    } else {
+      Replay.incrementTimestampClient();
+    }
   }
 
   public static int getPercentPlayed() {
@@ -888,7 +910,9 @@ public class Replay {
   }
 
   public static void resetFrameTimeSlice() {
-    if (isSeeking) return;
+    if (isSeeking) {
+      return;
+    }
 
     frame_time_slice = 1000 / fps;
   }
@@ -906,14 +930,18 @@ public class Replay {
 
   // Returns video length in millis
   public static int endTimeMillis() {
-    if (replayServer == null) return 0;
+    if (replayServer == null) {
+      return 0;
+    }
 
     int time_slice = 1000 / fps;
     return replayServer.timestamp_end * time_slice;
   }
 
   public static void updateFrameTimeSlice() {
-    if (paused || isSeeking) return;
+    if (paused || isSeeking) {
+      return;
+    }
 
     if (isPlaying) {
       frame_time_slice = 1000 / ((int) (fps * fpsPlayMultiplier));
@@ -932,19 +960,25 @@ public class Replay {
   }
 
   public static int getReplayEnd() {
-    if (replayServer == null) return 0;
+    if (replayServer == null) {
+      return 0;
+    }
 
     return replayServer.timestamp_end;
   }
 
   public static int getClientRead() {
-    if (replayServer == null) return 0;
+    if (replayServer == null) {
+      return 0;
+    }
 
     return replayServer.client_read;
   }
 
   public static int getClientWrite() {
-    if (replayServer == null) return 0;
+    if (replayServer == null) {
+      return 0;
+    }
 
     return replayServer.client_write;
   }
@@ -965,7 +999,9 @@ public class Replay {
 
   public static void processPlaybackAction() {
     String action = lastAction;
-    if (action == null) return;
+    if (action == null) {
+      return;
+    }
 
     lastAction = null;
 
@@ -1044,7 +1080,9 @@ public class Replay {
   }
 
   public static void dumpKeyboardInput(int keycode, byte event, char keychar, int modifier) {
-    if (keyboard == null) return;
+    if (keyboard == null) {
+      return;
+    }
 
     try {
       keyboard.writeInt(timestamp);
@@ -1070,7 +1108,9 @@ public class Replay {
       int scrollAmount,
       boolean popupTrigger,
       int button) {
-    if (mouse == null) return;
+    if (mouse == null) {
+      return;
+    }
 
     try {
       mouse.writeInt(timestamp);
@@ -1097,12 +1137,18 @@ public class Replay {
     // Save timestamp of last time we saw data from the server
     if (bytesread > 0) {
       int lag = timestamp - timestamp_server_last;
-      if (lag > 10) timestamp_lag = lag;
+      if (lag > 10) {
+        timestamp_lag = lag;
+      }
       timestamp_server_last = timestamp;
-      if (replayServer != null) replayServer.client_read += bytesread;
+      if (replayServer != null) {
+        replayServer.client_read += bytesread;
+      }
     }
 
-    if (input == null) return;
+    if (input == null) {
+      return;
+    }
 
     int off = n2 + n5;
     // when packet 182 is received retained_timestamp should be TIMESTAMP_EOF
@@ -1150,7 +1196,9 @@ public class Replay {
   }
 
   public static void dumpRawOutputStream(byte[] b, int off, int len) {
-    if (output == null) return;
+    if (output == null) {
+      return;
+    }
 
     try {
       boolean isLogin = false;
@@ -1219,7 +1267,9 @@ public class Replay {
   public static int hookXTEAKey(int key) {
     if (replayServer != null) {
       int serverXTEAKey = replayServer.getXTEAKey();
-      if (serverXTEAKey != 0) return serverXTEAKey;
+      if (serverXTEAKey != 0) {
+        return serverXTEAKey;
+      }
     }
 
     if (play_keys != null) {
@@ -1232,7 +1282,9 @@ public class Replay {
       }
     }
 
-    if (keys == null) return key;
+    if (keys == null) {
+      return key;
+    }
 
     try {
       Logger.Debug(String.format("Writing XTEA key: %d", key));
@@ -1266,7 +1318,9 @@ public class Replay {
       Client.allTheWayLoggedIn();
 
       // received packet 182 while recording, set flag, do not dump bytes
-      if (input == null) return;
+      if (input == null) {
+        return;
+      }
       if (isRecording) {
         // in here probably would need to check the position
         // don't care about the packet if 182, just rewrite it using the enc opcode
@@ -1330,7 +1384,9 @@ public class Replay {
   public static void patchClient() {
     // This is called from the client to apply fixes specific to replay
     // We only run this while playing replays
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      return;
+    }
 
     // The client doesn't remove friends during replay because they're removed client-side
     // Instead, lets increase the array size so we can still see added friends and not crash the
