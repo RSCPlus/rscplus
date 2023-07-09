@@ -105,7 +105,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import org.apache.commons.text.StringEscapeUtils;
+import org.jsoup.Jsoup;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
@@ -6346,8 +6346,7 @@ public class ConfigWindow {
      * @return The resulting sanitized {@code String}
      */
     private static String sanitizeHtml(String text) {
-      return StringEscapeUtils.unescapeHtml4(
-          text.replaceAll("<style([\\s\\S]+?)</style>", "").replaceAll("<[^>]*>", ""));
+      return Jsoup.parse(text).text();
     }
 
     /**
