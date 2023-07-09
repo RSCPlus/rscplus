@@ -3566,6 +3566,28 @@ public class Client {
   }
 
   /**
+   * Returns true if inventory is the only client interface open
+   *
+   * @return true if inventory is the only client interface open
+   */
+  public static boolean onlyShowingInventory() {
+    return show_menu == Client.MENU_INVENTORY
+        && !show_bank
+        && !show_shop
+        && !show_welcome
+        && !show_trade
+        && !show_tradeconfirm
+        && !show_duel
+        && !show_duelconfirm
+        && show_report == 0
+        && show_friends == 0
+        && !show_sleeping
+        && !showAppearanceChange
+        && !showRecoveryQuestions
+        && !showContactDetails;
+  }
+
+  /**
    * Returns if the user is sleeping.
    *
    * @return if the user is sleeping

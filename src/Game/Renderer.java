@@ -813,8 +813,7 @@ public class Renderer {
       }
 
       // Draw items kept on death
-      if (Client.show_menu == Client.MENU_INVENTORY
-          && Settings.DEATH_ITEMS.get(Settings.currentProfile)) {
+      if (Client.onlyShowingInventory() && Settings.DEATH_ITEMS.get(Settings.currentProfile)) {
         if (!Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile)
             || (Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile) && Client.is_in_wild)) {
           drawDeathItems(g2);
