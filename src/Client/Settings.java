@@ -736,7 +736,7 @@ public class Settings {
     HIDE_ROOFS.put("vanilla", false);
     HIDE_ROOFS.put("vanilla_resizable", false);
     HIDE_ROOFS.put("lite", false);
-    HIDE_ROOFS.put("default", true);
+    HIDE_ROOFS.put("default", false);
     HIDE_ROOFS.put("heavy", true);
     HIDE_ROOFS.put("all", true);
     HIDE_ROOFS.put("custom", getPropBoolean(props, "hide_roofs", HIDE_ROOFS.get("default")));
@@ -1784,7 +1784,7 @@ public class Settings {
     LAG_INDICATOR.put("vanilla", false);
     LAG_INDICATOR.put("vanilla_resizable", false);
     LAG_INDICATOR.put("lite", false);
-    LAG_INDICATOR.put("default", true);
+    LAG_INDICATOR.put("default", false);
     LAG_INDICATOR.put("heavy", true);
     LAG_INDICATOR.put("all", true);
     LAG_INDICATOR.put("custom", getPropBoolean(props, "indicators", LAG_INDICATOR.get("default")));

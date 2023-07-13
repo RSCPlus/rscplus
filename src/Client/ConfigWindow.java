@@ -43,12 +43,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.SystemTray;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.AffineTransformOp;
@@ -59,9 +61,14 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -72,6 +79,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -94,38 +102,56 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import org.jsoup.Jsoup;
 
 /**
  * GUI designed for the RSCPlus client that manages configuration options and keybind values from
- * within an interface.
+ * within an interface.<br>
+ * <br>
  *
- * <p><b>To add a new configuration option to the GUI,</b> <br>
- * 1.) Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI from
- * ConfigWindow.initialize() (see existing examples) <br>
- * 1.5.) If there is a helper method such as addCheckbox, use that method to create and store the
- * element that is returned in the ConfigWindow.initialize() method. See existing code for examples.
+ * <p>To add a new configuration option to the GUI:
+ *
+ * <ol>
+ *   <li>Declare an instance variable to hold the gui element (eg checkbox) and add it to the GUI
+ *       from {@link #initialize}. Multiple components belonging to the same setting should be
+ *       grouped within a common parent JPanel, or tagged with {@link
+ *       SearchUtils#setRelatedSearchComponent} <i>(see existing examples)</i>
+ *   <li>If there is a helper method such as {@link #addCheckbox}, use that method to create and
+ *       store the element that is returned in the {@link #initialize} method. <i>(see existing
+ *       examples)</i>
+ *   <li>Configure search-related properties as-needed, such as metadata. See methods in {@link
+ *       SearchUtils} for more information.
+ *   <li><sup>^</sup>Add an appropriate variable to the {@link Settings} class as a class variable,
+ *       <i>and</i> as an assignment in the appropriate restore default method below.
+ *   <li>Add an entry in the {@link #executeSynchronizeGuiValues} method that references the
+ *       variable, as per the already-existing examples.
+ *   <li>Add an entry in the {@link #saveSettings} method referencing the variable, as per the
+ *       already-existing examples.
+ *   <li><sup>^</sup>Add an entry in the {@link Settings#save(String)} method to save the option to
+ *       file.
+ *   <li><sup>^</sup>Add an entry in the {@link Settings#definePresets} method to load the option
+ *       from file.
+ *   <li><i>(Optional)</i> If a method needs to be called to adjust settings other than the setting
+ *       value itself, add it to the {@link #applySettings} method below.
+ * </ol>
+ *
+ * <p><i>Entries marked with a <sup>^</sup> are steps used to add settings that are not included in
+ * the GUI.</i><br>
  * <br>
- * 2.) ^Add an appropriate variable to the Settings class as a class variable, <i>and</i> as an
- * assignment in the appropriate restore default method below. <br>
- * 3.) Add an entry in the ConfigWindow.synchronizeGuiValues() method that references the variable,
- * as per the already-existing examples.<br>
- * 4.) Add an entry in the ConfigWindow.saveSettings() method referencing the variable, as per the
- * already-existing examples.<br>
- * 5.) ^Add an entry in the Settings.Save() class save method to save the option to file.<br>
- * 6.) ^Add an entry in the Settings.Load() class load method to load the option from file.<br>
- * 7.) (Optional) If a method needs to be called to adjust settings other than the setting value
- * itself, add it to the ConfigWindow.applySettings() method below.<br>
- * <br>
- * <i>Entries marked with a ^ are steps used to add settings that are not included in the GUI.</i>
- * <br>
- * <br>
- * <b>To add a new keybind,</b><br>
- * 1.) Add a call in the initialize method to addKeybind with appropriate parameters.<br>
- * 2.) Add an entry to the command switch statement in Settings to process the command when its
- * keybind is pressed.<br>
- * 3.) Optional, recommended: Separate the command from its functionality by making a toggleBlah
- * method and calling it from the switch statement.<br>
+ *
+ * <p><b>To add a new keybind:</b>
+ *
+ * <ol>
+ *   <li>Add a call in the {@link #initialize} method to {@link #addKeybindSet} with appropriate
+ *       parameters.
+ *   <li>Add an entry to the command switch statement in {@link Settings#processKeybindCommand} to
+ *       process the command when its keybind is pressed.
+ *   <li><i>(Optional, recommended)</i>: Separate the command from its functionality by making a
+ *       "toggleBlah" method and calling it from the switch statement.
+ * </ol>
  */
 public class ConfigWindow {
 
@@ -136,6 +162,11 @@ public class ConfigWindow {
 
   ButtonFocusListener focusListener = new ButtonFocusListener();
   JTabbedPane tabbedPane;
+
+  // Search-related components
+  private JTextField searchTextField;
+  private JButton goToSearchButton;
+  private JButton clearSearchButton;
 
   /*
    * JComponent variables which hold configuration data
@@ -419,6 +450,39 @@ public class ConfigWindow {
   private HashMap<String, JLabel> joystickInputValueJlabels = new HashMap<String, JLabel>();
   private JPanel joystickPanel = new JPanel();
 
+  // Search index caching and processing
+  private HashMap<ConfigTab, List<SearchItem>> searchItemsMap;
+  private List<Component> allSearchComponents;
+  private int searchInitiatedTabIndex = -1;
+  private boolean executedGoToSearch = false;
+  private boolean reindexing = false;
+
+  /** Defines all {@link ConfigWindow} tabs */
+  private enum ConfigTab {
+    PRESETS("Presets"),
+    GENERAL("General"),
+    OVERLAYS("Overlays"),
+    AUDIO("Audio"),
+    BANK("Bank"),
+    NOTIFICATIONS("Notifications"),
+    STREAMING_PRIVACY("Streaming & Privacy"),
+    KEYBINDS("Keybinds"),
+    REPLAY("Replay"),
+    WORLD_LIST("World List"),
+    JOYSTICK("Joystick"),
+    AUTHORS("Authors");
+
+    public final String label;
+
+    ConfigTab(String label) {
+      this.label = label;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+  }
+
   public ConfigWindow() {
     try {
       // Set System L&F as a fall-back option.
@@ -445,6 +509,9 @@ public class ConfigWindow {
 
   public void showConfigWindow() {
     Client.displayMessage("Showing config window...", Client.CHAT_NONE);
+
+    // Clear the search
+    setSearchText("");
 
     this.synchronizeGuiValues();
     frame.setVisible(true);
@@ -503,6 +570,9 @@ public class ConfigWindow {
     }
 
     // Container declarations
+
+    /** The JPanel containing the search components */
+    JPanel searchPanel = new JPanel();
     /** The tabbed pane holding the five configuration tabs */
     tabbedPane = new JTabbedPane();
     /**
@@ -525,33 +595,46 @@ public class ConfigWindow {
     JScrollPane joystickScrollPane = new JScrollPane();
 
     JPanel presetsPanel = new JPanel();
+    presetsPanel.setName(ConfigTab.PRESETS.name());
     JPanel generalPanel = new JPanel();
+    generalPanel.setName(ConfigTab.GENERAL.name());
     JPanel overlayPanel = new JPanel();
+    overlayPanel.setName(ConfigTab.OVERLAYS.name());
     JPanel audioPanel = new JPanel();
+    audioPanel.setName(ConfigTab.AUDIO.name());
     JPanel bankPanel = new JPanel();
+    bankPanel.setName(ConfigTab.BANK.name());
     JPanel notificationPanel = new JPanel();
+    notificationPanel.setName(ConfigTab.NOTIFICATIONS.name());
     JPanel streamingPanel = new JPanel();
+    streamingPanel.setName(ConfigTab.STREAMING_PRIVACY.name());
     JPanel keybindPanel = new JPanel();
+    keybindPanel.setName(ConfigTab.KEYBINDS.name());
     JPanel replayPanel = new JPanel();
+    replayPanel.setName(ConfigTab.REPLAY.name());
     joystickPanel = new JPanel();
+    joystickPanel.setName(ConfigTab.JOYSTICK.name());
     worldListPanel = new JPanel();
+    worldListPanel.setName(ConfigTab.WORLD_LIST.name());
     JPanel authorsPanel = new JPanel();
+    authorsPanel.setName(ConfigTab.AUTHORS.name());
 
+    frame.getContentPane().add(searchPanel, BorderLayout.PAGE_START);
     frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_END);
 
-    tabbedPane.addTab("Presets", null, presetsScrollPane, null);
-    tabbedPane.addTab("General", null, generalScrollPane, null);
-    tabbedPane.addTab("Overlays", null, overlayScrollPane, null);
-    tabbedPane.addTab("Audio", null, audioScrollPane, null);
-    tabbedPane.addTab("Bank", null, bankScrollPane, null);
-    tabbedPane.addTab("Notifications", null, notificationScrollPane, null);
-    tabbedPane.addTab("Streaming & Privacy", null, streamingScrollPane, null);
-    tabbedPane.addTab("Keybinds", null, keybindScrollPane, null);
-    tabbedPane.addTab("Replay", null, replayScrollPane, null);
-    tabbedPane.addTab("World List", null, worldListScrollPane, null);
-    tabbedPane.addTab("Joystick", null, joystickScrollPane, null);
-    tabbedPane.addTab("Authors", null, authorsScrollPane, null);
+    tabbedPane.addTab(ConfigTab.PRESETS.getLabel(), null, presetsScrollPane, null);
+    tabbedPane.addTab(ConfigTab.GENERAL.getLabel(), null, generalScrollPane, null);
+    tabbedPane.addTab(ConfigTab.OVERLAYS.getLabel(), null, overlayScrollPane, null);
+    tabbedPane.addTab(ConfigTab.AUDIO.getLabel(), null, audioScrollPane, null);
+    tabbedPane.addTab(ConfigTab.BANK.getLabel(), null, bankScrollPane, null);
+    tabbedPane.addTab(ConfigTab.NOTIFICATIONS.getLabel(), null, notificationScrollPane, null);
+    tabbedPane.addTab(ConfigTab.STREAMING_PRIVACY.getLabel(), null, streamingScrollPane, null);
+    tabbedPane.addTab(ConfigTab.KEYBINDS.getLabel(), null, keybindScrollPane, null);
+    tabbedPane.addTab(ConfigTab.REPLAY.getLabel(), null, replayScrollPane, null);
+    tabbedPane.addTab(ConfigTab.WORLD_LIST.getLabel(), null, worldListScrollPane, null);
+    tabbedPane.addTab(ConfigTab.JOYSTICK.getLabel(), null, joystickScrollPane, null);
+    tabbedPane.addTab(ConfigTab.AUTHORS.getLabel(), null, authorsScrollPane, null);
 
     presetsScrollPane.setViewportView(presetsPanel);
     generalScrollPane.setViewportView(generalPanel);
@@ -567,6 +650,7 @@ public class ConfigWindow {
     joystickScrollPane.setViewportView(joystickPanel);
 
     // Adding padding for aesthetics
+    searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 7, 10));
     navigationPanel.setBorder(BorderFactory.createEmptyBorder(7, 10, 10, 10));
     presetsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     generalPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -593,6 +677,74 @@ public class ConfigWindow {
     setScrollSpeed(worldListScrollPane, 20, 15);
     setScrollSpeed(authorsScrollPane, 20, 15);
     setScrollSpeed(joystickScrollPane, 20, 15);
+
+    /*
+     * Search components
+     */
+    searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+
+    JLabel searchTitleLabel = new JLabel("Search settings: ");
+    searchPanel.add(searchTitleLabel);
+    searchTitleLabel.setAlignmentY((float) 1);
+
+    searchTextField = new JTextField();
+    searchPanel.add(searchTextField);
+    searchTextField.setMinimumSize(new Dimension(100, 28));
+    searchTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, 28));
+    searchTextField.setAlignmentY((float) 0.75);
+    searchTextField.setToolTipText(
+        "Press ENTER to go to the first search result or ESCAPE to reset the search");
+
+    searchTextField.addKeyListener(
+        new KeyAdapter() {
+          @Override
+          public void keyPressed(KeyEvent e) {
+            super.keyPressed(e);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+              goToSearchResult();
+            } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+              setSearchText("");
+            }
+          }
+        });
+
+    goToSearchButton = new JButton("Go To");
+    searchPanel.add(goToSearchButton);
+    goToSearchButton.setToolTipText("Navigates to the first search result");
+    goToSearchButton.setAlignmentY((float) 0.80);
+    goToSearchButton.setFocusable(false);
+    goToSearchButton.addActionListener(actionEvent -> goToSearchResult());
+
+    clearSearchButton = new JButton("Clear");
+    searchPanel.add(clearSearchButton);
+    clearSearchButton.setToolTipText("Resets the current search");
+    clearSearchButton.setAlignmentY((float) 0.80);
+    clearSearchButton.setFocusable(false);
+    clearSearchButton.addActionListener(actionEvent -> setSearchText(""));
+
+    searchTextField
+        .getDocument()
+        .addDocumentListener(
+            new DocumentListener() {
+              @Override
+              public void changedUpdate(DocumentEvent e) {
+                performSearch();
+              }
+
+              @Override
+              public void removeUpdate(DocumentEvent e) {
+                performSearch();
+              }
+
+              @Override
+              public void insertUpdate(DocumentEvent e) {
+                performSearch();
+              }
+
+              private void performSearch() {
+                searchComponents();
+              }
+            });
 
     /*
      * Navigation buttons
@@ -654,7 +806,7 @@ public class ConfigWindow {
                 synchronizeGuiValues();
 
                 // Restore defaults
-                /* TODO: reimplement per-tab defaults?
+                /* TODO: reimplement per-tab defaults? Will need to consider search re-indexing
                 switch (tabbedPane.getSelectedIndex()) {
                 case 0:
                 	Settings.restoreDefaultGeneral();
@@ -778,8 +930,13 @@ public class ConfigWindow {
     generalPanelClientSizePanel.add(generalPanelClientSizeScaleWarning);
 
     // Scaling options
+    JPanel generalPanelScalePanel = new JPanel();
+    generalPanel.add(generalPanelScalePanel);
+    generalPanelScalePanel.setLayout(new BoxLayout(generalPanelScalePanel, BoxLayout.Y_AXIS));
+    generalPanelScalePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JPanel generalPanelScaleInformation = new JPanel();
-    generalPanel.add(generalPanelScaleInformation);
+    generalPanelScalePanel.add(generalPanelScaleInformation);
     generalPanelScaleInformation.setLayout(
         new BoxLayout(generalPanelScaleInformation, BoxLayout.X_AXIS));
     generalPanelScaleInformation.setPreferredSize(new Dimension(0, 24));
@@ -794,7 +951,7 @@ public class ConfigWindow {
 
     // Integer scaling
     JPanel generalPanelIntegerScalingPanel = new JPanel();
-    generalPanel.add(generalPanelIntegerScalingPanel);
+    generalPanelScalePanel.add(generalPanelIntegerScalingPanel);
     generalPanelIntegerScalingPanel.setLayout(
         new BoxLayout(generalPanelIntegerScalingPanel, BoxLayout.X_AXIS));
     generalPanelIntegerScalingPanel.setPreferredSize(new Dimension(0, 32));
@@ -842,7 +999,7 @@ public class ConfigWindow {
 
     // Bilinear scaling
     JPanel generalPanelBilinearScalingPanel = new JPanel();
-    generalPanel.add(generalPanelBilinearScalingPanel);
+    generalPanelScalePanel.add(generalPanelBilinearScalingPanel);
     generalPanelBilinearScalingPanel.setLayout(
         new BoxLayout(generalPanelBilinearScalingPanel, BoxLayout.X_AXIS));
     generalPanelBilinearScalingPanel.setPreferredSize(new Dimension(0, 32));
@@ -900,7 +1057,7 @@ public class ConfigWindow {
 
     // Bicubic scaling
     JPanel generalPanelBicubicScalingPanel = new JPanel();
-    generalPanel.add(generalPanelBicubicScalingPanel);
+    generalPanelScalePanel.add(generalPanelBicubicScalingPanel);
     generalPanelBicubicScalingPanel.setLayout(
         new BoxLayout(generalPanelBicubicScalingPanel, BoxLayout.X_AXIS));
     generalPanelBicubicScalingPanel.setPreferredSize(new Dimension(0, 32));
@@ -1000,16 +1157,22 @@ public class ConfigWindow {
     generalPanelShiftScrollCameraRotationCheckbox.setToolTipText(
         "Trackpads that send SHIFT-SCROLL WHEEL when swiping left or right with two fingers will be able to rotate the camera");
 
+    JPanel generalPanelTrackPadRotationPanel = new JPanel();
+    generalPanel.add(generalPanelTrackPadRotationPanel);
+    generalPanelTrackPadRotationPanel.setLayout(
+        new BoxLayout(generalPanelTrackPadRotationPanel, BoxLayout.Y_AXIS));
+    generalPanelTrackPadRotationPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel generalPanelTrackpadRotationLabel = new JLabel("Camera rotation trackpad sensitivity");
     generalPanelTrackpadRotationLabel.setToolTipText(
         "Sets the camera rotation trackpad sensitivity (Default: 8)");
     generalPanelTrackpadRotationLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
-    generalPanel.add(generalPanelTrackpadRotationLabel);
+    generalPanelTrackPadRotationPanel.add(generalPanelTrackpadRotationLabel);
     generalPanelTrackpadRotationLabel.setAlignmentY((float) 1);
 
     generalPanelTrackpadRotationSlider = new JSlider();
 
-    generalPanel.add(generalPanelTrackpadRotationSlider);
+    generalPanelTrackPadRotationPanel.add(generalPanelTrackpadRotationSlider);
     generalPanelTrackpadRotationSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelTrackpadRotationSlider.setMaximumSize(new Dimension(200, 55));
     generalPanelTrackpadRotationSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -1089,6 +1252,7 @@ public class ConfigWindow {
 
     generalPanelRoofHidingCheckbox = addCheckbox("Roof hiding", generalPanel);
     generalPanelRoofHidingCheckbox.setToolTipText("Always hide rooftops");
+    SearchUtils.addSearchMetadata(generalPanelRoofHidingCheckbox, "roofs", "rooves");
 
     generalPanelDisableMinimapRotationCheckbox =
         addCheckbox("Disable random minimap rotation", generalPanel);
@@ -1114,16 +1278,22 @@ public class ConfigWindow {
 
     addSettingsHeader(generalPanel, "Graphical effect changes");
 
+    JPanel generalPanelViewDistancePanel = new JPanel();
+    generalPanel.add(generalPanelViewDistancePanel);
+    generalPanelViewDistancePanel.setLayout(
+        new BoxLayout(generalPanelViewDistancePanel, BoxLayout.Y_AXIS));
+    generalPanelViewDistancePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel generalPanelViewDistanceLabel = new JLabel("View distance (affects the black fog)");
     generalPanelViewDistanceLabel.setToolTipText(
         "Sets the max render distance of structures and landscape");
     generalPanelViewDistanceLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
-    generalPanel.add(generalPanelViewDistanceLabel);
+    generalPanelViewDistancePanel.add(generalPanelViewDistanceLabel);
     generalPanelViewDistanceLabel.setAlignmentY((float) 1);
 
     generalPanelViewDistanceSlider = new JSlider();
 
-    generalPanel.add(generalPanelViewDistanceSlider);
+    generalPanelViewDistancePanel.add(generalPanelViewDistanceSlider);
     generalPanelViewDistanceSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelViewDistanceSlider.setMaximumSize(new Dimension(350, 55));
     generalPanelViewDistanceSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -1144,6 +1314,7 @@ public class ConfigWindow {
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
     generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colours from RS2: HD");
+    SearchUtils.addSearchMetadata(generalPanelRS2HDSkyCheckbox, CommonMetadata.COLOURS.getText());
 
     // colour choose overworld sub-panel
     JPanel generalPanelSkyOverworldColourPanel = new JPanel();
@@ -1157,6 +1328,8 @@ public class ConfigWindow {
         addCheckbox("Use a custom colour for the sky", generalPanelSkyOverworldColourPanel);
     generalPanelCustomSkyboxOverworldCheckbox.setToolTipText(
         "You can set your own preferred colour for what you think the sky should have");
+    SearchUtils.addSearchMetadata(
+        generalPanelCustomSkyboxOverworldCheckbox, CommonMetadata.COLOUR.getText());
 
     generalPanelSkyOverworldColourColourPanel = new JPanel();
     generalPanelSkyOverworldColourPanel.add(generalPanelSkyOverworldColourColourPanel);
@@ -1204,6 +1377,8 @@ public class ConfigWindow {
             generalPanelSkyUndergroundColourPanel);
     generalPanelCustomSkyboxUndergroundCheckbox.setToolTipText(
         "You can set your own preferred colour for what you think the sky should have (underground)");
+    SearchUtils.addSearchMetadata(
+        generalPanelCustomSkyboxUndergroundCheckbox, CommonMetadata.COLOUR.getText());
 
     generalPanelSkyUndergroundColourColourPanel = new JPanel();
     generalPanelSkyUndergroundColourPanel.add(generalPanelSkyUndergroundColourColourPanel);
@@ -1240,16 +1415,21 @@ public class ConfigWindow {
     /////
 
     // FOV slider
+    JPanel generalPanelFoVPanel = new JPanel();
+    generalPanel.add(generalPanelFoVPanel);
+    generalPanelFoVPanel.setLayout(new BoxLayout(generalPanelFoVPanel, BoxLayout.Y_AXIS));
+    generalPanelFoVPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel generalPanelFoVLabel =
         new JLabel("Field of view (Resets to default on client restart, can be set with ::fov)");
     generalPanelFoVLabel.setToolTipText(
         "Sets the field of view (Default 9, non-default values not recommended for general use)");
-    generalPanel.add(generalPanelFoVLabel);
+    generalPanelFoVPanel.add(generalPanelFoVLabel);
     generalPanelFoVLabel.setAlignmentY((float) 1);
 
     generalPanelFoVSlider = new JSlider();
 
-    generalPanel.add(generalPanelFoVSlider);
+    generalPanelFoVPanel.add(generalPanelFoVSlider);
     generalPanelFoVSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelFoVSlider.setMaximumSize(new Dimension(300, 55));
     generalPanelFoVSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -1268,14 +1448,20 @@ public class ConfigWindow {
 
     ButtonGroup ranChatEffectButtonGroup = new ButtonGroup();
 
+    JPanel generalPanelCustomRandomPanel = new JPanel();
+    generalPanel.add(generalPanelCustomRandomPanel);
+    generalPanelCustomRandomPanel.setLayout(
+        new BoxLayout(generalPanelCustomRandomPanel, BoxLayout.Y_AXIS));
+    generalPanelCustomRandomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     generalPanelCustomRandomChatColourCheckbox =
-        addCheckbox("Use custom \"@ran@\" chat colour effect", generalPanel);
+        addCheckbox("Use custom \"@ran@\" chat colour effect", generalPanelCustomRandomPanel);
     generalPanelCustomRandomChatColourCheckbox.setToolTipText(
         "The random chat colour effect will be altered per the settings below");
 
     // limit ran fps panel
     JPanel generalPanelLimitRanFPSPanel = new JPanel();
-    generalPanel.add(generalPanelLimitRanFPSPanel);
+    generalPanelCustomRandomPanel.add(generalPanelLimitRanFPSPanel);
     generalPanelLimitRanFPSPanel.setLayout(
         new BoxLayout(generalPanelLimitRanFPSPanel, BoxLayout.X_AXIS));
     generalPanelLimitRanFPSPanel.setPreferredSize(new Dimension(0, 26));
@@ -1288,6 +1474,8 @@ public class ConfigWindow {
             20);
     generalPanelRanReduceFrequencyButton.setToolTipText(
         "The randomn colour effect is exactly the same, but at a frequency to what Andrew would have seen when designing the chat effect.");
+    SearchUtils.addSearchMetadata(
+        generalPanelRanReduceFrequencyButton, CommonMetadata.FPS.getText());
 
     generalPanelLimitRanFPSSpinner = new JSpinner();
     generalPanelLimitRanFPSPanel.add(generalPanelLimitRanFPSSpinner);
@@ -1308,7 +1496,7 @@ public class ConfigWindow {
 
     // colour choose ran static color sub-panel
     JPanel generalPanelRanStaticColourPanel = new JPanel();
-    generalPanel.add(generalPanelRanStaticColourPanel);
+    generalPanelCustomRandomPanel.add(generalPanelRanStaticColourPanel);
     generalPanelRanStaticColourPanel.setLayout(
         new BoxLayout(generalPanelRanStaticColourPanel, BoxLayout.X_AXIS));
     generalPanelRanStaticColourPanel.setPreferredSize(new Dimension(0, 26));
@@ -1353,7 +1541,8 @@ public class ConfigWindow {
     ////////////
 
     generalPanelRanRGBRotationButton =
-        addRadioButton("Replace with a continuous rainbow colour sweep", generalPanel, 20);
+        addRadioButton(
+            "Replace with a continuous rainbow colour sweep", generalPanelCustomRandomPanel, 20);
     generalPanelRanRGBRotationButton.setToolTipText(
         "The effect is similar to RGB gamer PC lighting.");
     generalPanelRanRGBRotationButton.setBorder(BorderFactory.createEmptyBorder(5, 20, 7, 5));
@@ -1361,7 +1550,7 @@ public class ConfigWindow {
     ////////////
 
     JPanel generalPanelRanRs2EffectPanel = new JPanel();
-    generalPanel.add(generalPanelRanRs2EffectPanel);
+    generalPanelCustomRandomPanel.add(generalPanelRanRs2EffectPanel);
     generalPanelRanRs2EffectPanel.setLayout(
         new BoxLayout(generalPanelRanRs2EffectPanel, BoxLayout.X_AXIS));
     generalPanelRanRs2EffectPanel.setPreferredSize(new Dimension(0, 28));
@@ -1384,7 +1573,7 @@ public class ConfigWindow {
     //////
 
     generalPanelRanEntirelyDisableButton =
-        addRadioButton("Entirely disable @ran@", generalPanel, 20);
+        addRadioButton("Entirely disable @ran@", generalPanelCustomRandomPanel, 20);
     generalPanelRanEntirelyDisableButton.setToolTipText(
         "Text occurring after the @ran@ tag will remain the same color as before.");
     generalPanelRanEntirelyDisableButton.setBorder(BorderFactory.createEmptyBorder(5, 20, 7, 5));
@@ -1434,6 +1623,8 @@ public class ConfigWindow {
         addCheckbox("FPS limit (doubled while F1 interlaced):", generalPanelLimitFPSPanel);
     generalPanelLimitFPSCheckbox.setToolTipText(
         "Limit FPS for a more 2001 feeling (or to save battery)");
+    SearchUtils.addSearchMetadata(
+        generalPanelLimitFPSCheckbox, CommonMetadata.FPS.getText(), "limiter");
 
     generalPanelLimitFPSSpinner = new JSpinner();
     generalPanelLimitFPSPanel.add(generalPanelLimitFPSSpinner);
@@ -1515,28 +1706,37 @@ public class ConfigWindow {
         "Replace certain item names with improved versions");
     generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeTitle, BorderLayout.PAGE_START);
     generalPanelNamePatchModeDesc = new JLabel("");
+
+    String patchNameType0 = "No item name patching";
+    String patchNameType1 =
+        "Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)";
+    String patchNameType2 = "Capitalizations and fixed spellings on top of type 1 changes";
+    String patchNameType3 =
+        "Reworded vague stuff to be more descriptive on top of type 1 & 2 changes";
+
+    // Add all possible display values to the search metadata, since only one is displayed at a time
+    SearchUtils.addSearchMetadata(
+        generalPanelNamePatchModeDesc,
+        patchNameType0 + " " + patchNameType1 + " " + patchNameType2 + " " + patchNameType3);
+
     generalPanelNamePatchModeTextPanel.add(generalPanelNamePatchModeDesc, BorderLayout.CENTER);
 
     generalPanelNamePatchModeSlider.addChangeListener(
         new ChangeListener() {
-
           @Override
           public void stateChanged(ChangeEvent e) {
             switch (generalPanelNamePatchModeSlider.getValue()) {
               case 3:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Reworded vague stuff to be more descriptive on top of type 1 & 2 changes</html>");
+                generalPanelNamePatchModeDesc.setText("<html>" + patchNameType3 + "</html>");
                 break;
               case 2:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Capitalizations and fixed spellings on top of type 1 changes</html>");
+                generalPanelNamePatchModeDesc.setText("<html>" + patchNameType2 + "</html>");
                 break;
               case 1:
-                generalPanelNamePatchModeDesc.setText(
-                    "<html>Purely practical name changes (potion dosages, unidentified herbs, unfinished potions)</html>");
+                generalPanelNamePatchModeDesc.setText("<html>" + patchNameType1 + "</html>");
                 break;
               case 0:
-                generalPanelNamePatchModeDesc.setText("<html>No item name patching</html>");
+                generalPanelNamePatchModeDesc.setText("<html>" + patchNameType0 + "</html>");
                 break;
               default:
                 Logger.Error("Invalid name patch mode value");
@@ -1579,6 +1779,7 @@ public class ConfigWindow {
     generalPanelLogVerbosityTitle.setBorder(new EmptyBorder(7, 0, 0, 0));
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
     generalPanelLogVerbosityTitle.setAlignmentY((float) 1);
+    SearchUtils.addSearchMetadata(generalPanelLogVerbosityTitle, "logger", "logging");
 
     Hashtable<Integer, JLabel> generalPanelLogVerbosityLabelTable =
         new Hashtable<Integer, JLabel>();
@@ -1618,9 +1819,11 @@ public class ConfigWindow {
     generalPanelLogForceLevelCheckbox.setToolTipText(
         "Forces display of the log level of output in the log");
 
-    generalPanelColoredTextCheckbox = addCheckbox("Colored console text", generalPanel);
+    generalPanelColoredTextCheckbox = addCheckbox("Coloured console text", generalPanel);
     generalPanelColoredTextCheckbox.setToolTipText(
-        "When running the client from a console, chat messages in the console will reflect the colors they are in game");
+        "When running the client from a console, chat messages in the console will reflect the colours they are in game");
+    SearchUtils.addSearchMetadata(
+        generalPanelColoredTextCheckbox, CommonMetadata.COLOURS.getText());
 
     /*
      * Overlays tab
@@ -1632,6 +1835,7 @@ public class ConfigWindow {
     /// the screen because they are designed to modify just the interface of RSC+
     addSettingsHeader(overlayPanel, "Interface overlays");
     overlayPanelStatusDisplayCheckbox = addCheckbox("Show HP/Prayer/Fatigue display", overlayPanel);
+    SearchUtils.addSearchMetadata(overlayPanelStatusDisplayCheckbox, CommonMetadata.HP.getText());
     overlayPanelStatusDisplayCheckbox.setToolTipText("Toggle hits/prayer/fatigue display");
     overlayPanelStatusDisplayCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
@@ -1639,6 +1843,8 @@ public class ConfigWindow {
         addCheckbox("Always show HP/Prayer/Fatigue display in upper-left corner", overlayPanel);
     overlayPanelStatusAlwaysTextCheckbox.setToolTipText(
         "Always show the status display as text even at larger client sizes");
+    SearchUtils.addSearchMetadata(
+        overlayPanelStatusAlwaysTextCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelBuffsCheckbox =
         addCheckbox("Show combat (de)buffs and cooldowns display", overlayPanel);
@@ -1673,6 +1879,8 @@ public class ConfigWindow {
         addCheckbox("Additional inventory count colours", overlayPanel);
     overlayPanelInvCountColoursCheckbox.setToolTipText(
         "Adds additional colours to the inventory count to indicate fullness levels");
+    SearchUtils.addSearchMetadata(
+        overlayPanelInvCountColoursCheckbox, CommonMetadata.COLOURS.getText());
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -1685,14 +1893,17 @@ public class ConfigWindow {
     overlayPanelRetroFpsCheckbox = addCheckbox("Display FPS like early RSC", overlayPanel);
     overlayPanelRetroFpsCheckbox.setToolTipText(
         "Shows the FPS like it used to be displayed in RSC");
+    SearchUtils.addSearchMetadata(overlayPanelRetroFpsCheckbox, CommonMetadata.FPS.getText());
 
     overlayPanelShowCombatInfoCheckbox = addCheckbox("Show NPC HP info", overlayPanel);
     overlayPanelShowCombatInfoCheckbox.setToolTipText(
         "Shows the HP info for the NPC you're in combat with");
+    SearchUtils.addSearchMetadata(overlayPanelShowCombatInfoCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelUsePercentageCheckbox = addCheckbox("Use percentage for NPC HP info", overlayPanel);
     overlayPanelUsePercentageCheckbox.setToolTipText(
         "Uses percentage for NPC HP info instead of actual HP");
+    SearchUtils.addSearchMetadata(overlayPanelUsePercentageCheckbox, CommonMetadata.HP.getText());
 
     overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
     overlayPanelLagIndicatorCheckbox.setToolTipText(
@@ -1702,6 +1913,7 @@ public class ConfigWindow {
         addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
     overlayPanelFoodHealingCheckbox.setToolTipText(
         "When hovering on food, shows the HP a consumable recovers");
+    SearchUtils.addSearchMetadata(overlayPanelFoodHealingCheckbox, CommonMetadata.HP.getText());
     // TODO: Remove this line when food healing overlay is implemented
     overlayPanelFoodHealingCheckbox.setEnabled(false);
 
@@ -1709,6 +1921,7 @@ public class ConfigWindow {
         addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
     overlayPanelHPRegenTimerCheckbox.setToolTipText(
         "Shows the seconds until your HP will naturally regenerate");
+    SearchUtils.addSearchMetadata(overlayPanelHPRegenTimerCheckbox, CommonMetadata.HP.getText());
     // TODO: Remove this line when the HP regen timer is implemented
     overlayPanelHPRegenTimerCheckbox.setEnabled(false);
 
@@ -1764,16 +1977,22 @@ public class ConfigWindow {
     overlayPanelXPBarCheckbox.setToolTipText("Show an XP bar to the left of the wrench");
     overlayPanelXPBarCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
-    overlayPanelXPDropsCheckbox = addCheckbox("Show XP drops", overlayPanel);
+    JPanel overlayPanelXPDropsPanel = new JPanel();
+    overlayPanel.add(overlayPanelXPDropsPanel);
+    overlayPanelXPDropsPanel.setLayout(new BoxLayout(overlayPanelXPDropsPanel, BoxLayout.Y_AXIS));
+    overlayPanelXPDropsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    overlayPanelXPDropsCheckbox = addCheckbox("Show XP drops", overlayPanelXPDropsPanel);
     overlayPanelXPDropsCheckbox.setToolTipText(
         "Show the XP gained as an overlay each time XP is received");
 
     ButtonGroup XPAlignButtonGroup = new ButtonGroup();
-    overlayPanelXPRightAlignFocusButton = addRadioButton("Display on the right", overlayPanel, 20);
+    overlayPanelXPRightAlignFocusButton =
+        addRadioButton("Display on the right", overlayPanelXPDropsPanel, 20);
     overlayPanelXPRightAlignFocusButton.setToolTipText(
         "The XP bar and XP drops will be shown just left of the Settings menu.");
     overlayPanelXPCenterAlignFocusButton =
-        addRadioButton("Display in the center", overlayPanel, 20);
+        addRadioButton("Display in the center", overlayPanelXPDropsPanel, 20);
     overlayPanelXPCenterAlignFocusButton.setToolTipText(
         "The XP bar and XP drops will be shown at the top-middle of the screen.");
     XPAlignButtonGroup.add(overlayPanelXPRightAlignFocusButton);
@@ -1841,7 +2060,8 @@ public class ConfigWindow {
         addCheckbox(
             "Show attackable players' names in a separate colour", overlayPanelPvpNamesPanel);
     overlayPanelPvpNamesCheckbox.setToolTipText(
-        "Changes the color of players' names when they are within attacking range in the wilderness");
+        "Changes the colour of players' names when they are within attacking range in the wilderness");
+    SearchUtils.addSearchMetadata(overlayPanelPvpNamesCheckbox, CommonMetadata.COLOUR.getText());
 
     overlayPanelPvpNamesColourSubpanel = new JPanel();
     overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesColourSubpanel);
@@ -1898,8 +2118,14 @@ public class ConfigWindow {
     overlayPanelObjectInfoCheckbox.setToolTipText(
         "Displays object information after their name on the right click examine");
 
+    JPanel overlayPanelGroundItemsPanel = new JPanel();
+    overlayPanel.add(overlayPanelGroundItemsPanel);
+    overlayPanelGroundItemsPanel.setLayout(
+        new BoxLayout(overlayPanelGroundItemsPanel, BoxLayout.Y_AXIS));
+    overlayPanelGroundItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     overlayPanelItemNamesCheckbox =
-        addCheckbox("Display the names of items on the ground", overlayPanel);
+        addCheckbox("Display the names of items on the ground", overlayPanelGroundItemsPanel);
     overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
 
     String itemInputToolTip =
@@ -1907,7 +2133,7 @@ public class ConfigWindow {
 
     // Blocked Items
     JPanel blockedItemsPanel = new JPanel();
-    overlayPanel.add(blockedItemsPanel);
+    overlayPanelGroundItemsPanel.add(blockedItemsPanel);
     blockedItemsPanel.setLayout(new BoxLayout(blockedItemsPanel, BoxLayout.X_AXIS));
     blockedItemsPanel.setPreferredSize(new Dimension(0, 37));
     blockedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1927,7 +2153,7 @@ public class ConfigWindow {
 
     // Highlighted Items
     JPanel highlightedItemsPanel = new JPanel();
-    overlayPanel.add(highlightedItemsPanel);
+    overlayPanelGroundItemsPanel.add(highlightedItemsPanel);
     highlightedItemsPanel.setLayout(new BoxLayout(highlightedItemsPanel, BoxLayout.X_AXIS));
     highlightedItemsPanel.setPreferredSize(new Dimension(0, 37));
     highlightedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1956,6 +2182,8 @@ public class ConfigWindow {
     JLabel highlightedItemColourPanelNameLabel = new JLabel("Highlight colour ");
     overlayPanelItemHighlightColourPanel.add(highlightedItemColourPanelNameLabel);
     highlightedItemColourPanelNameLabel.setAlignmentY((float) 0.9);
+    SearchUtils.addSearchMetadata(
+        highlightedItemColourPanelNameLabel, CommonMetadata.COLOUR.getText());
 
     overlayPanelItemHighlightColourSubpanel = new JPanel();
     overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSubpanel);
@@ -1997,10 +2225,16 @@ public class ConfigWindow {
 
     addSettingsHeader(overlayPanel, "General overlay settings");
 
+    JPanel overlayPanelFontStylePanel = new JPanel();
+    overlayPanel.add(overlayPanelFontStylePanel);
+    overlayPanelFontStylePanel.setLayout(
+        new BoxLayout(overlayPanelFontStylePanel, BoxLayout.Y_AXIS));
+    overlayPanelFontStylePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel overlayFontStyleNameLabel = new JLabel("Overlay font style:");
     overlayFontStyleNameLabel.setAlignmentY((float) 0.9);
     overlayFontStyleNameLabel.setBorder(new EmptyBorder(7, 0, 10, 0));
-    overlayPanel.add(overlayFontStyleNameLabel);
+    overlayPanelFontStylePanel.add(overlayFontStyleNameLabel);
 
     ButtonGroup overlayPanelFontStyleButtonGroup = new ButtonGroup();
     // overlayPanelFontStyleJagexFocusButton = addRadioButton("Use the Jagex font", overlayPanel,
@@ -2008,11 +2242,11 @@ public class ConfigWindow {
     // overlayPanelFontStyleJagexFocusButton.setToolTipText(
     //         "Use the standard Jagex font for all custom overlay text");
     overlayPanelFontStyleJagexBorderedFocusButton =
-        addRadioButton("Use bordered Jagex fonts", overlayPanel, 20);
+        addRadioButton("Use bordered Jagex fonts", overlayPanelFontStylePanel, 20);
     overlayPanelFontStyleJagexBorderedFocusButton.setToolTipText(
         "Use a bordered version of the standard Jagex font for custom overlay text");
     overlayPanelFontStyleLegacyFocusButton =
-        addRadioButton("Use legacy RSC+ font", overlayPanel, 20);
+        addRadioButton("Use legacy RSC+ font", overlayPanelFontStylePanel, 20);
     overlayPanelFontStyleLegacyFocusButton.setToolTipText(
         "Use the legacy RSC+ font for custom overlay text");
     // overlayPanelFontStyleButtonGroup.add(overlayPanelFontStyleJagexFocusButton);
@@ -2032,15 +2266,21 @@ public class ConfigWindow {
     audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
     audioPanelEnableMusicCheckbox.setBorder(new EmptyBorder(7, 0, 10, 0));
 
+    JPanel audioPanelSfxVolumePanel = new JPanel();
+    audioPanel.add(audioPanelSfxVolumePanel);
+    audioPanelSfxVolumePanel.setLayout(new BoxLayout(audioPanelSfxVolumePanel, BoxLayout.Y_AXIS));
+    audioPanelSfxVolumePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel audioPanelSfxVolumeLabel = new JLabel("Sound effects volume");
     audioPanelSfxVolumeLabel.setToolTipText("Sets the volume for game sound effects");
     audioPanelSfxVolumeLabel.setBorder(new EmptyBorder(7, 0, 0, 0));
-    audioPanel.add(audioPanelSfxVolumeLabel);
+    audioPanelSfxVolumePanel.add(audioPanelSfxVolumeLabel);
     audioPanelSfxVolumeLabel.setAlignmentY((float) 1);
+    SearchUtils.addSearchMetadata(audioPanelSfxVolumeLabel, CommonMetadata.SFX.getText());
 
     audioPanelSfxVolumeSlider = new JSlider();
 
-    audioPanel.add(audioPanelSfxVolumeSlider);
+    audioPanelSfxVolumePanel.add(audioPanelSfxVolumeSlider);
     audioPanelSfxVolumeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     audioPanelSfxVolumeSlider.setMaximumSize(new Dimension(350, 55));
     audioPanelSfxVolumeSlider.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -2062,21 +2302,36 @@ public class ConfigWindow {
     audioPanelLouderSoundEffectsCheckbox = addCheckbox("Louder sound effects", audioPanel);
     audioPanelLouderSoundEffectsCheckbox.setToolTipText(
         "Doubles the current volume for all sound effects.");
+    SearchUtils.addSearchMetadata(
+        audioPanelLouderSoundEffectsCheckbox, CommonMetadata.SFX.getText());
 
+    JPanel audioPanelOverrideAudioSettingsPanel = new JPanel();
+    audioPanel.add(audioPanelOverrideAudioSettingsPanel);
+    audioPanelOverrideAudioSettingsPanel.setLayout(
+        new BoxLayout(audioPanelOverrideAudioSettingsPanel, BoxLayout.Y_AXIS));
+    audioPanelOverrideAudioSettingsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     audioPanelOverrideAudioSettingCheckbox =
-        addCheckbox("Override server's remembered audio on/off setting", audioPanel);
+        addCheckbox(
+            "Override server's remembered audio on/off setting",
+            audioPanelOverrideAudioSettingsPanel);
     audioPanelOverrideAudioSettingCheckbox.setToolTipText(
         "Let RSC+ control whether or not sound effects are played (useful for watching replays)");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingCheckbox, CommonMetadata.SFX.getText());
 
     ButtonGroup overrideAudioSettingGroup = new ButtonGroup();
     audioPanelOverrideAudioSettingOnButton =
-        addRadioButton("Sound effects always on", audioPanel, 20);
+        addRadioButton("Sound effects always on", audioPanelOverrideAudioSettingsPanel, 20);
     audioPanelOverrideAudioSettingOnButton.setToolTipText(
         "Even if the server remembers that the user's audio should be off, RSC+ will play sound effects.");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingOnButton, CommonMetadata.SFX.getText());
     audioPanelOverrideAudioSettingOffButton =
-        addRadioButton("Sound effects always off", audioPanel, 20);
+        addRadioButton("Sound effects always off", audioPanelOverrideAudioSettingsPanel, 20);
     audioPanelOverrideAudioSettingOffButton.setToolTipText(
         "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
+    SearchUtils.addSearchMetadata(
+        audioPanelOverrideAudioSettingOffButton, CommonMetadata.SFX.getText());
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOffButton);
 
@@ -2084,16 +2339,25 @@ public class ConfigWindow {
         addCheckbox("Fix web slicing & dummy hitting sound effect", audioPanel);
     audioPanelFixSpiderWebDummySoundCheckbox.setToolTipText(
         "The RSC server authentically tells your client to play a sound effect when slicing a web or hitting a dummy, but that sound effect doesn't exist in an unmodified client cache.");
+    SearchUtils.addSearchMetadata(
+        audioPanelFixSpiderWebDummySoundCheckbox, CommonMetadata.SFX.getText());
 
     addSettingsHeader(audioPanel, "Toggle individual sound effects");
+
+    JPanel audioPanelEnableAllSfxPanel = new JPanel();
+    audioPanel.add(audioPanelEnableAllSfxPanel);
+    audioPanelEnableAllSfxPanel.setLayout(
+        new BoxLayout(audioPanelEnableAllSfxPanel, BoxLayout.Y_AXIS));
+    audioPanelEnableAllSfxPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     JLabel audioPanelSoundEffectsToggleExplanation =
         new JLabel(
             "<html><p>"
                 + "There are 37 sound effects in RS-Classic. Some are great, and some can be grating. It's up to you to decide which are which."
                 + "</p></html>");
-    audioPanel.add(audioPanelSoundEffectsToggleExplanation);
+    audioPanelEnableAllSfxPanel.add(audioPanelSoundEffectsToggleExplanation);
     audioPanelSoundEffectsToggleExplanation.setBorder(new EmptyBorder(7, 0, 7, 0));
+    SearchUtils.skipSearchText(audioPanelSoundEffectsToggleExplanation);
 
     JPanel audioPanelToggleAllPanel = new JPanel();
     audioPanelToggleAllPanel.setLayout(new BoxLayout(audioPanelToggleAllPanel, BoxLayout.X_AXIS));
@@ -2101,14 +2365,16 @@ public class ConfigWindow {
     audioPanelToggleAllPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     audioPanelToggleAllPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-    addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                setAllSoundeffects(true);
-              }
-            });
+    JButton audioPanelEnableAllSfxButton =
+        addButton("Enable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+    audioPanelEnableAllSfxButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            setAllSoundeffects(true);
+          }
+        });
+    SearchUtils.addSearchMetadata(audioPanelEnableAllSfxButton, CommonMetadata.SFX.getText());
 
     JPanel audioPanelToggleAllPanelSpacingPanel = new JPanel();
     audioPanelToggleAllPanel.add(audioPanelToggleAllPanelSpacingPanel);
@@ -2116,16 +2382,18 @@ public class ConfigWindow {
     audioPanelToggleAllPanelSpacingPanel.setPreferredSize(new Dimension(6, 20));
     audioPanelToggleAllPanelSpacingPanel.setMaximumSize(new Dimension(6, 20));
 
-    addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                setAllSoundeffects(false);
-              }
-            });
+    JButton audioPanelDisableAllSfxButton =
+        addButton("Disable All Sound Effects", audioPanelToggleAllPanel, Component.LEFT_ALIGNMENT);
+    audioPanelDisableAllSfxButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            setAllSoundeffects(false);
+          }
+        });
+    SearchUtils.addSearchMetadata(audioPanelDisableAllSfxButton, CommonMetadata.SFX.getText());
 
-    audioPanel.add(audioPanelToggleAllPanel);
+    audioPanelEnableAllSfxPanel.add(audioPanelToggleAllPanel);
 
     JPanel advancePanel = makeSoundEffectPanel("advance");
     soundEffectAdvanceCheckbox = addCheckbox("advance", advancePanel);
@@ -2415,6 +2683,7 @@ public class ConfigWindow {
                 + "</p></html>");
     bankPanel.add(banksearchExplanation);
     banksearchExplanation.setBorder(new EmptyBorder(0, 0, 12, 0));
+    SearchUtils.skipSearchText(banksearchExplanation);
 
     addSettingsHeader(bankPanel, "Custom bank order");
     JLabel exportExplanation =
@@ -2428,6 +2697,7 @@ public class ConfigWindow {
                 + "</p><br/></html>");
     exportExplanation.setBorder(new EmptyBorder(0, 0, 0, 0));
     bankPanel.add(exportExplanation);
+    SearchUtils.skipSearchText(exportExplanation);
 
     JPanel exportPanel = new JPanel();
     JButton bankExportButton = new JButton("Export Current Bank");
@@ -2473,6 +2743,7 @@ public class ConfigWindow {
                 + "</p><br/></html>");
     importExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
     bankPanel.add(importExplanation);
+    SearchUtils.skipSearchText(importExplanation);
 
     JButton bankImportButton = new JButton("Import Bank Order");
     bankImportButton.setAlignmentY((float) 0.80);
@@ -2514,31 +2785,42 @@ public class ConfigWindow {
 
     addSettingsHeader(notificationPanel, "Notification settings");
 
+    JPanel notificationPanelTrayPopupsPanel = new JPanel();
+    notificationPanel.add(notificationPanelTrayPopupsPanel);
+    notificationPanelTrayPopupsPanel.setLayout(
+        new BoxLayout(notificationPanelTrayPopupsPanel, BoxLayout.Y_AXIS));
+    notificationPanelTrayPopupsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     notificationPanelTrayPopupCheckbox =
-        addCheckbox("Enable notification tray popups", notificationPanel);
+        addCheckbox("Enable notification tray popups", notificationPanelTrayPopupsPanel);
     notificationPanelTrayPopupCheckbox.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
     notificationPanelTrayPopupCheckbox.setToolTipText(
         "Shows a system notification when a notification is triggered");
 
     ButtonGroup trayPopupButtonGroup = new ButtonGroup();
     notificationPanelTrayPopupClientFocusButton =
-        addRadioButton("Only when client is not focused", notificationPanel, 20);
+        addRadioButton("Only when client is not focused", notificationPanelTrayPopupsPanel, 20);
     notificationPanelTrayPopupAnyFocusButton =
-        addRadioButton("Regardless of client focus", notificationPanel, 20);
+        addRadioButton("Regardless of client focus", notificationPanelTrayPopupsPanel, 20);
     trayPopupButtonGroup.add(notificationPanelTrayPopupClientFocusButton);
     trayPopupButtonGroup.add(notificationPanelTrayPopupAnyFocusButton);
 
+    JPanel notificationPanelNotifSoundsPanel = new JPanel();
+    notificationPanel.add(notificationPanelNotifSoundsPanel);
+    notificationPanelNotifSoundsPanel.setLayout(
+        new BoxLayout(notificationPanelNotifSoundsPanel, BoxLayout.Y_AXIS));
+    notificationPanelNotifSoundsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     notificationPanelNotifSoundsCheckbox =
-        addCheckbox("Enable notification sounds", notificationPanel);
+        addCheckbox("Enable notification sounds", notificationPanelNotifSoundsPanel);
     notificationPanelNotifSoundsCheckbox.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 0));
     notificationPanelNotifSoundsCheckbox.setToolTipText(
         "Plays a sound when a notification is triggered");
 
     ButtonGroup notifSoundButtonGroup = new ButtonGroup();
     notificationPanelNotifSoundClientFocusButton =
-        addRadioButton("Only when client is not focused", notificationPanel, 20);
+        addRadioButton("Only when client is not focused", notificationPanelNotifSoundsPanel, 20);
     notificationPanelNotifSoundAnyFocusButton =
-        addRadioButton("Regardless of client focus", notificationPanel, 20);
+        addRadioButton("Regardless of client focus", notificationPanelNotifSoundsPanel, 20);
     notifSoundButtonGroup.add(notificationPanelNotifSoundClientFocusButton);
     notifSoundButtonGroup.add(notificationPanelNotifSoundAnyFocusButton);
 
@@ -2604,6 +2886,8 @@ public class ConfigWindow {
         addCheckbox("Enable low HP notification at", notificationPanelLowHPNotifsPanel);
     notificationPanelLowHPNotifsCheckbox.setToolTipText(
         "Shows a system notification when your HP drops below the specified value");
+    SearchUtils.addSearchMetadata(
+        notificationPanelLowHPNotifsCheckbox, CommonMetadata.HP.getText());
 
     notificationPanelLowHPNotifsSpinner = new JSpinner();
     notificationPanelLowHPNotifsSpinner.setMaximumSize(new Dimension(45, 22));
@@ -2655,8 +2939,14 @@ public class ConfigWindow {
     spinnerFatigueNumModel.setValue(98);
     notificationPanelFatigueNotifsSpinner.setModel(spinnerFatigueNumModel);
 
+    JPanel notificationPanelGroundItemPanel = new JPanel();
+    notificationPanel.add(notificationPanelGroundItemPanel);
+    notificationPanelGroundItemPanel.setLayout(
+        new BoxLayout(notificationPanelGroundItemPanel, BoxLayout.Y_AXIS));
+    notificationPanelGroundItemPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JPanel warnHighlightedOnGroundPanel = new JPanel();
-    notificationPanel.add(warnHighlightedOnGroundPanel);
+    notificationPanelGroundItemPanel.add(warnHighlightedOnGroundPanel);
     warnHighlightedOnGroundPanel.setLayout(
         new BoxLayout(warnHighlightedOnGroundPanel, BoxLayout.X_AXIS));
     warnHighlightedOnGroundPanel.setPreferredSize(new Dimension(0, 37));
@@ -2674,7 +2964,7 @@ public class ConfigWindow {
             "<html><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                 + "<strong>Note:</strong> Loot from kills despawns after about 2 minutes."
                 + "</p></html>");
-    notificationPanel.add(highlightedItemsSuggestionJLabel);
+    notificationPanelGroundItemPanel.add(highlightedItemsSuggestionJLabel);
     highlightedItemsSuggestionJLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
 
     notificationPanelHighlightedItemTimerSpinner = new JSpinner();
@@ -2833,19 +3123,29 @@ public class ConfigWindow {
     streamingPanel.add(spacerLabel);
 
     addSettingsHeader(streamingPanel, "Speedrunner Mode");
+
+    JPanel streamingPanelSpeedrunPanel = new JPanel();
+    streamingPanel.add(streamingPanelSpeedrunPanel);
+    streamingPanelSpeedrunPanel.setLayout(
+        new BoxLayout(streamingPanelSpeedrunPanel, BoxLayout.Y_AXIS));
+    streamingPanelSpeedrunPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     JLabel speedrunnerModeExplanation =
         new JLabel(
             "<html><head><style>p{font-size:10px;}ul{padding-left:0px;margin-left:10px;}</style></head><p>Speedrunner mode keeps track of your precise time spent in game <br/> between the first player update packet received and either logout or<br/> upon completing any of the following goals:<br/><ul><li>Completion of Tutorial Island</li><li>Completion of Black Knight's Fortress</li><li>Entrance to the Champion's Guild</li><li>Completion of Dragon Slayer</li></ul></p><p>Speedrunner mode also overrides the following RSC+ options:<ul><li>You will always be recording a replay</li><li>You will not be able to desync the camera position from the player position (too weird)</li><li>Keyboard shortcut to trigger sleeping bag is disabled</li><li>Prayer & Magic scrollbars will reset to the top when switching between those tabs</li><li>Menu item swapping (e.g. \"Always left click to attack\") is disabled <ul style=\"padding:0px; margin: 2px 0 0 10px;\"><li style=\"padding:0px; margin:0px;\">REQUIRES RESTART IF NOT ALREADY DISABLED</li></ul></li></ul></p><p>The below box should be manually clicked before logging in to a new character.<br/> The apply button must be clicked for it to take effect.</p><br/></html>");
     speedrunnerModeExplanation.setBorder(new EmptyBorder(2, 0, 0, 0));
-    streamingPanel.add(speedrunnerModeExplanation);
+    streamingPanelSpeedrunPanel.add(speedrunnerModeExplanation);
+    SearchUtils.skipSearchText(speedrunnerModeExplanation);
 
-    streamingPanelSpeedrunnerCheckbox = addCheckbox("Activate Speedrunner Mode", streamingPanel);
+    streamingPanelSpeedrunnerCheckbox =
+        addCheckbox("Activate Speedrunner Mode", streamingPanelSpeedrunPanel);
     streamingPanelSpeedrunnerCheckbox.setToolTipText("Speedrunner Mode, see above explanation");
 
     JLabel speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation =
         new JLabel(
             "<html><head><style>p{font-size:10px; padding-bottom: 5px;}</style></head><p>When you are satisfied that your run is over, end the speedrun<br/> by sending the command <font face=\"courier\"><strong>::endrun</strong></font> or press the configurable keybind <strong>&lt;CTRL-END&gt;</strong>.</p></html>");
-    streamingPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
+    streamingPanelSpeedrunPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
+    SearchUtils.skipSearchText(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
 
     /* shame to write all this code and then not need it...
     JPanel streamingPanelSpeedRunnerNamePanel = new JPanel();
@@ -2872,8 +3172,14 @@ public class ConfigWindow {
      * Keybind tab
      */
     JPanel keybindContainerPanel = new JPanel(new GridBagLayout());
+    SearchUtils.bypassPanelGrouping(
+        keybindContainerPanel); // Since keybind labels and buttons aren't in panels, skip the
+    // grouping
 
     JPanel keybindContainerContainerPanel = new JPanel(new GridBagLayout());
+    SearchUtils.bypassPanelGrouping(
+        keybindContainerContainerPanel); // Same as above, for the inner grouping
+
     GridBagConstraints con = new GridBagConstraints();
     con.gridy = 0;
     con.gridx = 0;
@@ -2890,20 +3196,37 @@ public class ConfigWindow {
     // consider using ALT instead.
 
     addKeybindCategory(keybindContainerPanel, "General");
-    addKeybindSet(keybindContainerPanel, "Sleep", "sleep", KeyModifier.CTRL, KeyEvent.VK_SPACE);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Sleep",
+        "sleep",
+        KeyModifier.CTRL,
+        KeyEvent.VK_SPACE,
+        "sleeping bag");
     addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
     addKeybindSet(
-        keybindContainerPanel, "Toggle scaling", "toggle_scaling", KeyModifier.ALT, KeyEvent.VK_S);
+        keybindContainerPanel,
+        "Toggle scaling",
+        "toggle_scaling",
+        KeyModifier.ALT,
+        KeyEvent.VK_S,
+        "scale");
     addKeybindSet(
-        keybindContainerPanel, "Increase scale", "increase_scale", KeyModifier.ALT, KeyEvent.VK_UP);
+        keybindContainerPanel,
+        "Increase scale",
+        "increase_scale",
+        KeyModifier.ALT,
+        KeyEvent.VK_UP,
+        "scaling");
     addKeybindSet(
         keybindContainerPanel,
         "Decrease scale",
         "decrease_scale",
         KeyModifier.ALT,
-        KeyEvent.VK_DOWN);
+        KeyEvent.VK_DOWN,
+        "scaling");
     addKeybindSet(
         keybindContainerPanel,
         "Show settings window",
@@ -2972,10 +3295,11 @@ public class ConfigWindow {
         KeyEvent.VK_R);
     addKeybindSet(
         keybindContainerPanel,
-        "Toggle color coded text",
+        "Toggle colour coded text",
         "toggle_colorize",
         KeyModifier.CTRL,
-        KeyEvent.VK_Z);
+        KeyEvent.VK_Z,
+        "color");
     addKeybindSet(
         keybindContainerPanel,
         "Toggle start with searched bank",
@@ -3014,7 +3338,8 @@ public class ConfigWindow {
         "Toggle HP/prayer/fatigue display",
         "toggle_hpprayerfatigue_display",
         KeyModifier.CTRL,
-        KeyEvent.VK_U);
+        KeyEvent.VK_U,
+        CommonMetadata.HP.getText());
     addKeybindSet(
         keybindContainerPanel,
         "Toggle combat buffs and cooldowns display         ", // TODO: remove this spacing
@@ -3040,7 +3365,8 @@ public class ConfigWindow {
         "Toggle additional inventory count colours",
         "toggle_inven_count_colours",
         KeyModifier.ALT,
-        KeyEvent.VK_T);
+        KeyEvent.VK_T,
+        "colors");
     addKeybindSet(
         keybindContainerPanel,
         "Toggle position overlay",
@@ -3052,7 +3378,8 @@ public class ConfigWindow {
         "Toggle retro fps overlay",
         "toggle_retro_fps_overlay",
         KeyModifier.ALT,
-        KeyEvent.VK_F);
+        KeyEvent.VK_F,
+        "frames per second");
     addKeybindSet(
         keybindContainerPanel,
         "Toggle item name overlay",
@@ -3100,7 +3427,8 @@ public class ConfigWindow {
         "Toggle time until health regen",
         "toggle_health_regen_timer",
         KeyModifier.CTRL,
-        KeyEvent.VK_X);
+        KeyEvent.VK_X,
+        CommonMetadata.HP.getText());
     addKeybindSet(
         keybindContainerPanel,
         "Toggle Wiki Hbar Button",
@@ -3354,7 +3682,14 @@ public class ConfigWindow {
     presetsPanel.setLayout(new BoxLayout(presetsPanel, BoxLayout.Y_AXIS));
 
     addSettingsHeader(presetsPanel, "Presets");
-    presetsPanelCustomSettingsCheckbox = addCheckbox("Custom Settings", presetsPanel);
+    JPanel presetsPanelPresetSelectionPanel = new JPanel();
+    presetsPanel.add(presetsPanelPresetSelectionPanel);
+    presetsPanelPresetSelectionPanel.setLayout(
+        new BoxLayout(presetsPanelPresetSelectionPanel, BoxLayout.Y_AXIS));
+    presetsPanelPresetSelectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    presetsPanelCustomSettingsCheckbox =
+        addCheckbox("Custom Settings", presetsPanelPresetSelectionPanel);
     presetsPanelCustomSettingsCheckbox.setToolTipText(
         "Load settings from config.ini instead of using a preset");
 
@@ -3363,7 +3698,7 @@ public class ConfigWindow {
     presetsPanelPresetSliderPanel.setMaximumSize(new Dimension(400, 175));
     presetsPanelPresetSliderPanel.setLayout(
         new BoxLayout(presetsPanelPresetSliderPanel, BoxLayout.X_AXIS));
-    presetsPanel.add(presetsPanelPresetSliderPanel);
+    presetsPanelPresetSelectionPanel.add(presetsPanelPresetSliderPanel);
 
     // these JLabels are purposely mispelled to give it that authentic RS1 feel
     Hashtable<Integer, JLabel> presetsPanelPresetSliderLabelTable =
@@ -3425,7 +3760,7 @@ public class ConfigWindow {
           }
         });
     presetsButtonPanel.add(Box.createHorizontalGlue());
-    presetsPanel.add(presetsButtonPanel);
+    presetsPanelPresetSelectionPanel.add(presetsButtonPanel);
 
     presetsPanelCustomSettingsCheckbox.addActionListener(
         new ActionListener() {
@@ -3556,6 +3891,7 @@ public class ConfigWindow {
                 + "</p><br/></html>");
     joystickExplanation.setBorder(new EmptyBorder(7, 0, 0, 0));
     joystickPanel.add(joystickExplanation);
+    SearchUtils.skipSearchText(joystickExplanation);
 
     addSettingsHeader(joystickPanel, "Joystick");
     joystickPanelJoystickEnabledCheckbox =
@@ -3586,8 +3922,435 @@ public class ConfigWindow {
         (key, value) -> {
           joystickPanel.add(value);
           joystickPanel.add(joystickInputValueJlabels.get(key));
-          joystickPanel.add(new JLabel("<html><br/></html>"));
+          JLabel joystickInputspacerLabel = new JLabel("<html><br/></html>");
+          joystickPanel.add(joystickInputspacerLabel);
+
+          // Don't index any of these for searching
+          SearchUtils.skipSearchText(value);
+          SearchUtils.skipSearchText(joystickInputValueJlabels.get(key));
+          SearchUtils.skipSearchText(joystickInputspacerLabel);
         });
+
+    //// End component creation ////
+
+    // As a final step, index all components for searching
+    indexSearch();
+  }
+
+  /** Collection of frequently-used metadata values */
+  private enum CommonMetadata {
+    HP("health", "hits", "hp"),
+    SFX("sfx", "sound effects"),
+    FPS("fps", "frames per second"),
+    COLOUR("colour", "color"),
+    COLOURS("colours", "colors");
+
+    public final String text;
+
+    CommonMetadata(String... text) {
+      this.text = String.join(" ", text);
+    }
+
+    public String getText() {
+      return text;
+    }
+  }
+
+  /**
+   * Given a {@link ConfigTab} object, get the tab index
+   *
+   * @param configTab {@link ConfigTab} for which to get the index
+   * @return Tab index for the ConfigTab
+   */
+  private int getTabIndex(ConfigTab configTab) {
+    for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+      if (tabbedPane.getTitleAt(i).equals(configTab.getLabel())) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  /**
+   * Indexes all swing components within the ConfigWindow for searching.
+   *
+   * <p>The search indexing process works by scanning all swing components, constructing a {@link
+   * SearchItem} for each individual or logically-grouped set of components it finds, and finally
+   * caching each SearchItem into the {@link #searchItemsMap}.
+   *
+   * <p>A SearchItem object holds search-related data found during the indexing process, notably a
+   * list of the actual swing components belonging to it, their visibility states, and the compiled
+   * searchable text. When a search is performed, the user's input is tested against the searchable
+   * text within each SearchItem, hiding all components that do not match and restoring visibility
+   * to components that do, if they were visible prior to the search. Config tabs which no longer
+   * contain any visible components will be temporarily disabled.
+   *
+   * <p>The searchable text for each SearchItem is a composite of all displayed, tooltip, metadata,
+   * and user-entered text for all components belonging to the SearchItem, as well as any related
+   * components that a developer may choose to assign. Metadata text is only used for searching and
+   * is never displayed to the user. It exists primarily as a means to enhance search usability and
+   * may be added to a component via {@link SearchUtils#addSearchMetadata(JComponent, String...)}.
+   * By contrast, there may be situations where it is not desirable to include text from a
+   * particular component within a SearchItem, such as long description labels. This may be
+   * accomplished via {@link SearchUtils#skipSearchText(JComponent)}.
+   *
+   * <p>During indexing, components are automatically grouped together within a SearchItem when they
+   * belong to the same parent JPanel within a panel tab. As such, JPanels <i>should</i> be used to
+   * group together swing components that all belong to the same logical "setting". However, this
+   * may not always be possible due to various layout-related constraints; for this reason, separate
+   * components may alternatively be grouped together via {@link
+   * SearchUtils#setRelatedSearchComponent(JComponent, Component)}. On the other hand, there may be
+   * cases where it is not desired to group items within a JPanel into a single SearchItem at all;
+   * this can be accomplished via {@link SearchUtils#bypassPanelGrouping(JPanel)}.
+   *
+   * <p>Certain components such as section headers are excluded from the entire search process by
+   * design. This has a net effect of preventing search text matching and the ability to become
+   * hidden during a search, as well as not counting towards the config tab disablement
+   * calculations. Components needing to follow this behavior may be marked via {@link
+   * SearchUtils#setUnsearchable(JComponent)}.
+   *
+   * <p>Although initial indexing occurs during application startup, there are conditions under
+   * which it must be repeated in order for a search to reflect the most up-to-date ConfigWindow GUI
+   * state. These primarily include times when searchable text has to be updated, such as when a
+   * user modifies the value for a TextField element, or when the GUI layout itself has been altered
+   * due to changes in component visibility states or the addition of new components such as world
+   * fields. In order to properly reindex components, the {@link #reindexSearch(UIChangeMethod)}
+   * method <b>must</b> be invoked, as it appropriately handles logic surrounding the current search
+   * state. As such, any code which results in the need for reindexing must be passed to this method
+   * as a lambda expression.
+   */
+  private void indexSearch() {
+    // Reset search indexes
+    searchItemsMap = new HashMap<>();
+    allSearchComponents = new ArrayList<>();
+
+    HashMap<ConfigTab, JPanel> configTabMap = new HashMap<>();
+
+    // Build a map of all tab panel components
+    Arrays.stream(tabbedPane.getComponents())
+        .forEach(
+            tab -> {
+              JPanel tabPanel = ((JPanel) ((JScrollPane) tab).getViewport().getComponent(0));
+              configTabMap.put(ConfigTab.valueOf(tabPanel.getName()), tabPanel);
+            });
+
+    // Index components within each tab panel, creating SearchItems per component and grouping
+    // all components within JPanels into a single SearchItem with combined search terms
+    configTabMap
+        .keySet()
+        .forEach(
+            configTab -> {
+              searchItemsMap.put(configTab, new ArrayList<>());
+
+              getAllComponents(configTabMap.get(configTab))
+                  .forEach(
+                      component -> {
+                        if (component.getClass().equals(JPanel.class)) {
+                          SearchItem panelSearchItem = new SearchItem(configTab);
+                          JPanel panelComponent = (JPanel) component;
+
+                          // Add the panel component itself to the components list
+                          panelSearchItem.addComponent(panelComponent, panelComponent.isVisible());
+
+                          // Get and add all the panel's children to the components list
+                          getAllComponents(panelComponent)
+                              .forEach(
+                                  childComponent ->
+                                      panelSearchItem.addComponent(
+                                          childComponent, childComponent.isVisible()));
+
+                          // Index the panel component
+                          indexPanelComponent(configTab, panelSearchItem, panelComponent);
+                        } else {
+                          indexComponent(configTab, component);
+                        }
+                      });
+            });
+
+    reindexing = false;
+  }
+
+  /**
+   * Indexes a found {@link JPanel} component for searching.
+   *
+   * <p>The panel's children will be grouped together for the purpose of searching; all search text
+   * will be combined such that a match on any of the child components will result in the visibility
+   * of the entire panel.
+   *
+   * @param configTab {@link ConfigTab} which owns the panel component
+   * @param panelSearchItem {@link SearchItem} instance for the panel
+   * @param panelComponent The {@link JPanel} instance itself
+   */
+  private void indexPanelComponent(
+      ConfigTab configTab, SearchItem panelSearchItem, JPanel panelComponent) {
+    // When the "bypass panel grouping" flag has been set on a parent panel, components within the
+    // panel will not be grouped and will be found later in the component hierarchy and indexed
+    // separately.
+    if (SearchUtils.shouldBypassPanelGrouping(panelComponent)) {
+      return;
+    }
+
+    // Already indexed by a parent panel
+    if (allSearchComponents.contains(panelComponent)) {
+      return;
+    }
+
+    // Combine all child search text into the panel SearchItem (including the panel component
+    // itself)
+    if (panelComponent
+        .isVisible()) { // Don't add search text for components that are not currently displayed
+      panelSearchItem
+          .getComponents()
+          .forEach(
+              childComponent -> SearchUtils.addSearchProperties(panelSearchItem, childComponent));
+    }
+
+    searchItemsMap.get(configTab).add(panelSearchItem);
+
+    allSearchComponents.addAll(panelSearchItem.getComponents());
+  }
+
+  /**
+   * Indexes a non-{@link JPanel} Swing component, caching the constructed {@link SearchItem} for
+   * searching.
+   *
+   * @param configTab {@link ConfigTab} which owns the component
+   * @param component The {@link Component} to index
+   */
+  private void indexComponent(ConfigTab configTab, Component component) {
+    // Previously indexed by a parent panel
+    if (allSearchComponents.contains(component)) {
+      return;
+    }
+
+    SearchItem searchItem = new SearchItem(configTab, component);
+
+    SearchUtils.addSearchProperties(searchItem, component);
+
+    searchItemsMap.get(configTab).add(searchItem);
+
+    allSearchComponents.add(component);
+  }
+
+  /**
+   * Re-indexes search components by first resetting the current search, such that all component
+   * visibility states are restored prior to execution of uiChangeMethod(), in case it has to alter
+   * component visibility. This order of operations is important as component visibility is cached
+   * during indexing, such that when a searched component becomes visible again, its original
+   * pre-search visibility will be restored. Reapplies search upon completion.
+   *
+   * @param uiChangeMethod Lambda expression to execute during reindexing
+   */
+  private void reindexSearch(UIChangeMethod uiChangeMethod) {
+    final String searchText = searchTextField.getText();
+
+    clearSearchForIndexing();
+
+    uiChangeMethod.execute();
+
+    indexSearch();
+
+    setSearchText(searchText);
+  }
+
+  /**
+   * Searches the {@link #searchItemsMap} cache for items which match the current {@link
+   * #searchTextField} value, actively hiding and showing components belonging to each matched
+   * {@link SearchItem}
+   */
+  private void searchComponents() {
+    final String searchText = searchTextField.getText().toLowerCase();
+
+    // Reset scroll position to the top
+    final JScrollPane currentScrollPane =
+        (JScrollPane) tabbedPane.getComponentAt(tabbedPane.getSelectedIndex());
+    javax.swing.SwingUtilities.invokeLater(
+        () -> currentScrollPane.getVerticalScrollBar().setValue(0));
+
+    if (searchInitiatedTabIndex == -1) {
+      searchInitiatedTabIndex = tabbedPane.getSelectedIndex();
+    }
+
+    if (executedGoToSearch) {
+      searchInitiatedTabIndex = tabbedPane.getSelectedIndex();
+      executedGoToSearch = false;
+    }
+
+    // When search was cleared, return to the tab where search was originally initiated from,
+    // unless search was cleared for reindexing purposes
+    if (!reindexing && searchText.equals("")) {
+      tabbedPane.setSelectedIndex(searchInitiatedTabIndex);
+      searchInitiatedTabIndex = -1;
+    }
+
+    List<SearchItem> hideList = new ArrayList<>();
+    List<SearchItem> showList = new ArrayList<>();
+
+    // Iterate through the searchItemsMap, finding components to hide or show based on search text
+    // matching
+    for (ConfigTab configTab : ConfigTab.values()) {
+      for (SearchItem searchItem : searchItemsMap.get(configTab)) {
+        if (searchItem.isSearchable()
+            && !tokenizedStringContains(searchItem.getSearchText().toLowerCase(), searchText)) {
+          if (searchItem.isShown()) {
+            hideList.add(searchItem);
+          }
+        } else {
+          if (!searchItem.isShown()) {
+            showList.add(searchItem);
+          }
+        }
+      }
+    }
+
+    // Hide components that no longer match the search text
+    hideList.forEach(
+        searchItem -> {
+          searchItem.setShown(false);
+          searchItem.getComponents().forEach(component -> component.setVisible(false));
+        });
+
+    // Show components that now match the search text
+    showList.forEach(
+        searchItem -> {
+          searchItem.setShown(true);
+
+          // Only make things visible that were visible prior to the search
+          for (int i = 0; i < searchItem.getComponents().size(); i++) {
+            boolean componentVisible = searchItem.getComponentVisibility().get(i);
+            if (componentVisible) {
+              searchItem.getComponents().get(i).setVisible(true);
+            }
+          }
+        });
+
+    // Disable tabs as needed
+    for (ConfigTab configTab : ConfigTab.values()) {
+      long visibleSearchItemsCount =
+          searchItemsMap
+              .get(configTab)
+              .stream()
+              .filter(SearchItem::isShown)
+              .filter(SearchItem::isSearchable)
+              .count();
+
+      int tabIndex = getTabIndex(configTab);
+
+      // This would only happen if a developer forgets to set a tab title when creating a new tab
+      if (tabIndex != -1) {
+        tabbedPane.setEnabledAt(tabIndex, visibleSearchItemsCount != 0);
+      }
+    }
+
+    // Find the first enabled tab
+    int firstEnabledTab = -1;
+    for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+      if (tabbedPane.isEnabledAt(i)) {
+        firstEnabledTab = i;
+        break;
+      }
+    }
+
+    // Go to first enabled tab
+    if (!searchText.equals("")
+        && firstEnabledTab != -1
+        && !tabbedPane.isEnabledAt(tabbedPane.getSelectedIndex())) {
+      tabbedPane.setSelectedIndex(firstEnabledTab);
+    }
+
+    // Revalidate hierarchy after filtering
+    frame.revalidate();
+    frame.repaint();
+  }
+
+  /**
+   * Space-delimits a provided search string and performs a {@link String#contains(CharSequence)} on
+   * the provided input string
+   *
+   * @param inputText The string being searched
+   * @param searchText The text to search for
+   * @return {@code boolean} value indicating match status
+   */
+  public static boolean tokenizedStringContains(String inputText, String searchText) {
+    return Arrays.stream(searchText.split(" ")).allMatch(inputText::contains);
+  }
+
+  /**
+   * Sets the current search text, which ultimately triggers the {@link #searchTextField}
+   * DocumentListener event and executes {@link #searchComponents()}
+   *
+   * @param text Search text to set
+   */
+  private void setSearchText(String text) {
+    searchTextField.setText(text);
+  }
+
+  /**
+   * Clears the current search text in prepartion for reindexing, setting proper {@link #reindexing}
+   * flag state
+   */
+  private void clearSearchForIndexing() {
+    reindexing = true;
+    setSearchText("");
+  }
+
+  /**
+   * Finds the first component matching the current search text and scrolls to it. When no results
+   * are found, the search is reset.
+   */
+  private void goToSearchResult() {
+    if (searchTextField.getText().equals("")) {
+      return;
+    }
+
+    // Look for first search match
+    Optional<SearchItem> firstVisibleSearchItemOptional =
+        searchItemsMap
+            .get(ConfigTab.values()[tabbedPane.getSelectedIndex()])
+            .stream()
+            .filter(SearchItem::isShown)
+            .filter(SearchItem::isSearchable)
+            .findFirst();
+
+    int previousTabIndex = searchInitiatedTabIndex;
+
+    // Clear search
+    executedGoToSearch = true;
+    setSearchText("");
+
+    // Scroll to the matched item if found, otherwise reset the search
+    if (firstVisibleSearchItemOptional.isPresent()) {
+      SearchItem firstVisibleSearchItem = firstVisibleSearchItemOptional.get();
+
+      int firstVisibleSearchItemTabIndex = getTabIndex(firstVisibleSearchItem.getConfigTab());
+
+      // This would only happen if a developer forgets to set a tab title when creating a new tab
+      // Even so, we don't want the game to crash
+      if (firstVisibleSearchItemTabIndex == -1) {
+        executedGoToSearch = false;
+        tabbedPane.setSelectedIndex(previousTabIndex);
+        setSearchText("");
+        return;
+      }
+
+      final JScrollPane searchItemScrollPane =
+          (JScrollPane) tabbedPane.getComponentAt(firstVisibleSearchItemTabIndex);
+
+      // Scroll a little bit above the matched item
+      Rectangle panelBounds = searchItemScrollPane.getViewport().getComponent(0).getBounds();
+      Rectangle offsetBounds =
+          new Rectangle(panelBounds.x, panelBounds.y - 3, panelBounds.width, panelBounds.height);
+
+      SwingUtilities.invokeLater(
+          () ->
+              ((JComponent) firstVisibleSearchItem.getComponents().get(0))
+                  .scrollRectToVisible(offsetBounds));
+    } else {
+      executedGoToSearch = false;
+      tabbedPane.setSelectedIndex(previousTabIndex);
+      setSearchText("");
+    }
   }
 
   private void setAllSoundeffects(boolean setting) {
@@ -3660,6 +4423,18 @@ public class ConfigWindow {
     QueueWindow.button.setFont(QueueWindow.controlsFont);
     QueueWindow.button.setMargin(new Insets(-2, -7, -2, -7));
   }
+  /**
+   * Alias for {@link #addKeybindSet(JPanel, String, String, KeyModifier, int, String)}, without
+   * search metadata
+   */
+  private void addKeybindSet(
+      JPanel panel,
+      String labelText,
+      String commandID,
+      KeyModifier defaultModifier,
+      int defaultKeyValue) {
+    addKeybindSet(panel, labelText, commandID, defaultModifier, defaultKeyValue, null);
+  }
 
   /**
    * Adds a new keybind to the GUI and settings and registers it to be checked when keypresses are
@@ -3673,14 +4448,19 @@ public class ConfigWindow {
    *     KeybindSet.KeyModifier, eg KeyModifier.CTRL
    * @param defaultKeyValue Default key value. This should match up with a KeyEvent.VK_ value. Set
    *     to -1 to set the default as NONE
+   * @param searchMetadata Additional search metadata to add
    */
   private void addKeybindSet(
       JPanel panel,
       String labelText,
       String commandID,
       KeyModifier defaultModifier,
-      int defaultKeyValue) {
-    addKeybindLabel(panel, labelText);
+      int defaultKeyValue,
+      String searchMetadata) {
+    JLabel l = addKeybindLabel(panel, labelText);
+    if (searchMetadata != null) {
+      SearchUtils.addSearchMetadata(l, searchMetadata);
+    }
     String buttonText = defaultModifier.toString() + " + " + KeyEvent.getKeyText(defaultKeyValue);
     if (defaultKeyValue == -1) buttonText = "NONE";
     JButton b = addKeybindButton(panel, buttonText);
@@ -3692,6 +4472,10 @@ public class ConfigWindow {
     b.addKeyListener(this.rebindListener);
     b.addFocusListener(focusListener);
     b.setFocusable(false);
+
+    // Relate label and button for searching, since they are not within a panel
+    SearchUtils.setRelatedSearchComponent(l, b);
+    SearchUtils.setRelatedSearchComponent(b, l);
 
     // Default KeybindSet
     KeyboardHandler.defaultKeybindSetList.put(
@@ -3780,6 +4564,7 @@ public class ConfigWindow {
 
     panel.add(Box.createVerticalStrut(7), gbc);
     JSeparator jsep = new JSeparator(SwingConstants.HORIZONTAL);
+    SearchUtils.setUnsearchable(jsep);
     panel.add(jsep, gbc);
     panel.add(Box.createVerticalStrut(7), gbc);
   }
@@ -3803,6 +4588,7 @@ public class ConfigWindow {
     gbc.gridwidth = 2;
 
     JLabel jlbl = new JLabel(categoryName);
+    SearchUtils.setUnsearchable(jlbl);
     panel.add(jlbl, gbc);
     return jlbl;
   }
@@ -3826,6 +4612,7 @@ public class ConfigWindow {
   private void addSettingsHeaderSeparator(JPanel panel) {
     JSeparator jsep = new JSeparator(SwingConstants.HORIZONTAL);
     jsep.setMaximumSize(new Dimension(Short.MAX_VALUE, 7));
+    SearchUtils.setUnsearchable(jsep);
     panel.add(jsep);
   }
 
@@ -3838,6 +4625,7 @@ public class ConfigWindow {
    */
   private JLabel addSettingsHeaderLabel(JPanel panel, String categoryName) {
     JLabel jlbl = new JLabel(categoryName);
+    SearchUtils.setUnsearchable(jlbl);
     panel.add(jlbl);
     return jlbl;
   }
@@ -3904,9 +4692,26 @@ public class ConfigWindow {
     scrollPane.getHorizontalScrollBar().setUnitIncrement(horizontalInc);
   }
 
-  /** Synchronizes all relevant values in the gui's elements to match those in Settings.java */
+  /**
+   * Calls {@link #executeSynchronizeGuiValues()}, reindexing components and ensuring it is run from
+   * the EDT
+   */
   public void synchronizeGuiValues() {
+    // Always invoke from the EDT, since this method can be called outside the AWT thread
+    if (SwingUtilities.isEventDispatchThread()) {
+      reindexSearch(this::executeSynchronizeGuiValues);
+    } else {
+      try {
+        SwingUtilities.invokeAndWait(() -> reindexSearch(this::executeSynchronizeGuiValues));
+      } catch (InterruptedException | InvocationTargetException e) {
+        Logger.Error("Please screenshot and report this [synchronizeGuiValues] error!");
+        e.printStackTrace();
+      }
+    }
+  }
 
+  /** Synchronizes all relevant values in the gui's elements to match those in Settings.java */
+  private void executeSynchronizeGuiValues() {
     // Presets tab (has to go first to properly synchronizeGui)
     presetsPanelCustomSettingsCheckbox.setSelected(Settings.currentProfile.equals("custom"));
     synchronizePresetOptions();
@@ -4388,7 +5193,7 @@ public class ConfigWindow {
   }
 
   /** Saves the settings from the GUI values to the settings class variables */
-  public void saveSettings() {
+  private void saveSettings() {
     // General options
     Settings.CUSTOM_CLIENT_SIZE.put(
         Settings.currentProfile, generalPanelClientSizeCheckbox.isSelected());
@@ -4900,7 +5705,7 @@ public class ConfigWindow {
    *
    * @param kbs The KeybindSet object to set the button text of.
    */
-  public static void setKeybindButtonText(KeybindSet kbs) {
+  public void setKeybindButtonText(KeybindSet kbs) {
     kbs.button.setText(kbs.getFormattedKeybindText());
   }
 
@@ -4911,24 +5716,29 @@ public class ConfigWindow {
    * automatically, such as those already present. Also note that thread-unsafe operations affecting
    * the applet should not be done in this method, as this method is invoked by the AWT event queue.
    */
-  public void applySettings() {
-    saveSettings();
-    // Tell the Renderer to update the scale from its thread to avoid thread-safety issues.
-    Settings.renderingScalarUpdateRequired = true;
-    // Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
-    Settings.fovUpdateRequired = true;
-    Settings.checkSoftwareCursor();
-    Camera.setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
-    synchronizeGuiValues();
-    QueueWindow.syncColumnsWithSettings();
-    QueueWindow.playlistTable.repaint();
-    Item.patchItemNames();
-    Item.patchItemCommands();
-    GameApplet.syncFontSetting();
-    SoundEffects.adjustMudClientSfxVolume();
+  private void applySettings() {
+    // Wrap entire function to ensure search is cleared prior to any other executions that may
+    // involve reading from or updating GUI values
+    reindexSearch(
+        () -> {
+          saveSettings();
+          // Tell the Renderer to update the scale from its thread to avoid thread-safety issues.
+          Settings.renderingScalarUpdateRequired = true;
+          // Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
+          Settings.fovUpdateRequired = true;
+          Settings.checkSoftwareCursor();
+          Camera.setDistance(Settings.VIEW_DISTANCE.get(Settings.currentProfile));
+          executeSynchronizeGuiValues();
+          QueueWindow.syncColumnsWithSettings();
+          QueueWindow.playlistTable.repaint();
+          Item.patchItemNames();
+          Item.patchItemCommands();
+          GameApplet.syncFontSetting();
+          SoundEffects.adjustMudClientSfxVolume();
+        });
   }
 
-  public void synchronizePresetOptions() {
+  private void synchronizePresetOptions() {
     if (presetsPanelCustomSettingsCheckbox.isSelected()) {
       if (sliderValue == -1) {
         presetsPanelPresetSlider.setValue(Settings.presetTable.indexOf("default"));
@@ -4945,7 +5755,7 @@ public class ConfigWindow {
     }
   }
 
-  public void addWorldFields(int i) {
+  private void addWorldFields(int i) {
     //// Name line
     worldListTitleTextFieldContainers.put(i, new JPanel());
     worldListTitleTextFieldContainers.get(i).setLayout(new GridBagLayout());
@@ -5020,7 +5830,8 @@ public class ConfigWindow {
                 }
 
                 Logger.Info("Deleting World " + actionCommandWorld);
-                Settings.removeWorld(Integer.parseInt(actionCommandWorld));
+                // Reindex search to account for the altered UI
+                reindexSearch(() -> Settings.removeWorld(Integer.parseInt(actionCommandWorld)));
               }
             });
 
@@ -5121,7 +5932,7 @@ public class ConfigWindow {
     }
   }
 
-  public void addAddWorldButton() {
+  private void addAddWorldButton() {
     JButton addWorldButton = new JButton("Add New World");
     addWorldButton.addActionListener(
         new ActionListener() {
@@ -5129,8 +5940,12 @@ public class ConfigWindow {
           public void actionPerformed(ActionEvent e) {
             worldListPanel.remove(addWorldButton);
             ++Settings.WORLDS_TO_DISPLAY;
-            synchronizeWorldTab();
-            addAddWorldButton();
+            // Reindex search to account for the altered UI
+            reindexSearch(
+                () -> {
+                  synchronizeWorldTab();
+                  addAddWorldButton();
+                });
           }
         });
     worldListPanel.add(addWorldButton);
@@ -5168,6 +5983,33 @@ public class ConfigWindow {
         worldListHiscoresTextFieldContainers
             .get(i)
             .setVisible(Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile));
+
+        // Group all world fields for searching
+        List<Component> worldComponents = new ArrayList<>();
+        worldComponents.addAll(
+            Arrays.asList(worldListTitleTextFieldContainers.get(i).getComponents()));
+        worldComponents.addAll(
+            Arrays.asList(worldListURLPortTextFieldContainers.get(i).getComponents()));
+        worldComponents.addAll(
+            Arrays.asList(worldListRSATextFieldContainers.get(i).getComponents()));
+        worldComponents.addAll(Arrays.asList(worldListSpacingLabels.get(i).getComponents()));
+        if (Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
+          worldComponents.addAll(
+              Arrays.asList(worldListHiscoresTextFieldContainers.get(i).getComponents()));
+        }
+
+        // Add the group to each panel's related search lists
+        SearchUtils.setRelatedSearchComponents(
+            worldListTitleTextFieldContainers.get(i), worldComponents);
+        SearchUtils.setRelatedSearchComponents(
+            worldListURLPortTextFieldContainers.get(i), worldComponents);
+        SearchUtils.setRelatedSearchComponents(
+            worldListRSATextFieldContainers.get(i), worldComponents);
+        SearchUtils.setRelatedSearchComponents(worldListSpacingLabels.get(i), worldComponents);
+        if (Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
+          SearchUtils.setRelatedSearchComponents(
+              worldListHiscoresTextFieldContainers.get(i), worldComponents);
+        }
       } else {
         worldListTitleTextFieldContainers.get(i).setVisible(false);
         worldListURLPortTextFieldContainers.get(i).setVisible(false);
@@ -5179,6 +6021,8 @@ public class ConfigWindow {
   }
 
   public void updateJoystickInput(String compName) {
+    // Note: the joystick input JLabels do not have their search text indexed, as that would be
+    // overkill. As such, we don't need to be worried about reindexing when these get updated.
     joystickInputValueJlabels
         .get(compName)
         .setText(
@@ -5192,121 +6036,654 @@ public class ConfigWindow {
     spinnerWinXModel.setMinimum(updatedMinimumWindowSize.width);
     spinnerWinYModel.setMinimum(updatedMinimumWindowSize.height);
   }
-}
 
-/** Implements ActionListener; to be used for the buttons in the keybinds tab. */
-class ClickListener implements ActionListener {
+  /**
+   * Scans a {@link Container} to recursively find all of its child components
+   *
+   * @param container {@link Container} to scan
+   * @return {@link List} of all found {@link Component}s
+   */
+  public static List<Component> getAllComponents(final Container container) {
+    final Component[] components = container.getComponents();
+    final List<Component> componentList = new ArrayList<>();
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    JButton button = (JButton) e.getSource();
-    button.setText("...");
-    button.setFocusable(true);
-    button.requestFocusInWindow();
+    for (Component component : components) {
+      componentList.add(component);
+      if (component instanceof Container)
+        componentList.addAll(getAllComponents((Container) component));
+    }
+
+    return componentList;
   }
-}
 
-class ButtonFocusListener implements FocusListener {
+  /** Searchable objects cached within the {@link #searchItemsMap} */
+  private static class SearchItem {
+    private final ConfigTab configTab;
+    private final List<Component> components;
+    private final List<Boolean> componentVisibility;
+    private String componentText;
+    private String metadataText;
+    private boolean searchable;
+    private boolean shown;
 
-  @Override
-  public void focusGained(FocusEvent arg0) {}
+    /**
+     * Constructor used when indexing a found {@link JPanel} component
+     *
+     * @param configTab {@link ConfigTab} which owns this object
+     */
+    public SearchItem(ConfigTab configTab) {
+      this.configTab = configTab;
+      this.components = new ArrayList<>();
+      this.componentVisibility = new ArrayList<>();
+      this.componentText = "";
+      this.metadataText = "";
+      this.searchable = true;
+      this.shown = true;
+    }
 
-  @Override
-  public void focusLost(FocusEvent arg0) {
-    JButton button = (JButton) arg0.getSource();
+    /**
+     * Constructor used when indexing all other swing components
+     *
+     * @param configTab {@link ConfigTab} which owns this object
+     * @param component The swing component tied to this object
+     */
+    public SearchItem(ConfigTab configTab, Component component) {
+      this.configTab = configTab;
+      this.components = new ArrayList<>(Collections.singleton(component));
+      this.componentVisibility = new ArrayList<>(Collections.singleton(component.isVisible()));
+      this.componentText = "";
+      this.metadataText = "";
+      this.searchable = true;
+      this.shown = true;
+    }
 
-    for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-      if (button == kbs.button) {
-        ConfigWindow.setKeybindButtonText(kbs);
-        kbs.button.setFocusable(false);
+    /** @return {@link ConfigTab} which owns this object */
+    public ConfigTab getConfigTab() {
+      return this.configTab;
+    }
+
+    /**
+     * Adds a component to the SearchItem, storing its original visibility state
+     *
+     * @param component The swing component to add
+     * @param isVisible {@code boolean} flag indicating original visibility state
+     */
+    public void addComponent(Component component, boolean isVisible) {
+      this.components.add(component);
+      this.componentVisibility.add(isVisible);
+    }
+
+    /** @return a {@link List} of owned swing components */
+    public List<Component> getComponents() {
+      return this.components;
+    }
+
+    /** @return a {@link List} of visibility states tied to each {@link #components} object */
+    public List<Boolean> getComponentVisibility() {
+      return this.componentVisibility;
+    }
+
+    /**
+     * Adds primary searchable text to the SearchItem, derived from component indexing by {@link
+     * SearchUtils#addSearchText}
+     *
+     * @param text {@code String} to add for searching
+     */
+    public void addComponentText(String text) {
+      if (this.componentText.equals("")) {
+        this.componentText = text;
+      } else {
+        this.componentText += " " + text;
+      }
+    }
+
+    /** @return the primary searchable text */
+    public String getComponentText() {
+      return this.componentText;
+    }
+
+    /**
+     * Adds secondary searchable text to the SearchItem which is not derived from normal component
+     * indexing
+     *
+     * @param text {@code String} to add for searching
+     */
+    public void addMetadataText(String text) {
+      if (this.metadataText.equals("")) {
+        this.metadataText = text;
+      } else {
+        this.metadataText += " " + text;
+      }
+    }
+
+    /** @return the secondary searchable text */
+    public String getMetadataText() {
+      return this.metadataText;
+    }
+
+    /**
+     * @return a combination of the primary and secondary searchable text, used for the actual
+     *     searching
+     */
+    public String getSearchText() {
+      return this.componentText + " " + this.metadataText;
+    }
+
+    /**
+     * Sets whether this object should be searchable and hideable
+     *
+     * @param searchable {@code boolean} flag indicating searchability status
+     */
+    public void setSearchable(boolean searchable) {
+      this.searchable = searchable;
+    }
+
+    /** @return searchability state for this SearchItem */
+    public boolean isSearchable() {
+      return this.searchable;
+    }
+
+    /**
+     * Sets whether this object is currently being shown due to search filtering
+     *
+     * @param shown {@code boolean} flag indicating shown status
+     */
+    public void setShown(boolean shown) {
+      this.shown = shown;
+    }
+
+    /** @return {@code boolean} flag indicating shown status */
+    public boolean isShown() {
+      return this.shown;
+    }
+  }
+
+  /** Utility class for performing various search-related operations */
+  private static class SearchUtils {
+    // Constants used for applying swing ClientProperties, name-spaced to prevent conflict with
+    // other libraries
+    private static final String SEARCH_METADATA = "rsc+searchMetaData";
+    private static final String BYPASS_PANEL_GROUPING = "rsc+bypassPanelGrouping";
+    private static final String SKIP_SEARCH_TEXT = "rsc+skipSearchText";
+    private static final String RELATED_SEARCH_COMPONENTS = "rsc+relatedSearchComponent";
+    private static final String UNSEARCHABLE = "rsc+unsearchable";
+
+    /**
+     * Scans a provided {@link Component} object to derive and set various search properties
+     *
+     * @param searchItem {@link SearchItem} instance to set properties on
+     * @param component The swing {@link Component} in context
+     */
+    private static void addSearchProperties(SearchItem searchItem, Component component) {
+      if (isUnsearchable(component)) {
+        searchItem.setSearchable(false);
+      }
+
+      // Don't add search text when it was explicitly excluded
+      if (!shouldSkipSearchText(component)) {
+        addSearchText(searchItem, component, false);
+      }
+    }
+
+    /**
+     * Scans a provided {@link Component} object to derive its searchable text
+     *
+     * @param searchItem {@link SearchItem} instance to set search text on
+     * @param component The swing {@link Component} in context
+     * @param isRelatedComponent {@code boolean} flag indicating whether it's a component related to
+     *     the {@link SearchItem}
+     */
+    private static void addSearchText(
+        SearchItem searchItem, Component component, boolean isRelatedComponent) {
+      if (!component.isVisible()) {
+        return;
+      }
+
+      final String text;
+      final String toolTipText;
+
+      // Add search metadata text
+      String metaText = getSearchMetadata(component);
+
+      // Combine text from all related components for searching
+      if (!isRelatedComponent) { // Prevent infinite recursion when multiple components refer to
+        // each other
+        List<Component> relatedComponents = getRelatedSearchComponents(component);
+
+        if (relatedComponents != null) {
+          relatedComponents.forEach(
+              relatedComponent -> {
+                if (!shouldSkipSearchText(relatedComponent)) {
+                  addSearchText(searchItem, relatedComponent, true);
+                }
+              });
+        }
+      }
+
+      Object componentClass = component.getClass();
+
+      // Extract text from different types of components
+      if (componentClass.equals(JButton.class)) { // JButton
+        text = ((JButton) component).getText();
+        toolTipText = ((JButton) component).getToolTipText();
+      } else if (componentClass.equals(JCheckBox.class)) { // JCheckBox
+        text = ((JCheckBox) component).getText();
+        toolTipText = ((JCheckBox) component).getToolTipText();
+      } else if (componentClass.equals(JComboBox.class)) { // JComboBox
+        StringBuilder textBuilder = new StringBuilder();
+        JComboBox<?> jcb = (JComboBox<?>) component;
+
+        int size = jcb.getItemCount();
+        for (int i = 0; i < size; i++) {
+          textBuilder.append(jcb.getItemAt(i)).append(" ");
+        }
+
+        text = textBuilder.toString();
+        toolTipText = jcb.getToolTipText();
+      } else if (componentClass.equals(JLabel.class)) { // JLabel
+        text = ((JLabel) component).getText();
+        toolTipText = ((JLabel) component).getToolTipText();
+      } else if (componentClass.equals(JPanel.class)) { // JPanel
+        text = null;
+        toolTipText = ((JPanel) component).getToolTipText();
+      } else if (componentClass.equals(JRadioButton.class)) { // JRadioButton
+        text = ((JRadioButton) component).getText();
+        toolTipText = ((JRadioButton) component).getToolTipText();
+      } else if (componentClass.equals(JSlider.class)) { // JSlider
+        StringBuilder textBuilder = new StringBuilder();
+        Enumeration<?> values = ((JSlider) component).getLabelTable().elements();
+
+        while (values.hasMoreElements()) {
+          Object element = values.nextElement();
+          if (element instanceof JLabel) {
+            textBuilder.append(((JLabel) element).getText()).append(" ");
+          }
+        }
+
+        text = textBuilder.toString();
+        toolTipText = ((JSlider) component).getToolTipText();
+      } else if (componentClass.equals(JSpinner.class)) { // JSpinner
+        Object value = ((JSpinner) component).getValue();
+        text = String.valueOf(value);
+        toolTipText = ((JSpinner) component).getToolTipText();
+      } else if (component instanceof JTextField) { // JTextField
+        StringBuilder textBuilder = new StringBuilder();
+        if (componentClass.equals(HintTextField.class)) {
+          textBuilder.append(((HintTextField) component).getHint()).append(" ");
+        }
+
+        // Don't index user-entered values from JPassword fields
+        if (!component.getClass().equals(JPasswordField.class)) {
+          textBuilder.append(((JTextField) component).getText());
+        }
+
+        text = textBuilder.toString();
+        toolTipText = ((JTextField) component).getToolTipText();
+      } else {
+        return;
+      }
+
+      // Remove extraneous text
+      if (text != null && !text.equals("") && !text.trim().equalsIgnoreCase("null")) {
+        searchItem.addComponentText(sanitizeHtml(text));
+      }
+
+      if (toolTipText != null
+          && !toolTipText.equals("")
+          && !toolTipText.trim().equalsIgnoreCase("null")) {
+        searchItem.addComponentText(sanitizeHtml(toolTipText));
+      }
+
+      if (metaText != null && !metaText.equals("") && !metaText.trim().equalsIgnoreCase("null")) {
+        searchItem.addMetadataText(sanitizeHtml(metaText));
+      }
+    }
+
+    /**
+     * Removes all HTML and inline CSS from a provided {@code String}
+     *
+     * @param text The {@code String} to sanitize
+     * @return The resulting sanitized {@code String}
+     */
+    private static String sanitizeHtml(String text) {
+      return Jsoup.parse(text).text();
+    }
+
+    /**
+     * Adds secondary searchable text to a {@link JComponent}, which is ultimately scanned by {@link
+     * #addSearchText(SearchItem, Component, boolean)}.
+     *
+     * <p>This is useful in a couple scenarios:
+     *
+     * <ol>
+     *   <li>When there is a desire to have additional search text on a component than what can be
+     *       automatically scanned or what will be visible to the user, such as different spellings,
+     *       synonyms, or logically-applicable verbiage.
+     *   <li>When automatic scanning cannot pick up on all possible text values, such as
+     *       conditionally-rendered labels.
+     * </ol>
+     *
+     * @param component The {@link JComponent} in context
+     * @param text The {@code String}s of text to add
+     */
+    private static void addSearchMetadata(JComponent component, String... text) {
+      component.putClientProperty(SEARCH_METADATA, String.join(" ", text));
+    }
+
+    /**
+     * Retrieves secondary searchable text from a {@link Component}
+     *
+     * @param component The {@link Component} in context
+     * @return The metadata text
+     */
+    private static String getSearchMetadata(Component component) {
+      try {
+        return (String) ((JComponent) component).getClientProperty(SEARCH_METADATA);
+      } catch (ClassCastException cce) {
+        // All Components are scanned, but only JComponents contain clientProperties
+        return null;
+      }
+    }
+
+    /**
+     * When applied to a {@link JPanel}, this causes all of its children to be indexed individually
+     * rather than grouped together into a single SearchItem. This is useful and important to
+     * consider when you cannot easily group items within a JPanel due to layout restrictions.
+     *
+     * <p>Note: this must be used on a top-level panel within a tab due to the use of JPanels for
+     * grouping components. If needed to be used on a sub-panel, its parent panel must also be
+     * bypassed.
+     *
+     * <p>See the "keybindContainerPanel" for an example.
+     *
+     * @param panel {@link JPanel} component to bypass component grouping for
+     */
+    private static void bypassPanelGrouping(JPanel panel) {
+      panel.putClientProperty(BYPASS_PANEL_GROUPING, true);
+    }
+
+    /**
+     * Retrieves the "bypass panel grouping" status for a provided {@link JPanel}
+     *
+     * @param panel The {@link JPanel} in context
+     * @return {@code boolean} flag indicating whether panel grouping should be bypassed
+     */
+    private static boolean shouldBypassPanelGrouping(JPanel panel) {
+      Boolean bypassPanelGrouping = (Boolean) panel.getClientProperty(BYPASS_PANEL_GROUPING);
+
+      if (bypassPanelGrouping != null) {
+        return bypassPanelGrouping;
+      }
+
+      return false;
+    }
+
+    /**
+     * When applied to a {@link JComponent}, this causes all of its searchable text to be excluded
+     * during indexing, though the component will still be shown when applicable. This is useful,
+     * for example, when long blocks of text in JLabels will result in a vast number of matches,
+     * rendering the dynamic tab-disabling and component hiding less useful.
+     *
+     * <p>Note: if used on a JPanel, it will not automatically apply to all of its children
+     *
+     * @param component The {@link JComponent} in context
+     */
+    private static void skipSearchText(JComponent component) {
+      component.putClientProperty(SKIP_SEARCH_TEXT, true);
+    }
+
+    /**
+     * Retrieves the "search text skipping" status for a provided {@link Component}
+     *
+     * @param component The {@link Component} in context
+     * @return {@code boolean} flag indicating whether search text adding should be skipped
+     */
+    private static boolean shouldSkipSearchText(Component component) {
+      try {
+        Object skipIndexFlag = ((JComponent) component).getClientProperty(SKIP_SEARCH_TEXT);
+
+        if (skipIndexFlag != null) {
+          return (Boolean) skipIndexFlag;
+        }
+
+        return false;
+      } catch (ClassCastException cce) {
+        // All Components are scanned, but only JComponents contain clientProperties
+        return false;
+      }
+    }
+
+    /**
+     * When applied to a {@link JComponent}, this causes the provided {@link Component} to become
+     * "related" during indexing / component scanning, resulting in the addition of its searchable
+     * text to the resulting {@link SearchItem}. This is primarily useful as a workaround for when
+     * multiple components cannot be nicely grouped within a {@link JPanel} due to layout-related
+     * restrictions.
+     *
+     * <p>Note: When adding circular links between multiple components, it is important to do so
+     * after all objects have actually been instantiated.
+     *
+     * @param component The {@link JComponent} in context
+     * @param relatedComponent The related {@link Component} to add
+     */
+    private static void setRelatedSearchComponent(
+        JComponent component, Component relatedComponent) {
+      if (relatedComponent == null) {
+        // The error thrown here is to prevent developer error; it will appear on launch
+        throw new IllegalArgumentException("Must pass an instantiated object");
+      }
+
+      component.putClientProperty(
+          RELATED_SEARCH_COMPONENTS, Collections.singletonList(relatedComponent));
+    }
+
+    /**
+     * Same functionality as {@link #setRelatedSearchComponent(JComponent, Component)}, but
+     * accepting a {@link List} of {@link Component}s to add all at once.
+     *
+     * @param component The {@link JComponent} in context
+     * @param relatedComponentList The {@link List} of related {@link Component}s
+     */
+    private static void setRelatedSearchComponents(
+        JComponent component, List<Component> relatedComponentList) {
+      if (relatedComponentList.stream().anyMatch(Objects::isNull)) {
+        // The error thrown here is to prevent developer error; it will appear on launch
+        throw new IllegalArgumentException("All objects passed must be instantiated");
+      }
+
+      component.putClientProperty(RELATED_SEARCH_COMPONENTS, relatedComponentList);
+    }
+
+    /**
+     * Retrieves the {@link List} of related search components
+     *
+     * @param component The {@link Component} in context
+     * @return the {@link List} of related search components
+     */
+    private static List<Component> getRelatedSearchComponents(Component component) {
+      try {
+        Object relatedComponents =
+            ((JComponent) component).getClientProperty(RELATED_SEARCH_COMPONENTS);
+
+        if (relatedComponents != null) {
+          return (List<Component>) relatedComponents;
+        } else {
+          return null;
+        }
+      } catch (ClassCastException cce) {
+        // All Components are scanned, but only JComponents contain clientProperties
+        return null;
+      }
+    }
+
+    /**
+     * When applied to a {@link JComponent}, the resulting {@link SearchItem} constructed during
+     * indexing will neither be searchable nor hideable. This is useful when there is a desire to
+     * permanently retain certain components within the tab panels during the course of searching,
+     * such as section headers.
+     *
+     * @param component The {@link JComponent} in context
+     */
+    private static void setUnsearchable(JComponent component) {
+      component.putClientProperty(UNSEARCHABLE, true);
+    }
+
+    /**
+     * Retrieves the "unsearchable" status for a provided {@link Component}
+     *
+     * @param component The {@link Component} in context
+     * @return {@code boolean} flag indicating whether the Component should not be searchable
+     */
+    private static boolean isUnsearchable(Component component) {
+      try {
+        Object unsearchableFlag = ((JComponent) component).getClientProperty(UNSEARCHABLE);
+
+        if (unsearchableFlag != null) {
+          return (Boolean) unsearchableFlag;
+        }
+
+        return false;
+      } catch (ClassCastException cce) {
+        // All Components are scanned, but only JComponents contain clientProperties
+        return false;
       }
     }
   }
-}
 
-class RebindListener implements KeyListener {
+  /**
+   * Functional interface for UI-altering method calls to be made during the course of re-indexing.
+   * See {@link #reindexSearch(UIChangeMethod)} for more details.
+   */
+  public interface UIChangeMethod {
+    void execute();
+  }
 
-  @Override
-  public void keyPressed(KeyEvent arg0) {
-    KeyModifier modifier = KeyModifier.NONE;
+  /** Implements ActionListener; to be used for the buttons in the keybinds tab. */
+  private static class ClickListener implements ActionListener {
 
-    if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      JButton button = (JButton) e.getSource();
+      button.setText("...");
+      button.setFocusable(true);
+      button.requestFocusInWindow();
+    }
+  }
+
+  private class ButtonFocusListener implements FocusListener {
+
+    @Override
+    public void focusGained(FocusEvent arg0) {}
+
+    @Override
+    public void focusLost(FocusEvent arg0) {
+      JButton button = (JButton) arg0.getSource();
+
       for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-        if (arg0.getSource() == kbs.button) {
-          kbs.modifier = KeyModifier.NONE;
-          kbs.key = -1;
-          ConfigWindow.setKeybindButtonText(kbs);
+        if (button == kbs.button) {
+          setKeybindButtonText(kbs);
           kbs.button.setFocusable(false);
         }
       }
-      return;
     }
+  }
 
-    if (arg0.getKeyCode() == KeyEvent.VK_CONTROL
-        || arg0.getKeyCode() == KeyEvent.VK_SHIFT
-        || arg0.getKeyCode() == KeyEvent.VK_ALT) {
-      return;
-    }
+  private class RebindListener implements KeyListener {
 
-    if (arg0.isControlDown()) {
-      modifier = KeyModifier.CTRL;
-    } else if (arg0.isShiftDown()) {
-      modifier = KeyModifier.SHIFT;
-    } else if (arg0.isAltDown()) {
-      modifier = KeyModifier.ALT;
-    }
+    @Override
+    public void keyPressed(KeyEvent arg0) {
+      KeyModifier modifier = KeyModifier.NONE;
 
-    int key = arg0.getKeyCode();
-    JButton jbtn = (JButton) arg0.getSource();
+      if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+          if (arg0.getSource() == kbs.button) {
+            reindexSearch(
+                () -> {
+                  kbs.modifier = KeyModifier.NONE;
+                  kbs.key = -1;
+                  setKeybindButtonText(kbs);
+                  kbs.button.setFocusable(false);
+                });
+          }
+        }
+        return;
+      }
 
-    if (key != -1)
+      if (arg0.getKeyCode() == KeyEvent.VK_CONTROL
+          || arg0.getKeyCode() == KeyEvent.VK_SHIFT
+          || arg0.getKeyCode() == KeyEvent.VK_ALT) {
+        return;
+      }
+
+      if (arg0.isControlDown()) {
+        modifier = KeyModifier.CTRL;
+      } else if (arg0.isShiftDown()) {
+        modifier = KeyModifier.SHIFT;
+      } else if (arg0.isAltDown()) {
+        modifier = KeyModifier.ALT;
+      }
+
+      int key = arg0.getKeyCode();
+      JButton jbtn = (JButton) arg0.getSource();
+
+      if (key != -1)
+        for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
+          if ((jbtn != kbs.button) && kbs.isDuplicateKeybindSet(modifier, key)) {
+            jbtn.setText("DUPLICATE!");
+            return;
+          }
+        }
+
+      final KeyModifier reindexModifier = modifier;
+
       for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-        if ((jbtn != kbs.button) && kbs.isDuplicateKeybindSet(modifier, key)) {
-          jbtn.setText("DUPLICATE!");
-          return;
+        if (jbtn == kbs.button) {
+          reindexSearch(
+              () -> {
+                kbs.modifier = reindexModifier;
+                kbs.key = key;
+                setKeybindButtonText(kbs);
+                kbs.button.setFocusable(false);
+              });
         }
       }
+    }
 
-    for (KeybindSet kbs : KeyboardHandler.keybindSetList) {
-      if (jbtn == kbs.button) {
-        kbs.modifier = modifier;
-        kbs.key = key;
-        ConfigWindow.setKeybindButtonText(kbs);
-        kbs.button.setFocusable(false);
+    @Override
+    public void keyReleased(KeyEvent arg0) {}
+
+    @Override
+    public void keyTyped(KeyEvent arg0) {}
+  }
+
+  private static class HintTextField extends JTextField {
+    public HintTextField(String hint) {
+      _hint = hint;
+    }
+
+    @Override
+    public void paint(Graphics g) {
+      super.paint(g);
+      if (getText().length() == 0) {
+        int h = getHeight();
+        ((Graphics2D) g)
+            .setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        Insets ins = getInsets();
+        FontMetrics fm = g.getFontMetrics();
+        int c0 = getBackground().getRGB();
+        int c1 = getForeground().getRGB();
+        int m = 0xfefefefe;
+        int c2 = ((c0 & m) >>> 1) + ((c1 & m) >>> 1);
+        g.setColor(new Color(c2, true));
+        g.drawString(_hint, ins.left, h / 2 + fm.getAscent() / 2 - 2);
       }
     }
-  }
 
-  @Override
-  public void keyReleased(KeyEvent arg0) {}
+    private final String _hint;
 
-  @Override
-  public void keyTyped(KeyEvent arg0) {}
-}
-
-class HintTextField extends JTextField {
-  public HintTextField(String hint) {
-    _hint = hint;
-  }
-
-  @Override
-  public void paint(Graphics g) {
-    super.paint(g);
-    if (getText().length() == 0) {
-      int h = getHeight();
-      ((Graphics2D) g)
-          .setRenderingHint(
-              RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-      Insets ins = getInsets();
-      FontMetrics fm = g.getFontMetrics();
-      int c0 = getBackground().getRGB();
-      int c1 = getForeground().getRGB();
-      int m = 0xfefefefe;
-      int c2 = ((c0 & m) >>> 1) + ((c1 & m) >>> 1);
-      g.setColor(new Color(c2, true));
-      g.drawString(_hint, ins.left, h / 2 + fm.getAscent() / 2 - 2);
+    public String getHint() {
+      return _hint;
     }
   }
-
-  private final String _hint;
 }
