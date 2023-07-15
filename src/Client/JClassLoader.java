@@ -30,6 +30,10 @@ public class JClassLoader extends ClassLoader {
   /** Stores class names and the corresponding class byte data */
   private final Map<String, byte[]> m_classData = new HashMap<>();
 
+  protected JClassLoader(ClassLoader parentClassLoader) {
+    super(parentClassLoader);
+  }
+
   /**
    * Fetches the game jar and loads and patches the classes
    *
