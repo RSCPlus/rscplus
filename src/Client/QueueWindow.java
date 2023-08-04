@@ -20,6 +20,8 @@ package Client;
 
 import static javax.swing.JComponent.WHEN_FOCUSED;
 
+import Game.Replay;
+import Game.ReplayQueue;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -38,29 +40,25 @@ import java.util.List;
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
 import javax.swing.*;
-//import javax.swing.ToolTipManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.*;
-import Game.Replay;
-import Game.ReplayQueue;
 
-/**
- * GUI designed for the RSCPlus client that manages the replay playlist queue
- */
+/** GUI designed for the RSCPlus client that manages the replay playlist queue */
 public class QueueWindow {
   static JTable playlistTable = new JTable(new PlaylistModel());
   static PlaylistModel model = (PlaylistModel) playlistTable.getModel();
   static JLabel replayCountLabel = new JLabel("0 replays");
-  static private JFrame frame;
-  static public JButton button;
-  static public Font controlsFont;
-  static private String editValue = "@:/@";
-  static private boolean editingEnabled = false;
-  static private boolean reorderIsPointless = true; //helper bool to stop copyTableToQueue if nothing in table has changed
+  private static JFrame frame;
+  public static JButton button;
+  public static Font controlsFont;
+  private static String editValue = "@:/@";
+  private static boolean editingEnabled = false;
+  private static boolean reorderIsPointless =
+      true; // helper bool to stop copyTableToQueue if nothing in table has changed
   static TableColumn serverCol;
   static TableColumn converterSettingsCol;
   static TableColumn userFieldCol;
@@ -74,7 +72,7 @@ public class QueueWindow {
           UIManager.setLookAndFeel(info.getClassName());
           NimbusLookAndFeel laf = (NimbusLookAndFeel) UIManager.getLookAndFeel();
           laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
-          laf.getDefaults().put("Table.alternateRowColor", new Color(230,230,255));
+          laf.getDefaults().put("Table.alternateRowColor", new Color(230, 230, 255));
           break;
         }
       }
@@ -119,7 +117,7 @@ public class QueueWindow {
       e.printStackTrace();
     }
   }
-	
+
   private static void controlsFontInit() {
     String uppermostChar = "\uD83D\uDD00";
     String currentFontName = "";
@@ -151,8 +149,8 @@ public class QueueWindow {
   private static void runInit() {
     controlsFontInit();
 
-    //ToolTipManager.sharedInstance().setInitialDelay(0);
-    //ToolTipManager.sharedInstance().setDismissDelay(500);
+    // ToolTipManager.sharedInstance().setInitialDelay(0);
+    // ToolTipManager.sharedInstance().setDismissDelay(500);
     frame = new JFrame();
     frame.setTitle("ıllıllı [ Replay Queue ] ıllıllı");
     frame.setBounds(100, 100, 800, 580);
@@ -192,59 +190,87 @@ public class QueueWindow {
     serverCol = playlistTable.getColumnModel().getColumn(6);
     converterSettingsCol = playlistTable.getColumnModel().getColumn(7);
     userFieldCol = playlistTable.getColumnModel().getColumn(8);
-    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
-      @Override
-      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-          super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-          setHorizontalAlignment(JLabel.CENTER);
-          return this;
-      }
-    };
-    DefaultTableCellRenderer dateRenderer = new DefaultTableCellRenderer() {
-      @Override
-      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        setHorizontalAlignment(JLabel.CENTER);
-        try {
-          if (Settings.PREFERRED_DATE_FORMAT.get(Settings.currentProfile).trim().length() > 0) {
-            this.setText(new SimpleDateFormat(Settings.PREFERRED_DATE_FORMAT.get(Settings.currentProfile)).format(value));
-          } else {
-            this.setText(new SimpleDateFormat(Settings.PREFERRED_DATE_FORMAT.get("default")).format(value));
+    DefaultTableCellRenderer centerRenderer =
+        new DefaultTableCellRenderer() {
+          @Override
+          public Component getTableCellRendererComponent(
+              JTable table,
+              Object value,
+              boolean isSelected,
+              boolean hasFocus,
+              int row,
+              int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(JLabel.CENTER);
+            return this;
           }
-        } catch (IllegalArgumentException e) {
-          this.setText(new SimpleDateFormat(Settings.PREFERRED_DATE_FORMAT.get("default")).format(value));
-          Logger.Warn("The date string you provided in the Replay Settings tab is invalid: ");
-          Logger.Warn(e.toString());
-        }
-        return this;
-      }
-    };
-    DefaultTableCellRenderer timesliceRenderer = new DefaultTableCellRenderer() {
-      @Override
-      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        setHorizontalAlignment(JLabel.CENTER);
+        };
+    DefaultTableCellRenderer dateRenderer =
+        new DefaultTableCellRenderer() {
+          @Override
+          public Component getTableCellRendererComponent(
+              JTable table,
+              Object value,
+              boolean isSelected,
+              boolean hasFocus,
+              int row,
+              int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(JLabel.CENTER);
+            try {
+              if (Settings.PREFERRED_DATE_FORMAT.get(Settings.currentProfile).trim().length() > 0) {
+                this.setText(
+                    new SimpleDateFormat(
+                            Settings.PREFERRED_DATE_FORMAT.get(Settings.currentProfile))
+                        .format(value));
+              } else {
+                this.setText(
+                    new SimpleDateFormat(Settings.PREFERRED_DATE_FORMAT.get("default"))
+                        .format(value));
+              }
+            } catch (IllegalArgumentException e) {
+              this.setText(
+                  new SimpleDateFormat(Settings.PREFERRED_DATE_FORMAT.get("default"))
+                      .format(value));
+              Logger.Warn("The date string you provided in the Replay Settings tab is invalid: ");
+              Logger.Warn(e.toString());
+            }
+            return this;
+          }
+        };
+    DefaultTableCellRenderer timesliceRenderer =
+        new DefaultTableCellRenderer() {
+          @Override
+          public Component getTableCellRendererComponent(
+              JTable table,
+              Object value,
+              boolean isSelected,
+              boolean hasFocus,
+              int row,
+              int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(JLabel.CENTER);
 
-        this.setText(Util.formatTimeLongShort((int)value));
+            this.setText(Util.formatTimeLongShort((int) value));
 
-        return this;
-      }
-    };
+            return this;
+          }
+        };
     DefaultTableCellRenderer cutoffLeftRenderer = new CutoffLeftRenderer();
 
-    //get "previous" value of cell being edited
-    playlistTable.addPropertyChangeListener(new PropertyChangeListener() {
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-          Object ob = evt.getNewValue();
-          if (evt.getPropertyName().equals("tableCellEditor") && ob != null)  {
-            if (ob instanceof DefaultCellEditor) {
-              editValue = ((JTextField)((DefaultCellEditor)ob).getComponent()).getText();
+    // get "previous" value of cell being edited
+    playlistTable.addPropertyChangeListener(
+        new PropertyChangeListener() {
+          @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            Object ob = evt.getNewValue();
+            if (evt.getPropertyName().equals("tableCellEditor") && ob != null) {
+              if (ob instanceof DefaultCellEditor) {
+                editValue = ((JTextField) ((DefaultCellEditor) ob).getComponent()).getText();
+              }
             }
           }
-        }
-      }
-    );
+        });
 
     // center table headers
     JTableHeader header = playlistTable.getTableHeader();
@@ -301,27 +327,26 @@ public class QueueWindow {
     // =====================
     navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
     addButton("Reorder", navigationPanel, Component.LEFT_ALIGNMENT)
-            .addActionListener(
-                    new ActionListener() {
-                      @Override
-                      public void actionPerformed(ActionEvent e) {
-                        copyTableToQueue();
-                        ReplayQueue.skipped = false;
-                        reorderIsPointless = true;
-                      }
-                    });
-
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                copyTableToQueue();
+                ReplayQueue.skipped = false;
+                reorderIsPointless = true;
+              }
+            });
 
     addButton("Clear Queue", navigationPanel, Component.LEFT_ALIGNMENT)
-            .addActionListener(
-                    new ActionListener() {
-                      @Override
-                      public void actionPerformed(ActionEvent e) {
-                        ReplayQueue.clearQueue();
-                        QueueWindow.copyQueueToTable();
-                        model.fireTableDataChanged();
-                      }
-                    });
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                ReplayQueue.clearQueue();
+                QueueWindow.copyQueueToTable();
+                model.fireTableDataChanged();
+              }
+            });
 
     navigationPanel.add(Box.createHorizontalGlue());
 
@@ -329,33 +354,35 @@ public class QueueWindow {
     navigationPanel.add(windowHeader);
     windowHeader.setAlignmentY(Component.CENTER_ALIGNMENT);
     windowHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-    windowHeader.setFont(new Font("",Font.TRUETYPE_FONT,24));
+    windowHeader.setFont(new Font("", Font.TRUETYPE_FONT, 24));
     windowHeader.setBorder(new EmptyBorder(0, 2, 0, 2));
 
     navigationPanel.add(Box.createHorizontalGlue());
 
     addButton("Rename", navigationPanel, Component.LEFT_ALIGNMENT)
-            .addActionListener(
-                    new ActionListener() {
-                      @Override
-                      public void actionPerformed(ActionEvent e) {
-                        editingEnabled = !editingEnabled;
-                        if (editingEnabled) {
-                          Logger.Info("@|green Toggled On:|@ Replays can now be renamed by double clicking the \"Replay Name\" column or by single clicking that column and pressing F2.");
-                        } else {
-                          Logger.Info("@|green Toggled Off:|@ You can now double click anywhere in each row to switch to that replay");
-                        }
-                      }
-                    });
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                editingEnabled = !editingEnabled;
+                if (editingEnabled) {
+                  Logger.Info(
+                      "@|green Toggled On:|@ Replays can now be renamed by double clicking the \"Replay Name\" column or by single clicking that column and pressing F2.");
+                } else {
+                  Logger.Info(
+                      "@|green Toggled Off:|@ You can now double click anywhere in each row to switch to that replay");
+                }
+              }
+            });
 
     addButton("Exit", navigationPanel, Component.RIGHT_ALIGNMENT)
-            .addActionListener(
-                    new ActionListener() {
-                      @Override
-                      public void actionPerformed(ActionEvent e) {
-                        Launcher.getQueueWindow().hideQueueWindow();
-                      }
-                    });
+        .addActionListener(
+            new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                Launcher.getQueueWindow().hideQueueWindow();
+              }
+            });
     // </add navpanel buttons>
     // <add musicplayerpanel buttons>
     // ⏮ ⏪ ⏯ ⏩ ⏭ ◼ ======================= 🔀
@@ -368,73 +395,72 @@ public class QueueWindow {
 
     formatButton("⏮");
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Replay.controlPlayback("prev");
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Replay.controlPlayback("prev");
+          }
+        });
     c.gridx = 0;
     musicPlayerPanel.add(button, c);
 
     formatButton("⏪");
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Replay.controlPlayback("ff_minus");
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Replay.controlPlayback("ff_minus");
+          }
+        });
     c.gridx = 1;
     musicPlayerPanel.add(button, c);
 
     formatButton("⏯");
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Replay.togglePause();
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Replay.togglePause();
+          }
+        });
     c.gridx = 2;
     musicPlayerPanel.add(button, c);
 
     formatButton("⏩");
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Replay.controlPlayback("ff_plus");
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Replay.controlPlayback("ff_plus");
+          }
+        });
     c.gridx = 3;
     musicPlayerPanel.add(button, c);
 
     formatButton("⏭");
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Replay.controlPlayback("next");
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Replay.controlPlayback("next");
+          }
+        });
     c.gridx = 4;
     musicPlayerPanel.add(button, c);
 
-
     c.anchor = GridBagConstraints.LINE_END;
-    formatButton("\uD83D\uDD00"); //🔀
+    formatButton("\uD83D\uDD00"); // 🔀
     button.addActionListener(
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                int size = ReplayQueue.queue.size();
-                if (size > 0) {
-                  Random rand = new Random(); //random enough
-                  ReplayQueue.skipToReplay(rand.nextInt(size));
-                }
-              }
-            });
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            int size = ReplayQueue.queue.size();
+            if (size > 0) {
+              Random rand = new Random(); // random enough
+              ReplayQueue.skipToReplay(rand.nextInt(size));
+            }
+          }
+        });
     c.gridx = 10;
     musicPlayerPanel.add(button, c);
 
@@ -449,8 +475,6 @@ public class QueueWindow {
     musicPlayerPanel.add(blank, c);
     // </add musicplayerpanel buttons>
 
-
-
     // padding for aesthetics
     navigationPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     playlistPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -461,105 +485,120 @@ public class QueueWindow {
     frame.getContentPane().add(musicPlayerPanel, BorderLayout.PAGE_END);
 
     // add double-click to switch to replay functionality
-    playlistTable.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent mouseEvent) {
-        int row = playlistTable.rowAtPoint(mouseEvent.getPoint());
-        int column = playlistTable.columnAtPoint(mouseEvent.getPoint());
-        if (mouseEvent.getClickCount() == 2 && playlistTable.getSelectedRow() != -1 && !playlistTable.isCellEditable(row, column)) {
-          ReplayQueue.skipToReplay(playlistTable.getRowSorter().convertRowIndexToModel(row));
-        }
-      }
-    });
+    playlistTable.addMouseListener(
+        new MouseAdapter() {
+          public void mousePressed(MouseEvent mouseEvent) {
+            int row = playlistTable.rowAtPoint(mouseEvent.getPoint());
+            int column = playlistTable.columnAtPoint(mouseEvent.getPoint());
+            if (mouseEvent.getClickCount() == 2
+                && playlistTable.getSelectedRow() != -1
+                && !playlistTable.isCellEditable(row, column)) {
+              ReplayQueue.skipToReplay(playlistTable.getRowSorter().convertRowIndexToModel(row));
+            }
+          }
+        });
 
     // listener for updating label of how many rows are selected
-    playlistTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-      @Override
-      public void valueChanged(ListSelectionEvent e) {
-        updateReplayCountLabel();
-      }
-    });
+    playlistTable
+        .getSelectionModel()
+        .addListSelectionListener(
+            new ListSelectionListener() {
+              @Override
+              public void valueChanged(ListSelectionEvent e) {
+                updateReplayCountLabel();
+              }
+            });
 
     // add functionality to delete replays with the delete key
     InputMap inputMap = playlistTable.getInputMap(WHEN_FOCUSED);
     ActionMap actionMap = playlistTable.getActionMap();
     inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "delete");
-    actionMap.put("delete", new AbstractAction() {
-      public void actionPerformed(ActionEvent evt) {
-        int[] selectedRows = playlistTable.getSelectedRows();
-        int[] selectedRowsConverted = new int[selectedRows.length];
+    actionMap.put(
+        "delete",
+        new AbstractAction() {
+          public void actionPerformed(ActionEvent evt) {
+            int[] selectedRows = playlistTable.getSelectedRows();
+            int[] selectedRowsConverted = new int[selectedRows.length];
 
-        if (reorderIsPointless) {
-          // this is just for speed, convertRowIndexToModel would still work
-          selectedRowsConverted = selectedRows;
-        } else {
-          for (int i = 0; i < selectedRows.length; i++) {
-            selectedRowsConverted[i] = playlistTable.getRowSorter().convertRowIndexToModel(selectedRows[i]);
+            if (reorderIsPointless) {
+              // this is just for speed, convertRowIndexToModel would still work
+              selectedRowsConverted = selectedRows;
+            } else {
+              for (int i = 0; i < selectedRows.length; i++) {
+                selectedRowsConverted[i] =
+                    playlistTable.getRowSorter().convertRowIndexToModel(selectedRows[i]);
+              }
+              Arrays.sort(selectedRowsConverted);
+            }
+
+            for (int i = selectedRowsConverted.length - 1; i >= 0; i--) {
+              ReplayQueue.removeReplay((int) model.getValueAt(selectedRowsConverted[i], 1) - 1);
+              model.removeRow(selectedRowsConverted[i]);
+            }
+
+            if (selectedRows.length > 0) {
+              // update second column
+              for (int i = 0; i < model.getRowCount(); i++) {
+                model.setValueAt(new Integer(i + 1), i, 1);
+              }
+            }
           }
-          Arrays.sort(selectedRowsConverted);
-        }
-
-        for (int i = selectedRowsConverted.length - 1; i >= 0; i--) {
-          ReplayQueue.removeReplay((int)model.getValueAt(selectedRowsConverted[i], 1) - 1);
-          model.removeRow(selectedRowsConverted[i]);
-        }
-
-        if (selectedRows.length > 0) {
-          // update second column
-          for (int i = 0; i < model.getRowCount(); i++) {
-            model.setValueAt(new Integer(i+1),i,1);
-          }
-        }
-      }
-    });
+        });
 
     // add functionality to go back to unsorted mode by clicking three times on the header
     playlistTable.setRowSorter(new TableRowSorter(model));
 
     // Add MouseListener for onClick event
-    playlistTable.getTableHeader().addMouseListener(new MouseAdapter() {
-      private SortOrder currentOrder = SortOrder.UNSORTED;
-      private int lastCol = -1;
+    playlistTable
+        .getTableHeader()
+        .addMouseListener(
+            new MouseAdapter() {
+              private SortOrder currentOrder = SortOrder.UNSORTED;
+              private int lastCol = -1;
 
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        int column = playlistTable.getTableHeader().columnAtPoint(e.getPoint());
-        RowSorter sorter = playlistTable.getRowSorter();
+              @Override
+              public void mouseClicked(MouseEvent e) {
+                int column = playlistTable.getTableHeader().columnAtPoint(e.getPoint());
+                RowSorter sorter = playlistTable.getRowSorter();
 
-        if (column != lastCol) {
-          currentOrder = SortOrder.UNSORTED;
-          lastCol = column;
-        }
+                if (column != lastCol) {
+                  currentOrder = SortOrder.UNSORTED;
+                  lastCol = column;
+                }
 
-        for (RowSorter.SortKey sortKey : playlistTable.getRowSorter().getSortKeys()) {
-          if (sortKey.getColumn() != column) {
-            currentOrder = SortOrder.UNSORTED;
-          }
-          break;
-        }
-        if (reorderIsPointless) {
-          currentOrder = SortOrder.UNSORTED;
-        }
+                for (RowSorter.SortKey sortKey : playlistTable.getRowSorter().getSortKeys()) {
+                  if (sortKey.getColumn() != column) {
+                    currentOrder = SortOrder.UNSORTED;
+                  }
+                  break;
+                }
+                if (reorderIsPointless) {
+                  currentOrder = SortOrder.UNSORTED;
+                }
 
-        List sortKeys = new ArrayList();
-        if (e.getButton() == MouseEvent.BUTTON1) {
-          switch (currentOrder) {
-            case UNSORTED:
-              reorderIsPointless = false;
-              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.ASCENDING));
-              break;
-            case ASCENDING:
-              reorderIsPointless = false;
-              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.DESCENDING));
-              break;
-            case DESCENDING:
-              reorderIsPointless = true;
-              sortKeys.add(new RowSorter.SortKey(column, currentOrder = SortOrder.UNSORTED));
-              break;
-          }
-          sorter.setSortKeys(sortKeys);
-        }
-      }
-    });
+                List sortKeys = new ArrayList();
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                  switch (currentOrder) {
+                    case UNSORTED:
+                      reorderIsPointless = false;
+                      sortKeys.add(
+                          new RowSorter.SortKey(column, currentOrder = SortOrder.ASCENDING));
+                      break;
+                    case ASCENDING:
+                      reorderIsPointless = false;
+                      sortKeys.add(
+                          new RowSorter.SortKey(column, currentOrder = SortOrder.DESCENDING));
+                      break;
+                    case DESCENDING:
+                      reorderIsPointless = true;
+                      sortKeys.add(
+                          new RowSorter.SortKey(column, currentOrder = SortOrder.UNSORTED));
+                      break;
+                  }
+                  sorter.setSortKeys(sortKeys);
+                }
+              }
+            });
 
     /*
     presetsScrollPane.setViewportView(presetsPanel);
@@ -587,7 +626,8 @@ public class QueueWindow {
 
     if (Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile)) {
       if (serverColView == -1) {
-        // Must remove columns ahead, because addColumn only supports adding to the end without destroying existing TableColumn
+        // Must remove columns ahead, because addColumn only supports adding to the end without
+        // destroying existing TableColumn
         if (conversionColView != -1) {
           playlistTable.removeColumn(converterSettingsCol);
         }
@@ -636,21 +676,22 @@ public class QueueWindow {
   public static void copyQueueToTable() {
     Logger.Debug("copyQueueToTable called");
     model.getDataVector().removeAllElements();
-    for (int i=0; i < ReplayQueue.queue.size(); i++) {
+    for (int i = 0; i < ReplayQueue.queue.size(); i++) {
       String replayFolder = ReplayQueue.queue.get(i).getAbsolutePath();
       Object[] metadata = Replay.readMetadata(replayFolder);
 
-      model.addRow(new Object[] {
-              ReplayQueue.currentIndex - 1 == i ? "▶" : "",
-              new Integer(i+1),
-              new File(replayFolder).getParent(),
-              ReplayQueue.queue.get(i).getName(),
-              new Integer((int)metadata[0]),
-              new Date((long)metadata[1]),
-              metadata[2],
-              new Integer((byte)metadata[3]),
-              new Integer((int)metadata[4])
-      });
+      model.addRow(
+          new Object[] {
+            ReplayQueue.currentIndex - 1 == i ? "▶" : "",
+            new Integer(i + 1),
+            new File(replayFolder).getParent(),
+            ReplayQueue.queue.get(i).getName(),
+            new Integer((int) metadata[0]),
+            new Date((long) metadata[1]),
+            metadata[2],
+            new Integer((byte) metadata[3]),
+            new Integer((int) metadata[4])
+          });
     }
     updateReplayCountLabel();
   }
@@ -668,7 +709,8 @@ public class QueueWindow {
     ReplayQueue.clearQueue();
     for (int i = 0; i < size; i++) {
       int row = playlistTable.getRowSorter().convertRowIndexToModel(i);
-      ReplayQueue.queue.add(new File((String)model.getValueAt(row, 2),(String)model.getValueAt(row, 3)));
+      ReplayQueue.queue.add(
+          new File((String) model.getValueAt(row, 2), (String) model.getValueAt(row, 3)));
     }
 
     // display newly reordered data in table
@@ -678,12 +720,10 @@ public class QueueWindow {
   }
 
   public static void updatePlaying() {
-    if (model.getRowCount() >= ReplayQueue.lastIndex &&
-            ReplayQueue.lastIndex >=1) {
+    if (model.getRowCount() >= ReplayQueue.lastIndex && ReplayQueue.lastIndex >= 1) {
       model.setValueAt("", ReplayQueue.lastIndex - 1, 0);
     }
-    if (model.getRowCount() >= ReplayQueue.currentIndex &&
-            ReplayQueue.currentIndex >= 1) {
+    if (model.getRowCount() >= ReplayQueue.currentIndex && ReplayQueue.currentIndex >= 1) {
       if (Replay.isPlaying) {
         model.setValueAt("▶", ReplayQueue.currentIndex - 1, 0);
       } else {
@@ -696,7 +736,6 @@ public class QueueWindow {
     frame.dispose();
   }
 
-
   public static interface Reorderable {
     public void reorder(int toIndex, int[] selectedRows);
   }
@@ -704,26 +743,29 @@ public class QueueWindow {
   static class PlaylistModel extends DefaultTableModel implements Reorderable {
 
     // Handle Columns
-    private String[] columnNames = {"▶", //is the currently selected replay or not
-            "#", //position the replay is in the replay queue
-            "Folder Path", //folder containing replay folder
-            "Replay Name", //replay folder name
-            "Length", //how long the replay plays for
-            "Date Modified", //date modified of keys.bin
-            "World",
-            "Conversion Settings",
-            "User Field"};
+    private String[] columnNames = {
+      "▶", // is the currently selected replay or not
+      "#", // position the replay is in the replay queue
+      "Folder Path", // folder containing replay folder
+      "Replay Name", // replay folder name
+      "Length", // how long the replay plays for
+      "Date Modified", // date modified of keys.bin
+      "World",
+      "Conversion Settings",
+      "User Field"
+    };
 
     public int getColumnCount() {
       return columnNames.length;
     }
+
     public String getColumnName(int col) {
       return columnNames[col];
     }
 
     @Override
     public boolean isCellEditable(int row, int col) {
-      if (col == 3 && editingEnabled) { //Replay Name Column
+      if (col == 3 && editingEnabled) { // Replay Name Column
         return true;
       }
       return false;
@@ -734,30 +776,41 @@ public class QueueWindow {
       if (col == 3) {
         String afterEditValue = (String) model.getValueAt(row, col);
 
-        //rename folder
+        // rename folder
         if (afterEditValue.indexOf('/') == -1) {
           if (!editValue.equals(afterEditValue) && !editValue.equals("@:/@")) {
             File renamedFile = new File(ReplayQueue.queue.get(row).getParent(), afterEditValue);
             Logger.Debug("We'd like to rename to: " + renamedFile.getAbsolutePath());
             if (!ReplayQueue.queue.get(row).renameTo(renamedFile)) {
-              Logger.Warn("@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
+              Logger.Warn(
+                  "@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
               if (System.getProperty("os.name").contains("Windows")) {
                 if (afterEditValue.matches(".*[?%*:|\"<>]")) {
-                  Logger.Warn(String.format("@|yellow You're on Windows and you tried to use a restricted character in your desired filename: |@@|red %s|@", afterEditValue));
+                  Logger.Warn(
+                      String.format(
+                          "@|yellow You're on Windows and you tried to use a restricted character in your desired filename: |@@|red %s|@",
+                          afterEditValue));
                 } else {
-                  Logger.Warn("@|yellow Probably this is because you're |@@|red using Windows |@@|yellow and Windows locks the replay files while they are in use. There are workarounds, but my advice is to |@@|green use Debian!|@");
-                  Logger.Warn("@|yellow You can also try just advancing to the next replay, in order to name the replay you're currently watching, if you would like to stop watching this replay at this time.|@");
+                  Logger.Warn(
+                      "@|yellow Probably this is because you're |@@|red using Windows |@@|yellow and Windows locks the replay files while they are in use. There are workarounds, but my advice is to |@@|green use Debian!|@");
+                  Logger.Warn(
+                      "@|yellow You can also try just advancing to the next replay, in order to name the replay you're currently watching, if you would like to stop watching this replay at this time.|@");
                 }
               }
               copyQueueToTable();
             } else {
-              //Instances of the File class are immutable, so after calling renameTo, we must update the pathname to the new one
+              // Instances of the File class are immutable, so after calling renameTo, we must
+              // update the pathname to the new one
               ReplayQueue.queue.set(row, renamedFile);
-              Logger.Info(String.format("Renamed @|green %s|@ to @|cyan %s|@", editValue, afterEditValue));
+              Logger.Info(
+                  String.format("Renamed @|green %s|@ to @|cyan %s|@", editValue, afterEditValue));
             }
           }
         } else {
-          Logger.Warn(String.format("@|yellow RSC+ is not programmed to rename folders into subdirectories. Your offending filename: |@@|red %s|@",afterEditValue));
+          Logger.Warn(
+              String.format(
+                  "@|yellow RSC+ is not programmed to rename folders into subdirectories. Your offending filename: |@@|red %s|@",
+                  afterEditValue));
           copyQueueToTable();
         }
         editValue = "@:/@";
@@ -785,7 +838,7 @@ public class QueueWindow {
     // Handle Rows
     public void addRow(Object[] rowData) {
       Vector<Object> rowVector = new Vector<>();
-      for (int i=0; i < getColumnCount(); i++) {
+      for (int i = 0; i < getColumnCount(); i++) {
         rowVector.add(rowData[i]);
       }
       super.addRow(rowVector);
@@ -793,15 +846,14 @@ public class QueueWindow {
 
     public void insertRow(int i, Object[] rowData) {
       Vector<Object> rowVector = new Vector<>();
-      for (int j=0; j < getColumnCount(); j++)
-        rowVector.add(rowData[j]);
+      for (int j = 0; j < getColumnCount(); j++) rowVector.add(rowData[j]);
       super.insertRow(i, rowVector);
     }
 
     public Object[] getRow(int i) {
       Object[] thisRow = new Object[getRowCount()];
 
-      for (int j=0; j < getColumnCount(); j++) {
+      for (int j = 0; j < getColumnCount(); j++) {
         if (getRowCount() >= i) {
           thisRow[j] = getValueAt(i, j);
         } else {
@@ -826,7 +878,7 @@ public class QueueWindow {
     public void reorder(int toIndex, int[] rowFroms) {
       playlistTable.clearSelection();
 
-      //check to see if the drop is a valid move or not
+      // check to see if the drop is a valid move or not
       for (int i = 0; i < rowFroms.length; i++) {
         if (rowFroms[i] == toIndex) {
           Logger.Debug("Refusing to move rows into themselves");
@@ -838,14 +890,14 @@ public class QueueWindow {
         return;
       }
 
-      //move the rows
+      // move the rows
       for (int i = 0; i < rowFroms.length; i++) {
         if (rowFroms[i] < toIndex) {
-          //row moving forward, nothing needs to change b/c reference always shifting
+          // row moving forward, nothing needs to change b/c reference always shifting
           insertRow(toIndex, getRow(rowFroms[0]));
           removeRow(rowFroms[0]);
         } else {
-          //row moving backward, rowFrom moved
+          // row moving backward, rowFrom moved
           insertRow(toIndex + i, getRow(rowFroms[i]));
           removeRow(rowFroms[i] + 1);
         }
@@ -855,7 +907,6 @@ public class QueueWindow {
       ReplayQueue.skipped = false;
       reorderIsPointless = true;
     }
-
   }
 
   // necessary to be able to center the headers with the same look and feel
@@ -863,22 +914,25 @@ public class QueueWindow {
     DefaultTableCellRenderer renderer;
 
     public HeaderRenderer(JTable table) {
-      renderer = (DefaultTableCellRenderer)
-      table.getTableHeader().getDefaultRenderer();
+      renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
       renderer.setHorizontalAlignment(JLabel.CENTER);
     }
 
     @Override
     public Component getTableCellRendererComponent(
-            JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
       return renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
     }
   }
 
   // handles drag & drop row reordering
   public static class TableRowTransferHandler extends TransferHandler {
-    private final DataFlavor localObjectFlavor = new ActivationDataFlavor(Integer.class, "application/x-java-Integer;class=java.lang.Integer", "Integer Row Index");
-    private JTable           table             = null;
+    private final DataFlavor localObjectFlavor =
+        new ActivationDataFlavor(
+            Integer.class,
+            "application/x-java-Integer;class=java.lang.Integer",
+            "Integer Row Index");
+    private JTable table = null;
 
     public TableRowTransferHandler(JTable table) {
       this.table = table;
@@ -892,7 +946,10 @@ public class QueueWindow {
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
-      boolean b = info.getComponent() == table && info.isDrop() && info.isDataFlavorSupported(localObjectFlavor);
+      boolean b =
+          info.getComponent() == table
+              && info.isDrop()
+              && info.isDataFlavorSupported(localObjectFlavor);
       table.setCursor(b ? DragSource.DefaultMoveDrop : DragSource.DefaultMoveNoDrop);
       return b;
     }
@@ -908,15 +965,13 @@ public class QueueWindow {
       JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
       int index = dl.getRow();
       int max = table.getModel().getRowCount();
-      if (index < 0 || index > max)
-        index = max;
+      if (index < 0 || index > max) index = max;
       target.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       try {
         Integer rowFrom = (Integer) info.getTransferable().getTransferData(localObjectFlavor);
         if (rowFrom != -1 && rowFrom != index) {
-          ((Reorderable)table.getModel()).reorder(index, table.getSelectedRows());
-          if (index > rowFrom)
-            index--;
+          ((Reorderable) table.getModel()).reorder(index, table.getSelectedRows());
+          if (index > rowFrom) index--;
           target.getSelectionModel().addSelectionInterval(index, index);
           return true;
         }
@@ -932,26 +987,22 @@ public class QueueWindow {
         table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       }
     }
-
   }
 
   // needed to be able to cut off left side instead of right side of Folder Path
   public static class CutoffLeftRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(
-            JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column)
-    {
-      super.getTableCellRendererComponent(table, value,
-              isSelected, hasFocus, row, column);
+        JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+      super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
       // setHorizontalAlignment(JLabel.RIGHT); // TODO possibly offer this as an option
 
       int availableWidth = table.getColumnModel().getColumn(column).getWidth();
       availableWidth -= table.getIntercellSpacing().getWidth();
-      Insets borderInsets = getBorder().getBorderInsets((Component)this);
+      Insets borderInsets = getBorder().getBorderInsets((Component) this);
       availableWidth -= (borderInsets.left + borderInsets.right);
 
       String cellText = getText();
-      FontMetrics fm = getFontMetrics( getFont() );
+      FontMetrics fm = getFontMetrics(getFont());
       String cellTextReplaced = cellText.replace(Settings.REPLAY_BASE_PATH.get("custom"), "");
 
       if (cellText.equals(cellTextReplaced)) {
@@ -968,17 +1019,14 @@ public class QueueWindow {
         }
       }
 
-      if (fm.stringWidth(cellText) > availableWidth)
-      {
+      if (fm.stringWidth(cellText) > availableWidth) {
         String dots = "...";
-        int textWidth = fm.stringWidth( dots );
+        int textWidth = fm.stringWidth(dots);
         int nChars = cellText.length() - 1;
-        for (; nChars > 0; nChars--)
-        {
+        for (; nChars > 0; nChars--) {
           textWidth += fm.charWidth(cellText.charAt(nChars));
 
-          if (textWidth > availableWidth)
-          {
+          if (textWidth > availableWidth) {
             break;
           }
         }
@@ -1002,12 +1050,15 @@ public class QueueWindow {
 
   static void formatButton(String text) {
     button = new JButton(text);
-		button.setFont(controlsFont);
-    button.setMargin(new Insets(-5,-7,-2,-7));
+    button.setFont(controlsFont);
+    button.setMargin(new Insets(-5, -7, -2, -7));
   }
 
   private static void updateReplayCountLabel() {
-    replayCountLabel.setText(String.format("<html><body>%d replays<br>%d selected</body></html>", ReplayQueue.queue.size(), playlistTable.getSelectedRowCount()));
+    replayCountLabel.setText(
+        String.format(
+            "<html><body>%d replays<br>%d selected</body></html>",
+            ReplayQueue.queue.size(), playlistTable.getSelectedRowCount()));
     if (Settings.DEBUG.get(Settings.currentProfile)) {
       updateSelectedLengthLabel();
     }
@@ -1016,7 +1067,7 @@ public class QueueWindow {
   private static void updateSelectedLengthLabel() {
     int[] selectedRows = playlistTable.getSelectedRows();
     int timeSum = 0;
-    for (int i=0; i < selectedRows.length; i++) {
+    for (int i = 0; i < selectedRows.length; i++) {
       if (selectedRows[i] < playlistTable.getRowCount() && selectedRows[i] >= 0)
         try {
           timeSum += (int) playlistTable.getValueAt(selectedRows[i], 4);
@@ -1032,5 +1083,4 @@ public class QueueWindow {
     playlistTable.setAutoCreateRowSorter(true);
     playlistTable.getTableHeader().repaint();
   }
-
 }
