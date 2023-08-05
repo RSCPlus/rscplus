@@ -20,6 +20,8 @@ package Client;
 
 import Game.Replay;
 import Game.ReplayQueue;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -30,6 +32,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 /** A miscellaneous utility class */
 public class Util {
@@ -269,9 +276,117 @@ public class Util {
         || "Windows 8.1".equals(System.getProperty("os.name"));
   }
 
+  /**
+   * Sets the Swing look and feel for the window, using FlatLAF when appropriate. Certain global
+   * customizations to FlatLAF components are also set here.
+   */
+  public static void setUITheme() {
+    try {
+      if (Util.shouldUseFLATLAFTheme()) {
+        if (Settings.USE_DARK_FLATLAF.get(Settings.currentProfile)) {
+          UIManager.setLookAndFeel(new FlatDarkLaf());
+        } else {
+          UIManager.setLookAndFeel(new FlatLightLaf());
+        }
+
+        // Customizations
+        UIManager.put("TabbedPane.showTabSeparators", true);
+        UIManager.put("TabbedPane.tabSeparatorsFullHeight", true);
+
+        if (isDarkThemeFlatLAF()) {
+          UIManager.put("TabbedPane.selectedBackground", new Color(34, 34, 34));
+          UIManager.put("TabbedPane.background", new Color(52, 56, 58));
+          UIManager.put("Table.alternateRowColor", new Color(30, 70, 70));
+        } else {
+          UIManager.put("TabbedPane.selectedBackground", Color.white);
+          UIManager.put("TabbedPane.background", new Color(235, 235, 235));
+          UIManager.put("Table.alternateRowColor", new Color(190, 220, 240));
+        }
+      } else {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        // Set System L&F as a fall-back option.
+        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+          if ("Nimbus".equals(info.getName())) {
+            UIManager.setLookAndFeel(info.getClassName());
+            NimbusLookAndFeel laf = (NimbusLookAndFeel) UIManager.getLookAndFeel();
+            laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+            laf.getDefaults().put("Table.alternateRowColor", new Color(230, 230, 255));
+            break;
+          }
+        }
+      }
+    } catch (UnsupportedLookAndFeelException e) {
+      Logger.Error("Unable to set L&F: Unsupported look and feel");
+    } catch (ClassNotFoundException e) {
+      Logger.Error("Unable to set L&F: Class not found");
+    } catch (InstantiationException e) {
+      Logger.Error("Unable to set L&F: Class object cannot be instantiated");
+    } catch (IllegalAccessException e) {
+      Logger.Error("Unable to set L&F: Illegal access exception");
+    }
+  }
+
+  /** @return {@code boolean} indicating whether FlatLAF should be used */
+  public static boolean shouldUseFLATLAFTheme() {
+    // Modern Windows OS must use it to accommodate scaling
+    if (isModernWindowsOS()) {
+      return true;
+    }
+
+    // Otherwise, check the setting
+    return !Settings.USE_NIMBUS_THEME.get(Settings.currentProfile);
+  }
+
+  /** @return {@code boolean} indicating if a FlatLAF theme is being used */
+  public static boolean isUsingFlatLAFTheme() {
+    return isDarkThemeFlatLAF() || isLightThemeFlatLAF();
+  }
+
+  /** @return {@code boolean} indicating if the dark FlatLAF theme is being used */
+  public static boolean isDarkThemeFlatLAF() {
+    return UIManager.getLookAndFeel().getClass().equals(FlatDarkLaf.class);
+  }
+
+  /** @return {@code boolean} indicating if the light FlatLAF theme is being used */
+  public static boolean isLightThemeFlatLAF() {
+    return UIManager.getLookAndFeel().getClass().equals(FlatLightLaf.class);
+  }
+
   public static boolean isMacOS() {
     String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     return (os.contains("mac") || os.contains("darwin"));
+  }
+
+  /**
+   * Creates a scaled HTML message to be used within a {@link javax.swing.JOptionPane}
+   *
+   * @param htmlMessage {@link String} containing the HTML-formatted message to display
+   * @return The constructed {@link JPanel} instance
+   */
+  public static JPanel createOptionMessagePanel(String htmlMessage) {
+    return createOptionMessagePanel(htmlMessage, null);
+  }
+
+  /**
+   * Creates a scaled HTML message to be used within a {@link javax.swing.JOptionPane}
+   *
+   * @param htmlMessage {@link String} containing the HTML-formatted message to display
+   * @param stringArg Extra optional argument to the {@link String#format} method used within
+   * @return The constructed {@link JPanel} instance
+   */
+  public static JPanel createOptionMessagePanel(String htmlMessage, String stringArg) {
+    JPanel panel = new JPanel();
+    JLabel label =
+        new JLabel(
+            String.format(
+                "<html><head><style>p{font-size:%dpx;}</style></head><p>"
+                    + htmlMessage
+                    + "</p></html>",
+                osScaleMul(10),
+                stringArg));
+    panel.add(label);
+
+    return panel;
   }
 
   public static String formatTimeDuration(int millis, int endMillis) {
@@ -702,5 +817,73 @@ public class Util {
 
   public static Integer colorToInt(Color color) {
     return (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue();
+  }
+
+  /* Utility methods for multiplying and dividing values by the Launcher.OSScalingFactor */
+
+  public static Dimension osScaleMul(Dimension d) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return d;
+    }
+
+    d.setSize(osScaleMul(d.width), osScaleMul(d.height));
+    return d;
+  }
+
+  public static Dimension osScaleDiv(Dimension d) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return d;
+    }
+
+    d.setSize(osScaleDiv(d.width), osScaleDiv(d.height));
+    return d;
+  }
+
+  public static int osScaleMul(int value) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return value;
+    }
+
+    if (value == 0) {
+      return 0;
+    }
+
+    return (int) (value * Launcher.OSScalingFactor);
+  }
+
+  public static double osScaleMul(double value) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return value;
+    }
+
+    if (value == 0) {
+      return 0;
+    }
+
+    return (value * Launcher.OSScalingFactor);
+  }
+
+  public static float osScaleMul(float value) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return value;
+    }
+
+    if (value == 0) {
+      return 0;
+    }
+
+    return (value * (float) Launcher.OSScalingFactor);
+  }
+
+  public static int osScaleDiv(int value) {
+    if (Launcher.OSScalingFactor == 1.0) {
+      return value;
+    }
+
+    if (value == 0) {
+      return 0;
+    }
+
+    return (int) (value / Launcher.OSScalingFactor);
   }
 }

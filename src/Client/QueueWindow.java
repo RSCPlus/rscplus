@@ -18,6 +18,9 @@
  */
 package Client;
 
+import static Client.Util.osScaleDiv;
+import static Client.Util.osScaleMul;
+import static Client.Util.setUITheme;
 import static javax.swing.JComponent.WHEN_FOCUSED;
 
 import Game.Replay;
@@ -30,8 +33,6 @@ import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -40,11 +41,8 @@ import java.util.List;
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.*;
 
 /** GUI designed for the RSCPlus client that manages the replay playlist queue */
@@ -54,7 +52,6 @@ public class QueueWindow {
   static JLabel replayCountLabel = new JLabel("0 replays");
   private static JFrame frame;
   public static JButton button;
-  public static Font controlsFont;
   private static String editValue = "@:/@";
   private static boolean editingEnabled = false;
   private static boolean reorderIsPointless =
@@ -64,27 +61,7 @@ public class QueueWindow {
   static TableColumn userFieldCol;
 
   public QueueWindow() {
-    try {
-      // Set System L&F as a fall-back option.
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
-          UIManager.setLookAndFeel(info.getClassName());
-          NimbusLookAndFeel laf = (NimbusLookAndFeel) UIManager.getLookAndFeel();
-          laf.getDefaults().put("defaultFont", new Font(Font.SANS_SERIF, Font.PLAIN, 11));
-          laf.getDefaults().put("Table.alternateRowColor", new Color(230, 230, 255));
-          break;
-        }
-      }
-    } catch (UnsupportedLookAndFeelException e) {
-      Logger.Error("Unable to set L&F: Unsupported look and feel");
-    } catch (ClassNotFoundException e) {
-      Logger.Error("Unable to set L&F: Class not found");
-    } catch (InstantiationException e) {
-      Logger.Error("Unable to set L&F: Class object cannot be instantiated");
-    } catch (IllegalAccessException e) {
-      Logger.Error("Unable to set L&F: Illegal access exception");
-    }
+    setUITheme();
     initialize();
   }
 
@@ -118,42 +95,12 @@ public class QueueWindow {
     }
   }
 
-  private static void controlsFontInit() {
-    String uppermostChar = "\uD83D\uDD00";
-    String currentFontName = "";
-
-    Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-    if (font.canDisplayUpTo(uppermostChar) < 0) {
-      controlsFont = font;
-      return;
-    }
-
-    // current font is not suitable, using our fallback
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    InputStream is = Launcher.getResourceAsStream("/assets/Symbola_Hinted.ttf");
-    try {
-      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
-      font = new Font("Symbola", Font.PLAIN, 18);
-      controlsFont = font;
-      if (font.canDisplayUpTo(uppermostChar) < 0) {
-        controlsFont = font;
-        return;
-      } else {
-        controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-      }
-    } catch (FontFormatException | IOException e) {
-      controlsFont = new Font(Font.SANS_SERIF, Font.PLAIN, 18);
-    }
-  }
-
   private static void runInit() {
-    controlsFontInit();
-
     // ToolTipManager.sharedInstance().setInitialDelay(0);
     // ToolTipManager.sharedInstance().setDismissDelay(500);
     frame = new JFrame();
     frame.setTitle("ıllıllı [ Replay Queue ] ıllıllı");
-    frame.setBounds(100, 100, 800, 580);
+    frame.setBounds(osScaleDiv(100), osScaleDiv(100), osScaleMul(800), osScaleMul(580));
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
     URL iconURL = Launcher.getResource("/assets/icon.png");
@@ -277,37 +224,37 @@ public class QueueWindow {
     header.setDefaultRenderer(new HeaderRenderer(playlistTable));
 
     // set column widths & renderer
-    currentlyPlayingIndicatorCol.setMinWidth(20);
-    currentlyPlayingIndicatorCol.setMaxWidth(20);
+    currentlyPlayingIndicatorCol.setMinWidth(osScaleMul(20));
+    currentlyPlayingIndicatorCol.setMaxWidth(osScaleMul(20));
     currentlyPlayingIndicatorCol.setCellRenderer(centerRenderer);
-    numberInQueueCol.setMinWidth(20);
-    numberInQueueCol.setMaxWidth(80);
-    numberInQueueCol.setPreferredWidth(50);
+    numberInQueueCol.setMinWidth(osScaleMul(20));
+    numberInQueueCol.setMaxWidth(osScaleMul(80));
+    numberInQueueCol.setPreferredWidth(osScaleMul(50));
     numberInQueueCol.setCellRenderer(centerRenderer);
     folderPathCol.setCellRenderer(cutoffLeftRenderer);
-    folderPathCol.setMinWidth(85);
-    folderPathCol.setPreferredWidth(250);
-    replayNameCol.setMinWidth(100);
-    replayNameCol.setPreferredWidth(250);
-    replayLengthCol.setMinWidth(67);
-    replayLengthCol.setMaxWidth(150);
-    replayLengthCol.setPreferredWidth(60);
+    folderPathCol.setMinWidth(osScaleMul(85));
+    folderPathCol.setPreferredWidth(osScaleMul(250));
+    replayNameCol.setMinWidth(osScaleMul(100));
+    replayNameCol.setPreferredWidth(osScaleMul(250));
+    replayLengthCol.setMinWidth(osScaleMul(67));
+    replayLengthCol.setMaxWidth(osScaleMul(150));
+    replayLengthCol.setPreferredWidth(osScaleMul(60));
     replayLengthCol.setCellRenderer(timesliceRenderer);
-    dateModifiedCol.setMinWidth(140);
-    dateModifiedCol.setMaxWidth(250);
-    dateModifiedCol.setPreferredWidth(140);
+    dateModifiedCol.setMinWidth(osScaleMul(140));
+    dateModifiedCol.setMaxWidth(osScaleMul(250));
+    dateModifiedCol.setPreferredWidth(osScaleMul(140));
     dateModifiedCol.setCellRenderer(dateRenderer);
 
-    serverCol.setMinWidth(60);
-    serverCol.setMaxWidth(200);
+    serverCol.setMinWidth(osScaleMul(60));
+    serverCol.setMaxWidth(osScaleMul(200));
     serverCol.setCellRenderer(centerRenderer);
 
-    converterSettingsCol.setMinWidth(40);
-    converterSettingsCol.setMaxWidth(200);
+    converterSettingsCol.setMinWidth(osScaleMul(40));
+    converterSettingsCol.setMaxWidth(osScaleMul(200));
     converterSettingsCol.setCellRenderer(centerRenderer);
 
-    userFieldCol.setMinWidth(40);
-    userFieldCol.setMaxWidth(200);
+    userFieldCol.setMinWidth(osScaleMul(40));
+    userFieldCol.setMaxWidth(osScaleMul(200));
     userFieldCol.setCellRenderer(centerRenderer);
 
     if (!Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile))
@@ -337,6 +284,10 @@ public class QueueWindow {
               }
             });
 
+    if (Util.isUsingFlatLAFTheme()) {
+      navigationPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
+    }
+
     addButton("Clear Queue", navigationPanel, Component.LEFT_ALIGNMENT)
         .addActionListener(
             new ActionListener() {
@@ -354,8 +305,8 @@ public class QueueWindow {
     navigationPanel.add(windowHeader);
     windowHeader.setAlignmentY(Component.CENTER_ALIGNMENT);
     windowHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-    windowHeader.setFont(new Font("", Font.TRUETYPE_FONT, 24));
-    windowHeader.setBorder(new EmptyBorder(0, 2, 0, 2));
+    windowHeader.setFont(new Font("", Font.TRUETYPE_FONT, osScaleMul(24)));
+    windowHeader.setBorder(BorderFactory.createEmptyBorder(0, osScaleMul(2), 0, osScaleMul(2)));
 
     navigationPanel.add(Box.createHorizontalGlue());
 
@@ -375,6 +326,10 @@ public class QueueWindow {
               }
             });
 
+    if (Util.isUsingFlatLAFTheme()) {
+      navigationPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
+    }
+
     addButton("Exit", navigationPanel, Component.RIGHT_ALIGNMENT)
         .addActionListener(
             new ActionListener() {
@@ -385,15 +340,18 @@ public class QueueWindow {
             });
     // </add navpanel buttons>
     // <add musicplayerpanel buttons>
-    // ⏮ ⏪ ⏯ ⏩ ⏭ ◼ ======================= 🔀
+    // ⏮ ⏪ ⏯ ⏩ ⏭ ======================= 🔀
     // TODO: 🔂 🔁
     musicPlayerPanel.setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.LINE_START;
     c.weightx = 0;
+    if (Util.isUsingFlatLAFTheme()) {
+      c.insets = new Insets(0, 0, 0, osScaleMul(4));
+    }
 
-    formatButton("⏮");
+    formatButton("⏮", "Prev");
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -404,7 +362,7 @@ public class QueueWindow {
     c.gridx = 0;
     musicPlayerPanel.add(button, c);
 
-    formatButton("⏪");
+    formatButton("⏪", "Rewind");
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -415,7 +373,7 @@ public class QueueWindow {
     c.gridx = 1;
     musicPlayerPanel.add(button, c);
 
-    formatButton("⏯");
+    formatButton("⏯", "Play/Pause");
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -426,7 +384,7 @@ public class QueueWindow {
     c.gridx = 2;
     musicPlayerPanel.add(button, c);
 
-    formatButton("⏩");
+    formatButton("⏩", "Fast Forward");
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -437,7 +395,7 @@ public class QueueWindow {
     c.gridx = 3;
     musicPlayerPanel.add(button, c);
 
-    formatButton("⏭");
+    formatButton("⏭", "Next");
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -449,7 +407,7 @@ public class QueueWindow {
     musicPlayerPanel.add(button, c);
 
     c.anchor = GridBagConstraints.LINE_END;
-    formatButton("\uD83D\uDD00"); // 🔀
+    formatButton("\uD83D\uDD00", "Shuffle"); // 🔀
     button.addActionListener(
         new ActionListener() {
           @Override
@@ -465,7 +423,7 @@ public class QueueWindow {
     musicPlayerPanel.add(button, c);
 
     c.gridx = 11;
-    replayCountLabel.setBorder(new EmptyBorder(0, 2, 0, 2));
+    replayCountLabel.setBorder(BorderFactory.createEmptyBorder(0, osScaleMul(2), 0, osScaleMul(2)));
     musicPlayerPanel.add(replayCountLabel, c);
 
     // tell the panel to add a bunch of blank space in the middle
@@ -476,9 +434,13 @@ public class QueueWindow {
     // </add musicplayerpanel buttons>
 
     // padding for aesthetics
-    navigationPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-    playlistPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-    musicPlayerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    navigationPanel.setBorder(
+        BorderFactory.createEmptyBorder(
+            osScaleMul(10), osScaleMul(10), osScaleMul(10), osScaleMul(10)));
+    playlistPanel.setBorder(BorderFactory.createEmptyBorder(0, osScaleMul(10), 0, osScaleMul(10)));
+    musicPlayerPanel.setBorder(
+        BorderFactory.createEmptyBorder(
+            osScaleMul(10), osScaleMul(10), osScaleMul(10), osScaleMul(10)));
 
     frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_START);
     frame.getContentPane().add(playlistPanel, BorderLayout.CENTER);
@@ -1048,10 +1010,19 @@ public class QueueWindow {
     return button;
   }
 
-  static void formatButton(String text) {
-    button = new JButton(text);
-    button.setFont(controlsFont);
-    button.setMargin(new Insets(-5, -7, -2, -7));
+  static void formatButton(String text, String fallbackText) {
+    if (Launcher.controlsFont != null) {
+      button = new JButton(text);
+      button.setFont(Launcher.controlsFont);
+    } else {
+      button = new JButton(fallbackText);
+    }
+
+    if (Util.isUsingFlatLAFTheme()) {
+      button.setMargin(new Insets(0, 0, 0, 0));
+    } else {
+      button.setMargin(new Insets(osScaleMul(-5), osScaleMul(-7), osScaleMul(-2), osScaleMul(-7)));
+    }
   }
 
   private static void updateReplayCountLabel() {
