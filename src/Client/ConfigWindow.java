@@ -1593,7 +1593,7 @@ public class ConfigWindow {
             generalPanelLimitRanFPSPanel,
             osScaleMul(20));
     generalPanelRanReduceFrequencyButton.setToolTipText(
-        "The random colour effect is exactly the same, but at a frequency to what Andrew would have seen when designing the chat effect.");
+        "The random colour effect is exactly the same, but at a frequency closer to what Andrew would have seen when designing the chat effect.");
     SearchUtils.addSearchMetadata(
         generalPanelRanReduceFrequencyButton, CommonMetadata.FPS.getText());
 
@@ -1964,11 +1964,14 @@ public class ConfigWindow {
     generalPanelUseDarkModeCheckbox.setToolTipText(
         "Uses the darker UI theme, unless the legacy theme is enabled");
 
-    if (!Util.isModernWindowsOS()) {
-      generalPanelUseNimbusThemeCheckbox =
-          addCheckbox("Use legacy RSC+ UI theme (Requires restart):", generalPanel);
-      generalPanelUseNimbusThemeCheckbox.setToolTipText(
-          "Uses the legacy RSC+ Nimbus look-and-feel");
+    generalPanelUseNimbusThemeCheckbox =
+        addCheckbox("Use legacy RSC+ UI theme (Requires restart)", generalPanel);
+    generalPanelUseNimbusThemeCheckbox.setToolTipText("Uses the legacy RSC+ Nimbus look-and-feel");
+
+    if (Util.isModernWindowsOS() && Launcher.OSScalingFactor != 1.0) {
+      generalPanelUseNimbusThemeCheckbox.setEnabled(false);
+      generalPanelUseNimbusThemeCheckbox.setText(
+          "<html><strike>Use legacy RSC+ UI theme</strike> You must disable OS level scaling in Windows to enable this option (Requires restart)</html>");
     }
 
     addPanelBottomGlue(generalPanel);
@@ -5099,10 +5102,8 @@ public class ConfigWindow {
         Settings.BICUBIC_SCALING_FACTOR.get(Settings.currentProfile));
     generalPanelUseDarkModeCheckbox.setSelected(
         Settings.USE_DARK_FLATLAF.get(Settings.currentProfile));
-    if (!Util.isModernWindowsOS()) {
-      generalPanelUseNimbusThemeCheckbox.setSelected(
-          Settings.USE_NIMBUS_THEME.get(Settings.currentProfile));
-    }
+    generalPanelUseNimbusThemeCheckbox.setSelected(
+        Settings.USE_NIMBUS_THEME.get(Settings.currentProfile));
     generalPanelCheckUpdates.setSelected(Settings.CHECK_UPDATES.get(Settings.currentProfile));
     generalPanelAccountSecurityCheckbox.setSelected(
         Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile));
@@ -5589,11 +5590,8 @@ public class ConfigWindow {
             .floatValue());
     Settings.USE_DARK_FLATLAF.put(
         Settings.currentProfile, generalPanelUseDarkModeCheckbox.isSelected());
-    // This checkbox does not get initialized when ran on a modern Windows OS
     Settings.USE_NIMBUS_THEME.put(
-        Settings.currentProfile,
-        generalPanelUseNimbusThemeCheckbox != null
-            && generalPanelUseNimbusThemeCheckbox.isSelected());
+        Settings.currentProfile, generalPanelUseNimbusThemeCheckbox.isSelected());
     Settings.CHECK_UPDATES.put(Settings.currentProfile, generalPanelCheckUpdates.isSelected());
     Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.put(
         Settings.currentProfile, generalPanelAccountSecurityCheckbox.isSelected());

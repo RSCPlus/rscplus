@@ -328,13 +328,8 @@ public class Util {
 
   /** @return {@code boolean} indicating whether FlatLAF should be used */
   public static boolean shouldUseFLATLAFTheme() {
-    // Modern Windows OS must use it to accommodate scaling
-    if (isModernWindowsOS()) {
-      return true;
-    }
-
-    // Otherwise, check the setting
-    return !Settings.USE_NIMBUS_THEME.get(Settings.currentProfile);
+    // Unless forcibly disabled, check the corresponding setting
+    return Launcher.forceDisableNimbus || !Settings.USE_NIMBUS_THEME.get(Settings.currentProfile);
   }
 
   /** @return {@code boolean} indicating if a FlatLAF theme is being used */

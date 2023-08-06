@@ -99,6 +99,7 @@ public class Launcher extends JFrame implements Runnable {
   private JClassLoader m_classLoader;
 
   public static double OSScalingFactor = 1.0;
+  public static boolean forceDisableNimbus = false;
 
   private Launcher() {
     // Empty private constructor to prevent extra instances from being created.
@@ -544,6 +545,11 @@ public class Launcher extends JFrame implements Runnable {
         OSScalingFactor = getScaleFactor();
         System.setProperty("flatlaf.uiScale", String.valueOf(OSScalingFactor));
         System.setProperty("flatlaf.useWindowDecorations", String.valueOf(false));
+
+        // Forcibly disable the nimbus theme if selected, when the scaling factor is not 1.0
+        if (OSScalingFactor != 1.0) {
+          forceDisableNimbus = true;
+        }
       }
 
       // Linux / other
