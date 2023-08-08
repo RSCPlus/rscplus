@@ -809,6 +809,7 @@ public class ConfigWindow {
               @Override
               public void actionPerformed(ActionEvent e) {
                 Launcher.getConfigWindow().applySettings();
+                setInitiatedTab(tabbedPane.getSelectedIndex());
                 Launcher.getConfigWindow().hideConfigWindow();
               }
             });
@@ -838,6 +839,7 @@ public class ConfigWindow {
               @Override
               public void actionPerformed(ActionEvent e) {
                 Launcher.getConfigWindow().applySettings();
+                setInitiatedTab(tabbedPane.getSelectedIndex());
               }
             });
 
@@ -4278,6 +4280,16 @@ public class ConfigWindow {
   }
 
   /**
+   * Sets the current active tab, as if the user clicked on it. Primarily used for tab focusing
+   * logic during searches.
+   *
+   * @param tabIndex {@link ConfigTab} index
+   */
+  protected void setInitiatedTab(int tabIndex) {
+    searchInitiatedTabIndex = tabIndex;
+  }
+
+  /**
    * Indexes all swing components within the ConfigWindow for searching.
    *
    * <p>The search indexing process works by scanning all swing components, constructing a {@link
@@ -4474,11 +4486,11 @@ public class ConfigWindow {
         () -> currentScrollPane.getVerticalScrollBar().setValue(0));
 
     if (searchInitiatedTabIndex == -1) {
-      searchInitiatedTabIndex = tabbedPane.getSelectedIndex();
+      setInitiatedTab(tabbedPane.getSelectedIndex());
     }
 
     if (executedGoToSearch) {
-      searchInitiatedTabIndex = tabbedPane.getSelectedIndex();
+      setInitiatedTab(tabbedPane.getSelectedIndex());
       executedGoToSearch = false;
     }
 
@@ -4486,7 +4498,7 @@ public class ConfigWindow {
     // unless search was cleared for reindexing purposes
     if (!reindexing && searchText.equals("")) {
       tabbedPane.setSelectedIndex(searchInitiatedTabIndex);
-      searchInitiatedTabIndex = -1;
+      setInitiatedTab(-1);
     }
 
     List<SearchItem> hideList = new ArrayList<>();

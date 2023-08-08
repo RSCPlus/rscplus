@@ -92,6 +92,7 @@ public class TrayHandler implements MouseListener {
           new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+              Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
               settingsTabbedPane.setSelectedIndex(finalAuthorsTabIndex);
               Launcher.getConfigWindow().showConfigWindow();
             }
@@ -107,6 +108,7 @@ public class TrayHandler implements MouseListener {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+            Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
             settingsTabbedPane.setSelectedIndex(0);
             Launcher.getConfigWindow().showConfigWindow();
           }
