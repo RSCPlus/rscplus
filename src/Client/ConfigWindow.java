@@ -499,6 +499,7 @@ public class ConfigWindow {
 
     this.synchronizeGuiValues();
     frame.setVisible(true);
+    searchTextField.requestFocusInWindow();
   }
 
   public void hideConfigWindow() {
