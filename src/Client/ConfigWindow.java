@@ -281,6 +281,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelPositionCheckbox;
   private JCheckBox overlayPanelRetroFpsCheckbox;
   private JCheckBox overlayPanelItemNamesCheckbox;
+  private JCheckBox overlayPanelItemNamesHighlightedOnlyCheckbox;
   private JCheckBox overlayPanelPlayerNamesCheckbox;
   private JCheckBox overlayPanelPvpNamesCheckbox;
   private JPanel overlayPanelPvpNamesColourSubpanel;
@@ -2308,6 +2309,11 @@ public class ConfigWindow {
     overlayPanelItemNamesCheckbox =
         addCheckbox("Display the names of items on the ground", overlayPanelGroundItemsPanel);
     overlayPanelItemNamesCheckbox.setToolTipText("Shows the names of dropped items");
+
+    overlayPanelItemNamesHighlightedOnlyCheckbox =
+        addCheckbox("Only display highlighted items", overlayPanelGroundItemsPanel);
+    overlayPanelItemNamesHighlightedOnlyCheckbox.setToolTipText(
+        "Will only show items in the highlighted list below");
 
     String itemInputToolTip =
         "Surround with \" \" for exact matches (not case-sensitive). Block list takes priority over highlight list.";
@@ -5338,6 +5344,8 @@ public class ConfigWindow {
     overlayPanelRetroFpsCheckbox.setSelected(Settings.SHOW_RETRO_FPS.get(Settings.currentProfile));
     overlayPanelItemNamesCheckbox.setSelected(
         Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile));
+    overlayPanelItemNamesHighlightedOnlyCheckbox.setSelected(
+        Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(Settings.currentProfile));
     overlayPanelPlayerNamesCheckbox.setSelected(
         Settings.SHOW_PLAYER_NAME_OVERLAY.get(Settings.currentProfile));
     overlayPanelPvpNamesCheckbox.setSelected(
@@ -5801,6 +5809,8 @@ public class ConfigWindow {
     Settings.SHOW_RETRO_FPS.put(Settings.currentProfile, overlayPanelRetroFpsCheckbox.isSelected());
     Settings.SHOW_ITEM_GROUND_OVERLAY.put(
         Settings.currentProfile, overlayPanelItemNamesCheckbox.isSelected());
+    Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put(
+        Settings.currentProfile, overlayPanelItemNamesHighlightedOnlyCheckbox.isSelected());
     Settings.SHOW_PLAYER_NAME_OVERLAY.put(
         Settings.currentProfile, overlayPanelPlayerNamesCheckbox.isSelected());
     Settings.SHOW_PVP_NAME_OVERLAY.put(

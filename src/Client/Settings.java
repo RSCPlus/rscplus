@@ -233,6 +233,8 @@ public class Settings {
   public static HashMap<String, Boolean> REMOVE_REPORT_ABUSE_BUTTON_HBAR =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PVP_NAME_OVERLAY = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> PVP_NAMES_COLOUR = new HashMap<String, Integer>();
@@ -1720,6 +1722,19 @@ public class Settings {
     SHOW_ITEM_GROUND_OVERLAY.put(
         "custom", getPropBoolean(props, "show_iteminfo", SHOW_ITEM_GROUND_OVERLAY.get("default")));
 
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("vanilla", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("vanilla_resizable", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("lite", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("default", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("heavy", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("all", false);
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put(
+        "custom",
+        getPropBoolean(
+            props,
+            "show_iteminfo_highlighted",
+            SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get("default")));
+
     SHOW_PLAYER_NAME_OVERLAY.put("vanilla", false);
     SHOW_PLAYER_NAME_OVERLAY.put("vanilla_resizable", false);
     SHOW_PLAYER_NAME_OVERLAY.put("lite", false);
@@ -3148,6 +3163,9 @@ public class Settings {
           "toggle_xp_bar_on_stats_button",
           Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
+      props.setProperty(
+          "show_iteminfo_highlighted",
+          Boolean.toString(SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(preset)));
       props.setProperty("show_playerinfo", Boolean.toString(SHOW_PLAYER_NAME_OVERLAY.get(preset)));
       props.setProperty("show_pvpinfo", Boolean.toString(SHOW_PVP_NAME_OVERLAY.get(preset)));
       props.setProperty("pvp_names_colour", Integer.toString(PVP_NAMES_COLOUR.get(preset)));

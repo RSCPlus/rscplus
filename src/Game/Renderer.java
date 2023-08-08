@@ -566,8 +566,12 @@ public class Renderer {
         List<Rectangle> item_hitbox = new ArrayList<>();
         List<Point> item_text_loc = new ArrayList<>();
 
-        if (Settings.SHOW_ITEM_GROUND_OVERLAY.get(
-            Settings.currentProfile)) { // Don't sort if we aren't displaying any item names anyway
+        boolean showItemGroundOverlay =
+            Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile);
+        boolean showItemGroundOverlayHighlightedOnly =
+            Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(Settings.currentProfile);
+
+        if (showItemGroundOverlay) { // Don't sort if we aren't displaying any item names anyway
           try {
             // Keep items in (technically reverse) alphabetical order for SHOW_ITEMINFO instead of
             // randomly changing places each frame
@@ -606,14 +610,20 @@ public class Renderer {
             }
           }
 
-          if (Settings.SHOW_ITEM_GROUND_OVERLAY.get(Settings.currentProfile)) {
+          if (showItemGroundOverlay) {
             int x = item.x + (item.width / 2);
             int y = item.y - 20;
             int freq = Collections.frequency(Client.item_list, item);
 
-            // Check if item is in blocked list
+            String itemName = item.getName();
+            boolean itemInHighlightList =
+                stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true);
+
+            // Check if item is in blocked list or if the highlighted only setting is active and
+            // item is not in the list
             boolean itemIsBlocked =
-                stringIsWithinList(item.getName(), Settings.BLOCKED_ITEMS.get("custom"), true);
+                stringIsWithinList(itemName, Settings.BLOCKED_ITEMS.get("custom"), true)
+                    || (showItemGroundOverlayHighlightedOnly && !itemInHighlightList);
 
             // We've sorted item list in such a way that it is possible to not draw the ITEMINFO
             // unless it's the first time we've tried to for this itemid at that location
@@ -631,11 +641,10 @@ public class Renderer {
               item_text_loc.add(new Point(x, y));
 
               Color itemColor = color_item;
-              String itemText = item.getName() + ((freq == 1) ? "" : " (" + freq + ")");
+              String itemText = itemName + ((freq == 1) ? "" : " (" + freq + ")");
 
               // Check if item is in highlighted list
-              if (Renderer.stringIsWithinList(
-                  item.getName(), Settings.HIGHLIGHTED_ITEMS.get("custom"), true)) {
+              if (itemInHighlightList) {
                 itemColor =
                     Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
                 drawHighlightImage(g2, itemText, x, y);
