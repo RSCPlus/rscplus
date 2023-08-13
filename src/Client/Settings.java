@@ -3730,10 +3730,13 @@ public class Settings {
     String baseMessageOn = "@cya@Ground item names are now shown";
     String highlightOnlyMessage = " (Highlighted only)";
 
-    boolean highlightOnlyOff = !Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile);
+    boolean highlightOnlyOff =
+        !Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile);
 
     if (SHOW_ITEM_GROUND_OVERLAY.get(currentProfile)) {
-      Client.displayMessage(highlightOnlyOff ? baseMessageOn : baseMessageOn + highlightOnlyMessage, Client.CHAT_NONE);
+      Client.displayMessage(
+          highlightOnlyOff ? baseMessageOn : baseMessageOn + highlightOnlyMessage,
+          Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@Ground item names are now hidden", Client.CHAT_NONE);
     }
@@ -3742,12 +3745,15 @@ public class Settings {
   }
 
   public static void toggleShowItemGroundHighlightOnlyOverlay() {
-    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put(currentProfile, !SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile));
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put(
+        currentProfile, !SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile));
 
     if (SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile)) {
-      Client.displayMessage("@cya@Only highlighted ground item names will be shown when enabled", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@Only highlighted ground item names will be shown when enabled", Client.CHAT_NONE);
     } else {
-      Client.displayMessage("@cya@All ground item names will be shown when enabled", Client.CHAT_NONE);
+      Client.displayMessage(
+          "@cya@All ground item names will be shown when enabled", Client.CHAT_NONE);
     }
 
     save();
