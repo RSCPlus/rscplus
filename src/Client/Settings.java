@@ -1079,12 +1079,14 @@ public class Settings {
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
 
-    USE_DARK_FLATLAF.put("vanilla", true);
-    USE_DARK_FLATLAF.put("vanilla_resizable", true);
-    USE_DARK_FLATLAF.put("lite", true);
-    USE_DARK_FLATLAF.put("default", true);
-    USE_DARK_FLATLAF.put("heavy", true);
-    USE_DARK_FLATLAF.put("all", true);
+    boolean defaultDarkMode = shouldDefaultDarkMode();
+
+    USE_DARK_FLATLAF.put("vanilla", defaultDarkMode);
+    USE_DARK_FLATLAF.put("vanilla_resizable", defaultDarkMode);
+    USE_DARK_FLATLAF.put("lite", defaultDarkMode);
+    USE_DARK_FLATLAF.put("default", defaultDarkMode);
+    USE_DARK_FLATLAF.put("heavy", defaultDarkMode);
+    USE_DARK_FLATLAF.put("all", defaultDarkMode);
     USE_DARK_FLATLAF.put(
         "custom", getPropBoolean(props, "use_dark_flatlaf", USE_DARK_FLATLAF.get("default")));
 
@@ -2558,6 +2560,21 @@ public class Settings {
       FATIGUE_FIGURES.put("custom", 7);
       save("custom");
     }
+  }
+
+  /**
+   * Determine whether we should default to dark mode for the app interface
+   *
+   * @return {@code boolean} indicating whether dark mode should be used
+   */
+  public static boolean shouldDefaultDarkMode() {
+    // Detect via JNA/registry for Windows
+    if (Util.isWindowsOS()) {
+      return Util.isWindowsOSDarkTheme();
+    }
+
+    // Default to dark mode for other OS's
+    return true;
   }
 
   /**

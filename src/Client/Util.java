@@ -22,6 +22,8 @@ import Game.Replay;
 import Game.ReplayQueue;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.WinReg;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -274,6 +276,25 @@ public class Util {
     return "Windows 11".equals(System.getProperty("os.name"))
         || "Windows 10".equals(System.getProperty("os.name"))
         || "Windows 8.1".equals(System.getProperty("os.name"));
+  }
+
+  /**
+   * Detects whether Windows OS is using dark mode
+   *
+   * @return {@code boolean} indicating dark mode usage or {@code false} if not on Windows
+   */
+  public static boolean isWindowsOSDarkTheme() {
+    if (!isWindowsOS()) {
+      return false;
+    }
+
+    final String REGISTRY_PATH =
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+    final String REGISTRY_VALUE = "AppsUseLightTheme";
+
+    return Advapi32Util.registryValueExists(WinReg.HKEY_CURRENT_USER, REGISTRY_PATH, REGISTRY_VALUE)
+        && Advapi32Util.registryGetIntValue(WinReg.HKEY_CURRENT_USER, REGISTRY_PATH, REGISTRY_VALUE)
+            == 0;
   }
 
   /**
