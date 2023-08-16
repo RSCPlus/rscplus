@@ -559,7 +559,7 @@ public class ConfigWindow {
     /** The JPanel containing the search components */
     JPanel searchPanel = new JPanel();
     if (Util.isDarkThemeFlatLAF()) {
-      searchPanel.setBackground(new Color(42, 46, 48));
+      searchPanel.setBackground(new Color(60, 63, 65));
     } else if (Util.isLightThemeFlatLAF()) {
       searchPanel.setBackground(new Color(225, 225, 225));
     }
@@ -593,7 +593,7 @@ public class ConfigWindow {
       Color navigationPanelBackgroundColor = null;
 
       if (Util.isDarkThemeFlatLAF()) {
-        navigationPanelBackgroundColor = new Color(42, 46, 48);
+        navigationPanelBackgroundColor = new Color(60, 63, 65);
       } else if (Util.isLightThemeFlatLAF()) {
         navigationPanelBackgroundColor = new Color(225, 225, 225);
       }
@@ -603,7 +603,7 @@ public class ConfigWindow {
       Color scrollPaneBorderColor = null;
 
       if (Util.isDarkThemeFlatLAF()) {
-        scrollPaneBorderColor = new Color(97, 99, 101);
+        scrollPaneBorderColor = new Color(82, 86, 87);
       } else if (Util.isLightThemeFlatLAF()) {
         scrollPaneBorderColor = new Color(194, 194, 194);
       }
@@ -730,6 +730,9 @@ public class ConfigWindow {
     searchTitleLabel.setAlignmentY(Util.isUsingFlatLAFTheme() ? 0.9f : 1.0f);
 
     searchTextField = new JTextField();
+    if (Util.isDarkThemeFlatLAF()) {
+      searchTextField.setBackground(new Color(69, 73, 75));
+    }
     searchPanel.add(searchTextField);
     searchTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
     searchTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, osScaleMul(28)));
@@ -755,6 +758,9 @@ public class ConfigWindow {
     }
 
     goToSearchButton = new JButton("Go To");
+    if (Util.isDarkThemeFlatLAF()) {
+      goToSearchButton.setBackground(new Color(42, 46, 48));
+    }
     searchPanel.add(goToSearchButton);
     goToSearchButton.setToolTipText("Navigates to the first search result");
     goToSearchButton.setAlignmentY(0.75f);
@@ -766,6 +772,9 @@ public class ConfigWindow {
     }
 
     clearSearchButton = new JButton("Clear");
+    if (Util.isDarkThemeFlatLAF()) {
+      clearSearchButton.setBackground(new Color(42, 46, 48));
+    }
     searchPanel.add(clearSearchButton);
     clearSearchButton.setToolTipText("Resets the current search");
     clearSearchButton.setAlignmentY(0.75f);
@@ -802,98 +811,116 @@ public class ConfigWindow {
 
     navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
 
-    addButton("OK", navigationPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
+    JButton okButton = addButton("OK", navigationPanel, Component.LEFT_ALIGNMENT);
 
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().applySettings();
-                setInitiatedTab(tabbedPane.getSelectedIndex());
-                Launcher.getConfigWindow().hideConfigWindow();
-              }
-            });
+    if (Util.isDarkThemeFlatLAF()) {
+      okButton.setBackground(new Color(42, 46, 48));
+    }
+
+    okButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Launcher.getConfigWindow().applySettings();
+            setInitiatedTab(tabbedPane.getSelectedIndex());
+            Launcher.getConfigWindow().hideConfigWindow();
+          }
+        });
 
     if (Util.isUsingFlatLAFTheme()) {
       navigationPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
     }
 
-    addButton("Cancel", navigationPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
+    JButton cancelButton = addButton("Cancel", navigationPanel, Component.LEFT_ALIGNMENT);
 
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().hideConfigWindow();
-              }
-            });
+    if (Util.isDarkThemeFlatLAF()) {
+      cancelButton.setBackground(new Color(42, 46, 48));
+    }
+
+    cancelButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Launcher.getConfigWindow().hideConfigWindow();
+          }
+        });
 
     if (Util.isUsingFlatLAFTheme()) {
       navigationPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
     }
 
-    addButton("Apply", navigationPanel, Component.LEFT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
+    JButton applyButton = addButton("Apply", navigationPanel, Component.LEFT_ALIGNMENT);
 
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                Launcher.getConfigWindow().applySettings();
-                setInitiatedTab(tabbedPane.getSelectedIndex());
-              }
-            });
+    if (Util.isDarkThemeFlatLAF()) {
+      applyButton.setBackground(new Color(42, 46, 48));
+    }
+
+    applyButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Launcher.getConfigWindow().applySettings();
+            setInitiatedTab(tabbedPane.getSelectedIndex());
+          }
+        });
 
     navigationPanel.add(Box.createHorizontalGlue());
-    addButton("Restore Defaults", navigationPanel, Component.RIGHT_ALIGNMENT)
-        .addActionListener(
-            new ActionListener() {
 
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                JPanel confirmDefaultPanel =
-                    Util.createOptionMessagePanel(
-                        "Are you sure you want to restore all settings to their defaults?");
-                int choice =
-                    JOptionPane.showConfirmDialog(
-                        Launcher.getConfigWindow().frame,
-                        confirmDefaultPanel,
-                        "Confirm",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-                if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
-                  return;
-                }
+    JButton restoreDefaultsButton =
+        addButton("Restore Defaults", navigationPanel, Component.RIGHT_ALIGNMENT);
 
-                Settings.initSettings(); // make sure "default" is really default
-                Settings.save("default");
-                synchronizeGuiValues();
+    if (Util.isDarkThemeFlatLAF()) {
+      restoreDefaultsButton.setBackground(new Color(42, 46, 48));
+    }
 
-                // Restore defaults
-                /* TODO: reimplement per-tab defaults? Will need to consider search re-indexing
-                switch (tabbedPane.getSelectedIndex()) {
-                case 0:
-                	Settings.restoreDefaultGeneral();
-                	Game.getInstance().resizeFrameWithContents();
-                	break;
-                case 1:
-                	Settings.restoreDefaultOverlays();
-                	break;
-                case 2:
-                	Settings.restoreDefaultNotifications();
-                	break;
-                case 3:
-                	Settings.restoreDefaultPrivacy();
-                	break;
-                case 4:
-                	Settings.restoreDefaultKeybinds();
-                	break;
-                            //TODO more pages
-                default:
-                	Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
-                }
-                            */
-              }
-            });
+    restoreDefaultsButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            JPanel confirmDefaultPanel =
+                Util.createOptionMessagePanel(
+                    "Are you sure you want to restore all settings to their defaults?");
+            int choice =
+                JOptionPane.showConfirmDialog(
+                    Launcher.getConfigWindow().frame,
+                    confirmDefaultPanel,
+                    "Confirm",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+              return;
+            }
+
+            Settings.initSettings(); // make sure "default" is really default
+            Settings.save("default");
+            synchronizeGuiValues();
+
+            // Restore defaults
+            /* TODO: reimplement per-tab defaults? Will need to consider search re-indexing
+            switch (tabbedPane.getSelectedIndex()) {
+            case 0:
+                Settings.restoreDefaultGeneral();
+                Game.getInstance().resizeFrameWithContents();
+                break;
+            case 1:
+                Settings.restoreDefaultOverlays();
+                break;
+            case 2:
+                Settings.restoreDefaultNotifications();
+                break;
+            case 3:
+                Settings.restoreDefaultPrivacy();
+                break;
+            case 4:
+                Settings.restoreDefaultKeybinds();
+                break;
+                        //TODO more pages
+            default:
+                Logger.Error("Restore defaults attempted to operate on a non-existent tab!");
+            }
+                        */
+          }
+        });
 
     /*
      * General tab
@@ -2925,13 +2952,13 @@ public class ConfigWindow {
     exportPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
     exportPanel.add(bankExportButton);
-    bankPanelExportLabel = new JLabel("");
+    bankPanelExportLabel = new JLabel(" ");
     bankPanelExportLabel.setAlignmentY(0.7f);
     bankPanelExportLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(7), 0));
     exportPanel.add(bankPanelExportLabel);
 
     JComponent exportButtonSpacer =
-        (JComponent) Box.createRigidArea(osScaleMul(new Dimension(0, 17)));
+        (JComponent) Box.createRigidArea(osScaleMul(new Dimension(0, 11)));
     // Make spacer related when using FlatLAF to account for extra spacing
     if (Util.isUsingFlatLAFTheme()) {
       SearchUtils.setRelatedSearchComponent(exportButtonSpacer, bankExportButton);
@@ -2985,7 +3012,7 @@ public class ConfigWindow {
     importPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(10), 0));
 
     importPanel.add(bankImportButton);
-    bankPanelImportLabel = new JLabel("");
+    bankPanelImportLabel = new JLabel(" ");
     bankPanelImportLabel.setAlignmentY(0.7f);
     bankPanelImportLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(7), 0));
     importPanel.add(bankPanelImportLabel);

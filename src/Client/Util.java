@@ -21,6 +21,7 @@ package Client;
 import Game.Replay;
 import Game.ReplayQueue;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
@@ -304,6 +305,9 @@ public class Util {
   public static void setUITheme() {
     try {
       if (Util.shouldUseFLATLAFTheme()) {
+        // Register custom theme properties files
+        FlatLaf.registerCustomDefaultsSource("Client.FlatLaf");
+
         if (Settings.USE_DARK_FLATLAF.get(Settings.currentProfile)) {
           UIManager.setLookAndFeel(new FlatDarkLaf());
         } else {
@@ -313,16 +317,6 @@ public class Util {
         // Customizations
         UIManager.put("TabbedPane.showTabSeparators", true);
         UIManager.put("TabbedPane.tabSeparatorsFullHeight", true);
-
-        if (isDarkThemeFlatLAF()) {
-          UIManager.put("TabbedPane.selectedBackground", new Color(34, 34, 34));
-          UIManager.put("TabbedPane.background", new Color(52, 56, 58));
-          UIManager.put("Table.alternateRowColor", new Color(30, 70, 70));
-        } else {
-          UIManager.put("TabbedPane.selectedBackground", Color.white);
-          UIManager.put("TabbedPane.background", new Color(235, 235, 235));
-          UIManager.put("Table.alternateRowColor", new Color(190, 220, 240));
-        }
       } else {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         // Set System L&F as a fall-back option.
