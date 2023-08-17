@@ -3484,6 +3484,7 @@ public class ConfigWindow {
     gbl_constraints.fill = GridBagConstraints.HORIZONTAL;
     gbl_constraints.anchor = GridBagConstraints.FIRST_LINE_START;
     gbl_constraints.weightx = 1;
+    gbl_constraints.ipadx = 20;
     gbl_constraints.gridy = 0;
     gbl_constraints.gridwidth = 3;
 
@@ -3678,13 +3679,13 @@ public class ConfigWindow {
     addKeybindSet(
         keybindContainerPanel,
         "Toggle item name overlay",
-        "toggle_item_overlay",
+        "toggle_item_name_overlay",
         KeyModifier.CTRL,
         KeyEvent.VK_G);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle item name overlay (highlighted only)",
-        "toggle_item_overlay_highlight",
+        "toggle_item_name_overlay_highlight",
         KeyModifier.ALT,
         KeyEvent.VK_G);
     addKeybindSet(

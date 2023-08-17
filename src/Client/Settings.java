@@ -2761,15 +2761,7 @@ public class Settings {
           break;
         }
       }
-      // 08/16/2023 - toggle_item_overlay was rebound from ctrl-i to ctrl-g
-      if (keybind.getCommandName().equals("toggle_item_overlay")) {
-        if (keybind.getModifier().equals(KeyModifier.CTRL) && keybind.getKey() == KeyEvent.VK_I) {
-          keybind.setModifier(KeyModifier.CTRL);
-          keybind.setKey(KeyEvent.VK_G);
 
-          break;
-        }
-      }
       // 08/16/2023 - toggle_food_heal_overlay was removed
       if (keybind.getCommandName().equals("toggle_food_heal_overlay")) {
         if (keybind.getModifier().equals(KeyModifier.CTRL) && keybind.getKey() == KeyEvent.VK_G) {
@@ -4342,10 +4334,10 @@ public class Settings {
       case "endrun":
         Settings.endSpeedrun();
         return true;
-      case "toggle_item_overlay":
+      case "toggle_item_name_overlay":
         Settings.toggleShowItemGroundOverlay();
         return true;
-      case "toggle_item_overlay_highlight":
+      case "toggle_item_name_overlay_highlight":
         Settings.toggleShowItemGroundHighlightOnlyOverlay();
         return true;
       case "toggle_hitboxes":
