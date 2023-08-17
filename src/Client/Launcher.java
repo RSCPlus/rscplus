@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
@@ -264,6 +265,29 @@ public class Launcher extends JFrame implements Runnable {
     getContentPane().add(m_progressBar);
 
     setVisible(true);
+
+    // Check to see if RSC+ has permissions to write to the current dir
+    if (!Files.isWritable(new File(Settings.Dir.JAR).toPath())) {
+      String filePermissionsErrorMessage =
+          "<b>Error attempting to launch RSCPlus</b><br/>"
+              + "<br/>"
+              + "RSCPlus is unable to create necessary files in the current directory.<br/>"
+              + "<br/>"
+              + "You must either grant the appropriate permissions to this directory OR<br/>"
+              + "move the application to a different location.";
+      JPanel filePermissionsErrorPanel = Util.createOptionMessagePanel(filePermissionsErrorMessage);
+
+      JOptionPane.showConfirmDialog(
+          this,
+          filePermissionsErrorPanel,
+          "RSCPlus",
+          JOptionPane.DEFAULT_OPTION,
+          JOptionPane.ERROR_MESSAGE,
+          scaled_icon_warn);
+
+      System.exit(0);
+    }
+
     new Thread(this).start();
   }
 

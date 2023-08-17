@@ -1592,7 +1592,8 @@ public class Renderer {
       int gearX = width - 10 - image_gear.getWidth(null);
       int gearY = 10;
 
-      Rectangle gearBounds = new Rectangle(gearX, gearY, image_gear.getWidth(null), image_gear.getHeight(null));
+      Rectangle gearBounds =
+          new Rectangle(gearX, gearY, image_gear.getWidth(null), image_gear.getHeight(null));
 
       // Draw gold version on hover, grey otherwise
       if (MouseHandler.x >= gearBounds.x

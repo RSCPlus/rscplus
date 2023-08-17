@@ -1991,7 +1991,8 @@ public class ConfigWindow {
     addSettingsHeader(generalPanel, "UI settings");
 
     generalPanelUseDarkModeCheckbox =
-        addCheckbox("Use dark mode for the interface (Requires restart & modern UI theme)", generalPanel);
+        addCheckbox(
+            "Use dark mode for the interface (Requires restart & modern UI theme)", generalPanel);
     generalPanelUseDarkModeCheckbox.setToolTipText(
         "Uses the darker UI theme, unless the legacy theme is enabled");
 
