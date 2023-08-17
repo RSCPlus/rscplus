@@ -306,7 +306,7 @@ public class Util {
     try {
       if (Util.shouldUseFLATLAFTheme()) {
         // Register custom theme properties files
-        FlatLaf.registerCustomDefaultsSource("Client.FlatLaf");
+        FlatLaf.registerCustomDefaultsSource(Launcher.getResource("/src/Client/FlatLaf/"));
 
         if (Settings.USE_DARK_FLATLAF.get(Settings.currentProfile)) {
           UIManager.setLookAndFeel(new FlatDarkLaf());
