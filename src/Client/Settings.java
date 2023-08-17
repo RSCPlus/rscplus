@@ -2761,6 +2761,24 @@ public class Settings {
           break;
         }
       }
+      // 08/16/2023 - toggle_item_overlay was rebound from ctrl-i to ctrl-g
+      if (keybind.getCommandName().equals("toggle_item_overlay")) {
+        if (keybind.getModifier().equals(KeyModifier.CTRL) && keybind.getKey() == KeyEvent.VK_I) {
+          keybind.setModifier(KeyModifier.CTRL);
+          keybind.setKey(KeyEvent.VK_G);
+
+          break;
+        }
+      }
+      // 08/16/2023 - toggle_food_heal_overlay was removed
+      if (keybind.getCommandName().equals("toggle_food_heal_overlay")) {
+        if (keybind.getModifier().equals(KeyModifier.CTRL) && keybind.getKey() == KeyEvent.VK_G) {
+          keybind.setModifier(null);
+          keybind.setKey(-1);
+
+          break;
+        }
+      }
     }
   }
 
@@ -3717,10 +3735,27 @@ public class Settings {
   public static void toggleShowItemGroundOverlay() {
     SHOW_ITEM_GROUND_OVERLAY.put(currentProfile, !SHOW_ITEM_GROUND_OVERLAY.get(currentProfile));
 
+    String baseMessageOn = "@cya@Ground item names are now shown";
+    String highlightOnlyMessage = " (Highlighted only)";
+
+    boolean highlightOnlyOff = !Settings.SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile);
+
     if (SHOW_ITEM_GROUND_OVERLAY.get(currentProfile)) {
-      Client.displayMessage("@cya@Ground item names are now shown", Client.CHAT_NONE);
+      Client.displayMessage(highlightOnlyOff ? baseMessageOn : baseMessageOn + highlightOnlyMessage, Client.CHAT_NONE);
     } else {
       Client.displayMessage("@cya@Ground item names are now hidden", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleShowItemGroundHighlightOnlyOverlay() {
+    SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put(currentProfile, !SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile));
+
+    if (SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(currentProfile)) {
+      Client.displayMessage("@cya@Only highlighted ground item names will be shown when enabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@All ground item names will be shown when enabled", Client.CHAT_NONE);
     }
 
     save();
@@ -4309,6 +4344,9 @@ public class Settings {
         return true;
       case "toggle_item_overlay":
         Settings.toggleShowItemGroundOverlay();
+        return true;
+      case "toggle_item_overlay_highlight":
+        Settings.toggleShowItemGroundHighlightOnlyOverlay();
         return true;
       case "toggle_hitboxes":
         Settings.toggleShowHitbox();

@@ -3680,7 +3680,13 @@ public class ConfigWindow {
         "Toggle item name overlay",
         "toggle_item_overlay",
         KeyModifier.CTRL,
-        KeyEvent.VK_I);
+        KeyEvent.VK_G);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle item name overlay (highlighted only)",
+        "toggle_item_overlay_highlight",
+        KeyModifier.ALT,
+        KeyEvent.VK_G);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle player name overlay",
@@ -3711,12 +3717,6 @@ public class ConfigWindow {
         "toggle_hitboxes",
         KeyModifier.CTRL,
         KeyEvent.VK_H);
-    addKeybindSet(
-        keybindContainerPanel,
-        "Toggle food heal overlay",
-        "toggle_food_heal_overlay",
-        KeyModifier.CTRL,
-        KeyEvent.VK_G);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle time until health regen",
