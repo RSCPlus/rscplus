@@ -545,7 +545,7 @@ public class ConfigWindow {
   private void runInit() {
     frame = new JFrame();
     frame.setTitle("Settings");
-    frame.setBounds(osScaleDiv(100), osScaleDiv(100), osScaleMul(850), osScaleMul(650));
+    frame.setBounds(osScaleDiv(100), osScaleDiv(100), osScaleMul(800), osScaleMul(650));
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
     URL iconURL = Launcher.getResource("/assets/icon.png");
@@ -1990,7 +1990,7 @@ public class ConfigWindow {
     addSettingsHeader(generalPanel, "UI settings");
 
     generalPanelUseDarkModeCheckbox =
-        addCheckbox("Use dark mode for the interface (Requires restart)", generalPanel);
+        addCheckbox("Use dark mode for the interface (Requires restart & modern UI theme)", generalPanel);
     generalPanelUseDarkModeCheckbox.setToolTipText(
         "Uses the darker UI theme, unless the legacy theme is enabled");
 
@@ -2541,7 +2541,8 @@ public class ConfigWindow {
     JLabel audioPanelSoundEffectsToggleExplanation =
         new JLabel(
             "<html><p>"
-                + "There are 37 sound effects in RS-Classic. Some are great, and some can be grating. It's up to you to decide which are which."
+                + "There are 37 sound effects in RS-Classic.<br/>"
+                + "Some are great, and some can be grating. It's up to you to decide which are which."
                 + "</p></html>");
     audioPanelEnableAllSfxPanel.add(audioPanelSoundEffectsToggleExplanation);
     audioPanelSoundEffectsToggleExplanation.setBorder(
@@ -4120,7 +4121,7 @@ public class ConfigWindow {
           new JLabel(
               new ImageIcon(
                   rscplusLogo.getScaledInstance(
-                      osScaleMul(250), osScaleMul(250), Image.SCALE_DEFAULT)));
+                      osScaleMul(215), osScaleMul(215), Image.SCALE_SMOOTH)));
       rscplusLogoJLabel.setBorder(
           BorderFactory.createEmptyBorder(0, osScaleMul(10), osScaleMul(20), osScaleMul(40)));
       logoPanel.add(rscplusLogoJLabel);
