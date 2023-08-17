@@ -331,7 +331,12 @@ public class GameApplet {
 
       // Replace missing characters with '?', mostly as a safety check
       if (glyphs[i] == null) {
-        glyphs[i] = glyphData.getGlyphMap().get('?');
+        // nbsp workaround
+        if (text.charAt(i) == 160) {
+          glyphs[i] = glyphData.getGlyphMap().get(' ');
+        } else {
+          glyphs[i] = glyphData.getGlyphMap().get('?');
+        }
       }
 
       bitmapWidth += glyphs[i].displayWidth;
