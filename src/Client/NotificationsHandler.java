@@ -18,6 +18,7 @@
  */
 package Client;
 
+import static Client.Util.osScaleMul;
 import static Game.Renderer.exactStringIgnoreCaseIsWithinList;
 
 import Game.Client;
@@ -29,6 +30,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.TrayIcon.MessageType;
@@ -132,19 +134,25 @@ public class NotificationsHandler {
 
     // 3
     JPanel iconPanel = new JPanel();
-    iconPanel.setBounds(0, 0, 79, 79);
+    iconPanel.setBounds(0, 0, osScaleMul(79), osScaleMul(79));
     iconPanel.setLayout(new BorderLayout(0, 0));
 
     // 4
     iconLabel = new JLabel();
-    iconLabel.setIcon(new ImageIcon(Launcher.getResource("/assets/icon.png")));
+    Image iconImg = new ImageIcon(Launcher.getResource("/assets/icon.png")).getImage();
+    iconLabel.setIcon(
+        new ImageIcon(
+            iconImg.getScaledInstance(
+                osScaleMul(iconImg.getWidth(null)),
+                osScaleMul(iconImg.getHeight(null)),
+                Image.SCALE_DEFAULT)));
     iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
     iconLabel.setVerticalAlignment(SwingConstants.CENTER);
     iconPanel.add(iconLabel, BorderLayout.CENTER);
 
     // 5
     notificationTitle = new JLabel();
-    notificationTitle.setBounds(91, 3, 326, 26);
+    notificationTitle.setBounds(osScaleMul(91), osScaleMul(3), osScaleMul(326), osScaleMul(26));
     notificationTitle.setForeground(new Color(0x1d, 0x1d, 0x1d));
     mainContentPanel.add(notificationTitle);
 
@@ -156,7 +164,7 @@ public class NotificationsHandler {
     notificationTextArea.setEditable(false);
     notificationTextArea.setBorder(null);
     notificationTextArea.setLineWrap(true);
-    notificationTextArea.setBounds(91, 30, 326, 43);
+    notificationTextArea.setBounds(osScaleMul(91), osScaleMul(30), osScaleMul(326), osScaleMul(43));
     notificationTextArea.addMouseListener(mouseManager);
 
     // 7
@@ -169,8 +177,15 @@ public class NotificationsHandler {
             setNotificationWindowVisible(false);
           }
         });
-    closeButton.setBounds(400, 5, 17, 17);
-    closeButton.setIcon(new ImageIcon(Launcher.getResource("/assets/notification_close.png")));
+    closeButton.setBounds(osScaleMul(400), osScaleMul(5), osScaleMul(17), osScaleMul(17));
+    Image closeButtonImg =
+        new ImageIcon(Launcher.getResource("/assets/notification_close.png")).getImage();
+    closeButton.setIcon(
+        new ImageIcon(
+            closeButtonImg.getScaledInstance(
+                osScaleMul(closeButtonImg.getWidth(null)),
+                osScaleMul(closeButtonImg.getHeight(null)),
+                Image.SCALE_DEFAULT)));
     closeButton.setSelectedIcon(
         new ImageIcon(Launcher.getResource("/assets/notification_close_highlighted.png")));
     closeButton.setBorder(BorderFactory.createEmptyBorder());
@@ -188,16 +203,24 @@ public class NotificationsHandler {
       // Configure the frame to have rounded corners and to be transparent
       notificationFrame.setShape(
           new RoundRectangle2D.Double(
-              0, 0, notificationFrame.getWidth(), notificationFrame.getHeight(), 16, 16));
+              0,
+              0,
+              osScaleMul(notificationFrame.getWidth()),
+              osScaleMul(notificationFrame.getHeight()),
+              osScaleMul(16),
+              osScaleMul(16)));
 
       notificationFrame.setBackground(new Color(0, 0, 0, 0)); // Make the JFrame itself transparent.
       contentPanel.setBackground(new Color(0, 0, 0, 0));
-      notificationFrame.setBounds(width - 446, height - 154, 449, 104);
-      notificationFrame.setMaximumSize(new Dimension(449, 104));
-      notificationFrame.setMaximizedBounds(new Rectangle(width - 446, height - 154, 449, 104));
+      notificationFrame.setBounds(
+          width - osScaleMul(446), height - osScaleMul(154), osScaleMul(449), osScaleMul(104));
+      notificationFrame.setMaximumSize(osScaleMul(new Dimension(449, 104)));
+      notificationFrame.setMaximizedBounds(
+          new Rectangle(
+              width - osScaleMul(446), height - osScaleMul(154), osScaleMul(449), osScaleMul(104)));
 
       // 2
-      mainContentPanel.setBounds(13, 13, 423, 79);
+      mainContentPanel.setBounds(osScaleMul(13), osScaleMul(13), osScaleMul(423), osScaleMul(79));
       mainContentPanel.setBackground(new Color(249, 249, 247, 0));
 
       contentPanel.add(mainContentPanel); // To make sure it's added at a reasonable time
@@ -219,12 +242,16 @@ public class NotificationsHandler {
 
       // 8 (Add the background image
       JLabel backgroundImage = new JLabel("");
-      ImageIcon img = null;
+      Image backgroundImg =
+          new ImageIcon(Launcher.getResource("/assets/notification_background.png")).getImage();
+      backgroundImage.setBounds(0, 0, osScaleMul(442), osScaleMul(104));
 
-      img = new ImageIcon(Launcher.getResource("/assets/notification_background.png"));
-      backgroundImage.setBounds(0, 0, 442, 104);
-
-      backgroundImage.setIcon(img);
+      backgroundImage.setIcon(
+          new ImageIcon(
+              backgroundImg.getScaledInstance(
+                  osScaleMul(backgroundImg.getWidth(null)),
+                  osScaleMul(backgroundImg.getHeight(null)),
+                  Image.SCALE_DEFAULT)));
       backgroundImage.setBackground(new Color(0, 0, 0, 0));
       backgroundImage.setForeground(new Color(0, 0, 0, 0));
       backgroundImage.setOpaque(false);
@@ -271,8 +298,8 @@ public class NotificationsHandler {
           Font.createFont(
               Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
 
-      notificationTitle.setFont(boldFont.deriveFont(Font.BOLD, 18f));
-      notificationTextArea.setFont(font.deriveFont(Font.PLAIN, 16f));
+      notificationTitle.setFont(boldFont.deriveFont(Font.BOLD, osScaleMul(18)));
+      notificationTextArea.setFont(font.deriveFont(Font.PLAIN, osScaleMul(16)));
     } catch (FontFormatException | IOException e) {
       Logger.Error("Error while setting up notifications font:" + e.getMessage());
       e.printStackTrace();

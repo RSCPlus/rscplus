@@ -222,6 +222,7 @@ public class XPBar {
       textColour = Renderer.color_yellow;
       if (bufferedMouseClick.isMouseClicked()) {
         resetXPGainStart();
+        Client.displayMessage("@cya@XP period has been reset", Client.CHAT_NONE);
       }
     } else {
       textColour = Renderer.color_text;

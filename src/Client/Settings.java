@@ -156,6 +156,8 @@ public class Settings {
   public static HashMap<String, Boolean> LOG_FORCE_TIMESTAMPS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> LOG_FORCE_LEVEL = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PREFERS_XDG_OPEN = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> USE_DARK_FLATLAF = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> USE_NIMBUS_THEME = new HashMap<String, Boolean>();
 
   //// audio settings
   public static HashMap<String, String> CUSTOM_MUSIC_PATH = new HashMap<String, String>();
@@ -1076,6 +1078,26 @@ public class Settings {
     PREFERS_XDG_OPEN.put("all", true);
     PREFERS_XDG_OPEN.put(
         "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
+
+    boolean defaultDarkMode = shouldDefaultDarkMode();
+
+    USE_DARK_FLATLAF.put("vanilla", defaultDarkMode);
+    USE_DARK_FLATLAF.put("vanilla_resizable", defaultDarkMode);
+    USE_DARK_FLATLAF.put("lite", defaultDarkMode);
+    USE_DARK_FLATLAF.put("default", defaultDarkMode);
+    USE_DARK_FLATLAF.put("heavy", defaultDarkMode);
+    USE_DARK_FLATLAF.put("all", defaultDarkMode);
+    USE_DARK_FLATLAF.put(
+        "custom", getPropBoolean(props, "use_dark_flatlaf", USE_DARK_FLATLAF.get("default")));
+
+    USE_NIMBUS_THEME.put("vanilla", false);
+    USE_NIMBUS_THEME.put("vanilla_resizable", false);
+    USE_NIMBUS_THEME.put("lite", false);
+    USE_NIMBUS_THEME.put("default", false);
+    USE_NIMBUS_THEME.put("heavy", false);
+    USE_NIMBUS_THEME.put("all", false);
+    USE_NIMBUS_THEME.put(
+        "custom", getPropBoolean(props, "use_nimbus_theme", USE_NIMBUS_THEME.get("default")));
 
     //// audio settings
     CUSTOM_MUSIC.put("vanilla", false);
@@ -2541,6 +2563,21 @@ public class Settings {
   }
 
   /**
+   * Determine whether we should default to dark mode for the app interface
+   *
+   * @return {@code boolean} indicating whether dark mode should be used
+   */
+  public static boolean shouldDefaultDarkMode() {
+    // Detect via JNA/registry for Windows
+    if (Util.isWindowsOS()) {
+      return Util.isWindowsOSDarkTheme();
+    }
+
+    // Default to dark mode for other OS's
+    return true;
+  }
+
+  /**
    * Creates necessary folders relative to the codebase, which is typically either the jar or
    * location of the package folders
    *
@@ -2913,6 +2950,8 @@ public class Settings {
           "bilinear_scaling_factor", Float.toString(BILINEAR_SCALING_FACTOR.get(preset)));
       props.setProperty(
           "bicubic_scaling_factor", Float.toString(BICUBIC_SCALING_FACTOR.get(preset)));
+      props.setProperty("use_dark_flatlaf", Boolean.toString(USE_DARK_FLATLAF.get(preset)));
+      props.setProperty("use_nimbus_theme", Boolean.toString(USE_NIMBUS_THEME.get(preset)));
       props.setProperty("check_updates", Boolean.toString(CHECK_UPDATES.get(preset)));
       props.setProperty(
           "show_account_security_settings",

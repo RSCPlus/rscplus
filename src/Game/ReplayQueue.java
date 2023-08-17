@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class ReplayQueue {
   public static int currentIndex = 0;
@@ -66,15 +67,19 @@ public class ReplayQueue {
                 replays.size(), ReplayQueue.queue.size()));
         return true;
       } else {
+        String replayFolderErrorMessage =
+            "The replay folder you selected is not valid.<br/>"
+                + "<br/>"
+                + "You need to select a folder that contains the 'version.bin', 'in.bin.gz', and 'keys.bin' for your replay.<br/>"
+                + "They're usually in a folder with your login username.";
+        JPanel replayFolderErrorPanel = Util.createOptionMessagePanel(replayFolderErrorMessage);
+
         JOptionPane.showMessageDialog(
             Game.getInstance().getApplet(),
-            "The replay folder you selected is not valid.\n"
-                + "\n"
-                + "You need to select a folder that contains the 'version.bin', 'in.bin.gz', and 'keys.bin' for your replay.\n"
-                + "They're usually in a folder with your login username.",
-            "rscplus",
+            replayFolderErrorPanel,
+            "RSCPlus",
             JOptionPane.ERROR_MESSAGE,
-            Launcher.icon_warn);
+            Launcher.scaled_icon_warn);
       }
     }
     return false;
@@ -94,15 +99,20 @@ public class ReplayQueue {
               if (replays.size() == 0) {
                 // no valid replays
                 if (foundBrokenReplay) {
+                  String brokenReplayErrorMessage =
+                      "The replay you dragged onto the client has a keys.bin file which is empty.<br/>"
+                          + "The data inside is encrypted without a key to decrypt it. :(<br/><br/>"
+                          + "Some information might be able to be retrieved from this replay<br/>"
+                          + "through reverse engineering, but basically it's broken.";
+                  JPanel brokenReplayErrorPanel =
+                      Util.createOptionMessagePanel(brokenReplayErrorMessage);
+
                   JOptionPane.showMessageDialog(
                       Game.getInstance().getApplet(),
-                      "The replay you dragged onto the client has a keys.bin file which is empty.\n"
-                          + "The data inside is encrypted without a key to decrypt it. :(\n\n"
-                          + "Some information might be able to be retrieved from this replay\n"
-                          + "through reverse engineering, but basically it's broken.",
-                      "rscplus",
+                      brokenReplayErrorPanel,
+                      "RSCPlus",
                       JOptionPane.ERROR_MESSAGE,
-                      Launcher.icon_warn);
+                      Launcher.scaled_icon_warn);
                 } else {
                   boolean importedBank = false;
                   if (Client.show_bank && droppedFiles.size() == 1) {
@@ -114,15 +124,20 @@ public class ReplayQueue {
                     }
                   }
                   if (!importedBank) {
+                    String replayNotFoundErrorMessage =
+                        "The folder you dropped onto the client is not a replay, nor does it contain replay folders.<br/>"
+                            + "<br/>"
+                            + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.";
+                    JPanel replayNotFoundErrorPanel =
+                        Util.createOptionMessagePanel(replayNotFoundErrorMessage);
+
                     // nothing that even looks like a replay was found
                     JOptionPane.showMessageDialog(
                         Game.getInstance().getApplet(),
-                        "The folder you dropped onto the client is not a replay, nor does it contain replay folders.\n"
-                            + "\n"
-                            + "You need to drop a folder that contains a 'version.bin', 'in.bin.gz', and 'keys.bin' for the replay.",
-                        "rscplus",
+                        replayNotFoundErrorPanel,
+                        "RSCPlus",
                         JOptionPane.ERROR_MESSAGE,
-                        Launcher.icon_warn);
+                        Launcher.scaled_icon_warn);
                   }
                 }
                 return;

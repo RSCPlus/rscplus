@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -991,24 +992,29 @@ public class Client {
 
     if (Settings.RECORD_AUTOMATICALLY_FIRST_TIME.get(Settings.currentProfile)
         && showRecordAlwaysDialogue) {
+      String confirmDefaultRecordMessage =
+          "If you'd like, you can record your session every time you play by default.<br/>"
+              + "<br/>"
+              + "These recordings do not leave your computer unless you manually do it on purpose.<br/>"
+              + "They also take up negligible space. You could fit about a 6 hour session on a floppy disk, depending on what you do.<br/>"
+              + "<br/>"
+              + "Recordings can be played back later, even offline, and capture the data the server sends and that you send the server.<br/>"
+              + "Your password is not in the capture.<br/>"
+              + "<br/>"
+              + "Would you like to record all your play sessions by default?<br/>"
+              + "<br/>"
+              + "<b>NOTE</b>: This option can be toggled in the Settings interface (ctrl-o by default) under the Replay tab.";
+
+      JPanel confirmDefaultRecordPanel = Util.createOptionMessagePanel(confirmDefaultRecordMessage);
+
       int response =
           JOptionPane.showConfirmDialog(
               Game.getInstance().getApplet(),
-              "If you'd like, you can record your session every time you play by default.\n"
-                  + "\n"
-                  + "These recordings do not leave your computer unless you manually do it on purpose.\n"
-                  + "They also take up negligible space. You could fit about a 6 hour session on a floppy disk, depending on what you do.\n"
-                  + "\n"
-                  + "Recordings can be played back later, even offline, and capture the data the server sends and that you send the server.\n"
-                  + "Your password is not in the capture.\n"
-                  + "\n"
-                  + "Would you like to record all your play sessions by default?\n"
-                  + "\n"
-                  + "NOTE: This option can be toggled in the Settings interface (ctrl-o by default) under the Replay tab.",
-              "rscplus",
+              confirmDefaultRecordPanel,
+              "RSCPlus",
               JOptionPane.YES_NO_OPTION,
               JOptionPane.INFORMATION_MESSAGE,
-              Launcher.icon);
+              Launcher.scaled_option_icon);
       if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
         Settings.RECORD_AUTOMATICALLY.put(Settings.currentProfile, true);
       } else if (response == JOptionPane.NO_OPTION) {

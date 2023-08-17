@@ -1001,6 +1001,7 @@ public class Renderer {
             && bufferedMouseClick.getX() <= xCoord + 3 + 90
             && bufferedMouseClick.getY() >= height - 16
             && bufferedMouseClick.getY() <= height
+            && !MouseHandler.inPlaybackButtonBounds(queueBounds)
             && bufferedMouseClick.isMouseClicked()) {
           if (!bufferedMouseClick.isRightClick()) {
             Client.displayMessage(

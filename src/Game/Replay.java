@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class Replay {
   // If we ever change replays in a way that breaks backwards compatibility,
@@ -192,15 +193,19 @@ public class Replay {
       version.close();
 
       if (replay_version > Replay.VERSION) {
-        JOptionPane.showMessageDialog(
-            Game.getInstance().getApplet(),
+        String replayVersionErrorMessage =
             "The replay you selected is for replay version "
                 + replay_version
-                + ".\n"
-                + "You may need to update rscplus to run this replay.\n",
-            "rscplus",
+                + ".<br/>"
+                + "You may need to update RSCPlus to run this replay.</br>";
+        JPanel replayVersionErrorPanel = Util.createOptionMessagePanel(replayVersionErrorMessage);
+
+        JOptionPane.showMessageDialog(
+            Game.getInstance().getApplet(),
+            replayVersionErrorPanel,
+            "RSCPlus",
             JOptionPane.ERROR_MESSAGE,
-            Launcher.icon_warn);
+            Launcher.scaled_icon_warn);
         return false;
       }
 
@@ -212,15 +217,20 @@ public class Replay {
       */
 
       if (client_version < 234 || client_version > 235) {
-        JOptionPane.showMessageDialog(
-            Game.getInstance().getApplet(),
+        String replayClientVersionErrorMessage =
             "The replay you selected is for client version "
                 + client_version
-                + ".\n"
-                + "rscplus currently only supports versions 234 and 235.\n",
-            "rscplus",
+                + ".<br/>"
+                + "RSCPlus currently only supports versions 234 and 235.<br/>";
+        JPanel replayClientVersionErrorPanel =
+            Util.createOptionMessagePanel(replayClientVersionErrorMessage);
+
+        JOptionPane.showMessageDialog(
+            Game.getInstance().getApplet(),
+            replayClientVersionErrorPanel,
+            "RSCPlus",
             JOptionPane.ERROR_MESSAGE,
-            Launcher.icon_warn);
+            Launcher.scaled_icon_warn);
         return false;
       }
 
@@ -253,12 +263,16 @@ public class Replay {
       play_keys = null;
       play_keyboard = null;
       play_mouse = null;
+
+      JPanel replayErrorPanel =
+          Util.createOptionMessagePanel("An error has occurred while trying to open the replay.");
+
       JOptionPane.showMessageDialog(
           Game.getInstance().getApplet(),
-          "An error has occured while trying to open the replay.",
-          "rscplus",
+          replayErrorPanel,
+          "RSCPlus",
           JOptionPane.ERROR_MESSAGE,
-          Launcher.icon_warn);
+          Launcher.scaled_icon_warn);
       return false;
     }
     Game.getInstance().getJConfig().changeWorld(Settings.WORLDS_TO_DISPLAY + 1);

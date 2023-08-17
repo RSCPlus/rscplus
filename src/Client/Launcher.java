@@ -18,20 +18,36 @@
  */
 package Client;
 
+import static Client.Util.osScaleMul;
+
 import Game.Client;
 import Game.Game;
 import Game.GameApplet;
 import Game.SoundEffects;
+import com.sun.jna.platform.win32.GDI32;
+import com.sun.jna.platform.win32.WinDef;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.font.GlyphVector;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -45,8 +61,12 @@ public class Launcher extends JFrame implements Runnable {
   private static WorldMapWindow worldMapWindow;
   private static QueueWindow queueWindow;
 
+  public static Font controlsFont;
+
   public static ImageIcon icon = null;
+  public static ImageIcon scaled_option_icon = null;
   public static ImageIcon icon_warn = null;
+  public static ImageIcon scaled_icon_warn = null;
 
   // bank filter/sort icons
   public static ImageIcon icon_satchel = null;
@@ -78,6 +98,9 @@ public class Launcher extends JFrame implements Runnable {
   private JProgressBar m_progressBar;
   private JClassLoader m_classLoader;
 
+  public static double OSScalingFactor = 1.0;
+  public static boolean forceDisableNimbus = false;
+
   private Launcher() {
     // Empty private constructor to prevent extra instances from being created.
   }
@@ -96,9 +119,37 @@ public class Launcher extends JFrame implements Runnable {
       icon = new ImageIcon(iconURL);
       setIconImage(icon.getImage());
     }
+    // Set scaled icon used in JOptionPanes
+    URL optionIconURL = getResource("/assets/icon_options.png");
+    if (optionIconURL != null) {
+      try {
+        BufferedImage iconOptionsBI = ImageIO.read(optionIconURL);
+        scaled_option_icon =
+            new ImageIcon(
+                iconOptionsBI.getScaledInstance(
+                    osScaleMul(iconOptionsBI.getWidth()),
+                    osScaleMul(iconOptionsBI.getHeight()),
+                    Image.SCALE_DEFAULT));
+      } catch (IOException e) {
+        // No-op
+      }
+    }
+    // Set warning icon
     iconURL = getResource("/assets/icon_warn.png");
     if (iconURL != null) {
       icon_warn = new ImageIcon(iconURL);
+      // Set scaled warning icon for JOptionPanes
+      try {
+        BufferedImage warnIconBI = ImageIO.read(iconURL);
+        scaled_icon_warn =
+            new ImageIcon(
+                warnIconBI.getScaledInstance(
+                    osScaleMul(warnIconBI.getWidth()),
+                    osScaleMul(warnIconBI.getHeight()),
+                    Image.SCALE_DEFAULT));
+      } catch (IOException e) {
+        // No-op
+      }
     }
 
     iconURL = getResource("/assets/bank/filter.png");
@@ -194,8 +245,8 @@ public class Launcher extends JFrame implements Runnable {
     GameApplet.loadJagexFonts();
 
     // Set size
-    getContentPane().setPreferredSize(new Dimension(280, 32));
-    setTitle("rscplus Launcher");
+    getContentPane().setPreferredSize(osScaleMul(new Dimension(280, 32)));
+    setTitle("RSCPlus Launcher");
     setResizable(false);
     pack();
     setLocationRelativeTo(null);
@@ -204,8 +255,11 @@ public class Launcher extends JFrame implements Runnable {
     m_progressBar = new JProgressBar();
     m_progressBar.setStringPainted(true);
     m_progressBar.setBorderPainted(true);
-    m_progressBar.setForeground(Color.GRAY.brighter());
+    m_progressBar.setForeground(Color.GRAY);
     m_progressBar.setBackground(Color.BLACK);
+    if (Util.isUsingFlatLAFTheme()) {
+      m_progressBar.setFont(new Font(Font.SERIF, Font.PLAIN, osScaleMul(14)));
+    }
     m_progressBar.setString("Initializing");
     getContentPane().add(m_progressBar);
 
@@ -218,92 +272,117 @@ public class Launcher extends JFrame implements Runnable {
   public void run() {
     if (Settings.UPDATE_CONFIRMATION.get(Settings.currentProfile)) {
       Client.firstTimeRunningRSCPlus = true;
+
+      String automaticUpdateMessage =
+          "RSCPlus has an automatic update feature.<br/>"
+              + "<br/>"
+              + "When enabled, RSCPlus will prompt for and install updates when launching the client.<br/>"
+              + "The updates are obtained from our 'Latest' release on GitHub.<br/>"
+              + "<br/>"
+              + "Would you like to enable this feature?<br/>"
+              + "<br/>"
+              + "<b>NOTE:</b> This option can be toggled in the Settings interface under the General tab.";
+
+      JPanel automaticUpdatePanel = Util.createOptionMessagePanel(automaticUpdateMessage);
+
       int response =
           JOptionPane.showConfirmDialog(
               this,
-              "rscplus has an automatic update feature.\n"
-                  + "\n"
-                  + "When enabled, rscplus will prompt for and install updates when launching the client.\n"
-                  + "The updates are obtained from our 'Latest' release on GitHub.\n"
-                  + "\n"
-                  + "Would you like to enable this feature?\n"
-                  + "\n"
-                  + "NOTE: This option can be toggled in the Settings interface under the General tab.",
-              "rscplus",
+              automaticUpdatePanel,
+              "RSCPlus",
               JOptionPane.YES_NO_OPTION,
               JOptionPane.INFORMATION_MESSAGE,
-              icon);
+              scaled_option_icon);
       if (response == JOptionPane.YES_OPTION || response == JOptionPane.CLOSED_OPTION) {
         Settings.CHECK_UPDATES.put(Settings.currentProfile, true);
+
+        JPanel updateInfoPanel =
+            Util.createOptionMessagePanel(
+                "RSCPlus is set to check for updates on GitHub at every launch!");
         JOptionPane.showMessageDialog(
-            this,
-            "rscplus is set to check for updates on GitHub at every launch!",
-            "rscplus",
-            JOptionPane.INFORMATION_MESSAGE,
-            icon);
+            this, updateInfoPanel, "RSCPlus", JOptionPane.INFORMATION_MESSAGE, scaled_option_icon);
       } else if (response == JOptionPane.NO_OPTION) {
         Settings.CHECK_UPDATES.put(Settings.currentProfile, false);
+
+        String automaticUpdateDeniedMessage =
+            "RSCPlus will not check for updates automatically.<br/>"
+                + "<br/>"
+                + "You will not get notified when new releases are available. To update your client, you<br/>"
+                + "will need to do it manually by replacing 'rscplus.jar' in your rscplus directory.<br/>"
+                + "<br/>"
+                + "You can enable GitHub updates again in the Settings interface under the General tab.";
+        JPanel automaticUpdateDeniedPanel =
+            Util.createOptionMessagePanel(automaticUpdateDeniedMessage);
+
         JOptionPane.showMessageDialog(
             this,
-            "rscplus will not check for updates automatically.\n"
-                + "\n"
-                + "You will not get notified when new releases are available. To update your client, you\n"
-                + "will need to do it manually by replacing 'rscplus.jar' in your rscplus directory.\n"
-                + "\n"
-                + "You can enable GitHub updates again in the Settings interface under the General tab.",
-            "rscplus",
+            automaticUpdateDeniedPanel,
+            "RSCPlus",
             JOptionPane.INFORMATION_MESSAGE,
-            icon_warn);
+            scaled_icon_warn);
       }
       Settings.UPDATE_CONFIRMATION.put(Settings.currentProfile, false);
       Settings.save();
     }
 
     if (Settings.CHECK_UPDATES.get(Settings.currentProfile)) {
-      setStatus("Checking for rscplus update...");
+      setStatus("Checking for RSCPlus update...");
       double latestVersion = Client.fetchLatestVersionNumber();
       if (Settings.VERSION_NUMBER < latestVersion) {
-        setStatus("rscplus update is available");
+        setStatus("RSCPlus update is available");
         // TODO: before Y10K update this to %9.6f
+
+        String clientUpdateMessage =
+            "An RSCPlus client update is available!<br/>"
+                + "<br/>"
+                + "Latest: "
+                + String.format("%8.6f", latestVersion)
+                + "<br/>"
+                + "Installed: "
+                + String.format("%8.6f", Settings.VERSION_NUMBER)
+                + "<br/>"
+                + "<br/>"
+                + "Would you like to update now?";
+        JPanel clientUpdatePanel = Util.createOptionMessagePanel(clientUpdateMessage);
+
         int response =
             JOptionPane.showConfirmDialog(
                 this,
-                "An rscplus client update is available!\n"
-                    + "\n"
-                    + "Latest: "
-                    + String.format("%8.6f", latestVersion)
-                    + "\n"
-                    + "Installed: "
-                    + String.format("%8.6f", Settings.VERSION_NUMBER)
-                    + "\n"
-                    + "\n"
-                    + "Would you like to update now?",
-                "rscplus",
+                clientUpdatePanel,
+                "RSCPlus",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
-                icon);
+                scaled_option_icon);
         if (response == JOptionPane.YES_OPTION) {
           if (updateJar()) {
+            String updateSuccessMessage =
+                "RSCPlus has been updated successfully!<br/>"
+                    + "<br/>"
+                    + "The client requires a restart, and will now exit.";
+            JPanel updateSuccessPanel = Util.createOptionMessagePanel(updateSuccessMessage);
+
             JOptionPane.showMessageDialog(
                 this,
-                "rscplus has been updated successfully!\n"
-                    + "\n"
-                    + "The client requires a restart, and will now exit.",
-                "rscplus",
+                updateSuccessPanel,
+                "RSCPlus",
                 JOptionPane.INFORMATION_MESSAGE,
-                icon);
+                scaled_option_icon);
             System.exit(0);
           } else {
+            String updateFailureMessage =
+                "RSCPlus has failed to update, please try again later.<br/>"
+                    + "<br/>"
+                    + "Would you like to continue without updating?";
+            JPanel updateFailurePanel = Util.createOptionMessagePanel(updateFailureMessage);
+
             response =
                 JOptionPane.showConfirmDialog(
                     this,
-                    "rscplus has failed to update, please try again later.\n"
-                        + "\n"
-                        + "Would you like to continue without updating?",
-                    "rscplus",
+                    updateFailurePanel,
+                    "RSCPlus",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.ERROR_MESSAGE,
-                    icon_warn);
+                    scaled_icon_warn);
             if (response == JOptionPane.NO_OPTION || response == JOptionPane.CLOSED_OPTION) {
               System.exit(0);
             }
@@ -388,7 +467,7 @@ public class Launcher extends JFrame implements Runnable {
       int readSize;
       while ((readSize = input.read(data, offset, size - offset)) != -1) {
         offset += readSize;
-        setStatus("Updating rscplus (" + (offset / 1024) + "KiB / " + (size / 1024) + "KiB)");
+        setStatus("Updating RSCPlus (" + (offset / 1024) + "KiB / " + (size / 1024) + "KiB)");
         setProgress(offset, size);
       }
 
@@ -435,13 +514,55 @@ public class Launcher extends JFrame implements Runnable {
     return m_classLoader;
   }
 
+  /* Uses JNA to acquire accurate scale factor for JRE 8 */
+  public static double getScaleFactor() {
+    WinDef.HDC hdc = GDI32.INSTANCE.CreateCompatibleDC(null);
+    if (hdc != null) {
+      float actual = GDI32.INSTANCE.GetDeviceCaps(hdc, 10);
+      float logical = GDI32.INSTANCE.GetDeviceCaps(hdc, 117);
+      GDI32.INSTANCE.DeleteDC(hdc);
+      if (logical != 0 && logical / actual > 1) {
+        return (double) logical / actual;
+      }
+    }
+    return Toolkit.getDefaultToolkit().getScreenResolution() / 96.0d;
+  }
+
   public static void main(String[] args) {
     // Do this before anything else runs to override OS-level dpi settings,
     // since we have in-client scaling now (not applicable to macOS, which
     // implements OS-scaling in a different fashion)
     if (!Util.isMacOS()) {
+      // Disable OS-level scaling in all JREs > 8
       System.setProperty("sun.java2d.uiScale.enabled", "false");
       System.setProperty("sun.java2d.uiScale", "1");
+
+      // Required for newer versions of Oracle 8 to disable OS-level scaling
+      System.setProperty("sun.java2d.dpiaware", "true");
+
+      // Account for OS scaling on modern versions of Windows
+      if (Util.isModernWindowsOS()) {
+        OSScalingFactor = getScaleFactor();
+        System.setProperty("flatlaf.uiScale", String.valueOf(OSScalingFactor));
+        System.setProperty("flatlaf.useWindowDecorations", String.valueOf(false));
+
+        // Forcibly disable the nimbus theme if selected, when the scaling factor is not 1.0
+        if (OSScalingFactor != 1.0) {
+          forceDisableNimbus = true;
+        }
+      }
+
+      // Linux / other
+      if (!Util.isWindowsOS()) {
+        System.setProperty("GDK_SCALE", "1");
+      }
+    }
+
+    if (Util.isMacOS()) {
+      // Note: This only works on some Java 8 implementations... Hopefully
+      // AdoptOpenJDK/Azul 8 fix their support for this eventually.
+      System.setProperty("apple.awt.application.appearance", "system");
+      System.setProperty("apple.awt.application.name", "RSCPlus");
     }
 
     numCores = Runtime.getRuntime().availableProcessors();
@@ -461,6 +582,7 @@ public class Launcher extends JFrame implements Runnable {
               + "You may encounter additional bugs, for best results use version 8.");
     }
 
+    controlsFont = determineControlsFont();
     setScaledWindow(ScaledWindow.getInstance());
     setConfigWindow(new ConfigWindow());
     Settings.loadKeybinds(props);
@@ -636,5 +758,73 @@ public class Launcher extends JFrame implements Runnable {
   /** @param queueWindow the window to set */
   public static void setQueueWindow(QueueWindow queueWindow) {
     Launcher.queueWindow = queueWindow;
+  }
+
+  private static Font determineControlsFont() {
+    Font font = new Font(Font.SANS_SERIF, Font.PLAIN, osScaleMul(18));
+    if (canRenderControlSymbol(font)) {
+      return font;
+    }
+
+    // Current font is not suitable, using our fallback
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    InputStream is = Launcher.getResourceAsStream("/assets/Symbola_Hinted.ttf");
+    try {
+      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
+      font = new Font("Symbola", Font.PLAIN, osScaleMul(18));
+
+      if (canRenderControlSymbol(font)) {
+        return font;
+      } else {
+        // This shouldn't happen unless someone broke the Symbola asset
+        Font firstSerifFont = getFirstAvailableSerifFont();
+        if (firstSerifFont != null && canRenderControlSymbol(firstSerifFont)) {
+          return firstSerifFont;
+        } else {
+          /*
+           * If we can't render the default serif font, or load the provided Symbola font,
+           * or render the first available font containing "serif" in the name, then just
+           * set it to null and then later draw text labels for the buttons.
+           * This is very much overkill.
+           */
+          return null;
+        }
+      }
+    } catch (FontFormatException | IOException e) {
+      // Will render text labels instead of unicode (see above)
+      return null;
+    }
+  }
+
+  private static Font getFirstAvailableSerifFont() {
+    Optional<Font> fontOptional =
+        Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+            .filter(f -> f.getFontName().toLowerCase().contains("serif"))
+            .findFirst();
+    return fontOptional.orElse(null);
+  }
+
+  /**
+   * Workaround for observed broken behavior in {@link Font#canDisplayUpTo}, which incorrectly
+   * reported that certain unicode characters may be rendered in a given font. This method instead
+   * draws the character to a temporary image and checks whether bounds were set in order to make
+   * the determination.
+   *
+   * @param font The font to check
+   * @return {@code boolean} indicating whether the symbol can be rendered
+   */
+  private static boolean canRenderControlSymbol(Font font) {
+    String uppermostChar = "\uD83D\uDD00";
+
+    BufferedImage glyphTest = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+    Graphics2D g2 = (Graphics2D) glyphTest.getGraphics();
+    GlyphVector gv = font.createGlyphVector(g2.getFontRenderContext(), uppermostChar);
+
+    boolean canDrawGlyph = !gv.getOutline().getBounds().isEmpty();
+
+    g2.dispose();
+    glyphTest.flush();
+
+    return canDrawGlyph;
   }
 }

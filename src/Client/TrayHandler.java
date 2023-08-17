@@ -18,8 +18,11 @@
  */
 package Client;
 
+import static Client.Util.osScaleMul;
+
 import Game.Game;
 import java.awt.AWTException;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -31,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import javax.imageio.ImageIO;
+import javax.swing.JTabbedPane;
 
 /** Handles the creation of system tray icons and notifications */
 public class TrayHandler implements MouseListener {
@@ -64,23 +68,57 @@ public class TrayHandler implements MouseListener {
 
     tray = SystemTray.getSystemTray();
 
+    Font scaledFont = new Font("sans-serif", Font.PLAIN, osScaleMul(12));
+
     // Create popup menu
     PopupMenu popup = new PopupMenu();
+
+    MenuItem about = new MenuItem("About RSC+");
+    about.setFont(scaledFont);
+
+    JTabbedPane settingsTabbedPane = Launcher.getConfigWindow().tabbedPane;
+
+    int authorsTabIndex = -1;
+    for (int i = 0; i < settingsTabbedPane.getTabCount(); i++) {
+      if (settingsTabbedPane.getTitleAt(i).equals(ConfigWindow.ConfigTab.AUTHORS.getLabel())) {
+        authorsTabIndex = i;
+        break;
+      }
+    }
+
+    if (authorsTabIndex > -1) {
+      int finalAuthorsTabIndex = authorsTabIndex;
+      about.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
+              settingsTabbedPane.setSelectedIndex(finalAuthorsTabIndex);
+              Launcher.getConfigWindow().showConfigWindow();
+            }
+          });
+    } else {
+      about.setEnabled(false);
+    }
+
     MenuItem settings = new MenuItem("Settings");
-    MenuItem exit = new MenuItem("Exit");
+    settings.setFont(scaledFont);
 
     settings.addActionListener(
         new ActionListener() {
-
           @Override
           public void actionPerformed(ActionEvent e) {
+            Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
+            settingsTabbedPane.setSelectedIndex(0);
             Launcher.getConfigWindow().showConfigWindow();
           }
         });
 
+    MenuItem exit = new MenuItem("Exit");
+    exit.setFont(scaledFont);
+
     exit.addActionListener(
         new ActionListener() {
-
           @Override
           public void actionPerformed(ActionEvent e) {
             // TODO: Perhaps find a way to close the client from the tray icon and call both
@@ -91,6 +129,8 @@ public class TrayHandler implements MouseListener {
           }
         });
 
+    popup.add(about);
+    popup.addSeparator();
     popup.add(settings);
     popup.add(exit);
 

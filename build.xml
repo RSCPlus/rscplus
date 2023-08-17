@@ -104,6 +104,7 @@
 			</manifest>
 			<fileset dir=".">
 				<include name="${assets.dir}/**" />
+				<include name="${main.src.dir}/Client/FlatLaf/*.properties" />
 				<include name="${jinput-natives.dir}/**" />
 				<include name="LICENSE" />
 			</fileset>

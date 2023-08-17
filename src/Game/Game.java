@@ -116,7 +116,7 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
   }
 
   public void updateTitle() {
-    String title = "rscplus (";
+    String title = "RSCPlus (";
 
     if (!Replay.isPlaying) {
       title += Settings.WORLD_NAMES.get(Settings.WORLD.get(Settings.currentProfile));
