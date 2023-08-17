@@ -116,6 +116,8 @@ public class Renderer {
   public static Image image_bar_frame;
   public static Image image_bar_frame_short;
   public static Image image_cursor;
+  public static Image image_gear;
+  public static Image image_gear_gold;
   public static Image image_highlighted_item;
   public static Image image_wiki_hbar_inactive_system;
   public static Image image_wiki_hbar_active_system;
@@ -249,6 +251,8 @@ public class Renderer {
           ImageIO.read(Launcher.getResource("/assets/hbar/wiki_hbar_active_jf.png"));
       GameApplet.syncWikiHbarImageWithFontSetting();
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
+      image_gear = ImageIO.read(Launcher.getResource("/assets/gear.png"));
+      image_gear_gold = ImageIO.read(Launcher.getResource("/assets/gear_gold.png"));
       image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
       image_small_skull = ImageIO.read(Launcher.getResource("/assets/small_skull.png"));
     } catch (Exception e) {
@@ -1583,6 +1587,31 @@ public class Renderer {
     } else if (Client.state == Client.STATE_LOGIN) {
       if (Settings.DEBUG.get(Settings.currentProfile))
         drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
+
+      // Draw settings gear
+      int gearX = width - 10 - image_gear.getWidth(null);
+      int gearY = 10;
+
+      Rectangle gearBounds = new Rectangle(gearX, gearY, image_gear.getWidth(null), image_gear.getHeight(null));
+
+      // Draw gold version on hover, grey otherwise
+      if (MouseHandler.x >= gearBounds.x
+          && MouseHandler.x <= gearBounds.x + gearBounds.width
+          && MouseHandler.y >= gearBounds.y
+          && MouseHandler.y <= gearBounds.y + gearBounds.height) {
+        g2.drawImage(image_gear_gold, gearX, gearY, null);
+      } else {
+        g2.drawImage(image_gear, gearX, gearY, null);
+      }
+
+      // Handle gear click
+      if (bufferedMouseClick.getX() >= gearBounds.x
+          && bufferedMouseClick.getX() <= gearBounds.x + gearBounds.width
+          && bufferedMouseClick.getY() >= gearBounds.y
+          && bufferedMouseClick.getY() <= gearBounds.y + gearBounds.height
+          && bufferedMouseClick.isMouseClicked()) {
+        Launcher.getConfigWindow().toggleConfigWindow();
+      }
 
       // Draw world list
       drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true, false);
