@@ -181,7 +181,7 @@ public class ConfigWindow {
   // Tooltip-related components
   private final AWTEventListener eventQueueListener;
   private final String toolTipInitText =
-      "Click here to display additional information from tooltips when hovering over settings — disable with another click";
+      "Click here to display additional information about settings";
   private boolean isListeningForEventQueue = false;
   private JPanel toolTipPanel;
   private JLabel toolTipTextLabel;
