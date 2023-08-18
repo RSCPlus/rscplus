@@ -18,6 +18,7 @@
  */
 package Client;
 
+import static Client.Util.isDarkThemeFlatLAF;
 import static Client.Util.isUsingFlatLAFTheme;
 import static Client.Util.osScaleDiv;
 import static Client.Util.osScaleMul;
@@ -35,6 +36,7 @@ import Game.Renderer;
 import Game.Replay;
 import Game.SoundEffects;
 import com.formdev.flatlaf.ui.FlatRoundBorder;
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,6 +53,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -58,6 +62,10 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
@@ -100,6 +108,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
@@ -168,6 +177,15 @@ public class ConfigWindow {
   private JTextField searchTextField;
   private JButton goToSearchButton;
   private JButton clearSearchButton;
+
+  // Tooltip-related components
+  private final AWTEventListener eventQueueListener;
+  private final String toolTipInitText =
+      "Click here to display additional information about settings";
+  private boolean isListeningForEventQueue = false;
+  private JPanel toolTipPanel;
+  private JLabel toolTipTextLabel;
+  private String toolTipTextString;
 
   /*
    * JComponent variables which hold configuration data
@@ -489,6 +507,7 @@ public class ConfigWindow {
 
   public ConfigWindow() {
     Util.setUITheme();
+    eventQueueListener = createConfigWindowEventQueueListener();
     initialize();
   }
 
@@ -505,6 +524,8 @@ public class ConfigWindow {
 
   public void hideConfigWindow() {
     Client.displayMessage("Hid the config window.", Client.CHAT_NONE);
+
+    resetToolTipListener();
 
     frame.setVisible(false);
   }
@@ -554,6 +575,14 @@ public class ConfigWindow {
       ImageIcon icon = new ImageIcon(iconURL);
       frame.setIconImage(icon.getImage());
     }
+    frame.addWindowListener(
+        new WindowAdapter() {
+          @Override
+          public void windowClosing(WindowEvent e) {
+            resetToolTipListener();
+            super.windowClosed(e);
+          }
+        });
 
     // Container declarations
 
@@ -570,6 +599,23 @@ public class ConfigWindow {
     if (Util.isUsingFlatLAFTheme()) {
       tabbedPane.putClientProperty("JTabbedPane.tabType", "card");
     }
+    tabbedPane.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            if (isListeningForEventQueue) {
+              toolTipTextString = "Waiting for mouse hover...";
+            } else {
+              toolTipTextString = toolTipInitText;
+            }
+            toolTipTextLabel.setText(toolTipTextString);
+          }
+        });
+
+    /* The JPanel containing the tooltip text components */
+    toolTipPanel = new JPanel();
+    resetToolTipBarPanelColors();
 
     /**
      * The JPanel containing the OK, Cancel, Apply, and Restore Defaults buttons at the bottom of
@@ -654,7 +700,12 @@ public class ConfigWindow {
 
     frame.getContentPane().add(searchPanel, BorderLayout.PAGE_START);
     frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-    frame.getContentPane().add(navigationPanel, BorderLayout.PAGE_END);
+
+    JPanel pageEndPanel = new JPanel();
+    pageEndPanel.setLayout(new BoxLayout(pageEndPanel, BoxLayout.Y_AXIS));
+    pageEndPanel.add(toolTipPanel);
+    pageEndPanel.add(navigationPanel);
+    frame.getContentPane().add(pageEndPanel, BorderLayout.PAGE_END);
 
     tabbedPane.addTab(ConfigTab.PRESETS.getLabel(), null, presetsScrollPane, null);
     tabbedPane.addTab(ConfigTab.GENERAL.getLabel(), null, generalScrollPane, null);
@@ -686,6 +737,17 @@ public class ConfigWindow {
     int border10 = osScaleMul(10);
     searchPanel.setBorder(
         BorderFactory.createEmptyBorder(border10, border10, osScaleMul(7), border10));
+    if (Util.isUsingFlatLAFTheme()) {
+      Color borderColor = isDarkThemeFlatLAF() ? new Color(82, 86, 87) : new Color(194, 194, 194);
+      toolTipPanel.setBorder(
+          BorderFactory.createMatteBorder(
+              0, osScaleMul(1), osScaleMul(1), osScaleMul(1), borderColor));
+    } else {
+      toolTipPanel.setBorder(
+          BorderFactory.createCompoundBorder(
+              BorderFactory.createEmptyBorder(0, osScaleMul(2), 0, osScaleMul(2)),
+              BorderFactory.createLineBorder(new Color(146, 151, 161))));
+    }
     navigationPanel.setBorder(
         BorderFactory.createEmptyBorder(osScaleMul(7), border10, border10, border10));
     presetsPanel.setBorder(BorderFactory.createEmptyBorder(border10, border10, border10, border10));
@@ -805,6 +867,43 @@ public class ConfigWindow {
                 searchComponents();
               }
             });
+
+    /*
+     Tooltip panel
+    */
+    toolTipPanel.setLayout(new BoxLayout(toolTipPanel, BoxLayout.X_AXIS));
+    toolTipTextLabel = new JLabel(toolTipInitText);
+    toolTipTextLabel.setBorder(
+        BorderFactory.createEmptyBorder(osScaleMul(2), border10, osScaleMul(2), border10));
+    toolTipTextLabel.setText(toolTipInitText);
+    toolTipTextLabel.setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    toolTipTextLabel.setMaximumSize(new Dimension(Short.MAX_VALUE, osScaleMul(28)));
+    toolTipTextLabel.setAlignmentY(0.75f);
+    toolTipPanel.add(toolTipTextLabel);
+
+    toolTipPanel.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mousePressed(MouseEvent e) {
+            if (isListeningForEventQueue) {
+              resetToolTipBarPanelColors();
+              toolTipTextLabel.setText(toolTipInitText);
+              removeConfigWindowEventQueueListener();
+            } else {
+              // Uses theme tooltip colors
+              if (Util.isDarkThemeFlatLAF()) {
+                toolTipPanel.setBackground(new Color(21, 23, 24));
+              } else if (Util.isLightThemeFlatLAF()) {
+                toolTipPanel.setBackground(new Color(250, 250, 250));
+              } else {
+                toolTipPanel.setBackground(new Color(242, 242, 189));
+              }
+              toolTipTextString = "Waiting for mouse hover...";
+              toolTipTextLabel.setText(toolTipTextString);
+              addConfigWindowEventQueueListener();
+            }
+          }
+        });
 
     /*
      * Navigation buttons
@@ -1995,6 +2094,7 @@ public class ConfigWindow {
             "Use dark mode for the interface (Requires restart & modern UI theme)", generalPanel);
     generalPanelUseDarkModeCheckbox.setToolTipText(
         "Uses the darker UI theme, unless the legacy theme is enabled");
+    SearchUtils.addSearchMetadata(generalPanelUseDarkModeCheckbox, "light");
 
     generalPanelUseNimbusThemeCheckbox =
         addCheckbox("Use legacy RSC+ UI theme (Requires restart)", generalPanel);
@@ -4280,6 +4380,25 @@ public class ConfigWindow {
     indexSearch();
   }
 
+  /** Resets the tooltip listener state */
+  private void resetToolTipListener() {
+    toolTipTextString = " ";
+    toolTipTextLabel.setText(toolTipInitText);
+    resetToolTipBarPanelColors();
+    removeConfigWindowEventQueueListener();
+  }
+
+  /** Resets the tooltip bar panel colors */
+  private void resetToolTipBarPanelColors() {
+    if (Util.isDarkThemeFlatLAF()) {
+      toolTipPanel.setBackground(new Color(52, 56, 58));
+    } else if (Util.isLightThemeFlatLAF()) {
+      toolTipPanel.setBackground(new Color(235, 235, 235));
+    } else {
+      toolTipPanel.setBackground(new Color(233, 236, 242));
+    }
+  }
+
   /** Collection of frequently-used metadata values */
   private enum CommonMetadata {
     HP("health", "hits", "hp"),
@@ -6517,6 +6636,83 @@ public class ConfigWindow {
     }
 
     return componentList;
+  }
+
+  /**
+   * Creates an EventQueue listener, used to capture {@link MouseEvent#MOUSE_ENTERED} events for
+   * display tooltip text within the {@link #toolTipPanel}
+   *
+   * @return The constructed {@link AWTEventListener} instance
+   */
+  private AWTEventListener createConfigWindowEventQueueListener() {
+    return new AWTEventListener() {
+      @Override
+      public void eventDispatched(AWTEvent e) {
+        try {
+          // Exit early if the label hasn't been initialized
+          if (toolTipTextLabel == null) {
+            return;
+          }
+
+          // Exit early for things that aren't MOUSE_ENTERED events
+          if (e.getID() != MouseEvent.MOUSE_ENTERED) {
+            return;
+          }
+
+          // Exit early for events that aren't on a JComponent
+          if (!(e.getSource() instanceof JComponent)) {
+            return;
+          }
+
+          // Exit early for events that did not originate from the ConfigWindow
+          if (SwingUtilities.getWindowAncestor((JComponent) e.getSource()) != frame) {
+            return;
+          }
+
+          String componentToolTipText = ((JComponent) e.getSource()).getToolTipText();
+
+          if (componentToolTipText != null && !componentToolTipText.equals(toolTipTextString)) {
+            toolTipTextString = componentToolTipText;
+            toolTipTextLabel.setText(toolTipTextString);
+          }
+        } catch (Exception ex) {
+          Logger.Error(
+              "There was an error with processing the MOUSE_ENTERED event listener."
+                  + "Please screenshot and report this error if possible.");
+          ex.printStackTrace();
+        }
+      }
+    };
+  }
+
+  /** Attaches the EventQueue listener */
+  private void addConfigWindowEventQueueListener() {
+    if (isListeningForEventQueue) {
+      return;
+    }
+
+    // Disable tooltips
+    ToolTipManager.sharedInstance().setEnabled(false);
+
+    // Add listener
+    Toolkit.getDefaultToolkit().addAWTEventListener(eventQueueListener, AWTEvent.MOUSE_EVENT_MASK);
+
+    isListeningForEventQueue = true;
+  }
+
+  /** Detaches the EventQueue listener */
+  private void removeConfigWindowEventQueueListener() {
+    if (!isListeningForEventQueue) {
+      return;
+    }
+
+    // Enable tooltips
+    ToolTipManager.sharedInstance().setEnabled(true);
+
+    // Remove listener
+    Toolkit.getDefaultToolkit().removeAWTEventListener(eventQueueListener);
+
+    isListeningForEventQueue = false;
   }
 
   /** Searchable objects cached within the {@link #searchItemsMap} */
