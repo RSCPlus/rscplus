@@ -186,8 +186,15 @@ public class NotificationsHandler {
                 osScaleMul(closeButtonImg.getWidth(null)),
                 osScaleMul(closeButtonImg.getHeight(null)),
                 Image.SCALE_DEFAULT)));
+    Image closeHighlightButtonImg =
+        new ImageIcon(Launcher.getResource("/assets/notification_close_highlighted.png"))
+            .getImage();
     closeButton.setSelectedIcon(
-        new ImageIcon(Launcher.getResource("/assets/notification_close_highlighted.png")));
+        new ImageIcon(
+            closeHighlightButtonImg.getScaledInstance(
+                osScaleMul(closeHighlightButtonImg.getWidth(null)),
+                osScaleMul(closeHighlightButtonImg.getHeight(null)),
+                Image.SCALE_DEFAULT)));
     closeButton.setBorder(BorderFactory.createEmptyBorder());
     closeButton.setContentAreaFilled(false);
     mainContentPanel.add(closeButton);

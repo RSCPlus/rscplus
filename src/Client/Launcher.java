@@ -109,7 +109,7 @@ public class Launcher extends JFrame implements Runnable {
   /** Renders the launcher progress bar window, then calls {@link #run()}. */
   public void init() {
     Logger.start();
-    Logger.Info("Starting rscplus");
+    Logger.Info("Starting RSCPlus");
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     getContentPane().setBackground(Color.BLACK);
@@ -338,7 +338,7 @@ public class Launcher extends JFrame implements Runnable {
             "RSCPlus will not check for updates automatically.<br/>"
                 + "<br/>"
                 + "You will not get notified when new releases are available. To update your client, you<br/>"
-                + "will need to do it manually by replacing 'rscplus.jar' in your rscplus directory.<br/>"
+                + "will need to do it manually by replacing 'rscplus.jar' in your RSCPlus directory.<br/>"
                 + "<br/>"
                 + "You can enable GitHub updates again in the Settings interface under the General tab.";
         JPanel automaticUpdateDeniedPanel =
@@ -477,7 +477,7 @@ public class Launcher extends JFrame implements Runnable {
   public boolean updateJar() {
     boolean success = true;
 
-    setStatus("Starting rscplus update...");
+    setStatus("Starting RSCPlus update...");
     setProgress(0, 1);
 
     try {
@@ -510,7 +510,7 @@ public class Launcher extends JFrame implements Runnable {
         output.write(data);
         output.close();
 
-        setStatus("rscplus update complete");
+        setStatus("RSCPlus update complete");
       }
     } catch (Exception e) {
       success = false;

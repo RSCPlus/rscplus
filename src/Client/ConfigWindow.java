@@ -1356,16 +1356,16 @@ public class ConfigWindow {
     // End scaling options
 
     generalPanelCheckUpdates =
-        addCheckbox("Check for rscplus updates from GitHub at launch", generalPanel);
+        addCheckbox("Check for RSCPlus updates from GitHub at launch", generalPanel);
     generalPanelCheckUpdates.setToolTipText(
-        "When enabled, rscplus will check for client updates before launching the game and install them when prompted");
+        "When enabled, RSCPlus will check for client updates before launching the game and install them when prompted");
 
     generalPanelWelcomeEnabled =
         addCheckbox(
             "<html><head><style>span{color:red;}</style></head>Remind you how to open the Settings every time you log in <span>(!!! Disable this if you know how to open the settings)</span></html>",
             generalPanel);
     generalPanelWelcomeEnabled.setToolTipText(
-        "When enabled, rscplus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
+        "When enabled, RSCPlus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
 
     generalPanelAccountSecurityCheckbox =
         addCheckbox(
@@ -2032,7 +2032,7 @@ public class ConfigWindow {
 
     JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
     generalPanelLogVerbosityTitle.setToolTipText(
-        "What max level of log text will be shown in the rscplus log/console");
+        "What max level of log text will be shown in the RSCPlus log/console");
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
     generalPanelLogVerbosityTitle.setAlignmentY(1.0f);
     SearchUtils.addSearchMetadata(generalPanelLogVerbosityTitle, "logger", "logging");

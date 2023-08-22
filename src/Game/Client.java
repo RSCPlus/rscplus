@@ -2458,7 +2458,7 @@ public class Client {
           CHAT_QUEST);
       if (Settings.CHECK_UPDATES.get(Settings.currentProfile)) {
         displayMessage(
-            "~034~ You will receive the update next time you restart rscplus", CHAT_QUEST);
+            "~034~ You will receive the update next time you restart RSCPlus", CHAT_QUEST);
       }
     } else if (announceIfUpToDate) {
       displayMessage(
