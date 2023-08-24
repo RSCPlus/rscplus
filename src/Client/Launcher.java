@@ -425,7 +425,7 @@ public class Launcher extends JFrame implements Runnable {
     JConfig config = Game.getInstance().getJConfig();
     config.create(Settings.WORLD.get(Settings.currentProfile));
 
-    m_classLoader = new JClassLoader();
+    m_classLoader = new JClassLoader(Thread.currentThread().getContextClassLoader());
     if (!m_classLoader.fetch("/assets/rsclassic-1091943135.jar")) {
       error("Unable to fetch Jar");
     }
