@@ -1851,7 +1851,7 @@ public class Renderer {
       // Draw version information
       drawShadowText(
           g2,
-          "rscplus v" + String.format("%8.6f", Settings.VERSION_NUMBER),
+          "RSCPlus v" + String.format("%8.6f", Settings.VERSION_NUMBER),
           width - 164,
           height - 2,
           color_text,

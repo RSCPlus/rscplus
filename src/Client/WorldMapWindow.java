@@ -428,11 +428,11 @@ public class WorldMapWindow {
             AffineTransform.getScaleInstance(Launcher.OSScalingFactor, Launcher.OSScalingFactor)));
     setAlpha(g, 0.5f);
     g.setColor(Renderer.color_text);
+    g.setStroke(new BasicStroke(osScaleMul(1)));
     g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     setAlpha(g, 1.0f);
     g.setColor(Renderer.color_shadow);
     g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-    g.setStroke(new BasicStroke(osScaleMul(1)));
     Renderer.drawShadowText(
         g,
         text,
