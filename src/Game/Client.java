@@ -809,9 +809,15 @@ public class Client {
     return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
   }
 
-  /** Early OG Mudclient FPS calculation to display when Settings.SHOW_RETRO_FPS is set */
-  public static void calcFPS(int target, int var1) {
-    fps = (1000 * var1) / (target * 256);
+  /**
+   * Early OG Mudclient FPS calculation to display when Settings.SHOW_RETRO_FPS is set The fps will
+   * be between [4, 50]
+   *
+   * @param targetFrameTime - the target frameTime in milliseconds per frame
+   * @param frameCounter counter between [25, 256]
+   */
+  public static void calcFPS(int targetFrameTime, int frameCounter) {
+    fps = (1000 * frameCounter) / (targetFrameTime * 256);
   }
 
   /**
