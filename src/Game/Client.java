@@ -271,6 +271,8 @@ public class Client {
   public static int selectedItemSlot;
   public static boolean is_hover;
 
+  public static int fps;
+
   /** An array of Strings that stores text used in the client */
   public static String[] strings;
 
@@ -805,6 +807,11 @@ public class Client {
     }
 
     return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+  }
+
+  /** Early OG Mudclient FPS calculation to display when Settings.SHOW_RETRO_FPS is set */
+  public static void calcFPS(int target, int var1) {
+    fps = (1000 * var1) / (target * 256);
   }
 
   /**
@@ -2475,7 +2482,7 @@ public class Client {
         try {
           Reflection.drawString.invoke(
               surfaceInstance,
-              "Fps: " + Renderer.fps,
+              "Fps: " + Client.fps,
               Renderer.width - 62 - offset,
               Renderer.height - 19,
               0xffff00,

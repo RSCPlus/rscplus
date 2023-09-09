@@ -1087,6 +1087,25 @@ public class JClassPatcher {
             methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
           }
         }
+
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          // entry point
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && ((MethodInsnNode) insnNode).name.equals("b")) {
+            methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                nextNode, new FieldInsnNode(Opcodes.GETFIELD, "e", "Ib", "I"));
+            methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(
+                nextNode,
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "Game/Client", "calcFPS", "(II)V"));
+            break;
+          }
+        }
       }
 
       // draw loading screen
