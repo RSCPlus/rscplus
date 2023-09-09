@@ -1087,6 +1087,31 @@ public class JClassPatcher {
             methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
           }
         }
+
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          // entry point
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && ((MethodInsnNode) insnNode).name.equals("b")) {
+            methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 1000));
+            methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ILOAD, 4));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.IMUL));
+            methodNode.instructions.insertBefore(nextNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                nextNode, new FieldInsnNode(Opcodes.GETFIELD, "e", "Ib", "I"));
+            methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 256));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.IMUL));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.IDIV));
+            methodNode.instructions.insertBefore(
+                nextNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "fps", "I"));
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.POP));
+            break;
+          }
+        }
       }
 
       // draw loading screen

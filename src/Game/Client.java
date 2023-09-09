@@ -271,6 +271,8 @@ public class Client {
   public static int selectedItemSlot;
   public static boolean is_hover;
 
+  public static int fps;
+
   /** An array of Strings that stores text used in the client */
   public static String[] strings;
 
@@ -2475,7 +2477,7 @@ public class Client {
         try {
           Reflection.drawString.invoke(
               surfaceInstance,
-              "Fps: " + Renderer.fps,
+              "Fps: " + Client.fps,
               Renderer.width - 62 - offset,
               Renderer.height - 19,
               0xffff00,
