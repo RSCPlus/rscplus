@@ -2507,13 +2507,7 @@ public class Client {
     int fullY = y + regionY;
     MouseText.lastObjectId = id;
 
-    // TODO:
-    // MouseText.lastObjectType = type;
-    if (type == dir) {
-      MouseText.lastObjectType = MouseText.BOUNDARY;
-    } else if (type == y) {
-      MouseText.lastObjectType = MouseText.SCENERY;
-    }
+    MouseText.lastObjectType = type;
 
     if (Settings.TRACE_OBJECT_INFO.get(Settings.currentProfile)) {
       return " @gre@(" + id + ";" + dir + ";" + fullX + "," + fullY + ")";
