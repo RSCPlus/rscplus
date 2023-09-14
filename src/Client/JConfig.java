@@ -204,7 +204,7 @@ public class JConfig {
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);
-    Settings.save();
+    Settings.saveNoPresetModification();
 
     // Resolve hostname here to be written to metadata (not used to connect to server)
     try {
