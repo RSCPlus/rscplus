@@ -4237,7 +4237,6 @@ public class ConfigWindow {
             Settings.initSettings();
             Settings.presetModified = false;
             synchronizeGuiValues();
-            Settings.saveProfile("custom");
           }
         });
 

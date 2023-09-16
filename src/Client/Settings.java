@@ -1066,10 +1066,12 @@ public class Settings {
     LOG_FORCE_LEVEL.put(
         "custom", getPropBoolean(props, "log_force_level", LOG_FORCE_LEVEL.get("default")));
 
+    if (!successfullyInitted) {
+      Util.hasXdgOpen = Util.detectBinaryAvailable("xdg-open", "URL opening");
+    }
+
     defineStaticPreset(
-        PREFERS_XDG_OPEN,
-        getPropBoolean(
-            props, "prefers_xdg_open", Util.detectBinaryAvailable("xdg-open", "URL opening")));
+        PREFERS_XDG_OPEN, getPropBoolean(props, "prefers_xdg_open", Util.hasXdgOpen));
 
     boolean defaultDarkMode = shouldDefaultDarkMode();
     USE_DARK_FLATLAF.put("vanilla", defaultDarkMode);
@@ -2320,7 +2322,11 @@ public class Settings {
             "preferred_date_format",
             "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa")); // american format + era + day of week
     PREFERRED_DATE_FORMAT.put(
-        "custom", getPropString(props, "preferred_date_format", "MMMMMMMMM dd, yyyy, hh:mm:ss aa"));
+        "custom",
+        getPropString(
+            props,
+            "preferred_date_format",
+            "yyyy-MM-dd HH:mm:ss")); // ISO 8601, same as default folder name format
 
     SHOW_WORLD_COLUMN.put("vanilla", false);
     SHOW_WORLD_COLUMN.put("vanilla_resizable", false);
@@ -2588,7 +2594,8 @@ public class Settings {
     try {
       Properties props = loadProps();
 
-      currentProfile = getPropString(props, "current_profile", "custom");
+      currentProfile = "custom";
+
       definePresets(props);
 
       // World Map
@@ -2644,32 +2651,6 @@ public class Settings {
       e.printStackTrace();
     }
     return null;
-  }
-
-  /**
-   * Saves just the "current_profile" value to the config.ini, used for saving presets
-   *
-   * @param profile
-   */
-  static void saveProfile(String profile) {
-    if (!successfullyInitted) {
-      Logger.Warn(
-          "Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
-      return;
-    }
-
-    try {
-      Properties props = loadProps();
-
-      props.setProperty("current_profile", profile);
-
-      FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
-      props.store(out, "---rscplus config---");
-      out.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      Logger.Error("Unable to save settings");
-    }
   }
 
   public static Properties loadProps() {
@@ -3261,9 +3242,6 @@ public class Settings {
 
       //// joystick
       props.setProperty("joystick_enabled", Boolean.toString(JOYSTICK_ENABLED.get(preset)));
-
-      //// presets
-      props.setProperty("current_profile", currentProfile);
 
       //// no gui
       props.setProperty("combat_style", Integer.toString(COMBAT_STYLE.get(preset)));
