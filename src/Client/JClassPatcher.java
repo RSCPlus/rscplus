@@ -4177,12 +4177,9 @@ public class JClassPatcher {
                   insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "ye", "[I"));
               methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
               methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
-              // mark as scenery by duplicating y // TODO: just insert Game/MouseText.SCENERY
-              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              // mark as scenery by inserting Game/MouseText.SCENERY
               methodNode.instructions.insertBefore(
-                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "ye", "[I"));
-              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
-              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+                  insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "Game/MouseText", "SCENERY", "I"));
               methodNode.instructions.insertBefore(
                   insnNode,
                   new MethodInsnNode(
@@ -4243,13 +4240,10 @@ public class JClassPatcher {
                   insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "yk", "[I"));
               methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
               methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
-              // mark as boundary by duplicating direction // TODO: just insert
-              // Game/MouseText.BOUNDARY
-              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              // mark as boundary by inserting Game/MouseText.BOUNDARY
               methodNode.instructions.insertBefore(
-                  insnNode, new FieldInsnNode(Opcodes.GETFIELD, "client", "Hj", "[I"));
-              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 9));
-              methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IALOAD));
+                  insnNode,
+                  new FieldInsnNode(Opcodes.GETSTATIC, "Game/MouseText", "BOUNDARY", "I"));
               methodNode.instructions.insertBefore(
                   insnNode,
                   new MethodInsnNode(
