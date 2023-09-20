@@ -54,6 +54,8 @@ public class Settings {
   public static int javaVersion = 0;
   public static final double VERSION_NUMBER = 20230818.180806;
   public static boolean successfullyInitted = false;
+  public static boolean presetModified = false;
+
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
    * versioning system.
@@ -471,14 +473,7 @@ public class Settings {
         "custom",
         getPropFloat(props, "bicubic_scaling_factor", BICUBIC_SCALING_FACTOR.get("default")));
 
-    CHECK_UPDATES.put("vanilla", true);
-    CHECK_UPDATES.put("vanilla_resizable", true);
-    CHECK_UPDATES.put("lite", true);
-    CHECK_UPDATES.put("default", true);
-    CHECK_UPDATES.put("heavy", true);
-    CHECK_UPDATES.put("all", true);
-    CHECK_UPDATES.put(
-        "custom", getPropBoolean(props, "check_updates", CHECK_UPDATES.get("default")));
+    defineStaticPreset(CHECK_UPDATES, getPropBoolean(props, "check_updates", true));
 
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla", false);
     SHOW_ACCOUNT_SECURITY_SETTINGS.put("vanilla_resizable", false);
@@ -1071,18 +1066,14 @@ public class Settings {
     LOG_FORCE_LEVEL.put(
         "custom", getPropBoolean(props, "log_force_level", LOG_FORCE_LEVEL.get("default")));
 
-    Util.hasXdgOpen = Util.detectBinaryAvailable("xdg-open", "URL opening");
-    PREFERS_XDG_OPEN.put("vanilla", false);
-    PREFERS_XDG_OPEN.put("vanilla_resizable", false);
-    PREFERS_XDG_OPEN.put("lite", false);
-    PREFERS_XDG_OPEN.put("default", Util.hasXdgOpen);
-    PREFERS_XDG_OPEN.put("heavy", true);
-    PREFERS_XDG_OPEN.put("all", true);
-    PREFERS_XDG_OPEN.put(
-        "custom", getPropBoolean(props, "prefers_xdg_open", PREFERS_XDG_OPEN.get("default")));
+    if (!successfullyInitted) {
+      Util.hasXdgOpen = Util.detectBinaryAvailable("xdg-open", "URL opening");
+    }
+
+    defineStaticPreset(
+        PREFERS_XDG_OPEN, getPropBoolean(props, "prefers_xdg_open", Util.hasXdgOpen));
 
     boolean defaultDarkMode = shouldDefaultDarkMode();
-
     USE_DARK_FLATLAF.put("vanilla", defaultDarkMode);
     USE_DARK_FLATLAF.put("vanilla_resizable", defaultDarkMode);
     USE_DARK_FLATLAF.put("lite", defaultDarkMode);
@@ -1110,14 +1101,8 @@ public class Settings {
     CUSTOM_MUSIC.put("all", true);
     CUSTOM_MUSIC.put("custom", getPropBoolean(props, "custom_music", CUSTOM_MUSIC.get("default")));
 
-    CUSTOM_MUSIC_PATH.put("vanilla", "mods/music.zip");
-    CUSTOM_MUSIC_PATH.put("vanilla_resizable", CUSTOM_MUSIC_PATH.get("vanilla"));
-    CUSTOM_MUSIC_PATH.put("lite", CUSTOM_MUSIC_PATH.get("vanilla"));
-    CUSTOM_MUSIC_PATH.put("default", CUSTOM_MUSIC_PATH.get("vanilla"));
-    CUSTOM_MUSIC_PATH.put("heavy", CUSTOM_MUSIC_PATH.get("vanilla"));
-    CUSTOM_MUSIC_PATH.put("all", CUSTOM_MUSIC_PATH.get("vanilla"));
-    CUSTOM_MUSIC_PATH.put(
-        "custom", getPropString(props, "custom_music_path", CUSTOM_MUSIC_PATH.get("default")));
+    defineStaticPreset(
+        CUSTOM_MUSIC_PATH, getPropString(props, "custom_music_path", "mods/music.zip"));
 
     SFX_VOLUME.put("vanilla", 100);
     SFX_VOLUME.put("vanilla_resizable", 100);
@@ -1908,24 +1893,11 @@ public class Settings {
     EXCEPTION_HANDLER.put(
         "custom", getPropBoolean(props, "exception_handler", EXCEPTION_HANDLER.get("default")));
 
-    HIGHLIGHTED_ITEMS.put("vanilla", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put("vanilla_resizable", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put("lite", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put("default", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put("heavy", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put("all", new ArrayList<String>());
-    HIGHLIGHTED_ITEMS.put(
-        "custom",
-        getPropArrayListString(props, "highlighted_items", HIGHLIGHTED_ITEMS.get("default")));
+    defineStaticPreset(
+        HIGHLIGHTED_ITEMS, getPropArrayListString(props, "highlighted_items", new ArrayList<>()));
 
-    BLOCKED_ITEMS.put("vanilla", new ArrayList<String>());
-    BLOCKED_ITEMS.put("vanilla_resizable", new ArrayList<String>());
-    BLOCKED_ITEMS.put("lite", new ArrayList<String>());
-    BLOCKED_ITEMS.put("default", new ArrayList<String>());
-    BLOCKED_ITEMS.put("heavy", new ArrayList<String>());
-    BLOCKED_ITEMS.put("all", new ArrayList<String>());
-    BLOCKED_ITEMS.put(
-        "custom", getPropArrayListString(props, "blocked_items", BLOCKED_ITEMS.get("default")));
+    defineStaticPreset(
+        BLOCKED_ITEMS, getPropArrayListString(props, "blocked_items", new ArrayList<>()));
 
     ITEM_HIGHLIGHT_COLOUR.put("vanilla", 0xFFD700);
     ITEM_HIGHLIGHT_COLOUR.put("vanilla_resizable", 0xFFD700);
@@ -1970,14 +1942,7 @@ public class Settings {
         "custom",
         getPropBoolean(props, "start_searched_bank", START_REMEMBERED_FILTER_SORT.get("default")));
 
-    SEARCH_BANK_WORD.put("vanilla", "");
-    SEARCH_BANK_WORD.put("vanilla_resizable", "");
-    SEARCH_BANK_WORD.put("lite", "");
-    SEARCH_BANK_WORD.put("default", "");
-    SEARCH_BANK_WORD.put("heavy", "");
-    SEARCH_BANK_WORD.put("all", "");
-    SEARCH_BANK_WORD.put(
-        "custom", getPropString(props, "search_bank_word", SEARCH_BANK_WORD.get("default")));
+    defineStaticPreset(SEARCH_BANK_WORD, getPropString(props, "search_bank_word", ""));
 
     SHOW_BANK_VALUE.put("vanilla", false);
     SHOW_BANK_VALUE.put("vanilla_resizable", false);
@@ -2065,14 +2030,8 @@ public class Settings {
     PM_NOTIFICATIONS.put(
         "custom", getPropBoolean(props, "pm_notifications", PM_NOTIFICATIONS.get("default")));
 
-    PM_DENYLIST.put("vanilla", new ArrayList<String>());
-    PM_DENYLIST.put("vanilla_resizable", new ArrayList<String>());
-    PM_DENYLIST.put("lite", new ArrayList<String>());
-    PM_DENYLIST.put("default", new ArrayList<String>());
-    PM_DENYLIST.put("heavy", new ArrayList<String>());
-    PM_DENYLIST.put("all", new ArrayList<String>());
-    PM_DENYLIST.put(
-        "custom", getPropArrayListString(props, "pm_denylist", PM_DENYLIST.get("default")));
+    defineStaticPreset(
+        PM_DENYLIST, getPropArrayListString(props, "pm_denylist", new ArrayList<>()));
 
     TRADE_NOTIFICATIONS.put("vanilla", false);
     TRADE_NOTIFICATIONS.put("vanilla_resizable", false);
@@ -2164,26 +2123,12 @@ public class Settings {
         getPropInt(
             props, "highlighted_item_notif_value", HIGHLIGHTED_ITEM_NOTIF_VALUE.get("default")));
 
-    IMPORTANT_MESSAGES.put("vanilla", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put("vanilla_resizable", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put("lite", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put("default", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put("heavy", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put("all", new ArrayList<String>());
-    IMPORTANT_MESSAGES.put(
-        "custom",
-        getPropArrayListString(props, "important_messages", IMPORTANT_MESSAGES.get("default")));
+    defineStaticPreset(
+        IMPORTANT_MESSAGES, getPropArrayListString(props, "important_messages", new ArrayList<>()));
 
-    IMPORTANT_SAD_MESSAGES.put("vanilla", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put("vanilla_resizable", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put("lite", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put("default", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put("heavy", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put("all", new ArrayList<String>());
-    IMPORTANT_SAD_MESSAGES.put(
-        "custom",
-        getPropArrayListString(
-            props, "important_sad_messages", IMPORTANT_SAD_MESSAGES.get("default")));
+    defineStaticPreset(
+        IMPORTANT_SAD_MESSAGES,
+        getPropArrayListString(props, "important_sad_messages", new ArrayList<>()));
 
     MUTE_IMPORTANT_MESSAGE_SOUNDS.put("vanilla", false);
     MUTE_IMPORTANT_MESSAGE_SOUNDS.put("vanilla_resizable", false);
@@ -2215,31 +2160,11 @@ public class Settings {
     TWITCH_HIDE_CHAT.put(
         "custom", getPropBoolean(props, "twitch_hide", TWITCH_HIDE_CHAT.get("default")));
 
-    TWITCH_CHANNEL.put("vanilla", "");
-    TWITCH_CHANNEL.put("vanilla_resizable", "");
-    TWITCH_CHANNEL.put("lite", "");
-    TWITCH_CHANNEL.put("default", "");
-    TWITCH_CHANNEL.put("heavy", "");
-    TWITCH_CHANNEL.put("all", "");
-    TWITCH_CHANNEL.put(
-        "custom", getPropString(props, "twitch_channel", TWITCH_CHANNEL.get("default")));
+    defineStaticPreset(TWITCH_CHANNEL, getPropString(props, "twitch_channel", ""));
 
-    TWITCH_OAUTH.put("vanilla", "");
-    TWITCH_OAUTH.put("vanilla_resizable", "");
-    TWITCH_OAUTH.put("lite", "");
-    TWITCH_OAUTH.put("default", "");
-    TWITCH_OAUTH.put("heavy", "");
-    TWITCH_OAUTH.put("all", "");
-    TWITCH_OAUTH.put("custom", getPropString(props, "twitch_oauth", TWITCH_OAUTH.get("default")));
+    defineStaticPreset(TWITCH_OAUTH, getPropString(props, "twitch_oauth", ""));
 
-    TWITCH_USERNAME.put("vanilla", "");
-    TWITCH_USERNAME.put("vanilla_resizable", "");
-    TWITCH_USERNAME.put("lite", "");
-    TWITCH_USERNAME.put("default", "");
-    TWITCH_USERNAME.put("heavy", "");
-    TWITCH_USERNAME.put("all", "");
-    TWITCH_USERNAME.put(
-        "custom", getPropString(props, "twitch_username", TWITCH_USERNAME.get("default")));
+    defineStaticPreset(TWITCH_USERNAME, getPropString(props, "twitch_username", ""));
 
     SHOW_LOGIN_IP_ADDRESS.put("vanilla", true);
     SHOW_LOGIN_IP_ADDRESS.put("vanilla_resizable", true);
@@ -2365,30 +2290,43 @@ public class Settings {
         "custom",
         getPropBoolean(props, "trigger_alerts_replay", TRIGGER_ALERTS_REPLAY.get("default")));
 
-    REPLAY_BASE_PATH.put("vanilla", "");
-    REPLAY_BASE_PATH.put("vanilla_resizable", "");
-    REPLAY_BASE_PATH.put("lite", "");
-    REPLAY_BASE_PATH.put("default", "");
-    REPLAY_BASE_PATH.put("heavy", "");
-    REPLAY_BASE_PATH.put("all", "");
-    REPLAY_BASE_PATH.put(
-        "custom", getPropString(props, "replay_base_path", REPLAY_BASE_PATH.get("default")));
+    defineStaticPreset(REPLAY_BASE_PATH, getPropString(props, "replay_base_path", ""));
 
     PREFERRED_DATE_FORMAT.put(
-        "vanilla", "dd MMMMMMMMM yyyy - HH:mm:ss"); // jagex is british so this is vanilla
-    PREFERRED_DATE_FORMAT.put("vanilla_resizable", "dd MMMMMMMMM yyyy - HH:mm:ss");
-    PREFERRED_DATE_FORMAT.put("lite", "dd MMMMMMMMM yyyy - HH:mm:ss");
+        "vanilla",
+        getPropString(
+            props,
+            "preferred_date_format",
+            "dd MMMMMMMMM yyyy - HH:mm:ss")); // jagex is british so this is vanilla
     PREFERRED_DATE_FORMAT.put(
-        "default", "yyyy-MM-dd HH:mm:ss"); // ISO 8601, same as default folder name format
+        "vanilla_resizable",
+        getPropString(props, "preferred_date_format", "dd MMMMMMMMM yyyy - HH:mm:ss"));
     PREFERRED_DATE_FORMAT.put(
-        "heavy", "MMMMMMMMM dd, yyyy, hh:mm:ss aa"); // american date format for some reason
+        "lite", getPropString(props, "preferred_date_format", "dd MMMMMMMMM yyyy - HH:mm:ss"));
+    PREFERRED_DATE_FORMAT.put(
+        "default",
+        getPropString(
+            props,
+            "preferred_date_format",
+            "yyyy-MM-dd HH:mm:ss")); // ISO 8601, same as default folder name format
+    PREFERRED_DATE_FORMAT.put(
+        "heavy",
+        getPropString(
+            props,
+            "preferred_date_format",
+            "MMMMMMMMM dd, yyyy, hh:mm:ss aa")); // american date format for some reason
     PREFERRED_DATE_FORMAT.put(
         "all",
-        "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa"); // american date format with era and day of
-    // week
+        getPropString(
+            props,
+            "preferred_date_format",
+            "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa")); // american format + era + day of week
     PREFERRED_DATE_FORMAT.put(
         "custom",
-        getPropString(props, "preferred_date_format", PREFERRED_DATE_FORMAT.get("default")));
+        getPropString(
+            props,
+            "preferred_date_format",
+            PREFERRED_DATE_FORMAT.get("default"))); // ISO 8601, same as default folder name format
 
     SHOW_WORLD_COLUMN.put("vanilla", false);
     SHOW_WORLD_COLUMN.put("vanilla_resizable", false);
@@ -2433,66 +2371,28 @@ public class Settings {
         "custom", getPropBoolean(props, "joystick_enabled", JOYSTICK_ENABLED.get("default")));
 
     //// no gui
-    COMBAT_STYLE.put("vanilla", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("vanilla_resizable", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("lite", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("default", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("heavy", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("all", Client.COMBAT_AGGRESSIVE);
-    COMBAT_STYLE.put("custom", getPropInt(props, "combat_style", COMBAT_STYLE.get("default")));
+    defineStaticPreset(COMBAT_STYLE, getPropInt(props, "combat_style", Client.COMBAT_AGGRESSIVE));
 
-    WORLD.put("vanilla", 1);
-    WORLD.put("vanilla_resizable", 1);
-    WORLD.put("lite", 1);
-    WORLD.put("default", 1);
-    WORLD.put("heavy", 1);
-    WORLD.put("all", 1);
-    WORLD.put("custom", getPropInt(props, "world", WORLD.get("default")));
+    defineStaticPreset(WORLD, getPropInt(props, "world", 1));
 
-    FIRST_TIME.put("vanilla", false);
-    FIRST_TIME.put("vanilla_resizable", false);
-    FIRST_TIME.put("lite", false);
-    FIRST_TIME.put("default", false);
-    FIRST_TIME.put("heavy", false);
-    FIRST_TIME.put("all", false);
-    FIRST_TIME.put("custom", getPropBoolean(props, "first_time", true));
+    defineStaticPreset(FIRST_TIME, getPropBoolean(props, "first_time", true));
 
-    UPDATE_CONFIRMATION.put("vanilla", false);
-    UPDATE_CONFIRMATION.put("vanilla_resizable", false);
-    UPDATE_CONFIRMATION.put("lite", false);
-    UPDATE_CONFIRMATION.put("default", false);
-    UPDATE_CONFIRMATION.put("heavy", false);
-    UPDATE_CONFIRMATION.put("all", false);
-    UPDATE_CONFIRMATION.put("custom", getPropBoolean(props, "update_confirmation", true));
+    defineStaticPreset(UPDATE_CONFIRMATION, getPropBoolean(props, "update_confirmation", true));
 
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("vanilla", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("vanilla_resizable", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("lite", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("default", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("heavy", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put("all", false);
-    RECORD_AUTOMATICALLY_FIRST_TIME.put(
-        "custom", getPropBoolean(props, "record_automatically_first_time", true));
+    defineStaticPreset(
+        RECORD_AUTOMATICALLY_FIRST_TIME,
+        getPropBoolean(props, "record_automatically_first_time", true));
 
-    DISASSEMBLE.put("vanilla", false);
-    DISASSEMBLE.put("vanilla_resizable", false);
-    DISASSEMBLE.put("lite", false);
-    DISASSEMBLE.put("default", false);
-    DISASSEMBLE.put("heavy", false);
-    DISASSEMBLE.put("all", false);
-    DISASSEMBLE.put("custom", getPropBoolean(props, "disassemble", DISASSEMBLE.get("default")));
+    defineStaticPreset(DISASSEMBLE, getPropBoolean(props, "disassemble", false));
 
-    DISASSEMBLE_DIRECTORY.put("vanilla", "dump");
-    DISASSEMBLE_DIRECTORY.put("vanilla_resizable", "dump");
-    DISASSEMBLE_DIRECTORY.put("lite", "dump");
-    DISASSEMBLE_DIRECTORY.put("default", "dump");
-    DISASSEMBLE_DIRECTORY.put("heavy", "dump");
-    DISASSEMBLE_DIRECTORY.put("all", "dump");
-    DISASSEMBLE_DIRECTORY.put(
-        "custom",
-        getPropString(props, "disassemble_directory", DISASSEMBLE_DIRECTORY.get("default")));
+    defineStaticPreset(
+        DISASSEMBLE_DIRECTORY, getPropString(props, "disassemble_directory", "dump"));
 
     // Sanitize settings
+    if (!currentProfile.equals("custom")) {
+      currentProfile = "custom";
+    }
+
     if (CUSTOM_CLIENT_SIZE_X.get("custom") < 512) {
       CUSTOM_CLIENT_SIZE_X.put("custom", 512);
       save("custom");
@@ -2577,6 +2477,51 @@ public class Settings {
     }
   }
 
+  /* Convenience methods to define the same preset for all preset levels */
+
+  public static void defineStaticPreset(
+      HashMap<String, ArrayList<String>> hashMap, ArrayList<String> item) {
+    hashMap.put("vanilla", item);
+    hashMap.put("vanilla_resizable", item);
+    hashMap.put("lite", item);
+    hashMap.put("default", item);
+    hashMap.put("heavy", item);
+    hashMap.put("all", item);
+    hashMap.put("custom", item);
+  }
+
+  public static void defineStaticPreset(HashMap<String, String> hashMap, String item) {
+    hashMap.put("vanilla", item);
+    hashMap.put("vanilla_resizable", item);
+    hashMap.put("lite", item);
+    hashMap.put("default", item);
+    hashMap.put("heavy", item);
+    hashMap.put("all", item);
+    hashMap.put("custom", item);
+  }
+
+  public static void defineStaticPreset(HashMap<String, Boolean> hashMap, Boolean item) {
+    hashMap.put("vanilla", item);
+    hashMap.put("vanilla_resizable", item);
+    hashMap.put("lite", item);
+    hashMap.put("default", item);
+    hashMap.put("heavy", item);
+    hashMap.put("all", item);
+    hashMap.put("custom", item);
+  }
+
+  public static void defineStaticPreset(HashMap<String, Integer> hashMap, Integer item) {
+    hashMap.put("vanilla", item);
+    hashMap.put("vanilla_resizable", item);
+    hashMap.put("lite", item);
+    hashMap.put("default", item);
+    hashMap.put("heavy", item);
+    hashMap.put("all", item);
+    hashMap.put("custom", item);
+  }
+
+  /* * * * * * */
+
   /**
    * Determine whether we should default to dark mode for the app interface
    *
@@ -2649,7 +2594,8 @@ public class Settings {
     try {
       Properties props = loadProps();
 
-      currentProfile = getPropString(props, "current_profile", "custom");
+      currentProfile = "custom";
+
       definePresets(props);
 
       // World Map
@@ -2943,11 +2889,26 @@ public class Settings {
     }
   }
 
+  /**
+   * Writes all setting variables to config.ini, without setting the preset modification flags. Only
+   * used within ConfigWindow.applySettings and JConfig.changeWorld.
+   */
+  public static void saveNoPresetModification() {
+    updateInjectedVariables(); // TODO remove this function
+    if (currentProfile.equals("custom")) {
+      save("custom");
+    }
+  }
+
   /** Writes all setting variables to config.ini. */
   public static void save() {
     updateInjectedVariables(); // TODO remove this function
     if (currentProfile.equals("custom")) {
       save("custom");
+    } else {
+      if (!Settings.presetModified) {
+        Settings.presetModified = true;
+      }
     }
   }
 
@@ -3281,9 +3242,6 @@ public class Settings {
 
       //// joystick
       props.setProperty("joystick_enabled", Boolean.toString(JOYSTICK_ENABLED.get(preset)));
-
-      //// presets
-      props.setProperty("current_profile", currentProfile);
 
       //// no gui
       props.setProperty("combat_style", Integer.toString(COMBAT_STYLE.get(preset)));

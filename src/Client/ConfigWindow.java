@@ -68,10 +68,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -143,7 +145,8 @@ import org.jsoup.Jsoup;
  *   <li><sup>^</sup>Add an entry in the {@link Settings#save(String)} method to save the option to
  *       file.
  *   <li><sup>^</sup>Add an entry in the {@link Settings#definePresets} method to load the option
- *       from file.
+ *       from file. Settings that should persist between changing presets should be defined using
+ *       the defineStaticPreset methods, with sensible defaults.
  *   <li><i>(Optional)</i> If a method needs to be called to adjust settings other than the setting
  *       value itself, add it to the {@link #applySettings} method below.
  * </ol>
@@ -440,6 +443,7 @@ public class ConfigWindow {
   //// Presets tab
   private JCheckBox presetsPanelCustomSettingsCheckbox;
   private JSlider presetsPanelPresetSlider;
+  private JLabel presetsPanelCurrentPresetLabel;
   private JButton replaceConfigButton;
   private JButton resetPresetsButton;
   private int sliderValue = -1;
@@ -519,6 +523,8 @@ public class ConfigWindow {
 
     this.synchronizeGuiValues();
     frame.setVisible(true);
+    frame.toFront();
+    frame.requestFocus();
     searchTextField.requestFocusInWindow();
   }
 
@@ -979,7 +985,9 @@ public class ConfigWindow {
           public void actionPerformed(ActionEvent e) {
             JPanel confirmDefaultPanel =
                 Util.createOptionMessagePanel(
-                    "Are you sure you want to restore all settings to their defaults?");
+                    "Are you sure you want to restore all settings to their defaults?<br/>"
+                        + "<br/>"
+                        + "You will need to restart the client after this has been completed.");
             int choice =
                 JOptionPane.showConfirmDialog(
                     Launcher.getConfigWindow().frame,
@@ -991,9 +999,41 @@ public class ConfigWindow {
               return;
             }
 
-            Settings.initSettings(); // make sure "default" is really default
-            Settings.save("default");
-            synchronizeGuiValues();
+            try {
+              File configFile = new File(Settings.Dir.JAR + "/config.ini");
+              if (configFile.exists()) {
+                Files.delete(configFile.toPath());
+              }
+            } catch (Exception ex) {
+              String restoreDefaultsFailureMessage =
+                  "An error occurred while trying to restore the default settings.<br/>";
+              JPanel restoreDefaultsFailurePanel =
+                  Util.createOptionMessagePanel(restoreDefaultsFailureMessage);
+
+              JOptionPane.showMessageDialog(
+                  Launcher.getConfigWindow().frame,
+                  restoreDefaultsFailurePanel,
+                  "RSCPlus",
+                  JOptionPane.ERROR_MESSAGE,
+                  Launcher.scaled_icon_warn);
+
+              return;
+            }
+
+            String restoreDefaultsSuccessMessage =
+                "Default settings have been restored.<br/>"
+                    + "<br/>"
+                    + "The client needs to be restarted and will now shut down.";
+            JPanel restoreDefaultsSuccessPanel =
+                Util.createOptionMessagePanel(restoreDefaultsSuccessMessage);
+
+            JOptionPane.showMessageDialog(
+                Launcher.getConfigWindow().frame,
+                restoreDefaultsSuccessPanel,
+                "RSCPlus",
+                JOptionPane.INFORMATION_MESSAGE,
+                Launcher.scaled_option_icon);
+            System.exit(0);
 
             // Restore defaults
             /* TODO: reimplement per-tab defaults? Will need to consider search re-indexing
@@ -4097,9 +4137,9 @@ public class ConfigWindow {
     presetsPanelPresetSelectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     presetsPanelCustomSettingsCheckbox =
-        addCheckbox("Custom Settings", presetsPanelPresetSelectionPanel);
+        addCheckbox("Use saved settings", presetsPanelPresetSelectionPanel);
     presetsPanelCustomSettingsCheckbox.setToolTipText(
-        "Load settings from config.ini instead of using a preset");
+        "Loads settings stored in the config.ini file");
 
     JPanel presetsPanelPresetSliderPanel = new JPanel();
     presetsPanelPresetSliderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -4130,20 +4170,47 @@ public class ConfigWindow {
     presetsPanelPresetSlider.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(5), osScaleMul(70)));
     presetsPanelPresetSlider.setOrientation(SwingConstants.VERTICAL);
+    presetsPanelPresetSlider.setToolTipText(
+        "A preset will only apply until the client has been closed - save it permanently with the button below");
+
+    presetsPanelPresetSlider.addChangeListener(
+        new ChangeListener() {
+          @Override
+          public void stateChanged(ChangeEvent e) {
+            JSlider source = (JSlider) e.getSource();
+            if (!source.getValueIsAdjusting()) { // When the slider has finished moving
+              // Only allow 'reset current presets' on the current preset to avoid edge case issues
+              if (Settings.presetModified && !presetsPanelCustomSettingsCheckbox.isSelected()) {
+                resetPresetsButton.setEnabled(
+                    Settings.presetTable.get(source.getValue()).equals(Settings.currentProfile));
+              }
+            }
+          }
+        });
+
     if (Util.isUsingFlatLAFTheme()) {
       presetsPanelPresetSliderPanel.add(Box.createHorizontalStrut(osScaleMul(35)));
     }
     presetsPanelPresetSliderPanel.add(presetsPanelPresetSlider);
 
+    presetsPanelCurrentPresetLabel = new JLabel(" ");
+    presetsPanelCurrentPresetLabel.setBorder(
+        BorderFactory.createEmptyBorder(osScaleMul(5), osScaleMul(20), osScaleMul(5), 0));
+    presetsPanelCurrentPresetLabel.setToolTipText("Displays the currently-active preset");
+    presetsPanelPresetSelectionPanel.add(presetsPanelCurrentPresetLabel);
+
     JPanel presetsButtonPanel = new JPanel();
     presetsButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    presetsButtonPanel.setMaximumSize(osScaleMul(new Dimension(400, 50)));
+    presetsButtonPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, osScaleMul(50)));
     presetsButtonPanel.setBorder(
         BorderFactory.createEmptyBorder(osScaleMul(7), osScaleMul(10), osScaleMul(10), 0));
     presetsButtonPanel.setLayout(new BoxLayout(presetsButtonPanel, BoxLayout.X_AXIS));
 
     replaceConfigButton =
-        addButton("Replace Config with Preset", presetsButtonPanel, Component.LEFT_ALIGNMENT);
+        addButton("Save Current Preset to settings", presetsButtonPanel, Component.LEFT_ALIGNMENT);
+    replaceConfigButton.setToolTipText(
+        "Replaces your saved settings with the currently-active preset, including any customizations");
+    replaceConfigButton.setEnabled(false);
     replaceConfigButton.addActionListener(
         new ActionListener() {
           @Override
@@ -4167,22 +4234,29 @@ public class ConfigWindow {
             }
 
             Settings.save(Settings.currentProfile);
+            Settings.initSettings();
+            Settings.presetModified = false;
+            synchronizeGuiValues();
           }
         });
 
     if (Util.isUsingFlatLAFTheme()) {
-      presetsButtonPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
+      presetsButtonPanel.add(Box.createRigidArea(osScaleMul(new Dimension(10, 0))));
     }
 
-    resetPresetsButton = addButton("Reset Presets", presetsButtonPanel, Component.RIGHT_ALIGNMENT);
+    resetPresetsButton =
+        addButton("Reset Current Preset", presetsButtonPanel, Component.RIGHT_ALIGNMENT);
     resetPresetsButton.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
             Logger.Info("Try saying that 10 times fast...");
             Settings.initSettings();
+            applySettings();
           }
         });
+    resetPresetsButton.setToolTipText("Resets the currently-active preset to its default settings");
+    resetPresetsButton.setEnabled(false);
     presetsButtonPanel.add(Box.createHorizontalGlue());
     presetsPanelPresetSelectionPanel.add(presetsButtonPanel);
 
@@ -5233,6 +5307,25 @@ public class ConfigWindow {
   private void executeSynchronizeGuiValues() {
     // Presets tab (has to go first to properly synchronizeGui)
     presetsPanelCustomSettingsCheckbox.setSelected(Settings.currentProfile.equals("custom"));
+
+    String currentPreset;
+    int currentPresetIndex = Settings.presetTable.indexOf(Settings.currentProfile);
+    if (currentPresetIndex == -1) {
+      currentPreset = "None";
+    } else {
+      currentPreset =
+          ((JLabel) presetsPanelPresetSlider.getLabelTable().get(currentPresetIndex)).getText();
+    }
+
+    String currentPresetText;
+    if (Settings.presetModified) {
+      currentPresetText = "<html>Current Preset: <b>" + currentPreset + "</b> (modified)</html>";
+    } else {
+      currentPresetText = "<html>Current Preset: <b>" + currentPreset + "</b></html>";
+    }
+
+    presetsPanelCurrentPresetLabel.setText(currentPresetText);
+
     synchronizePresetOptions();
 
     if (!Settings.currentProfile.equals("custom")) {
@@ -6171,6 +6264,7 @@ public class ConfigWindow {
     if (presetsPanelCustomSettingsCheckbox.isSelected()) {
       if (!Settings.currentProfile.equals("custom")) {
         Settings.currentProfile = "custom";
+        Settings.presetModified = false;
         Logger.Info("Changed to custom profile");
       }
     } else {
@@ -6187,7 +6281,12 @@ public class ConfigWindow {
         String saveMe = Settings.currentProfile;
         Settings.initSettings(); // reset preset values to their defaults
         Settings.currentProfile = saveMe;
+        Settings.presetModified = false;
+        resetPresetsButton.setEnabled(false);
         Logger.Info("Changed to " + Settings.currentProfile + " preset");
+      } else {
+        Settings.presetModified = true;
+        resetPresetsButton.setEnabled(true);
       }
     }
 
@@ -6217,7 +6316,7 @@ public class ConfigWindow {
         Settings.currentProfile, joystickPanelJoystickEnabledCheckbox.isSelected());
 
     // Save Settings
-    Settings.save();
+    Settings.saveNoPresetModification();
   }
 
   private String getTextWithDefault(
@@ -6281,8 +6380,16 @@ public class ConfigWindow {
       resetPresetsButton.setEnabled(false);
     } else {
       presetsPanelPresetSlider.setEnabled(true);
-      replaceConfigButton.setEnabled(true);
-      resetPresetsButton.setEnabled(true);
+      if (Settings.presetTable.contains(Settings.currentProfile)) {
+        replaceConfigButton.setEnabled(true);
+      }
+      // Only enable when applicable
+      if (Settings.presetModified) {
+        resetPresetsButton.setEnabled(
+            Settings.presetTable
+                .get(presetsPanelPresetSlider.getValue())
+                .equals(Settings.currentProfile));
+      }
     }
   }
 

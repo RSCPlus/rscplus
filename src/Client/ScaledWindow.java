@@ -369,13 +369,18 @@ public class ScaledWindow extends JFrame
   public void updateCustomWindowSizeFromSettings() {
     Dimension scaledMinimumWindowSize = getMinimumViewportSizeForScalar();
 
-    Settings.CUSTOM_CLIENT_SIZE_X.put(Settings.currentProfile, scaledMinimumWindowSize.width);
-    Settings.CUSTOM_CLIENT_SIZE_Y.put(Settings.currentProfile, scaledMinimumWindowSize.height);
+    // Don't bother saving if there's no difference
+    if (Settings.CUSTOM_CLIENT_SIZE_X.get(Settings.currentProfile) != scaledMinimumWindowSize.width
+        && Settings.CUSTOM_CLIENT_SIZE_Y.get(Settings.currentProfile)
+            != scaledMinimumWindowSize.height) {
+      Settings.CUSTOM_CLIENT_SIZE_X.put(Settings.currentProfile, scaledMinimumWindowSize.width);
+      Settings.CUSTOM_CLIENT_SIZE_Y.put(Settings.currentProfile, scaledMinimumWindowSize.height);
 
-    Settings.save();
+      Settings.save();
 
-    // Update the custom client size width and height spinners
-    Launcher.getConfigWindow().synchronizeGuiValues();
+      // Update the custom client size width and height spinners
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    }
   }
 
   /** Determines the minimum window size for the applet based on the scalar */
