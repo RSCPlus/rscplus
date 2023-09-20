@@ -2323,10 +2323,7 @@ public class Settings {
             "EEEEEEE, MMMMMMMMM dd, yyyy GG; hh:mm:ss aa")); // american format + era + day of week
     PREFERRED_DATE_FORMAT.put(
         "custom",
-        getPropString(
-            props,
-            "preferred_date_format",
-            "yyyy-MM-dd HH:mm:ss")); // ISO 8601, same as default folder name format
+        PREFERRED_DATE_FORMAT.get("default")); // ISO 8601, same as default folder name format
 
     SHOW_WORLD_COLUMN.put("vanilla", false);
     SHOW_WORLD_COLUMN.put("vanilla_resizable", false);
