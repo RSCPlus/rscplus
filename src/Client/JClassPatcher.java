@@ -1105,6 +1105,11 @@ public class JClassPatcher {
                 nextNode, new FieldInsnNode(Opcodes.GETFIELD, "e", "Ib", "I"));
             methodNode.instructions.insertBefore(nextNode, new IntInsnNode(Opcodes.SIPUSH, 256));
             methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.IMUL));
+            // added to prevent seeks div by 0
+            methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.ICONST_1));
+            methodNode.instructions.insertBefore(
+                nextNode,
+                new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Math", "max", "(II)I", false));
             methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.IDIV));
             methodNode.instructions.insertBefore(
                 nextNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "fps", "I"));
