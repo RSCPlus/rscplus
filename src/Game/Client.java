@@ -2477,7 +2477,10 @@ public class Client {
         try {
           Reflection.drawString.invoke(
               surfaceInstance,
-              "Fps: " + Client.fps,
+              "Fps: "
+                  + (Client.username_login.equals(XPBar.excludeUsername)
+                      ? Renderer.fps
+                      : Client.fps),
               Renderer.width - 62 - offset,
               Renderer.height - 19,
               0xffff00,
