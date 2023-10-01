@@ -583,25 +583,6 @@ public class Util {
     */
   }
 
-  /**
-   * Polyfill for Java 8 `String.join`
-   *
-   * <p>Convert an arraylist of strings to a single string, where each element is separated by some
-   * deliminator.
-   *
-   * @param delim The string to use when combining elements
-   * @param list The list to combine
-   * @return The string of the arraylist
-   */
-  public static String joinAsString(String delim, ArrayList<String> list) {
-    StringBuilder sb = new StringBuilder();
-    for (String s : list) {
-      sb.append(s);
-      sb.append(delim);
-    }
-    return sb.toString();
-  }
-
   public static List<File> getAllReplays(List<File> folderInputs) {
     ReplayQueue.foundBrokenReplay = false;
     List<File> potentialReplayFolders = new ArrayList<File>();
@@ -753,6 +734,14 @@ public class Util {
     return res;
   }
 
+  /**
+   * Formats a character name by escaping special characters in the same way the server would, such
+   * that equivalent login names can be tracked in a consistent manner.
+   */
+  public static String formatPlayerName(String name) {
+    return name.replaceAll("[^=,\\da-zA-Z\\s]|(?<!,)\\s", " ").toLowerCase().trim();
+  }
+
   public static int boundUnsignedShort(String num) throws NumberFormatException {
     int result;
     int limit = Short.MAX_VALUE - Short.MIN_VALUE;
@@ -814,6 +803,20 @@ public class Util {
       return false;
     }
     return !isMacOS();
+  }
+
+  /**
+   * Opens a directory in the user's system file explorer
+   *
+   * @param directory {@link File} instance for the provided directory
+   */
+  public static void openDirectory(File directory) {
+    try {
+      Desktop.getDesktop().open(directory);
+    } catch (Exception e) {
+      Logger.Error("Error opening directory: [" + directory.toString() + "]");
+      e.printStackTrace();
+    }
   }
 
   public static void openLinkInBrowser(String url) {

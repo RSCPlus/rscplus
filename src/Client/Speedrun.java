@@ -98,7 +98,7 @@ public class Speedrun {
     if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) {
       for (messageGoal goal : messageGoal.values()) {
         if (completionTimes[goal.id] == 0) {
-          if (goal.systemMessage == message) {
+          if (goal.systemMessage.equals(message)) {
             completionTicks[goal.id] = totalTicks;
             completionTimes[goal.id] = System.currentTimeMillis();
             printGoalCompletion(goal.name, completionTicks[goal.id], completionTimes[goal.id]);

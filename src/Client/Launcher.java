@@ -40,7 +40,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
@@ -108,7 +107,6 @@ public class Launcher extends JFrame implements Runnable {
 
   /** Renders the launcher progress bar window, then calls {@link #run()}. */
   public void init() {
-    Logger.start();
     Logger.Info("Starting RSCPlus");
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -246,7 +244,7 @@ public class Launcher extends JFrame implements Runnable {
     GameApplet.loadJagexFonts();
 
     // Set size
-    getContentPane().setPreferredSize(osScaleMul(new Dimension(280, 32)));
+    getContentPane().setPreferredSize(osScaleMul(new Dimension(315, 32)));
     setTitle("RSCPlus Launcher");
     setResizable(false);
     pack();
@@ -265,34 +263,6 @@ public class Launcher extends JFrame implements Runnable {
     getContentPane().add(m_progressBar);
 
     setVisible(true);
-
-    // Check to see if RSC+ has permissions to write to the current dir
-    try {
-      if (!Files.isWritable(new File(Settings.Dir.JAR).toPath())) {
-        String filePermissionsErrorMessage =
-            "<b>Error attempting to launch RSCPlus</b><br/>"
-                + "<br/>"
-                + "RSCPlus is unable to create necessary files in the current directory.<br/>"
-                + "<br/>"
-                + "You must either grant the appropriate permissions to this directory OR<br/>"
-                + "move the application to a different location.";
-        JPanel filePermissionsErrorPanel =
-            Util.createOptionMessagePanel(filePermissionsErrorMessage);
-
-        JOptionPane.showConfirmDialog(
-            this,
-            filePermissionsErrorPanel,
-            "RSCPlus",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.ERROR_MESSAGE,
-            scaled_icon_warn);
-
-        System.exit(0);
-      }
-    } catch (Exception e) {
-      Logger.Error("There was an error on startup checking for directory permissions.");
-      e.printStackTrace();
-    }
 
     new Thread(this).start();
   }
@@ -525,7 +495,7 @@ public class Launcher extends JFrame implements Runnable {
    * @param value the number of tasks that have been completed
    * @param total the total number of tasks to complete
    */
-  public void setProgress(final int value, final int total) {
+  public void setProgress(final long value, final long total) {
     SwingUtilities.invokeLater(
         new Runnable() {
           @Override
@@ -535,7 +505,7 @@ public class Launcher extends JFrame implements Runnable {
               return;
             }
 
-            m_progressBar.setValue(value * 100 / total);
+            m_progressBar.setValue((int) (value * 100 / total));
           }
         });
   }
@@ -597,8 +567,10 @@ public class Launcher extends JFrame implements Runnable {
 
     numCores = Runtime.getRuntime().availableProcessors();
 
-    Logger.start();
     Settings.initDir();
+    Logger.start();
+    Logger.purgeOldestLogFiles();
+
     Properties props = Settings.initSettings();
 
     if (Settings.javaVersion >= 9) {
@@ -615,13 +587,18 @@ public class Launcher extends JFrame implements Runnable {
     controlsFont = determineControlsFont();
     setScaledWindow(ScaledWindow.getInstance());
     setConfigWindow(new ConfigWindow());
+
     Settings.loadKeybinds(props);
     Settings.successfullyInitted = true;
+    Settings.sanitizeSettings();
+    Settings.loadCharacterSpecificSettings(true);
+
     setWorldMapWindow(new WorldMapWindow());
     setQueueWindow(new QueueWindow());
     TrayHandler.initTrayIcon();
     NotificationsHandler.initialize();
     SoundEffects.loadCustomSoundEffects();
+
     Launcher.getInstance().init();
   }
 

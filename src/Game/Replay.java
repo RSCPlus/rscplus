@@ -106,6 +106,9 @@ public class Replay {
   public static int prevPlayerX;
   public static int prevPlayerY;
 
+  // when replay is initialized, client.username_login will be set to this
+  public static final String excludeUsername = "excludemefromreplaytracking";
+
   // TODO: these will be needed to be added as metadata for existing replays
   // and stored for new ones
   public static boolean replayMembers = true;
@@ -295,7 +298,7 @@ public class Replay {
     } catch (Exception e) {
     }
     Client.switchLiveToReplay(true);
-    Client.login(false, XPBar.excludeUsername, "");
+    Client.login(false, excludeUsername, "");
     updateFrameTimeSlice();
     return true;
   }
@@ -363,7 +366,33 @@ public class Replay {
 
     String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH.mm.ss").format(new Date());
 
-    String recordingDirectory = Settings.Dir.REPLAY + "/" + Client.username_login;
+    File replayStorageDir = new File(Settings.REPLAY_STORAGE_PATH.get("custom"));
+
+    // Look for an existing character-specific dir using server-escaped names
+    File existingPlayerDir = null;
+    File[] replayStorageDirFiles = replayStorageDir.listFiles();
+    if (replayStorageDirFiles != null) {
+      for (File f : replayStorageDirFiles) {
+        if (f.isDirectory()) {
+          String sanitizedFolderName = Util.formatPlayerName(f.getName());
+          String sanitizedLoginName = Util.formatPlayerName(Client.username_login);
+
+          if (sanitizedFolderName.equals(sanitizedLoginName)) {
+            existingPlayerDir = f;
+            break;
+          }
+        }
+      }
+    }
+
+    String recordingDirectory;
+
+    if (existingPlayerDir != null) {
+      recordingDirectory = existingPlayerDir.toString();
+    } else {
+      recordingDirectory = replayStorageDir + "/" + Client.username_login;
+    }
+
     Util.makeDirectory(recordingDirectory);
     recordingDirectory = recordingDirectory + "/" + timeStamp;
     Util.makeDirectory(recordingDirectory);

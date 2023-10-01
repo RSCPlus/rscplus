@@ -20,6 +20,7 @@ package Client;
 
 import static Client.Util.osScaleMul;
 
+import Client.ConfigWindow.ConfigTab;
 import Game.Game;
 import java.awt.AWTException;
 import java.awt.Font;
@@ -78,22 +79,15 @@ public class TrayHandler implements MouseListener {
 
     JTabbedPane settingsTabbedPane = Launcher.getConfigWindow().tabbedPane;
 
-    int authorsTabIndex = -1;
-    for (int i = 0; i < settingsTabbedPane.getTabCount(); i++) {
-      if (settingsTabbedPane.getTitleAt(i).equals(ConfigWindow.ConfigTab.AUTHORS.getLabel())) {
-        authorsTabIndex = i;
-        break;
-      }
-    }
+    int authorsTabIndex = ConfigTab.getTabIndex(ConfigTab.AUTHORS);
 
     if (authorsTabIndex > -1) {
-      int finalAuthorsTabIndex = authorsTabIndex;
       about.addActionListener(
           new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
               Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
-              settingsTabbedPane.setSelectedIndex(finalAuthorsTabIndex);
+              settingsTabbedPane.setSelectedIndex(authorsTabIndex);
               Launcher.getConfigWindow().showConfigWindow();
             }
           });

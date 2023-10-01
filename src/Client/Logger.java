@@ -27,11 +27,14 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import org.fusesource.jansi.AnsiConsole;
 
 /** A simple logger */
 public class Logger {
+  private static final int MAX_LOG_FILES = 20;
   private static PrintWriter m_logWriter;
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
@@ -62,10 +65,36 @@ public class Logger {
 
   public static void start() {
     AnsiConsole.systemInstall();
-    File file = new File(Settings.Dir.JAR + "/log.txt");
+
+    // Although we have a setting for the preferred date format, it is only
+    // loaded AFTER the logger is initialized, so we can't really use it.
+    // Additionally, log files are not nearly as user-facing as replay files.
+    String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+
+    File logFile = new File(Settings.Dir.LOGS + "/log_" + timeStamp + ".txt");
     try {
-      m_logWriter = new PrintWriter(new FileOutputStream(file));
+      m_logWriter = new PrintWriter(new FileOutputStream(logFile));
     } catch (Exception e) {
+      System.out.println("Failed to create log file");
+      e.printStackTrace();
+    }
+  }
+
+  /** Deletes all log files that exceed the MAX_LOG_FILES count */
+  public static void purgeOldestLogFiles() {
+    File logsDir = new File(Settings.Dir.LOGS);
+    File[] logFiles = logsDir.listFiles();
+    if (logFiles != null && logFiles.length > MAX_LOG_FILES) {
+      // Simpler than extracting date from file name
+      Arrays.sort(logFiles, Comparator.comparingLong(File::lastModified));
+      try {
+        for (int i = 0; i < logFiles.length - MAX_LOG_FILES; i++) {
+          logFiles[i].delete();
+        }
+      } catch (Exception e) {
+        Logger.Error("Failed to delete the oldest log file");
+        e.printStackTrace();
+      }
     }
   }
 
