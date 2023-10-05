@@ -739,7 +739,7 @@ public class Util {
    * that equivalent login names can be tracked in a consistent manner.
    */
   public static String formatPlayerName(String name) {
-    return name.replaceAll("[^=,\\da-zA-Z\\s]|(?<!,)\\s", " ").toLowerCase().trim();
+    return name.replaceAll("[^a-zA-Z0-9@._\\-\\s]|(?<!,)\\s", " ").toLowerCase().trim();
   }
 
   public static int boundUnsignedShort(String num) throws NumberFormatException {
@@ -770,8 +770,8 @@ public class Util {
   }
 
   public static boolean detectBinaryAvailable(String binaryName, String reason) {
-    if (System.getProperty("os.name").contains("Windows")) {
-      return false; // don't trust Windows to run the detection code
+    if (Util.isWindowsOS() || Util.isMacOS()) {
+      return false; // don't trust Windows or macOS to run the detection code
     }
 
     try {
@@ -799,7 +799,7 @@ public class Util {
   }
 
   public static boolean notMacWindows() {
-    if (System.getProperty("os.name").contains("Windows")) {
+    if (Util.isWindowsOS()) {
       return false;
     }
     return !isMacOS();
@@ -812,7 +812,11 @@ public class Util {
    */
   public static void openDirectory(File directory) {
     try {
-      Desktop.getDesktop().open(directory);
+      if (Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile) && Util.hasXdgOpen) {
+        Util.execCmd(new String[] {"xdg-open", directory.toString()});
+      } else {
+        Desktop.getDesktop().open(directory);
+      }
     } catch (Exception e) {
       Logger.Error("Error opening directory: [" + directory.toString() + "]");
       e.printStackTrace();

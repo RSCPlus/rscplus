@@ -1654,19 +1654,7 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            int choice = screenshotDirChooser.showOpenDialog(Launcher.getConfigWindow().frame);
-            if (choice == JFileChooser.APPROVE_OPTION) {
-              File screenshotsDir = screenshotDirChooser.getSelectedFile();
-              if (validateChosenDirectory(screenshotsDir)) {
-                reindexSearch(
-                    () -> {
-                      Settings.SCREENSHOTS_STORAGE_PATH.put("custom", screenshotsDir.toString());
-                      screenshotDirChooser.setCurrentDirectory(screenshotsDir);
-                      Settings.save();
-                      synchronizeGuiValues();
-                    });
-              }
-            }
+            customDirSetAction(screenshotDirChooser, Settings.SCREENSHOTS_STORAGE_PATH);
           }
         });
 
@@ -4356,19 +4344,7 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            int choice = replayStorageDirChooser.showOpenDialog(Launcher.getConfigWindow().frame);
-            if (choice == JFileChooser.APPROVE_OPTION) {
-              File replayStorageDir = replayStorageDirChooser.getSelectedFile();
-              if (validateChosenDirectory(replayStorageDir)) {
-                reindexSearch(
-                    () -> {
-                      Settings.REPLAY_STORAGE_PATH.put("custom", replayStorageDir.toString());
-                      replayStorageDirChooser.setCurrentDirectory(replayStorageDir);
-                      Settings.save();
-                      synchronizeGuiValues();
-                    });
-              }
-            }
+            customDirSetAction(replayStorageDirChooser, Settings.REPLAY_STORAGE_PATH);
           }
         });
 
@@ -4479,19 +4455,7 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            int choice = replayBaseDirChooser.showOpenDialog(Launcher.getConfigWindow().frame);
-            if (choice == JFileChooser.APPROVE_OPTION) {
-              File replayBaseDir = replayBaseDirChooser.getSelectedFile();
-              if (validateChosenDirectory(replayBaseDir)) {
-                reindexSearch(
-                    () -> {
-                      Settings.REPLAY_BASE_PATH.put("custom", replayBaseDir.toString());
-                      replayBaseDirChooser.setCurrentDirectory(replayBaseDir);
-                      Settings.save();
-                      synchronizeGuiValues();
-                    });
-              }
-            }
+            customDirSetAction(replayBaseDirChooser, Settings.REPLAY_BASE_PATH);
           }
         });
 
@@ -4896,10 +4860,35 @@ public class ConfigWindow {
   }
 
   /**
-   * Validate whether a provided directory can be written to
+   * Performs the action when a "set" button is clicked for a setting dealing with choosing a custom
+   * directory such as screenshot storage
+   *
+   * @param fileChooser {@link JFileChooser} instance to work with
+   * @param customDirSetting {@link Settings} hashmap for the custom directory
+   */
+  private void customDirSetAction(
+      JFileChooser fileChooser, HashMap<String, String> customDirSetting) {
+    int choice = fileChooser.showOpenDialog(Launcher.getConfigWindow().frame);
+    if (choice == JFileChooser.APPROVE_OPTION) {
+      File chosenDir = fileChooser.getSelectedFile();
+      if (validateChosenDirectory(chosenDir)) {
+        reindexSearch(
+            () -> {
+              String filePath = chosenDir.getAbsolutePath() + File.separator;
+              customDirSetting.put("custom", filePath);
+              fileChooser.setCurrentDirectory(chosenDir);
+              Settings.save();
+              synchronizeGuiValues();
+            });
+      }
+    }
+  }
+
+  /**
+   * Validate whether a provided directory can be written to, displaying an error modal if not
    *
    * @param dir {@link File} instance for the provided directory
-   * @return {@code boolean} value indicating whether the provided directory was valid
+   * @return {@code boolean} value indicating whether the provided directory is writeable
    */
   private boolean validateChosenDirectory(File dir) {
     if (!Files.isWritable(dir.toPath())) {
@@ -5885,8 +5874,7 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
-    generalPanelScreenshotsDirTextField.setText(
-        Settings.sanitizeDirTextValue(Settings.SCREENSHOTS_STORAGE_PATH.get("custom")));
+    generalPanelScreenshotsDirTextField.setText(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
     generalPanelRS2HDSkyCheckbox.setSelected(Settings.RS2HD_SKY.get(Settings.currentProfile));
     generalPanelCustomSkyboxOverworldCheckbox.setSelected(
         Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(Settings.currentProfile));
@@ -6227,8 +6215,7 @@ public class ConfigWindow {
     // streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
 
     // Replay tab
-    replayPanelReplayStoragePathTextField.setText(
-        Settings.sanitizeDirTextValue(Settings.REPLAY_STORAGE_PATH.get("custom")));
+    replayPanelReplayStoragePathTextField.setText(Settings.REPLAY_STORAGE_PATH.get("custom"));
     replayPanelRecordAutomaticallyCheckbox.setSelected(
         Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
     replayPanelParseOpcodesCheckbox.setSelected(
@@ -6245,8 +6232,7 @@ public class ConfigWindow {
     replayPanelTriggerAlertsReplayCheckbox.setSelected(
         Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile));
     replayPanelDateFormatTextField.setText(Settings.PREFERRED_DATE_FORMAT.get("custom"));
-    replayPanelReplayBasePathTextField.setText(
-        Settings.sanitizeDirTextValue(Settings.REPLAY_BASE_PATH.get("custom")));
+    replayPanelReplayBasePathTextField.setText(Settings.REPLAY_BASE_PATH.get("custom"));
     replayPanelShowWorldColumnCheckbox.setSelected(
         Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile));
     replayPanelShowConversionSettingsCheckbox.setSelected(

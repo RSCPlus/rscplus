@@ -35,6 +35,8 @@ import org.fusesource.jansi.AnsiConsole;
 /** A simple logger */
 public class Logger {
   private static final int MAX_LOG_FILES = 20;
+  private static final String LOG_FILE_PREFIX = "rscplus_";
+  private static final String LOG_FILE_EXTENSION = ".log";
   private static PrintWriter m_logWriter;
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
@@ -71,7 +73,9 @@ public class Logger {
     // Additionally, log files are not nearly as user-facing as replay files.
     String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
 
-    File logFile = new File(Settings.Dir.LOGS + "/log_" + timeStamp + ".txt");
+    File logFile =
+        new File(
+            Settings.Dir.LOGS + File.separator + LOG_FILE_PREFIX + timeStamp + LOG_FILE_EXTENSION);
     try {
       m_logWriter = new PrintWriter(new FileOutputStream(logFile));
     } catch (Exception e) {
@@ -83,8 +87,22 @@ public class Logger {
   /** Deletes all log files that exceed the MAX_LOG_FILES count */
   public static void purgeOldestLogFiles() {
     File logsDir = new File(Settings.Dir.LOGS);
-    File[] logFiles = logsDir.listFiles();
-    if (logFiles != null && logFiles.length > MAX_LOG_FILES) {
+
+    File[] fileList = logsDir.listFiles();
+    if (fileList == null) {
+      return;
+    }
+
+    File[] logFiles =
+        Arrays.stream(fileList)
+            .filter(
+                f ->
+                    f.isFile()
+                        && f.getName().startsWith(LOG_FILE_PREFIX)
+                        && f.getName().endsWith(LOG_FILE_EXTENSION))
+            .toArray(File[]::new);
+
+    if (logFiles.length > MAX_LOG_FILES) {
       // Simpler than extracting date from file name
       Arrays.sort(logFiles, Comparator.comparingLong(File::lastModified));
       try {

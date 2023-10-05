@@ -2596,7 +2596,12 @@ public class Settings {
       return path;
     }
 
-    return new File(path).getAbsolutePath();
+    if (Util.isWindowsOS()) {
+      String windowsPath = new File(path).getAbsolutePath();
+      return (windowsPath + (windowsPath.endsWith("\\") ? "" : "\\")).replaceAll("\\+", "\\");
+    }
+
+    return (path + (path.endsWith("/") ? "" : "/")).replaceAll("/+", "/");
   }
 
   /**
@@ -2859,23 +2864,26 @@ public class Settings {
    * @return String value of the provided directory if valid, or sanitized fallback if not
    */
   public static String validateCustomDir(String dir, String fallback) {
-    final String sanitizedFallback = sanitizeDirTextValue(fallback);
+    boolean returnFallback = false;
 
     if ("".equals(dir)) {
-      return sanitizedFallback;
+      returnFallback = true;
     }
 
     File dirFile = new File(dir);
-
     if (!(dirFile.exists())) {
-      return sanitizedFallback;
+      returnFallback = true;
     }
 
     if (!Files.isWritable(dirFile.toPath())) {
-      return sanitizedFallback;
+      returnFallback = true;
     }
 
-    return dir;
+    if (returnFallback) {
+      return sanitizeDirTextValue(fallback);
+    }
+
+    return sanitizeDirTextValue(dir);
   }
 
   /**
