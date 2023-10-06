@@ -39,6 +39,7 @@ public class Logger {
   private static String m_lagWriter_filename;
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
+
   public enum Type {
     ERROR(0, "error", true, true),
     WARN(1, "warn", true, true),
@@ -218,26 +219,30 @@ public class Logger {
       }
     }
   }
+
   public static void Lag(String eventType, int frame) {
-      m_lagWriter.write(System.currentTimeMillis() + "," + frame + "," + eventType + "\n");
-      m_lagWriter.flush();
+    m_lagWriter.write(System.currentTimeMillis() + "," + frame + "," + eventType + "\n");
+    m_lagWriter.flush();
   }
+
   public static void initializeLagLog() {
-    m_lagWriter_filename = Settings.Dir.JAR + "/measured_lag-" + System.currentTimeMillis() + ".log";
+    m_lagWriter_filename =
+        Settings.Dir.JAR + "/measured_lag-" + System.currentTimeMillis() + ".log";
     try {
       m_lagWriter = new PrintWriter(Files.newOutputStream(Paths.get(m_lagWriter_filename)));
     } catch (Exception e) {
-        Error("Could not start logging lag.");
-        return;
+      Error("Could not start logging lag.");
+      return;
     }
     Info("Started lag logging @ " + m_lagWriter_filename);
   }
+
   public static void finalizeLagLog() {
-      try {
-          m_lagWriter.close();
-      } catch (Exception e) {
-          Error("Could not stop logging lag.");
-      }
-      Info("Finished lag logging @ " + m_lagWriter_filename);
+    try {
+      m_lagWriter.close();
+    } catch (Exception e) {
+      Error("Could not stop logging lag.");
+    }
+    Info("Finished lag logging @ " + m_lagWriter_filename);
   }
 }

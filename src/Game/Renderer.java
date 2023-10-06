@@ -1490,23 +1490,23 @@ public class Renderer {
           }
         }
         if (Settings.LAG_INDICATOR.get(Settings.currentProfile)) {
-            x = width - 80;
-            y = height - 80;
-            setAlpha(g2, alpha_time);
-            g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
-            x += 16;
-            y += 38;
-            drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
-            y += 12;
-            int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
-            drawShadowText(
-                g2,
-                new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
-                x,
-                y,
-                color_low,
-                true);
-            setAlpha(g2, 1.0f);
+          x = width - 80;
+          y = height - 80;
+          setAlpha(g2, alpha_time);
+          g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
+          x += 16;
+          y += 38;
+          drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
+          y += 12;
+          int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
+          drawShadowText(
+              g2,
+              new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
+              x,
+              y,
+              color_low,
+              true);
+          setAlpha(g2, 1.0f);
         }
       } else {
         if (laggedLastFrame && Settings.LOG_LAG.get(Settings.currentProfile)) {
