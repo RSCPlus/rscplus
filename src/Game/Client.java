@@ -1267,6 +1267,11 @@ public class Client {
       Settings.save();
     }
 
+    if (Settings.LOG_LAG.get(Settings.currentProfile)) {
+      Logger.initializeLagLog();
+      Logger.Lag("Login", Replay.timestamp);
+    }
+
     // Get keybind to open the config window so that we can tell the player how to open it
     if (Settings.REMIND_HOW_TO_OPEN_SETTINGS.get(Settings.currentProfile)) {
       String configWindowShortcut = "";
@@ -1314,6 +1319,10 @@ public class Client {
     player_id = -1;
     knowWhoIAm = false;
     Client.tipOfDay = -1;
+    if (Settings.LOG_LAG.get(Settings.currentProfile)) {
+      Logger.Lag("Disconnect", Replay.timestamp);
+      Logger.finalizeLagLog();
+    }
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook

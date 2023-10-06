@@ -376,6 +376,8 @@ public class Settings {
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
   public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
+  public static HashMap<String, Boolean> LOG_LAG = new HashMap<String, Boolean>();
+
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
 
@@ -1810,6 +1812,8 @@ public class Settings {
     LAG_INDICATOR.put("heavy", true);
     LAG_INDICATOR.put("all", true);
     LAG_INDICATOR.put("custom", getPropBoolean(props, "indicators", LAG_INDICATOR.get("default")));
+
+    defineStaticPreset(LOG_LAG, getPropBoolean(props, "log_lag", false));
 
     SHOW_PLAYER_POSITION.put("vanilla", false);
     SHOW_PLAYER_POSITION.put("vanilla_resizable", false);

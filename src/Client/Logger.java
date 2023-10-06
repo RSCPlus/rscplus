@@ -25,6 +25,8 @@ import static org.fusesource.jansi.Ansi.ansi;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,9 +35,10 @@ import org.fusesource.jansi.AnsiConsole;
 /** A simple logger */
 public class Logger {
   private static PrintWriter m_logWriter;
+  private static PrintWriter m_lagWriter;
+  private static String m_lagWriter_filename;
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
-
   public enum Type {
     ERROR(0, "error", true, true),
     WARN(1, "warn", true, true),
@@ -214,5 +217,27 @@ public class Logger {
       } catch (Exception e2) {
       }
     }
+  }
+  public static void Lag(String eventType, int frame) {
+      m_lagWriter.write(System.currentTimeMillis() + "," + frame + "," + eventType + "\n");
+      m_lagWriter.flush();
+  }
+  public static void initializeLagLog() {
+    m_lagWriter_filename = Settings.Dir.JAR + "/measured_lag-" + System.currentTimeMillis() + ".log";
+    try {
+      m_lagWriter = new PrintWriter(Files.newOutputStream(Paths.get(m_lagWriter_filename)));
+    } catch (Exception e) {
+        Error("Could not start logging lag.");
+        return;
+    }
+    Info("Started lag logging @ " + m_lagWriter_filename);
+  }
+  public static void finalizeLagLog() {
+      try {
+          m_lagWriter.close();
+      } catch (Exception e) {
+          Error("Could not stop logging lag.");
+      }
+      Info("Finished lag logging @ " + m_lagWriter_filename);
   }
 }
