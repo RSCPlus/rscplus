@@ -770,8 +770,8 @@ public class Util {
   }
 
   public static boolean detectBinaryAvailable(String binaryName, String reason) {
-    if (Util.isWindowsOS() || Util.isMacOS()) {
-      return false; // don't trust Windows or macOS to run the detection code
+    if (Util.isWindowsOS()) {
+      return false; // don't trust Windows to run the detection code
     }
 
     try {
@@ -780,7 +780,7 @@ public class Util {
       final String whereis =
           execCmd(new String[] {"whereis", "-b", binaryName})
               .replace("\n", "")
-              .replace(binaryName + ": ", "");
+              .replace(binaryName + ":", "");
       if (whereis.length() < ("/" + binaryName).length()) {
         Logger.Error(
             String.format(
