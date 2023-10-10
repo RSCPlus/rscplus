@@ -99,7 +99,11 @@ public class Logger {
                 f ->
                     f.isFile()
                         && f.getName().startsWith(LOG_FILE_PREFIX)
-                        && f.getName().endsWith(LOG_FILE_EXTENSION))
+                        && f.getName().endsWith(LOG_FILE_EXTENSION)
+                        && f.getName().length()
+                            == LOG_FILE_PREFIX.length()
+                                + LOG_FILE_EXTENSION.length()
+                                + "yyyy-MM-dd_HH-mm-ss".length())
             .toArray(File[]::new);
 
     if (logFiles.length > MAX_LOG_FILES) {
