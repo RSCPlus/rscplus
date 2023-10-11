@@ -775,7 +775,7 @@ public class WorldMapWindow {
 
             buildSearchResults();
 
-            if (prevSearchText != searchText) {
+            if (!prevSearchText.equals(searchText)) {
               mapView.repaint();
             }
           }

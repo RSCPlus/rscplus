@@ -746,7 +746,7 @@ public class QueueWindow {
             if (!ReplayQueue.queue.get(row).renameTo(renamedFile)) {
               Logger.Warn(
                   "@|red Failed to rename row: |@" + ReplayQueue.queue.get(row).getAbsolutePath());
-              if (System.getProperty("os.name").contains("Windows")) {
+              if (Util.isWindowsOS()) {
                 if (afterEditValue.matches(".*[?%*:|\"<>]")) {
                   Logger.Warn(
                       String.format(
@@ -968,13 +968,13 @@ public class QueueWindow {
       String cellTextReplaced = cellText.replace(Settings.REPLAY_BASE_PATH.get("custom"), "");
 
       if (cellText.equals(cellTextReplaced)) {
-        if (System.getProperty("os.name").contains("Windows")) {
+        if (Util.isWindowsOS()) {
           cellText += "\\";
         } else {
           cellText += "/";
         }
       } else {
-        if (System.getProperty("os.name").contains("Windows")) {
+        if (Util.isWindowsOS()) {
           cellText = String.format(".\\%s\\", cellTextReplaced);
         } else {
           cellText = String.format("./%s/", cellTextReplaced);

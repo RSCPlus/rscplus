@@ -583,25 +583,6 @@ public class Util {
     */
   }
 
-  /**
-   * Polyfill for Java 8 `String.join`
-   *
-   * <p>Convert an arraylist of strings to a single string, where each element is separated by some
-   * deliminator.
-   *
-   * @param delim The string to use when combining elements
-   * @param list The list to combine
-   * @return The string of the arraylist
-   */
-  public static String joinAsString(String delim, ArrayList<String> list) {
-    StringBuilder sb = new StringBuilder();
-    for (String s : list) {
-      sb.append(s);
-      sb.append(delim);
-    }
-    return sb.toString();
-  }
-
   public static List<File> getAllReplays(List<File> folderInputs) {
     ReplayQueue.foundBrokenReplay = false;
     List<File> potentialReplayFolders = new ArrayList<File>();
@@ -753,6 +734,14 @@ public class Util {
     return res;
   }
 
+  /**
+   * Formats a character name by escaping special characters in the same way the server would, such
+   * that equivalent login names can be tracked in a consistent manner.
+   */
+  public static String formatPlayerName(String name) {
+    return name.replaceAll("[^a-zA-Z0-9@._\\-\\s]|(?<!,)\\s", " ").toLowerCase().trim();
+  }
+
   public static int boundUnsignedShort(String num) throws NumberFormatException {
     int result;
     int limit = Short.MAX_VALUE - Short.MIN_VALUE;
@@ -781,7 +770,7 @@ public class Util {
   }
 
   public static boolean detectBinaryAvailable(String binaryName, String reason) {
-    if (System.getProperty("os.name").contains("Windows")) {
+    if (Util.isWindowsOS()) {
       return false; // don't trust Windows to run the detection code
     }
 
@@ -791,7 +780,7 @@ public class Util {
       final String whereis =
           execCmd(new String[] {"whereis", "-b", binaryName})
               .replace("\n", "")
-              .replace(binaryName + ": ", "");
+              .replace(binaryName + ":", "");
       if (whereis.length() < ("/" + binaryName).length()) {
         Logger.Error(
             String.format(
@@ -799,7 +788,7 @@ public class Util {
                 binaryName, reason));
         return false;
       } else {
-        Logger.Info(binaryName + ": " + whereis);
+        Logger.Info(binaryName + ":" + whereis);
         return true;
       }
     } catch (IOException e) {
@@ -810,10 +799,28 @@ public class Util {
   }
 
   public static boolean notMacWindows() {
-    if (System.getProperty("os.name").contains("Windows")) {
+    if (Util.isWindowsOS()) {
       return false;
     }
     return !isMacOS();
+  }
+
+  /**
+   * Opens a directory in the user's system file explorer
+   *
+   * @param directory {@link File} instance for the provided directory
+   */
+  public static void openDirectory(File directory) {
+    try {
+      if (Settings.PREFERS_XDG_OPEN.get(Settings.currentProfile) && Util.hasXdgOpen) {
+        Util.execCmd(new String[] {"xdg-open", directory.toString()});
+      } else {
+        Desktop.getDesktop().open(directory);
+      }
+    } catch (Exception e) {
+      Logger.Error("Error opening directory: [" + directory.toString() + "]");
+      e.printStackTrace();
+    }
   }
 
   public static void openLinkInBrowser(String url) {

@@ -189,6 +189,10 @@ public class SoundEffects {
   }
 
   public static void adjustMudClientSfxVolume() {
+    if (mudClientSourceDataLine == null) {
+      return;
+    }
+
     adjustSfxVolume(mudClientSourceDataLine);
   }
 

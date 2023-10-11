@@ -54,6 +54,10 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -82,8 +86,10 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -95,6 +101,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -261,6 +268,7 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JSpinner generalPanelLimitRanFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
+  private JTextField generalPanelScreenshotsDirTextField;
   private JCheckBox generalPanelRS2HDSkyCheckbox;
   private JCheckBox generalPanelCustomSkyboxOverworldCheckbox;
   private JPanel generalPanelSkyOverworldColourColourPanel;
@@ -426,6 +434,7 @@ public class ConfigWindow {
   // private JTextField streamingPanelSpeedrunnerUsernameTextField;
 
   //// Replay tab
+  private JTextField replayPanelReplayStoragePathTextField;
   private JCheckBox replayPanelRecordKBMouseCheckbox;
   private JCheckBox replayPanelParseOpcodesCheckbox;
   private JCheckBox replayPanelFastDisconnectCheckbox;
@@ -435,7 +444,7 @@ public class ConfigWindow {
   private JCheckBox replayPanelShowPlayerControlsCheckbox;
   private JCheckBox replayPanelTriggerAlertsReplayCheckbox;
   private JTextField replayPanelDateFormatTextField;
-  private JTextField replayPanelReplayFolderBasePathTextField;
+  private JTextField replayPanelReplayBasePathTextField;
   private JCheckBox replayPanelShowWorldColumnCheckbox;
   private JCheckBox replayPanelShowConversionSettingsCheckbox;
   private JCheckBox replayPanelShowUserFieldCheckbox;
@@ -469,6 +478,7 @@ public class ConfigWindow {
       new HashMap<Integer, JTextField>();
   private HashMap<Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
   private JPanel worldListPanel = new JPanel();
+  private JButton addWorldButton;
 
   //// Joystick tab
   private JCheckBox joystickPanelJoystickEnabledCheckbox;
@@ -484,7 +494,7 @@ public class ConfigWindow {
   private boolean reindexing = false;
 
   /** Defines all {@link ConfigWindow} tabs */
-  protected enum ConfigTab {
+  public enum ConfigTab {
     PRESETS("Presets"),
     GENERAL("General"),
     OVERLAYS("Overlays"),
@@ -506,6 +516,25 @@ public class ConfigWindow {
 
     public String getLabel() {
       return label;
+    }
+
+    /**
+     * @return boolean indicating if the provided {@link ConfigTab} is currently selected,
+     *     regardless of whether the tab is currently enabled or not.
+     */
+    public static boolean isTabSelected(ConfigTab tab) {
+      int tabIndex = getTabIndex(tab);
+
+      if (tabIndex == -1) {
+        return false;
+      }
+
+      return Launcher.getConfigWindow().tabbedPane.getSelectedIndex() == tabIndex;
+    }
+
+    /** @return the tab index value for the provided {@link ConfigTab} or {@code -1} if not found */
+    public static int getTabIndex(ConfigTab tab) {
+      return Launcher.getConfigWindow().tabbedPane.indexOfTab(tab.getLabel());
     }
   }
 
@@ -546,6 +575,85 @@ public class ConfigWindow {
 
   public boolean isShown() {
     return frame.isVisible();
+  }
+
+  /** Drop target handler for drag-and-dropping world ini files */
+  private DropTarget createWorldFileDropTarget() {
+    return new DropTarget() {
+      public synchronized void drop(DropTargetDropEvent evt) {
+        try {
+          if (ConfigTab.isTabSelected(ConfigTab.WORLD_LIST)) {
+            if (evt.getTransferable().isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+              evt.acceptDrop(DnDConstants.ACTION_LINK);
+              List<File> droppedFiles =
+                  (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+
+              Map<File, Properties> validWorldFileMap = new HashMap<>();
+              List<File> invalidWorldFiles = new ArrayList<>();
+
+              droppedFiles.forEach(
+                  file -> {
+                    Properties fileProps = Settings.validateWorldFile(file);
+                    if (fileProps != null) {
+                      validWorldFileMap.put(file, fileProps);
+                    } else {
+                      invalidWorldFiles.add(file);
+                    }
+                  });
+
+              validWorldFileMap.forEach(
+                  (file, props) -> {
+                    // Add new world fields
+                    addWorldAction();
+
+                    int i = Settings.WORLDS_TO_DISPLAY;
+                    worldNamesJTextFields.get(i).setText(props.getProperty("name"));
+                    worldUrlsJTextFields.get(i).setText(props.getProperty("url"));
+                    worldPortsJTextFields.get(i).setText(props.getProperty("port"));
+                    worldTypesJComboBoxes
+                        .get(i)
+                        .setSelectedIndex(
+                            Integer.parseInt((String) props.getOrDefault("servertype", "1")));
+                    worldRSAPubKeyJTextFields.get(i).setText(props.getProperty("rsa_pub_key"));
+                    worldRSAExponentsJTextFields.get(i).setText(props.getProperty("rsa_exponent"));
+                    worldListHiscoresURLTextFieldContainers
+                        .get(i)
+                        .setText((String) props.getOrDefault("hiscores_url", ""));
+
+                    applySettings();
+                  });
+
+              if (!invalidWorldFiles.isEmpty()) {
+                StringBuilder sb =
+                    new StringBuilder()
+                        .append(
+                            "<html><body>The following files are invalid and could not be imported:<ul>");
+                for (File invalidWorldFile : invalidWorldFiles) {
+                  sb.append("<li>").append(invalidWorldFile.getName()).append("</li>");
+                }
+                sb.append("</ul></body></html>");
+
+                JPanel invalidWorldFilesPanel = Util.createOptionMessagePanel(sb.toString());
+
+                JOptionPane.showMessageDialog(
+                    Launcher.getConfigWindow().frame,
+                    invalidWorldFilesPanel,
+                    "RSCPlus",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    Launcher.scaled_option_icon);
+              }
+            } else {
+              Logger.Info(
+                  "Whatever you just dragged into the settings window, RSC+ doesn't know what to do with it.");
+              Logger.Info("Please report this as a bug on GitHub if you believe it should work.");
+            }
+          }
+        } catch (Exception ex) {
+          Logger.Error("Error in ConfigWindow queue drop handler!");
+          ex.printStackTrace();
+        }
+      }
+    };
   }
 
   /** Initialize the contents of the frame. */
@@ -589,6 +697,8 @@ public class ConfigWindow {
             super.windowClosed(e);
           }
         });
+
+    frame.setDropTarget(createWorldFileDropTarget());
 
     // Container declarations
 
@@ -1000,7 +1110,7 @@ public class ConfigWindow {
             }
 
             try {
-              File configFile = new File(Settings.Dir.JAR + "/config.ini");
+              File configFile = new File(Settings.CONFIG_FILE);
               if (configFile.exists()) {
                 Files.delete(configFile.toPath());
               }
@@ -1477,11 +1587,6 @@ public class ConfigWindow {
     generalPanelTrackpadRotationSlider.setLabelTable(generalPanelTrackpadRotationLabelTable);
     generalPanelTrackpadRotationSlider.setPaintLabels(true);
 
-    generalPanelAutoScreenshotCheckbox =
-        addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
-    generalPanelAutoScreenshotCheckbox.setToolTipText(
-        "Takes a screenshot for you for level ups and quest completion");
-
     generalPanelUseJagexFontsCheckBox =
         addCheckbox("Override system font with Jagex fonts", generalPanel);
     generalPanelUseJagexFontsCheckBox.setToolTipText(
@@ -1499,6 +1604,76 @@ public class ConfigWindow {
         addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
     generalPanelPrefersXdgOpenCheckbox.setToolTipText(
         "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+
+    generalPanelAutoScreenshotCheckbox =
+        addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
+    generalPanelAutoScreenshotCheckbox.setToolTipText(
+        "Takes a screenshot for you for level ups and on quest completion");
+
+    /// Screenshots directory
+
+    float screenshotsButtonAlignment = isUsingFlatLAFTheme() ? 0.75f : 0.8f;
+
+    JPanel generalPanelScreenshotsDirPanel = new JPanel();
+    generalPanel.add(generalPanelScreenshotsDirPanel);
+    generalPanelScreenshotsDirPanel.setLayout(
+        new BoxLayout(generalPanelScreenshotsDirPanel, BoxLayout.X_AXIS));
+    generalPanelScreenshotsDirPanel.setPreferredSize(
+        osScaleMul(new Dimension(0, isUsingFlatLAFTheme() ? 32 : 37)));
+    generalPanelScreenshotsDirPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelScreenshotsDirPanel.setBorder(
+        BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+
+    JLabel generalPanelScreenshotsDirTextFieldLabel = new JLabel("Save screenshots to: ");
+    generalPanelScreenshotsDirTextFieldLabel.setToolTipText(
+        "Location where your screenshots will be stored");
+    generalPanelScreenshotsDirPanel.add(generalPanelScreenshotsDirTextFieldLabel);
+    generalPanelScreenshotsDirTextFieldLabel.setAlignmentY(isUsingFlatLAFTheme() ? 0.85f : 0.9f);
+
+    generalPanelScreenshotsDirTextField = new JTextField();
+    generalPanelScreenshotsDirPanel.add(generalPanelScreenshotsDirTextField);
+    generalPanelScreenshotsDirTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    generalPanelScreenshotsDirTextField.setMaximumSize(
+        new Dimension(Short.MAX_VALUE, osScaleMul(28)));
+    generalPanelScreenshotsDirTextField.setAlignmentY(0.75f);
+    generalPanelScreenshotsDirTextField.setToolTipText(
+        "To restore the default location, delete the value and apply settings");
+
+    if (Util.isUsingFlatLAFTheme()) {
+      generalPanelScreenshotsDirPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    File screenshotsDir = new File(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
+    JFileChooser screenshotDirChooser = new JFileChooser(screenshotsDir);
+    screenshotDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+    JButton generalPanelScreenshotsSetDirButton =
+        addButton("Set", generalPanelScreenshotsDirPanel, Component.RIGHT_ALIGNMENT);
+    generalPanelScreenshotsSetDirButton.setAlignmentY(screenshotsButtonAlignment);
+    generalPanelScreenshotsSetDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            customDirSetAction(screenshotDirChooser, Settings.SCREENSHOTS_STORAGE_PATH);
+          }
+        });
+
+    if (Util.isUsingFlatLAFTheme()) {
+      generalPanelScreenshotsDirPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    JButton generalPanelScreenshotsOpenDirButton =
+        addButton("Open", generalPanelScreenshotsDirPanel, Component.RIGHT_ALIGNMENT);
+    generalPanelScreenshotsOpenDirButton.setAlignmentY(screenshotsButtonAlignment);
+    generalPanelScreenshotsOpenDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.SCREENSHOTS_STORAGE_PATH.get("custom")));
+          }
+        });
+
+    ///
 
     /// "Gameplay settings" are settings that can be seen inside the game
     addSettingsHeader(generalPanel, "Gameplay settings");
@@ -1732,6 +1907,8 @@ public class ConfigWindow {
         addCheckbox("Disable underground lighting flicker", generalPanel);
     generalPanelDisableUndergroundLightingCheckbox.setToolTipText(
         "Underground lighting will no longer flicker");
+    SearchUtils.addSearchMetadata(
+        generalPanelDisableUndergroundLightingCheckbox, "strobe", "strobing");
     // TODO: should introduce lighting flicker interval reduction as an option
 
     ButtonGroup ranChatEffectButtonGroup = new ButtonGroup();
@@ -2125,6 +2302,32 @@ public class ConfigWindow {
         "When running the client from a console, chat messages in the console will reflect the colours they are in game");
     SearchUtils.addSearchMetadata(
         generalPanelColoredTextCheckbox, CommonMetadata.COLOURS.getText());
+
+    JPanel generalPanelLogsFolderPanel = new JPanel();
+    generalPanel.add(generalPanelLogsFolderPanel);
+    generalPanelLogsFolderPanel.setLayout(
+        new BoxLayout(generalPanelLogsFolderPanel, BoxLayout.X_AXIS));
+    generalPanelLogsFolderPanel.setPreferredSize(osScaleMul(new Dimension(0, 30)));
+    generalPanelLogsFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    generalPanelLogsFolderPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+
+    JLabel logsDirectoryLabel =
+        new JLabel("Log files are stored within a folder in the RSC+ settings directory");
+    logsDirectoryLabel.setAlignmentY(isUsingFlatLAFTheme() ? 0.85f : 1f);
+    generalPanelLogsFolderPanel.add(logsDirectoryLabel);
+
+    generalPanelLogsFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+
+    JButton logsDirectoryOpenButton =
+        addButton("Open", generalPanelLogsFolderPanel, Component.RIGHT_ALIGNMENT);
+    logsDirectoryOpenButton.setAlignmentY(isUsingFlatLAFTheme() ? 0.75f : 0.8f);
+    logsDirectoryOpenButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.Dir.LOGS));
+          }
+        });
 
     // UI Settings
     addSettingsHeader(generalPanel, "UI settings");
@@ -2592,9 +2795,34 @@ public class ConfigWindow {
 
     addSettingsHeader(audioPanel, "Audio settings");
 
+    JPanel audioPanelEnableMusicPanel = new JPanel();
+    audioPanel.add(audioPanelEnableMusicPanel);
+    audioPanelEnableMusicPanel.setLayout(
+        new BoxLayout(audioPanelEnableMusicPanel, BoxLayout.X_AXIS));
+    audioPanelEnableMusicPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    String musicPackTooltip =
+        "Drag the music pack into the \"mods\" folder and restart the client (no need to unzip)";
+
     audioPanelEnableMusicCheckbox =
-        addCheckbox("Enable Music (Must have music pack installed)", audioPanel);
-    audioPanelEnableMusicCheckbox.setToolTipText("Enable Music (Must have music pack installed)");
+        addCheckbox("Enable Music (Must have a music pack installed)", audioPanelEnableMusicPanel);
+    audioPanelEnableMusicCheckbox.setToolTipText(musicPackTooltip);
+
+    if (Util.isUsingFlatLAFTheme()) {
+      audioPanelEnableMusicPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
+    }
+
+    JButton audioPanelMusicFolderButton =
+        addButton("Open folder", audioPanelEnableMusicPanel, Component.RIGHT_ALIGNMENT);
+    audioPanelMusicFolderButton.setAlignmentY(0.7f);
+    audioPanelMusicFolderButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.Dir.MODS));
+          }
+        });
+    audioPanelMusicFolderButton.setToolTipText(musicPackTooltip);
 
     JPanel audioPanelSfxVolumePanel = new JPanel();
     audioPanel.add(audioPanelSfxVolumePanel);
@@ -3157,13 +3385,39 @@ public class ConfigWindow {
     importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.X_AXIS));
     importPanel.setPreferredSize(osScaleMul(new Dimension(0, 37)));
     importPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    importPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(10), 0));
+    importPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(3), 0));
 
     importPanel.add(bankImportButton);
     bankPanelImportLabel = new JLabel(" ");
     bankPanelImportLabel.setAlignmentY(0.7f);
     bankPanelImportLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(7), 0));
     importPanel.add(bankPanelImportLabel);
+
+    JPanel bankPanelBankFolderPanel = new JPanel();
+    bankPanel.add(bankPanelBankFolderPanel);
+    bankPanelBankFolderPanel.setLayout(new BoxLayout(bankPanelBankFolderPanel, BoxLayout.X_AXIS));
+    bankPanelBankFolderPanel.setPreferredSize(osScaleMul(new Dimension(0, 37)));
+    bankPanelBankFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JLabel bankDirectoryLabel =
+        new JLabel("Bank files are stored within a folder in the RSC+ settings directory");
+    bankDirectoryLabel.setAlignmentY(isUsingFlatLAFTheme() ? 0.85f : 1f);
+    bankDirectoryLabel.setFont(
+        bankDirectoryLabel.getFont().deriveFont(Font.PLAIN, osScaleMul(13f)));
+    bankPanelBankFolderPanel.add(bankDirectoryLabel);
+
+    bankPanelBankFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+
+    JButton bankDirectoryOpenButton =
+        addButton("Open", bankPanelBankFolderPanel, Component.RIGHT_ALIGNMENT);
+    bankDirectoryOpenButton.setAlignmentY(isUsingFlatLAFTheme() ? 0.75f : 0.8f);
+    bankDirectoryOpenButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.Dir.BANK));
+          }
+        });
 
     addPanelBottomGlue(bankPanel);
 
@@ -3581,6 +3835,34 @@ public class ConfigWindow {
                 osScaleMul(10), osScaleMul(5)));
     streamingPanelSpeedrunPanel.add(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
     SearchUtils.skipSearchText(speedrunnerHowToSTOPSPEEDRUNNINGGGGExplanation);
+
+    JPanel streamingPanelSpeedrunnerFolderPanel = new JPanel();
+    streamingPanel.add(streamingPanelSpeedrunnerFolderPanel);
+    streamingPanelSpeedrunnerFolderPanel.setLayout(
+        new BoxLayout(streamingPanelSpeedrunnerFolderPanel, BoxLayout.X_AXIS));
+    streamingPanelSpeedrunnerFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    streamingPanelSpeedrunnerFolderPanel.setBorder(
+        BorderFactory.createEmptyBorder(osScaleMul(4), 0, 0, 0));
+
+    JLabel speedrunnerFolderLabel =
+        new JLabel("Speedrunner data is stored within a folder in the RSC+ settings directory");
+    speedrunnerFolderLabel.setAlignmentY(0.8f);
+    speedrunnerFolderLabel.setFont(
+        speedrunnerFolderLabel.getFont().deriveFont(Font.PLAIN, osScaleMul(13f)));
+    streamingPanelSpeedrunnerFolderPanel.add(speedrunnerFolderLabel);
+
+    streamingPanelSpeedrunnerFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+
+    JButton streamingPanelSpeedrunnerFolderButton =
+        addButton("Open folder", streamingPanelSpeedrunnerFolderPanel, Component.RIGHT_ALIGNMENT);
+    streamingPanelSpeedrunnerFolderButton.setAlignmentY(0.7f);
+    streamingPanelSpeedrunnerFolderButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.Dir.SPEEDRUN));
+          }
+        });
 
     /* shame to write all this code and then not need it...
     JPanel streamingPanelSpeedRunnerNamePanel = new JPanel();
@@ -4015,6 +4297,75 @@ public class ConfigWindow {
 
     addSettingsHeader(replayPanel, "Recording settings");
 
+    float replayButtonAlignment = isUsingFlatLAFTheme() ? 0.75f : 0.8f;
+    float replayLabelAlignment = isUsingFlatLAFTheme() ? 0.85f : 0.9f;
+    int replayPathTextHeight = isUsingFlatLAFTheme() ? 32 : 37;
+
+    /// Replay storage path
+
+    JPanel replayPanelReplayStoragePathTextFieldPanel = new JPanel();
+    replayPanel.add(replayPanelReplayStoragePathTextFieldPanel);
+    replayPanelReplayStoragePathTextFieldPanel.setLayout(
+        new BoxLayout(replayPanelReplayStoragePathTextFieldPanel, BoxLayout.X_AXIS));
+    replayPanelReplayStoragePathTextFieldPanel.setPreferredSize(
+        osScaleMul(new Dimension(0, replayPathTextHeight)));
+    replayPanelReplayStoragePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    replayPanelReplayStoragePathTextFieldPanel.setBorder(
+        BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+
+    JLabel replayPanelReplayStoragePathTextFieldLabel = new JLabel("Save replays to: ");
+    replayPanelReplayStoragePathTextFieldLabel.setToolTipText(
+        "Location where your replays will be stored");
+    replayPanelReplayStoragePathTextFieldPanel.add(replayPanelReplayStoragePathTextFieldLabel);
+    replayPanelReplayStoragePathTextFieldLabel.setAlignmentY(replayLabelAlignment);
+
+    replayPanelReplayStoragePathTextField = new JTextField();
+    replayPanelReplayStoragePathTextFieldPanel.add(replayPanelReplayStoragePathTextField);
+    replayPanelReplayStoragePathTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    replayPanelReplayStoragePathTextField.setMaximumSize(
+        new Dimension(Short.MAX_VALUE, osScaleMul(28)));
+    replayPanelReplayStoragePathTextField.setAlignmentY(0.75f);
+    replayPanelReplayStoragePathTextField.setToolTipText(
+        "To restore the default location, delete the value and apply settings");
+
+    if (Util.isUsingFlatLAFTheme()) {
+      replayPanelReplayStoragePathTextFieldPanel.add(
+          Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    File replayStorageDir = new File(Settings.REPLAY_STORAGE_PATH.get("custom"));
+    JFileChooser replayStorageDirChooser = new JFileChooser(replayStorageDir);
+    replayStorageDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+    JButton replayPanelReplayStoragePathSetDirButton =
+        addButton("Set", replayPanelReplayStoragePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
+    replayPanelReplayStoragePathSetDirButton.setAlignmentY(replayButtonAlignment);
+    replayPanelReplayStoragePathSetDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            customDirSetAction(replayStorageDirChooser, Settings.REPLAY_STORAGE_PATH);
+          }
+        });
+
+    if (Util.isUsingFlatLAFTheme()) {
+      replayPanelReplayStoragePathTextFieldPanel.add(
+          Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    JButton replayPanelReplayStoragePathOpenDirButton =
+        addButton("Open", replayPanelReplayStoragePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
+    replayPanelReplayStoragePathOpenDirButton.setAlignmentY(replayButtonAlignment);
+    replayPanelReplayStoragePathOpenDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Util.openDirectory(new File(Settings.REPLAY_STORAGE_PATH.get("custom")));
+          }
+        });
+
+    ///
+
     replayPanelRecordAutomaticallyCheckbox =
         addCheckbox("Record your play sessions by default", replayPanel);
     replayPanelRecordAutomaticallyCheckbox.setToolTipText(
@@ -4059,31 +4410,75 @@ public class ConfigWindow {
 
     addSettingsHeader(replayPanel, "Replay Queue Window");
 
+    /// Replay folder location
+
     int replayTextHeight = isUsingFlatLAFTheme() ? 32 : 37;
 
-    JPanel replayPanelReplayFolderBasePathTextFieldPanel = new JPanel();
-    replayPanel.add(replayPanelReplayFolderBasePathTextFieldPanel);
-    replayPanelReplayFolderBasePathTextFieldPanel.setLayout(
-        new BoxLayout(replayPanelReplayFolderBasePathTextFieldPanel, BoxLayout.X_AXIS));
-    replayPanelReplayFolderBasePathTextFieldPanel.setPreferredSize(
+    JPanel replayPanelReplayBasePathTextFieldPanel = new JPanel();
+    replayPanel.add(replayPanelReplayBasePathTextFieldPanel);
+    replayPanelReplayBasePathTextFieldPanel.setLayout(
+        new BoxLayout(replayPanelReplayBasePathTextFieldPanel, BoxLayout.X_AXIS));
+    replayPanelReplayBasePathTextFieldPanel.setPreferredSize(
         osScaleMul(new Dimension(0, replayTextHeight)));
-    replayPanelReplayFolderBasePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    replayPanelReplayFolderBasePathTextFieldPanel.setBorder(
+    replayPanelReplayBasePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    replayPanelReplayBasePathTextFieldPanel.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
 
-    JLabel replayPanelReplayFolderBasePathTextFieldLabel = new JLabel("Replay Folder Location: ");
-    replayPanelReplayFolderBasePathTextFieldLabel.setToolTipText(
-        "Any string of characters you enter into this field will be removed from the Folder Path column in the Replay Queue window.");
-    replayPanelReplayFolderBasePathTextFieldPanel.add(
-        replayPanelReplayFolderBasePathTextFieldLabel);
-    replayPanelReplayFolderBasePathTextFieldLabel.setAlignmentY(0.9f);
+    JLabel replayPanelReplayBasePathTextFieldLabel = new JLabel("Replay Folder Location: ");
+    replayPanelReplayBasePathTextFieldLabel.setToolTipText(
+        "Default location for the replay queue file chooser");
+    replayPanelReplayBasePathTextFieldPanel.add(replayPanelReplayBasePathTextFieldLabel);
+    replayPanelReplayBasePathTextFieldLabel.setAlignmentY(replayLabelAlignment);
 
-    replayPanelReplayFolderBasePathTextField = new JTextField();
-    replayPanelReplayFolderBasePathTextFieldPanel.add(replayPanelReplayFolderBasePathTextField);
-    replayPanelReplayFolderBasePathTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
-    replayPanelReplayFolderBasePathTextField.setMaximumSize(
+    replayPanelReplayBasePathTextField = new JTextField();
+    replayPanelReplayBasePathTextFieldPanel.add(replayPanelReplayBasePathTextField);
+    replayPanelReplayBasePathTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    replayPanelReplayBasePathTextField.setMaximumSize(
         new Dimension(Short.MAX_VALUE, osScaleMul(28)));
-    replayPanelReplayFolderBasePathTextField.setAlignmentY(0.75f);
+    replayPanelReplayBasePathTextField.setAlignmentY(0.75f);
+    replayPanelReplayBasePathTextField.setToolTipText(
+        "Any string of characters you enter into this field will be removed from the Folder Path column in the Replay Queue window.");
+
+    if (Util.isUsingFlatLAFTheme()) {
+      replayPanelReplayBasePathTextFieldPanel.add(
+          Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    File replayBaseDir = new File(Settings.REPLAY_BASE_PATH.get("custom"));
+    JFileChooser replayBaseDirChooser = new JFileChooser(replayBaseDir);
+    replayBaseDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+    JButton replayPanelReplayBasePathSetDirButton =
+        addButton("Set", replayPanelReplayBasePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
+    replayPanelReplayBasePathSetDirButton.setAlignmentY(replayButtonAlignment);
+    replayPanelReplayBasePathSetDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            customDirSetAction(replayBaseDirChooser, Settings.REPLAY_BASE_PATH);
+          }
+        });
+
+    if (Util.isUsingFlatLAFTheme()) {
+      replayPanelReplayBasePathTextFieldPanel.add(
+          Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
+    }
+
+    JButton replayPanelReplayBasePathOpenDirButton =
+        addButton("Open", replayPanelReplayBasePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
+    replayPanelReplayBasePathOpenDirButton.setAlignmentY(replayButtonAlignment);
+    replayPanelReplayBasePathOpenDirButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            String customReplayBaseDir = Settings.REPLAY_BASE_PATH.get("custom");
+            if (!("".equals(customReplayBaseDir))) {
+              Util.openDirectory(new File(customReplayBaseDir));
+            }
+          }
+        });
+
+    ////
 
     JPanel replayPanelDateFormatTextFieldPanel = new JPanel();
     replayPanel.add(replayPanelDateFormatTextFieldPanel);
@@ -4099,7 +4494,7 @@ public class ConfigWindow {
     replayPanelDateFormatTextFieldLabel.setToolTipText(
         "This is the date string pattern that you personally prefer. If you're not sure what your options are, check https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html");
     replayPanelDateFormatTextFieldPanel.add(replayPanelDateFormatTextFieldLabel);
-    replayPanelDateFormatTextFieldLabel.setAlignmentY(0.9f);
+    replayPanelDateFormatTextFieldLabel.setAlignmentY(replayLabelAlignment);
 
     replayPanelDateFormatTextField = new JTextField();
     replayPanelDateFormatTextFieldPanel.add(replayPanelDateFormatTextField);
@@ -4277,9 +4672,19 @@ public class ConfigWindow {
     addSettingsHeaderCentered(worldListPanel, "World List");
 
     JLabel spacingLabel = new JLabel("");
-    spacingLabel.setBorder(BorderFactory.createEmptyBorder(osScaleMul(15), 0, 0, 0));
+    spacingLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(5), 0));
     worldListPanel.add(spacingLabel);
     SearchUtils.setUnsearchable(spacingLabel);
+
+    addSettingsHeaderLabel(
+        worldListPanel,
+        "<html><b>" + "Drag & drop world .ini files over this text to import them" + "</b></html>",
+        true);
+
+    JLabel spacingLabel2 = new JLabel("");
+    spacingLabel2.setBorder(BorderFactory.createEmptyBorder(osScaleMul(15), 0, 0, 0));
+    worldListPanel.add(spacingLabel2);
+    SearchUtils.setUnsearchable(spacingLabel2);
 
     for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
       addWorldFields(i);
@@ -4454,6 +4859,58 @@ public class ConfigWindow {
     indexSearch();
   }
 
+  /**
+   * Performs the action when a "set" button is clicked for a setting dealing with choosing a custom
+   * directory such as screenshot storage
+   *
+   * @param fileChooser {@link JFileChooser} instance to work with
+   * @param customDirSetting {@link Settings} hashmap for the custom directory
+   */
+  private void customDirSetAction(
+      JFileChooser fileChooser, HashMap<String, String> customDirSetting) {
+    int choice = fileChooser.showOpenDialog(Launcher.getConfigWindow().frame);
+    if (choice == JFileChooser.APPROVE_OPTION) {
+      File chosenDir = fileChooser.getSelectedFile();
+      if (validateChosenDirectory(chosenDir)) {
+        reindexSearch(
+            () -> {
+              String filePath = chosenDir.getAbsolutePath() + File.separator;
+              customDirSetting.put("custom", filePath);
+              fileChooser.setCurrentDirectory(chosenDir);
+              Settings.save();
+              synchronizeGuiValues();
+            });
+      }
+    }
+  }
+
+  /**
+   * Validate whether a provided directory can be written to, displaying an error modal if not
+   *
+   * @param dir {@link File} instance for the provided directory
+   * @return {@code boolean} value indicating whether the provided directory is writeable
+   */
+  private boolean validateChosenDirectory(File dir) {
+    if (!Files.isWritable(dir.toPath())) {
+      String dirPermissionsErrorMessage =
+          "RSCPlus is unable to create files in the folder you have selected.<br/>"
+              + "<br/>"
+              + "Please select a different location.";
+      JPanel dirPermissionsErrorPanel = Util.createOptionMessagePanel(dirPermissionsErrorMessage);
+
+      JOptionPane.showMessageDialog(
+          Launcher.getConfigWindow().frame,
+          dirPermissionsErrorPanel,
+          "RSCPlus",
+          JOptionPane.ERROR_MESSAGE,
+          Launcher.scaled_icon_warn);
+
+      return false;
+    }
+
+    return true;
+  }
+
   /** Resets the tooltip listener state */
   private void resetToolTipListener() {
     toolTipTextString = " ";
@@ -4490,22 +4947,6 @@ public class ConfigWindow {
     public String getText() {
       return text;
     }
-  }
-
-  /**
-   * Given a {@link ConfigTab} object, get the tab index
-   *
-   * @param configTab {@link ConfigTab} for which to get the index
-   * @return Tab index for the ConfigTab
-   */
-  private int getTabIndex(ConfigTab configTab) {
-    for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-      if (tabbedPane.getTitleAt(i).equals(configTab.getLabel())) {
-        return i;
-      }
-    }
-
-    return -1;
   }
 
   /**
@@ -4781,7 +5222,7 @@ public class ConfigWindow {
               .filter(SearchItem::isSearchable)
               .count();
 
-      int tabIndex = getTabIndex(configTab);
+      int tabIndex = ConfigTab.getTabIndex(configTab);
 
       // This would only happen if a developer forgets to set a tab title when creating a new tab
       if (tabIndex != -1) {
@@ -4869,7 +5310,8 @@ public class ConfigWindow {
     if (firstVisibleSearchItemOptional.isPresent()) {
       SearchItem firstVisibleSearchItem = firstVisibleSearchItemOptional.get();
 
-      int firstVisibleSearchItemTabIndex = getTabIndex(firstVisibleSearchItem.getConfigTab());
+      int firstVisibleSearchItemTabIndex =
+          ConfigTab.getTabIndex(firstVisibleSearchItem.getConfigTab());
 
       // This would only happen if a developer forgets to set a tab title when creating a new tab
       // Even so, we don't want the game to crash
@@ -5432,6 +5874,7 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
+    generalPanelScreenshotsDirTextField.setText(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
     generalPanelRS2HDSkyCheckbox.setSelected(Settings.RS2HD_SKY.get(Settings.currentProfile));
     generalPanelCustomSkyboxOverworldCheckbox.setSelected(
         Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.get(Settings.currentProfile));
@@ -5602,9 +6045,8 @@ public class ConfigWindow {
     generalPanelDebugModeCheckbox.setSelected(Settings.DEBUG.get(Settings.currentProfile));
     generalPanelExceptionHandlerCheckbox.setSelected(
         Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
-    highlightedItemsTextField.setText(
-        Util.joinAsString(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
-    blockedItemsTextField.setText(Util.joinAsString(",", Settings.BLOCKED_ITEMS.get("custom")));
+    highlightedItemsTextField.setText(String.join(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
+    blockedItemsTextField.setText(String.join(",", Settings.BLOCKED_ITEMS.get("custom")));
     itemHighlightColour =
         Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
     overlayPanelHighlightRightClickCheckbox.setSelected(
@@ -5713,7 +6155,7 @@ public class ConfigWindow {
     notificationPanelPMNotifsCheckbox.setSelected(
         Settings.PM_NOTIFICATIONS.get(Settings.currentProfile));
     notificationPanelPMDenyListTextField.setText(
-        Util.joinAsString(",", Settings.PM_DENYLIST.get("custom")));
+        String.join(",", Settings.PM_DENYLIST.get("custom")));
     notificationPanelTradeNotifsCheckbox.setSelected(
         Settings.TRADE_NOTIFICATIONS.get(Settings.currentProfile));
     notificationPanelDuelNotifsCheckbox.setSelected(
@@ -5746,10 +6188,9 @@ public class ConfigWindow {
         !Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
     notificationPanelNotifSoundAnyFocusButton.setSelected(
         Settings.SOUND_NOTIFS_ALWAYS.get(Settings.currentProfile));
-    importantMessagesTextField.setText(
-        Util.joinAsString(",", Settings.IMPORTANT_MESSAGES.get("custom")));
+    importantMessagesTextField.setText(String.join(",", Settings.IMPORTANT_MESSAGES.get("custom")));
     importantSadMessagesTextField.setText(
-        Util.joinAsString(",", Settings.IMPORTANT_SAD_MESSAGES.get("custom")));
+        String.join(",", Settings.IMPORTANT_SAD_MESSAGES.get("custom")));
     notificationPanelMuteImportantMessageSoundsCheckbox.setSelected(
         Settings.MUTE_IMPORTANT_MESSAGE_SOUNDS.get(Settings.currentProfile));
 
@@ -5774,6 +6215,7 @@ public class ConfigWindow {
     // streamingPanelSpeedrunnerUsernameTextField.setText(Settings.SPEEDRUNNER_USERNAME.get(Settings.currentProfile));
 
     // Replay tab
+    replayPanelReplayStoragePathTextField.setText(Settings.REPLAY_STORAGE_PATH.get("custom"));
     replayPanelRecordAutomaticallyCheckbox.setSelected(
         Settings.RECORD_AUTOMATICALLY.get(Settings.currentProfile));
     replayPanelParseOpcodesCheckbox.setSelected(
@@ -5790,7 +6232,7 @@ public class ConfigWindow {
     replayPanelTriggerAlertsReplayCheckbox.setSelected(
         Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile));
     replayPanelDateFormatTextField.setText(Settings.PREFERRED_DATE_FORMAT.get("custom"));
-    replayPanelReplayFolderBasePathTextField.setText(Settings.REPLAY_BASE_PATH.get("custom"));
+    replayPanelReplayBasePathTextField.setText(Settings.REPLAY_BASE_PATH.get("custom"));
     replayPanelShowWorldColumnCheckbox.setSelected(
         Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile));
     replayPanelShowConversionSettingsCheckbox.setSelected(
@@ -5955,6 +6397,10 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
+    Settings.SCREENSHOTS_STORAGE_PATH.put(
+        Settings.currentProfile,
+        Settings.validateCustomDir(
+            generalPanelScreenshotsDirTextField.getText(), Settings.Dir.SCREENSHOT));
     Settings.RS2HD_SKY.put(Settings.currentProfile, generalPanelRS2HDSkyCheckbox.isSelected());
     Settings.CUSTOM_SKYBOX_OVERWORLD_ENABLED.put(
         Settings.currentProfile, generalPanelCustomSkyboxOverworldCheckbox.isSelected());
@@ -6233,6 +6679,10 @@ public class ConfigWindow {
     //    Settings.currentProfile, streamingPanelSpeedrunnerUsernameTextField.getText());
 
     // Replay
+    Settings.REPLAY_STORAGE_PATH.put(
+        Settings.currentProfile,
+        Settings.validateCustomDir(
+            replayPanelReplayStoragePathTextField.getText(), Settings.Dir.REPLAY));
     Settings.RECORD_AUTOMATICALLY.put(
         Settings.currentProfile, replayPanelRecordAutomaticallyCheckbox.isSelected());
     Settings.PARSE_OPCODES.put(
@@ -6250,7 +6700,8 @@ public class ConfigWindow {
     Settings.TRIGGER_ALERTS_REPLAY.put(
         Settings.currentProfile, replayPanelTriggerAlertsReplayCheckbox.isSelected());
     Settings.REPLAY_BASE_PATH.put(
-        Settings.currentProfile, replayPanelReplayFolderBasePathTextField.getText());
+        Settings.currentProfile,
+        Settings.validateCustomDir(replayPanelReplayBasePathTextField.getText(), ""));
     Settings.PREFERRED_DATE_FORMAT.put(
         Settings.currentProfile, replayPanelDateFormatTextField.getText());
     Settings.SHOW_WORLD_COLUMN.put(
@@ -6599,7 +7050,7 @@ public class ConfigWindow {
     worldListSpacingLabels.put(i, new JLabel(""));
     worldListSpacingLabels
         .get(i)
-        .setBorder(BorderFactory.createEmptyBorder(osScaleMul(30), 0, 0, 0));
+        .setBorder(BorderFactory.createEmptyBorder(osScaleMul(20), 0, 0, 0));
     worldListPanel.add(worldListSpacingLabels.get(i));
 
     //// create world
@@ -6609,37 +7060,40 @@ public class ConfigWindow {
   }
 
   private void addAddWorldButton() {
-    JButton addWorldButton = new JButton("Add New World");
+    addWorldButton = new JButton("Add New World");
     addWorldButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
     addWorldButton.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            worldListPanel.remove(addWorldButton);
-            Component verticalGlue =
-                Arrays.stream(worldListPanel.getComponents())
-                    .filter(
-                        c -> c.getName() != null && c.getName().equals("world_listPanelBottomGlue"))
-                    .findFirst()
-                    .orElse(null);
-            if (verticalGlue != null) {
-              worldListPanel.remove(verticalGlue);
-            }
-            ++Settings.WORLDS_TO_DISPLAY;
-            // Reindex search to account for the altered UI
-            reindexSearch(
-                () -> {
-                  synchronizeWorldTab();
-                  addAddWorldButton();
-                  if (verticalGlue != null) {
-                    worldListPanel.add(verticalGlue);
-                  }
-                });
+            addWorldAction();
           }
         });
     worldListPanel.add(addWorldButton);
     worldListPanel.revalidate();
     worldListPanel.repaint();
+  }
+
+  private void addWorldAction() {
+    worldListPanel.remove(addWorldButton);
+    Component verticalGlue =
+        Arrays.stream(worldListPanel.getComponents())
+            .filter(c -> c.getName() != null && c.getName().equals("world_listPanelBottomGlue"))
+            .findFirst()
+            .orElse(null);
+    if (verticalGlue != null) {
+      worldListPanel.remove(verticalGlue);
+    }
+    ++Settings.WORLDS_TO_DISPLAY;
+    // Reindex search to account for the altered UI
+    reindexSearch(
+        () -> {
+          synchronizeWorldTab();
+          addAddWorldButton();
+          if (verticalGlue != null) {
+            worldListPanel.add(verticalGlue);
+          }
+        });
   }
 
   // adds or removes world list text fields & fills them with their values

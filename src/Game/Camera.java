@@ -301,7 +301,7 @@ public class Camera {
   }
 
   public static void resetRotation() {
-    rotation = 126;
+    rotation = 128;
     delta_rotation = (float) rotation;
   }
 

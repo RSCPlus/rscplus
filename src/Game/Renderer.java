@@ -669,7 +669,8 @@ public class Renderer {
       Client.item_list.clear();
       last_item = null;
 
-      if (!Client.show_sleeping && Settings.SHOW_INVCOUNT.get(Settings.currentProfile))
+      if (!Client.isFullScreenInterfaceOpen()
+          && Settings.SHOW_INVCOUNT.get(Settings.currentProfile)) {
         drawShadowText(
             g2,
             Client.inventory_count + "/" + Client.max_inventory,
@@ -677,6 +678,7 @@ public class Renderer {
             17,
             getInventoryCountColor(),
             true);
+      }
 
       int percentHP = 0;
       int percentPrayer = 0;
@@ -924,7 +926,9 @@ public class Renderer {
       // render XP bar/drop
       Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
-      Client.xpbar.draw(g2, bufferedMouseClick);
+      if (!Client.isFullScreenInterfaceOpen()) { // Prevent crashes on new character creation
+        Client.xpbar.draw(g2, bufferedMouseClick);
+      }
 
       if (!Client.isSleeping()) {
         Client.updateCurrentFatigue();
@@ -1006,7 +1010,8 @@ public class Renderer {
         }
       }
 
-      if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+      if (!Client.isFullScreenInterfaceOpen()
+          && Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
         int xCoord = Client.wikiLookupReplacesReportAbuse() ? 410 : 410 + 90 + 12;
         int yCoord = height - 16;
         // Handle wiki lookup click
@@ -1078,16 +1083,7 @@ public class Renderer {
         if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1,
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1 + 6);
-            g2.drawLine(
-                mapButtonBounds.x + 1,
-                mapButtonBounds.y + 4,
-                mapButtonBounds.x + 7,
-                mapButtonBounds.y + 4);
+            drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
           }
 
           // Handle map button click
@@ -1106,16 +1102,7 @@ public class Renderer {
         if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1,
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1 + 6);
-            g2.drawLine(
-                mapButtonBounds.x + 1,
-                mapButtonBounds.y + 4,
-                mapButtonBounds.x + 7,
-                mapButtonBounds.y + 4);
+            drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
           }
 
           // Handle settings button click
@@ -1134,16 +1121,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle magic book button click
@@ -1168,16 +1146,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle friends button click
@@ -1218,16 +1187,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle stats menu click
@@ -2231,7 +2191,11 @@ public class Renderer {
       try {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
         String fname =
-            Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
+            Settings.SCREENSHOTS_STORAGE_PATH.get("custom")
+                + "/"
+                + "Screenshot from "
+                + format.format(new Date())
+                + ".png";
         File screenshotFile = new File(fname);
         ImageIO.write(game_image, "png", screenshotFile);
         if (!quietScreenshot)
@@ -2240,6 +2204,8 @@ public class Renderer {
       } catch (Exception e) {
       }
     }
+
+    // Rapid screenshots should not use custom-set screenshot dirs
 
     if (videorecord > 0) {
       String fname = Settings.Dir.VIDEO + "/" + "video" + (videolength - videorecord) + ".png";
@@ -2390,6 +2356,16 @@ public class Renderer {
 
     // state of show_bank "last frame"
     show_bank_last = Client.show_bank;
+  }
+
+  /** Draws a little + symbol over menu buttons */
+  private static void drawPlusIcon(Graphics2D g2, int x, int y) {
+    if (Client.isFullScreenInterfaceOpen()) {
+      return;
+    }
+
+    g2.drawLine(x + 4, y + 1, x + 4, y + 1 + 6);
+    g2.drawLine(x + 1, y + 4, x + 7, y + 4);
   }
 
   private static void drawDeathItems(Graphics2D g2) {

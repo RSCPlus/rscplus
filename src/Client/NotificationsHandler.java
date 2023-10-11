@@ -205,7 +205,7 @@ public class NotificationsHandler {
      * So basically, if we're running windows, everything renders normally and looks great. If we aren't, we assume
      * everything breaks and revert to a simpler but compatible look
      */
-    if (System.getProperty("os.name").contains("Windows")) {
+    if (Util.isWindowsOS()) {
       // 1
       // Configure the frame to have rounded corners and to be transparent
       notificationFrame.setShape(
@@ -569,8 +569,7 @@ public class NotificationsHandler {
     final String sanitizedText =
         text.replaceAll("@...@", "").replaceAll("~...~", "").replaceAll("\\\\", "\\\\\\\\");
 
-    if (Settings.USE_SYSTEM_NOTIFICATIONS.get(Settings.currentProfile)
-        && !System.getProperty("os.name").contains("Windows")) {
+    if (Settings.USE_SYSTEM_NOTIFICATIONS.get(Settings.currentProfile) && !Util.isWindowsOS()) {
       if (!hasNotifySend) {
         Client.displayMessage(
             "@red@You have to install notify-send for native system notifications!",
