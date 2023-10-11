@@ -788,7 +788,7 @@ public class Util {
                 binaryName, reason));
         return false;
       } else {
-        Logger.Info(binaryName + ": " + whereis);
+        Logger.Info(binaryName + ":" + whereis);
         return true;
       }
     } catch (IOException e) {
