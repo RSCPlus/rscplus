@@ -5519,7 +5519,7 @@ public class ConfigWindow {
       String commandID,
       KeyModifier defaultModifier,
       int defaultKeyValue) {
-    addKeybindSet(panel, labelText, commandID, defaultModifier, defaultKeyValue, null);
+    addKeybindSet(panel, labelText, commandID, defaultModifier, defaultKeyValue, (String) null);
   }
 
   /**
