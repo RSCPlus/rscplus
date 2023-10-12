@@ -12,8 +12,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import javax.imageio.ImageIO;
 
 /**
@@ -41,9 +42,8 @@ public class SpecialStar {
     g.dispose();
 
     starGlimmerMask = new short[12][11];
-    try (BufferedReader br =
-        new BufferedReader(
-            new FileReader(Launcher.getResource("/assets/starGlimmerMask.dat").getFile()))) {
+    try (InputStream inputStream = Launcher.getResource("/assets/starGlimmerMask.dat").openStream();
+         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
       String line;
       int row = 0;
       while ((line = br.readLine()) != null) {
@@ -128,14 +128,12 @@ public class SpecialStar {
 
     // Define base colors
     Color pointMaskColor = new Color(colorMask);
-    Color coneMaskColor = darken(pointMaskColor, 0.0f);
-    Color baseMaskColor = darken(coneMaskColor, 0.05f);
+    Color baseMaskColor = darken(pointMaskColor, 0.05f);
     Color glimmerColor = getRedFacingAnalogousColor(baseMaskColor);
     Color glimmerShadowColor = getRedFacingAnalogousColor(baseMaskColor, 36);
 
     // Generate color mask data
     float[] pointColorMaskValues = generateMaskColors(pointMaskColor);
-    float[] coneColorMaskValues = generateMaskColors(coneMaskColor);
     float[] baseColorMaskValues = generateMaskColors(baseMaskColor);
     float[] glimmerColorValues = generateMaskColors(glimmerColor);
     float[] glimmerShadowColorValues = generateMaskColors(glimmerShadowColor);
@@ -175,21 +173,16 @@ public class SpecialStar {
           huePixel = pointColorMaskValues[2];
           saturationPixel = pointColorMaskValues[3];
         } else if (maskByte == 1) {
-          grayLevelColorPixel = (int) coneColorMaskValues[0];
-          colorBrPixel = coneColorMaskValues[1];
-          huePixel = coneColorMaskValues[2];
-          saturationPixel = coneColorMaskValues[3];
-        } else if (maskByte == 2) {
           grayLevelColorPixel = (int) baseColorMaskValues[0];
           colorBrPixel = baseColorMaskValues[1];
           huePixel = baseColorMaskValues[2];
           saturationPixel = baseColorMaskValues[3];
-        } else if (maskByte == 3) {
+        } else if (maskByte == 2) {
           grayLevelColorPixel = (int) glimmerColorValues[0];
           colorBrPixel = glimmerColorValues[1];
           huePixel = glimmerColorValues[2];
           saturationPixel = glimmerColorValues[3];
-        } else if (maskByte == 4) {
+        } else if (maskByte == 3) {
           grayLevelColorPixel = (int) glimmerShadowColorValues[0];
           colorBrPixel = glimmerShadowColorValues[1];
           huePixel = glimmerShadowColorValues[2];
