@@ -782,9 +782,9 @@ public class Util {
               .replace("\n", "")
               .replace(binaryName + ":", "");
       if (whereis.length() < ("/" + binaryName).length()) {
-        Logger.Error(
+        Logger.Warn(
             String.format(
-                "@|red !!! Please install %s for %s to work on Linux (or other systems with compatible binary) !!!|@",
+                "@|yellow !!! Please install %s for %s to work on Linux (or other systems with compatible binary) !!!|@",
                 binaryName, reason));
         return false;
       } else {
