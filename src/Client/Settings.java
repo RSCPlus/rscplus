@@ -41,6 +41,7 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
@@ -2603,6 +2604,21 @@ public class Settings {
       foundInvalidSetting = true;
     }
 
+    if (BLOCKED_ITEMS.get("custom").contains("\"")) {
+      BLOCKED_ITEMS.put("custom", sanitizeQuotedItemList(BLOCKED_ITEMS.get("custom")));
+      foundInvalidSetting = true;
+    }
+
+    if (SPECIAL_HIGHLIGHTED_ITEMS.get("custom").contains("\"")) {
+      SPECIAL_HIGHLIGHTED_ITEMS.put("custom", sanitizeQuotedItemList(SPECIAL_HIGHLIGHTED_ITEMS.get("custom")));
+      foundInvalidSetting = true;
+    }
+
+    if (HIGHLIGHTED_ITEMS.get("custom").contains("\"")) {
+      HIGHLIGHTED_ITEMS.put("custom", sanitizeQuotedItemList(HIGHLIGHTED_ITEMS.get("custom")));
+      foundInvalidSetting = true;
+    }
+
     if (foundInvalidSetting) {
       save("custom");
     }
@@ -2620,6 +2636,15 @@ public class Settings {
     }
 
     return (path + (path.endsWith("/") ? "" : "/")).replaceAll("/+", "/");
+  }
+
+  /** Removes any dangling quotation marks from an {@link ArrayList} of {@link String}s */
+  static ArrayList<String> sanitizeQuotedItemList(ArrayList<String> list) {
+    if (list.contains("\"")) {
+      list.removeAll(Collections.singleton("\""));
+    }
+
+    return list;
   }
 
   /**

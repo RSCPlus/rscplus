@@ -6578,15 +6578,15 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
     Settings.HIGHLIGHTED_ITEMS.put(
         "custom",
-        sanitizeQuotedItemList(
+        Settings.sanitizeQuotedItemList(
             new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(",")))));
     Settings.SPECIAL_HIGHLIGHTED_ITEMS.put(
         "custom",
-        sanitizeQuotedItemList(
+        Settings.sanitizeQuotedItemList(
             new ArrayList<>(Arrays.asList(specialHighlightedItemsTextField.getText().split(",")))));
     Settings.BLOCKED_ITEMS.put(
         "custom",
-        sanitizeQuotedItemList(
+        Settings.sanitizeQuotedItemList(
             new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(",")))));
     Settings.ITEM_HIGHLIGHT_COLOUR.put(
         Settings.currentProfile, Util.colorToInt(itemHighlightColour));
@@ -6854,15 +6854,6 @@ public class ConfigWindow {
 
     // Save Settings
     Settings.saveNoPresetModification();
-  }
-
-  /** Removes any dangling quotation marks from an {@link ArrayList} of {@link String}s */
-  private ArrayList<String> sanitizeQuotedItemList(ArrayList<String> list) {
-    if (list.contains("\"")) {
-      list.removeAll(Collections.singleton("\""));
-    }
-
-    return list;
   }
 
   private String getTextWithDefault(
