@@ -2604,18 +2604,15 @@ public class Settings {
       foundInvalidSetting = true;
     }
 
-    if (BLOCKED_ITEMS.get("custom").contains("\"")) {
-      BLOCKED_ITEMS.put("custom", sanitizeQuotedItemList(BLOCKED_ITEMS.get("custom")));
+    if (BLOCKED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
       foundInvalidSetting = true;
     }
 
-    if (SPECIAL_HIGHLIGHTED_ITEMS.get("custom").contains("\"")) {
-      SPECIAL_HIGHLIGHTED_ITEMS.put("custom", sanitizeQuotedItemList(SPECIAL_HIGHLIGHTED_ITEMS.get("custom")));
+    if (SPECIAL_HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
       foundInvalidSetting = true;
     }
 
-    if (HIGHLIGHTED_ITEMS.get("custom").contains("\"")) {
-      HIGHLIGHTED_ITEMS.put("custom", sanitizeQuotedItemList(HIGHLIGHTED_ITEMS.get("custom")));
+    if (HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
       foundInvalidSetting = true;
     }
 
@@ -2640,10 +2637,7 @@ public class Settings {
 
   /** Removes any dangling quotation marks from an {@link ArrayList} of {@link String}s */
   static ArrayList<String> sanitizeQuotedItemList(ArrayList<String> list) {
-    if (list.contains("\"")) {
-      list.removeAll(Collections.singleton("\""));
-    }
-
+    list.removeIf(s -> s.trim().equals("\""));
     return list;
   }
 
