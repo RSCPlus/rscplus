@@ -41,6 +41,7 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
@@ -265,9 +266,13 @@ public class Settings {
   public static HashMap<String, Boolean> EXCEPTION_HANDLER = new HashMap<String, Boolean>();
   public static HashMap<String, ArrayList<String>> HIGHLIGHTED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, ArrayList<String>> SPECIAL_HIGHLIGHTED_ITEMS =
+      new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, Integer> ITEM_HIGHLIGHT_COLOUR = new HashMap<String, Integer>();
+  public static HashMap<String, Integer> ITEM_SPECIAL_HIGHLIGHT_COLOUR =
+      new HashMap<String, Integer>();
   public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> OVERLAY_FONT_STYLE = new HashMap<>();
@@ -381,7 +386,6 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
-  public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
   // determines which preset to load, or your custom settings :-)
   public static String currentProfile = "custom";
@@ -1908,6 +1912,10 @@ public class Settings {
         HIGHLIGHTED_ITEMS, getPropArrayListString(props, "highlighted_items", new ArrayList<>()));
 
     defineStaticPreset(
+        SPECIAL_HIGHLIGHTED_ITEMS,
+        getPropArrayListString(props, "special_highlighted_items", new ArrayList<>()));
+
+    defineStaticPreset(
         BLOCKED_ITEMS, getPropArrayListString(props, "blocked_items", new ArrayList<>()));
 
     ITEM_HIGHLIGHT_COLOUR.put("vanilla", 0xFFD700);
@@ -1918,6 +1926,17 @@ public class Settings {
     ITEM_HIGHLIGHT_COLOUR.put("all", 0xFFD700);
     ITEM_HIGHLIGHT_COLOUR.put(
         "custom", getPropInt(props, "item_highlight_colour", ITEM_HIGHLIGHT_COLOUR.get("default")));
+
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("vanilla", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("vanilla_resizable", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("lite", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("default", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("heavy", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("all", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put(
+        "custom",
+        getPropInt(
+            props, "item_special_highlight_colour", ITEM_SPECIAL_HIGHLIGHT_COLOUR.get("default")));
 
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla", false);
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla_resizable", false);
@@ -2585,6 +2604,18 @@ public class Settings {
       foundInvalidSetting = true;
     }
 
+    if (BLOCKED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
+    if (SPECIAL_HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
+    if (HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
     if (foundInvalidSetting) {
       save("custom");
     }
@@ -2602,6 +2633,12 @@ public class Settings {
     }
 
     return (path + (path.endsWith("/") ? "" : "/")).replaceAll("/+", "/");
+  }
+
+  /** Removes any dangling quotation marks from an {@link ArrayList} of {@link String}s */
+  static ArrayList<String> sanitizeQuotedItemList(ArrayList<String> list) {
+    list.removeIf(s -> s.trim().equals("\""));
+    return list;
   }
 
   /**
@@ -3370,9 +3407,14 @@ public class Settings {
       props.setProperty("debug", Boolean.toString(DEBUG.get(preset)));
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", String.join(",", HIGHLIGHTED_ITEMS.get(preset)));
+      props.setProperty(
+          "special_highlighted_items", String.join(",", SPECIAL_HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty("blocked_items", String.join(",", BLOCKED_ITEMS.get(preset)));
       props.setProperty(
           "item_highlight_colour", Integer.toString(ITEM_HIGHLIGHT_COLOUR.get(preset)));
+      props.setProperty(
+          "item_special_highlight_colour",
+          Integer.toString(ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(preset)));
       props.setProperty(
           "highlight_items_right_click_menu",
           Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
@@ -4770,7 +4812,6 @@ public class Settings {
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
     LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
     HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
-    ITEM_HIGHLIGHT_COLOUR_INT = ITEM_HIGHLIGHT_COLOUR.get(currentProfile);
   }
 
   /** Invoked when combat style changes */

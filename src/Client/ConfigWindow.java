@@ -35,6 +35,7 @@ import Game.KeyboardHandler;
 import Game.Renderer;
 import Game.Replay;
 import Game.SoundEffects;
+import Game.SpecialStar;
 import com.formdev.flatlaf.ui.FlatRoundBorder;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -336,9 +337,11 @@ public class ConfigWindow {
   private JCheckBox overlayPanelLagIndicatorCheckbox;
   private JTextField blockedItemsTextField;
   private JTextField highlightedItemsTextField;
-  private JPanel overlayPanelItemHighlightColourSubpanel;
+  private JTextField specialHighlightedItemsTextField;
   private Color itemHighlightColour =
       Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+  private Color itemSpecialHighlightColour =
+      Util.intToColor(Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
   private JCheckBox overlayPanelHighlightRightClickCheckbox;
   //   private JRadioButton overlayPanelFontStyleJagexFocusButton;
   private JRadioButton overlayPanelFontStyleJagexBorderedFocusButton;
@@ -2660,7 +2663,7 @@ public class ConfigWindow {
         "Will only show items in the highlighted list below");
 
     String itemInputToolTip =
-        "Surround with \" \" for exact matches (not case-sensitive). Block list takes priority over highlight list.";
+        "Surround with \" \" for exact matches (not case-sensitive). Block list takes priority over highlight lists.";
 
     int itemsTextHeight = isUsingFlatLAFTheme() ? 32 : 37;
 
@@ -2704,6 +2707,27 @@ public class ConfigWindow {
     highlightedItemsTextField.setAlignmentY(0.75f);
     highlightedItemsTextField.setToolTipText(itemInputToolTip);
 
+    // Special Highlighted Items
+    JPanel specialHighlightedItemsPanel = new JPanel();
+    overlayPanelGroundItemsPanel.add(specialHighlightedItemsPanel);
+    specialHighlightedItemsPanel.setLayout(
+        new BoxLayout(specialHighlightedItemsPanel, BoxLayout.X_AXIS));
+    specialHighlightedItemsPanel.setPreferredSize(osScaleMul(new Dimension(0, itemsTextHeight)));
+    specialHighlightedItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    specialHighlightedItemsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+    specialHighlightedItemsPanel.setToolTipText(itemInputToolTip);
+
+    JLabel specialHighlightedItemsPanelNameLabel = new JLabel("Special highlighted items: ");
+    specialHighlightedItemsPanel.add(specialHighlightedItemsPanelNameLabel);
+    specialHighlightedItemsPanelNameLabel.setAlignmentY(0.9f);
+
+    specialHighlightedItemsTextField = new JTextField();
+    specialHighlightedItemsPanel.add(specialHighlightedItemsTextField);
+    specialHighlightedItemsTextField.setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    specialHighlightedItemsTextField.setMaximumSize(new Dimension(Short.MAX_VALUE, osScaleMul(28)));
+    specialHighlightedItemsTextField.setAlignmentY(0.75f);
+    specialHighlightedItemsTextField.setToolTipText(itemInputToolTip);
+
     // Highlight colour panel
     JPanel overlayPanelItemHighlightColourPanel = new JPanel();
     overlayPanel.add(overlayPanelItemHighlightColourPanel);
@@ -2712,13 +2736,14 @@ public class ConfigWindow {
     overlayPanelItemHighlightColourPanel.setPreferredSize(osScaleMul(new Dimension(0, 26)));
     overlayPanelItemHighlightColourPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    // Highlight colour chooser
     JLabel highlightedItemColourPanelNameLabel = new JLabel("Highlight colour ");
     overlayPanelItemHighlightColourPanel.add(highlightedItemColourPanelNameLabel);
     highlightedItemColourPanelNameLabel.setAlignmentY(0.9f);
     SearchUtils.addSearchMetadata(
         highlightedItemColourPanelNameLabel, CommonMetadata.COLOUR.getText());
 
-    overlayPanelItemHighlightColourSubpanel = new JPanel();
+    JPanel overlayPanelItemHighlightColourSubpanel = new JPanel();
     overlayPanelItemHighlightColourPanel.add(overlayPanelItemHighlightColourSubpanel);
     overlayPanelItemHighlightColourSubpanel.setAlignmentY(0.7f);
     overlayPanelItemHighlightColourSubpanel.setMinimumSize(osScaleMul(new Dimension(32, 20)));
@@ -2746,12 +2771,57 @@ public class ConfigWindow {
         });
     overlayPanelItemHighlightColourPanel.add(rightClickHighlightColourChooserButton);
     rightClickHighlightColourChooserButton.setAlignmentY(0.7f);
+
+    overlayPanelItemHighlightColourPanel.add(
+        Box.createRigidArea(osScaleMul(new Dimension(itemHighlightColourMargin, 20))));
+
+    // Special highlight colour chooser
+
+    JLabel specialHighlightedItemColourPanelNameLabel = new JLabel("Special highlight colour ");
+    overlayPanelItemHighlightColourPanel.add(specialHighlightedItemColourPanelNameLabel);
+    specialHighlightedItemColourPanelNameLabel.setAlignmentY(0.9f);
+    SearchUtils.addSearchMetadata(
+        specialHighlightedItemColourPanelNameLabel, CommonMetadata.COLOUR.getText());
+
+    JPanel overlayPanelItemSpecialHighlightColourSubpanel = new JPanel();
+    overlayPanelItemHighlightColourPanel.add(overlayPanelItemSpecialHighlightColourSubpanel);
+    overlayPanelItemSpecialHighlightColourSubpanel.setAlignmentY(0.7f);
+    overlayPanelItemSpecialHighlightColourSubpanel.setMinimumSize(
+        osScaleMul(new Dimension(32, 20)));
+    overlayPanelItemSpecialHighlightColourSubpanel.setPreferredSize(
+        osScaleMul(new Dimension(32, 20)));
+    overlayPanelItemSpecialHighlightColourSubpanel.setMaximumSize(
+        osScaleMul(new Dimension(32, 20)));
+    overlayPanelItemSpecialHighlightColourSubpanel.setBorder(
+        BorderFactory.createLineBorder(Color.black));
+    overlayPanelItemSpecialHighlightColourSubpanel.setBackground(itemSpecialHighlightColour);
+
+    overlayPanelItemHighlightColourPanel.add(
+        Box.createRigidArea(osScaleMul(new Dimension(itemHighlightColourMargin, 20))));
+
+    JButton rightClickSpecialHighlightColourChooserButton = new JButton("Choose colour");
+    rightClickSpecialHighlightColourChooserButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Color selected =
+                JColorChooser.showDialog(
+                    null, "Choose item special highlight colour", itemSpecialHighlightColour);
+            if (null != selected) {
+              itemSpecialHighlightColour = selected;
+            }
+            overlayPanelItemSpecialHighlightColourSubpanel.setBackground(
+                itemSpecialHighlightColour);
+          }
+        });
+    overlayPanelItemHighlightColourPanel.add(rightClickSpecialHighlightColourChooserButton);
+    rightClickSpecialHighlightColourChooserButton.setAlignmentY(0.7f);
     ////////////
 
     overlayPanelHighlightRightClickCheckbox =
         addCheckbox("Highlight items in the right-click menu", overlayPanel);
     overlayPanelHighlightRightClickCheckbox.setToolTipText(
-        "Highlights items from the above list in the right-click menu");
+        "Highlights items from the above lists in the right-click menu");
     overlayPanelHighlightRightClickCheckbox.setBorder(
         BorderFactory.createEmptyBorder(osScaleMul(9), 0, osScaleMul(10), 0));
 
@@ -4104,13 +4174,15 @@ public class ConfigWindow {
         "Toggle item name overlay",
         "toggle_item_name_overlay",
         KeyModifier.CTRL,
-        KeyEvent.VK_G);
+        KeyEvent.VK_G,
+        "ground");
     addKeybindSet(
         keybindContainerPanel,
         "Toggle item name overlay (highlighted only)",
         "toggle_item_name_overlay_highlight",
         KeyModifier.ALT,
-        KeyEvent.VK_G);
+        KeyEvent.VK_G,
+        "ground");
     addKeybindSet(
         keybindContainerPanel,
         "Toggle player name overlay",
@@ -5438,7 +5510,7 @@ public class ConfigWindow {
     }
   }
   /**
-   * Alias for {@link #addKeybindSet(JPanel, String, String, KeyModifier, int, String)}, without
+   * Alias for {@link #addKeybindSet(JPanel, String, String, KeyModifier, int, String...)}, without
    * search metadata
    */
   private void addKeybindSet(
@@ -5447,7 +5519,7 @@ public class ConfigWindow {
       String commandID,
       KeyModifier defaultModifier,
       int defaultKeyValue) {
-    addKeybindSet(panel, labelText, commandID, defaultModifier, defaultKeyValue, null);
+    addKeybindSet(panel, labelText, commandID, defaultModifier, defaultKeyValue, (String) null);
   }
 
   /**
@@ -5470,7 +5542,7 @@ public class ConfigWindow {
       String commandID,
       KeyModifier defaultModifier,
       int defaultKeyValue,
-      String searchMetadata) {
+      String... searchMetadata) {
     JLabel l = addKeybindLabel(panel, labelText);
     if (searchMetadata != null) {
       SearchUtils.addSearchMetadata(l, searchMetadata);
@@ -6046,9 +6118,13 @@ public class ConfigWindow {
     generalPanelExceptionHandlerCheckbox.setSelected(
         Settings.EXCEPTION_HANDLER.get(Settings.currentProfile));
     highlightedItemsTextField.setText(String.join(",", Settings.HIGHLIGHTED_ITEMS.get("custom")));
+    specialHighlightedItemsTextField.setText(
+        String.join(",", Settings.SPECIAL_HIGHLIGHTED_ITEMS.get("custom")));
     blockedItemsTextField.setText(String.join(",", Settings.BLOCKED_ITEMS.get("custom")));
     itemHighlightColour =
         Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+    itemSpecialHighlightColour =
+        Util.intToColor(Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
     overlayPanelHighlightRightClickCheckbox.setSelected(
         Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(Settings.currentProfile));
     // if (Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile)
@@ -6501,11 +6577,21 @@ public class ConfigWindow {
     Settings.EXCEPTION_HANDLER.put(
         Settings.currentProfile, generalPanelExceptionHandlerCheckbox.isSelected());
     Settings.HIGHLIGHTED_ITEMS.put(
-        "custom", new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(","))));
+        "custom",
+        Settings.sanitizeQuotedItemList(
+            new ArrayList<>(Arrays.asList(highlightedItemsTextField.getText().split(",")))));
+    Settings.SPECIAL_HIGHLIGHTED_ITEMS.put(
+        "custom",
+        Settings.sanitizeQuotedItemList(
+            new ArrayList<>(Arrays.asList(specialHighlightedItemsTextField.getText().split(",")))));
     Settings.BLOCKED_ITEMS.put(
-        "custom", new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(","))));
+        "custom",
+        Settings.sanitizeQuotedItemList(
+            new ArrayList<>(Arrays.asList(blockedItemsTextField.getText().split(",")))));
     Settings.ITEM_HIGHLIGHT_COLOUR.put(
         Settings.currentProfile, Util.colorToInt(itemHighlightColour));
+    Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.put(
+        Settings.currentProfile, Util.colorToInt(itemSpecialHighlightColour));
     Settings.HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put(
         Settings.currentProfile, overlayPanelHighlightRightClickCheckbox.isSelected());
     Settings.OVERLAY_FONT_STYLE.put(
@@ -6802,7 +6888,19 @@ public class ConfigWindow {
     // involve reading from or updating GUI values
     reindexSearch(
         () -> {
+          // Store old settings to compare with values after saving
+          int oldHighlightColor = Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile);
+          int oldSpecialHighlightColor =
+              Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile);
+
           saveSettings();
+
+          // Tell the Renderer to recreate the special star images if the color has changed
+          if (Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile) != oldHighlightColor
+              || Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile)
+                  != oldSpecialHighlightColor) {
+            SpecialStar.starImagesUpdateRequired = true;
+          }
           // Tell the Renderer to update the scale from its thread to avoid thread-safety issues.
           Settings.renderingScalarUpdateRequired = true;
           // Tell the Renderer to update the FoV from its thread to avoid thread-safety issues.
