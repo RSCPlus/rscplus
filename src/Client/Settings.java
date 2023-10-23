@@ -2739,7 +2739,12 @@ public class Settings {
       if (versionText.startsWith("1.")) {
         versionText = versionText.substring(2);
       }
-      javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+
+      if (versionText.contains(".")) {
+        javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+      } else {
+        javaVersion = Integer.parseInt(versionText);
+      }
     } catch (Exception e) {
       javaVersion = -1;
     }
