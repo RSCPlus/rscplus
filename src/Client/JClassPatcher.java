@@ -80,6 +80,7 @@ public class JClassPatcher {
     else if (node.name.equals("lb")) patchRendererHelper(node);
     else if (node.name.equals("sa")) patchSoundHelper(node);
     else if (node.name.equals("wb")) patchRightClickMenu(node);
+    else if (node.name.equals("pb")) patchSoundPlayerJava(node);
 
     // Patch applied to all classes
     patchGeneric(node);
@@ -5368,6 +5369,46 @@ public class JClassPatcher {
                     "setRightClickMenuBounds",
                     "(IIII)V",
                     false));
+
+            break;
+          }
+
+          start = start.getNext();
+        }
+      }
+    }
+  }
+
+  private void patchSoundPlayerJava(ClassNode node) {
+    Logger.Info("Patching java sound player (" + node.name + ".class)");
+
+    Iterator<MethodNode> methodNodeList = node.methods.iterator();
+    while (methodNodeList.hasNext()) {
+      MethodNode methodNode = methodNodeList.next();
+
+      if (methodNode.name.equals("b") && methodNode.desc.equals("(I)V")) {
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.INVOKEINTERFACE) {
+            AbstractInsnNode insnNode = start;
+
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETFIELD, "pb", "y", "Ljavax/sound/sampled/AudioFormat;"));
+            // 2205 (byte buffer) / 22050 (Hz) = 0.1 (100ms delay)
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 2205));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKEINTERFACE,
+                    "javax/sound/sampled/SourceDataLine",
+                    "open",
+                    "(Ljavax/sound/sampled/AudioFormat;I)V",
+                    true));
+            methodNode.instructions.remove(insnNode);
 
             break;
           }
