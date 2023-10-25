@@ -5398,8 +5398,8 @@ public class JClassPatcher {
                 insnNode,
                 new FieldInsnNode(
                     Opcodes.GETFIELD, "pb", "y", "Ljavax/sound/sampled/AudioFormat;"));
-            // 2205 (byte buffer) / 22050 (Hz) = 0.1 (100ms delay)
-            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 2205));
+            // 0.1s delay * 22050 (sample rate) = 2205 samples * 16 bits = 35280 / 8 = 4410 bytes
+            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 4410));
             methodNode.instructions.insertBefore(
                 insnNode,
                 new MethodInsnNode(
