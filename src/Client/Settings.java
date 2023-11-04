@@ -41,7 +41,6 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
@@ -226,6 +225,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DEATH_ITEMS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DEATH_ITEMS_WILD = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_WILD_RANGE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT_COLOURS = new HashMap<String, Boolean>();
@@ -1578,6 +1578,15 @@ public class Settings {
     DEATH_ITEMS_WILD.put("all", false);
     DEATH_ITEMS_WILD.put(
         "custom", getPropBoolean(props, "death_items_wild", DEATH_ITEMS_WILD.get("default")));
+
+    SHOW_WILD_RANGE.put("vanilla", false);
+    SHOW_WILD_RANGE.put("vanilla_resizable", false);
+    SHOW_WILD_RANGE.put("lite", false);
+    SHOW_WILD_RANGE.put("default", false);
+    SHOW_WILD_RANGE.put("heavy", true);
+    SHOW_WILD_RANGE.put("all", true);
+    SHOW_WILD_RANGE.put(
+        "custom", getPropBoolean(props, "show_wild_range", SHOW_WILD_RANGE.get("default")));
 
     SHOW_LAST_MENU_ACTION.put("vanilla", false);
     SHOW_LAST_MENU_ACTION.put("vanilla_resizable", false);
@@ -3357,6 +3366,7 @@ public class Settings {
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty("death_items", Boolean.toString(DEATH_ITEMS.get(preset)));
       props.setProperty("death_items_wild", Boolean.toString(DEATH_ITEMS_WILD.get(preset)));
+      props.setProperty("show_wild_range", Boolean.toString(SHOW_WILD_RANGE.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
       props.setProperty("show_mouse_tooltip", Boolean.toString(SHOW_MOUSE_TOOLTIP.get(preset)));

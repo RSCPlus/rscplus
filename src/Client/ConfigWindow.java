@@ -295,6 +295,7 @@ public class ConfigWindow {
   private JCheckBox overlayPanelBuffsCheckbox;
   private JCheckBox overlayPanelKeptItemsCheckbox;
   private JCheckBox overlayPanelKeptItemsWildCheckbox;
+  private JCheckBox overlayPanelWildLevelRangeCheckbox;
   private JCheckBox overlayPanelLastMenuActionCheckbox;
   private JCheckBox overlayPanelMouseTooltipCheckbox;
   private JCheckBox overlayPanelExtendedTooltipCheckbox;
@@ -2387,6 +2388,12 @@ public class ConfigWindow {
     overlayPanelKeptItemsWildCheckbox.setToolTipText(
         "Only displays the \"kept items\" skull when you are in the wilderness");
 
+    overlayPanelWildLevelRangeCheckbox =
+        addCheckbox("Show attackable level range while in the wilderness", overlayPanel);
+    overlayPanelWildLevelRangeCheckbox.setToolTipText(
+        "Displays the attackable combat level range above the wilderness level display");
+    SearchUtils.addSearchMetadata(overlayPanelWildLevelRangeCheckbox, CommonMetadata.PVP.getText());
+
     overlayPanelLastMenuActionCheckbox = addCheckbox("Show last menu action display", overlayPanel);
     overlayPanelLastMenuActionCheckbox.setToolTipText("Toggle last menu action used display");
 
@@ -2592,7 +2599,10 @@ public class ConfigWindow {
             "Show attackable players' names in a separate colour", overlayPanelPvpNamesPanel);
     overlayPanelPvpNamesCheckbox.setToolTipText(
         "Changes the colour of players' names when they are within attacking range in the wilderness");
-    SearchUtils.addSearchMetadata(overlayPanelPvpNamesCheckbox, CommonMetadata.COLOUR.getText());
+    SearchUtils.addSearchMetadata(
+        overlayPanelPvpNamesCheckbox,
+        CommonMetadata.COLOUR.getText(),
+        CommonMetadata.PVP.getText());
 
     overlayPanelPvpNamesColourSubpanel = new JPanel();
     overlayPanelPvpNamesPanel.add(overlayPanelPvpNamesColourSubpanel);
@@ -5008,7 +5018,8 @@ public class ConfigWindow {
     SFX("sfx", "sound effects"),
     FPS("fps", "frames per second"),
     COLOUR("colour", "color"),
-    COLOURS("colours", "colors");
+    COLOURS("colours", "colors"),
+    PVP("pvp", "pk");
 
     public final String text;
 
@@ -6042,6 +6053,8 @@ public class ConfigWindow {
     overlayPanelKeptItemsCheckbox.setSelected(Settings.DEATH_ITEMS.get(Settings.currentProfile));
     overlayPanelKeptItemsWildCheckbox.setSelected(
         Settings.DEATH_ITEMS_WILD.get(Settings.currentProfile));
+    overlayPanelWildLevelRangeCheckbox.setSelected(
+        Settings.SHOW_WILD_RANGE.get(Settings.currentProfile));
     overlayPanelLastMenuActionCheckbox.setSelected(
         Settings.SHOW_LAST_MENU_ACTION.get(Settings.currentProfile));
     overlayPanelMouseTooltipCheckbox.setSelected(
@@ -6515,6 +6528,8 @@ public class ConfigWindow {
     Settings.DEATH_ITEMS.put(Settings.currentProfile, overlayPanelKeptItemsCheckbox.isSelected());
     Settings.DEATH_ITEMS_WILD.put(
         Settings.currentProfile, overlayPanelKeptItemsWildCheckbox.isSelected());
+    Settings.SHOW_WILD_RANGE.put(
+        Settings.currentProfile, overlayPanelWildLevelRangeCheckbox.isSelected());
     Settings.SHOW_LAST_MENU_ACTION.put(
         Settings.currentProfile, overlayPanelLastMenuActionCheckbox.isSelected());
     Settings.SHOW_MOUSE_TOOLTIP.put(

@@ -42,8 +42,9 @@ public class SpecialStar {
     g.dispose();
 
     starGlimmerMask = new short[12][11];
-    try (InputStream inputStream = Launcher.getResource("/assets/starGlimmerMask.dat").openStream();
-         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+    try (InputStream inputStream =
+            Launcher.getResource("/assets/starGlimmerMask.dat").openStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
       String line;
       int row = 0;
       while ((line = br.readLine()) != null) {
