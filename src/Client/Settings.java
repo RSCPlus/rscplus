@@ -176,6 +176,7 @@ public class Settings {
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
       new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> FIX_SFX_DELAY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT1 = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SOUND_EFFECT_ADVANCE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SOUND_EFFECT_ANVIL = new HashMap<String, Boolean>();
@@ -1169,6 +1170,15 @@ public class Settings {
     SOUND_EFFECT_COMBAT1.put(
         "custom",
         getPropBoolean(props, "sound_effect_combat1", SOUND_EFFECT_COMBAT1.get("default")));
+
+    FIX_SFX_DELAY.put("vanilla", false);
+    FIX_SFX_DELAY.put("vanilla_resizable", true);
+    FIX_SFX_DELAY.put("lite", true);
+    FIX_SFX_DELAY.put("default", true);
+    FIX_SFX_DELAY.put("heavy", true);
+    FIX_SFX_DELAY.put("all", true);
+    FIX_SFX_DELAY.put(
+        "custom", getPropBoolean(props, "fix_sfx_delay", FIX_SFX_DELAY.get("default")));
 
     SOUND_EFFECT_ADVANCE.put("vanilla", true);
     SOUND_EFFECT_ADVANCE.put("vanilla_resizable", true);
@@ -3289,6 +3299,7 @@ public class Settings {
           "override_audio_setting_setting_on",
           Boolean.toString(OVERRIDE_AUDIO_SETTING_SETTING_ON.get(preset)));
       props.setProperty("sound_effect_combat1", Boolean.toString(SOUND_EFFECT_COMBAT1.get(preset)));
+      props.setProperty("fix_sfx_delay", Boolean.toString(FIX_SFX_DELAY.get(preset)));
       props.setProperty("sound_effect_advance", Boolean.toString(SOUND_EFFECT_ADVANCE.get(preset)));
       props.setProperty("sound_effect_anvil", Boolean.toString(SOUND_EFFECT_ANVIL.get(preset)));
       props.setProperty("sound_effect_chisel", Boolean.toString(SOUND_EFFECT_CHISEL.get(preset)));

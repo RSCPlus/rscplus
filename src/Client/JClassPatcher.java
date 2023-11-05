@@ -5386,34 +5386,36 @@ public class JClassPatcher {
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
-      if (methodNode.name.equals("b") && methodNode.desc.equals("(I)V")) {
-        AbstractInsnNode start = methodNode.instructions.getFirst();
+      if (Settings.FIX_SFX_DELAY.get(Settings.currentProfile)) {
+        if (methodNode.name.equals("b") && methodNode.desc.equals("(I)V")) {
+          AbstractInsnNode start = methodNode.instructions.getFirst();
 
-        while (start != null) {
-          if (start.getOpcode() == Opcodes.INVOKEINTERFACE) {
-            AbstractInsnNode insnNode = start;
+          while (start != null) {
+            if (start.getOpcode() == Opcodes.INVOKEINTERFACE) {
+              AbstractInsnNode insnNode = start;
 
-            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
-            methodNode.instructions.insertBefore(
-                insnNode,
-                new FieldInsnNode(
-                    Opcodes.GETFIELD, "pb", "y", "Ljavax/sound/sampled/AudioFormat;"));
-            // 0.1s delay * 22050 (sample rate) = 2205 samples * 16 bits = 35280 / 8 = 4410 bytes
-            methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 4410));
-            methodNode.instructions.insertBefore(
-                insnNode,
-                new MethodInsnNode(
-                    Opcodes.INVOKEINTERFACE,
-                    "javax/sound/sampled/SourceDataLine",
-                    "open",
-                    "(Ljavax/sound/sampled/AudioFormat;I)V",
-                    true));
-            methodNode.instructions.remove(insnNode);
+              methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new FieldInsnNode(
+                      Opcodes.GETFIELD, "pb", "y", "Ljavax/sound/sampled/AudioFormat;"));
+              // 0.1s delay * 22050 (sample rate) = 2205 samples * 16 bits = 35280 / 8 = 4410 bytes
+              methodNode.instructions.insertBefore(insnNode, new IntInsnNode(Opcodes.SIPUSH, 4410));
+              methodNode.instructions.insertBefore(
+                  insnNode,
+                  new MethodInsnNode(
+                      Opcodes.INVOKEINTERFACE,
+                      "javax/sound/sampled/SourceDataLine",
+                      "open",
+                      "(Ljavax/sound/sampled/AudioFormat;I)V",
+                      true));
+              methodNode.instructions.remove(insnNode);
 
-            break;
+              break;
+            }
+
+            start = start.getNext();
           }
-
-          start = start.getNext();
         }
       }
     }
