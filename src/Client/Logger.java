@@ -277,8 +277,10 @@ public class Logger {
   }
 
   public static void initializeLagLog() {
+    String lagLogDir = Settings.Dir.LOGS + File.separator + "laglog";
+    Util.makeDirectory(lagLogDir);
     m_lagWriter_filename =
-        Settings.Dir.JAR + "/measured_lag-" + System.currentTimeMillis() + ".log";
+        lagLogDir + File.separator + "measured_lag-" + System.currentTimeMillis() + ".log";
     try {
       m_lagWriter = new PrintWriter(Files.newOutputStream(Paths.get(m_lagWriter_filename)));
     } catch (Exception e) {
@@ -289,6 +291,10 @@ public class Logger {
   }
 
   public static void finalizeLagLog() {
+    if (m_lagWriter == null) {
+      return;
+    }
+
     try {
       m_lagWriter.close();
     } catch (Exception e) {

@@ -1415,8 +1415,8 @@ public class Client {
     Client.tipOfDay = -1;
     if (Settings.LOG_LAG.get(Settings.currentProfile)) {
       Logger.Lag("Disconnect", Replay.timestamp);
-      Logger.finalizeLagLog();
     }
+    Logger.finalizeLagLog();
   }
 
   // check if login attempt is not a valid login or reconnect, send to disconnect hook
