@@ -25,6 +25,8 @@ import static org.fusesource.jansi.Ansi.ansi;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -38,6 +40,8 @@ public class Logger {
   private static final String LOG_FILE_PREFIX = "rscplus_";
   private static final String LOG_FILE_EXTENSION = ".log";
   private static PrintWriter m_logWriter;
+  private static PrintWriter m_lagWriter;
+  private static String m_lagWriter_filename;
   private static int levelFixedWidth = 0;
   private static String m_uncoloredMessage = "";
 
@@ -265,5 +269,37 @@ public class Logger {
       } catch (Exception e2) {
       }
     }
+  }
+
+  public static void Lag(String eventType, int frame) {
+    m_lagWriter.write(System.currentTimeMillis() + "," + frame + "," + eventType + "\n");
+    m_lagWriter.flush();
+  }
+
+  public static void initializeLagLog() {
+    String lagLogDir = Settings.Dir.LOGS + File.separator + "laglog";
+    Util.makeDirectory(lagLogDir);
+    m_lagWriter_filename =
+        lagLogDir + File.separator + "measured_lag-" + System.currentTimeMillis() + ".log";
+    try {
+      m_lagWriter = new PrintWriter(Files.newOutputStream(Paths.get(m_lagWriter_filename)));
+    } catch (Exception e) {
+      Error("Could not start logging lag.");
+      return;
+    }
+    Info("Started lag logging @ " + m_lagWriter_filename);
+  }
+
+  public static void finalizeLagLog() {
+    if (m_lagWriter == null) {
+      return;
+    }
+
+    try {
+      m_lagWriter.close();
+    } catch (Exception e) {
+      Error("Could not stop logging lag.");
+    }
+    Info("Finished lag logging @ " + m_lagWriter_filename);
   }
 }

@@ -295,7 +295,7 @@ public class Speedrun {
 
   public static int loadSpeedrun() {
     File[] fList = new File(Settings.Dir.SPEEDRUN).listFiles();
-    if (fList.length == 0) return REASON_NO_PREVIOUS_FILES;
+    if (fList == null || fList.length == 0) return REASON_NO_PREVIOUS_FILES;
     Arrays.sort(fList);
     File newestData = fList[fList.length - 1];
     // This file can be "found" again later because the filename is based on startTimes[0], which

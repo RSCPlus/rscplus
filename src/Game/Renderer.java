@@ -183,6 +183,8 @@ public class Renderer {
   private static int bankResetTimer = 0;
   private static boolean show_bank_last = false;
 
+  private static boolean laggedLastFrame = false;
+
   public static int getFogColor(int attenuation, int val) {
     int clearColor = getClearColor();
 
@@ -1456,26 +1458,39 @@ public class Renderer {
       if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0)
         threshold = 35 * 3; // this is to prevent blinking during fastforward
 
-      if (Settings.LAG_INDICATOR.get(Settings.currentProfile)
-          && Replay.getServerLag() >= threshold) {
-        x = width - 80;
-        y = height - 80;
-        setAlpha(g2, alpha_time);
-        g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
-        x += 16;
-        y += 38;
-        drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
-        y += 12;
-        int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
-        drawShadowText(
-            g2,
-            new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
-            x,
-            y,
-            color_low,
-            true);
-        setAlpha(g2, 1.0f);
+      if (Replay.getServerLag() >= threshold) {
+        if (Settings.LOG_LAG.get(Settings.currentProfile)) {
+          if (!laggedLastFrame) {
+            Logger.Lag("LagStart", Replay.timestamp);
+            laggedLastFrame = true;
+          }
+        }
+        if (Settings.LAG_INDICATOR.get(Settings.currentProfile)) {
+          x = width - 80;
+          y = height - 80;
+          setAlpha(g2, alpha_time);
+          g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
+          x += 16;
+          y += 38;
+          drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
+          y += 12;
+          int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
+          drawShadowText(
+              g2,
+              new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
+              x,
+              y,
+              color_low,
+              true);
+          setAlpha(g2, 1.0f);
+        }
+      } else {
+        if (laggedLastFrame && Settings.LOG_LAG.get(Settings.currentProfile)) {
+          Logger.Lag("LagStop", Replay.timestamp);
+          laggedLastFrame = false;
+        }
       }
+
       if (!(Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile))) {
         g2.setFont(font_big);
         if (Settings.FATIGUE_ALERT.get(Settings.currentProfile)
