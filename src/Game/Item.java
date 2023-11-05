@@ -180,8 +180,12 @@ public class Item {
         // first bit on means removing a specific item, don't care in that case
         boolean addingAnItem = (remove & 0x80) >> 7 != 1;
         if (addingAnItem) {
-          if (Renderer.stringIsWithinList(
-              item_name[itemId], Settings.HIGHLIGHTED_ITEMS.get("custom"), true)) {
+          if (!Renderer.stringIsWithinList(
+                  item_name[itemId], Settings.BLOCKED_ITEMS.get("custom"), true)
+              && (Renderer.stringIsWithinList(
+                      item_name[itemId], Settings.HIGHLIGHTED_ITEMS.get("custom"), true)
+                  || Renderer.stringIsWithinList(
+                      item_name[itemId], Settings.SPECIAL_HIGHLIGHTED_ITEMS.get("custom"), true))) {
             cool_items.add(new Item(x, y, itemId, System.currentTimeMillis()));
           }
         } else {

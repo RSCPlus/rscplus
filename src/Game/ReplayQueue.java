@@ -48,7 +48,7 @@ public class ReplayQueue {
     try {
       j = new JFileChooser(Settings.REPLAY_BASE_PATH.get("custom"));
     } catch (Exception e) {
-      j = new JFileChooser(Settings.Dir.REPLAY);
+      j = new JFileChooser(System.getProperty("user.home"));
     }
     j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     int response = j.showDialog(Game.getInstance().getApplet(), "Select Folder");
@@ -162,7 +162,7 @@ public class ReplayQueue {
               Logger.Info("Please report this as a bug on GitHub if you believe it should work.");
             }
           } catch (Exception ex) {
-            Logger.Error("Error in drop handler!");
+            Logger.Error("Error in replay queue drop handler!");
             ex.printStackTrace();
           }
         }

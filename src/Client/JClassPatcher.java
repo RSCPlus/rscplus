@@ -5200,8 +5200,8 @@ public class JClassPatcher {
             AbstractInsnNode insnNode = start;
             insnNode = insnNode.getPrevious().getPrevious().getPrevious();
 
-            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
-            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 13));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ACONST_NULL));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 13));
             methodNode.instructions.insertBefore(
                 insnNode,
                 new MethodInsnNode(
@@ -5260,13 +5260,13 @@ public class JClassPatcher {
                 new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "Game/Renderer",
-                    "itemInHighlightList",
-                    "(Ljava/lang/String;)Z",
+                    "getHighlightColour",
+                    "(Ljava/lang/String;)Ljava/lang/Integer;",
                     false));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.DUP));
-            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ISTORE, 13));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ASTORE, 13));
             methodNode.instructions.insertBefore(
-                insnNode, new JumpInsnNode(Opcodes.IFEQ, skipLabel));
+                insnNode, new JumpInsnNode(Opcodes.IFNULL, skipLabel));
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 14));
             methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("@lre@"));
             methodNode.instructions.insertBefore(insnNode, new LdcInsnNode(""));
@@ -5316,10 +5316,11 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 15));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.IADD));
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 8));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 13));
             methodNode.instructions.insertBefore(
                 insnNode,
-                new FieldInsnNode(
-                    Opcodes.GETSTATIC, "Client/Settings", "ITEM_HIGHLIGHT_COLOUR_INT", "I"));
+                new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false));
             methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
             methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
             methodNode.instructions.insertBefore(
@@ -5330,9 +5331,9 @@ public class JClassPatcher {
                     Opcodes.INVOKEVIRTUAL, "ba", "a", "(Ljava/lang/String;IIIZI)V", false));
             methodNode.instructions.insertBefore(insnNode, skipLabel);
             LabelNode skipLabel2 = new LabelNode();
-            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ILOAD, 13));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 13));
             methodNode.instructions.insertBefore(
-                insnNode, new JumpInsnNode(Opcodes.IFNE, skipLabel2));
+                insnNode, new JumpInsnNode(Opcodes.IFNONNULL, skipLabel2));
             AbstractInsnNode insnNode2 = start;
             for (int i = 0; i < 26; i++) insnNode2 = insnNode2.getNext();
             methodNode.instructions.insertBefore(insnNode2, skipLabel2);

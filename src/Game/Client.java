@@ -225,6 +225,8 @@ public class Client {
   public static Object player_object;
   public static String player_name = "";
   public static int player_id = -1;
+  public static boolean resolvedName = false;
+  public static String playerAlias = "";
   public static String xpUsername = "";
   public static boolean knowWhoIAm = false;
   public static int player_posX = -1;
@@ -341,6 +343,9 @@ public class Client {
   // second dimension is the constants in block above.
   private static HashMap<String, Double[][]> lastXpGain = new HashMap<String, Double[][]>();
 
+  // player name -> combat style
+  public static HashMap<String, Integer> playerCombatStyles = new HashMap<>();
+
   // holds players XP since last processing xp drops
   private static HashMap<String, Float[]> xpLast = new HashMap<String, Float[]>();
 
@@ -416,6 +421,7 @@ public class Client {
   public static boolean showContactDetails;
 
   public static boolean firstTimeRunningRSCPlus = false;
+  public static boolean customSfxVolumeSet = false;
 
   public static int mouse_click;
   public static boolean singleButtonMode;
@@ -941,6 +947,12 @@ public class Client {
         AreaDefinition area = getCurrentAreaDefinition();
         MusicPlayer.playTrack(area.music);
       } else if (state == STATE_LOGIN) {
+        // Set the client volume
+        if (!customSfxVolumeSet) {
+          SoundEffects.adjustMudClientSfxVolume();
+          customSfxVolumeSet = true;
+        }
+
         MusicPlayer.playTrack(loginTrack);
       }
     }
@@ -1028,6 +1040,10 @@ public class Client {
 
     if (state == STATE_GAME) {
       Client.getPlayerName();
+
+      // Resolve combat style when the server name does not match logged in name
+      resolveCombatStyle();
+
       player_id = Client.getPlayerId();
       Client.adaptLoginInfo();
     }
@@ -1087,6 +1103,59 @@ public class Client {
       update_timer = time + 1000;
       updates = 0;
     }
+  }
+
+  /** Handles combat style resolution when logged in name does not match player's server name */
+  private static void resolveCombatStyle() {
+    // Only compare one time, once the server player name is known
+    if (resolvedName || !knowWhoIAm) {
+      return;
+    }
+
+    final String loginPlayerName = Util.formatPlayerName(username_login);
+    final String serverPlayerName = Util.formatPlayerName(player_name);
+
+    // Skip resolution logic if in replay
+    if (loginPlayerName.equals(Replay.excludeUsername)) {
+      resolvedName = true;
+      return;
+    }
+
+    // logged in with bob, server returned alice
+    if (!loginPlayerName.equals(serverPlayerName)) {
+      // save off bob as the alias, so further writes to alice can be done for bob as well
+      playerAlias = loginPlayerName;
+
+      // see if alice has a saved value
+      Integer serverPlayerNameCombatStyle = playerCombatStyles.get(serverPlayerName);
+
+      if (serverPlayerNameCombatStyle == null) {
+        // if alice does not have anything saved, save bob's current style to alice
+        playerCombatStyles.put(serverPlayerName, combat_style);
+        // further changes will be saved to alice
+      } else {
+        // if alice has an existing value that does not match bob's, load and save it for bob
+        if (serverPlayerNameCombatStyle != combat_style) {
+          combat_style = serverPlayerNameCombatStyle;
+          playerCombatStyles.put(loginPlayerName, combat_style);
+        }
+      }
+
+      // Save results of the above resolution
+      Settings.LAST_KNOWN_COMBAT_STYLE.put("custom", combat_style);
+      Settings.save();
+    } else {
+      // Re-save last-known style on login when it has changed asynchronously
+      if (combat_style != Settings.LAST_KNOWN_COMBAT_STYLE.get("custom")) {
+        Settings.LAST_KNOWN_COMBAT_STYLE.put("custom", combat_style);
+        Settings.save();
+      }
+    }
+
+    // Re-send combat style packet just in case
+    sendCombatStylePacket(combat_style);
+
+    resolvedName = true;
   }
 
   public static void processFatigueXPDrops() {
@@ -1170,7 +1239,7 @@ public class Client {
       return;
     }
 
-    xpUsername = Util.formatString(username_login, 50);
+    xpUsername = Util.formatPlayerName(username_login);
     if (lastXpGain.get(xpUsername) == null) {
       lastXpGain.put(xpUsername, new Double[NUM_SKILLS][5]);
       showXpPerHour.put(xpUsername, new Boolean[NUM_SKILLS]);
@@ -1207,6 +1276,7 @@ public class Client {
     }
   }
 
+  /** Invoked on login and logout */
   public static void init_login() {
     Camera.init();
     state = STATE_LOGIN;
@@ -1227,15 +1297,34 @@ public class Client {
     player_id = -1;
   }
 
+  /* Invoked on login */
   public static void init_game() {
     Camera.init();
-    combat_style = Settings.COMBAT_STYLE.get(Settings.currentProfile);
+
+    // Load character-specific settings such as combat styles and XP goals on each login
+    Settings.loadCharacterSpecificSettings(true);
+
+    // Escape username from login input
+    final String escapedUsername = Util.formatPlayerName(username_login);
+
+    // Set combat style in mudclient when not in a replay
+    if (!escapedUsername.equals(Replay.excludeUsername)) {
+      // Attempt to find character-specific combat style
+      Integer foundCombatStyle = playerCombatStyles.get(escapedUsername);
+
+      if (foundCombatStyle != null) {
+        combat_style = foundCombatStyle;
+      } else {
+        // Fall back to the global previously-known combat style and store it
+        combat_style = Settings.LAST_KNOWN_COMBAT_STYLE.get("custom");
+        playerCombatStyles.put(escapedUsername, combat_style);
+        Settings.save();
+      }
+    }
+
     state = STATE_GAME;
     // bank_active_page = 0; // TODO: config option? don't think this is very important.
     // combat_timer = 0;
-
-    // Set the client volume
-    SoundEffects.adjustMudClientSfxVolume();
   }
 
   public static void login_hook() {
@@ -1309,13 +1398,18 @@ public class Client {
     // Re-validate the current scaling upon logging in, in case something
     // went wrong during the initial window creation and resizing.
     ScaledWindow.getInstance().validateAppletSize();
+
+    // Re-send combat style packet just in case
+    sendCombatStylePacket(combat_style);
   }
 
   public static void disconnect_hook() {
     // ::lostcon or closeConnection
     Replay.closeReplayRecording();
     Speedrun.saveAndQuitSpeedrun();
+    resolvedName = false;
     player_name = "";
+    playerAlias = "";
     player_id = -1;
     knowWhoIAm = false;
     Client.tipOfDay = -1;
@@ -1612,6 +1706,15 @@ public class Client {
     } catch (IllegalArgumentException | IllegalAccessException e1) {
       e1.printStackTrace();
     }
+  }
+
+  /** Sends a packet to update the user's combat style */
+  public static void sendCombatStylePacket(int combatStyle) {
+    StreamUtil.newPacket(29);
+
+    Object buffer = StreamUtil.getStreamBuffer();
+    StreamUtil.putByteTo(buffer, (byte) combatStyle);
+    StreamUtil.sendPacket();
   }
 
   /** Stores the user's pid in {@link #player_id}. */
@@ -2477,9 +2580,19 @@ public class Client {
     }
   }
 
-  // hook to display retro fps on the client, early 2001 style
+  // hook to draw native text on every frame tick
   public static void drawNativeTextHook(Object surfaceInstance) {
     if (surfaceInstance != null) {
+      if (Settings.SHOW_WILD_RANGE.get(Settings.currentProfile) && Client.is_in_wild) {
+        int lowRange = Math.max((Client.getPlayerLevel() - Client.wild_level), 3);
+        int highRange = Math.min(Client.wild_level + Client.getPlayerLevel(), 123);
+        String wildernessRange = "(" + lowRange + " - " + highRange + ")";
+
+        Renderer.drawStringCenter(
+            wildernessRange, Renderer.width - 47, Renderer.height_client - 60, 1, 0xffff00);
+      }
+
+      // display retro fps on the client, early 2001 style
       if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
         int offset = 0;
         if (Client.is_in_wild) offset = 70;
@@ -2487,7 +2600,7 @@ public class Client {
           Reflection.drawString.invoke(
               surfaceInstance,
               "Fps: "
-                  + (Client.username_login.equals(XPBar.excludeUsername)
+                  + (Client.username_login.equals(Replay.excludeUsername)
                       ? Renderer.fps
                       : Client.fps),
               Renderer.width - 62 - offset,
@@ -3577,6 +3690,11 @@ public class Client {
         || showAppearanceChange
         || showRecoveryQuestions
         || showContactDetails;
+  }
+
+  /** Returns {@code true} if a full-screen in-game interface is currently displayed. */
+  public static boolean isFullScreenInterfaceOpen() {
+    return show_sleeping || show_appearance || showRecoveryQuestions || showContactDetails;
   }
 
   /**

@@ -118,7 +118,6 @@ public class Renderer {
   public static Image image_cursor;
   public static Image image_gear;
   public static Image image_gear_gold;
-  public static Image image_highlighted_item;
   public static Image image_wiki_hbar_inactive_system;
   public static Image image_wiki_hbar_active_system;
   public static Image image_wiki_hbar_inactive_jf;
@@ -255,7 +254,7 @@ public class Renderer {
       image_cursor = ImageIO.read(Launcher.getResource("/assets/cursor.png"));
       image_gear = ImageIO.read(Launcher.getResource("/assets/gear.png"));
       image_gear_gold = ImageIO.read(Launcher.getResource("/assets/gear_gold.png"));
-      image_highlighted_item = ImageIO.read(Launcher.getResource("/assets/highlighted_item.png"));
+      SpecialStar.initializeSpecialStars();
       image_small_skull = ImageIO.read(Launcher.getResource("/assets/small_skull.png"));
     } catch (Exception e) {
       e.printStackTrace();
@@ -617,19 +616,27 @@ public class Renderer {
           }
 
           if (showItemGroundOverlay) {
+            // Re-create the special star images as-needed
+            if (SpecialStar.starImagesUpdateRequired) {
+              SpecialStar.generateSpecialStarImages();
+              SpecialStar.starImagesUpdateRequired = false;
+            }
+
             int x = item.x + (item.width / 2);
             int y = item.y - 20;
             int freq = Collections.frequency(Client.item_list, item);
 
             String itemName = item.getName();
-            boolean itemInHighlightList =
-                stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true);
+            boolean itemInHighlightLists =
+                stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true)
+                    || stringIsWithinList(
+                        itemName, Settings.SPECIAL_HIGHLIGHTED_ITEMS.get("custom"), true);
 
             // Check if item is in blocked list or if the highlighted only setting is active and
             // item is not in the list
             boolean itemIsBlocked =
                 stringIsWithinList(itemName, Settings.BLOCKED_ITEMS.get("custom"), true)
-                    || (showItemGroundOverlayHighlightedOnly && !itemInHighlightList);
+                    || (showItemGroundOverlayHighlightedOnly && !itemInHighlightLists);
 
             // We've sorted item list in such a way that it is possible to not draw the ITEMINFO
             // unless it's the first time we've tried to for this itemid at that location
@@ -650,10 +657,19 @@ public class Renderer {
               String itemText = itemName + ((freq == 1) ? "" : " (" + freq + ")");
 
               // Check if item is in highlighted list
-              if (itemInHighlightList) {
-                itemColor =
-                    Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
-                drawHighlightImage(g2, itemText, x, y);
+              if (itemInHighlightLists) {
+                // Special items take priority over regular highlighted items
+                if (stringIsWithinList(
+                    itemName, Settings.SPECIAL_HIGHLIGHTED_ITEMS.get("custom"), true)) {
+                  itemColor =
+                      Util.intToColor(
+                          Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+                  SpecialStar.drawSpecialStarImage(g2, true, itemText, x, y);
+                } else {
+                  itemColor =
+                      Util.intToColor(Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile));
+                  SpecialStar.drawSpecialStarImage(g2, false, itemText, x, y);
+                }
               }
 
               // Note that it is not possible to show how many of a
@@ -671,7 +687,8 @@ public class Renderer {
       Client.item_list.clear();
       last_item = null;
 
-      if (!Client.show_sleeping && Settings.SHOW_INVCOUNT.get(Settings.currentProfile))
+      if (!Client.isFullScreenInterfaceOpen()
+          && Settings.SHOW_INVCOUNT.get(Settings.currentProfile)) {
         drawShadowText(
             g2,
             Client.inventory_count + "/" + Client.max_inventory,
@@ -679,6 +696,7 @@ public class Renderer {
             17,
             getInventoryCountColor(),
             true);
+      }
 
       int percentHP = 0;
       int percentPrayer = 0;
@@ -926,7 +944,9 @@ public class Renderer {
       // render XP bar/drop
       Client.processFatigueXPDrops();
       Client.xpdrop_handler.draw(g2);
-      Client.xpbar.draw(g2, bufferedMouseClick);
+      if (!Client.isFullScreenInterfaceOpen()) { // Prevent crashes on new character creation
+        Client.xpbar.draw(g2, bufferedMouseClick);
+      }
 
       if (!Client.isSleeping()) {
         Client.updateCurrentFatigue();
@@ -1008,7 +1028,8 @@ public class Renderer {
         }
       }
 
-      if (Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
+      if (!Client.isFullScreenInterfaceOpen()
+          && Settings.WIKI_LOOKUP_ON_HBAR.get(Settings.currentProfile)) {
         int xCoord = Client.wikiLookupReplacesReportAbuse() ? 410 : 410 + 90 + 12;
         int yCoord = height - 16;
         // Handle wiki lookup click
@@ -1080,16 +1101,7 @@ public class Renderer {
         if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1,
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1 + 6);
-            g2.drawLine(
-                mapButtonBounds.x + 1,
-                mapButtonBounds.y + 4,
-                mapButtonBounds.x + 7,
-                mapButtonBounds.y + 4);
+            drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
           }
 
           // Handle map button click
@@ -1108,16 +1120,7 @@ public class Renderer {
         if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
           if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
             g2.setColor(Renderer.color_text);
-            g2.drawLine(
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1,
-                mapButtonBounds.x + 4,
-                mapButtonBounds.y + 1 + 6);
-            g2.drawLine(
-                mapButtonBounds.x + 1,
-                mapButtonBounds.y + 4,
-                mapButtonBounds.x + 7,
-                mapButtonBounds.y + 4);
+            drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
           }
 
           // Handle settings button click
@@ -1136,16 +1139,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle magic book button click
@@ -1170,16 +1164,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle friends button click
@@ -1220,16 +1205,7 @@ public class Renderer {
           if ((!show_bank_last || mapButtonBounds.x >= 460) && !Client.show_sleeping) {
             if (Settings.SHOW_RSCPLUS_BUTTONS.get(Settings.currentProfile)) {
               g2.setColor(Renderer.color_text);
-              g2.drawLine(
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1,
-                  mapButtonBounds.x + 4,
-                  mapButtonBounds.y + 1 + 6);
-              g2.drawLine(
-                  mapButtonBounds.x + 1,
-                  mapButtonBounds.y + 4,
-                  mapButtonBounds.x + 7,
-                  mapButtonBounds.y + 4);
+              drawPlusIcon(g2, mapButtonBounds.x, mapButtonBounds.y);
             }
 
             // Handle stats menu click
@@ -2246,7 +2222,11 @@ public class Renderer {
       try {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
         String fname =
-            Settings.Dir.SCREENSHOT + "/" + "Screenshot from " + format.format(new Date()) + ".png";
+            Settings.SCREENSHOTS_STORAGE_PATH.get("custom")
+                + "/"
+                + "Screenshot from "
+                + format.format(new Date())
+                + ".png";
         File screenshotFile = new File(fname);
         ImageIO.write(game_image, "png", screenshotFile);
         if (!quietScreenshot)
@@ -2255,6 +2235,8 @@ public class Renderer {
       } catch (Exception e) {
       }
     }
+
+    // Rapid screenshots should not use custom-set screenshot dirs
 
     if (videorecord > 0) {
       String fname = Settings.Dir.VIDEO + "/" + "video" + (videolength - videorecord) + ".png";
@@ -2407,6 +2389,16 @@ public class Renderer {
     show_bank_last = Client.show_bank;
   }
 
+  /** Draws a little + symbol over menu buttons */
+  private static void drawPlusIcon(Graphics2D g2, int x, int y) {
+    if (Client.isFullScreenInterfaceOpen()) {
+      return;
+    }
+
+    g2.drawLine(x + 4, y + 1, x + 4, y + 1 + 6);
+    g2.drawLine(x + 1, y + 4, x + 7, y + 4);
+  }
+
   private static void drawDeathItems(Graphics2D g2) {
     // Note: This function many not be entirely authentic because we don't
     // currently know if certain items besides stackable items were
@@ -2525,7 +2517,7 @@ public class Renderer {
   }
 
   // Method hooked in JClassPatcher
-  public static boolean itemInHighlightList(String itemName) {
+  public static Integer getHighlightColour(String itemName) {
     // Strip color if the name comes from the right-click menu
     if (itemName.startsWith("@lre@")) {
       itemName = itemName.substring(5);
@@ -2533,10 +2525,17 @@ public class Renderer {
 
     // Ignore blocked items
     if (stringIsWithinList(itemName, Settings.BLOCKED_ITEMS.get("custom"), true)) {
-      return false;
+      return null;
     }
 
-    return Renderer.stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true);
+    // Special highlight list takes precedence
+    if (stringIsWithinList(itemName, Settings.SPECIAL_HIGHLIGHTED_ITEMS.get("custom"), true)) {
+      return Settings.ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(Settings.currentProfile);
+    } else if (stringIsWithinList(itemName, Settings.HIGHLIGHTED_ITEMS.get("custom"), true)) {
+      return Settings.ITEM_HIGHLIGHT_COLOUR.get(Settings.currentProfile);
+    } else {
+      return null;
+    }
   }
 
   // Method hooked in JClassPatcher
@@ -2605,31 +2604,11 @@ public class Renderer {
     return false;
   }
 
-  public static void drawHighlightImage(Graphics2D g, String text, int x, int y) {
-    int correctedX = x;
-    int correctedY = y;
-    // Adjust for centering
-    Dimension bounds = getStringBounds(g, text);
-    correctedX -= (bounds.width / 2);
-    correctedY += (bounds.height / 2);
-
-    if (showingRightClickMenu) {
-      Rectangle drawBounds =
-          new Rectangle(
-              correctedX - 15 - 2,
-              correctedY - (bounds.height - 2),
-              bounds.width + 15 + 2,
-              bounds.height + 2);
-      Rectangle menuBounds =
-          new Rectangle(
-              rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
-
-      if (drawBounds.intersects(menuBounds)) {
-        return;
-      }
-    }
-
-    g.drawImage(image_highlighted_item, correctedX - 15, correctedY - 10, null);
+  public static BufferedImage cloneBufferedImage(BufferedImage bi) {
+    ColorModel cm = bi.getColorModel();
+    boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+    WritableRaster raster = bi.copyData(bi.getRaster().createCompatibleWritableRaster());
+    return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
   }
 
   public static void drawShadowText(
@@ -3191,7 +3170,7 @@ public class Renderer {
     return string;
   }
 
-  private static Dimension getStringBounds(Graphics2D g, String str) {
+  static Dimension getStringBounds(Graphics2D g, String str) {
     FontRenderContext context = g.getFontRenderContext();
     Rectangle2D bounds = g.getFont().getStringBounds(str, context);
     return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());

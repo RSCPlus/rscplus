@@ -38,11 +38,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Properties;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -53,8 +56,10 @@ public class Settings {
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
   public static final double VERSION_NUMBER = 20230818.180806;
-  public static boolean successfullyInitted = false;
-  public static boolean presetModified = false;
+
+  static String CONFIG_FILE = null;
+  static boolean successfullyInitted = false;
+  static boolean presetModified = false;
 
   /**
    * A time stamp corresponding to the current version of this source code. Used as a sophisticated
@@ -137,6 +142,7 @@ public class Settings {
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
+  public static HashMap<String, String> SCREENSHOTS_STORAGE_PATH = new HashMap<String, String>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
       new HashMap<String, Boolean>();
@@ -219,6 +225,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_BUFFS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DEATH_ITEMS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> DEATH_ITEMS_WILD = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_WILD_RANGE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_LAST_MENU_ACTION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_INVCOUNT_COLOURS = new HashMap<String, Boolean>();
@@ -259,9 +266,13 @@ public class Settings {
   public static HashMap<String, Boolean> EXCEPTION_HANDLER = new HashMap<String, Boolean>();
   public static HashMap<String, ArrayList<String>> HIGHLIGHTED_ITEMS =
       new HashMap<String, ArrayList<String>>();
+  public static HashMap<String, ArrayList<String>> SPECIAL_HIGHLIGHTED_ITEMS =
+      new HashMap<String, ArrayList<String>>();
   public static HashMap<String, ArrayList<String>> BLOCKED_ITEMS =
       new HashMap<String, ArrayList<String>>();
   public static HashMap<String, Integer> ITEM_HIGHLIGHT_COLOUR = new HashMap<String, Integer>();
+  public static HashMap<String, Integer> ITEM_SPECIAL_HIGHLIGHT_COLOUR =
+      new HashMap<String, Integer>();
   public static HashMap<String, Boolean> HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU =
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> OVERLAY_FONT_STYLE = new HashMap<>();
@@ -314,6 +325,7 @@ public class Settings {
   // public static HashMap<String, String> SPEEDRUNNER_USERNAME = new HashMap<String, String>();
 
   //// replay
+  public static HashMap<String, String> REPLAY_STORAGE_PATH = new HashMap<String, String>();
   public static HashMap<String, Boolean> RECORD_KB_MOUSE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PARSE_OPCODES = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> FAST_DISCONNECT = new HashMap<String, Boolean>();
@@ -347,7 +359,7 @@ public class Settings {
   public static HashMap<String, Boolean> JOYSTICK_ENABLED = new HashMap<String, Boolean>();
 
   //// no gui
-  public static HashMap<String, Integer> COMBAT_STYLE = new HashMap<String, Integer>();
+  public static HashMap<String, Integer> LAST_KNOWN_COMBAT_STYLE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> WORLD = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> FIRST_TIME = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> UPDATE_CONFIRMATION = new HashMap<String, Boolean>();
@@ -374,7 +386,6 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
-  public static int ITEM_HIGHLIGHT_COLOUR_INT = 0xFFD700;
 
   public static HashMap<String, Boolean> LOG_LAG = new HashMap<String, Boolean>();
 
@@ -913,6 +924,10 @@ public class Settings {
     AUTO_SCREENSHOT.put("all", true);
     AUTO_SCREENSHOT.put(
         "custom", getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
+
+    defineStaticPreset(
+        SCREENSHOTS_STORAGE_PATH,
+        getPropString(props, "screenshots_storage_path", sanitizeDirTextValue(Dir.SCREENSHOT)));
 
     RS2HD_SKY.put("vanilla", false);
     RS2HD_SKY.put("vanilla_resizable", false);
@@ -1566,6 +1581,15 @@ public class Settings {
     DEATH_ITEMS_WILD.put(
         "custom", getPropBoolean(props, "death_items_wild", DEATH_ITEMS_WILD.get("default")));
 
+    SHOW_WILD_RANGE.put("vanilla", false);
+    SHOW_WILD_RANGE.put("vanilla_resizable", false);
+    SHOW_WILD_RANGE.put("lite", false);
+    SHOW_WILD_RANGE.put("default", false);
+    SHOW_WILD_RANGE.put("heavy", true);
+    SHOW_WILD_RANGE.put("all", true);
+    SHOW_WILD_RANGE.put(
+        "custom", getPropBoolean(props, "show_wild_range", SHOW_WILD_RANGE.get("default")));
+
     SHOW_LAST_MENU_ACTION.put("vanilla", false);
     SHOW_LAST_MENU_ACTION.put("vanilla_resizable", false);
     SHOW_LAST_MENU_ACTION.put("lite", false);
@@ -1901,6 +1925,10 @@ public class Settings {
         HIGHLIGHTED_ITEMS, getPropArrayListString(props, "highlighted_items", new ArrayList<>()));
 
     defineStaticPreset(
+        SPECIAL_HIGHLIGHTED_ITEMS,
+        getPropArrayListString(props, "special_highlighted_items", new ArrayList<>()));
+
+    defineStaticPreset(
         BLOCKED_ITEMS, getPropArrayListString(props, "blocked_items", new ArrayList<>()));
 
     ITEM_HIGHLIGHT_COLOUR.put("vanilla", 0xFFD700);
@@ -1911,6 +1939,17 @@ public class Settings {
     ITEM_HIGHLIGHT_COLOUR.put("all", 0xFFD700);
     ITEM_HIGHLIGHT_COLOUR.put(
         "custom", getPropInt(props, "item_highlight_colour", ITEM_HIGHLIGHT_COLOUR.get("default")));
+
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("vanilla", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("vanilla_resizable", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("lite", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("default", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("heavy", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put("all", 0xAC49F0);
+    ITEM_SPECIAL_HIGHLIGHT_COLOUR.put(
+        "custom",
+        getPropInt(
+            props, "item_special_highlight_colour", ITEM_SPECIAL_HIGHLIGHT_COLOUR.get("default")));
 
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla", false);
     HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.put("vanilla_resizable", false);
@@ -2218,6 +2257,10 @@ public class Settings {
         */
 
     //// replay
+    defineStaticPreset(
+        REPLAY_STORAGE_PATH,
+        getPropString(props, "replay_storage_path", sanitizeDirTextValue(Dir.REPLAY)));
+
     RECORD_KB_MOUSE.put("vanilla", false);
     RECORD_KB_MOUSE.put("vanilla_resizable", false);
     RECORD_KB_MOUSE.put("lite", false);
@@ -2375,7 +2418,9 @@ public class Settings {
         "custom", getPropBoolean(props, "joystick_enabled", JOYSTICK_ENABLED.get("default")));
 
     //// no gui
-    defineStaticPreset(COMBAT_STYLE, getPropInt(props, "combat_style", Client.COMBAT_AGGRESSIVE));
+    defineStaticPreset(
+        LAST_KNOWN_COMBAT_STYLE,
+        getPropInt(props, "last_known_combat_style", Client.COMBAT_AGGRESSIVE));
 
     defineStaticPreset(WORLD, getPropInt(props, "world", 1));
 
@@ -2392,92 +2437,9 @@ public class Settings {
     defineStaticPreset(
         DISASSEMBLE_DIRECTORY, getPropString(props, "disassemble_directory", "dump"));
 
-    // Sanitize settings
+    // Ensure current profile is set to custom whenever this is invoked
     if (!currentProfile.equals("custom")) {
       currentProfile = "custom";
-    }
-
-    if (CUSTOM_CLIENT_SIZE_X.get("custom") < 512) {
-      CUSTOM_CLIENT_SIZE_X.put("custom", 512);
-      save("custom");
-    }
-    if (CUSTOM_CLIENT_SIZE_Y.get("custom") < 346) {
-      CUSTOM_CLIENT_SIZE_Y.put("custom", 346);
-      save("custom");
-    }
-
-    if (INTEGER_SCALING_FACTOR.get("custom") < (int) Renderer.minScalar) {
-      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.minScalar);
-    } else if (INTEGER_SCALING_FACTOR.get("custom") > (int) Renderer.maxIntegerScalar) {
-      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.maxIntegerScalar);
-    }
-
-    if (BILINEAR_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
-      BILINEAR_SCALING_FACTOR.put("custom", Renderer.minScalar);
-    } else if (BILINEAR_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
-      BILINEAR_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
-    }
-
-    if (BICUBIC_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
-      BICUBIC_SCALING_FACTOR.put("custom", Renderer.minScalar);
-    } else if (BICUBIC_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
-      BICUBIC_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
-    }
-
-    if (WORLD.get("custom") < 0) {
-      WORLD.put("custom", 0);
-      save("custom");
-    } else if (WORLD.get("custom") > Settings.WORLDS_TO_DISPLAY) {
-      WORLD.put("custom", Settings.WORLDS_TO_DISPLAY);
-      save("custom");
-    }
-
-    if (SFX_VOLUME.get("custom") < 0) {
-      SFX_VOLUME.put("custom", 0);
-      save("custom");
-    } else if (SFX_VOLUME.get("custom") > 100) {
-      SFX_VOLUME.put("custom", 100);
-      save("custom");
-    }
-
-    if (VIEW_DISTANCE.get("custom") < 2300) {
-      VIEW_DISTANCE.put("custom", 2300);
-      save("custom");
-    } else if (VIEW_DISTANCE.get("custom") > 20000) {
-      VIEW_DISTANCE.put("custom", 20000);
-      save("custom");
-    }
-
-    if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") < 0) {
-      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 0);
-      save("custom");
-    } else if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") > 16) {
-      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 16);
-      save("custom");
-    }
-
-    if (COMBAT_STYLE.get("custom") < Client.COMBAT_CONTROLLED) {
-      COMBAT_STYLE.put("custom", Client.COMBAT_CONTROLLED);
-      save("custom");
-    } else if (COMBAT_STYLE.get("custom") > Client.COMBAT_DEFENSIVE) {
-      COMBAT_STYLE.put("custom", Client.COMBAT_DEFENSIVE);
-      save("custom");
-    }
-
-    if (NAME_PATCH_TYPE.get("custom") < 0) {
-      NAME_PATCH_TYPE.put("custom", 0);
-      save("custom");
-    } else if (NAME_PATCH_TYPE.get("custom") > 3) {
-      NAME_PATCH_TYPE.put("custom", 3);
-      save("custom");
-    }
-
-    if (FATIGUE_FIGURES.get("custom") < 1) {
-      FATIGUE_FIGURES.put("custom", 1);
-      save("custom");
-    } else if (FATIGUE_FIGURES.get("custom") > 7) {
-      FATIGUE_FIGURES.put("custom", 7);
-      save("custom");
     }
   }
 
@@ -2526,6 +2488,172 @@ public class Settings {
 
   /* * * * * * */
 
+  /** Detects and fixes invalid values for critically-important settings */
+  public static void sanitizeSettings() {
+    boolean foundInvalidSetting = false;
+
+    /* Check for migrated props */
+
+    Properties props = loadProps();
+
+    // Migrating users from their old global combat style to the
+    // new per-character combat style introduced in Oct 2023
+    if (props.get("combat_style") != null) {
+      LAST_KNOWN_COMBAT_STYLE.put("custom", Integer.parseInt((String) props.get("combat_style")));
+      foundInvalidSetting = true;
+    }
+
+    /* Check for invalid setting values */
+
+    String screenshotsStorageDir = SCREENSHOTS_STORAGE_PATH.get("custom");
+    String validatedScreenshotsStorageDir =
+        validateCustomDir(screenshotsStorageDir, Dir.SCREENSHOT);
+    if (!screenshotsStorageDir.equals(validatedScreenshotsStorageDir)) {
+      SCREENSHOTS_STORAGE_PATH.put("custom", validatedScreenshotsStorageDir);
+      foundInvalidSetting = true;
+    }
+
+    String replayStorageDir = REPLAY_STORAGE_PATH.get("custom");
+    String validatedReplayStorageDir = validateCustomDir(replayStorageDir, Dir.REPLAY);
+    if (!replayStorageDir.equals(validatedReplayStorageDir)) {
+      REPLAY_STORAGE_PATH.put("custom", validatedReplayStorageDir);
+      foundInvalidSetting = true;
+    }
+
+    String replayBaseDir = Settings.REPLAY_BASE_PATH.get("custom");
+    String validatedReplayBaseDir = validateCustomDir(replayBaseDir, "");
+    if (!replayBaseDir.equals(validatedReplayBaseDir)) {
+      REPLAY_BASE_PATH.put("custom", validatedReplayBaseDir);
+      foundInvalidSetting = true;
+    }
+
+    if (CUSTOM_CLIENT_SIZE_X.get("custom") < 512) {
+      CUSTOM_CLIENT_SIZE_X.put("custom", 512);
+      foundInvalidSetting = true;
+    }
+
+    if (CUSTOM_CLIENT_SIZE_Y.get("custom") < 346) {
+      CUSTOM_CLIENT_SIZE_Y.put("custom", 346);
+      foundInvalidSetting = true;
+    }
+
+    if (INTEGER_SCALING_FACTOR.get("custom") < (int) Renderer.minScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.minScalar);
+      foundInvalidSetting = true;
+    } else if (INTEGER_SCALING_FACTOR.get("custom") > (int) Renderer.maxIntegerScalar) {
+      INTEGER_SCALING_FACTOR.put("custom", (int) Renderer.maxIntegerScalar);
+      foundInvalidSetting = true;
+    }
+
+    if (BILINEAR_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.minScalar);
+      foundInvalidSetting = true;
+    } else if (BILINEAR_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BILINEAR_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+      foundInvalidSetting = true;
+    }
+
+    if (BICUBIC_SCALING_FACTOR.get("custom") < Renderer.minScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.minScalar);
+      foundInvalidSetting = true;
+    } else if (BICUBIC_SCALING_FACTOR.get("custom") > Renderer.maxInterpolationScalar) {
+      BICUBIC_SCALING_FACTOR.put("custom", Renderer.maxInterpolationScalar);
+      foundInvalidSetting = true;
+    }
+
+    if (WORLD.get("custom") < 0) {
+      WORLD.put("custom", 0);
+      foundInvalidSetting = true;
+    } else if (WORLD.get("custom") > Settings.WORLDS_TO_DISPLAY) {
+      WORLD.put("custom", Settings.WORLDS_TO_DISPLAY);
+      foundInvalidSetting = true;
+    }
+
+    if (SFX_VOLUME.get("custom") < 0) {
+      SFX_VOLUME.put("custom", 0);
+      foundInvalidSetting = true;
+    } else if (SFX_VOLUME.get("custom") > 100) {
+      SFX_VOLUME.put("custom", 100);
+      foundInvalidSetting = true;
+    }
+
+    if (VIEW_DISTANCE.get("custom") < 2300) {
+      VIEW_DISTANCE.put("custom", 2300);
+      foundInvalidSetting = true;
+    } else if (VIEW_DISTANCE.get("custom") > 20000) {
+      VIEW_DISTANCE.put("custom", 20000);
+      foundInvalidSetting = true;
+    }
+
+    if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") < 0) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 0);
+      foundInvalidSetting = true;
+    } else if (TRACKPAD_ROTATION_SENSITIVITY.get("custom") > 16) {
+      TRACKPAD_ROTATION_SENSITIVITY.put("custom", 16);
+      foundInvalidSetting = true;
+    }
+
+    if (LAST_KNOWN_COMBAT_STYLE.get("custom") < Client.COMBAT_CONTROLLED) {
+      LAST_KNOWN_COMBAT_STYLE.put("custom", Client.COMBAT_CONTROLLED);
+      foundInvalidSetting = true;
+    } else if (LAST_KNOWN_COMBAT_STYLE.get("custom") > Client.COMBAT_DEFENSIVE) {
+      LAST_KNOWN_COMBAT_STYLE.put("custom", Client.COMBAT_DEFENSIVE);
+      foundInvalidSetting = true;
+    }
+
+    if (NAME_PATCH_TYPE.get("custom") < 0) {
+      NAME_PATCH_TYPE.put("custom", 0);
+      foundInvalidSetting = true;
+    } else if (NAME_PATCH_TYPE.get("custom") > 3) {
+      NAME_PATCH_TYPE.put("custom", 3);
+      foundInvalidSetting = true;
+    }
+
+    if (FATIGUE_FIGURES.get("custom") < 1) {
+      FATIGUE_FIGURES.put("custom", 1);
+      foundInvalidSetting = true;
+    } else if (FATIGUE_FIGURES.get("custom") > 7) {
+      FATIGUE_FIGURES.put("custom", 7);
+      foundInvalidSetting = true;
+    }
+
+    if (BLOCKED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
+    if (SPECIAL_HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
+    if (HIGHLIGHTED_ITEMS.get("custom").removeIf(s -> s.trim().equals("\""))) {
+      foundInvalidSetting = true;
+    }
+
+    if (foundInvalidSetting) {
+      save("custom");
+    }
+  }
+
+  /** @return OS-agnostic string value of a path, unless the provided string is empty */
+  public static String sanitizeDirTextValue(String path) {
+    if ("".equals(path)) {
+      return path;
+    }
+
+    if (Util.isWindowsOS()) {
+      String windowsPath = new File(path).getAbsolutePath();
+      return (windowsPath + (windowsPath.endsWith("\\") ? "" : "\\")).replaceAll("\\+", "\\");
+    }
+
+    return (path + (path.endsWith("/") ? "" : "/")).replaceAll("/+", "/");
+  }
+
+  /** Removes any dangling quotation marks from an {@link ArrayList} of {@link String}s */
+  static ArrayList<String> sanitizeQuotedItemList(ArrayList<String> list) {
+    list.removeIf(s -> s.trim().equals("\""));
+    return list;
+  }
+
   /**
    * Determine whether we should default to dark mode for the app interface
    *
@@ -2561,7 +2689,41 @@ public class Settings {
     } catch (Exception e) {
     }
 
+    // Check to see if RSC+ has permissions to write to the current dir
+    try {
+      if (!Files.isWritable(new File(Settings.Dir.JAR).toPath())) {
+        String filePermissionsErrorMessage =
+            "<b>Error attempting to launch RSCPlus</b><br/>"
+                + "<br/>"
+                + "RSCPlus is unable to create configuration files in the following directory:"
+                + "<br/><br/>"
+                + new File(Dir.JAR).getAbsolutePath()
+                + "<br/><br/>"
+                + "You must either grant the appropriate permissions to this directory OR<br/>"
+                + "move the application to a different location.";
+        JPanel filePermissionsErrorPanel =
+            Util.createOptionMessagePanel(filePermissionsErrorMessage);
+
+        JOptionPane.showConfirmDialog(
+            Launcher.getInstance(),
+            filePermissionsErrorPanel,
+            "RSCPlus",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.ERROR_MESSAGE,
+            Launcher.scaled_icon_warn);
+
+        System.exit(0);
+      }
+    } catch (Exception e) {
+      Logger.Error("There was an error on startup checking for directory permissions.");
+      e.printStackTrace();
+    }
+
+    CONFIG_FILE = Dir.JAR + "/config.ini";
+
     // Load other directories
+    Dir.LOGS = Dir.JAR + "/logs";
+    Util.makeDirectory(Dir.LOGS);
     Dir.SCREENSHOT = Dir.JAR + "/screenshots";
     Util.makeDirectory(Dir.SCREENSHOT);
     Dir.MODS = Dir.JAR + "/mods";
@@ -2590,7 +2752,12 @@ public class Settings {
       if (versionText.startsWith("1.")) {
         versionText = versionText.substring(2);
       }
-      javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+
+      if (versionText.contains(".")) {
+        javaVersion = Integer.parseInt(versionText.substring(0, versionText.indexOf(".")));
+      } else {
+        javaVersion = Integer.parseInt(versionText);
+      }
     } catch (Exception e) {
       javaVersion = -1;
     }
@@ -2620,28 +2787,6 @@ public class Settings {
         loadKeybinds(props);
       }
 
-      // XP
-      int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
-      String[] goalerUsernames = new String[numberOfGoalers];
-      for (int usernameID = 0; usernameID < numberOfGoalers; usernameID++) {
-        goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
-        Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
-        Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
-        for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
-          Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
-              getPropInt(props, String.format("xpGoal%02d%03d", skill, usernameID), 0);
-          try {
-            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
-                Float.parseFloat(
-                    getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
-          } catch (Exception e1) {
-            Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
-            Logger.Warn(
-                "Couldn't parse settings key "
-                    + String.format("lvlGoal%02d%03d", skill, usernameID));
-          }
-        }
-      }
       XPBar.pinnedBar = getPropBoolean(props, "pinXPBar", false);
       XPBar.pinnedSkill = getPropInt(props, "pinnedSkill", -1);
       XPBar.showActionCount = getPropBoolean(props, "showActionCount", true);
@@ -2661,7 +2806,7 @@ public class Settings {
     Properties props = new Properties();
 
     try {
-      File configFile = new File(Dir.JAR + "/config.ini");
+      File configFile = new File(Settings.CONFIG_FILE);
       if (!configFile.isDirectory()) {
         if (!configFile.exists()) {
           definePresets(props);
@@ -2670,7 +2815,7 @@ public class Settings {
         }
       }
 
-      FileInputStream in = new FileInputStream(Dir.JAR + "/config.ini");
+      FileInputStream in = new FileInputStream(Settings.CONFIG_FILE);
       props.load(in);
       in.close();
     } catch (Exception e) {
@@ -2678,6 +2823,76 @@ public class Settings {
       e.printStackTrace();
     }
     return props;
+  }
+
+  /**
+   * Reads character-specific settings that MUST be re-read from the config.ini file every time the
+   * user logs in, loading them into the static variables for this client instance. Doing so is
+   * necessary to accommodate multi-client use cases.
+   *
+   * @param reloadSelf Whether to update settings for the current character
+   */
+  public static void loadCharacterSpecificSettings(boolean reloadSelf) {
+    final Properties props = loadProps();
+    final String currentPlayerName = Util.formatPlayerName(Client.player_name);
+
+    // Combat styles
+    int numberOfCombatants = getPropInt(props, "numberOfCombatants", 0);
+    String[] combatantUsernames = new String[numberOfCombatants];
+    for (int usernameID = 0; usernameID < numberOfCombatants; usernameID++) {
+      combatantUsernames[usernameID] = getPropString(props, "cmbUsername" + usernameID, "");
+
+      if (!reloadSelf
+          && (combatantUsernames[usernameID].equals(currentPlayerName)
+              || combatantUsernames[usernameID].equals(Client.playerAlias))) {
+        continue;
+      }
+
+      int loadedCombatStyle =
+          getPropInt(props, String.format("cmbStyle%03d", usernameID), Client.COMBAT_AGGRESSIVE);
+      // Sanitize the value if it somehow got corrupted
+      if (loadedCombatStyle < Client.COMBAT_CONTROLLED) {
+        loadedCombatStyle = Client.COMBAT_CONTROLLED;
+      } else if (loadedCombatStyle > Client.COMBAT_DEFENSIVE) {
+        loadedCombatStyle = Client.COMBAT_DEFENSIVE;
+      }
+      Client.playerCombatStyles.put(combatantUsernames[usernameID], loadedCombatStyle);
+    }
+
+    // Only read from props on client initialization and logins
+    if (reloadSelf) {
+      LAST_KNOWN_COMBAT_STYLE.put(
+          "custom", Integer.parseInt((String) props.get("last_known_combat_style")));
+    }
+
+    // XP and level goals
+    int numberOfGoalers = getPropInt(props, "numberOfGoalers", 0);
+    String[] goalerUsernames = new String[numberOfGoalers];
+    for (int usernameID = 0; usernameID < numberOfGoalers; usernameID++) {
+      goalerUsernames[usernameID] = getPropString(props, "username" + usernameID, "");
+
+      if (!reloadSelf
+          && (goalerUsernames[usernameID].equals(currentPlayerName)
+              || goalerUsernames[usernameID].equals(Client.playerAlias))) {
+        continue;
+      }
+
+      Client.xpGoals.put(goalerUsernames[usernameID], new Integer[Client.NUM_SKILLS]);
+      Client.lvlGoals.put(goalerUsernames[usernameID], new Float[Client.NUM_SKILLS]);
+      for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
+        Client.xpGoals.get(goalerUsernames[usernameID])[skill] =
+            getPropInt(props, String.format("xpGoal%02d%03d", skill, usernameID), 0);
+        try {
+          Client.lvlGoals.get(goalerUsernames[usernameID])[skill] =
+              Float.parseFloat(
+                  getPropString(props, String.format("lvlGoal%02d%03d", skill, usernameID), "0"));
+        } catch (Exception e1) {
+          Client.lvlGoals.get(goalerUsernames[usernameID])[skill] = new Float(0);
+          Logger.Warn(
+              "Couldn't parse settings key " + String.format("lvlGoal%02d%03d", skill, usernameID));
+        }
+      }
+    }
   }
 
   public static void loadKeybinds(Properties props) {
@@ -2694,6 +2909,36 @@ public class Settings {
     }
 
     resolveNewDefaults();
+  }
+
+  /**
+   * Validates a provided directory path by checking for its existence and write-ability
+   *
+   * @param dir Directory to validate
+   * @param fallback Fallback directory to return if validation fails
+   * @return String value of the provided directory if valid, or sanitized fallback if not
+   */
+  public static String validateCustomDir(String dir, String fallback) {
+    boolean returnFallback = false;
+
+    if ("".equals(dir)) {
+      returnFallback = true;
+    }
+
+    File dirFile = new File(dir);
+    if (!(dirFile.exists())) {
+      returnFallback = true;
+    }
+
+    if (!Files.isWritable(dirFile.toPath())) {
+      returnFallback = true;
+    }
+
+    if (returnFallback) {
+      return sanitizeDirTextValue(fallback);
+    }
+
+    return sanitizeDirTextValue(dir);
   }
 
   /**
@@ -2740,27 +2985,22 @@ public class Settings {
     int i = 1;
     if (fList != null) {
       for (File worldFile : fList) {
-        if (!worldFile.isDirectory() && !worldFile.getName().equals(".DS_Store")) {
-          Properties worldProps = new Properties();
-          try {
-            FileInputStream in = new FileInputStream(worldFile);
-            worldProps.load(in);
-            in.close();
+        if (!worldFile.getName().equals(".DS_Store")) {
+          Properties worldProps = validateWorldFile(worldFile);
 
-            WORLD_FILE_PATHS.put(i, worldFile.getAbsolutePath());
-            WORLD_NAMES.put(i, worldProps.getProperty("name"));
-            WORLD_URLS.put(i, worldProps.getProperty("url"));
-            WORLD_PORTS.put(i, Integer.parseInt(worldProps.getProperty("port")));
-            WORLD_SERVER_TYPES.put(
-                i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
-            WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
-            WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
-            WORLD_HISCORES_URL.put(i, (String) worldProps.getOrDefault("hiscores_url", ""));
+          if (worldProps == null) continue;
 
-            i++;
-          } catch (Exception e) {
-            Logger.Warn("Error loading World config for " + worldFile.getAbsolutePath());
-          }
+          WORLD_FILE_PATHS.put(i, worldFile.getAbsolutePath());
+          WORLD_NAMES.put(i, worldProps.getProperty("name"));
+          WORLD_URLS.put(i, worldProps.getProperty("url"));
+          WORLD_PORTS.put(i, Integer.parseInt(worldProps.getProperty("port")));
+          WORLD_SERVER_TYPES.put(
+              i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
+          WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
+          WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
+          WORLD_HISCORES_URL.put(i, (String) worldProps.getOrDefault("hiscores_url", ""));
+
+          i++;
         }
       }
     }
@@ -2772,6 +3012,27 @@ public class Settings {
       createNewWorld(1);
       WORLDS_TO_DISPLAY = 1;
     }
+  }
+
+  /**
+   * Ensures that a world file can be properly parsed into a properties file
+   *
+   * @param worldFile {@link File} reference for the world ini
+   * @return parsed world file {@link Properties} or {@code null} if invalid
+   */
+  public static Properties validateWorldFile(File worldFile) {
+    if (!worldFile.isDirectory() && worldFile.getName().endsWith(".ini")) {
+      try (FileInputStream in = new FileInputStream(worldFile)) {
+        Properties worldProps = new Properties();
+        worldProps.load(in);
+        return worldProps;
+      } catch (Exception e) {
+        // Will fall through below
+      }
+    }
+
+    Logger.Warn("Error loading World config for " + worldFile.getAbsolutePath());
+    return null;
   }
 
   public static void saveWorlds() {
@@ -3006,6 +3267,7 @@ public class Settings {
       props.setProperty(
           "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
+      props.setProperty("screenshots_storage_path", SCREENSHOTS_STORAGE_PATH.get(preset));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty(
           "custom_ran_static_colour", Integer.toString(CUSTOM_RAN_STATIC_COLOUR.get(preset)));
@@ -3113,6 +3375,7 @@ public class Settings {
       props.setProperty("show_buffs", Boolean.toString(SHOW_BUFFS.get(preset)));
       props.setProperty("death_items", Boolean.toString(DEATH_ITEMS.get(preset)));
       props.setProperty("death_items_wild", Boolean.toString(DEATH_ITEMS_WILD.get(preset)));
+      props.setProperty("show_wild_range", Boolean.toString(SHOW_WILD_RANGE.get(preset)));
       props.setProperty(
           "show_last_menu_action", Boolean.toString(SHOW_LAST_MENU_ACTION.get(preset)));
       props.setProperty("show_mouse_tooltip", Boolean.toString(SHOW_MOUSE_TOOLTIP.get(preset)));
@@ -3162,10 +3425,15 @@ public class Settings {
       props.setProperty("show_xp_bar", Boolean.toString(SHOW_XP_BAR.get(preset)));
       props.setProperty("debug", Boolean.toString(DEBUG.get(preset)));
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
-      props.setProperty("highlighted_items", Util.joinAsString(",", HIGHLIGHTED_ITEMS.get(preset)));
-      props.setProperty("blocked_items", Util.joinAsString(",", BLOCKED_ITEMS.get(preset)));
+      props.setProperty("highlighted_items", String.join(",", HIGHLIGHTED_ITEMS.get(preset)));
+      props.setProperty(
+          "special_highlighted_items", String.join(",", SPECIAL_HIGHLIGHTED_ITEMS.get(preset)));
+      props.setProperty("blocked_items", String.join(",", BLOCKED_ITEMS.get(preset)));
       props.setProperty(
           "item_highlight_colour", Integer.toString(ITEM_HIGHLIGHT_COLOUR.get(preset)));
+      props.setProperty(
+          "item_special_highlight_colour",
+          Integer.toString(ITEM_SPECIAL_HIGHLIGHT_COLOUR.get(preset)));
       props.setProperty(
           "highlight_items_right_click_menu",
           Boolean.toString(HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(preset)));
@@ -3187,7 +3455,7 @@ public class Settings {
       props.setProperty(
           "use_system_notifications", Boolean.toString(USE_SYSTEM_NOTIFICATIONS.get(preset)));
       props.setProperty("pm_notifications", Boolean.toString(PM_NOTIFICATIONS.get(preset)));
-      props.setProperty("pm_denylist", Util.joinAsString(",", PM_DENYLIST.get(preset)));
+      props.setProperty("pm_denylist", String.join(",", PM_DENYLIST.get(preset)));
       props.setProperty("trade_notifications", Boolean.toString(TRADE_NOTIFICATIONS.get(preset)));
       props.setProperty("duel_notifications", Boolean.toString(DUEL_NOTIFICATIONS.get(preset)));
       props.setProperty("logout_notifications", Boolean.toString(LOGOUT_NOTIFICATIONS.get(preset)));
@@ -3202,10 +3470,9 @@ public class Settings {
       props.setProperty(
           "highlighted_item_notif_value",
           Integer.toString(HIGHLIGHTED_ITEM_NOTIF_VALUE.get(preset)));
+      props.setProperty("important_messages", String.join(",", IMPORTANT_MESSAGES.get(preset)));
       props.setProperty(
-          "important_messages", Util.joinAsString(",", IMPORTANT_MESSAGES.get(preset)));
-      props.setProperty(
-          "important_sad_messages", Util.joinAsString(",", IMPORTANT_SAD_MESSAGES.get(preset)));
+          "important_sad_messages", String.join(",", IMPORTANT_SAD_MESSAGES.get(preset)));
       props.setProperty(
           "mute_important_message_sounds",
           Boolean.toString(MUTE_IMPORTANT_MESSAGE_SOUNDS.get(preset)));
@@ -3223,6 +3490,7 @@ public class Settings {
       // props.setProperty("speedrun_username", Settings.SPEEDRUNNER_USERNAME.get(preset));
 
       //// replay
+      props.setProperty("replay_storage_path", REPLAY_STORAGE_PATH.get(preset));
       props.setProperty("record_kb_mouse", Boolean.toString(RECORD_KB_MOUSE.get(preset)));
       props.setProperty("parse_opcodes", Boolean.toString(PARSE_OPCODES.get(preset)));
       props.setProperty("fast_disconnect", Boolean.toString(FAST_DISCONNECT.get(preset)));
@@ -3248,7 +3516,8 @@ public class Settings {
       props.setProperty("joystick_enabled", Boolean.toString(JOYSTICK_ENABLED.get(preset)));
 
       //// no gui
-      props.setProperty("combat_style", Integer.toString(COMBAT_STYLE.get(preset)));
+      props.setProperty(
+          "last_known_combat_style", Integer.toString(LAST_KNOWN_COMBAT_STYLE.get(preset)));
       props.setProperty("world", Integer.toString(WORLD.get(preset)));
       // This is set to false, as logically, saving the config would imply this is not a first-run.
       props.setProperty("first_time", Boolean.toString(false));
@@ -3266,10 +3535,28 @@ public class Settings {
             Integer.toString(getPropIntForKeyModifier(kbs)) + "*" + kbs.key);
       }
 
+      // Reload other char settings before re-saving to resolve differences when multi-clienting
+      // Note: Skip on 1st client load, as the config file won't exist yet
+      if (new File(Settings.CONFIG_FILE).exists()) {
+        loadCharacterSpecificSettings(false);
+      }
+
+      // Combat styles
+      int combatUsernameID = 0;
+      for (String username : Client.playerCombatStyles.keySet()) {
+        if (username.equals(Replay.excludeUsername)) continue;
+        int combatStyle = Client.playerCombatStyles.get(username);
+        props.setProperty(
+            String.format("cmbStyle%03d", combatUsernameID), Integer.toString(combatStyle));
+        props.setProperty(String.format("cmbUsername%d", combatUsernameID), username);
+        combatUsernameID++;
+      }
+      props.setProperty("numberOfCombatants", String.format("%d", combatUsernameID));
+
       // XP Goals
-      int usernameID = 0;
+      int xpUsernameID = 0;
       for (String username : Client.xpGoals.keySet()) {
-        if (username.equals(XPBar.excludeUsername)) continue;
+        if (username.equals(Replay.excludeUsername)) continue;
         for (int skill = 0; skill < Client.NUM_SKILLS; skill++) {
           int skillgoal = 0;
           try {
@@ -3284,14 +3571,14 @@ public class Settings {
           }
 
           props.setProperty(
-              String.format("xpGoal%02d%03d", skill, usernameID), Integer.toString(skillgoal));
+              String.format("xpGoal%02d%03d", skill, xpUsernameID), Integer.toString(skillgoal));
           props.setProperty(
-              String.format("lvlGoal%02d%03d", skill, usernameID), Float.toString(lvlgoal));
+              String.format("lvlGoal%02d%03d", skill, xpUsernameID), Float.toString(lvlgoal));
         }
-        props.setProperty(String.format("username%d", usernameID), username);
-        usernameID++;
+        props.setProperty(String.format("username%d", xpUsernameID), username);
+        xpUsernameID++;
       }
-      props.setProperty("numberOfGoalers", String.format("%d", usernameID));
+      props.setProperty("numberOfGoalers", String.format("%d", xpUsernameID));
 
       props.setProperty("pinXPBar", Boolean.toString(XPBar.pinnedBar));
       props.setProperty("pinnedSkill", String.format("%d", XPBar.pinnedSkill));
@@ -3310,7 +3597,7 @@ public class Settings {
       props.setProperty(
           "worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
-      FileOutputStream out = new FileOutputStream(Dir.JAR + "/config.ini");
+      FileOutputStream out = new FileOutputStream(Settings.CONFIG_FILE);
       props.store(out, "---rscplus config---");
       out.close();
     } catch (Exception e) {
@@ -4203,6 +4490,7 @@ public class Settings {
 
     public static String JAR;
     public static String DUMP;
+    public static String LOGS;
     public static String SCREENSHOT;
     public static String VIDEO;
     public static String MODS;
@@ -4527,9 +4815,10 @@ public class Settings {
     Launcher.getConfigWindow().synchronizeGuiValues();
   }
 
+  /** Note: This gets invoked nonstop during gameplay */
   public static void updateInjectedVariables() {
     // TODO: get rid of these variables and this function if possible
-    COMBAT_STYLE_INT = COMBAT_STYLE.get(currentProfile);
+    COMBAT_STYLE_INT = Client.combat_style;
     HIDE_ROOFS_BOOL = HIDE_ROOFS.get(currentProfile);
     DISABLE_UNDERGROUND_LIGHTING_BOOL = DISABLE_UNDERGROUND_LIGHTING.get(currentProfile);
     DISABLE_MINIMAP_ROTATION_BOOL = DISABLE_MINIMAP_ROTATION.get(currentProfile);
@@ -4542,12 +4831,26 @@ public class Settings {
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
     LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
     HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
-    ITEM_HIGHLIGHT_COLOUR_INT = ITEM_HIGHLIGHT_COLOUR.get(currentProfile);
   }
 
+  /** Invoked when combat style changes */
   public static void outputInjectedVariables() {
     // TODO: get rid of these variables and this function if possible
-    COMBAT_STYLE.put(currentProfile, COMBAT_STYLE_INT);
+
+    if (Client.player_name.isEmpty() || Client.username_login.equals(Replay.excludeUsername)) {
+      return;
+    }
+
+    // Save character-specific combat style
+    Client.playerCombatStyles.put(Util.formatPlayerName(Client.player_name), COMBAT_STYLE_INT);
+
+    // If an alias exists, save to it as well
+    if (!Client.playerAlias.isEmpty()) {
+      Client.playerCombatStyles.put(Client.playerAlias, COMBAT_STYLE_INT);
+    }
+
+    // Save to the global previously-known combat style as a fallback
+    LAST_KNOWN_COMBAT_STYLE.put("custom", COMBAT_STYLE_INT);
   }
 
   /**

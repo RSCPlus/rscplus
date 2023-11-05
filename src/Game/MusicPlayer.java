@@ -156,7 +156,7 @@ public class MusicPlayer implements Runnable {
 
   public static void playTrack(MusicDef track) {
     // Track didn't change
-    if (switchTrack.equals(track.filename)) return;
+    if (switchTrack.filename.equals(track.filename)) return;
 
     // Switch track
     switchTrack = track;
