@@ -1172,7 +1172,7 @@ public class Settings {
         getPropBoolean(props, "sound_effect_combat1", SOUND_EFFECT_COMBAT1.get("default")));
 
     FIX_SFX_DELAY.put("vanilla", false);
-    FIX_SFX_DELAY.put("vanilla_resizable", true);
+    FIX_SFX_DELAY.put("vanilla_resizable", false);
     FIX_SFX_DELAY.put("lite", true);
     FIX_SFX_DELAY.put("default", true);
     FIX_SFX_DELAY.put("heavy", true);
