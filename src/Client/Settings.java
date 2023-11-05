@@ -55,7 +55,7 @@ public class Settings {
   public static boolean renderingScalarUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20230818.180806;
+  public static final double VERSION_NUMBER = 20231105.012800;
 
   static String CONFIG_FILE = null;
   static boolean successfullyInitted = false;
