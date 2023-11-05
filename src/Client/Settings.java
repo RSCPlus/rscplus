@@ -2652,7 +2652,7 @@ public class Settings {
 
     if (Util.isWindowsOS()) {
       String windowsPath = new File(path).getAbsolutePath();
-      return (windowsPath + (windowsPath.endsWith("\\") ? "" : "\\")).replaceAll("\\+", "\\");
+      return (windowsPath + (windowsPath.endsWith("\\") ? "" : "\\")).replaceAll("\\\\+", "\\\\");
     }
 
     return (path + (path.endsWith("/") ? "" : "/")).replaceAll("/+", "/");
