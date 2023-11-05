@@ -356,6 +356,7 @@ public class ConfigWindow {
   private JRadioButton audioPanelOverrideAudioSettingOnButton;
   private JRadioButton audioPanelOverrideAudioSettingOffButton;
   private JCheckBox audioPanelFixSpiderWebDummySoundCheckbox;
+  private JCheckBox audioPanelFixSfxDelayCheckbox;
   private JCheckBox soundEffectAdvanceCheckbox;
   private JCheckBox soundEffectAnvilCheckbox;
   private JCheckBox soundEffectChiselCheckbox;
@@ -2984,6 +2985,12 @@ public class ConfigWindow {
         "The RSC server authentically tells your client to play a sound effect when slicing a web or hitting a dummy, but that sound effect doesn't exist in an unmodified client cache.");
     SearchUtils.addSearchMetadata(
         audioPanelFixSpiderWebDummySoundCheckbox, CommonMetadata.SFX.getText());
+
+    audioPanelFixSfxDelayCheckbox =
+        addCheckbox("Remove sound effect delay (Requires restart)", audioPanel);
+    audioPanelFixSfxDelayCheckbox.setToolTipText(
+        "Fixes a bug where sound effects were delayed by a significant amount.");
+    SearchUtils.addSearchMetadata(audioPanelFixSfxDelayCheckbox, CommonMetadata.SFX.getText());
 
     addSettingsHeader(audioPanel, "Toggle individual sound effects");
 
@@ -6164,6 +6171,7 @@ public class ConfigWindow {
         !Settings.OVERRIDE_AUDIO_SETTING_SETTING_ON.get(Settings.currentProfile));
     audioPanelFixSpiderWebDummySoundCheckbox.setSelected(
         Settings.SOUND_EFFECT_COMBAT1.get(Settings.currentProfile));
+    audioPanelFixSfxDelayCheckbox.setSelected(Settings.FIX_SFX_DELAY.get(Settings.currentProfile));
     soundEffectAdvanceCheckbox.setSelected(
         Settings.SOUND_EFFECT_ADVANCE.get(Settings.currentProfile));
     soundEffectAnvilCheckbox.setSelected(Settings.SOUND_EFFECT_ANVIL.get(Settings.currentProfile));
@@ -6630,6 +6638,7 @@ public class ConfigWindow {
             .isSelected()); // audioPanelOverrideAudioSettingOffButton ignored
     Settings.SOUND_EFFECT_COMBAT1.put(
         Settings.currentProfile, audioPanelFixSpiderWebDummySoundCheckbox.isSelected());
+    Settings.FIX_SFX_DELAY.put(Settings.currentProfile, audioPanelFixSfxDelayCheckbox.isSelected());
     Settings.SOUND_EFFECT_ADVANCE.put(
         Settings.currentProfile, soundEffectAdvanceCheckbox.isSelected());
     Settings.SOUND_EFFECT_ANVIL.put(Settings.currentProfile, soundEffectAnvilCheckbox.isSelected());
