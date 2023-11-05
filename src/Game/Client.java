@@ -2571,9 +2571,19 @@ public class Client {
     }
   }
 
-  // hook to display retro fps on the client, early 2001 style
+  // hook to draw native text on every frame tick
   public static void drawNativeTextHook(Object surfaceInstance) {
     if (surfaceInstance != null) {
+      if (Settings.SHOW_WILD_RANGE.get(Settings.currentProfile) && Client.is_in_wild) {
+        int lowRange = Math.max((Client.getPlayerLevel() - Client.wild_level), 3);
+        int highRange = Math.min(Client.wild_level + Client.getPlayerLevel(), 123);
+        String wildernessRange = "(" + lowRange + " - " + highRange + ")";
+
+        Renderer.drawStringCenter(
+            wildernessRange, Renderer.width - 47, Renderer.height_client - 60, 1, 0xffff00);
+      }
+
+      // display retro fps on the client, early 2001 style
       if (Settings.SHOW_RETRO_FPS.get(Settings.currentProfile)) {
         int offset = 0;
         if (Client.is_in_wild) offset = 70;
