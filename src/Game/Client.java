@@ -32,6 +32,7 @@ import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
 import Client.Util;
+import Client.WikiURL;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
@@ -52,13 +53,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
@@ -2185,6 +2180,20 @@ public class Client {
                 + skill_name[skill]
                 + ".";
           }
+        }
+      } else if (command.startsWith("wiki")) {
+        final String[] args = command.split(" ");
+        final String[] query = Arrays.copyOfRange(command.split(" "), 1, args.length);
+        if (System.currentTimeMillis() - WikiURL.lastLookupTime > WikiURL.cooldownTimer) {
+          String wikiURL = WikiURL.getURL(query);
+          WikiURL.lastLookupTime = System.currentTimeMillis();
+          Util.openLinkInBrowser(wikiURL);
+        } else {
+          Client.displayMessage(
+              String.format(
+                  "@lre@Please wait %1d seconds between wiki queries",
+                  WikiURL.cooldownTimer / 1000),
+              Client.CHAT_NONE);
         }
       }
 
