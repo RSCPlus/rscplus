@@ -251,6 +251,7 @@ public class ConfigWindow {
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JCheckBox generalPanelCtrlScrollChatCheckbox;
+  private JCheckBox generalPanelSuppressLoginLogoutMessagesCheckbox;
   private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
   private JSlider generalPanelTrackpadRotationSlider;
   private JCheckBox generalPanelCustomRandomChatColourCheckbox;
@@ -1547,6 +1548,11 @@ public class ConfigWindow {
         addCheckbox("Hold ctrl to scroll through chat history from anywhere", generalPanel);
     generalPanelCtrlScrollChatCheckbox.setToolTipText(
         "Holding CTRL allows you to scroll through the currently-selected chat history from anywhere");
+
+    generalPanelSuppressLoginLogoutMessagesCheckbox =
+        addCheckbox("Suppress friend login / logout messages", generalPanel);
+    generalPanelSuppressLoginLogoutMessagesCheckbox.setToolTipText(
+        "Private messages indicating when a friend logs in or out will no longer be output");
 
     generalPanelShiftScrollCameraRotationCheckbox =
         addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
@@ -4138,6 +4144,12 @@ public class ConfigWindow {
         "toggle_ctrl_scroll",
         KeyModifier.ALT,
         KeyEvent.VK_H);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle friend login/logout messages",
+        "toggle_login_logout_messages",
+        KeyModifier.ALT,
+        KeyEvent.VK_L);
     addKeybindCategory(keybindContainerPanel, "Overlays");
     addKeybindSet(
         keybindContainerPanel,
@@ -4487,10 +4499,9 @@ public class ConfigWindow {
         "Buttons you can click on to increase speed, decrease speed, restart, play/pause");
 
     replayPanelHidePrivateMessagesCheckbox =
-        addCheckbox(
-            "Prevent private messages from being output to the console during replay", replayPanel);
+        addCheckbox("Prevent private messages from being output during replay", replayPanel);
     replayPanelHidePrivateMessagesCheckbox.setToolTipText(
-        "Message types 1, 2, and 5 will not be output to the console when this is selected"); // TODO: possibly don't show in client either
+        "Message types 1, 2, and 5 will not be output when this is selected");
 
     replayPanelTriggerAlertsReplayCheckbox =
         addCheckbox("Prevent system alerts from triggering during replay", replayPanel);
@@ -5980,6 +5991,8 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelCtrlScrollChatCheckbox.setSelected(
         Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
+    generalPanelSuppressLoginLogoutMessagesCheckbox.setSelected(
+        Settings.SUPPRESS_LOG_IN_OUT_MSGS.get(Settings.currentProfile));
     generalPanelShiftScrollCameraRotationCheckbox.setSelected(
         Settings.SHIFT_SCROLL_CAMERA_ROTATION.get(Settings.currentProfile));
     generalPanelTrackpadRotationSlider.setValue(
@@ -6488,6 +6501,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
     Settings.CTRL_SCROLL_CHAT.put(
         Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
+    Settings.SUPPRESS_LOG_IN_OUT_MSGS.put(
+        Settings.currentProfile, generalPanelSuppressLoginLogoutMessagesCheckbox.isSelected());
     Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
         Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
     Settings.TRACKPAD_ROTATION_SENSITIVITY.put(

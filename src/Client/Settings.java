@@ -134,6 +134,7 @@ public class Settings {
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SUPPRESS_LOG_IN_OUT_MSGS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
   public static HashMap<String, Integer> TRACKPAD_ROTATION_SENSITIVITY =
@@ -865,6 +866,16 @@ public class Settings {
     CTRL_SCROLL_CHAT.put("all", true);
     CTRL_SCROLL_CHAT.put(
         "custom", getPropBoolean(props, "ctrl_scroll_chat", CTRL_SCROLL_CHAT.get("default")));
+
+    SUPPRESS_LOG_IN_OUT_MSGS.put("vanilla", false);
+    SUPPRESS_LOG_IN_OUT_MSGS.put("vanilla_resizable", false);
+    SUPPRESS_LOG_IN_OUT_MSGS.put("lite", false);
+    SUPPRESS_LOG_IN_OUT_MSGS.put("default", false);
+    SUPPRESS_LOG_IN_OUT_MSGS.put("heavy", false);
+    SUPPRESS_LOG_IN_OUT_MSGS.put("all", true);
+    SUPPRESS_LOG_IN_OUT_MSGS.put(
+        "custom",
+        getPropBoolean(props, "suppress_log_in_out_msg", SUPPRESS_LOG_IN_OUT_MSGS.get("default")));
 
     SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla", false);
     SHIFT_SCROLL_CAMERA_ROTATION.put("vanilla_resizable", false);
@@ -3267,6 +3278,8 @@ public class Settings {
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("ctrl_scroll_chat", Boolean.toString(CTRL_SCROLL_CHAT.get(preset)));
       props.setProperty(
+          "suppress_log_in_out_msg", Boolean.toString(SUPPRESS_LOG_IN_OUT_MSGS.get(preset)));
+      props.setProperty(
           "shift_scroll_camera_rotation",
           Boolean.toString(SHIFT_SCROLL_CAMERA_ROTATION.get(preset)));
       props.setProperty(
@@ -4228,6 +4241,20 @@ public class Settings {
     save();
   }
 
+  public static void toggleSuppressLogInOutMessages() {
+    SUPPRESS_LOG_IN_OUT_MSGS.put(currentProfile, !SUPPRESS_LOG_IN_OUT_MSGS.get(currentProfile));
+
+    if (SUPPRESS_LOG_IN_OUT_MSGS.get(currentProfile)) {
+      Client.displayMessage(
+          "@cya@Friend login / logout messages will no longer be shown", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage(
+          "@cya@Friend login / logout messages will now be shown", Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
   public static void toggleColorTerminal() {
     COLORIZE_CONSOLE_TEXT.put(currentProfile, !COLORIZE_CONSOLE_TEXT.get(currentProfile));
 
@@ -4552,6 +4579,9 @@ public class Settings {
         return true;
       case "toggle_ctrl_scroll":
         Settings.toggleCtrlScroll();
+        return true;
+      case "toggle_login_logout_messages":
+        Settings.toggleSuppressLogInOutMessages();
         return true;
       case "toggle_colorize":
         Settings.toggleColorTerminal();

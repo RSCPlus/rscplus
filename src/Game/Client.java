@@ -3050,9 +3050,25 @@ public class Client {
    * @param username the username that the message originated from
    * @param message the content of the message
    * @param type the type of message being displayed
+   * @return {@code boolean} telling mudclient if the message should be printed
    */
-  public static void messageHook(
+  public static boolean messageHook(
       String username, String message, int type, String colorCodeOverride) {
+
+    // Don't output login/logout messages if the setting is enabled
+    if (type == CHAT_PRIVATE_LOG_IN_OUT
+        && Settings.SUPPRESS_LOG_IN_OUT_MSGS.get(Settings.currentProfile)) {
+      return false;
+    }
+
+    // Don't output private messages if option is turned on and replaying
+    if (Replay.isPlaying && Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile)) {
+      if (type == CHAT_PRIVATE_LOG_IN_OUT
+          || type == CHAT_PRIVATE
+          || type == CHAT_PRIVATE_OUTGOING) {
+        return false;
+      }
+    }
 
     // notify if the user set the message as one they wanted to be alerted by
     if (Renderer.stringIsWithinList(message, Settings.IMPORTANT_MESSAGES.get("custom"))) {
@@ -3076,8 +3092,9 @@ public class Client {
     }
 
     if (colorCodeOverride != null) {
-      if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@")))
+      if (!((type == CHAT_QUEST || type == CHAT_CHAT) && colorCodeOverride.equals("@yel@"))) {
         message = colorCodeOverride + message;
+      }
     }
 
     // Close dialogues when player says something in-game in quest chat
@@ -3087,12 +3104,15 @@ public class Client {
       }
     }
 
-    if (username != null)
+    if (username != null) {
       // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
       username = username.replace("\u00A0", " ");
-    if (message != null)
-      // Prevents non-breaking space in colored usernames appearing as an accented 'a' in console
+    }
+
+    if (message != null) {
+      // Prevents non-breaking space in colored messages appearing as an accented 'a' in console
       message = message.replace("\u00A0", " ");
+    }
 
     if (message != null && username != null) {
       Speedrun.checkMessageCompletions(message);
@@ -3100,9 +3120,9 @@ public class Client {
 
     if (type == CHAT_NONE) {
       if (username == null && message != null) {
-        if (message.contains("The spell fails! You may try again in 20 seconds"))
+        if (message.contains("The spell fails! You may try again in 20 seconds")) {
           magic_timer = Renderer.time + 21000L;
-        else if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)
+        } else if (Settings.TRAY_NOTIFS.get(Settings.currentProfile)
             && message.contains(
                 "You have been standing here for 5 mins! Please move to a new area")) {
           NotificationsHandler.notify(
@@ -3132,19 +3152,16 @@ public class Client {
       NotificationsHandler.notify(
           NotifType.TRADE, "Trade Request", username, username + " wishes to trade with you");
     } else if (type == CHAT_OTHER) {
-      if (message.contains(" wishes to duel with you"))
+      if (message.contains(" wishes to duel with you")) {
         NotificationsHandler.notify(
             NotifType.DUEL, "Duel Request", username, message.replaceAll("@...@", ""));
+      }
     }
 
     if (type == Client.CHAT_PRIVATE || type == Client.CHAT_PRIVATE_OUTGOING) {
-      if (username != null) lastpm_username = username;
-    }
-
-    // Don't output private messages if option is turned on and replaying
-    if (Settings.HIDE_PRIVATE_MSGS_REPLAY.get(Settings.currentProfile) && Replay.isPlaying) {
-      if (type == CHAT_PRIVATE_LOG_IN_OUT || type == CHAT_PRIVATE || type == CHAT_PRIVATE_OUTGOING)
-        return;
+      if (username != null) {
+        lastpm_username = username;
+      }
     }
 
     String originalLog =
@@ -3160,6 +3177,8 @@ public class Client {
             + ((username == null) ? "" : colorizeUsername(formatUsername(username, type), type))
             + colorizeMessage(message, type);
     Logger.Chat(colorizedLog, originalLog);
+
+    return true;
   }
 
   private static String formatChatType(int type) {
