@@ -1610,30 +1610,33 @@ public class Renderer {
       }
 
       // Draw map icon
-      int mapX = width - 10 - image_map_inactive.getWidth(null);
-      int mapY = 45;
+      if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN
+          || Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+        int mapX = width - 10 - image_map_inactive.getWidth(null);
+        int mapY = 45;
 
-      Rectangle mapBounds =
-          new Rectangle(
-              mapX, mapY, image_map_inactive.getWidth(null), image_map_inactive.getHeight(null));
+        Rectangle mapBounds =
+            new Rectangle(
+                mapX, mapY, image_map_inactive.getWidth(null), image_map_inactive.getHeight(null));
 
-      // Draw coloured version on hover, de-saturated otherwise
-      if (MouseHandler.x >= mapBounds.x
-          && MouseHandler.x <= mapBounds.x + mapBounds.width
-          && MouseHandler.y >= mapBounds.y
-          && MouseHandler.y <= mapBounds.y + mapBounds.height) {
-        g2.drawImage(image_map, mapX, mapY, null);
-      } else {
-        g2.drawImage(image_map_inactive, mapX, mapY, null);
-      }
+        // Draw coloured version on hover, de-saturated otherwise
+        if (MouseHandler.x >= mapBounds.x
+            && MouseHandler.x <= mapBounds.x + mapBounds.width
+            && MouseHandler.y >= mapBounds.y
+            && MouseHandler.y <= mapBounds.y + mapBounds.height) {
+          g2.drawImage(image_map, mapX, mapY, null);
+        } else {
+          g2.drawImage(image_map_inactive, mapX, mapY, null);
+        }
 
-      // Handle map icon click
-      if (bufferedMouseClick.getX() >= mapBounds.x
-          && bufferedMouseClick.getX() <= mapBounds.x + mapBounds.width
-          && bufferedMouseClick.getY() >= mapBounds.y
-          && bufferedMouseClick.getY() <= mapBounds.y + mapBounds.height
-          && bufferedMouseClick.isMouseClicked()) {
-        Launcher.getWorldMapWindow().toggleWorldMapWindow();
+        // Handle map icon click
+        if (bufferedMouseClick.getX() >= mapBounds.x
+            && bufferedMouseClick.getX() <= mapBounds.x + mapBounds.width
+            && bufferedMouseClick.getY() >= mapBounds.y
+            && bufferedMouseClick.getY() <= mapBounds.y + mapBounds.height
+            && bufferedMouseClick.isMouseClicked()) {
+          Launcher.getWorldMapWindow().toggleWorldMapWindow();
+        }
       }
 
       // Draw world list
