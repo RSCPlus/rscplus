@@ -2104,10 +2104,10 @@ public class Client {
             + calcCombatLevel()
             + " @lre@A:@whi@ "
             + base_level[SKILL_ATTACK]
-            + " @lre@S:@whi@ "
-            + base_level[SKILL_STRENGTH]
             + " @lre@D:@whi@ "
             + base_level[SKILL_DEFENSE]
+            + " @lre@S:@whi@ "
+            + base_level[SKILL_STRENGTH]
             + " @lre@H:@whi@ "
             + base_level[SKILL_HP]
             + " @lre@R:@whi@ "
@@ -2123,10 +2123,10 @@ public class Client {
             + calcCombatLevel()
             + " A:"
             + base_level[SKILL_ATTACK]
-            + " S:"
-            + base_level[SKILL_STRENGTH]
             + " D:"
             + base_level[SKILL_DEFENSE]
+            + " S:"
+            + base_level[SKILL_STRENGTH]
             + " H:"
             + base_level[SKILL_HP]
             + " R:"
