@@ -976,7 +976,7 @@ public class Renderer {
       // Arrow marker for destination
       if (WorldMapWindow.getWaypointPosition() != null
           && !Client.isInterfaceOpen()
-          && Client.show_menu == Client.MENU_NONE) {
+          && Client.show_menu != Client.MENU_INVENTORY) {
         float absCameraRotation =
             ((((float) Camera.rotation / 255.0f) * 360.0f) + 180.0f)
                 + WorldMapWindow.getWaypointAngle();
