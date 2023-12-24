@@ -5072,6 +5072,53 @@ public class JClassPatcher {
     while (methodNodeList.hasNext()) {
       MethodNode methodNode = methodNodeList.next();
 
+      // Renderbug fix
+      if (methodNode.name.equals("b") && methodNode.desc.equals("(IZ)V")) {
+        LabelNode skipLabel = new LabelNode();
+
+        AbstractInsnNode start = methodNode.instructions.getFirst();
+        while (start != null) {
+          if (start.getOpcode() == Opcodes.GETFIELD
+              && ((FieldInsnNode) start).owner.equals("lb")
+              && ((FieldInsnNode) start).name.equals("D")) {
+            AbstractInsnNode insnNode = start.getPrevious();
+
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "k", "e", "J"));
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode(1072741824L));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.LCMP));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFLE, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.LCONST_0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.PUTSTATIC, "k", "e", "J"));
+            methodNode.instructions.insertBefore(insnNode, new VarInsnNode(Opcodes.ALOAD, 0));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.GETSTATIC, "jb", "o", "I"));
+            methodNode.instructions.insertBefore(
+                insnNode, new IntInsnNode(Opcodes.NEWARRAY, Opcodes.T_LONG));
+            methodNode.instructions.insertBefore(
+                insnNode, new FieldInsnNode(Opcodes.PUTFIELD, "lb", "D", "[J"));
+
+            methodNode.instructions.insertBefore(insnNode, new LdcInsnNode("RENDERBUG SQUASHED"));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Logger",
+                    "Debug",
+                    "(Ljava/lang/String;)V",
+                    false));
+
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
+
+            break;
+          }
+
+          start = start.getNext();
+        }
+      }
+
       if (methodNode.name.equals("c") && methodNode.desc.equals("(I)V")) {
         // Throwable crash patch - a condition of indexoutbounds was reported on this method
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
