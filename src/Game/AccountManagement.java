@@ -573,7 +573,7 @@ public class AccountManagement {
       Panel.addButtonBackTo(Client.panelRegister, 256, yPos + 17, 250, 34);
       Panel.addCenterTextTo(Client.panelRegister, 256, yPos + 8, "Choose a Username", 4, false);
       Client.chooseUserInput =
-          Panel.addInputTo(Client.panelRegister, 256, yPos + 25, 200, 40, 4, 320, false, false);
+          Panel.addInputTo(Client.panelRegister, 256, yPos + 25, 200, 40, 4, 12, false, false);
       Panel.setFocus(Client.panelRegister, Client.chooseUserInput);
       yPos += 40;
       Panel.addButtonBackTo(Client.panelRegister, 141, yPos + 17, 220, 34);
