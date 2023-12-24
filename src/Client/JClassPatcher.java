@@ -2874,6 +2874,8 @@ public class JClassPatcher {
               "(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
         AbstractInsnNode first = methodNode.instructions.getFirst();
 
+        LabelNode continueLabel = new LabelNode();
+
         methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 7));
         methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
         methodNode.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 5));
@@ -2884,7 +2886,10 @@ public class JClassPatcher {
                 Opcodes.INVOKESTATIC,
                 "Game/Client",
                 "messageHook",
-                "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V"));
+                "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)Z"));
+        methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFGT, continueLabel));
+        methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
+        methodNode.instructions.insertBefore(first, continueLabel);
 
         // Replay seeking don't show messages hook
         // LabelNode label = new LabelNode();
