@@ -936,18 +936,18 @@ public class Client {
     float delta_time = (float) (nanoTime - last_time) / 1000000000.0f;
     last_time = nanoTime;
 
+    // Set the mudclient volume
+    if (!customSfxVolumeSet) {
+      SoundEffects.adjustMudClientSfxVolume();
+      customSfxVolumeSet = true;
+    }
+
     // Handle area data
     if (Settings.CUSTOM_MUSIC.get(Settings.currentProfile)) {
       if (state == STATE_GAME) {
         AreaDefinition area = getCurrentAreaDefinition();
         MusicPlayer.playTrack(area.music);
       } else if (state == STATE_LOGIN) {
-        // Set the client volume
-        if (!customSfxVolumeSet) {
-          SoundEffects.adjustMudClientSfxVolume();
-          customSfxVolumeSet = true;
-        }
-
         MusicPlayer.playTrack(loginTrack);
       }
     }
