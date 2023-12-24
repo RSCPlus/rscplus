@@ -53,6 +53,16 @@ public class WikiURL {
     return url.append(utm_source).toString();
   }
 
+  public static String getURL(String... query) throws IllegalArgumentException {
+    StringBuilder url = new StringBuilder(wikiPrefix);
+    for (String q : query) {
+      url.append(q);
+      url.append("+");
+    }
+    url.setLength(url.length() - 1);
+    return url.append(utm_source).toString();
+  }
+
   public static boolean shouldConsume() {
     return nextClickIsLookup && !MouseHandler.rightClick;
   }
