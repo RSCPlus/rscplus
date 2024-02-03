@@ -704,7 +704,7 @@ public class Bank {
 
   // Draws extra buttons on the side of the bank to control filtering
   public static void drawBankAugmentations(Graphics2D g2, BufferedMouseClick bufferedMouseClick) {
-    if (Client.show_bank) {
+    if (Client.bank_interface_drawn) {
       if (Settings.SORT_FILTER_BANK.get(Settings.currentProfile)) {
         // existing bank interface dimensions
         int bankWidth = 408;

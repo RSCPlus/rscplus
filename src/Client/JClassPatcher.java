@@ -1738,6 +1738,25 @@ public class JClassPatcher {
             }
           }
         }
+
+        // reset bank drawn flag
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).owner.equals("client")
+              && ((FieldInsnNode) insnNode).name.equals("Fe")
+              && ((FieldInsnNode) insnNode).desc.equals("Z")) {
+            insnNode = insnNode.getNext();
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "bank_interface_drawn", "Z"));
+
+            break;
+          }
+        }
       }
 
       if (methodNode.name.equals("a")
@@ -4752,6 +4771,54 @@ public class JClassPatcher {
                 new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ba", "a", "(II[BI[B)V", false));
 
             methodNode.instructions.insertBefore(targetNode, label);
+
+            break;
+          }
+        }
+      }
+
+      // draw bank interface
+      if (methodNode.name.equals("r") && methodNode.desc.equals("(I)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          // reset bank drawn flag
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).owner.equals("client")
+              && ((FieldInsnNode) insnNode).name.equals("Fe")
+              && ((FieldInsnNode) insnNode).desc.equals("Z")) {
+            insnNode = insnNode.getNext();
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_0));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "bank_interface_drawn", "Z"));
+
+            break;
+          }
+        }
+
+        // set bank drawn flag
+        insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.INVOKEVIRTUAL
+              && ((MethodInsnNode) insnNode).owner.equals("ba")
+              && ((MethodInsnNode) insnNode).name.equals("b")
+              && ((MethodInsnNode) insnNode).desc.equals("(IIIIB)V")) {
+            insnNode = insnNodeList.next();
+
+            LabelNode skipLabel = new LabelNode();
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client", "bank_interface_drawn", "Z"));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFGT, skipLabel));
+            methodNode.instructions.insertBefore(insnNode, new InsnNode(Opcodes.ICONST_1));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "bank_interface_drawn", "Z"));
+            methodNode.instructions.insertBefore(insnNode, skipLabel);
 
             break;
           }
