@@ -2352,6 +2352,10 @@ public class Client {
         // force re-render of game world terrain
         lastHeightOffset = (planeIndex + 1) % 2;
       }
+
+      // Re-patch item names
+      ItemNamePatch.reinit();
+      Item.repatchItemNames();
     } catch (Exception e) {
     }
   }
