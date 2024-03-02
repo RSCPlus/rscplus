@@ -1000,4 +1000,9 @@ public class ItemNamePatch {
 
     initialized = true;
   }
+
+  public static void reinit() {
+    initialized = false;
+    init();
+  }
 }

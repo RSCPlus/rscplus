@@ -34,9 +34,10 @@ public class Item {
   public static String[] item_commands;
   public static int[] item_price;
   public static int[] item_stackable;
+  public static int[] item_members;
   public static List<Item> cool_items = new ArrayList<>();
 
-  private static int name_patch_last = 0;
+  private static int name_patch_last = -1;
 
   public static int[] groundItemX;
   public static int[] groundItemY;
@@ -87,7 +88,21 @@ public class Item {
         item_name = ItemNamePatch.item_name_patch3.clone();
         break;
     }
+
+    if (!Client.members) {
+      for (int i = 0; i < item_members.length; i++) {
+        if (item_members[i] == 1) {
+          item_name[i] = "Members object";
+        }
+      }
+    }
+
     name_patch_last = namePatchType;
+  }
+
+  public static void repatchItemNames() {
+    name_patch_last = -1;
+    patchItemNames();
   }
 
   /**

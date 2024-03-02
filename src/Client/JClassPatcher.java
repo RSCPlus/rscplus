@@ -395,6 +395,7 @@ public class JClassPatcher {
           "[Ljava/lang/String;");
       hookStaticVariable(methodNode, "kb", "b", "[I", "Game/Item", "item_price", "[I");
       hookStaticVariable(methodNode, "fa", "e", "[I", "Game/Item", "item_stackable", "[I");
+      hookStaticVariable(methodNode, "ka", "c", "[I", "Game/Item", "item_members", "[I");
 
       hookConditionalClassVariable(
           methodNode,
