@@ -154,6 +154,7 @@ public class Client {
   public static int combat_timer;
   public static boolean isGameLoaded;
   public static boolean show_bank;
+  public static boolean bank_interface_drawn;
   public static boolean show_duel;
   public static boolean show_duelconfirm;
   public static int show_friends;
@@ -1509,6 +1510,9 @@ public class Client {
       // sleep exit packet, restore whatever was in pm
       pm_enteredText = pm_enteredTextCopy;
       pm_enteredTextCopy = "";
+    } else if (opcode == 203) {
+      // bank close packet
+      bank_interface_drawn = false;
     }
 
     if (Bank.processPacket(opcode, psize)) {
