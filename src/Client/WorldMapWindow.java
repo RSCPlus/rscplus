@@ -1206,7 +1206,7 @@ public class WorldMapWindow {
     try {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       InputStream is = Launcher.getResourceAsStream("/assets/arial.ttf");
-      InputStream is2 = Launcher.getResourceAsStream("/assets/Arial Bold.ttf");
+      InputStream is2 = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
       Font font = Font.createFont(Font.TRUETYPE_FONT, is);
       Font boldFont = Font.createFont(Font.TRUETYPE_FONT, is2);
       ge.registerFont(font);

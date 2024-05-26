@@ -232,9 +232,6 @@ public class Renderer {
       ge.registerFont(font);
       font_main = font.deriveFont(Font.PLAIN, 11.0f);
       font_big = font.deriveFont(Font.PLAIN, 22.0f);
-
-      is = Launcher.getResourceAsStream("/assets/TimesRoman.ttf");
-      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
     } catch (Exception e) {
       e.printStackTrace();
     }
