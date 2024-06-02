@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=RSCPlus
+Comment=RSCPlus client launcher
+Exec=RSCPlus
+Icon=rscplus
+Terminal=false
+Type=Application
+Categories=Game;

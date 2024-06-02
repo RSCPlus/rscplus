@@ -1,0 +1,179 @@
+name: Build Binaries
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      binary_version:
+        description: 'Binary version'
+        type: string
+        required: true
+      platform:
+        description: 'Platform'
+        required: true
+        default: 'none'
+        type: choice
+        options:
+          - None
+          - All platforms
+          - Windows (All)
+          - Windows 64-bit
+          - Windows 32-bit
+          - MacOS
+          - Linux
+
+env:
+  BINARY_VERSION: ${{ inputs.binary_version }}
+
+jobs:
+  windows_64:
+    runs-on: windows-2022
+    if: ${{ inputs.platform == 'Windows 64-bit' || inputs.platform == 'Windows (All)' || inputs.platform == 'All platforms' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - run: choco install innosetup
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+      - name: Packr Windows x64
+        shell: bash
+        run: ./binaries/build-scripts/win64.sh
+      - name: Create Win64 version file
+        run: echo ${{ inputs.binary_version }} >> version_windows_64.txt
+      - name: Upload Win64 build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-win64
+          path: |
+            RSCPlusSetup.exe
+            version_windows_64.txt
+          if-no-files-found: error
+
+  windows_32_xp:
+    runs-on: windows-2022
+    if: ${{ inputs.platform == 'Windows 32-bit' || inputs.platform == 'Windows (All)' || inputs.platform == 'All platforms' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - run: choco install innosetup --version=5.6.1.20190126 --allow-downgrade --force
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+      - name: Launch4j Windows x86
+        shell: bash
+        run: ./binaries/build-scripts/win32.sh
+      - name: Create Win32 version file
+        run: echo ${{ inputs.binary_version }} >> version_windows_32.txt
+      - name: Upload Win32 build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-win32
+          path: |
+            RSCPlusSetup32.exe
+            version_windows_32.txt
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-20.04
+    if: ${{ inputs.platform == 'Linux' || inputs.platform == 'All platforms' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+      - name: Packr Linux x86_64
+        run: ./binaries/build-scripts/linux-x86_64.sh
+      - name: Create Linux version file
+        run: echo ${{ inputs.binary_version }} >> version_linux_appimage.txt
+      - name: Upload Linux build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-linux
+          path: |
+            RSCPlus.AppImage
+            version_linux_appimage.txt
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-13
+    if: ${{ inputs.platform == 'MacOS' || inputs.platform == 'All platforms' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: 8
+          distribution: temurin
+      - run: git clone https://github.com/RSCPlus/create-dmg
+      - run: |
+          set -e
+          cd create-dmg
+          npm install
+          ln -s cli.js create-dmg
+          chmod +x create-dmg
+      - run: echo create-dmg >> $GITHUB_PATH
+      - name: Packr MacOS x64
+        run: ./binaries/build-scripts/macos-x64.sh
+      - name: Packr MacOS aarch64
+        run: ./binaries/build-scripts/macos-aarch64.sh
+      - name: Create MacOS version file
+        run: echo ${{ inputs.binary_version }} >> version_macos.txt
+      - name: Upload MacOS build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-macos
+          path: |
+            RSCPlus-x64.dmg
+            RSCPlus-aarch64.dmg
+            version_macos.txt
+          if-no-files-found: error
+
+  pre_release:
+    runs-on: ubuntu-20.04
+    if: always()
+    needs: [ windows_64, windows_32_xp, linux, macos ]
+    steps:
+      - name: Retrieve all built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: pre-release
+      - name: Verify artifacts available
+        run: |
+          if [ $(ls | wc -l) == 0 ]; then
+            echo "Exiting; No artifacts were found"
+            exit 1
+          fi
+      - name: Set current date as env variable
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - name: Bundle all artifacts
+        uses: vimtor/action-zip@v1.2
+        with:
+          files: pre-release/
+          recursive: true
+          dest: rscplus-${{env.NOW}}.zip
+      - name: Pre-release built artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            rscplus-${{env.NOW}}.zip
+          fail_on_unmatched_files: true
+          make_latest: false
+          prerelease: true
+          tag_name: binaries-pre-release
+      - name: Cleanup artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            artifacts-*

@@ -24,7 +24,9 @@ public class MusicPlayer implements Runnable {
   public void run() {
     while (running) {
       String zipPath =
-          Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+          Settings.Dir.CONFIG_DIR
+              + File.separator
+              + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
 
       boolean customMusic = Settings.CUSTOM_MUSIC.get(Settings.currentProfile);
 
@@ -120,7 +122,9 @@ public class MusicPlayer implements Runnable {
     Logger.Info("Loading soundfont '" + name + "'");
 
     String zipPath =
-        Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+        Settings.Dir.CONFIG_DIR
+            + File.separator
+            + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
     InputStream input = null;
 
     try {

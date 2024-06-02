@@ -23,6 +23,7 @@ import static Client.Util.isUsingFlatLAFTheme;
 import static Client.Util.osScaleDiv;
 import static Client.Util.osScaleMul;
 
+import Client.Extensions.WorldType;
 import Client.KeybindSet.KeyModifier;
 import Game.Bank;
 import Game.Camera;
@@ -77,25 +78,31 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -125,6 +132,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jsoup.Jsoup;
 
 /**
@@ -157,6 +165,9 @@ import org.jsoup.Jsoup;
  *       the defineStaticPreset methods, with sensible defaults.
  *   <li><i>(Optional)</i> If a method needs to be called to adjust settings other than the setting
  *       value itself, add it to the {@link #applySettings} method below.
+ *   <li><i>(Optional)</i> Settings that may adversely affect gameplay can be sanitized on startup
+ *       within {@link Settings#sanitizeSettings()}, to ensure invalid config.ini changes do not
+ *       persist.
  * </ol>
  *
  * <p><i>Entries marked with a <sup>^</sup> are steps used to add settings that are not included in
@@ -182,7 +193,7 @@ public class ConfigWindow {
   RebindListener rebindListener = new RebindListener();
 
   ButtonFocusListener focusListener = new ButtonFocusListener();
-  JTabbedPane tabbedPane;
+  private JTabbedPane tabbedPane;
 
   // Search-related components
   private JTextField searchTextField;
@@ -192,7 +203,7 @@ public class ConfigWindow {
   // Tooltip-related components
   private final AWTEventListener eventQueueListener;
   private final String toolTipInitText =
-      "Click here to display additional information about settings";
+      "Click here to display additional information about each setting";
   private boolean isListeningForEventQueue = false;
   private JPanel toolTipPanel;
   private JLabel toolTipTextLabel;
@@ -225,6 +236,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelCombatXPMenuHiddenCheckbox;
   private JCheckBox generalPanelFatigueAlertCheckbox;
   private JCheckBox generalPanelInventoryFullAlertCheckbox;
+  private JCheckBox generalPanelDisableAutoCameraNewAccCheckbox;
   private JSlider generalPanelNamePatchModeSlider;
   private JSlider generalPanelLogVerbositySlider;
   private JCheckBox generalPanelLogLevelCheckbox;
@@ -251,6 +263,7 @@ public class ConfigWindow {
   private JSlider generalPanelFoVSlider;
   private JCheckBox generalPanelCustomCursorCheckbox;
   private JCheckBox generalPanelCtrlScrollChatCheckbox;
+  private JCheckBox generalPanelAutoMessageSwitchCheckbox;
   private JCheckBox generalPanelSuppressLoginLogoutMessagesCheckbox;
   private JCheckBox generalPanelShiftScrollCameraRotationCheckbox;
   private JSlider generalPanelTrackpadRotationSlider;
@@ -478,12 +491,27 @@ public class ConfigWindow {
   private HashMap<Integer, JPanel> worldListURLPortTextFieldContainers =
       new HashMap<Integer, JPanel>();
   private HashMap<Integer, JPanel> worldListRSATextFieldContainers = new HashMap<Integer, JPanel>();
-  private HashMap<Integer, JPanel> worldListHiscoresTextFieldContainers =
+  private HashMap<Integer, JPanel> worldListHiscoresURLTextFieldContainers =
       new HashMap<Integer, JPanel>();
-  private HashMap<Integer, JTextField> worldListHiscoresURLTextFieldContainers =
+  private HashMap<Integer, JTextField> worldListHiscoresURLTextFields =
       new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JPanel> worldListRegistrationAPIUrlTextFieldContainers =
+      new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JTextField> worldListRegistrationAPIUrlTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JPanel> worldListWorldPopulationURLTextFieldContainers =
+      new HashMap<Integer, JPanel>();
+  private HashMap<Integer, JTextField> worldListWorldPopulationURLTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldListServerExtensionTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<Integer, JTextField> worldListWorldIdTextFields =
+      new HashMap<Integer, JTextField>();
+  private HashMap<WorldType, JCheckBox> worldDownloadTypeCheckboxes =
+      new HashMap<WorldType, JCheckBox>();
   private HashMap<Integer, JLabel> worldListSpacingLabels = new HashMap<Integer, JLabel>();
   private JPanel worldListPanel = new JPanel();
+  private JPanel worldDownloadsPanel = null;
   private JButton addWorldButton;
 
   //// Joystick tab
@@ -491,6 +519,9 @@ public class ConfigWindow {
   private HashMap<String, JLabel> joystickInputJlabels = new LinkedHashMap<String, JLabel>();
   private HashMap<String, JLabel> joystickInputValueJlabels = new HashMap<String, JLabel>();
   private JPanel joystickPanel = new JPanel();
+
+  //// Authors tab
+  public JLabel RSCPlusText;
 
   // Search index caching and processing
   private HashMap<ConfigTab, List<SearchItem>> searchItemsMap;
@@ -551,24 +582,30 @@ public class ConfigWindow {
   }
 
   public void showConfigWindow() {
-    Client.displayMessage("Showing config window...", Client.CHAT_NONE);
+    SwingUtilities.invokeLater(
+        () -> {
+          Client.displayMessage("Showing config window...", Client.CHAT_NONE);
 
-    // Clear the search
-    setSearchText("");
+          // Clear the search
+          setSearchText("");
 
-    this.synchronizeGuiValues();
-    frame.setVisible(true);
-    frame.toFront();
-    frame.requestFocus();
-    searchTextField.requestFocusInWindow();
+          this.synchronizeGuiValues();
+          frame.setVisible(true);
+          frame.toFront();
+          frame.requestFocus();
+          searchTextField.requestFocusInWindow();
+        });
   }
 
   public void hideConfigWindow() {
-    Client.displayMessage("Hid the config window.", Client.CHAT_NONE);
+    SwingUtilities.invokeLater(
+        () -> {
+          Client.displayMessage("Hid the config window.", Client.CHAT_NONE);
 
-    resetToolTipListener();
+          resetToolTipListener();
 
-    frame.setVisible(false);
+          frame.setVisible(false);
+        });
   }
 
   public void toggleConfigWindow() {
@@ -589,68 +626,86 @@ public class ConfigWindow {
       public synchronized void drop(DropTargetDropEvent evt) {
         try {
           if (ConfigTab.isTabSelected(ConfigTab.WORLD_LIST)) {
+            // Don't let players drag a world while logged in, as sub downloads block the thread
+            if (Client.state == Client.STATE_GAME) {
+              preventWorldCreationWarning();
+              return;
+            }
+
             if (evt.getTransferable().isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
               evt.acceptDrop(DnDConstants.ACTION_LINK);
               List<File> droppedFiles =
                   (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
-              Map<File, Properties> validWorldFileMap = new HashMap<>();
+              List<World> validWorlds = new ArrayList<>();
               List<File> invalidWorldFiles = new ArrayList<>();
 
               droppedFiles.forEach(
                   file -> {
-                    Properties fileProps = Settings.validateWorldFile(file);
+                    Properties fileProps = Settings.loadPropertiesFile(file);
                     if (fileProps != null) {
-                      validWorldFileMap.put(file, fileProps);
+                      World world = World.fromProps(fileProps);
+                      try {
+                        World.validateWorld(world);
+                        validWorlds.add(world);
+                      } catch (IllegalArgumentException iae) {
+                        invalidWorldFiles.add(file);
+                      }
                     } else {
                       invalidWorldFiles.add(file);
                     }
                   });
 
-              validWorldFileMap.forEach(
-                  (file, props) -> {
+              validWorlds.forEach(
+                  world -> {
                     // Add new world fields
-                    addWorldAction();
+                    addWorldAction(true);
 
                     int i = Settings.WORLDS_TO_DISPLAY;
-                    worldNamesJTextFields.get(i).setText(props.getProperty("name"));
-                    worldUrlsJTextFields.get(i).setText(props.getProperty("url"));
-                    worldPortsJTextFields.get(i).setText(props.getProperty("port"));
+                    worldNamesJTextFields.get(i).setText(world.getName());
+                    worldUrlsJTextFields.get(i).setText(world.getUrl());
+                    worldPortsJTextFields.get(i).setText(world.getPort());
                     worldTypesJComboBoxes
                         .get(i)
-                        .setSelectedIndex(
-                            Integer.parseInt((String) props.getOrDefault("servertype", "1")));
-                    worldRSAPubKeyJTextFields.get(i).setText(props.getProperty("rsa_pub_key"));
-                    worldRSAExponentsJTextFields.get(i).setText(props.getProperty("rsa_exponent"));
-                    worldListHiscoresURLTextFieldContainers
+                        .setSelectedIndex(Integer.parseInt(world.getServerType()));
+                    worldRSAPubKeyJTextFields.get(i).setText(world.getRsaPubKey());
+                    worldRSAExponentsJTextFields.get(i).setText(world.getRsaExponent());
+                    worldListHiscoresURLTextFields.get(i).setText(world.getHiScoresUrl());
+                    worldListRegistrationAPIUrlTextFields
                         .get(i)
-                        .setText((String) props.getOrDefault("hiscores_url", ""));
+                        .setText(world.getRegistrationApiUrl());
+                    worldListWorldPopulationURLTextFields
+                        .get(i)
+                        .setText(world.getWorldPopulationUrl());
+                    worldListServerExtensionTextFields.get(i).setText(world.getServerExtension());
+                    worldListWorldIdTextFields.get(i).setText(world.getWorldId());
 
                     applySettings();
                   });
 
               if (!invalidWorldFiles.isEmpty()) {
-                StringBuilder sb =
-                    new StringBuilder()
-                        .append(
-                            "<html><body>The following files are invalid and could not be imported:<ul>");
-                for (File invalidWorldFile : invalidWorldFiles) {
-                  sb.append("<li>").append(invalidWorldFile.getName()).append("</li>");
-                }
-                sb.append("</ul></body></html>");
+                List<String> invalidFileNames =
+                    invalidWorldFiles.stream().map(File::getName).collect(Collectors.toList());
 
-                JPanel invalidWorldFilesPanel = Util.createOptionMessagePanel(sb.toString());
+                String errorMsg =
+                    "<html><body>The following files are invalid and could not be imported:"
+                        + Util.buildHTMLBulletList(invalidFileNames)
+                        + "</body></html>";
+
+                JPanel invalidWorldFilesPanel = Util.createOptionMessagePanel(errorMsg);
 
                 JOptionPane.showMessageDialog(
                     Launcher.getConfigWindow().frame,
                     invalidWorldFilesPanel,
-                    "RSCPlus",
+                    Launcher.appName,
                     JOptionPane.INFORMATION_MESSAGE,
                     Launcher.scaled_option_icon);
               }
             } else {
               Logger.Info(
-                  "Whatever you just dragged into the settings window, RSC+ doesn't know what to do with it.");
+                  "Whatever you just dragged into the settings window, "
+                      + Launcher.binaryPrefix
+                      + "RSC+ doesn't know what to do with it.");
               Logger.Info("Please report this as a bug on GitHub if you believe it should work.");
             }
           }
@@ -690,11 +745,7 @@ public class ConfigWindow {
     frame.setBounds(osScaleDiv(100), osScaleDiv(100), osScaleMul(800), osScaleMul(650));
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
-    URL iconURL = Launcher.getResource("/assets/icon.png");
-    if (iconURL != null) {
-      ImageIcon icon = new ImageIcon(iconURL);
-      frame.setIconImage(icon.getImage());
-    }
+    frame.setIconImages(Launcher.getWindowIcons());
     frame.addWindowListener(
         new WindowAdapter() {
           @Override
@@ -1088,10 +1139,128 @@ public class ConfigWindow {
 
     navigationPanel.add(Box.createHorizontalGlue());
 
+    JButton importConfigButton =
+        addButton("Import Config", navigationPanel, Component.RIGHT_ALIGNMENT);
+
+    importConfigButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            JPanel confirmImportPanel =
+                Util.createOptionMessagePanel(
+                    "Are you sure you want to import a config file? This will override your current settings.<br/>"
+                        + "<br/>"
+                        + "You will need to restart the client after this has been completed.");
+            int choice =
+                JOptionPane.showConfirmDialog(
+                    Launcher.getConfigWindow().frame,
+                    confirmImportPanel,
+                    "Confirm",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+              return;
+            }
+
+            FileNameExtensionFilter iniFileFilter = new FileNameExtensionFilter("INI Files", "ini");
+            JFileChooser configFileChooser = new JFileChooser();
+            configFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            configFileChooser.setFileFilter(iniFileFilter);
+
+            int fileChoice = configFileChooser.showOpenDialog(Launcher.getConfigWindow().frame);
+            if (fileChoice == JFileChooser.APPROVE_OPTION) {
+              File chosenFile = configFileChooser.getSelectedFile();
+
+              String importErrorMsg = null;
+
+              if (chosenFile.equals(new File(Settings.CONFIG_FILE))) {
+                // Ensure it isn't the current config file
+                importErrorMsg =
+                    "You have selected your current config file.<br/><br/>"
+                        + "Please choose a different file to import.";
+              } else {
+                // Ensure the chosen file is valid
+                Properties importedConfigProps = Settings.loadPropertiesFile(chosenFile);
+                if (Settings.isInvalidPropsFile(importedConfigProps)) {
+                  importErrorMsg =
+                      "An error occurred while trying to import the chosen config file.<br/><br/>"
+                          + "Please ensure the file is properly formatted.";
+                }
+              }
+
+              if (importErrorMsg != null) {
+                JPanel importConfigFailurePanel = Util.createOptionMessagePanel(importErrorMsg);
+
+                JOptionPane.showMessageDialog(
+                    Launcher.getConfigWindow().frame,
+                    importConfigFailurePanel,
+                    Launcher.appName,
+                    JOptionPane.ERROR_MESSAGE,
+                    Launcher.scaled_icon_warn);
+              } else {
+                String restoreDefaultsSuccessMessage =
+                    "The config file has been successfully imported.<br/>"
+                        + "<br/>"
+                        + "A backup of your current file will be created in the config directory:"
+                        + "<br/>"
+                        + Settings.sanitizeDirTextValue(Settings.Dir.CONFIG_DIR)
+                        + "<br/>"
+                        + "<br/>"
+                        + "The client needs to be restarted and will now shut down.";
+                JPanel restoreDefaultsSuccessPanel =
+                    Util.createOptionMessagePanel(restoreDefaultsSuccessMessage);
+
+                JOptionPane.showMessageDialog(
+                    Launcher.getConfigWindow().frame,
+                    restoreDefaultsSuccessPanel,
+                    Launcher.appName,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    Launcher.scaled_option_icon);
+
+                Runtime.getRuntime()
+                    .addShutdownHook(
+                        new Thread(
+                            () -> {
+                              File currentConfigFile =
+                                  new File(Settings.Dir.CONFIG_DIR + "/config.ini");
+                              String dateStamp =
+                                  new SimpleDateFormat("yyyy-MM-dd_HH-mm-s").format(new Date());
+                              File backupConfigFile =
+                                  new File(
+                                      Settings.Dir.CONFIG_DIR
+                                          + File.separator
+                                          + "config."
+                                          + dateStamp
+                                          + ".ini");
+                              currentConfigFile.renameTo(backupConfigFile);
+
+                              try {
+                                Files.copy(
+                                    chosenFile.toPath(),
+                                    currentConfigFile.toPath(),
+                                    StandardCopyOption.REPLACE_EXISTING);
+                                return;
+                              } catch (Exception e2) {
+                                Logger.Error("Error occurred while copying the chosen config file");
+                                e2.printStackTrace();
+                              }
+                            }));
+                System.exit(0);
+              }
+            }
+          }
+        });
+
+    if (Util.isUsingFlatLAFTheme()) {
+      navigationPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
+    }
+
     JButton restoreDefaultsButton =
         addButton("Restore Defaults", navigationPanel, Component.RIGHT_ALIGNMENT);
 
     if (Util.isDarkThemeFlatLAF()) {
+      importConfigButton.setBackground(new Color(42, 46, 48));
       restoreDefaultsButton.setBackground(new Color(42, 46, 48));
     }
 
@@ -1129,7 +1298,7 @@ public class ConfigWindow {
               JOptionPane.showMessageDialog(
                   Launcher.getConfigWindow().frame,
                   restoreDefaultsFailurePanel,
-                  "RSCPlus",
+                  Launcher.appName,
                   JOptionPane.ERROR_MESSAGE,
                   Launcher.scaled_icon_warn);
 
@@ -1146,7 +1315,7 @@ public class ConfigWindow {
             JOptionPane.showMessageDialog(
                 Launcher.getConfigWindow().frame,
                 restoreDefaultsSuccessPanel,
-                "RSCPlus",
+                Launcher.appName,
                 JOptionPane.INFORMATION_MESSAGE,
                 Launcher.scaled_option_icon);
             System.exit(0);
@@ -1282,7 +1451,7 @@ public class ConfigWindow {
         });
 
     JLabel generalPanelClientSizeScaleWarning =
-        new JLabel("(Will be reset if window scale changes)");
+        new JLabel("(Will be reset if client scale changes)");
     generalPanelClientSizeScaleWarning.setAlignmentY(0.8f);
     generalPanelClientSizeScaleWarning.setBorder(
         BorderFactory.createEmptyBorder(0, osScaleMul(6), 0, 0));
@@ -1294,7 +1463,7 @@ public class ConfigWindow {
     generalPanelScalePanel.setLayout(new BoxLayout(generalPanelScalePanel, BoxLayout.Y_AXIS));
     generalPanelScalePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    generalPanelScaleWindowCheckbox = addCheckbox("Scale window:", generalPanelScalePanel);
+    generalPanelScaleWindowCheckbox = addCheckbox("Scale client:", generalPanelScalePanel);
     generalPanelScaleWindowCheckbox.setToolTipText("Enable to scale the game client");
     generalPanelScaleWindowCheckbox.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(5), 0));
@@ -1509,19 +1678,26 @@ public class ConfigWindow {
     if (isUsingFlatLAFTheme()) {
       generalPanelScalePanel.add(Box.createRigidArea(osScaleMul(new Dimension(0, 5))));
     }
+
+    SearchUtils.addSearchMetadata(generalPanelScalePanel, "smaller", "bigger", "larger", "zoom");
     // End scaling options
 
     generalPanelCheckUpdates =
-        addCheckbox("Check for RSCPlus updates from GitHub at launch", generalPanel);
+        addCheckbox(
+            "Check for " + Launcher.appName + " updates from GitHub at launch", generalPanel);
     generalPanelCheckUpdates.setToolTipText(
-        "When enabled, RSCPlus will check for client updates before launching the game and install them when prompted");
+        "When enabled, "
+            + Launcher.appName
+            + " will check for updates before launching the game and install them when prompted");
 
     generalPanelWelcomeEnabled =
         addCheckbox(
             "<html><head><style>span{color:red;}</style></head>Remind you how to open the Settings every time you log in <span>(!!! Disable this if you know how to open the settings)</span></html>",
             generalPanel);
     generalPanelWelcomeEnabled.setToolTipText(
-        "When enabled, RSCPlus will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
+        "When enabled, "
+            + Launcher.appName
+            + " will insert a message telling the current keybinding to open the settings menu and remind you about the tray icon");
 
     generalPanelAccountSecurityCheckbox =
         addCheckbox(
@@ -1549,10 +1725,19 @@ public class ConfigWindow {
     generalPanelCtrlScrollChatCheckbox.setToolTipText(
         "Holding CTRL allows you to scroll through the currently-selected chat history from anywhere");
 
+    generalPanelAutoMessageSwitchCheckbox =
+        addCheckbox("Disable automatic message tab switching", generalPanel);
+    generalPanelAutoMessageSwitchCheckbox.setToolTipText(
+        "Prevents chat tabs from automatically switching in response to new message");
+    SearchUtils.addSearchMetadata(
+        generalPanelAutoMessageSwitchCheckbox, CommonMetadata.PM.getText());
+
     generalPanelSuppressLoginLogoutMessagesCheckbox =
         addCheckbox("Suppress friend login / logout messages", generalPanel);
     generalPanelSuppressLoginLogoutMessagesCheckbox.setToolTipText(
         "Private messages indicating when a friend logs in or out will no longer be output");
+    SearchUtils.addSearchMetadata(
+        generalPanelSuppressLoginLogoutMessagesCheckbox, CommonMetadata.PM.getText());
 
     generalPanelShiftScrollCameraRotationCheckbox =
         addCheckbox("Enable camera rotation with compatible trackpads", generalPanel);
@@ -1603,14 +1788,6 @@ public class ConfigWindow {
     generalPanelUseJagexFontsCheckBox.setToolTipText(
         "Make game fonts appear consistent by loading Jagex font files the same as prior to 2009.");
 
-    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
-    generalPanelDebugModeCheckbox.setToolTipText(
-        "Shows debug overlays and enables debug text in the console");
-
-    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
-    generalPanelExceptionHandlerCheckbox.setToolTipText(
-        "Show's all of RSC's thrown exceptions in the log. (ADVANCED USERS)");
-
     generalPanelPrefersXdgOpenCheckbox =
         addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
     generalPanelPrefersXdgOpenCheckbox.setToolTipText(
@@ -1634,6 +1811,7 @@ public class ConfigWindow {
     generalPanelScreenshotsDirPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelScreenshotsDirPanel.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+    SearchUtils.addSearchMetadata(generalPanelScreenshotsDirPanel, CommonMetadata.DIR.getText());
 
     JLabel generalPanelScreenshotsDirTextFieldLabel = new JLabel("Save screenshots to: ");
     generalPanelScreenshotsDirTextFieldLabel.setToolTipText(
@@ -1654,10 +1832,6 @@ public class ConfigWindow {
       generalPanelScreenshotsDirPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
     }
 
-    File screenshotsDir = new File(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
-    JFileChooser screenshotDirChooser = new JFileChooser(screenshotsDir);
-    screenshotDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
     JButton generalPanelScreenshotsSetDirButton =
         addButton("Set", generalPanelScreenshotsDirPanel, Component.RIGHT_ALIGNMENT);
     generalPanelScreenshotsSetDirButton.setAlignmentY(screenshotsButtonAlignment);
@@ -1665,6 +1839,9 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+            File screenshotsDir = new File(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
+            JFileChooser screenshotDirChooser = new JFileChooser(screenshotsDir);
+            screenshotDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             customDirSetAction(screenshotDirChooser, Settings.SCREENSHOTS_STORAGE_PATH);
           }
         });
@@ -1710,6 +1887,11 @@ public class ConfigWindow {
     generalPanelInventoryFullAlertCheckbox.setToolTipText(
         "Displays a large notice when the inventory is full");
 
+    generalPanelDisableAutoCameraNewAccCheckbox =
+        addCheckbox("Disable auto camera rotation on new account creation", generalPanel);
+    generalPanelDisableAutoCameraNewAccCheckbox.setToolTipText(
+        "Sets the \"camera angle mode\" client setting to \"manual\" when creating a new account");
+
     generalPanelEnableMouseWheelScrollingCheckbox =
         addCheckbox("Enable menu list mouse wheel scrolling", generalPanel);
     generalPanelEnableMouseWheelScrollingCheckbox.setToolTipText(
@@ -1739,12 +1921,12 @@ public class ConfigWindow {
 
     generalPanelCameraMovableCheckbox = addCheckbox("Camera movement enhancement", generalPanel);
     generalPanelCameraMovableCheckbox.setToolTipText(
-        "Makes the camera follow the player more closely, and allow camera movement while holding shift, and pressing arrow keys");
+        "Makes the camera follow the player more closely and enables camera displacement");
 
     generalPanelCameraMovableRelativeCheckbox =
-        addCheckbox("Camera movement is relative to player", generalPanel);
+        addCheckbox("Displaced camera moves relative to player", generalPanel);
     generalPanelCameraMovableRelativeCheckbox.setToolTipText(
-        "Camera movement will follow the player position");
+        "When the camera has been displaced, it will move relative to the player's position");
 
     addSettingsHeader(generalPanel, "Graphical effect changes");
 
@@ -1788,7 +1970,7 @@ public class ConfigWindow {
     generalPanelRS2HDSkyCheckbox =
         addCheckbox("Use RS2: HD sky colours (overrides custom colours below)", generalPanel);
     generalPanelRS2HDSkyCheckbox.setToolTipText("Uses sky colours from RS2: HD");
-    SearchUtils.addSearchMetadata(generalPanelRS2HDSkyCheckbox, CommonMetadata.COLOURS.getText());
+    SearchUtils.addSearchMetadata(generalPanelRS2HDSkyCheckbox, CommonMetadata.COLOUR.getText());
 
     // colour choose overworld sub-panel
     JPanel generalPanelSkyOverworldColourPanel = new JPanel();
@@ -2154,7 +2336,9 @@ public class ConfigWindow {
     generalPanelCommandPatchDiskOfReturningCheckbox =
         addCheckbox("Remove the spin option from the Disk of Returning", generalPanel);
     generalPanelCommandPatchDiskOfReturningCheckbox.setToolTipText(
-        "There is no reason to want to do this. Kept in RSC+ as a historic option.");
+        "There is no reason to want to do this. Kept in "
+            + Launcher.binaryPrefix
+            + "RSC+ as a historic option.");
 
     JPanel generalPanelNamePatchModePanel = new JPanel();
     generalPanelNamePatchModePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -2260,7 +2444,7 @@ public class ConfigWindow {
 
     JLabel generalPanelLogVerbosityTitle = new JLabel("Log verbosity maximum");
     generalPanelLogVerbosityTitle.setToolTipText(
-        "What max level of log text will be shown in the RSCPlus log/console");
+        "What max level of log text will be shown in the " + Launcher.appName + " log/console");
     generalPanelLogVerbosityPanel.add(generalPanelLogVerbosityTitle);
     generalPanelLogVerbosityTitle.setAlignmentY(1.0f);
     SearchUtils.addSearchMetadata(generalPanelLogVerbosityTitle, "logger", "logging");
@@ -2312,7 +2496,7 @@ public class ConfigWindow {
     generalPanelColoredTextCheckbox.setToolTipText(
         "When running the client from a console, chat messages in the console will reflect the colours they are in game");
     SearchUtils.addSearchMetadata(
-        generalPanelColoredTextCheckbox, CommonMetadata.COLOURS.getText());
+        generalPanelColoredTextCheckbox, CommonMetadata.COLOUR.getText(), "log", "logs");
 
     JPanel generalPanelLogsFolderPanel = new JPanel();
     generalPanel.add(generalPanelLogsFolderPanel);
@@ -2321,16 +2505,21 @@ public class ConfigWindow {
     generalPanelLogsFolderPanel.setPreferredSize(osScaleMul(new Dimension(0, 30)));
     generalPanelLogsFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     generalPanelLogsFolderPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+    SearchUtils.addSearchMetadata(
+        generalPanelLogsFolderPanel, CommonMetadata.DIR.getText(), "logs", "console");
 
     JLabel logsDirectoryLabel =
-        new JLabel("Log files are stored within a folder in the RSC+ settings directory");
+        new JLabel(
+            "Log files are stored within a folder in the "
+                + Launcher.binaryPrefix
+                + "RSC+ settings directory");
     logsDirectoryLabel.setAlignmentY(isUsingFlatLAFTheme() ? 0.85f : 1f);
     generalPanelLogsFolderPanel.add(logsDirectoryLabel);
 
     generalPanelLogsFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
 
     JButton logsDirectoryOpenButton =
-        addButton("Open", generalPanelLogsFolderPanel, Component.RIGHT_ALIGNMENT);
+        addButton("Open logs folder", generalPanelLogsFolderPanel, Component.RIGHT_ALIGNMENT);
     logsDirectoryOpenButton.setAlignmentY(isUsingFlatLAFTheme() ? 0.75f : 0.8f);
     logsDirectoryOpenButton.addActionListener(
         new ActionListener() {
@@ -2339,6 +2528,17 @@ public class ConfigWindow {
             Util.openDirectory(new File(Settings.Dir.LOGS));
           }
         });
+
+    // Developer Settings
+    addSettingsHeader(generalPanel, "Developer settings");
+
+    generalPanelDebugModeCheckbox = addCheckbox("Enable debug mode", generalPanel);
+    generalPanelDebugModeCheckbox.setToolTipText(
+        "Shows debug overlays and enables debug text in the console");
+
+    generalPanelExceptionHandlerCheckbox = addCheckbox("Enable exception handler", generalPanel);
+    generalPanelExceptionHandlerCheckbox.setToolTipText(
+        "Show's all of RSC's thrown exceptions in the log.");
 
     // UI Settings
     addSettingsHeader(generalPanel, "UI settings");
@@ -2422,7 +2622,7 @@ public class ConfigWindow {
     overlayPanelInvCountColoursCheckbox.setToolTipText(
         "Adds additional colours to the inventory count to indicate fullness levels");
     SearchUtils.addSearchMetadata(
-        overlayPanelInvCountColoursCheckbox, CommonMetadata.COLOURS.getText());
+        overlayPanelInvCountColoursCheckbox, CommonMetadata.COLOUR.getText());
 
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
@@ -2449,7 +2649,9 @@ public class ConfigWindow {
 
     overlayPanelLagIndicatorCheckbox = addCheckbox("Lag indicator", overlayPanel);
     overlayPanelLagIndicatorCheckbox.setToolTipText(
-        "When there's a problem with your connection, RSCPlus will tell you in the bottom right");
+        "When there's a problem with your connection, "
+            + Launcher.appName
+            + " will tell you in the bottom right");
 
     overlayPanelFoodHealingCheckbox =
         addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
@@ -2473,14 +2675,16 @@ public class ConfigWindow {
     overlayPanelRscPlusButtonsCheckbox =
         addCheckbox("Display + indicators over the activated in-game buttons", overlayPanel);
     overlayPanelRscPlusButtonsCheckbox.setToolTipText("Display + indicators over in-game buttons");
-    SearchUtils.addSearchMetadata(overlayPanelRscPlusButtonsCheckbox, "plus");
+    SearchUtils.addSearchMetadata(overlayPanelRscPlusButtonsCheckbox, "plus", "icon");
 
     overlayPanelRscPlusButtonsFunctionalCheckbox =
         addCheckbox(
             "Enable opening the World Map window and the Settings window with in-game buttons",
             overlayPanel);
     overlayPanelRscPlusButtonsFunctionalCheckbox.setToolTipText(
-        "Able to click in-game Wrench & Map buttons to activate RSC+ features");
+        "Able to click in-game Wrench & Map buttons to activate "
+            + Launcher.binaryPrefix
+            + "RSC+ features");
 
     overlayPanelWikiLookupOnMagicBookCheckbox =
         addCheckbox("Search the RSC Wiki by first clicking on the Magic Book", overlayPanel);
@@ -2889,18 +3093,19 @@ public class ConfigWindow {
     audioPanelEnableMusicPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     String musicPackTooltip =
-        "Drag the music pack into the \"mods\" folder and restart the client (no need to unzip)";
+        "Drag \"music.zip\" into the \"mods\" folder and restart the client (DO NOT UNZIP)";
 
     audioPanelEnableMusicCheckbox =
         addCheckbox("Enable Music (Must have a music pack installed)", audioPanelEnableMusicPanel);
     audioPanelEnableMusicCheckbox.setToolTipText(musicPackTooltip);
+    SearchUtils.addSearchMetadata(audioPanelEnableMusicPanel, CommonMetadata.DIR.getText());
 
     if (Util.isUsingFlatLAFTheme()) {
       audioPanelEnableMusicPanel.add(Box.createRigidArea(osScaleMul(new Dimension(4, 0))));
     }
 
     JButton audioPanelMusicFolderButton =
-        addButton("Open folder", audioPanelEnableMusicPanel, Component.RIGHT_ALIGNMENT);
+        addButton("Open mods folder", audioPanelEnableMusicPanel, Component.RIGHT_ALIGNMENT);
     audioPanelMusicFolderButton.setAlignmentY(0.7f);
     audioPanelMusicFolderButton.addActionListener(
         new ActionListener() {
@@ -2961,7 +3166,9 @@ public class ConfigWindow {
             "Override server's remembered audio on/off setting",
             audioPanelOverrideAudioSettingsPanel);
     audioPanelOverrideAudioSettingCheckbox.setToolTipText(
-        "Let RSC+ control whether or not sound effects are played (useful for watching replays)");
+        "Let "
+            + Launcher.binaryPrefix
+            + "RSC+ control whether or not sound effects are played (useful for watching replays)");
     audioPanelOverrideAudioSettingCheckbox.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(7), 0));
     SearchUtils.addSearchMetadata(
@@ -2972,14 +3179,18 @@ public class ConfigWindow {
         addRadioButton(
             "Sound effects always on", audioPanelOverrideAudioSettingsPanel, osScaleMul(20));
     audioPanelOverrideAudioSettingOnButton.setToolTipText(
-        "Even if the server remembers that the user's audio should be off, RSC+ will play sound effects.");
+        "Even if the server remembers that the user's audio should be off, "
+            + Launcher.binaryPrefix
+            + "RSC+ will play sound effects.");
     SearchUtils.addSearchMetadata(
         audioPanelOverrideAudioSettingOnButton, CommonMetadata.SFX.getText());
     audioPanelOverrideAudioSettingOffButton =
         addRadioButton(
             "Sound effects always off", audioPanelOverrideAudioSettingsPanel, osScaleMul(20));
     audioPanelOverrideAudioSettingOffButton.setToolTipText(
-        "Even if the server remembers that the user's audio should be on, RSC+ will NOT play sound effects.");
+        "Even if the server remembers that the user's audio should be on, "
+            + Launcher.binaryPrefix
+            + "RSC+ will NOT play sound effects.");
     SearchUtils.addSearchMetadata(
         audioPanelOverrideAudioSettingOffButton, CommonMetadata.SFX.getText());
     overrideAudioSettingGroup.add(audioPanelOverrideAudioSettingOnButton);
@@ -3444,7 +3655,9 @@ public class ConfigWindow {
                     + "or add new item \"Place Holders\" for when you acquire an item later.<br/>"
                     + "When you're done, click the \"Save to RSC+ .csv file\" button.<br/><br/>"
                     + "You can either use the <strong>Import</strong> button below,<br/>or simply drag-and-drop your downloaded file<br/>"
-                    + "onto the main RSC+ window while you are logged in and have the bank open."
+                    + "onto the main "
+                    + Launcher.binaryPrefix
+                    + "RSC+ window while you are logged in and have the bank open."
                     + "</p><br/></html>",
                 osScaleMul(10)));
     importExplanation.setBorder(BorderFactory.createEmptyBorder(osScaleMul(2), 0, 0, 0));
@@ -3491,9 +3704,13 @@ public class ConfigWindow {
     bankPanelBankFolderPanel.setLayout(new BoxLayout(bankPanelBankFolderPanel, BoxLayout.X_AXIS));
     bankPanelBankFolderPanel.setPreferredSize(osScaleMul(new Dimension(0, 37)));
     bankPanelBankFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    SearchUtils.addSearchMetadata(bankPanelBankFolderPanel, CommonMetadata.DIR.getText());
 
     JLabel bankDirectoryLabel =
-        new JLabel("Bank files are stored within a folder in the RSC+ settings directory");
+        new JLabel(
+            "Bank files are stored within a folder in the "
+                + Launcher.binaryPrefix
+                + "RSC+ settings directory");
     bankDirectoryLabel.setAlignmentY(isUsingFlatLAFTheme() ? 0.85f : 1f);
     bankDirectoryLabel.setFont(
         bankDirectoryLabel.getFont().deriveFont(Font.PLAIN, osScaleMul(13f)));
@@ -3502,7 +3719,7 @@ public class ConfigWindow {
     bankPanelBankFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
 
     JButton bankDirectoryOpenButton =
-        addButton("Open", bankPanelBankFolderPanel, Component.RIGHT_ALIGNMENT);
+        addButton("Open bank folder", bankPanelBankFolderPanel, Component.RIGHT_ALIGNMENT);
     bankDirectoryOpenButton.setAlignmentY(isUsingFlatLAFTheme() ? 0.75f : 0.8f);
     bankDirectoryOpenButton.addActionListener(
         new ActionListener() {
@@ -3577,6 +3794,7 @@ public class ConfigWindow {
     }
     notificationPanelUseSystemNotifsCheckbox.setToolTipText(
         "Uses built-in system notifications. Enable this to attempt to use your operating system's notification system instead of the built-in pop-up");
+    SearchUtils.addSearchMetadata(notificationPanelUseSystemNotifsCheckbox, "native");
 
     addSettingsHeader(notificationPanel, "Notifications");
 
@@ -3906,7 +4124,6 @@ public class ConfigWindow {
                     + "<p>Speedrunner mode also overrides the following RSC+ options:<ul>"
                     + "<li>● You will always be recording a replay</li>"
                     + "<li>● You will not be able to desync the camera position from the player position (too weird)</li>"
-                    + "<li>● Keyboard shortcut to trigger sleeping bag is disabled</li>"
                     + "<li>● Prayer & Magic scrollbars will reset to the top when switching between those tabs</li>"
                     + "<li>● Menu item swapping (e.g. \"Always left click to attack\") is disabled "
                     + "<ul style=\"padding:0px; margin: %dpx 0 0 %dpx;\">"
@@ -3936,9 +4153,14 @@ public class ConfigWindow {
     streamingPanelSpeedrunnerFolderPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     streamingPanelSpeedrunnerFolderPanel.setBorder(
         BorderFactory.createEmptyBorder(osScaleMul(4), 0, 0, 0));
+    SearchUtils.addSearchMetadata(
+        streamingPanelSpeedrunnerFolderPanel, CommonMetadata.DIR.getText());
 
     JLabel speedrunnerFolderLabel =
-        new JLabel("Speedrunner data is stored within a folder in the RSC+ settings directory");
+        new JLabel(
+            "Speedrunner data is stored within a folder in the "
+                + Launcher.binaryPrefix
+                + "RSC+ settings directory");
     speedrunnerFolderLabel.setAlignmentY(0.8f);
     speedrunnerFolderLabel.setFont(
         speedrunnerFolderLabel.getFont().deriveFont(Font.PLAIN, osScaleMul(13f)));
@@ -3947,7 +4169,10 @@ public class ConfigWindow {
     streamingPanelSpeedrunnerFolderPanel.add(Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
 
     JButton streamingPanelSpeedrunnerFolderButton =
-        addButton("Open folder", streamingPanelSpeedrunnerFolderPanel, Component.RIGHT_ALIGNMENT);
+        addButton(
+            "Open speedrunner folder",
+            streamingPanelSpeedrunnerFolderPanel,
+            Component.RIGHT_ALIGNMENT);
     streamingPanelSpeedrunnerFolderButton.setAlignmentY(0.7f);
     streamingPanelSpeedrunnerFolderButton.addActionListener(
         new ActionListener() {
@@ -4008,13 +4233,6 @@ public class ConfigWindow {
     // consider using ALT instead.
 
     addKeybindCategory(keybindContainerPanel, "General");
-    addKeybindSet(
-        keybindContainerPanel,
-        "Sleep",
-        "sleep",
-        KeyModifier.CTRL,
-        KeyEvent.VK_SPACE,
-        "sleeping bag");
     addKeybindSet(keybindContainerPanel, "Logout", "logout", KeyModifier.CTRL, KeyEvent.VK_L);
     addKeybindSet(
         keybindContainerPanel, "Take screenshot", "screenshot", KeyModifier.CTRL, KeyEvent.VK_S);
@@ -4138,6 +4356,12 @@ public class ConfigWindow {
         "toggle_trackpad_camera_rotation",
         KeyModifier.ALT,
         KeyEvent.VK_D);
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle auto message switching",
+        "toggle_auto_message_switch",
+        KeyModifier.ALT,
+        KeyEvent.VK_Y);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle ctrl to scroll chat history",
@@ -4413,6 +4637,8 @@ public class ConfigWindow {
     replayPanelReplayStoragePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     replayPanelReplayStoragePathTextFieldPanel.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+    SearchUtils.addSearchMetadata(
+        replayPanelReplayStoragePathTextFieldPanel, CommonMetadata.DIR.getText());
 
     JLabel replayPanelReplayStoragePathTextFieldLabel = new JLabel("Save replays to: ");
     replayPanelReplayStoragePathTextFieldLabel.setToolTipText(
@@ -4434,10 +4660,6 @@ public class ConfigWindow {
           Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
     }
 
-    File replayStorageDir = new File(Settings.REPLAY_STORAGE_PATH.get("custom"));
-    JFileChooser replayStorageDirChooser = new JFileChooser(replayStorageDir);
-    replayStorageDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
     JButton replayPanelReplayStoragePathSetDirButton =
         addButton("Set", replayPanelReplayStoragePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
     replayPanelReplayStoragePathSetDirButton.setAlignmentY(replayButtonAlignment);
@@ -4445,6 +4667,9 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+            File replayStorageDir = new File(Settings.REPLAY_STORAGE_PATH.get("custom"));
+            JFileChooser replayStorageDirChooser = new JFileChooser(replayStorageDir);
+            replayStorageDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             customDirSetAction(replayStorageDirChooser, Settings.REPLAY_STORAGE_PATH);
           }
         });
@@ -4502,6 +4727,8 @@ public class ConfigWindow {
         addCheckbox("Prevent private messages from being output during replay", replayPanel);
     replayPanelHidePrivateMessagesCheckbox.setToolTipText(
         "Message types 1, 2, and 5 will not be output when this is selected");
+    SearchUtils.addSearchMetadata(
+        replayPanelHidePrivateMessagesCheckbox, CommonMetadata.PM.getText());
 
     replayPanelTriggerAlertsReplayCheckbox =
         addCheckbox("Prevent system alerts from triggering during replay", replayPanel);
@@ -4523,6 +4750,8 @@ public class ConfigWindow {
     replayPanelReplayBasePathTextFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     replayPanelReplayBasePathTextFieldPanel.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(9), 0));
+    SearchUtils.addSearchMetadata(
+        replayPanelReplayBasePathTextFieldPanel, CommonMetadata.DIR.getText());
 
     JLabel replayPanelReplayBasePathTextFieldLabel = new JLabel("Replay Folder Location: ");
     replayPanelReplayBasePathTextFieldLabel.setToolTipText(
@@ -4544,10 +4773,6 @@ public class ConfigWindow {
           Box.createRigidArea(osScaleMul(new Dimension(6, 0))));
     }
 
-    File replayBaseDir = new File(Settings.REPLAY_BASE_PATH.get("custom"));
-    JFileChooser replayBaseDirChooser = new JFileChooser(replayBaseDir);
-    replayBaseDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
     JButton replayPanelReplayBasePathSetDirButton =
         addButton("Set", replayPanelReplayBasePathTextFieldPanel, Component.RIGHT_ALIGNMENT);
     replayPanelReplayBasePathSetDirButton.setAlignmentY(replayButtonAlignment);
@@ -4555,6 +4780,9 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+            File replayBaseDir = new File(Settings.REPLAY_BASE_PATH.get("custom"));
+            JFileChooser replayBaseDirChooser = new JFileChooser(replayBaseDir);
+            replayBaseDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             customDirSetAction(replayBaseDirChooser, Settings.REPLAY_BASE_PATH);
           }
         });
@@ -4659,7 +4887,8 @@ public class ConfigWindow {
     presetsPanelPresetSlider.setPaintLabels(true);
     presetsPanelPresetSlider.setPaintTicks(true);
     presetsPanelPresetSlider.setSnapToTicks(true);
-    presetsPanelPresetSlider.setMinimum(0);
+    final boolean debugModeEnabled = Settings.DEBUG.get(Settings.currentProfile);
+    presetsPanelPresetSlider.setMinimum(debugModeEnabled ? 0 : 1);
     presetsPanelPresetSlider.setMaximum(5);
     presetsPanelPresetSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
     presetsPanelPresetSlider.setBorder(
@@ -4763,12 +4992,73 @@ public class ConfigWindow {
           }
         });
 
+    JLabel tooltipHintLabel =
+        new JLabel("<html><i>* See mouse-hover tooltips for more information</i></html>");
+    tooltipHintLabel.setBorder(BorderFactory.createEmptyBorder(0, osScaleMul(14), 0, 0));
+    tooltipHintLabel.setToolTipText("Yep, these");
+    presetsPanelPresetSelectionPanel.add(tooltipHintLabel);
+    SearchUtils.skipSearchText(tooltipHintLabel);
+
     addPanelBottomGlue(presetsPanel);
 
     // World List Tab
     worldListPanel.setLayout(new BoxLayout(worldListPanel, BoxLayout.Y_AXIS));
     worldListPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     worldListPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+
+    // Create world type download options, when a subscription is active
+    if (Launcher.shouldDownloadWorlds()) {
+      addSettingsHeaderCentered(worldListPanel, "Download World Types on Startup");
+
+      worldDownloadsPanel = new JPanel();
+      worldDownloadsPanel.setLayout(new BoxLayout(worldDownloadsPanel, BoxLayout.X_AXIS));
+
+      JLabel worldDownloadsPanelTopSpacingLabel = new JLabel("");
+      worldDownloadsPanelTopSpacingLabel.setBorder(
+          BorderFactory.createEmptyBorder(0, 0, osScaleMul(10), 0));
+      worldListPanel.add(worldDownloadsPanelTopSpacingLabel);
+      SearchUtils.setUnsearchable(worldDownloadsPanelTopSpacingLabel);
+
+      worldListPanel.add(worldDownloadsPanel);
+
+      JLabel worldDownloadsPanelBottomSpacingLabel = new JLabel("");
+      worldDownloadsPanelBottomSpacingLabel.setBorder(
+          BorderFactory.createEmptyBorder(osScaleMul(10), 0, 0, 0));
+      worldListPanel.add(worldDownloadsPanelBottomSpacingLabel);
+      SearchUtils.setUnsearchable(worldDownloadsPanelBottomSpacingLabel);
+
+      // World download options
+      JPanel worldTypesPanel = new JPanel();
+      worldTypesPanel.setLayout(new BoxLayout(worldTypesPanel, BoxLayout.Y_AXIS));
+
+      List<JCheckBox> checkboxComponents = new ArrayList<>();
+      ButtonGroupAtLeastOne checkBoxes = new ButtonGroupAtLeastOne();
+
+      final ServerExtensions.WorldSubscription currentWorldSub =
+          ServerExtensions.getWorldSubscription(Launcher.worldSubscriptionId);
+      for (WorldType worldType : currentWorldSub.getWorldDownloadURIs().keySet()) {
+        if (Launcher.knownWorldTypes.containsKey(Launcher.worldSubscriptionId)
+            && Launcher.knownWorldTypes.get(Launcher.worldSubscriptionId).containsKey(worldType)) {
+          JCheckBox worldTypeCheckBox = new JCheckBox(worldType.getName());
+          checkboxComponents.add(worldTypeCheckBox);
+          checkBoxes.add((worldTypeCheckBox));
+          worldTypesPanel.add(worldTypeCheckBox);
+          if (Launcher.knownWorldTypes.get(Launcher.worldSubscriptionId).get(worldType)) {
+            worldTypeCheckBox.setSelected(true);
+          }
+          worldDownloadTypeCheckboxes.put(worldType, worldTypeCheckBox);
+        }
+      }
+
+      if (checkBoxes.getButtonCount() < 2) {
+        for (JCheckBox checkBox : checkboxComponents) {
+          checkBox.setEnabled(false);
+        }
+      }
+
+      worldDownloadsPanel.add(worldTypesPanel);
+    }
+
     addSettingsHeaderCentered(worldListPanel, "World List");
 
     JLabel spacingLabel = new JLabel("");
@@ -4788,6 +5078,23 @@ public class ConfigWindow {
 
     for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
       addWorldFields(i);
+
+      // Don't allow users to delete downloaded worlds when launching via a server binary
+      // Worlds that got their type from the host URL should be deletable
+      if (Launcher.shouldDownloadWorlds()
+          && Launcher.subWorldFiles.contains(new File(Settings.WORLD_FILE_PATHS.get(i)))
+          && Boolean.parseBoolean(Settings.WORLD_DOWNLOAD_FLAG.get(i))) {
+        worldNamesJTextFields.get(i).setEditable(false);
+        worldTypesJComboBoxes.get(i).setEnabled(false);
+        worldDeleteJButtons.get(i).setEnabled(false);
+        worldUrlsJTextFields.get(i).setEditable(false);
+        worldPortsJTextFields.get(i).setEditable(false);
+        worldRSAPubKeyJTextFields.get(i).setEditable(false);
+        worldRSAExponentsJTextFields.get(i).setEditable(false);
+        worldListHiscoresURLTextFields.get(i).setEditable(false);
+        worldListRegistrationAPIUrlTextFields.get(i).setEditable(false);
+        worldListWorldPopulationURLTextFields.get(i).setEditable(false);
+      }
     }
     addAddWorldButton();
 
@@ -4826,11 +5133,8 @@ public class ConfigWindow {
     cR.gridy = 0;
     cR.gridwidth = 3;
 
-    JLabel RSCPlusText =
-        new JLabel(
-            String.format(
-                "<html><div style=\"font-size:%dpx; padding-bottom:%dpx;\"<b>RSC</b>Plus</div><div style=\"font-size:%dpx;\">v%8.6f </div></html>",
-                osScaleMul(45), osScaleMul(10), osScaleMul(20), Settings.VERSION_NUMBER));
+    RSCPlusText = new JLabel();
+    updateRSCPlusDescription();
 
     rightPane.add(RSCPlusText);
 
@@ -4990,10 +5294,11 @@ public class ConfigWindow {
    * @param dir {@link File} instance for the provided directory
    * @return {@code boolean} value indicating whether the provided directory is writeable
    */
-  private boolean validateChosenDirectory(File dir) {
+  static boolean validateChosenDirectory(File dir) {
     if (!Files.isWritable(dir.toPath())) {
       String dirPermissionsErrorMessage =
-          "RSCPlus is unable to create files in the folder you have selected.<br/>"
+          Launcher.appName
+              + " is unable to create files in the folder you have selected.<br/>"
               + "<br/>"
               + "Please select a different location.";
       JPanel dirPermissionsErrorPanel = Util.createOptionMessagePanel(dirPermissionsErrorMessage);
@@ -5001,7 +5306,7 @@ public class ConfigWindow {
       JOptionPane.showMessageDialog(
           Launcher.getConfigWindow().frame,
           dirPermissionsErrorPanel,
-          "RSCPlus",
+          Launcher.appName,
           JOptionPane.ERROR_MESSAGE,
           Launcher.scaled_icon_warn);
 
@@ -5030,14 +5335,19 @@ public class ConfigWindow {
     }
   }
 
-  /** Collection of frequently-used metadata values */
+  /**
+   * Collection of frequently-used metadata values
+   *
+   * <p>Note: Searches are character-inclusive, so adding "colours" will match on "colour" as well
+   */
   private enum CommonMetadata {
     HP("health", "hits", "hp"),
     SFX("sfx", "sound effects"),
     FPS("fps", "frames per second"),
-    COLOUR("colour", "color"),
-    COLOURS("colours", "colors"),
-    PVP("pvp", "pk");
+    COLOUR("colours", "colors", "coloured", "colored"),
+    PVP("pvp", "pk"),
+    PM("private", "messages", "pms", "dms", "msgs"),
+    DIR("folders", "dirs", "directory", "directories", "files");
 
     public final String text;
 
@@ -5056,8 +5366,17 @@ public class ConfigWindow {
    *
    * @param tabIndex {@link ConfigTab} index
    */
-  protected void setInitiatedTab(int tabIndex) {
+  public void setInitiatedTab(int tabIndex) {
     searchInitiatedTabIndex = tabIndex;
+  }
+
+  /**
+   * Sets the selected tab
+   *
+   * @param tabIndex {@link ConfigTab} index
+   */
+  public void setSelectedTab(int tabIndex) {
+    tabbedPane.setSelectedIndex(tabIndex);
   }
 
   /**
@@ -5316,9 +5635,7 @@ public class ConfigWindow {
     // Disable tabs as needed
     for (ConfigTab configTab : ConfigTab.values()) {
       long visibleSearchItemsCount =
-          searchItemsMap
-              .get(configTab)
-              .stream()
+          searchItemsMap.get(configTab).stream()
               .filter(SearchItem::isShown)
               .filter(SearchItem::isSearchable)
               .count();
@@ -5394,9 +5711,7 @@ public class ConfigWindow {
 
     // Look for first search match
     Optional<SearchItem> firstVisibleSearchItemOptional =
-        searchItemsMap
-            .get(ConfigTab.values()[tabbedPane.getSelectedIndex()])
-            .stream()
+        searchItemsMap.get(ConfigTab.values()[tabbedPane.getSelectedIndex()]).stream()
             .filter(SearchItem::isShown)
             .filter(SearchItem::isSearchable)
             .findFirst();
@@ -5927,6 +6242,8 @@ public class ConfigWindow {
         Settings.FATIGUE_ALERT.get(Settings.currentProfile));
     generalPanelInventoryFullAlertCheckbox.setSelected(
         Settings.INVENTORY_FULL_ALERT.get(Settings.currentProfile));
+    generalPanelDisableAutoCameraNewAccCheckbox.setSelected(
+        Settings.DISABLE_AUTO_CAMERA.get(Settings.currentProfile));
     generalPanelNamePatchModeSlider.setValue(Settings.NAME_PATCH_TYPE.get(Settings.currentProfile));
     generalPanelLogVerbositySlider.setValue(Settings.LOG_VERBOSITY.get(Settings.currentProfile));
     generalPanelDisableNatureRuneAlchCheckbox.setSelected(
@@ -5991,6 +6308,8 @@ public class ConfigWindow {
         Settings.SOFTWARE_CURSOR.get(Settings.currentProfile));
     generalPanelCtrlScrollChatCheckbox.setSelected(
         Settings.CTRL_SCROLL_CHAT.get(Settings.currentProfile));
+    generalPanelAutoMessageSwitchCheckbox.setSelected(
+        Settings.AUTO_MESSAGE_SWITCH.get(Settings.currentProfile));
     generalPanelSuppressLoginLogoutMessagesCheckbox.setSelected(
         Settings.SUPPRESS_LOG_IN_OUT_MSGS.get(Settings.currentProfile));
     generalPanelShiftScrollCameraRotationCheckbox.setSelected(
@@ -6436,6 +6755,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelFatigueAlertCheckbox.isSelected());
     Settings.INVENTORY_FULL_ALERT.put(
         Settings.currentProfile, generalPanelInventoryFullAlertCheckbox.isSelected());
+    Settings.DISABLE_AUTO_CAMERA.put(
+        Settings.currentProfile, generalPanelDisableAutoCameraNewAccCheckbox.isSelected());
     Settings.NAME_PATCH_TYPE.put(
         Settings.currentProfile, generalPanelNamePatchModeSlider.getValue());
     Settings.LOG_VERBOSITY.put(Settings.currentProfile, generalPanelLogVerbositySlider.getValue());
@@ -6501,6 +6822,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelCustomCursorCheckbox.isSelected());
     Settings.CTRL_SCROLL_CHAT.put(
         Settings.currentProfile, generalPanelCtrlScrollChatCheckbox.isSelected());
+    Settings.AUTO_MESSAGE_SWITCH.put(
+        Settings.currentProfile, generalPanelAutoMessageSwitchCheckbox.isSelected());
     Settings.SUPPRESS_LOG_IN_OUT_MSGS.put(
         Settings.currentProfile, generalPanelSuppressLoginLogoutMessagesCheckbox.isSelected());
     Settings.SHIFT_SCROLL_CAMERA_ROTATION.put(
@@ -6872,20 +7195,39 @@ public class ConfigWindow {
           i, getTextWithDefault(worldNamesJTextFields, i, String.format("World %d", i)));
       Settings.WORLD_URLS.put(i, worldUrlsJTextFields.get(i).getText());
 
-      Settings.WORLD_SERVER_TYPES.put(i, (Integer) worldTypesJComboBoxes.get(i).getSelectedIndex());
+      Settings.WORLD_SERVER_TYPES.put(i, worldTypesJComboBoxes.get(i).getSelectedIndex());
 
       String portString = worldPortsJTextFields.get(i).getText();
-      if (portString.equals("")) {
+      if (portString.isEmpty()) {
         Settings.WORLD_PORTS.put(i, Replay.DEFAULT_PORT);
       } else {
         Settings.WORLD_PORTS.put(i, Integer.parseInt(portString));
       }
       Settings.WORLD_RSA_PUB_KEYS.put(i, worldRSAPubKeyJTextFields.get(i).getText());
       Settings.WORLD_RSA_EXPONENTS.put(i, worldRSAExponentsJTextFields.get(i).getText());
-      Settings.WORLD_HISCORES_URL.put(i, worldListHiscoresURLTextFieldContainers.get(i).getText());
+      Settings.WORLD_HISCORES_URL.put(i, worldListHiscoresURLTextFields.get(i).getText());
+      Settings.WORLD_REG_API_URL.put(i, worldListRegistrationAPIUrlTextFields.get(i).getText());
+      Settings.WORLD_POPULATION_URL.put(i, worldListWorldPopulationURLTextFields.get(i).getText());
+      Settings.WORLD_SERVER_EXTENSION.put(i, worldListServerExtensionTextFields.get(i).getText());
+      Settings.WORLD_ID.put(i, worldListWorldIdTextFields.get(i).getText());
+      // Note: WORLD_DOWNLOAD_FLAG doesn't need to be set here since it will never change
+      ServerExtensions.validateServerExtensionSettings(i);
+      Settings.setPopulationTask(i);
     }
-    if (Client.state == Client.STATE_LOGIN)
+
+    // Download world types
+    if (Launcher.shouldDownloadWorlds()) {
+      for (WorldType worldType :
+          Launcher.knownWorldTypes.get(Launcher.worldSubscriptionId).keySet()) {
+        Launcher.knownWorldTypes
+            .get(Launcher.worldSubscriptionId)
+            .replace(worldType, worldDownloadTypeCheckboxes.get(worldType).isSelected());
+      }
+    }
+
+    if (Client.state == Client.STATE_LOGIN) {
       Game.getInstance().getJConfig().changeWorld(Settings.WORLD.get(Settings.currentProfile));
+    }
 
     //// joystick
     Settings.JOYSTICK_ENABLED.put(
@@ -7149,8 +7491,8 @@ public class ConfigWindow {
     worldListPanel.add(worldListRSATextFieldContainers.get(i));
 
     //// Hiscores URL line
-    worldListHiscoresTextFieldContainers.put(i, new JPanel());
-    worldListHiscoresTextFieldContainers.get(i).setLayout(new GridBagLayout());
+    worldListHiscoresURLTextFieldContainers.put(i, new JPanel());
+    worldListHiscoresURLTextFieldContainers.get(i).setLayout(new GridBagLayout());
     cR.fill = GridBagConstraints.HORIZONTAL;
     cR.anchor = GridBagConstraints.LINE_START;
     cR.weightx = 0.1;
@@ -7159,29 +7501,135 @@ public class ConfigWindow {
 
     JLabel hiscoresURLJLabel = new JLabel("<html><b>Hiscores URL</b></html>");
     hiscoresURLJLabel.setAlignmentY(1.0f);
-    worldListHiscoresTextFieldContainers.get(i).add(hiscoresURLJLabel, cR);
+    worldListHiscoresURLTextFieldContainers.get(i).add(hiscoresURLJLabel, cR);
 
-    worldListHiscoresURLTextFieldContainers.put(
+    worldListHiscoresURLTextFields.put(
         i, new HintTextField(String.format("World %d Hiscores URL", i)));
 
-    worldListHiscoresURLTextFieldContainers
-        .get(i)
-        .setMinimumSize(osScaleMul(new Dimension(100, 28)));
-    worldListHiscoresURLTextFieldContainers
-        .get(i)
-        .setMaximumSize(osScaleMul(new Dimension(580, 28)));
-    worldListHiscoresURLTextFieldContainers
-        .get(i)
-        .setPreferredSize(osScaleMul(new Dimension(580, 28)));
-    worldListHiscoresURLTextFieldContainers.get(i).setAlignmentY(0.75f);
+    worldListHiscoresURLTextFields.get(i).setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    worldListHiscoresURLTextFields.get(i).setMaximumSize(osScaleMul(new Dimension(575, 28)));
+    worldListHiscoresURLTextFields.get(i).setPreferredSize(osScaleMul(new Dimension(575, 28)));
+    worldListHiscoresURLTextFields.get(i).setAlignmentY(0.75f);
 
-    worldListHiscoresTextFieldContainers
+    worldListHiscoresURLTextFieldContainers
         .get(i)
-        .setLayout(new BoxLayout(worldListHiscoresTextFieldContainers.get(i), BoxLayout.X_AXIS));
+        .setLayout(new BoxLayout(worldListHiscoresURLTextFieldContainers.get(i), BoxLayout.X_AXIS));
 
-    worldListHiscoresTextFieldContainers.get(i).add(worldListHiscoresURLTextFieldContainers.get(i));
-    worldListHiscoresTextFieldContainers.get(i).setMaximumSize(osScaleMul(new Dimension(680, 28)));
-    worldListPanel.add(worldListHiscoresTextFieldContainers.get(i));
+    worldListHiscoresURLTextFieldContainers
+        .get(i)
+        .setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(4), 0));
+    worldListHiscoresURLTextFieldContainers.get(i).add(worldListHiscoresURLTextFields.get(i));
+    worldListHiscoresURLTextFieldContainers
+        .get(i)
+        .setMaximumSize(osScaleMul(new Dimension(680, 28)));
+    worldListPanel.add(worldListHiscoresURLTextFieldContainers.get(i));
+
+    // Registration API URL fields will likely never be displayed, but need to be
+    // initialized for settings persistence
+    worldListRegistrationAPIUrlTextFieldContainers.put(i, new JPanel());
+    worldListRegistrationAPIUrlTextFieldContainers.get(i).setLayout(new GridBagLayout());
+    cR.fill = GridBagConstraints.HORIZONTAL;
+    cR.anchor = GridBagConstraints.LINE_START;
+    cR.weightx = 0.1;
+    cR.gridy = 0;
+    cR.gridwidth = 1;
+
+    JLabel registrationAPIJLabel = new JLabel("<html><b>Registration API</b></html>");
+    registrationAPIJLabel.setAlignmentY(1.0f);
+    worldListRegistrationAPIUrlTextFieldContainers.get(i).add(registrationAPIJLabel, cR);
+
+    worldListRegistrationAPIUrlTextFields.put(
+        i, new HintTextField(String.format("World %d Registration API URL", i)));
+
+    worldListRegistrationAPIUrlTextFields.get(i).setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    worldListRegistrationAPIUrlTextFields.get(i).setMaximumSize(osScaleMul(new Dimension(540, 28)));
+    worldListRegistrationAPIUrlTextFields
+        .get(i)
+        .setPreferredSize(osScaleMul(new Dimension(540, 28)));
+    worldListRegistrationAPIUrlTextFields.get(i).setAlignmentY(0.75f);
+
+    worldListRegistrationAPIUrlTextFieldContainers
+        .get(i)
+        .setLayout(
+            new BoxLayout(worldListRegistrationAPIUrlTextFieldContainers.get(i), BoxLayout.X_AXIS));
+    worldListRegistrationAPIUrlTextFieldContainers
+        .get(i)
+        .add(worldListRegistrationAPIUrlTextFields.get(i));
+    worldListRegistrationAPIUrlTextFieldContainers
+        .get(i)
+        .setMaximumSize(osScaleMul(new Dimension(680, 28)));
+
+    // TODO: Uncomment if we want to expose this
+    //    if (Util.isUsingFlatLAFTheme()) {
+    //      JLabel spacingLabel = new JLabel("");
+    //      worldListRegistrationAPIUrlTextFieldContainers.get(i).add(spacingLabel);
+    //      worldListRegistrationAPIUrlTextFieldContainers
+    //          .get(i)
+    //          .setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(4), 0));
+    //    }
+
+    // TODO: Remove unsearchable flag if we want to expose this
+    SearchUtils.setUnsearchable(worldListRegistrationAPIUrlTextFieldContainers.get(i));
+    worldListPanel.add(worldListRegistrationAPIUrlTextFieldContainers.get(i));
+
+    // World population API URL fields will likely never be displayed, but need to be
+    // initialized for settings persistence
+    worldListWorldPopulationURLTextFieldContainers.put(i, new JPanel());
+    worldListWorldPopulationURLTextFieldContainers.get(i).setLayout(new GridBagLayout());
+    cR.fill = GridBagConstraints.HORIZONTAL;
+    cR.anchor = GridBagConstraints.LINE_START;
+    cR.weightx = 0.1;
+    cR.gridy = 0;
+    cR.gridwidth = 1;
+
+    JLabel worldPopAPIJLabel = new JLabel("<html><b>Population API</b></html>");
+    worldPopAPIJLabel.setAlignmentY(1.0f);
+    worldListWorldPopulationURLTextFieldContainers.get(i).add(worldPopAPIJLabel, cR);
+
+    worldListWorldPopulationURLTextFields.put(
+        i, new HintTextField(String.format("World %d Population API URL", i)));
+
+    worldListWorldPopulationURLTextFields.get(i).setMinimumSize(osScaleMul(new Dimension(100, 28)));
+    worldListWorldPopulationURLTextFields.get(i).setMaximumSize(osScaleMul(new Dimension(540, 28)));
+    worldListWorldPopulationURLTextFields
+        .get(i)
+        .setPreferredSize(osScaleMul(new Dimension(540, 28)));
+    worldListWorldPopulationURLTextFields.get(i).setAlignmentY(0.75f);
+
+    worldListWorldPopulationURLTextFieldContainers
+        .get(i)
+        .setLayout(
+            new BoxLayout(worldListWorldPopulationURLTextFieldContainers.get(i), BoxLayout.X_AXIS));
+    worldListWorldPopulationURLTextFieldContainers
+        .get(i)
+        .add(worldListWorldPopulationURLTextFields.get(i));
+    worldListWorldPopulationURLTextFieldContainers
+        .get(i)
+        .setMaximumSize(osScaleMul(new Dimension(680, 28)));
+
+    // TODO: Uncomment if we want to expose this
+    //    if (Util.isUsingFlatLAFTheme()) {
+    //      JLabel spacingLabel = new JLabel("");
+    //      worldListWorldPopulationURLTextFieldContainers.get(i).add(spacingLabel);
+    //      worldListWorldPopulationURLTextFieldContainers
+    //          .get(i)
+    //          .setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(4), 0));
+    //    }
+
+    // TODO: Remove unsearchable flag if we want to expose this
+    SearchUtils.setUnsearchable(worldListWorldPopulationURLTextFieldContainers.get(i));
+    worldListPanel.add(worldListWorldPopulationURLTextFieldContainers.get(i));
+
+    // Server extension and world ID fields should never be displayed, as extension data is managed
+    // programmatically. These fields still need to be initialized for proper setting persistence
+    worldListServerExtensionTextFields.put(
+        i, new HintTextField(String.format("World %d Server Extension", i)));
+    worldListServerExtensionTextFields.get(i).setVisible(false);
+    SearchUtils.setUnsearchable(worldListServerExtensionTextFields.get(i));
+
+    worldListWorldIdTextFields.put(i, new HintTextField(String.format("World %d Identifier", i)));
+    worldListWorldIdTextFields.get(i).setVisible(false);
+    SearchUtils.setUnsearchable(worldListWorldIdTextFields.get(i));
 
     //// spacing between worlds
     worldListSpacingLabels.put(i, new JLabel(""));
@@ -7203,7 +7651,7 @@ public class ConfigWindow {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            addWorldAction();
+            addWorldAction(false);
           }
         });
     worldListPanel.add(addWorldButton);
@@ -7211,7 +7659,15 @@ public class ConfigWindow {
     worldListPanel.repaint();
   }
 
-  private void addWorldAction() {
+  private void addWorldAction(boolean droppedFile) {
+    // Don't let players add a new world while logged in, as sub world downloads block the thread
+    if (Client.state == Client.STATE_GAME) {
+      preventWorldCreationWarning();
+      return;
+    }
+
+    int prevWorldCount = Settings.WORLDS_TO_DISPLAY;
+
     worldListPanel.remove(addWorldButton);
     Component verticalGlue =
         Arrays.stream(worldListPanel.getComponents())
@@ -7231,10 +7687,94 @@ public class ConfigWindow {
             worldListPanel.add(verticalGlue);
           }
         });
+
+    // Select the first new world if none existed before
+    if (!droppedFile && prevWorldCount == 0 && Settings.WORLDS_TO_DISPLAY > 0) {
+      Game.getInstance().getJConfig().changeWorld(1);
+    }
+  }
+
+  /**
+   * Creates a message dialogue to warn the user that they must log out before adding a new world
+   */
+  public void preventWorldCreationWarning() {
+    String loggedInWarningMessage = "Please log out before attempting to add a new world!";
+    JPanel loggedInWarningPanel = Util.createOptionMessagePanel(loggedInWarningMessage);
+
+    JOptionPane.showMessageDialog(
+        frame,
+        loggedInWarningPanel,
+        Launcher.appName,
+        JOptionPane.ERROR_MESSAGE,
+        Launcher.scaled_icon_warn);
+  }
+
+  /** Updates the description component in the about tab, redraws the config window */
+  public void updateRSCPlusDescription() {
+    final String activeExtension = ServerExtensions.getActiveExtension().getName();
+
+    String rscPlusText =
+        String.format(
+            "<html>"
+                + "<span style=\"font-size:%dpx; padding-bottom:%dpx;\">"
+                + "<b>"
+                + Launcher.binaryPrefix
+                + "RSC</b>Plus</span>"
+                + "<br/>"
+                + "<span style=\"font-size:%dpx;\"> v%8.6f</span>"
+                + "<div style=\"font-size:%dpx;\">"
+                + (!activeExtension.isEmpty() ? activeExtension + " Extensions</br>" : "")
+                + "<div/>"
+                + "</html>",
+            osScaleMul(32),
+            osScaleMul(12),
+            osScaleMul(16),
+            Settings.VERSION_NUMBER,
+            osScaleMul(14));
+
+    reindexSearch(() -> RSCPlusText.setText(rscPlusText));
+
+    frame.revalidate();
+    frame.repaint();
+  }
+
+  /** Shows or hides the "All" presets slider option based on the DEBUG setting */
+  public void togglePresetSliderAllOption() {
+    if (presetsPanelPresetSlider == null || Settings.DEBUG.isEmpty()) {
+      return;
+    }
+
+    final int currentMin = presetsPanelPresetSlider.getMinimum();
+    final int newMin;
+
+    if (Settings.DEBUG.get(Settings.currentProfile) && currentMin == 1) {
+      newMin = 0;
+    } else if (!Settings.DEBUG.get(Settings.currentProfile) && currentMin == 0) {
+      newMin = 1;
+    } else {
+      newMin = currentMin;
+    }
+
+    if (newMin != currentMin) {
+      SwingUtilities.invokeLater(
+          () -> {
+            presetsPanelPresetSlider.setMinimum(newMin);
+            frame.revalidate();
+            frame.repaint();
+          });
+    }
   }
 
   // adds or removes world list text fields & fills them with their values
   public void synchronizeWorldTab() {
+    // Update world type checkboxes
+    if (Launcher.shouldDownloadWorlds()) {
+      worldDownloadTypeCheckboxes.forEach(
+          (worldType, checkBox) ->
+              checkBox.setSelected(
+                  Launcher.knownWorldTypes.get(Launcher.worldSubscriptionId).get(worldType)));
+    }
+
     int numberOfWorldsEver = worldUrlsJTextFields.size();
     // sync values from Settings (read in from file) & hide worlds that have gotten deleted
     if (Settings.WORLDS_TO_DISPLAY > numberOfWorldsEver) {
@@ -7255,14 +7795,22 @@ public class ConfigWindow {
         }
         worldRSAPubKeyJTextFields.get(i).setText(Settings.WORLD_RSA_PUB_KEYS.get(i));
         worldRSAExponentsJTextFields.get(i).setText(Settings.WORLD_RSA_EXPONENTS.get(i));
-        worldListHiscoresURLTextFieldContainers.get(i).setText(Settings.WORLD_HISCORES_URL.get(i));
+        worldListHiscoresURLTextFields.get(i).setText(Settings.WORLD_HISCORES_URL.get(i));
+        worldListRegistrationAPIUrlTextFields.get(i).setText(Settings.WORLD_REG_API_URL.get(i));
+        worldListWorldPopulationURLTextFields.get(i).setText(Settings.WORLD_POPULATION_URL.get(i));
+        worldListServerExtensionTextFields.get(i).setText(Settings.WORLD_SERVER_EXTENSION.get(i));
+        worldListWorldIdTextFields.get(i).setText(Settings.WORLD_ID.get(i));
+
         worldListTitleTextFieldContainers.get(i).setVisible(true);
         worldListURLPortTextFieldContainers.get(i).setVisible(true);
         worldListRSATextFieldContainers.get(i).setVisible(true);
         worldListSpacingLabels.get(i).setVisible(true);
-        worldListHiscoresTextFieldContainers
+        worldListHiscoresURLTextFieldContainers
             .get(i)
             .setVisible(Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile));
+        // TODO: Set to true if we ever want to expose these
+        worldListRegistrationAPIUrlTextFieldContainers.get(i).setVisible(false);
+        worldListWorldPopulationURLTextFieldContainers.get(i).setVisible(false);
 
         // Group all world fields for searching
         List<Component> worldComponents = new ArrayList<>();
@@ -7275,8 +7823,11 @@ public class ConfigWindow {
         worldComponents.addAll(Arrays.asList(worldListSpacingLabels.get(i).getComponents()));
         if (Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
           worldComponents.addAll(
-              Arrays.asList(worldListHiscoresTextFieldContainers.get(i).getComponents()));
+              Arrays.asList(worldListHiscoresURLTextFieldContainers.get(i).getComponents()));
         }
+        // TODO: Uncomment if these should be exposed
+        // worldComponents.addAll(Arrays.asList(worldListRegistrationAPIUrlTextFieldContainers.get(i).getComponents()));
+        // worldComponents.addAll(Arrays.asList(worldListWorldPopulationURLTextFieldContainers.get(i).getComponents()));
 
         // Add the group to each panel's related search lists
         SearchUtils.setRelatedSearchComponents(
@@ -7288,14 +7839,21 @@ public class ConfigWindow {
         SearchUtils.setRelatedSearchComponents(worldListSpacingLabels.get(i), worldComponents);
         if (Settings.HISCORES_LOOKUP_BUTTON.get(Settings.currentProfile)) {
           SearchUtils.setRelatedSearchComponents(
-              worldListHiscoresTextFieldContainers.get(i), worldComponents);
+              worldListHiscoresURLTextFieldContainers.get(i), worldComponents);
         }
+        // TODO: Uncomment if these fields should be visible
+        // SearchUtils.setRelatedSearchComponents(
+        //    worldListRegistrationAPIUrlTextFieldContainers.get(i), worldComponents);
+        // SearchUtils.setRelatedSearchComponents(
+        //    worldListWorldPopulationURLTextFieldContainers.get(i), worldComponents);
       } else {
         worldListTitleTextFieldContainers.get(i).setVisible(false);
         worldListURLPortTextFieldContainers.get(i).setVisible(false);
         worldListRSATextFieldContainers.get(i).setVisible(false);
         worldListSpacingLabels.get(i).setVisible(false);
-        worldListHiscoresTextFieldContainers.get(i).setVisible(false);
+        worldListHiscoresURLTextFieldContainers.get(i).setVisible(false);
+        worldListRegistrationAPIUrlTextFieldContainers.get(i).setVisible(false);
+        worldListWorldPopulationURLTextFieldContainers.get(i).setVisible(false);
       }
     }
   }
@@ -8041,6 +8599,67 @@ public class ConfigWindow {
 
     public String getHint() {
       return _hint;
+    }
+  }
+
+  /**
+   * A ButtonGroup for check-boxes enforcing that at least one remains selected.
+   *
+   * <p>When the group has exactly two buttons, deselecting the last selected one automatically
+   * selects the other.
+   *
+   * <p>When the group has more buttons, deselection of the last selected one is denied.
+   *
+   * <p>Code adapted from link below:
+   *
+   * @see <a href="https://stackoverflow.com/a/14892517">Author source</a>
+   */
+  public static class ButtonGroupAtLeastOne extends ButtonGroup {
+    private final Set<ButtonModel> selected = new HashSet<>();
+
+    @Override
+    public void setSelected(ButtonModel model, boolean b) {
+      if (b && !this.selected.contains(model)) {
+        select(model, true);
+      } else if (!b && this.selected.contains(model)) {
+        if (this.buttons.size() == 2 && this.selected.size() == 1) {
+          select(model, false);
+          AbstractButton other =
+              this.buttons.get(0).getModel() == model ? this.buttons.get(1) : this.buttons.get(0);
+          select(other.getModel(), true);
+        } else if (this.selected.size() > 1) {
+          this.selected.remove(model);
+          model.setSelected(false);
+        }
+      }
+    }
+
+    private void select(ButtonModel model, boolean b) {
+      if (b) {
+        this.selected.add(model);
+      } else {
+        this.selected.remove(model);
+      }
+      model.setSelected(b);
+    }
+
+    @Override
+    public boolean isSelected(ButtonModel m) {
+      return this.selected.contains(m);
+    }
+
+    public void addAll(AbstractButton... buttons) {
+      for (AbstractButton button : buttons) {
+        add(button);
+      }
+    }
+
+    @Override
+    public void add(AbstractButton button) {
+      if (button.isSelected()) {
+        this.selected.add(button.getModel());
+      }
+      super.add(button);
     }
   }
 }

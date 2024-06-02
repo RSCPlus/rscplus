@@ -71,17 +71,17 @@ public class GameApplet {
   public static void loadJagexFonts() {
     resetFontVariables();
 
-    try {
+    try (InputStream h11pInputStream = Launcher.getResourceAsStream("/assets/jf/h11p.jf");
+        InputStream h12bInputStream = Launcher.getResourceAsStream("/assets/jf/h12b.jf");
+        InputStream h12pInputStream = Launcher.getResourceAsStream("/assets/jf/h12p.jf");
+        InputStream h13bInputStream = Launcher.getResourceAsStream("/assets/jf/h13b.jf");
+        InputStream h14bInputStream = Launcher.getResourceAsStream("/assets/jf/h14b.jf");
+        InputStream h16bInputStream = Launcher.getResourceAsStream("/assets/jf/h16b.jf");
+        InputStream h20bInputStream = Launcher.getResourceAsStream("/assets/jf/h20b.jf");
+        InputStream h24bInputStream = Launcher.getResourceAsStream("/assets/jf/h24b.jf");
+        InputStream h11bInputStream = Launcher.getResourceAsStream("/assets/jf/h11b.jf");
+        InputStream h22bInputStream = Launcher.getResourceAsStream("/assets/jf/h22b.jf")) {
       // Official fonts
-      InputStream h11pInputStream = Launcher.getResourceAsStream("/assets/jf/h11p.jf");
-      InputStream h12bInputStream = Launcher.getResourceAsStream("/assets/jf/h12b.jf");
-      InputStream h12pInputStream = Launcher.getResourceAsStream("/assets/jf/h12p.jf");
-      InputStream h13bInputStream = Launcher.getResourceAsStream("/assets/jf/h13b.jf");
-      InputStream h14bInputStream = Launcher.getResourceAsStream("/assets/jf/h14b.jf");
-      InputStream h16bInputStream = Launcher.getResourceAsStream("/assets/jf/h16b.jf");
-      InputStream h20bInputStream = Launcher.getResourceAsStream("/assets/jf/h20b.jf");
-      InputStream h24bInputStream = Launcher.getResourceAsStream("/assets/jf/h24b.jf");
-
       h11p = new byte[h11pInputStream.available()];
       h11pInputStream.read(h11p);
       h12b = new byte[h12bInputStream.available()];
@@ -100,9 +100,6 @@ public class GameApplet {
       h24bInputStream.read(h24b);
 
       // Custom fonts
-      InputStream h11bInputStream = Launcher.getResourceAsStream("/assets/jf/h11b.jf");
-      InputStream h22bInputStream = Launcher.getResourceAsStream("/assets/jf/h22b.jf");
-
       h11b = new byte[h11bInputStream.available()];
       h11bInputStream.read(h11b);
       h22b = new byte[h22bInputStream.available()];
@@ -216,8 +213,11 @@ public class GameApplet {
   }
 
   /**
-   * Load {@link Glyph} data for a custom Jagex font Code adapted from <a
-   * href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a>
+   * Load {@link Glyph} data for a custom Jagex font
+   *
+   * <p>Code adapted from link below:
+   *
+   * @see <a href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a>
    */
   private static GlyphData generateGlyphData(byte[] fontData) {
     try {
@@ -259,7 +259,9 @@ public class GameApplet {
   /**
    * Creates a {@link Glyph}
    *
-   * <p>code adapted from: <a href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a>
+   * <p>Code adapted from link below:
+   *
+   * @see <a href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a>
    */
   private static Glyph getGlyph(byte[] fontData, char letter) {
     int characterOffset = characterWidth[letter];
@@ -306,9 +308,10 @@ public class GameApplet {
   /**
    * Generate a pixel map for a particular string, using {@link GlyphData} for the font
    *
-   * <p>Code adapted and extended from: <a
-   * href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a> and <a
-   * href="https://github.com/misterhat/bdf">misterhat/bdf</a>
+   * <p>Code adapted from links below:
+   *
+   * @see <a href="https://github.com/2003scape/rsc-fonts">rsc-fonts</a>
+   * @see <a href="https://github.com/misterhat/bdf">misterhat/bdf</a>
    */
   public static int[][] getTextPixelMap(
       GlyphData glyphData, String text, Color colour, boolean bordered) {
