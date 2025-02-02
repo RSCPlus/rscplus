@@ -2797,21 +2797,29 @@ public class Settings {
         JPanel portableModePanel = Util.createOptionMessagePanel(portableModeMessage);
 
         JFrame portableModeFrame = Util.launchHiddenFrame();
+        String[] options = new String[3];
+        options[0] = "Yes";
+        options[1] = "No";
+        options[2] = "I'm not sure :-(";
 
         int response =
-            JOptionPane.showConfirmDialog(
+            JOptionPane.showOptionDialog(
                 portableModeFrame,
-                portableModePanel,
-                Launcher.appName,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
+                portableModePanel, // message
+                Launcher.appName, // title
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                null
+                );
 
         if (response == JOptionPane.YES_OPTION) {
           String portableModeAcceptMessage =
-              "Portable mode has been ENABLED"
+              "Portable mode has been ENABLED."
                   + "<br/>"
                   + "<br/>"
-                  + "Deletion of the \"config.ini\" file will reset this choice";
+                  + "Deletion of the \"config.ini\" file will reset this choice.";
           JPanel portableModeAcceptPanel = Util.createOptionMessagePanel(portableModeAcceptMessage);
 
           JOptionPane.showMessageDialog(
@@ -2825,10 +2833,10 @@ public class Settings {
           Dir.CONFIG_DIR = Dir.JAR;
         } else {
           String portableModeDenyMessage =
-              "Portable mode will NOT be enabled"
+              "Portable mode will not be enabled."
                   + "<br/>"
                   + "<br/>"
-                  + "Deletion of the \"rscplus.lock\" file will reset this choice";
+                  + "Deletion of the \"rscplus.lock\" file will reset this choice.";
           JPanel portableModeDenyPanel = Util.createOptionMessagePanel(portableModeDenyMessage);
 
           JOptionPane.showMessageDialog(
