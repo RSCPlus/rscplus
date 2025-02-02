@@ -27,7 +27,6 @@ import java.awt.Graphics2D;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 public class Bank {
+
   private static int[] bankItemsActual = new int[256];
   private static int[] bankItemCountsActual = new int[256];
   private static boolean[] bankItemsShown = new boolean[256];
@@ -75,6 +75,8 @@ public class Bank {
 
   public static String bankSearchText[] =
       new String[] {"Please enter the name of the item to search for", "and press enter"};
+
+  public static boolean needsSaving = false;
 
   static boolean processPacket(int opcode, int psize) {
     boolean processed = false;
@@ -536,7 +538,8 @@ public class Bank {
     csvData.append(",");
     csvData.append(Client.player_name);
 
-    File file = new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+    File file =
+        new File(Settings.Dir.BANK + File.separator + Client.player_name + "_rscplus_bank.csv");
     int attempts = 1;
     while (file.exists()) {
       if (attempts > 256) {
@@ -544,14 +547,17 @@ public class Bank {
       }
       file =
           new File(
-              Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank_" + attempts + ".csv");
+              Settings.Dir.BANK
+                  + File.separator
+                  + Client.player_name
+                  + "_rscplus_bank_"
+                  + attempts
+                  + ".csv");
       attempts++;
     }
 
-    try {
-      DataOutputStream os = new DataOutputStream(new FileOutputStream(file));
+    try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(file.toPath()))) {
       os.write(csvData.toString().getBytes());
-      os.close();
       return "Exported to " + file.getAbsolutePath();
     } catch (Exception e) {
       return "Unable to write file";
@@ -611,7 +617,8 @@ public class Bank {
         Logger.Error(returnMe);
         return returnMe;
       }
-      file = new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+      file =
+          new File(Settings.Dir.BANK + File.separator + Client.player_name + "_rscplus_bank.csv");
       needsCopy = false;
     }
     if (file.exists()) {
@@ -634,7 +641,8 @@ public class Bank {
         Settings.USER_BANK_SORT.put(Client.player_name, sortOrder);
         if (needsCopy) {
           File moveTo =
-              new File(Settings.Dir.BANK + "/" + Client.player_name + "_rscplus_bank.csv");
+              new File(
+                  Settings.Dir.BANK + File.separator + Client.player_name + "_rscplus_bank.csv");
           if (moveTo.exists()) {
             int attempts = 1;
             File moveOldTo =
@@ -1094,7 +1102,7 @@ public class Bank {
           }
 
           doFilterSort();
-          Settings.save(); // to save buttonMode array
+          needsSaving = true; // to save buttonMode array
         }
       }
       if (Settings.SHOW_BANK_VALUE.get(Settings.currentProfile)) {
@@ -1170,7 +1178,7 @@ public class Bank {
           resetSearch();
         } else {
           Settings.SEARCH_BANK_WORD.put("custom", search);
-          Settings.save();
+          needsSaving = true;
           doFilterSort();
         }
       }
@@ -1202,7 +1210,7 @@ public class Bank {
       } else {
         // overwrite query string on local config
         Settings.SEARCH_BANK_WORD.put("custom", search);
-        Settings.save();
+        needsSaving = true;
         int page, row, col, tmp;
         Client.displayMessage("@whi@" + "Queried bank with '" + search + "'", Client.CHAT_QUEST);
         for (int i = 0; i < Client.bank_items.length; i++) {

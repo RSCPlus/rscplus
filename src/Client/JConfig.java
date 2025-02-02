@@ -18,6 +18,10 @@
  */
 package Client;
 
+import Client.Extensions.OpenRSCOfficialUtils;
+import Client.ServerExtensions.Extension;
+import Game.AccountManagement;
+import Game.Client;
 import Game.Replay;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,6 +31,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 
 /** Parses, stores, and retrieves values from a jav_config.ws file */
 public class JConfig {
@@ -54,8 +59,10 @@ public class JConfig {
   private Map<String, String> m_data = new HashMap<>();
 
   public void create(int world) {
-    if (world > 5) world = 5;
-    else if (world < 1) world = 1;
+    if (Settings.WORLDS_TO_DISPLAY > 0) {
+      if (world > 5) world = 5;
+      else if (world < 1) world = 1;
+    }
 
     m_data.put("title", "RuneScape Classic");
     m_data.put(
@@ -160,15 +167,35 @@ public class JConfig {
    * @param world The desired world to log into
    */
   public void changeWorld(int world) {
-    if (world == Settings.WORLDS_TO_DISPLAY + 1) {
-      // Replay playback "world"
+    // Reset the flag on a world switch
+    Client.showingNoWorldsMessage = false;
+
+    // Handle replays / "no worlds" case
+    if (world == Replay.getReplayWorld() || Settings.WORLDS_TO_DISPLAY == 0) {
+      // Replay / no-world playback "world"
       m_data.put("codebase", "http://127.0.0.1/");
+
+      if (Replay.replayServerExtension != null) {
+        if (world == Replay.getReplayWorld()) {
+          // Set server extension for the replay
+          ServerExtensions.setActiveExtension(Extension.from(Replay.replayServerExtension));
+        } else {
+          // Remove extension when returning from a replay, when no worlds exist
+          if (!ServerExtensions.enabled(ServerExtensions.NONE)) {
+            ServerExtensions.setActiveExtension(ServerExtensions.NONE);
+          }
+        }
+      }
+
       return;
     }
 
-    // Clip world to world count
-    if (world > Settings.WORLDS_TO_DISPLAY) world = Settings.WORLDS_TO_DISPLAY;
-    else if (world < 1) world = 1;
+    // Clip world to world count (setting is based on number of world files on disk)
+    if (world > Settings.WORLDS_TO_DISPLAY) {
+      world = Settings.WORLDS_TO_DISPLAY;
+    } else if (world < 1) {
+      world = 1;
+    }
 
     parameters.put("nodeid", "" + (5000 + world));
     // TODO: This might have meant veteran world
@@ -183,16 +210,17 @@ public class JConfig {
     Replay.connection_port = Settings.WORLD_PORTS.getOrDefault(world, Replay.DEFAULT_PORT);
     SERVER_RSA_EXPONENT = Settings.WORLD_RSA_EXPONENTS.get(world);
     SERVER_RSA_MODULUS = Settings.WORLD_RSA_PUB_KEYS.get(world);
-    if (SERVER_RSA_EXPONENT.equals("")) {
+    if (SERVER_RSA_EXPONENT.isEmpty()) {
       SERVER_RSA_EXPONENT = "123";
     }
-    if (SERVER_RSA_MODULUS.equals("")) {
+    if (SERVER_RSA_MODULUS.isEmpty()) {
       SERVER_RSA_MODULUS = "123";
     }
 
-    if (!curWorldURL.equals("")) {
-      Settings.noWorldsConfigured = false;
-    }
+    Settings.noWorldsConfigured = false;
+
+    // Show the signup button when a URL is configured
+    AccountManagement.setSignupButtonVisibility(!Settings.WORLD_URLS.get(world).isEmpty());
 
     Game.Client.setServertype(servertype, true);
     boolean isMembers = (servertype & 1) != 0;
@@ -204,18 +232,47 @@ public class JConfig {
 
     // Update settings
     Settings.WORLD.put(Settings.currentProfile, world);
+    Integer connectionHash = World.fromSettings(world).getConnectionHash();
+    Settings.WORLD_CONN_HASH.put(Settings.currentProfile, String.valueOf(connectionHash));
+
     Settings.saveNoPresetModification();
 
     // Resolve hostname here to be written to metadata (not used to connect to server)
     try {
       InetAddress address = InetAddress.getByName(curWorldURL);
       Replay.ipAddressMetadata = address.getAddress();
-      Logger.Info(
-          String.format(
-              "World set to %s (%s)", Settings.WORLD_NAMES.get(world), address.toString()));
+      Logger.Info(String.format("World set to %s (%s)", Settings.WORLD_NAMES.get(world), address));
     } catch (UnknownHostException e) {
       Logger.Warn("Warning: Unable to resolve server url!");
       Replay.ipAddressMetadata = new byte[] {0, 0, 0, 0};
+    }
+
+    // Determine and set server extension for the chosen world
+    final Extension previousServerExtension = ServerExtensions.getActiveExtension();
+
+    // Set current server extensions
+    ServerExtensions.setActiveExtension(Extension.from(Settings.WORLD_SERVER_EXTENSION.get(world)));
+
+    /* All extension-based logic should be defined below this line */
+
+    // Reset population fetching timer
+    Util.resetPopulationFetchCooldown();
+
+    if (ServerExtensions.enabled(ServerExtensions.OPENRSC_OFFICIAL)) {
+      // Set a custom welcome message
+      Client.setCustomWelcomeMessage(OpenRSCOfficialUtils.getWelcomeMessage());
+      // Remove the "need members account" message
+      Client.setCustomServerTypeMessage("");
+      // Reset population check timer
+      OpenRSCOfficialUtils.getPopulations().resetPopCheck();
+    } else {
+      // Set the default welcome message
+      Client.setCustomWelcomeMessage(null);
+    }
+
+    // Re-render the config window when server-specific extensions are changed
+    if (!previousServerExtension.equals(ServerExtensions.getActiveExtension())) {
+      SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateRSCPlusDescription());
     }
   }
 

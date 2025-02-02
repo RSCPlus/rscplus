@@ -37,8 +37,8 @@ import org.fusesource.jansi.AnsiConsole;
 /** A simple logger */
 public class Logger {
   private static final int MAX_LOG_FILES = 20;
-  private static final String LOG_FILE_PREFIX = "rscplus_";
   private static final String LOG_FILE_EXTENSION = ".log";
+  private static String LOG_FILE_PREFIX = "rscplus_";
   private static PrintWriter m_logWriter;
   private static PrintWriter m_lagWriter;
   private static String m_lagWriter_filename;
@@ -71,6 +71,11 @@ public class Logger {
 
   public static void start() {
     AnsiConsole.systemInstall();
+
+    // Add the binary prefix to the log file name, if available
+    if (Launcher.isUsingBinary()) {
+      LOG_FILE_PREFIX = Launcher.binaryPrefix.toLowerCase() + LOG_FILE_PREFIX;
+    }
 
     // Although we have a setting for the preferred date format, it is only
     // loaded AFTER the logger is initialized, so we can't really use it.
@@ -133,8 +138,28 @@ public class Logger {
   }
 
   public static void Log(Type type, String message) {
+    if (message == null) {
+      return;
+    }
+
+    // Print in a very basic manner before logger settings have been initialized
+    if (Settings.LOG_VERBOSITY.isEmpty()) {
+      String startupPrefix = "[STARTUP][" + type.name.toUpperCase() + "] ";
+      if (m_logWriter == null) {
+        // Just print to standard out, would mostly be needed for development purposes
+        System.out.println(startupPrefix + message);
+      } else {
+        m_logWriter.write(startupPrefix + message + "\r\n");
+        m_logWriter.flush();
+      }
+
+      return;
+    }
+
     try {
-      if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile) || message == null) return;
+      if (type.id > Settings.LOG_VERBOSITY.get(Settings.currentProfile)) {
+        return;
+      }
 
       DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
       String msg = ansi().render(message).toString();

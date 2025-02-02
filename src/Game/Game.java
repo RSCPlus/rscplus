@@ -35,6 +35,7 @@ import java.awt.event.*;
 import java.net.URL;
 import java.text.DecimalFormat;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  * Singleton class that handles packaging the client into a JFrame and starting the applet. <br>
@@ -93,6 +94,12 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     setLocationRelativeTo(null);
     setVisible(false);
 
+    // Bind special macOS application functionality when running on Java 8
+    if (Settings.javaVersion == 8 && Util.isMacOS()) {
+      MacOSHandler macOSHandler = new MacOSHandler(this);
+      macOSHandler.bindAppHandlers();
+    }
+
     // Launch delegated rendering window
     ScaledWindow.getInstance().launchScaledWindow();
 
@@ -116,15 +123,18 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
   }
 
   public void updateTitle() {
-    String title = "RSCPlus (";
+    String title = Launcher.appName;
 
     if (!Replay.isPlaying) {
-      title += Settings.WORLD_NAMES.get(Settings.WORLD.get(Settings.currentProfile));
+      if (!Settings.noWorldsConfigured) {
+        title += " (" + Settings.WORLD_NAMES.get(Settings.WORLD.get(Settings.currentProfile));
+      }
 
-      if (Client.player_name.length() != 0) {
+      if (!Client.player_name.isEmpty()) {
         title += "; " + Client.player_name;
       }
     } else {
+      title += " (";
       String elapsed = Util.formatTimeDuration(Replay.elapsedTimeMillis(), Replay.endTimeMillis());
       String end = Util.formatTimeDuration(Replay.endTimeMillis(), Replay.endTimeMillis());
       title += elapsed + " / " + end;
@@ -138,15 +148,20 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
       title += "; Recording: " + elapsed;
     }
 
-    title += ")";
+    if (!Settings.noWorldsConfigured || Replay.isPlaying) {
+      title += ")";
+    }
 
     if (m_title.equals(title)) {
       return;
     }
     m_title = title;
-    super.setTitle(m_title);
 
-    ScaledWindow.getInstance().setTitle(m_title);
+    SwingUtilities.invokeLater(
+        () -> {
+          super.setTitle(m_title);
+          ScaledWindow.getInstance().setTitle(m_title);
+        });
   }
 
   /*
@@ -191,6 +206,8 @@ public class Game extends JFrame implements AppletStub, ComponentListener, Windo
     m_applet = null;
 
     Logger.stop();
+
+    System.exit(0);
   }
 
   @Override

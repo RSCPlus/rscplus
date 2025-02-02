@@ -447,10 +447,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
   private void handleMenuScroll(
       int wheelRotation, int currScrollLimit, int[] currMenu, int menuIndex, Object reflectedMenu) {
-    // TODO: May need to support macOS "natural scrolling"... check plist to determine whether to
-    // flip directions
-    //  see:
-    // https://stackoverflow.com/questions/7074882/java-how-to-get-the-scrolling-method-in-os-x-lion
+    // TODO: May need to support macOS "natural scrolling"... check against plist
+    //  see: https://stackoverflow.com/q/7074882
     try {
       if (wheelRotation > 0) {
         // down

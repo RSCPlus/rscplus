@@ -99,6 +99,13 @@ public class XPBar {
       }
     }
 
+    // Bound the value, in case some version of Java decides to play by its own rules of mathematics
+    if (alpha < 0.0f) {
+      alpha = 0.0f;
+    } else if (alpha > 1.0f) {
+      alpha = 1.0f;
+    }
+
     int skill_current_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill));
     int skill_next_xp = (int) Client.getXPforLevel(Client.getBaseLevel(current_skill) + 1);
 

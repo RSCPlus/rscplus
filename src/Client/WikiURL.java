@@ -11,7 +11,7 @@ public class WikiURL {
   private static final String typePrefix = "&type=";
   private static final String idPrefix = "&id=";
   private static final String utm_source =
-      "&utm_source=rscplus"; // https://en.wikipedia.org/wiki/UTM_parameters
+      "&utm_source=" + Launcher.appName; // https://en.wikipedia.org/wiki/UTM_parameters
   // also used by OSRS & RS3 clients' wiki integration
 
   public static final int ITEM = 0;

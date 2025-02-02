@@ -77,7 +77,7 @@ public class ReplayQueue {
         JOptionPane.showMessageDialog(
             Game.getInstance().getApplet(),
             replayFolderErrorPanel,
-            "RSCPlus",
+            Launcher.appName,
             JOptionPane.ERROR_MESSAGE,
             Launcher.scaled_icon_warn);
       }
@@ -110,7 +110,7 @@ public class ReplayQueue {
                   JOptionPane.showMessageDialog(
                       Game.getInstance().getApplet(),
                       brokenReplayErrorPanel,
-                      "RSCPlus",
+                      Launcher.appName,
                       JOptionPane.ERROR_MESSAGE,
                       Launcher.scaled_icon_warn);
                 } else {
@@ -135,7 +135,7 @@ public class ReplayQueue {
                     JOptionPane.showMessageDialog(
                         Game.getInstance().getApplet(),
                         replayNotFoundErrorPanel,
-                        "RSCPlus",
+                        Launcher.appName,
                         JOptionPane.ERROR_MESSAGE,
                         Launcher.scaled_icon_warn);
                   }
@@ -158,7 +158,9 @@ public class ReplayQueue {
               // This can happen for example if a person drags rows from the replay queue window
               // into the main window
               Logger.Info(
-                  "Whatever you just dragged into the main window, RSC+ doesn't know what to do with it.");
+                  "Whatever you just dragged into the main window, "
+                      + Launcher.binaryPrefix
+                      + "RSC+ doesn't know what to do with it.");
               Logger.Info("Please report this as a bug on GitHub if you believe it should work.");
             }
           } catch (Exception ex) {

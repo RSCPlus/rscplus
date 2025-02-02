@@ -34,7 +34,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -66,12 +65,15 @@ public class QueueWindow {
   }
 
   public void showQueueWindow() {
-    copyQueueToTable();
-    frame.setVisible(true);
+    SwingUtilities.invokeLater(
+        () -> {
+          copyQueueToTable();
+          frame.setVisible(true);
+        });
   }
 
   public void hideQueueWindow() {
-    frame.setVisible(false);
+    SwingUtilities.invokeLater(() -> frame.setVisible(false));
   }
 
   /** Initialize the contents of the frame. */
@@ -103,11 +105,7 @@ public class QueueWindow {
     frame.setBounds(osScaleDiv(100), osScaleDiv(100), osScaleMul(800), osScaleMul(580));
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout(0, 0));
-    URL iconURL = Launcher.getResource("/assets/icon.png");
-    if (iconURL != null) {
-      ImageIcon icon = new ImageIcon(iconURL);
-      frame.setIconImage(icon.getImage());
-    }
+    frame.setIconImages(Launcher.getWindowIcons());
 
     // Container declarations
     JPanel navigationPanel = new JPanel();
@@ -137,6 +135,7 @@ public class QueueWindow {
     serverCol = playlistTable.getColumnModel().getColumn(6);
     converterSettingsCol = playlistTable.getColumnModel().getColumn(7);
     userFieldCol = playlistTable.getColumnModel().getColumn(8);
+    TableColumn serverExtensionCol = playlistTable.getColumnModel().getColumn(9);
     DefaultTableCellRenderer centerRenderer =
         new DefaultTableCellRenderer() {
           @Override
@@ -245,7 +244,7 @@ public class QueueWindow {
     dateModifiedCol.setPreferredWidth(osScaleMul(140));
     dateModifiedCol.setCellRenderer(dateRenderer);
 
-    serverCol.setMinWidth(osScaleMul(60));
+    serverCol.setMinWidth(osScaleMul(100));
     serverCol.setMaxWidth(osScaleMul(200));
     serverCol.setCellRenderer(centerRenderer);
 
@@ -256,6 +255,11 @@ public class QueueWindow {
     userFieldCol.setMinWidth(osScaleMul(40));
     userFieldCol.setMaxWidth(osScaleMul(200));
     userFieldCol.setCellRenderer(centerRenderer);
+
+    serverExtensionCol.setMinWidth(osScaleMul(100));
+    serverExtensionCol.setMaxWidth(osScaleMul(200));
+    serverExtensionCol.setPreferredWidth(osScaleMul(100));
+    serverExtensionCol.setCellRenderer(centerRenderer);
 
     if (!Settings.SHOW_WORLD_COLUMN.get(Settings.currentProfile))
       playlistTable.removeColumn(serverCol);
@@ -520,7 +524,10 @@ public class QueueWindow {
 
               @Override
               public void mouseClicked(MouseEvent e) {
-                int column = playlistTable.getTableHeader().columnAtPoint(e.getPoint());
+                int clickedColumn = playlistTable.getTableHeader().columnAtPoint(e.getPoint());
+                int column =
+                    playlistTable.getColumnModel().getColumn(clickedColumn).getModelIndex();
+
                 RowSorter sorter = playlistTable.getRowSorter();
 
                 if (column != lastCol) {
@@ -637,10 +644,25 @@ public class QueueWindow {
 
   public static void copyQueueToTable() {
     Logger.Debug("copyQueueToTable called");
-    model.getDataVector().removeAllElements();
+    model.setRowCount(0);
     for (int i = 0; i < ReplayQueue.queue.size(); i++) {
       String replayFolder = ReplayQueue.queue.get(i).getAbsolutePath();
       Object[] metadata = Replay.readMetadata(replayFolder);
+
+      // Replays recorded after server extensions were introduced
+      String extensionName = metadata[5].toString();
+      if (!extensionName.isEmpty()) {
+        final ServerExtensions.Extension replayExtension =
+            ServerExtensions.Extension.from(extensionName);
+        if (ServerExtensions.NONE.equals(replayExtension)
+            && !extensionName.equals(ServerExtensions.NONE.getId())) {
+          // Unless the recorded extension ID was actually "NONE", append "(?)" to the recorded
+          // identifier, indicating that the server extension is not known to the codebase
+          extensionName = extensionName + " (?)";
+        } else {
+          extensionName = replayExtension.getName();
+        }
+      }
 
       model.addRow(
           new Object[] {
@@ -652,7 +674,8 @@ public class QueueWindow {
             new Date((long) metadata[1]),
             metadata[2],
             new Integer((byte) metadata[3]),
-            new Integer((int) metadata[4])
+            new Integer((int) metadata[4]),
+            extensionName
           });
     }
     updateReplayCountLabel();
@@ -714,7 +737,8 @@ public class QueueWindow {
       "Date Modified", // date modified of keys.bin
       "World",
       "Conversion Settings",
-      "User Field"
+      "User Field",
+      "Extension" // Server extension
     };
 
     public int getColumnCount() {
@@ -808,7 +832,9 @@ public class QueueWindow {
 
     public void insertRow(int i, Object[] rowData) {
       Vector<Object> rowVector = new Vector<>();
-      for (int j = 0; j < getColumnCount(); j++) rowVector.add(rowData[j]);
+      for (int j = 0; j < getColumnCount(); j++) {
+        rowVector.add(rowData[j]);
+      }
       super.insertRow(i, rowVector);
     }
 

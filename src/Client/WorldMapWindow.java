@@ -12,7 +12,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,6 +58,7 @@ public class WorldMapWindow {
   public static boolean showLabels = true;
   public static boolean renderChunkGrid = false;
   public static boolean renderChunkLabelling = false;
+  public static boolean needsSaving = false;
   private static boolean followPlayer;
   private static String searchText;
   private static int searchNumber;
@@ -714,11 +714,7 @@ public class WorldMapWindow {
     frame.setBounds(0, 0, osScaleMul(800), osScaleMul(580));
     frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     frame.getContentPane().setLayout(new BorderLayout());
-    URL iconURL = Launcher.getResource("/assets/icon.png");
-    if (iconURL != null) {
-      ImageIcon icon = new ImageIcon(iconURL);
-      frame.setIconImage(icon.getImage());
-    }
+    frame.setIconImages(Launcher.getWindowIcons());
 
     // Initialize map view
     mapView = new JPanel();
@@ -959,38 +955,38 @@ public class WorldMapWindow {
 
               if (process(p, chunkGridBounds)) {
                 renderChunkGrid = !renderChunkGrid;
-                Settings.save();
+                needsSaving = true;
                 updateMapRender();
               }
 
               if (process(p, chunkLabellingBounds)) {
                 renderChunkLabelling = !renderChunkLabelling;
-                Settings.save();
+                needsSaving = true;
                 updateMapRender();
               }
 
               if (process(p, showLabelsBounds)) {
                 showLabels = !showLabels;
-                Settings.save();
+                needsSaving = true;
                 updateMapFloorRender(0, true);
               }
 
               if (process(p, showSceneryBounds)) {
                 showScenery = !showScenery;
-                Settings.save();
+                needsSaving = true;
                 updateMapFloorRender(0, true);
               }
 
               if (process(p, showIconsBounds)) {
                 showIcons = !showIcons;
-                Settings.save();
+                needsSaving = true;
                 updateMapFloorRender(0, true);
               }
 
               if (planeIndex != 0) {
                 if (process(p, showOtherFloorsBounds)) {
                   showOtherFloors = !showOtherFloors;
-                  Settings.save();
+                  needsSaving = true;
                   updateMapRender();
                 }
               }
@@ -1203,10 +1199,9 @@ public class WorldMapWindow {
     // Load fonts
     fonts = new Font[20];
     fontsBold = new Font[20];
-    try {
+    try (InputStream is = Launcher.getResourceAsStream("/assets/arial.ttf");
+        InputStream is2 = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf")) {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-      InputStream is = Launcher.getResourceAsStream("/assets/arial.ttf");
-      InputStream is2 = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
       Font font = Font.createFont(Font.TRUETYPE_FONT, is);
       Font boldFont = Font.createFont(Font.TRUETYPE_FONT, is2);
       ge.registerFont(font);
@@ -1287,9 +1282,8 @@ public class WorldMapWindow {
     mapSceneries.clear();
 
     // Load Scenery
-    try {
-      DataInputStream in =
-          new DataInputStream(Launcher.getResource("/assets/map/scenery.bin").openStream());
+    try (DataInputStream in =
+        new DataInputStream(Launcher.getResource("/assets/map/scenery.bin").openStream())) {
       int count = in.readInt();
       for (int i = 0; i < count; i++) {
         MapScenery scenery = new MapScenery();
@@ -1392,7 +1386,6 @@ public class WorldMapWindow {
 
         mapSceneries.add(scenery);
       }
-      in.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1402,9 +1395,8 @@ public class WorldMapWindow {
     mapBoundaries.clear();
 
     // Load Boundaries
-    try {
-      DataInputStream in =
-          new DataInputStream(Launcher.getResource("/assets/map/boundaries.bin").openStream());
+    try (DataInputStream in =
+        new DataInputStream(Launcher.getResource("/assets/map/boundaries.bin").openStream())) {
       int count = in.readInt();
       for (int i = 0; i < count; i++) {
         MapScenery boundary = new MapScenery();
@@ -1416,7 +1408,6 @@ public class WorldMapWindow {
 
         mapBoundaries.add(boundary);
       }
-      in.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1435,20 +1426,31 @@ public class WorldMapWindow {
   }
 
   public void showWorldMapWindow() {
-    Client.displayMessage("Showing world map window...", Client.CHAT_NONE);
+    SwingUtilities.invokeLater(
+        () -> {
+          Client.displayMessage("Showing world map window...", Client.CHAT_NONE);
 
-    if (!isShown()) {
-      searchText = "";
-      updateMapRender();
-    }
+          if (!isShown()) {
+            searchText = "";
+            updateMapRender();
+          }
 
-    frame.setVisible(true);
+          frame.setVisible(true);
+        });
   }
 
   public void hideWorldMapWindow() {
-    Client.displayMessage("Hid the world map window.", Client.CHAT_NONE);
+    SwingUtilities.invokeLater(
+        () -> {
+          Client.displayMessage("Hid the world map window.", Client.CHAT_NONE);
 
-    frame.setVisible(false);
+          frame.setVisible(false);
+
+          if (needsSaving) {
+            Settings.save();
+            needsSaving = false;
+          }
+        });
   }
 
   public void toggleWorldMapWindow() {

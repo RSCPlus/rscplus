@@ -20,7 +20,7 @@ public class JoystickHandler {
   public static void init() {
     System.setProperty(
         "net.java.games.input.librarypath",
-        new File(Settings.Dir.JAR + "/lib/jinput-natives").getAbsolutePath());
+        new File(Settings.Dir.JINPUTNATIVELIB).getAbsolutePath());
   }
 
   public static void poll() {
