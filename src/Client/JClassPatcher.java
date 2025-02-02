@@ -18,7 +18,6 @@
  */
 package Client;
 
-import Client.Settings.Dir;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -86,8 +85,9 @@ public class JClassPatcher {
     patchGeneric(node);
 
     if (Settings.DISASSEMBLE.get(Settings.currentProfile)) {
-      Settings.Dir.DUMP = Dir.JAR + "/" + Settings.DISASSEMBLE_DIRECTORY.get("custom");
-      Util.makeDirectory(Dir.DUMP);
+      Settings.Dir.DUMP =
+          Settings.Dir.CONFIG_DIR + File.separator + Settings.DISASSEMBLE_DIRECTORY.get("custom");
+      Util.makeDirectory(Settings.Dir.DUMP);
       Logger.Info("Disassembling file: " + node.name + ".class");
       dumpClass(node);
     }
@@ -477,6 +477,8 @@ public class JClassPatcher {
           methodNode, "client", "Fg", "I", "Game/Client", "combat_style", "I", true, true);
       hookClassVariable(
           methodNode, "client", "Xd", "I", "Game/Client", "login_screen", "I", true, true);
+      hookClassVariable(
+          methodNode, "client", "Kd", "Z", "Game/Client", "on_tut_island", "Z", true, false);
 
       hookClassVariable(
           methodNode,
@@ -1116,6 +1118,29 @@ public class JClassPatcher {
             methodNode.instructions.insertBefore(
                 nextNode, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "fps", "I"));
             methodNode.instructions.insertBefore(nextNode, new InsnNode(Opcodes.POP));
+            break;
+          }
+        }
+      }
+
+      // Remove 5 second sleep on shutdown
+      if (methodNode.name.equals("destroy") && methodNode.desc.equals("()V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode nextNode = insnNode.getNext();
+
+          if (nextNode == null) break;
+
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 11200) {
+
+            AbstractInsnNode finalNode = nextNode.getNext();
+
+            methodNode.instructions.remove(insnNode);
+            methodNode.instructions.remove(nextNode);
+            methodNode.instructions.remove(finalNode);
+
             break;
           }
         }
@@ -2617,6 +2642,20 @@ public class JClassPatcher {
               methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.IDIV));
             }
           }
+
+          // Immediately before return
+          if (!insnNodeList.hasNext()) {
+            // Stop drawing the bank augmentation if the user requested logout while the bank
+            // interface was open, i.e. via the key binding
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Game/Client",
+                    "resetBankAugmentationDrawFlag",
+                    "()V",
+                    false));
+          }
         }
       }
       if (methodNode.name.equals("j") && methodNode.desc.equals("(I)V")) {
@@ -2889,6 +2928,7 @@ public class JClassPatcher {
           }
         }
       }
+
       if (methodNode.name.equals("a")
           && methodNode.desc.equals(
               "(ZLjava/lang/String;ILjava/lang/String;IILjava/lang/String;Ljava/lang/String;)V")) {
@@ -2919,7 +2959,52 @@ public class JClassPatcher {
         // methodNode.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, label));
         // methodNode.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
         // methodNode.instructions.insertBefore(first, label);
+
+        // Skip auto message tab switching
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        int count = 0;
+        LabelNode skipLabel = new LabelNode();
+        LabelNode skipLabel2 = new LabelNode();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).name.equals("Zh")) {
+
+            insnNode = insnNode.getPrevious();
+            insnNode = insnNode.getPrevious();
+
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "Client/Settings",
+                    "updateInjectedVariables",
+                    "()V",
+                    false));
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new FieldInsnNode(
+                    Opcodes.GETSTATIC, "Client/Settings", "AUTO_MESSAGE_SWITCH_BOOL", "Z"));
+            methodNode.instructions.insertBefore(
+                insnNode, new JumpInsnNode(Opcodes.IFGT, count == 0 ? skipLabel : skipLabel2));
+
+            insnNode = insnNode.getNext();
+            insnNode = insnNode.getNext();
+            insnNode = insnNode.getNext();
+
+            methodNode.instructions.insertBefore(insnNode, count == 0 ? skipLabel : skipLabel2);
+
+            count++;
+
+            // Do it twice
+            if (count == 2) {
+              break;
+            }
+          }
+        }
       }
+
       if (methodNode.name.equals("b") && methodNode.desc.equals("(ZI)V")) {
         // Fix on swap between command and use, if 635 is received make it 650 by hook
         Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
@@ -2952,93 +3037,6 @@ public class JClassPatcher {
               && nextNode.getOpcode() == Opcodes.ATHROW) {
             MethodInsnNode call = (MethodInsnNode) insnNode;
             methodNode.instructions.insert(insnNode, new InsnNode(Opcodes.RETURN));
-          }
-        }
-
-        // Fix on sleep, so packets are not managed directly
-        insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode prevNode = insnNode.getPrevious();
-
-          if (prevNode == null) continue;
-
-          // patch before the sequence of command checks
-          if (insnNode.getOpcode() == Opcodes.ASTORE
-              && ((VarInsnNode) insnNode).var == 9
-              && prevNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-            VarInsnNode call = (VarInsnNode) insnNode;
-            LabelNode label = ((LabelNode) insnNode.getNext());
-
-            methodNode.instructions.insert(call, new VarInsnNode(Opcodes.ISTORE, 4));
-            methodNode.instructions.insert(
-                call, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client", "sleepBagIdx", "I"));
-            methodNode.instructions.insert(call, new VarInsnNode(Opcodes.ISTORE, 3));
-            methodNode.instructions.insert(call, new IntInsnNode(Opcodes.SIPUSH, (short) 640));
-            methodNode.instructions.insert(call, new JumpInsnNode(Opcodes.IF_ICMPNE, label));
-            methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_1));
-            methodNode.instructions.insert(
-                call, new FieldInsnNode(Opcodes.GETSTATIC, "Game/Client", "sleepCmdSent", "Z"));
-          }
-        }
-
-        // Turn off sleep cmd flag
-        insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode nextNode = insnNode.getNext();
-          AbstractInsnNode twoNextNodes = nextNode.getNext();
-
-          if (nextNode == null || twoNextNodes == null) break;
-
-          if (insnNode.getOpcode() == Opcodes.ALOAD
-              && nextNode.getOpcode() == Opcodes.GETFIELD
-              && twoNextNodes.getOpcode() == Opcodes.BIPUSH
-              && ((IntInsnNode) twoNextNodes).operand == 90) {
-            VarInsnNode call = (VarInsnNode) insnNode;
-            methodNode.instructions.insert(
-                call, new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "sleepCmdSent", "Z"));
-            methodNode.instructions.insert(call, new InsnNode(Opcodes.ICONST_0));
-          }
-        }
-
-        // catch on position clicked
-        insnNodeList = methodNode.instructions.iterator();
-        while (insnNodeList.hasNext()) {
-          AbstractInsnNode insnNode = insnNodeList.next();
-          AbstractInsnNode nextNode = insnNode.getNext();
-          AbstractInsnNode twoNextNodes = nextNode.getNext();
-          AbstractInsnNode threeNextNodes = twoNextNodes.getNext();
-
-          if (nextNode == null || twoNextNodes == null || threeNextNodes == null) break;
-
-          if (insnNode.getOpcode() == Opcodes.ALOAD
-              && ((VarInsnNode) insnNode).var == 0
-              && nextNode.getOpcode() == Opcodes.GETFIELD
-              && twoNextNodes.getOpcode() == Opcodes.ILOAD
-              && ((VarInsnNode) twoNextNodes).var == 2
-              && threeNextNodes.getOpcode() == Opcodes.SIPUSH
-              && ((IntInsnNode) threeNextNodes).operand == -4126) {
-
-            VarInsnNode call = (VarInsnNode) insnNode;
-
-            methodNode.instructions.insertBefore(
-                call, new TypeInsnNode(Opcodes.NEW, "java/lang/Integer"));
-            methodNode.instructions.insertBefore(call, new InsnNode(Opcodes.DUP));
-            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 3));
-            methodNode.instructions.insertBefore(
-                call,
-                new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Integer", "<init>", "(I)V"));
-            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 4));
-            methodNode.instructions.insertBefore(call, new VarInsnNode(Opcodes.ILOAD, 5));
-            methodNode.instructions.insertBefore(
-                call,
-                new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    "Game/Client",
-                    "gameClickHook",
-                    "(Ljava/lang/Integer;II)V"));
-            break;
           }
         }
 
@@ -3487,6 +3485,33 @@ public class JClassPatcher {
             methodNode.instructions.insert(
                 targetNode,
                 new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "controlServerType", "I"));
+            methodNode.instructions.insertBefore(targetNode, new IntInsnNode(Opcodes.BIPUSH, 0));
+
+            break;
+          }
+        }
+
+        // Hook reference of control text of welcome message type
+        insnNodeList = methodNode.instructions.iterator();
+
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          AbstractInsnNode targetNode;
+          AbstractInsnNode call;
+
+          if (insnNode.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode) insnNode).operand == 237) {
+
+            targetNode = insnNode;
+            while (targetNode.getOpcode() != Opcodes.INVOKEVIRTUAL
+                || !((MethodInsnNode) targetNode).desc.equals("(ZBIILjava/lang/String;I)I")) {
+              // find the method of addText
+              targetNode = targetNode.getNext();
+            }
+            targetNode = targetNode.getNext();
+
+            methodNode.instructions.insert(
+                targetNode,
+                new FieldInsnNode(Opcodes.PUTSTATIC, "Game/Client", "controlWelcomeType", "I"));
             methodNode.instructions.insertBefore(targetNode, new IntInsnNode(Opcodes.BIPUSH, 0));
 
             break;
@@ -4826,6 +4851,25 @@ public class JClassPatcher {
         }
       }
 
+      // Handle appearance panel controls
+      if (methodNode.name.equals("F") && methodNode.desc.equals("(I)V")) {
+        Iterator<AbstractInsnNode> insnNodeList = methodNode.instructions.iterator();
+        while (insnNodeList.hasNext()) {
+          AbstractInsnNode insnNode = insnNodeList.next();
+          if (insnNode.getOpcode() == Opcodes.PUTFIELD
+              && ((FieldInsnNode) insnNode).name.equals("Kg")) {
+            insnNode = insnNode.getNext();
+
+            methodNode.instructions.insertBefore(
+                insnNode,
+                new MethodInsnNode(
+                    Opcodes.INVOKESTATIC, "Game/Client", "disableAutoCameraNewAcc", "()V", false));
+
+            break;
+          }
+        }
+      }
+
       // hookTracer(node, methodNode);
     }
   }
@@ -5745,12 +5789,9 @@ public class JClassPatcher {
   }
 
   private void dumpClass(ClassNode node) {
-    BufferedWriter writer = null;
-
-    try {
-      File file = new File(Settings.Dir.DUMP + "/" + node.name + ".dump");
-      writer = new BufferedWriter(new FileWriter(file));
-
+    try (BufferedWriter writer =
+        new BufferedWriter(
+            new FileWriter(Settings.Dir.DUMP + File.separator + node.name + ".dump"))) {
       writer.write(decodeAccess(node.access) + node.name + " extends " + node.superName + ";\n");
       writer.write("\n");
 
@@ -5777,13 +5818,7 @@ public class JClassPatcher {
         }
         writer.write("\n");
       }
-
-      writer.close();
     } catch (Exception e) {
-      try {
-        writer.close();
-      } catch (Exception e2) {
-      }
     }
   }
 
@@ -5812,7 +5847,7 @@ public class JClassPatcher {
     return sw.toString();
   }
 
-  public static JClassPatcher getInstance() {
+  public static synchronized JClassPatcher getInstance() {
     if (instance == null) {
       synchronized (JClassPatcher.class) {
         instance = new JClassPatcher();

@@ -51,8 +51,6 @@ All features that modify the interface can be disabled if desired.
 
 *::screenshot* - Take screenshot (Saved in the screenshots directory)
 
-*::sleep* - Sleep, provided you have a sleeping bag in inventory
-
 *::banksearch [aWord]* - Searches current bank state for banked items 
 containing "aWord". Note that withdrawing all of a certain item's type 
 will push it to the end of the bank and thus withdrawing all should not 
@@ -119,8 +117,6 @@ keyword stored.
 
 *::rainbow* - Formats your message in all the colours of the rainbow (or at least 6)
 
-*::system* - Hides your username and outputs your message
-
 *::update* - Manually check if RSC+ is up to date
 
 ## Controls
@@ -130,7 +126,6 @@ keyword stored.
 All keybinds are configurable via the Settings GUI
 
 #### General
-- Ctrl + x - Sleep, provided you have a sleeping bag in inventory
 - Ctrl + l - Logout
 - Ctrl + s - Take screenshot (Saved in the screenshots directory)
 - Ctrl + o - Open the options/settings window
@@ -174,16 +169,19 @@ stored keyword on searchable bank)
 #### Miscellaneous
 - Ctrl + 1-5 - World switch on login screen
 
+## Server Extensions
+Custom features specific to private servers must be implemented via the Server Extension framework
+
+See [Documentation](src/Client/Extensions/README.md) for more details
 
 ## Contributing
 - Fork the project
 - Work on it
 - Pull request the branch
 
-*I will not accept any game automation features (macroing, etc.)*
+*No game automation features (macroing, etc.) will be accepted, even within private server extensions*
 
-
-### Building [![Build Status](https://travis-ci.org/RSCPlus/rscplus.svg?branch=master)](https://travis-ci.org/OrN/rscplus)
+### Building
 *You must have git, apache-ant, and jdk 1.7 or 1.8 installed to do this.*
 ```
 git clone https://github.com/RSCPlus/rscplus

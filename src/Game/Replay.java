@@ -22,6 +22,7 @@ import Client.FlushableGZIPOutputStream;
 import Client.Launcher;
 import Client.Logger;
 import Client.QueueWindow;
+import Client.ServerExtensions;
 import Client.Settings;
 import Client.Speedrun;
 import Client.Util;
@@ -37,6 +38,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -133,6 +135,8 @@ public class Replay {
 
   public static int timestamp_lag = 0;
 
+  public static String replayServerExtension;
+
   public static void incrementTimestamp() {
     timestamp++;
 
@@ -162,9 +166,12 @@ public class Replay {
     paused = false;
     closeDialogue = false;
     replayDirectory = directory;
+    final Object[] replayMetadata = Replay.readMetadata(directory);
+
     replayMembers =
-        ((int) Replay.readMetadata(directory)[4] & (1 << 31))
+        ((int) replayMetadata[4] & (1 << 31))
             == 0; // first bit of user settings is true if replay is F2P
+    replayServerExtension = replayMetadata[5].toString();
   }
 
   public static int getServerLag() {
@@ -200,13 +207,15 @@ public class Replay {
             "The replay you selected is for replay version "
                 + replay_version
                 + ".<br/>"
-                + "You may need to update RSCPlus to run this replay.</br>";
+                + "You may need to update "
+                + Launcher.appName
+                + " to run this replay.</br>";
         JPanel replayVersionErrorPanel = Util.createOptionMessagePanel(replayVersionErrorMessage);
 
         JOptionPane.showMessageDialog(
             Game.getInstance().getApplet(),
             replayVersionErrorPanel,
-            "RSCPlus",
+            Launcher.appName,
             JOptionPane.ERROR_MESSAGE,
             Launcher.scaled_icon_warn);
         return false;
@@ -224,14 +233,15 @@ public class Replay {
             "The replay you selected is for client version "
                 + client_version
                 + ".<br/>"
-                + "RSCPlus currently only supports versions 234 and 235.<br/>";
+                + Launcher.appName
+                + " currently only supports versions 234 and 235.<br/>";
         JPanel replayClientVersionErrorPanel =
             Util.createOptionMessagePanel(replayClientVersionErrorMessage);
 
         JOptionPane.showMessageDialog(
             Game.getInstance().getApplet(),
             replayClientVersionErrorPanel,
-            "RSCPlus",
+            Launcher.appName,
             JOptionPane.ERROR_MESSAGE,
             Launcher.scaled_icon_warn);
         return false;
@@ -273,12 +283,12 @@ public class Replay {
       JOptionPane.showMessageDialog(
           Game.getInstance().getApplet(),
           replayErrorPanel,
-          "RSCPlus",
+          Launcher.appName,
           JOptionPane.ERROR_MESSAGE,
           Launcher.scaled_icon_warn);
       return false;
     }
-    Game.getInstance().getJConfig().changeWorld(Settings.WORLDS_TO_DISPLAY + 1);
+    Game.getInstance().getJConfig().changeWorld(getReplayWorld());
     if (replayServer != null) replayServer.isDone = true;
     replayServer = new ReplayServer(replayDirectory);
     replayThread = new Thread(replayServer);
@@ -301,6 +311,10 @@ public class Replay {
     Client.login(false, excludeUsername, "");
     updateFrameTimeSlice();
     return true;
+  }
+
+  public static int getReplayWorld() {
+    return Settings.WORLDS_TO_DISPLAY + 1;
   }
 
   public static void restartReplayPlayback() {
@@ -390,11 +404,11 @@ public class Replay {
     if (existingPlayerDir != null) {
       recordingDirectory = existingPlayerDir.toString();
     } else {
-      recordingDirectory = replayStorageDir + "/" + Client.username_login;
+      recordingDirectory = replayStorageDir + File.separator + Client.username_login;
     }
 
     Util.makeDirectory(recordingDirectory);
-    recordingDirectory = recordingDirectory + "/" + timeStamp;
+    recordingDirectory = recordingDirectory + File.separator + timeStamp;
     Util.makeDirectory(recordingDirectory);
 
     try {
@@ -518,6 +532,11 @@ public class Replay {
           userSettings |= 1 << 31;
         }
         metadata.writeInt(userSettings);
+
+        // Store the server extension identifier
+        String serverExtensionId = ServerExtensions.getActiveExtension().getId();
+        metadata.writeInt(serverExtensionId.getBytes().length);
+        metadata.writeBytes(serverExtensionId);
 
         metadata.flush();
         metadata.close();
@@ -856,6 +875,12 @@ public class Replay {
       metadata.writeInt(
           0); // "User settings", 1st bit is F2P or Members. Since metadata.bin doesn't exist,
       // probably members
+
+      // Store the default server extension
+      String serverExtension = "";
+      metadata.writeInt(serverExtension.getBytes().length);
+      metadata.writeBytes(serverExtension);
+
       metadata.flush();
       metadata.close();
     } catch (IOException e) {
@@ -869,12 +894,13 @@ public class Replay {
     String world = "Unknown";
     byte conversionSettings = (byte) 128;
     int userField = 0;
+    String serverExtensionID = "";
 
     File metadataFile = new File(replayFolder + "/metadata.bin");
     if (metadataFile != null && metadataFile.exists()) {
-      try {
-        DataInputStream metadata =
-            new DataInputStream(new BufferedInputStream(new FileInputStream(metadataFile)));
+      try (DataInputStream metadata =
+          new DataInputStream(
+              new BufferedInputStream(Files.newInputStream(metadataFile.toPath())))) {
         replayLength = metadata.readInt();
         dateModified = metadata.readLong();
         if (metadataFile.length() > 12) {
@@ -921,13 +947,24 @@ public class Replay {
 
           conversionSettings = metadata.readByte();
           userField = metadata.readInt();
+
+          // Read server extension, if available
+          if (metadata.available() > 0) {
+            int extensionStringLength = metadata.readInt();
+            byte[] serverExtensionBytes = new byte[extensionStringLength];
+            for (int i = 0; i < extensionStringLength; i++) {
+              serverExtensionBytes[i] = metadata.readByte();
+            }
+            serverExtensionID = new String(serverExtensionBytes);
+          }
         }
-        metadata.close();
       } catch (IOException e) {
         Logger.Error("Couldn't read metadata.bin!");
       }
     }
-    return new Object[] {replayLength, dateModified, world, conversionSettings, userField};
+    return new Object[] {
+      replayLength, dateModified, world, conversionSettings, userField, serverExtensionID
+    };
   }
 
   public static void resetFrameTimeSlice() {

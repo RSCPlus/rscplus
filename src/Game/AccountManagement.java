@@ -19,7 +19,9 @@
 package Game;
 
 import Client.CRC16;
+import Client.Extensions.OpenRSCOfficialUtils;
 import Client.Logger;
+import Client.ServerExtensions;
 import Client.Settings;
 import Client.Util;
 import java.math.BigInteger;
@@ -553,10 +555,20 @@ public class AccountManagement {
 
   public static void panel_welcome_hook(int n) {
     try {
+      if (Settings.noWorldsConfigured) {
+        Client.setCustomServerTypeMessage("");
+      }
+
       if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
         Panel.addButtonBackTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
         Panel.addCenterTextTo(Client.panelWelcome, 86, 40 + 250, "Signup", 5, false);
         Client.registerButton = Panel.addButtonTo(Client.panelWelcome, 86, 40 + 250, 100, 35);
+
+        // Hide the signup button when no world is configured
+        if (Settings.noWorldsConfigured
+            || Settings.WORLD_URLS.get(Settings.WORLD.get(Settings.currentProfile)).isEmpty()) {
+          setSignupButtonVisibility(false);
+        }
       }
 
       Client.panelRegister = Panel.createPanel(50);
@@ -606,8 +618,40 @@ public class AccountManagement {
       Panel.addCenterTextTo(Client.panelRegister, 356, yPos + 17, "Cancel", 5, false);
       Client.chooseCancelRegisterButton =
           Panel.addButtonTo(Client.panelRegister, 356, yPos + 17, 150, 34);
+
+      if (ServerExtensions.enabled(ServerExtensions.OPENRSC_OFFICIAL)) {
+        // Set a custom welcome message
+        Client.setCustomWelcomeMessage(OpenRSCOfficialUtils.getWelcomeMessage());
+        // Remove the "need members account" message
+        Client.setCustomServerTypeMessage("");
+      } else {
+        // Set the default welcome message
+        Client.setCustomWelcomeMessage(null);
+      }
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Sets visibility of the "Signup" button from the welcome panel
+   *
+   * @param visible {@code boolean} value indicating desired visibility
+   */
+  public static void setSignupButtonVisibility(boolean visible) {
+    if (Settings.SHOW_ACCOUNT_SECURITY_SETTINGS.get(Settings.currentProfile)) {
+      Object panelWelcome = Client.panelWelcome;
+      if (panelWelcome != null && Reflection.menuShown != null) {
+        try {
+          boolean[] shown = (boolean[]) Reflection.menuShown.get(panelWelcome);
+          shown[2] = visible;
+          shown[3] = visible;
+          shown[4] = visible;
+          Reflection.menuShown.set(panelWelcome, shown);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
     }
   }
 

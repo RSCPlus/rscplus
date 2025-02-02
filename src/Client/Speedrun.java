@@ -294,7 +294,7 @@ public class Speedrun {
   }
 
   public static int loadSpeedrun() {
-    File[] fList = new File(Settings.Dir.SPEEDRUN).listFiles();
+    File[] fList = new File(Settings.Dir.SPEEDRUN).listFiles((dir, name) -> name.endsWith(".bin"));
     if (fList == null || fList.length == 0) return REASON_NO_PREVIOUS_FILES;
     Arrays.sort(fList);
     File newestData = fList[fList.length - 1];

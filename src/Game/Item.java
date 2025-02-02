@@ -18,6 +18,7 @@
  */
 package Game;
 
+import Client.Launcher;
 import Client.NotificationsHandler;
 import Client.Settings;
 import java.util.ArrayList;
@@ -244,7 +245,9 @@ public class Item {
             if (x == coolItem.x && y == coolItem.y && groundItemId[i] == coolItem.id) {
               // "an" item with same item id & x & y coordinate still exists on the ground
               Client.displayMessage(
-                  "@lre@[@gre@RSC+@lre@]: @red@Make sure to pick up your "
+                  "@lre@[@gre@"
+                      + Launcher.binaryPrefix
+                      + "RSC+@lre@]: @red@Make sure to pick up your "
                       + item_name[coolItem.id]
                       + "!",
                   Client.CHAT_NONE);

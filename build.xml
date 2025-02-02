@@ -33,6 +33,8 @@
 		<fileset dir="${basedir}">
 			<include name="lib/junit-*.jar" />
 			<include name="lib/hamcrest-core-*.jar" />
+			<include name="lib/flatlaf-*.jar" />
+			<include name="lib/orange-extensions-*.jar" />
 		</fileset>
 		<pathelement location="${main.build.dir}"/>
 	</path>
@@ -67,7 +69,7 @@
 
 	<target name="format-source">
 		<apply executable="java">
-			<arg line="-jar ${tools.dir}/google-java-format-1.6-all-deps.jar" />
+			<arg line="-jar ${tools.dir}/google-java-format-1.7-all-deps.jar" />
 			<arg value="--replace" />
 			<srcfile />
 			<fileset dir="${main.src.dir}" includes="**/**.java" />
@@ -107,6 +109,8 @@
 				<include name="${main.src.dir}/Client/FlatLaf/*.properties" />
 				<include name="${jinput-natives.dir}/**" />
 				<include name="LICENSE" />
+				<!-- These are kept for archival purposes and should not be included in the JAR -->
+				<exclude name="${assets.dir}/old/**" />
 			</fileset>
 			<zipgroupfileset dir="lib" includes="*.jar" excludes="junit-*.jar,hamcrest-core-*.jar" />
 		</jar>
@@ -122,6 +126,7 @@
 				<path refid="classpath.main"/>
 				<pathelement location="${main.build.dir}"/>
 			</classpath>
+			<jvmarg value="-Xmx1500m"/>
 		</java>
 	</target>
 

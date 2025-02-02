@@ -18,6 +18,8 @@
  */
 package Game;
 
+import Client.Extensions.OpenRSCFrameworkUtils;
+import Client.Extensions.OpenRSCOfficialUtils;
 import Client.HiscoresURL;
 import Client.ImageManip;
 import Client.Launcher;
@@ -25,6 +27,7 @@ import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.ScaledWindow;
+import Client.ServerExtensions;
 import Client.Settings;
 import Client.Util;
 import Client.WikiURL;
@@ -127,6 +130,8 @@ public class Renderer {
   public static Image image_wiki_hbar_inactive;
   public static Image image_wiki_hbar_active;
   public static Image image_small_skull;
+  public static Image tiny_error;
+  public static Image yellow_pointer;
   private static BufferedImage game_image;
   public static int imageType;
   public static float renderingScalar;
@@ -215,6 +220,9 @@ public class Renderer {
     // patch copyright to match the year that jagex took down RSC
     shellStrings[23] = shellStrings[23].replaceAll("2015", "2018");
 
+    // patch now-inaccurate log message
+    shellStrings[0] = "Shutting down";
+
     // Resize game window
     new_size.width = 512;
     new_size.height = 346;
@@ -225,16 +233,14 @@ public class Renderer {
     updateRenderingScalarAndResize(true);
 
     // Load fonts
-    try {
-      GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-      InputStream is = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
-      Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    try (InputStream hIS = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
+        InputStream tIS = Launcher.getResourceAsStream("/assets/TimesRoman.ttf")) {
+      Font font = Font.createFont(Font.TRUETYPE_FONT, hIS);
       ge.registerFont(font);
       font_main = font.deriveFont(Font.PLAIN, 11.0f);
       font_big = font.deriveFont(Font.PLAIN, 22.0f);
-
-      is = Launcher.getResourceAsStream("/assets/TimesRoman.ttf");
-      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
+      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, tIS));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -260,6 +266,8 @@ public class Renderer {
       image_map = ImageIO.read(Launcher.getResource("/assets/map.png"));
       SpecialStar.initializeSpecialStars();
       image_small_skull = ImageIO.read(Launcher.getResource("/assets/small_skull.png"));
+      tiny_error = ImageIO.read(Launcher.getResource("/assets/tiny_error.png"));
+      yellow_pointer = ImageIO.read(Launcher.getResource("/assets/yellow_pointer.png"));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1457,42 +1465,55 @@ public class Renderer {
       }
 
       // A little over a full tick
-      int threshold = 35;
+      int tickThreshold = 35, warningThreshold = 35;
 
-      if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0)
-        threshold = 35 * 3; // this is to prevent blinking during fastforward
+      // Adjust threshold levels for known servers, after it has been lag-logged
+      if (OpenRSCFrameworkUtils.isOpenRSCCompatible()) {
+        warningThreshold = OpenRSCFrameworkUtils.LAG_WARNING_THRESHOLD;
+      }
 
-      if (Replay.getServerLag() >= threshold) {
+      // This is to prevent blinking during fast-forward
+      if (Replay.isPlaying && Replay.fpsPlayMultiplier > 1.0) {
+        warningThreshold = 35 * 3;
+        tickThreshold = 35 * 3;
+      }
+
+      final int serverLag = Replay.getServerLag();
+
+      // Lag logging
+      if (serverLag >= tickThreshold) {
         if (Settings.LOG_LAG.get(Settings.currentProfile)) {
           if (!laggedLastFrame) {
             Logger.Lag("LagStart", Replay.timestamp);
             laggedLastFrame = true;
           }
         }
-        if (Settings.LAG_INDICATOR.get(Settings.currentProfile)) {
-          x = width - 80;
-          y = height - 80;
-          setAlpha(g2, alpha_time);
-          g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
-          x += 16;
-          y += 38;
-          drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
-          y += 12;
-          int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
-          drawShadowText(
-              g2,
-              new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
-              x,
-              y,
-              color_low,
-              true);
-          setAlpha(g2, 1.0f);
-        }
       } else {
         if (laggedLastFrame && Settings.LOG_LAG.get(Settings.currentProfile)) {
           Logger.Lag("LagStop", Replay.timestamp);
           laggedLastFrame = false;
         }
+      }
+
+      // Lag warning indicator
+      if (serverLag >= warningThreshold && Settings.LAG_INDICATOR.get(Settings.currentProfile)) {
+        x = width - 80;
+        y = height - 80;
+        setAlpha(g2, alpha_time);
+        g2.drawImage(Launcher.icon_warn.getImage(), x, y, 32, 32, null);
+        x += 16;
+        y += 38;
+        drawShadowText(g2, "Server Lag", x, y, color_fatigue, true);
+        y += 12;
+        int lag = (Replay.getServerLag() - 31) * Replay.getFrameTimeSlice();
+        drawShadowText(
+            g2,
+            new DecimalFormat("0.0").format((float) lag / 1000.0f) + "s",
+            x,
+            y,
+            color_low,
+            true);
+        setAlpha(g2, 1.0f);
       }
 
       if (!(Replay.isPlaying && !Settings.TRIGGER_ALERTS_REPLAY.get(Settings.currentProfile))) {
@@ -1580,8 +1601,44 @@ public class Renderer {
         }
       }
     } else if (Client.state == Client.STATE_LOGIN) {
-      if (Settings.DEBUG.get(Settings.currentProfile))
+      if (Settings.DEBUG.get(Settings.currentProfile)) {
         drawShadowText(g2, "DEBUG MODE", 38, 8, color_text, true);
+      }
+
+      // Welcome and login screen-specific logic
+      if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN
+          || Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+
+        // Draw world populations for worlds that defined a population URL
+        String populationResult = Util.fetchPopulationCount();
+        if (populationResult != null) {
+          drawPopulationString(g2, "Population", populationResult);
+        }
+
+        // Draw populations for exclusive extensions which handle their own population fetching
+        if (ServerExtensions.enabled(ServerExtensions.OPENRSC_OFFICIAL)) {
+          final String currWorldId =
+              Settings.WORLD_ID.get(Settings.WORLD.get(Settings.currentProfile));
+          if (Util.isNotBlank(currWorldId)) {
+            String popWorldIdName = null;
+            String popText = null;
+
+            OpenRSCOfficialUtils.getPopulations().update();
+
+            if (OpenRSCOfficialUtils.isPreservationType(currWorldId)) {
+              popWorldIdName = OpenRSCOfficialUtils.PRESERVATION.getName();
+              popText = OpenRSCOfficialUtils.getPreservationPop();
+            } else if (OpenRSCOfficialUtils.isUraniumType(currWorldId)) {
+              popWorldIdName = OpenRSCOfficialUtils.URANIUM.getName();
+              popText = OpenRSCOfficialUtils.getUraniumPop();
+            }
+
+            if (popWorldIdName != null && popText != null) {
+              drawPopulationString(g2, popWorldIdName, popText);
+            }
+          }
+        }
+      }
 
       // Draw settings gear
       int gearX = width - 10 - image_gear.getWidth(null);
@@ -1606,12 +1663,16 @@ public class Renderer {
           && bufferedMouseClick.getY() >= gearBounds.y
           && bufferedMouseClick.getY() <= gearBounds.y + gearBounds.height
           && bufferedMouseClick.isMouseClicked()) {
+        if (Client.showingNoWorldsMessage) {
+          Client.showingNoWorldsMessage = false;
+        }
+
         Launcher.getConfigWindow().toggleConfigWindow();
       }
 
-      // Draw map icon
       if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN
           || Client.login_screen == Client.SCREEN_USERNAME_PASSWORD_LOGIN) {
+        // Draw map icon
         int mapX = width - 10 - image_map_inactive.getWidth(null);
         int mapY = 45;
 
@@ -1637,31 +1698,129 @@ public class Renderer {
             && bufferedMouseClick.isMouseClicked()) {
           Launcher.getWorldMapWindow().toggleWorldMapWindow();
         }
+
+        // Settings pointer
+        if (Client.showingNoWorldsMessage) {
+          setAlpha(g2, alpha_time);
+          g2.drawImage(yellow_pointer, gearX - yellow_pointer.getWidth(null) - 10, gearY, null);
+          setAlpha(g2, 1.0f);
+        }
+
+        // Reset pointer
+        if (Client.showingNoWorldsMessage && !Client.isLoginScreenShowingTwoLines()) {
+          Client.showingNoWorldsMessage = false;
+        }
+      }
+
+      // Launcher warning indicator
+      if (Launcher.hasWarnings()) {
+        setAlpha(g2, alpha_time);
+        g2.drawImage(tiny_error, 2, height - 11, null);
+        setAlpha(g2, 1.0f);
+        Rectangle worldDownloadErrorBounds =
+            new Rectangle(2, height - 11, tiny_error.getWidth(null), tiny_error.getHeight(null));
+
+        if (MouseHandler.x >= worldDownloadErrorBounds.x
+            && MouseHandler.x <= worldDownloadErrorBounds.x + worldDownloadErrorBounds.width
+            && MouseHandler.y >= worldDownloadErrorBounds.y
+            && MouseHandler.y <= worldDownloadErrorBounds.y + worldDownloadErrorBounds.height) {
+
+          String errorType = "";
+          if (Launcher.hasWarning(Launcher.LauncherError.BINARY_UPDATE_CHECK)) {
+            errorType = "application";
+          }
+          if (Launcher.hasWarning(Launcher.LauncherError.WORLD_DOWNLOADS)
+              || Launcher.hasWarning(Launcher.LauncherError.WORLD_SUB_MISMATCH)) {
+            if (!errorType.isEmpty()) {
+              errorType += " and ";
+            }
+            errorType += "world";
+          }
+
+          String errorInfo1 = "Could not contact the server for " + errorType + " updates.";
+          String errorInfo2 =
+              "Please ensure you have the latest "
+                  + Launcher.binaryPrefix
+                  + "RSC+ "
+                  + (Launcher.isUsingBinary() ? "application" : "client")
+                  + ".";
+          Dimension errorInfoBounds =
+              Renderer.getStringBounds(
+                  g2, errorInfo2.length() > errorInfo1.length() ? errorInfo2 : errorInfo1);
+
+          setAlpha(g2, 0.8f);
+          g2.setColor(Color.BLACK);
+          g2.fillRect(
+              5,
+              height - 21 - ((int) errorInfoBounds.getHeight() * 2),
+              (int) errorInfoBounds.getWidth() + 4,
+              ((int) errorInfoBounds.getHeight() * 2) + 2);
+          setAlpha(g2, 1.0f);
+          g2.setColor(Color.WHITE);
+          drawShadowText(
+              g2, errorInfo1, 7, height - 23 - (int) errorInfoBounds.getHeight(), Color.red, false);
+          drawShadowText(g2, errorInfo2, 7, height - 23, Color.red, false);
+        }
       }
 
       // Draw world list
-      drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true, false);
-      for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
-        Rectangle bounds = new Rectangle(134 + (i * 18), height - 12, 16, 12);
-        Color color = color_text;
+      if (!Settings.noWorldsConfigured
+          && Client.login_screen != Client.SCREEN_REGISTER_NEW_ACCOUNT
+          && Client.login_screen != Client.SCREEN_PASSWORD_RECOVERY) {
+        drawShadowText(g2, "World (Click to change): ", 80, height - 8, color_text, true, false);
 
-        if (i == Settings.WORLD.get(Settings.currentProfile)) color = color_low;
+        for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
+          Rectangle bounds = new Rectangle(134 + (i * 18), height - 12, 16, 12);
+          Color color = color_text;
 
-        setAlpha(g2, 0.5f);
-        g2.setColor(color);
-        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-        setAlpha(g2, 1.0f);
-        String worldString = Integer.toString(i);
-        drawShadowText(
-            g2, worldString, bounds.x + (bounds.width / 2), bounds.y + 4, color_text, true, false);
+          if (i == Settings.WORLD.get(Settings.currentProfile)) color = color_low;
 
-        // Handle world selection click
-        if (bufferedMouseClick.getX() >= bounds.x
-            && bufferedMouseClick.getX() <= bounds.x + bounds.width
-            && bufferedMouseClick.getY() >= bounds.y
-            && bufferedMouseClick.getY() <= bounds.y + bounds.height
-            && bufferedMouseClick.isMouseClicked()) {
-          Game.getInstance().getJConfig().changeWorld(i);
+          setAlpha(g2, 0.5f);
+          g2.setColor(color);
+          g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+          setAlpha(g2, 1.0f);
+          String worldString = Integer.toString(i);
+          drawShadowText(
+              g2,
+              worldString,
+              bounds.x + (bounds.width / 2),
+              bounds.y + 4,
+              color_text,
+              true,
+              false);
+        }
+
+        // World list selection handling
+        // Note: must happen after buttons have been drawn for proper Z layer rendering
+        for (int i = 1; i <= Settings.WORLDS_TO_DISPLAY; i++) {
+          Rectangle bounds = new Rectangle(134 + (i * 18), height - 12, 16, 12);
+
+          // Handle world selection hover
+          if (MouseHandler.x >= bounds.x
+              && MouseHandler.x <= bounds.x + bounds.width
+              && MouseHandler.y >= bounds.y
+              && MouseHandler.y <= bounds.y + bounds.height) {
+            Dimension worldInfoBounds = Renderer.getStringBounds(g2, Settings.WORLD_NAMES.get(i));
+            String worldName = Settings.WORLD_NAMES.get(i);
+            if (worldName != null) {
+              drawShadowText(
+                  g2,
+                  worldName,
+                  MouseHandler.x - (int) (worldInfoBounds.getWidth() / 2),
+                  MouseHandler.y + worldInfoBounds.height - 20,
+                  Color.white,
+                  false);
+            }
+          }
+
+          // Handle world selection click
+          if (bufferedMouseClick.getX() >= bounds.x
+              && bufferedMouseClick.getX() <= bounds.x + bounds.width
+              && bufferedMouseClick.getY() >= bounds.y
+              && bufferedMouseClick.getY() <= bounds.y + bounds.height
+              && bufferedMouseClick.isMouseClicked()) {
+            Game.getInstance().getJConfig().changeWorld(i);
+          }
         }
       }
 
@@ -1838,20 +1997,7 @@ public class Renderer {
         }
       }
 
-      /* TODO: add button to main screen to open settings.
-      // draw button to open settings
-      if (Client.login_screen == Client.SCREEN_CLICK_TO_LOGIN) {
-        g2.setColor(color_replay);
-        Rectangle settingsButtonBounds = new Rectangle(512 - 140, 346 - 35, 100, 16);
-        g2.fillRect(
-            settingsButtonBounds.x,
-            settingsButtonBounds.y,
-            settingsButtonBounds.width,
-            settingsButtonBounds.height);
-      }
-      */
-
-      // TODO: Uncomment this information when we can provide it again
+      // Deprecated code retained purely for historical reasons
       /*drawShadowText(g2, "Populations", width - 67, 14, color_text, false);
       int worldPopArray[];
       int totalPop = 0;
@@ -1874,10 +2020,12 @@ public class Renderer {
       //*/
 
       // Draw version information
+      int textOffset = 5 * Launcher.binaryPrefix.length();
+
       drawShadowText(
           g2,
-          "RSCPlus v" + String.format("%8.6f", Settings.VERSION_NUMBER),
-          width - 164,
+          Launcher.appName + " v" + Util.formatVersion(Settings.VERSION_NUMBER),
+          width - 164 - textOffset,
           height - 2,
           color_text,
           false,
@@ -1954,6 +2102,7 @@ public class Renderer {
         g2.setColor(color_prayer);
         setAlpha(g2, 0.5f);
         g2.fillRect(barBounds.x + 1, barBounds.y + 1, client_x - 1, barBounds.height - 1);
+        setAlpha(g2, 1.0f);
 
         if (MouseHandler.x >= barBounds.x
             && MouseHandler.x <= barBounds.x + barBounds.width
@@ -1977,7 +2126,9 @@ public class Renderer {
               false,
               0);
 
-          if (!Replay.isSeeking && bufferedMouseClick.isMouseClicked()) Replay.seek(timestamp);
+          if (!Replay.isSeeking && bufferedMouseClick.isMouseClicked()) {
+            Replay.seek(timestamp);
+          }
         }
 
         if (Replay.isSeeking) {
@@ -2255,12 +2406,18 @@ public class Renderer {
     if (screenshot) {
       try {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-        String fname =
-            Settings.SCREENSHOTS_STORAGE_PATH.get("custom")
-                + "/"
-                + "Screenshot from "
-                + format.format(new Date())
-                + ".png";
+        String fbase = Settings.SCREENSHOTS_STORAGE_PATH.get("custom");
+
+        // Use a subdirectory when the player is logged in
+        if (!Client.player_name.isEmpty()
+            && !Client.username_login.equals(Replay.excludeUsername)) {
+          fbase += Util.formatPlayerName(Client.player_name);
+        }
+
+        // Create the dir if it does not exist
+        Util.makeDirectory(fbase);
+
+        String fname = fbase + "/" + "Screenshot from " + format.format(new Date()) + ".png";
         File screenshotFile = new File(fname);
         ImageIO.write(game_image, "png", screenshotFile);
         if (!quietScreenshot)
@@ -2273,7 +2430,9 @@ public class Renderer {
     // Rapid screenshots should not use custom-set screenshot dirs
 
     if (videorecord > 0) {
-      String fname = Settings.Dir.VIDEO + "/" + "video" + (videolength - videorecord) + ".png";
+      Util.makeDirectory(Settings.Dir.VIDEO);
+      String fname =
+          Settings.Dir.VIDEO + File.separator + "video" + (videolength - videorecord) + ".png";
       try {
         File screenshotFile = new File(fname);
         ImageIO.write(game_image, "png", screenshotFile);
@@ -2423,6 +2582,16 @@ public class Renderer {
     show_bank_last = Client.show_bank;
   }
 
+  private static void drawPopulationString(Graphics2D g2, String popTitle, String popText) {
+    drawShadowText(
+        g2,
+        popTitle + ": " + popText,
+        8,
+        198 - (Client.isLoginScreenShowingTwoLines() ? 16 : 0),
+        color_text,
+        false);
+  }
+
   /** Draws a little + symbol over menu buttons */
   private static void drawPlusIcon(Graphics2D g2, int x, int y) {
     if (Client.isFullScreenInterfaceOpen()) {
@@ -2454,9 +2623,7 @@ public class Renderer {
     int skullImageWidth = image_small_skull.getWidth(null);
     int skullImageHeight = image_small_skull.getHeight(null);
 
-    inventoryValues
-        .entrySet()
-        .stream()
+    inventoryValues.entrySet().stream()
         .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
         .limit(numItemsToKeep)
         .map(Map.Entry::getKey)

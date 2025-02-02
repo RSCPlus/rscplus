@@ -60,7 +60,9 @@ public class SoundEffects {
                   + (((bufferByteArray[offset] & 0xFF) == 1) ? "@red@off" : "@gre@on"),
               Client.CHAT_QUEST);
           Client.displayMessage(
-              "@whi@You can configure the RSC+ Sound effect override in the @yel@Audio tab of Settings.",
+              "@whi@You can configure the "
+                  + Launcher.binaryPrefix
+                  + "RSC+ Sound effect override in the @yel@Audio tab of Settings.",
               Client.CHAT_QUEST);
         }
       } else {

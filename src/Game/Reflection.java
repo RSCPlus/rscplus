@@ -130,6 +130,7 @@ public class Reflection {
   public static Field bufferOffset = null;
   public static Field bufferByteArray = null;
   public static Method createSocket = null;
+  public static Method commandString = null;
 
   public static Method getNpc = null;
   public static Method getPlayer = null;
@@ -228,6 +229,7 @@ public class Reflection {
       "final void da.a(byte[],int,int,int) throws java.io.IOException";
   private static final String CREATE_SOCKET =
       "private final java.net.Socket client.a(int,int,java.lang.String) throws java.io.IOException";
+  private static final String COMMAND_STRING = "private final void client.a(java.lang.String,int)";
 
   private static final String GETNPC = "private final ta client.b(int,byte)";
   private static final String GETPLAYER = "private final ta client.d(int,int)";
@@ -357,6 +359,9 @@ public class Reflection {
         } else if (method.toGenericString().equals(CREATE_SOCKET)) {
           createSocket = method;
           Logger.Info("Found createSocket");
+        } else if (method.toGenericString().equals(COMMAND_STRING)) {
+          commandString = method;
+          Logger.Info("Found commandString");
         } else if (method.toGenericString().equals(SHOW_INPUT_POPUP)) {
           showInputPopup = method;
           Logger.Info("Found showInputPopup");
@@ -910,6 +915,7 @@ public class Reflection {
       if (bufferByteArray != null) bufferByteArray.setAccessible(true);
       if (maxRetriesField != null) maxRetriesField.setAccessible(true);
       if (createSocket != null) createSocket.setAccessible(true);
+      if (commandString != null) commandString.setAccessible(true);
       if (buffer != null) buffer.setAccessible(true);
       if (getNpc != null) getNpc.setAccessible(true);
       if (getPlayer != null) getPlayer.setAccessible(true);

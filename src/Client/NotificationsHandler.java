@@ -139,7 +139,7 @@ public class NotificationsHandler {
 
     // 4
     iconLabel = new JLabel();
-    Image iconImg = new ImageIcon(Launcher.getResource("/assets/icon.png")).getImage();
+    Image iconImg = new ImageIcon(Launcher.getResource(Launcher.largeIconPath)).getImage();
     iconLabel.setIcon(
         new ImageIcon(
             iconImg.getScaledInstance(
@@ -585,7 +585,7 @@ public class NotificationsHandler {
                     "-u",
                     urgency,
                     "-i",
-                    "assets/notification_background.png",
+                    Launcher.iconAbsolutePath,
                     title,
                     sanitizedText
                   });

@@ -34,8 +34,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.nio.file.Paths;
 import javax.imageio.ImageIO;
-import javax.swing.JTabbedPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /** Handles the creation of system tray icons and notifications */
 public class TrayHandler implements MouseListener {
@@ -50,7 +53,6 @@ public class TrayHandler implements MouseListener {
 
   /** Creates the tray icon. */
   public static void initTrayIcon() {
-
     // Load images
     Image trayIconImage = null;
     try {
@@ -74,11 +76,8 @@ public class TrayHandler implements MouseListener {
     // Create popup menu
     PopupMenu popup = new PopupMenu();
 
-    MenuItem about = new MenuItem("About RSC+");
+    MenuItem about = new MenuItem("About " + Launcher.binaryPrefix + "RSC+");
     about.setFont(scaledFont);
-
-    JTabbedPane settingsTabbedPane = Launcher.getConfigWindow().tabbedPane;
-
     int authorsTabIndex = ConfigTab.getTabIndex(ConfigTab.AUTHORS);
 
     if (authorsTabIndex > -1) {
@@ -87,12 +86,17 @@ public class TrayHandler implements MouseListener {
             @Override
             public void actionPerformed(ActionEvent e) {
               Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
-              settingsTabbedPane.setSelectedIndex(authorsTabIndex);
+              Launcher.getConfigWindow().setSelectedTab(authorsTabIndex);
               Launcher.getConfigWindow().showConfigWindow();
             }
           });
     } else {
       about.setEnabled(false);
+    }
+
+    MenuItem newInstance = null;
+    if (Launcher.isUsingBinary() && Util.isMacOS()) {
+      newInstance = createNewInstanceMenuItem();
     }
 
     MenuItem settings = new MenuItem("Settings");
@@ -102,9 +106,11 @@ public class TrayHandler implements MouseListener {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
-            settingsTabbedPane.setSelectedIndex(0);
-            Launcher.getConfigWindow().showConfigWindow();
+            if (Launcher.getConfigWindow() != null) {
+              Launcher.getConfigWindow().setInitiatedTab(-1); // Reset current tab
+              Launcher.getConfigWindow().setSelectedTab(0);
+              Launcher.getConfigWindow().showConfigWindow();
+            }
           }
         });
 
@@ -116,8 +122,8 @@ public class TrayHandler implements MouseListener {
           @Override
           public void actionPerformed(ActionEvent e) {
             // TODO: Perhaps find a way to close the client from the tray icon and call both
-            // WindowClosing() and
-            // WindowClosed(), though nothing seems broken from doing it this way
+            //  WindowClosing() and WindowClosed(), though nothing seems broken
+            //  from doing it this way
             Game.getInstance()
                 .dispatchEvent(new WindowEvent(Game.getInstance(), WindowEvent.WINDOW_CLOSING));
           }
@@ -125,11 +131,15 @@ public class TrayHandler implements MouseListener {
 
     popup.add(about);
     popup.addSeparator();
+    if (newInstance != null) {
+      popup.add(newInstance);
+      popup.addSeparator();
+    }
     popup.add(settings);
     popup.add(exit);
 
     // Add tooltip and menu to trayIcon
-    trayIcon.setToolTip("RSC+ Client");
+    trayIcon.setToolTip(Launcher.binaryPrefix + "RSC+ Client");
     trayIcon.setPopupMenu(popup);
 
     // Add the trayIcon to system tray/notification area
@@ -138,6 +148,49 @@ public class TrayHandler implements MouseListener {
     } catch (AWTException e) {
       Logger.Error("Could not load tray icon");
     }
+  }
+
+  /**
+   * Handles creation and processing of the "new instance" {@link MenuItem} for macOS binaries
+   *
+   * @return {@link MenuItem} instance containing the "New Instance" option
+   */
+  public static MenuItem createNewInstanceMenuItem() {
+    MenuItem newInstance = new MenuItem("New Instance");
+    newInstance.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            try {
+              if (Launcher.isUsingBinary() && Util.isMacOS()) {
+                String appName = Paths.get("").toAbsolutePath().toString();
+                appName = appName.substring(0, appName.indexOf("Contents"));
+                if (new File(appName).exists()) {
+                  Util.execCmd(new String[] {"open", "-n", appName});
+                } else {
+                  throw new RuntimeException("Could not locate MacOS binary:" + appName);
+                }
+              }
+            } catch (Exception ex) {
+              final String error = "Error attempting to launch new MacOS binary instance.";
+              Logger.Error(error);
+              ex.printStackTrace();
+
+              String launchMacOSInstanceErrorMessage =
+                  error + "<br/><br/>" + "Please report this as a bug on GitHub.";
+              JPanel launchMacOSInstanceErrorPanel =
+                  Util.createOptionMessagePanel(launchMacOSInstanceErrorMessage);
+
+              JOptionPane.showMessageDialog(
+                  Game.getInstance().getApplet(),
+                  launchMacOSInstanceErrorPanel,
+                  Launcher.appName,
+                  JOptionPane.ERROR_MESSAGE,
+                  Launcher.scaled_icon_warn);
+            }
+          }
+        });
+    return newInstance;
   }
 
   /** Removes the system tray icon. */

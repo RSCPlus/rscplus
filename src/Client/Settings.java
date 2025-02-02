@@ -19,6 +19,7 @@
 package Client;
 
 import Client.KeybindSet.KeyModifier;
+import Game.AccountManagement;
 import Game.Bank;
 import Game.Camera;
 import Game.Client;
@@ -36,6 +37,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
@@ -43,9 +45,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /** Manages storing, loading, and changing settings. */
 public class Settings {
@@ -107,6 +114,7 @@ public class Settings {
   public static HashMap<String, Boolean> SHOW_FATIGUEUNITS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> FATIGUE_ALERT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> INVENTORY_FULL_ALERT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> DISABLE_AUTO_CAMERA = new HashMap<String, Boolean>();
   public static HashMap<String, Integer> NAME_PATCH_TYPE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> COMMAND_PATCH_LEGACY = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> DISABLE_NAT_RUNE_ALCH = new HashMap<String, Boolean>();
@@ -134,6 +142,7 @@ public class Settings {
   public static HashMap<String, Integer> FPS_LIMIT = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOFTWARE_CURSOR = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CTRL_SCROLL_CHAT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> AUTO_MESSAGE_SWITCH = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SUPPRESS_LOG_IN_OUT_MSGS = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHIFT_SCROLL_CAMERA_ROTATION =
       new HashMap<String, Boolean>();
@@ -353,6 +362,13 @@ public class Settings {
   public static HashMap<Integer, String> WORLD_RSA_PUB_KEYS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_RSA_EXPONENTS = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_HISCORES_URL = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> WORLD_REG_API_URL = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> WORLD_POPULATION_URL = new HashMap<Integer, String>();
+  public static HashMap<Integer, WorldPopulations> WORLD_POPULATION_TASK =
+      new HashMap<Integer, WorldPopulations>();
+  public static HashMap<Integer, String> WORLD_SERVER_EXTENSION = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> WORLD_ID = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> WORLD_DOWNLOAD_FLAG = new HashMap<Integer, String>();
   public static HashMap<Integer, String> WORLD_FILE_PATHS = new HashMap<Integer, String>();
   public static int WORLDS_TO_DISPLAY = 5;
   public static boolean noWorldsConfigured = true;
@@ -363,6 +379,7 @@ public class Settings {
   //// no gui
   public static HashMap<String, Integer> LAST_KNOWN_COMBAT_STYLE = new HashMap<String, Integer>();
   public static HashMap<String, Integer> WORLD = new HashMap<String, Integer>();
+  public static HashMap<String, String> WORLD_CONN_HASH = new HashMap<String, String>();
   public static HashMap<String, Boolean> FIRST_TIME = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> UPDATE_CONFIRMATION = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> RECORD_AUTOMATICALLY_FIRST_TIME =
@@ -388,6 +405,7 @@ public class Settings {
   public static boolean PROTECT_NAT_RUNE_ALCH_BOOL = false;
   public static boolean LOAD_CHAT_HISTORY_BOOL = false;
   public static boolean HIGHLIGHT_ITEMS_MENU_BOOL = false;
+  public static boolean AUTO_MESSAGE_SWITCH_BOOL = false;
 
   public static HashMap<String, Boolean> LOG_LAG = new HashMap<String, Boolean>();
 
@@ -583,7 +601,7 @@ public class Settings {
     SHOW_FATIGUEDROPS.put("vanilla", false);
     SHOW_FATIGUEDROPS.put("vanilla_resizable", false);
     SHOW_FATIGUEDROPS.put("lite", false);
-    SHOW_FATIGUEDROPS.put("default", true);
+    SHOW_FATIGUEDROPS.put("default", false);
     SHOW_FATIGUEDROPS.put("heavy", true);
     SHOW_FATIGUEDROPS.put("all", true);
     SHOW_FATIGUEDROPS.put(
@@ -609,8 +627,8 @@ public class Settings {
 
     FATIGUE_ALERT.put("vanilla", false);
     FATIGUE_ALERT.put("vanilla_resizable", false);
-    FATIGUE_ALERT.put("lite", true);
-    FATIGUE_ALERT.put("default", true);
+    FATIGUE_ALERT.put("lite", false);
+    FATIGUE_ALERT.put("default", false);
     FATIGUE_ALERT.put("heavy", true);
     FATIGUE_ALERT.put("all", true);
     FATIGUE_ALERT.put(
@@ -625,6 +643,15 @@ public class Settings {
     INVENTORY_FULL_ALERT.put(
         "custom",
         getPropBoolean(props, "inventory_full_alert", INVENTORY_FULL_ALERT.get("default")));
+
+    DISABLE_AUTO_CAMERA.put("vanilla", false);
+    DISABLE_AUTO_CAMERA.put("vanilla_resizable", false);
+    DISABLE_AUTO_CAMERA.put("lite", true);
+    DISABLE_AUTO_CAMERA.put("default", true);
+    DISABLE_AUTO_CAMERA.put("heavy", true);
+    DISABLE_AUTO_CAMERA.put("all", true);
+    DISABLE_AUTO_CAMERA.put(
+        "custom", getPropBoolean(props, "disable_auto_camera", DISABLE_AUTO_CAMERA.get("default")));
 
     /**
      * Defines to what extent the item names should be patched. 0 - No item name patching 1 - Purely
@@ -796,8 +823,8 @@ public class Settings {
 
     CAMERA_MOVABLE.put("vanilla", false);
     CAMERA_MOVABLE.put("vanilla_resizable", false);
-    CAMERA_MOVABLE.put("lite", true);
-    CAMERA_MOVABLE.put("default", true);
+    CAMERA_MOVABLE.put("lite", false);
+    CAMERA_MOVABLE.put("default", false);
     CAMERA_MOVABLE.put("heavy", true);
     CAMERA_MOVABLE.put("all", true);
     CAMERA_MOVABLE.put(
@@ -866,6 +893,15 @@ public class Settings {
     CTRL_SCROLL_CHAT.put("all", true);
     CTRL_SCROLL_CHAT.put(
         "custom", getPropBoolean(props, "ctrl_scroll_chat", CTRL_SCROLL_CHAT.get("default")));
+
+    AUTO_MESSAGE_SWITCH.put("vanilla", false);
+    AUTO_MESSAGE_SWITCH.put("vanilla_resizable", false);
+    AUTO_MESSAGE_SWITCH.put("lite", false);
+    AUTO_MESSAGE_SWITCH.put("default", false);
+    AUTO_MESSAGE_SWITCH.put("heavy", false);
+    AUTO_MESSAGE_SWITCH.put("all", true);
+    AUTO_MESSAGE_SWITCH.put(
+        "custom", getPropBoolean(props, "auto_message_switch", AUTO_MESSAGE_SWITCH.get("default")));
 
     SUPPRESS_LOG_IN_OUT_MSGS.put("vanilla", false);
     SUPPRESS_LOG_IN_OUT_MSGS.put("vanilla_resizable", false);
@@ -2425,8 +2461,22 @@ public class Settings {
         "custom",
         getPropBoolean(props, "show_userfield_column", SHOW_USERFIELD_COLUMN.get("default")));
 
+    // Must be defined before initWorlds() is called
+    defineStaticPreset(WORLD_CONN_HASH, getPropString(props, "world_conn_hash", ""));
+
     //// world list
-    initWorlds();
+    try {
+      initWorlds();
+    } catch (Exception e) {
+      Logger.Error("Error initializing worlds on startup");
+      e.printStackTrace();
+    } finally {
+      // Remove the sub download lock file as soon as the world files have been initialized
+      // to unblock other instances from launching
+      if (Launcher.initWorldLock.exists()) {
+        Launcher.initWorldLock.delete();
+      }
+    }
 
     //// joystick
     JOYSTICK_ENABLED.put("vanilla", false);
@@ -2542,7 +2592,7 @@ public class Settings {
     }
 
     String replayBaseDir = Settings.REPLAY_BASE_PATH.get("custom");
-    String validatedReplayBaseDir = validateCustomDir(replayBaseDir, "");
+    String validatedReplayBaseDir = validateCustomDir(replayBaseDir, Dir.REPLAY);
     if (!replayBaseDir.equals(validatedReplayBaseDir)) {
       REPLAY_BASE_PATH.put("custom", validatedReplayBaseDir);
       foundInvalidSetting = true;
@@ -2691,14 +2741,21 @@ public class Settings {
   }
 
   /**
-   * Creates necessary folders relative to the codebase, which is typically either the jar or
-   * location of the package folders
+   * Creates necessary folders in a location dependent on how the application was launched.
    *
+   * <p>When launched from a binary, the typical OS application installation directories will be
+   * utilized.
+   *
+   * <p>When launched from the JAR, the user will be prompted to choose whether to enable the
+   * portable install mode. Doing so will utilize folders relative to the codebase, which is
+   * typically either the jar or location of the package folders. Denial of this option will result
+   * in usage of the binary installation directories.
+   *
+   * @see ServerExtensions#bootstrap()
    * @see java.security.CodeSource
    */
-  public static void initDir() { // TODO: Consider moving to a more relevant place
+  public static void initDir() {
     // Find JAR directory
-    // TODO: Consider utilizing Util.makeDirectory()
     Dir.JAR = ".";
     try {
       Dir.JAR =
@@ -2710,15 +2767,105 @@ public class Settings {
     } catch (Exception e) {
     }
 
-    // Check to see if RSC+ has permissions to write to the current dir
-    try {
-      if (!Files.isWritable(new File(Settings.Dir.JAR).toPath())) {
-        String filePermissionsErrorMessage =
-            "<b>Error attempting to launch RSCPlus</b><br/>"
+    File configFileNextToJAR = new File(Dir.JAR + File.separator + "config.ini");
+    /*
+     * NOTE: when ran through intelliJ (and possibly other IDEs), the below condition will
+     * evaluate to true even when launched with the usingBinary flag, IF the project has
+     * already been run in portable mode. Either rebuild the project or delete the config.ini
+     * file in the build directory to target the proper XDG_CONFIG location.
+     */
+    if (configFileNextToJAR.exists()) {
+      // Use the relative directory when a config.ini file exists
+      Dir.CONFIG_DIR = Dir.JAR;
+    } else {
+      final File portableLockFile = new File(Dir.JAR + File.separator + "rscplus.lock");
+
+      if (Launcher.isUsingBinary()
+          || portableLockFile.exists()
+          || !Files.isWritable(new File(Dir.JAR).toPath())) {
+        // Server-specific binaries get their own config directories
+        // (or if the lock file isn't writeable)
+        Dir.CONFIG_DIR = getBinaryConfigDir();
+      } else {
+        // Initial launch should prompt JAR users whether they'd like to use portable mode
+        String portableModeMessage =
+            "Would you like to use RSC+ in portable mode?<br/>"
                 + "<br/>"
-                + "RSCPlus is unable to create configuration files in the following directory:"
+                + "All files and folders created by RSC+ will be placed<br/>"
+                + "next to the JAR file, rather than the default location.";
+
+        JPanel portableModePanel = Util.createOptionMessagePanel(portableModeMessage);
+
+        JFrame portableModeFrame = Util.launchHiddenFrame();
+
+        int response =
+            JOptionPane.showConfirmDialog(
+                portableModeFrame,
+                portableModePanel,
+                Launcher.appName,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+
+        if (response == JOptionPane.YES_OPTION) {
+          String portableModeAcceptMessage =
+              "Portable mode has been ENABLED"
+                  + "<br/>"
+                  + "<br/>"
+                  + "Deletion of the \"config.ini\" file will reset this choice";
+          JPanel portableModeAcceptPanel = Util.createOptionMessagePanel(portableModeAcceptMessage);
+
+          JOptionPane.showMessageDialog(
+              portableModeFrame,
+              portableModeAcceptPanel,
+              Launcher.appName,
+              JOptionPane.INFORMATION_MESSAGE,
+              Launcher.scaled_icon_warn);
+
+          // Use the relative directory
+          Dir.CONFIG_DIR = Dir.JAR;
+        } else {
+          String portableModeDenyMessage =
+              "Portable mode will NOT be enabled"
+                  + "<br/>"
+                  + "<br/>"
+                  + "Deletion of the \"rscplus.lock\" file will reset this choice";
+          JPanel portableModeDenyPanel = Util.createOptionMessagePanel(portableModeDenyMessage);
+
+          JOptionPane.showMessageDialog(
+              portableModeFrame,
+              portableModeDenyPanel,
+              Launcher.appName,
+              JOptionPane.INFORMATION_MESSAGE,
+              Launcher.scaled_icon_warn);
+
+          // Create a lock file to remember this choice
+          try {
+            Files.createFile(portableLockFile.toPath());
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+
+          // Use the RSCPlus config dir
+          Dir.CONFIG_DIR = getBinaryConfigDir();
+        }
+
+        portableModeFrame.dispose();
+      }
+    }
+
+    try {
+      Util.makeDirectory(Dir.CONFIG_DIR);
+      // Check to see if RSC+ has permissions to write to the current dir
+      if (!Files.isWritable(new File(Dir.CONFIG_DIR).toPath())) {
+        String filePermissionsErrorMessage =
+            "<b>Error attempting to launch "
+                + Launcher.appName
+                + "</b><br/>"
+                + "<br/>"
+                + Launcher.appName
+                + " is unable to create configuration files in the following directory:"
                 + "<br/><br/>"
-                + new File(Dir.JAR).getAbsolutePath()
+                + new File(Dir.CONFIG_DIR).getAbsolutePath()
                 + "<br/><br/>"
                 + "You must either grant the appropriate permissions to this directory OR<br/>"
                 + "move the application to a different location.";
@@ -2728,7 +2875,7 @@ public class Settings {
         JOptionPane.showConfirmDialog(
             Launcher.getInstance(),
             filePermissionsErrorPanel,
-            "RSCPlus",
+            Launcher.appName,
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.ERROR_MESSAGE,
             Launcher.scaled_icon_warn);
@@ -2740,29 +2887,57 @@ public class Settings {
       e.printStackTrace();
     }
 
-    CONFIG_FILE = Dir.JAR + "/config.ini";
+    CONFIG_FILE = Dir.CONFIG_DIR + "/config.ini";
 
     // Load other directories
-    Dir.LOGS = Dir.JAR + "/logs";
+    Dir.LOGS = Dir.CONFIG_DIR + "/logs";
     Util.makeDirectory(Dir.LOGS);
-    Dir.SCREENSHOT = Dir.JAR + "/screenshots";
+    Dir.SCREENSHOT = Dir.CONFIG_DIR + "/screenshots";
     Util.makeDirectory(Dir.SCREENSHOT);
-    Dir.MODS = Dir.JAR + "/mods";
+    Dir.MODS = Dir.CONFIG_DIR + "/mods";
     Util.makeDirectory(Dir.MODS);
-    Dir.REPLAY = Dir.JAR + "/replay";
+    Dir.REPLAY = Dir.CONFIG_DIR + "/replay";
     Util.makeDirectory(Dir.REPLAY);
-    Dir.WORLDS = Dir.JAR + "/worlds";
+    Dir.WORLDS = Dir.CONFIG_DIR + "/worlds";
     Util.makeDirectory(Dir.WORLDS);
-    Dir.SPEEDRUN = Dir.JAR + "/speedrun";
+    Dir.SPEEDRUN = Dir.CONFIG_DIR + "/speedrun";
     Util.makeDirectory(Dir.SPEEDRUN);
-    Dir.BANK = Dir.JAR + "/bank";
+    Dir.BANK = Dir.CONFIG_DIR + "/bank";
     Util.makeDirectory(Dir.BANK);
-    Dir.LIB = Dir.JAR + "/lib";
+    Dir.LIB = Dir.CONFIG_DIR + "/lib";
     Util.makeDirectory(Dir.LIB);
     Dir.JINPUTNATIVELIB = Dir.LIB + "/jinput-natives";
     Util.makeDirectory(Dir.JINPUTNATIVELIB);
+    // Directory will only be made when the feature is used
     Dir.VIDEO = Dir.SCREENSHOT + "/rapid-screenshots";
-    Util.makeDirectory(Dir.VIDEO);
+  }
+
+  /**
+   * Determine the OS-specific location for where to store configuration files
+   *
+   * @return {@link String} containnig the directory location
+   */
+  private static String getBinaryConfigDir() {
+    final String configDir;
+    final String appDirName = Launcher.binaryPrefix + "RSCPlus";
+
+    if (Util.isWindowsOS()) {
+      configDir = System.getenv("APPDATA") + File.separator + appDirName;
+    } else if (Util.isMacOS()) {
+      configDir = System.getProperty("user.home") + "/Library/Application Support/" + appDirName;
+    } else {
+      final String XDG_CONFIG = System.getenv("XDG_CONFIG_HOME");
+      if (Util.isNotBlank(XDG_CONFIG)) {
+        configDir =
+            XDG_CONFIG.endsWith(File.separator)
+                ? XDG_CONFIG + appDirName
+                : XDG_CONFIG + File.separator + appDirName;
+      } else {
+        configDir = System.getProperty("user.home") + "/.config/" + appDirName;
+      }
+    }
+
+    return configDir;
   }
 
   /** Loads properties from config.ini for use with definePresets */
@@ -2836,14 +3011,56 @@ public class Settings {
         }
       }
 
-      FileInputStream in = new FileInputStream(Settings.CONFIG_FILE);
-      props.load(in);
-      in.close();
+      try (FileInputStream in = new FileInputStream(Settings.CONFIG_FILE)) {
+        props.load(in);
+      }
     } catch (Exception e) {
       Logger.Warn("Error loading config.ini");
       e.printStackTrace();
     }
     return props;
+  }
+
+  /**
+   * Loads config.ini properties without bootstrapping the config, if it hasn't been created yet.
+   *
+   * <p>Used in places where the config file should be read prior to invocation of {@link
+   * Settings#initSettings()}
+   *
+   * @return Config {@link Properties} or {@code null} if it doesn't exist
+   */
+  static Properties loadPropsIfExist() {
+    Properties props = new Properties();
+
+    try {
+      File configFile = new File(Settings.CONFIG_FILE);
+      if (!configFile.exists()) {
+        return null;
+      }
+
+      try (FileInputStream in = new FileInputStream(Settings.CONFIG_FILE)) {
+        props.load(in);
+      }
+    } catch (Exception e) {
+      return null;
+    }
+
+    return props;
+  }
+
+  /**
+   * Determines whether the provided {@link Properties} instance pertains to the config.ini data
+   *
+   * @param props {@link Properties} instance to validate
+   * @return {@code boolean} value indicating prop file validity
+   */
+  public static boolean isInvalidPropsFile(Properties props) {
+    if (props == null) {
+      return true;
+    }
+
+    // Using a property that is highly unlikely to ever change to test file validity
+    return props.get("check_updates") == null;
   }
 
   /**
@@ -2871,12 +3088,24 @@ public class Settings {
 
       int loadedCombatStyle =
           getPropInt(props, String.format("cmbStyle%03d", usernameID), Client.COMBAT_AGGRESSIVE);
+
       // Sanitize the value if it somehow got corrupted
+      boolean corruptedCmbStyleValue = false;
       if (loadedCombatStyle < Client.COMBAT_CONTROLLED) {
+        corruptedCmbStyleValue = true;
         loadedCombatStyle = Client.COMBAT_CONTROLLED;
       } else if (loadedCombatStyle > Client.COMBAT_DEFENSIVE) {
+        corruptedCmbStyleValue = true;
         loadedCombatStyle = Client.COMBAT_DEFENSIVE;
       }
+
+      if (corruptedCmbStyleValue) {
+        Logger.Error("Stored combat style for [" + currentPlayerName + "] was invalid!");
+
+        // Note: will only print to user if already playing
+        Client.printCombatStyleWarning();
+      }
+
       Client.playerCombatStyles.put(combatantUsernames[usernameID], loadedCombatStyle);
     }
 
@@ -2990,106 +3219,252 @@ public class Settings {
     }
   }
 
+  /**
+   * Initializes worlds on application startup by sorting and validating all world files, validating
+   * all extension data defined for the file (including upgrades based on fallback URL), and finally
+   * loading their contents in the respective {@link Settings} variables.
+   *
+   * <p>When file validation fails due to invalid content, the application will display an error
+   * modal to the user and prompt them to either quit the application or open the worlds directory
+   * to correct any issues.
+   */
   public static void initWorlds() {
-    File[] fList = new File(Dir.WORLDS).listFiles();
+    if (Dir.WORLDS == null) {
+      throw new RuntimeException("Calling method before the worlds folder has been initialized");
+    }
 
-    // Sorts alphabetically
-    Arrays.sort(
-        fList,
-        new Comparator<File>() {
-          @Override
-          public int compare(File o1, File o2) {
-            return o1.getName().compareTo(o2.getName());
-          }
-        });
+    // Only initialize worlds once on load
+    if (successfullyInitted) {
+      return;
+    }
 
-    int i = 1;
-    if (fList != null) {
-      for (File worldFile : fList) {
-        if (!worldFile.getName().equals(".DS_Store")) {
-          Properties worldProps = validateWorldFile(worldFile);
+    List<File> worldFiles = Settings.getWorldFiles();
 
-          if (worldProps == null) continue;
+    // Sort world files such that downloaded ones appear first
+    List<File> allWorldFiles = new LinkedList<>(Settings.getWorldFiles());
+    List<File> downloadedWorldFiles = new LinkedList<>();
 
-          WORLD_FILE_PATHS.put(i, worldFile.getAbsolutePath());
-          WORLD_NAMES.put(i, worldProps.getProperty("name"));
-          WORLD_URLS.put(i, worldProps.getProperty("url"));
-          WORLD_PORTS.put(i, Integer.parseInt(worldProps.getProperty("port")));
-          WORLD_SERVER_TYPES.put(
-              i, Integer.parseInt((String) worldProps.getOrDefault("servertype", "1")));
-          WORLD_RSA_PUB_KEYS.put(i, worldProps.getProperty("rsa_pub_key"));
-          WORLD_RSA_EXPONENTS.put(i, worldProps.getProperty("rsa_exponent"));
-          WORLD_HISCORES_URL.put(i, (String) worldProps.getOrDefault("hiscores_url", ""));
-
-          i++;
+    // Split downloaded world files for the current subscription to separate lists
+    if (Launcher.shouldDownloadWorlds()) {
+      for (File worldFile : worldFiles) {
+        Properties fileProps = loadPropertiesFile(worldFile);
+        if (fileProps != null && Launcher.subWorldFiles.contains(worldFile)) {
+          allWorldFiles.remove(worldFile);
+          downloadedWorldFiles.add(worldFile);
         }
       }
+
+      // Sort downloaded worlds by the previously-determined
+      // order from Launcher.downloadServerWorlds()
+      downloadedWorldFiles.sort(Comparator.comparingInt(Launcher.subWorldFiles::indexOf));
+    }
+
+    // Sort non-server-specific worlds by name
+    allWorldFiles.sort(Comparator.comparing(File::getName));
+
+    // Finally, recombine worlds
+    downloadedWorldFiles.addAll(allWorldFiles);
+    worldFiles = downloadedWorldFiles;
+
+    int i = 1;
+
+    Map<File, World> worldFileMap = World.parseFilesToMap(worldFiles);
+    for (Map.Entry<File, World> worldEntry : worldFileMap.entrySet()) {
+      final World world = worldEntry.getValue();
+
+      try {
+        // Ensure all required properties are present
+        World.validateWorld(world);
+
+        WORLD_FILE_PATHS.put(i, worldEntry.getKey().getAbsolutePath());
+        WORLD_NAMES.put(i, world.getName());
+        WORLD_URLS.put(i, world.getUrl());
+        WORLD_PORTS.put(i, Integer.parseInt(world.getPort()));
+        WORLD_SERVER_TYPES.put(i, Integer.parseInt(world.getServerType()));
+        WORLD_RSA_PUB_KEYS.put(i, world.getRsaPubKey());
+        WORLD_RSA_EXPONENTS.put(i, world.getRsaExponent());
+        WORLD_HISCORES_URL.put(i, world.getHiScoresUrl());
+        WORLD_REG_API_URL.put(i, world.getRegistrationApiUrl());
+        WORLD_POPULATION_URL.put(i, world.getWorldPopulationUrl());
+        WORLD_SERVER_EXTENSION.put(i, world.getServerExtension());
+        WORLD_ID.put(i, world.getWorldId());
+        WORLD_DOWNLOAD_FLAG.put(i, world.getDownloadFlag());
+
+        // Validate server extension related data
+        ServerExtensions.validateServerExtensionSettings(i);
+
+        // Construct the population check process
+        setPopulationTask(i);
+      } catch (IllegalArgumentException e) {
+        JFrame worldsErrorFrame = Util.launchHiddenFrame();
+
+        String badWorldFileErrorMessage =
+            "An invalid world ini file was detected:<br/>&emsp;"
+                + worldEntry.getKey().getName()
+                + "<br/><br/>"
+                + "Due to "
+                + e.getMessage()
+                + "<br/>"
+                + "Please review your world files before re-launching the client.";
+        JPanel badWorldFileErrorPanel = Util.createOptionMessagePanel(badWorldFileErrorMessage);
+
+        Object[] options = {"Open Worlds Folder", "Quit"};
+
+        int result =
+            JOptionPane.showOptionDialog(
+                worldsErrorFrame,
+                badWorldFileErrorPanel,
+                Launcher.appName,
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.ERROR_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        worldsErrorFrame.dispose();
+
+        if (result == 0) {
+          // Add a shutdown hook to open the worlds folder
+          Runtime.getRuntime()
+              .addShutdownHook(new Thread(() -> Util.openDirectory(new File(Dir.WORLDS))));
+        }
+
+        System.exit(0);
+      }
+
+      i++;
     }
 
     if (i > 1) {
       noWorldsConfigured = false;
       WORLDS_TO_DISPLAY = i - 1;
     } else {
-      createNewWorld(1);
-      WORLDS_TO_DISPLAY = 1;
+      WORLDS_TO_DISPLAY = 0;
+      WORLD_CONN_HASH.put(Settings.currentProfile, "");
     }
+
+    saveWorlds();
   }
 
   /**
-   * Ensures that a world file can be properly parsed into a properties file
+   * Parses an INI file into a {@link Properties} object
    *
-   * @param worldFile {@link File} reference for the world ini
-   * @return parsed world file {@link Properties} or {@code null} if invalid
+   * @param iniFile {@link File} reference for the ini
+   * @return parsed ini file {@link Properties} or {@code null} if invalid
    */
-  public static Properties validateWorldFile(File worldFile) {
-    if (!worldFile.isDirectory() && worldFile.getName().endsWith(".ini")) {
-      try (FileInputStream in = new FileInputStream(worldFile)) {
-        Properties worldProps = new Properties();
-        worldProps.load(in);
-        return worldProps;
+  public static Properties loadPropertiesFile(File iniFile) {
+    if (!iniFile.isDirectory() && iniFile.getName().endsWith(".ini")) {
+      try (FileInputStream in = new FileInputStream(iniFile)) {
+        Properties props = new Properties();
+        props.load(in);
+        return props;
       } catch (Exception e) {
+        Logger.Error(
+            "Error loading property file: ["
+                + iniFile
+                + "]\n"
+                + "Please report this as a bug on GitHub if you ever see this error");
+        e.printStackTrace();
         // Will fall through below
       }
     }
 
-    Logger.Warn("Error loading World config for " + worldFile.getAbsolutePath());
+    Logger.Warn("Error loading properties file: " + iniFile.getAbsolutePath());
     return null;
   }
 
-  public static void saveWorlds() {
-    // TODO: it would be nice if we only saved a new file if information is different
+  /** @return a {@link List} of world ini {@link File}s from {@link Dir#WORLDS} */
+  public static List<File> getWorldFiles() {
+    File worldsDir = new File(Dir.WORLDS);
+    if (!worldsDir.exists()) {
+      throw new RuntimeException("Incorrectly called method before the worlds dir was created");
+    }
+
+    File[] worldFilesArray = worldsDir.listFiles((dir, name) -> name.endsWith(".ini"));
+
+    if (worldFilesArray == null) {
+      return new ArrayList<>();
+    }
+
+    List<File> worldFiles = Arrays.asList(worldFilesArray);
+    worldFiles.sort(Comparator.comparing(File::getName));
+    return worldFiles;
+  }
+
+  /** Save world files to disk when their contents have changed */
+  public static synchronized void saveWorlds() {
+    if (Settings.Dir.WORLDS == null) {
+      throw new RuntimeException("Calling method before the worlds folder has been initialized");
+    }
+
+    Map<File, File> fileRenameMappings = new HashMap<>();
+
     for (int i = 1; i <= WORLD_NAMES.size(); i++) {
       String worldFileName =
           String.format("%s%d_%s%s", i < 10 ? "0" : "", i, WORLD_NAMES.get(i), ".ini");
       Properties worldProps = new Properties();
 
-      worldProps.setProperty("name", WORLD_NAMES.get(i));
-      worldProps.setProperty("url", WORLD_URLS.get(i));
-      worldProps.setProperty("port", WORLD_PORTS.get(i).toString());
-      worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(i).toString());
-      worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(i));
-      worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(i));
-      worldProps.setProperty("hiscores_url", WORLD_HISCORES_URL.get(i));
+      worldProps.setProperty(World.NAME, WORLD_NAMES.get(i));
+      worldProps.setProperty(World.URL, WORLD_URLS.get(i));
+      worldProps.setProperty(World.PORT, WORLD_PORTS.get(i).toString());
+      worldProps.setProperty(World.SERVER_TYPE, WORLD_SERVER_TYPES.get(i).toString());
+      worldProps.setProperty(World.RSA_PUB_KEY, WORLD_RSA_PUB_KEYS.get(i));
+      worldProps.setProperty(World.RSA_EXPONENT, WORLD_RSA_EXPONENTS.get(i));
+      worldProps.setProperty(World.HISCORES_URL, WORLD_HISCORES_URL.get(i));
+      worldProps.setProperty(World.REGISTRATION_API_URL, WORLD_REG_API_URL.get(i));
+      worldProps.setProperty(World.WORLD_POPULATION_URL, WORLD_POPULATION_URL.get(i));
+      worldProps.setProperty(World.SERVER_EXTENSION, WORLD_SERVER_EXTENSION.get(i));
+      worldProps.setProperty(World.WORLD_ID, WORLD_ID.get(i));
+      worldProps.setProperty(World.DOWNLOAD_FLAG, WORLD_DOWNLOAD_FLAG.get(i));
 
-      try {
-        FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName));
+      // See if this is worth saving first
+      File oldFile = new File(WORLD_FILE_PATHS.get(i));
+      World oldWorld = World.fromFile(oldFile);
+      World newWorld = World.fromProps(worldProps);
+
+      if (oldFile.getName().equals(worldFileName) && newWorld.equals(oldWorld)) {
+        continue;
+      }
+
+      try (FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName))) {
+        out.getChannel().lock();
         worldProps.store(out, "---rscplus world config---");
-        out.close();
       } catch (Exception e) {
         Logger.Warn("Error saving World config for " + worldFileName);
       }
+
       try {
-        File oldFile = new File(WORLD_FILE_PATHS.get(i));
         if (!worldFileName.equals(oldFile.getName())) {
-          if (!oldFile.delete()) {
+          // Delete the old file unless another file happened to be renamed to it already
+          if (!fileRenameMappings.containsValue(oldFile) && !oldFile.delete()) {
             Logger.Warn(
                 String.format("Error deleting old file %d: %s", i, oldFile.getAbsolutePath()));
           }
-          WORLD_FILE_PATHS.put(i, new File(Dir.WORLDS, worldFileName).getAbsolutePath());
+
+          File newWorldFile = new File(Dir.WORLDS, worldFileName);
+          WORLD_FILE_PATHS.put(i, newWorldFile.getAbsolutePath());
+
+          fileRenameMappings.put(oldFile, newWorldFile);
         }
       } catch (Exception e) {
         Logger.Warn(String.format("Error deleting old file %d: %s", i, WORLD_FILE_PATHS.get(i)));
       }
+    }
+
+    // Replace the updated file name in the init list for later comparisons
+    if (!fileRenameMappings.isEmpty()) {
+      List<File> newSubWorldFiles = new ArrayList<>();
+      Launcher.subWorldFiles.forEach(file -> newSubWorldFiles.add(new File(file, "")));
+
+      fileRenameMappings.forEach(
+          (oldFile, newFile) -> {
+            if (Launcher.subWorldFiles.contains(oldFile)) {
+              int fileIdx = Launcher.subWorldFiles.indexOf(oldFile);
+              newSubWorldFiles.set(fileIdx, newFile);
+            }
+          });
+
+      Launcher.subWorldFiles = newSubWorldFiles;
     }
   }
 
@@ -3101,24 +3476,32 @@ public class Settings {
     WORLD_RSA_PUB_KEYS.put(worldNum, "");
     WORLD_RSA_EXPONENTS.put(worldNum, "");
     WORLD_HISCORES_URL.put(worldNum, "");
+    WORLD_REG_API_URL.put(worldNum, "");
+    WORLD_POPULATION_URL.put(worldNum, "");
+    WORLD_SERVER_EXTENSION.put(worldNum, "");
+    WORLD_ID.put(worldNum, "");
+    WORLD_DOWNLOAD_FLAG.put(worldNum, String.valueOf(false));
 
     String worldFileName =
         String.format(
             "%s%d_%s%s", worldNum < 10 ? "0" : "", worldNum, WORLD_NAMES.get(worldNum), ".ini");
     Properties worldProps = new Properties();
 
-    worldProps.setProperty("name", WORLD_NAMES.get(worldNum));
-    worldProps.setProperty("url", WORLD_URLS.get(worldNum));
-    worldProps.setProperty("port", WORLD_PORTS.get(worldNum).toString());
-    worldProps.setProperty("servertype", WORLD_SERVER_TYPES.get(worldNum).toString());
-    worldProps.setProperty("rsa_pub_key", WORLD_RSA_PUB_KEYS.get(worldNum));
-    worldProps.setProperty("rsa_exponent", WORLD_RSA_EXPONENTS.get(worldNum));
-    worldProps.setProperty("hiscores_url", WORLD_HISCORES_URL.get(worldNum));
+    worldProps.setProperty(World.NAME, WORLD_NAMES.get(worldNum));
+    worldProps.setProperty(World.URL, WORLD_URLS.get(worldNum));
+    worldProps.setProperty(World.PORT, WORLD_PORTS.get(worldNum).toString());
+    worldProps.setProperty(World.SERVER_TYPE, WORLD_SERVER_TYPES.get(worldNum).toString());
+    worldProps.setProperty(World.RSA_PUB_KEY, WORLD_RSA_PUB_KEYS.get(worldNum));
+    worldProps.setProperty(World.RSA_EXPONENT, WORLD_RSA_EXPONENTS.get(worldNum));
+    worldProps.setProperty(World.HISCORES_URL, WORLD_HISCORES_URL.get(worldNum));
+    worldProps.setProperty(World.REGISTRATION_API_URL, WORLD_REG_API_URL.get(worldNum));
+    worldProps.setProperty(World.WORLD_POPULATION_URL, WORLD_POPULATION_URL.get(worldNum));
+    worldProps.setProperty(World.SERVER_EXTENSION, WORLD_SERVER_EXTENSION.get(worldNum));
+    worldProps.setProperty(World.WORLD_ID, WORLD_ID.get(worldNum));
+    worldProps.setProperty(World.DOWNLOAD_FLAG, WORLD_DOWNLOAD_FLAG.get(worldNum));
 
-    try {
-      FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName));
+    try (FileOutputStream out = new FileOutputStream(new File(Dir.WORLDS, worldFileName))) {
       worldProps.store(out, "---rscplus world config---");
-      out.close();
     } catch (Exception e) {
       Logger.Warn("Error saving World config for " + worldFileName);
     }
@@ -3145,6 +3528,12 @@ public class Settings {
       WORLD_RSA_EXPONENTS.put(i - 1, WORLD_RSA_EXPONENTS.remove(i));
       WORLD_FILE_PATHS.put(i - 1, WORLD_FILE_PATHS.remove(i));
       WORLD_HISCORES_URL.put(i - 1, WORLD_HISCORES_URL.remove(i));
+      WORLD_REG_API_URL.put(i - 1, WORLD_REG_API_URL.remove(i));
+      WORLD_POPULATION_URL.put(i - 1, WORLD_POPULATION_URL.remove(i));
+      WORLD_POPULATION_TASK.put(i - 1, WORLD_POPULATION_TASK.remove(i));
+      WORLD_SERVER_EXTENSION.put(i - 1, WORLD_SERVER_EXTENSION.remove(i));
+      WORLD_ID.put(i - 1, WORLD_ID.remove(i));
+      WORLD_DOWNLOAD_FLAG.put(i - 1, WORLD_DOWNLOAD_FLAG.remove(i));
     }
     WORLD_NAMES.remove(initialSize);
     WORLD_URLS.remove(initialSize);
@@ -3154,9 +3543,73 @@ public class Settings {
     WORLD_RSA_EXPONENTS.remove(initialSize);
     WORLD_FILE_PATHS.remove(initialSize);
     WORLD_HISCORES_URL.remove(initialSize);
-    Settings.WORLDS_TO_DISPLAY--;
+    WORLD_REG_API_URL.remove(initialSize);
+    WORLD_POPULATION_URL.remove(initialSize);
+    WORLD_POPULATION_TASK.remove(initialSize);
+    WORLD_SERVER_EXTENSION.remove(initialSize);
+    WORLD_ID.remove(initialSize);
+    WORLD_DOWNLOAD_FLAG.remove(initialSize);
+    WORLDS_TO_DISPLAY--;
+
+    if (WORLDS_TO_DISPLAY == 0) {
+      noWorldsConfigured = true;
+      // Reset the welcome message
+      Client.setCustomWelcomeMessage(null);
+      // Remove the "need account" text
+      Client.setCustomServerTypeMessage("");
+      // Hide the signup button
+      AccountManagement.setSignupButtonVisibility(false);
+
+      // Unset active server extension
+      ServerExtensions.setActiveExtension(ServerExtensions.NONE);
+
+      // Save current world
+      WORLD.put(currentProfile, 0);
+      WORLD_CONN_HASH.put(Settings.currentProfile, "");
+      saveNoPresetModification();
+
+      SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateRSCPlusDescription());
+    }
+
     Launcher.getConfigWindow().synchronizeWorldTab();
+
     saveWorlds();
+
+    // Switch worlds when the current selection becomes invalid
+    final int currWorld = WORLD.get(currentProfile);
+    if (worldNum <= currWorld) {
+      Game.getInstance().getJConfig().changeWorld(currWorld - 1);
+    } else if (currWorld == 0) {
+      Game.getInstance().getJConfig().changeWorld(0);
+    }
+  }
+
+  /**
+   * Creates and stores a new {@link WorldPopulations} object when an endpoint was defined for the
+   * {@link World} and none currently exists
+   *
+   * <p><b>MUST</b> be called AFTER {@link #WORLD_POPULATION_URL} has been set
+   *
+   * <p><b>MUST</b> be called AFTER invoking {@link
+   * ServerExtensions#validateServerExtensionSettings}
+   *
+   * @param i Index for the World {@link Settings} map
+   */
+  public static void setPopulationTask(int i) {
+    // Store null when the feature should not be enabled
+    if (Util.isBlank(WORLD_POPULATION_URL.get(i))
+        || ServerExtensions.populationFeatureDisabled(
+            ServerExtensions.Extension.from(WORLD_SERVER_EXTENSION.get(i)))) {
+      WORLD_POPULATION_TASK.put(i, null);
+      return;
+    }
+
+    // Create and store the WorldPopulations object if not already done
+    if (WORLD_POPULATION_TASK.get(i) == null) {
+      String populationUrl = WORLD_POPULATION_URL.get(i);
+      WorldPopulations populations = new WorldPopulations(populationUrl, 1, 10000, "pop-check");
+      WORLD_POPULATION_TASK.put(i, populations);
+    }
   }
 
   private static KeyModifier getKeyModifierFromString(String savedKeybindSet) {
@@ -3175,10 +3628,7 @@ public class Settings {
     }
   }
 
-  /**
-   * Writes all setting variables to config.ini, without setting the preset modification flags. Only
-   * used within ConfigWindow.applySettings and JConfig.changeWorld.
-   */
+  /** Writes all setting variables to config.ini, without setting the preset modification flags. */
   public static void saveNoPresetModification() {
     updateInjectedVariables(); // TODO remove this function
     if (currentProfile.equals("custom")) {
@@ -3198,10 +3648,12 @@ public class Settings {
     }
   }
 
-  public static void save(String preset) {
+  public static synchronized void save(String preset) {
     if (!successfullyInitted) {
       Logger.Warn(
-          "Prevented erroneous save, please report this along with the RSC+ log file, set to debug logging mode");
+          "Prevented erroneous save, please report this along with the "
+              + Launcher.binaryPrefix
+              + "RSC+ log file, set to debug logging mode");
       return;
     }
     try {
@@ -3245,6 +3697,7 @@ public class Settings {
       props.setProperty("show_fatigueunits", Boolean.toString(SHOW_FATIGUEUNITS.get(preset)));
       props.setProperty("fatigue_alert", Boolean.toString(FATIGUE_ALERT.get(preset)));
       props.setProperty("inventory_full_alert", Boolean.toString(INVENTORY_FULL_ALERT.get(preset)));
+      props.setProperty("disable_auto_camera", Boolean.toString(DISABLE_AUTO_CAMERA.get(preset)));
       props.setProperty("name_patch_type", Integer.toString(NAME_PATCH_TYPE.get(preset)));
       props.setProperty(
           "disable_nat_rune_alch", Boolean.toString(DISABLE_NAT_RUNE_ALCH.get(preset)));
@@ -3277,6 +3730,7 @@ public class Settings {
       props.setProperty("fps_limit", Integer.toString(FPS_LIMIT.get(preset)));
       props.setProperty("software_cursor", Boolean.toString(SOFTWARE_CURSOR.get(preset)));
       props.setProperty("ctrl_scroll_chat", Boolean.toString(CTRL_SCROLL_CHAT.get(preset)));
+      props.setProperty("auto_message_switch", Boolean.toString(AUTO_MESSAGE_SWITCH.get(preset)));
       props.setProperty(
           "suppress_log_in_out_msg", Boolean.toString(SUPPRESS_LOG_IN_OUT_MSGS.get(preset)));
       props.setProperty(
@@ -3448,6 +3902,12 @@ public class Settings {
       props.setProperty("indicators", Boolean.toString(LAG_INDICATOR.get(preset)));
       props.setProperty("show_xp_bar", Boolean.toString(SHOW_XP_BAR.get(preset)));
       props.setProperty("debug", Boolean.toString(DEBUG.get(preset)));
+
+      if (Launcher.getConfigWindow() != null) {
+        // Redraw the presets panel with the "all" option shown/hidden, as needed
+        Launcher.getConfigWindow().togglePresetSliderAllOption();
+      }
+
       props.setProperty("exception_handler", Boolean.toString(EXCEPTION_HANDLER.get(preset)));
       props.setProperty("highlighted_items", String.join(",", HIGHLIGHTED_ITEMS.get(preset)));
       props.setProperty(
@@ -3533,7 +3993,7 @@ public class Settings {
       props.setProperty(
           "show_userfield_column", Boolean.toString(SHOW_USERFIELD_COLUMN.get(preset)));
 
-      //// world urls
+      //// world data
       saveWorlds();
 
       //// joystick
@@ -3543,6 +4003,7 @@ public class Settings {
       props.setProperty(
           "last_known_combat_style", Integer.toString(LAST_KNOWN_COMBAT_STYLE.get(preset)));
       props.setProperty("world", Integer.toString(WORLD.get(preset)));
+      props.setProperty("world_conn_hash", WORLD_CONN_HASH.get(preset));
       // This is set to false, as logically, saving the config would imply this is not a first-run.
       props.setProperty("first_time", Boolean.toString(false));
       props.setProperty("update_confirmation", Boolean.toString(UPDATE_CONFIRMATION.get(preset)));
@@ -3621,9 +4082,31 @@ public class Settings {
       props.setProperty(
           "worldmap_show_other_floors", Boolean.toString(WorldMapWindow.showOtherFloors));
 
-      FileOutputStream out = new FileOutputStream(Settings.CONFIG_FILE);
-      props.store(out, "---rscplus config---");
-      out.close();
+      // World download types
+      Launcher.knownWorldTypes.forEach(
+          (extension, downloadWorldTypeMap) ->
+              downloadWorldTypeMap.forEach(
+                  (worldType, shouldDownload) ->
+                      props.setProperty(
+                          "dlWorldType." + extension.getId() + "." + worldType,
+                          Boolean.toString(shouldDownload))));
+
+      // Necessary to split this out for initial loads, since the config file won't exist
+      boolean skipSave = false;
+      File configFile = new File(Settings.CONFIG_FILE);
+      if (configFile.exists()) {
+        Properties oldProps = Settings.loadPropertiesFile(configFile);
+        if (props.equals(oldProps)) {
+          skipSave = true;
+        }
+      }
+
+      if (!skipSave) {
+        try (FileOutputStream out = new FileOutputStream(Settings.CONFIG_FILE)) {
+          out.getChannel().lock();
+          props.store(out, "---rscplus config---");
+        }
+      }
     } catch (Exception e) {
       e.printStackTrace();
       Logger.Error("Unable to save settings");
@@ -4149,6 +4632,11 @@ public class Settings {
       Client.displayMessage("@cya@Debug mode is off", Client.CHAT_NONE);
     }
 
+    // Update the checkbox in the GUI
+    if (Launcher.getConfigWindow().isShown()) {
+      Launcher.getConfigWindow().synchronizeGuiValues();
+    }
+
     save();
   }
 
@@ -4236,6 +4724,18 @@ public class Settings {
       Client.displayMessage(
           "@cya@Hold CTRL to scroll through chat history from anywhere is now disabled",
           Client.CHAT_NONE);
+    }
+
+    save();
+  }
+
+  public static void toggleAutoMessageSwitch() {
+    AUTO_MESSAGE_SWITCH.put(currentProfile, !AUTO_MESSAGE_SWITCH.get(currentProfile));
+
+    if (AUTO_MESSAGE_SWITCH.get(currentProfile)) {
+      Client.displayMessage("@cya@Auto message switching has been disabled", Client.CHAT_NONE);
+    } else {
+      Client.displayMessage("@cya@Auto message switching has been re-enabled", Client.CHAT_NONE);
     }
 
     save();
@@ -4445,13 +4945,14 @@ public class Settings {
   }
 
   /**
-   * Gets the ArrayList<String> value of a Properties object for the specified key. If no value is
-   * defined for that key, it returns the specified default value.
+   * Gets the {@link ArrayList} of {@link String} values of a Properties object for the specified
+   * key. If no value is defined for that key, it returns the specified default value.
    *
    * @param props the Properties object to read
    * @param key the name of the property to lookup
-   * @param defaultProp the default ArrayList<String> value of the specified property
-   * @return an ArrayList<String> value corresponding to the specified property
+   * @param defaultProp the default {@link ArrayList} of {@link String} values of the specified
+   *     property
+   * @return an {@link ArrayList} of {@link String} values corresponding to the specified property
    */
   private static ArrayList<String> getPropArrayListString(
       Properties props, String key, ArrayList<String> defaultProp) {
@@ -4525,8 +5026,8 @@ public class Settings {
 
   /** Contains variables which store folder paths. */
   public static class Dir {
-
     public static String JAR;
+    public static String CONFIG_DIR;
     public static String DUMP;
     public static String LOGS;
     public static String SCREENSHOT;
@@ -4547,9 +5048,6 @@ public class Settings {
    */
   public static boolean processKeybindCommand(String commandName) {
     switch (commandName) {
-      case "sleep":
-        if (Client.state != Client.STATE_LOGIN && !Replay.isPlaying) Client.sleep();
-        return true;
       case "logout":
         if (Client.state != Client.STATE_LOGIN) Client.logout();
         return true;
@@ -4579,6 +5077,9 @@ public class Settings {
         return true;
       case "toggle_ctrl_scroll":
         Settings.toggleCtrlScroll();
+        return true;
+      case "toggle_auto_message_switch":
+        Settings.toggleAutoMessageSwitch();
         return true;
       case "toggle_login_logout_messages":
         Settings.toggleSuppressLogInOutMessages();
@@ -4872,6 +5373,7 @@ public class Settings {
     PROTECT_NAT_RUNE_ALCH_BOOL = DISABLE_NAT_RUNE_ALCH.get(currentProfile);
     LOAD_CHAT_HISTORY_BOOL = LOAD_CHAT_HISTORY.get(currentProfile);
     HIGHLIGHT_ITEMS_MENU_BOOL = HIGHLIGHT_ITEMS_RIGHT_CLICK_MENU.get(currentProfile);
+    AUTO_MESSAGE_SWITCH_BOOL = AUTO_MESSAGE_SWITCH.get(currentProfile);
   }
 
   /** Invoked when combat style changes */

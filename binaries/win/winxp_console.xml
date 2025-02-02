@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Launch4j 3.14
+See: https://web.archive.org/web/20220830085136/http://launch4j.sourceforge.net/docs.html
+-->
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>console</headerType>
+  <jar>rscplus.jar</jar>
+  <outfile>RSCPlus_console.exe</outfile>
+  <chdir>.</chdir>
+  <icon>rscplus_console.ico</icon>
+  <jre>
+    <path>jre</path>
+    <minVersion>1.8</minVersion>
+    <maxHeapSize>1500</maxHeapSize>
+    <opt>-DusingBinary=RSCPlus -DbinaryVersion=BIN_VER</opt>
+  </jre>
+  <versionInfo>
+    <fileVersion>1.0.0.0</fileVersion>
+    <txtFileVersion>1.0</txtFileVersion>
+    <fileDescription>RSCPlus Console</fileDescription>
+    <copyright>GNU General Public License v3.0</copyright>
+    <productVersion>1.0.0.0</productVersion>
+    <txtProductVersion>1.0</txtProductVersion>
+    <productName>RSCPlus</productName>
+    <internalName>RSCPlus Console</internalName>
+    <originalFilename>RSCPlus_console.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>

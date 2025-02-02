@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>RSCPlus</string>
+  <key>CFBundleIdentifier</key>
+  <string>plus.rsc</string>
+  <key>CFBundleName</key>
+  <string>RSCPlus</string>
+  <key>CFBundleIconFile</key>
+  <string>icons.icns</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleSignature</key>
+  <string>????</string>
+  <key>CFBundleVersion</key>
+  <!-- TODO: Bump when updating the MacOS binary -->
+  <string>1.0.0</string>
+  <key>NSPrincipalClass</key>
+  <string>NSApplication</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>NSSupportsAutomaticGraphicsSwitching</key>
+  <true/>
+  <key>NSMicrophoneUsageDescription</key>
+  <false/>
+  <key>NSCameraUsageDescription</key>
+  <false/>
+  <key>NSRequiresAquaSystemAppearance</key>
+  <false/>
+  <key>LSEnvironment</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>LSRequiresNativeExecution</key>
+  <true/>
+</dict>
+</plist>

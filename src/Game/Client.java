@@ -28,32 +28,37 @@ import Client.Logger;
 import Client.NotificationsHandler;
 import Client.NotificationsHandler.NotifType;
 import Client.ScaledWindow;
+import Client.ServerExtensions;
 import Client.Settings;
 import Client.Speedrun;
 import Client.TwitchIRC;
 import Client.Util;
 import Client.WikiURL;
+import Client.World;
 import Client.WorldMapWindow;
 import Replay.game.constants.Game.ItemAction;
 import java.applet.Applet;
 import java.awt.Component;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
@@ -217,6 +222,7 @@ public class Client {
   public static String username_login;
   public static String password_login;
   public static int autologin_timeout;
+  public static boolean on_tut_island;
 
   public static Object player_object;
   public static String player_name = "";
@@ -240,9 +246,6 @@ public class Client {
   public static int planeHeight = -1;
   public static int planeIndex = -1;
   public static boolean loadingArea = false;
-
-  public static boolean sleepCmdSent = false;
-  public static int sleepBagIdx = -1;
 
   public static Object clientStream;
   public static Object writeBuffer;
@@ -308,7 +311,14 @@ public class Client {
   public static String loginMessageTop =
       "To connect to a server, please configure your World URLs.";
   public static String loginMessageBottom =
-      "Hit @gre@Ctrl-O@whi@ to access Settings and select the \"World List\" tab.";
+      "Click on the @yel@settings gear@whi@ and select the @cya@World List@whi@ tab.";
+  public static boolean showingNoWorldsMessage = false;
+  public static String connectionMismatchMessageTop =
+      "Connection couldn't be verified. Please update " + Launcher.binaryPrefix + "RSC+.";
+  public static String connectionMismatchMessageBottomWithSub =
+      "If already updated, relaunch the client in a few minutes and try again.";
+  public static String connectionMismatchMessageBottom =
+      "If already updated, ensure the world file data is accurate.";
 
   public static final int NUM_SKILLS = 18;
 
@@ -376,6 +386,7 @@ public class Client {
   public static Object panelRecovery;
   public static Object panelRecoveryQuestions;
   public static Object panelContactDetails;
+  public static int controlWelcomeType;
   public static int controlServerType;
   public static int controlLoginTop;
   public static int controlLoginBottom;
@@ -635,10 +646,12 @@ public class Client {
       }
     }
 
+    InputStream input = null;
     try {
-      InputStream input = null;
       String zipPath =
-          Settings.Dir.JAR + "/" + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
+          Settings.Dir.CONFIG_DIR
+              + File.separator
+              + Settings.CUSTOM_MUSIC_PATH.get(Settings.currentProfile);
       try {
         FileInputStream fis = new FileInputStream(zipPath);
         BufferedInputStream bis = new BufferedInputStream(fis);
@@ -713,6 +726,13 @@ public class Client {
       }
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      if (null != input) {
+        try {
+          input.close();
+        } catch (Exception e) {
+        }
+      }
     }
   }
 
@@ -794,12 +814,11 @@ public class Client {
 
     boolean skipToLogin = false;
 
-    if (Settings.noWorldsConfigured
-        || (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0)) {
+    if (Settings.WORLDS_TO_DISPLAY == 1 && Settings.WORLD.get(Settings.currentProfile) != 0) {
       String curWorldURL = Settings.WORLD_URLS.get(1);
       try {
         String address = InetAddress.getByName(curWorldURL).toString();
-        if (address.contains("localhost") || address.contains("127.0.0.1")) {
+        if (Util.isLocalhost(address)) {
           // no configured world or localhost only
           skipToLogin = true;
         }
@@ -808,7 +827,9 @@ public class Client {
       }
     }
 
-    return skipToLogin || Settings.START_LOGINSCREEN.get(Settings.currentProfile);
+    return skipToLogin
+        || (!Settings.noWorldsConfigured
+            && Settings.START_LOGINSCREEN.get(Settings.currentProfile));
   }
 
   /**
@@ -844,8 +865,7 @@ public class Client {
   }
 
   public static void init_extra() {
-    InputStream is = Launcher.getResourceAsStream("/assets/fontdata.bin");
-    try {
+    try (InputStream is = Launcher.getResourceAsStream("/assets/fontdata.bin")) {
       fontData = new byte[is.available()];
       is.read(fontData);
     } catch (IOException e) {
@@ -865,8 +885,7 @@ public class Client {
   }
 
   public static void init_chat_tab_assets() {
-    InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2_retro_compat.dat");
-    try {
+    try (InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2_retro_compat.dat")) {
       hbarRetroData = new byte[is.available()];
       is.read(hbarRetroData);
     } catch (IOException e) {
@@ -874,8 +893,7 @@ public class Client {
       hbarRetroData = null;
     }
 
-    is = Launcher.getResourceAsStream("/assets/hbar/hbar2_orig.dat");
-    try {
+    try (InputStream is = Launcher.getResourceAsStream("/assets/hbar/hbar2_orig.dat")) {
       hbarOrigData = new byte[is.available()];
       is.read(hbarOrigData);
     } catch (IOException e) {
@@ -1021,7 +1039,7 @@ public class Client {
           JOptionPane.showConfirmDialog(
               Game.getInstance().getApplet(),
               confirmDefaultRecordPanel,
-              "RSCPlus",
+              Launcher.appName,
               JOptionPane.YES_NO_OPTION,
               JOptionPane.INFORMATION_MESSAGE,
               Launcher.scaled_option_icon);
@@ -1272,7 +1290,7 @@ public class Client {
     }
   }
 
-  /** Invoked on login and logout */
+  /** Invoked on launch, logout, and exit */
   public static void init_login() {
     Camera.init();
     state = STATE_LOGIN;
@@ -1291,36 +1309,76 @@ public class Client {
     adaptStrings();
     player_name = "";
     player_id = -1;
+
+    // Save certain settings on logout / exit
+    boolean needsSaving = false;
+    if (Bank.needsSaving) {
+      needsSaving = true;
+      Bank.needsSaving = false;
+    }
+
+    if (WorldMapWindow.needsSaving) {
+      needsSaving = true;
+      WorldMapWindow.needsSaving = false;
+    }
+
+    if (needsSaving) {
+      Settings.save();
+    }
   }
 
   /* Invoked on login */
   public static void init_game() {
-    Camera.init();
+    boolean errorOnInit = false;
 
-    // Load character-specific settings such as combat styles and XP goals on each login
-    Settings.loadCharacterSpecificSettings(true);
+    try {
+      Camera.init();
 
-    // Escape username from login input
-    final String escapedUsername = Util.formatPlayerName(username_login);
+      try {
+        // Load character-specific settings such as combat styles and XP goals on each login
+        Settings.loadCharacterSpecificSettings(true);
+      } catch (Exception e) {
+        // Attempt to continue with the rest of the method
+        errorOnInit = true;
 
-    // Set combat style in mudclient when not in a replay
-    if (!escapedUsername.equals(Replay.excludeUsername)) {
-      // Attempt to find character-specific combat style
-      Integer foundCombatStyle = playerCombatStyles.get(escapedUsername);
+        Logger.Error("Error occurred loading character specific settings on login");
+        e.printStackTrace();
+      }
 
-      if (foundCombatStyle != null) {
-        combat_style = foundCombatStyle;
-      } else {
-        // Fall back to the global previously-known combat style and store it
-        combat_style = Settings.LAST_KNOWN_COMBAT_STYLE.get("custom");
-        playerCombatStyles.put(escapedUsername, combat_style);
-        Settings.save();
+      // Escape username from login input
+      final String escapedUsername = Util.formatPlayerName(username_login);
+
+      // Set combat style in mudclient when not in a replay
+      if (!escapedUsername.equals(Replay.excludeUsername)) {
+        // Attempt to find character-specific combat style
+        Integer foundCombatStyle = playerCombatStyles.get(escapedUsername);
+
+        if (foundCombatStyle != null) {
+          combat_style = foundCombatStyle;
+        } else {
+          // Fall back to the global previously-known combat style and store it
+          combat_style = Settings.LAST_KNOWN_COMBAT_STYLE.get("custom");
+          playerCombatStyles.put(escapedUsername, combat_style);
+          Settings.save();
+        }
+      }
+    } catch (Exception e) {
+      errorOnInit = true;
+
+      Logger.Error("Error occurred during login process");
+      e.printStackTrace();
+    } finally {
+      state = STATE_GAME;
+
+      // bank_active_page = 0; // TODO: config option? don't think this is very important.
+      // combat_timer = 0;
+
+      if (errorOnInit) {
+        // Inform the user to double-check their combat style setting -
+        // can only be done after state set to STATE_GAME
+        printCombatStyleWarning();
       }
     }
-
-    state = STATE_GAME;
-    // bank_active_page = 0; // TODO: config option? don't think this is very important.
-    // combat_timer = 0;
   }
 
   public static void login_hook() {
@@ -1334,13 +1392,36 @@ public class Client {
       Replay.initializeReplayRecording();
     }
 
-    if (Settings.noWorldsConfigured
-        && Settings.WORLD.get(Settings.currentProfile) != 0
-        && !Replay.isPlaying) {
+    boolean blockConnection = false;
+
+    // Shouldn't block "logins" when viewing a replay
+    if (Replay.isPlaying) {
+      return;
+    }
+
+    boolean connectionMismatch = false;
+
+    if (Settings.noWorldsConfigured) {
+      blockConnection = true;
+    } else {
+      if (Util.isBlank(Settings.WORLD_URLS.get(Settings.WORLD.get(Settings.currentProfile)))) {
+        blockConnection = true;
+      } else {
+        final World currWorld = World.fromSettings(Settings.WORLD.get(Settings.currentProfile));
+        if (Launcher.blockedWorlds.stream()
+            .anyMatch(blockedWorld -> blockedWorld.connectionEquals(currWorld))) {
+          connectionMismatch = true;
+          blockConnection = true;
+        }
+      }
+    }
+
+    if (blockConnection) {
       closeConnection(false);
       // make sure to set to login screen here
       Client.login_screen = SCREEN_USERNAME_PASSWORD_LOGIN;
-      loginMessageHandlerThread = new Thread(new LoginMessageHandler());
+      // Display connection failure message to the user
+      loginMessageHandlerThread = new Thread(new LoginMessageHandler(connectionMismatch));
       loginMessageHandlerThread.start();
     }
   }
@@ -1385,7 +1466,7 @@ public class Client {
     // so users are notified when an update is available
     long currentTime = System.currentTimeMillis();
     if (Settings.CHECK_UPDATES.get(Settings.currentProfile) && currentTime >= updateTimer) {
-      checkForUpdate(false);
+      Launcher.getInstance().checkForUpdate(false, false);
       updateTimer = currentTime + (60 * 60 * 1000);
     }
 
@@ -1397,6 +1478,11 @@ public class Client {
 
     // Re-send combat style packet just in case
     sendCombatStylePacket(combat_style);
+
+    if (ServerExtensions.enabled(ServerExtensions.OPENRSC_OFFICIAL)) {
+      sendCommand(
+          "enable_protocol_extensions rscplus_" + Util.formatVersion(Settings.VERSION_NUMBER));
+    }
   }
 
   public static void disconnect_hook() {
@@ -1512,7 +1598,12 @@ public class Client {
       pm_enteredTextCopy = "";
     } else if (opcode == 203) {
       // bank close packet
-      bank_interface_drawn = false;
+      resetBankAugmentationDrawFlag();
+
+      if (Bank.needsSaving) {
+        Settings.save();
+        Bank.needsSaving = false;
+      }
     }
 
     if (Bank.processPacket(opcode, psize)) {
@@ -1707,12 +1798,42 @@ public class Client {
     }
   }
 
+  /** Sends a command */
+  public static void sendCommand(String command) {
+    if (Reflection.commandString == null) return;
+
+    try {
+      Reflection.commandString.invoke(Client.instance, command, 120);
+    } catch (Exception e) {
+    }
+  }
+
   /** Sends a packet to update the user's combat style */
   public static void sendCombatStylePacket(int combatStyle) {
     StreamUtil.newPacket(29);
 
     Object buffer = StreamUtil.getStreamBuffer();
     StreamUtil.putByteTo(buffer, (byte) combatStyle);
+    StreamUtil.sendPacket();
+  }
+
+  /**
+   * Sends a packet to update the user's client settings
+   *
+   * <p>Setting values:
+   *
+   * <ul>
+   *   <li>0 - camera rotation
+   *   <li>2 - mouse buttons
+   *   <li>3 - sound effects
+   * </ul>
+   */
+  public static void sendClientSettingsPacket(int setting, boolean value) {
+    StreamUtil.newPacket(111);
+
+    Object buffer = StreamUtil.getStreamBuffer();
+    StreamUtil.putByteTo(buffer, (byte) setting);
+    StreamUtil.putByteTo(buffer, (byte) (value ? 1 : 0));
     StreamUtil.sendPacket();
   }
 
@@ -1910,9 +2031,6 @@ public class Client {
             Bank.search(commandArray, true);
           }
           break;
-        case "sleep":
-          Client.sleep();
-          break;
         case "screenshot":
           Renderer.takeScreenshot(false);
           break;
@@ -2070,6 +2188,9 @@ public class Client {
             Settings.setOverlayFontStyle(commandArray[1]);
           }
           break;
+        case "togglemsgswitch":
+          Settings.toggleAutoMessageSwitch();
+          break;
         default:
           if (commandArray[0] != null) {
             return "::";
@@ -2137,7 +2258,7 @@ public class Client {
       } else if ("bank".equals(command)) {
         return "Hey, everyone, I just tried to do something very silly!";
       } else if ("update".equals(command)) {
-        checkForUpdate(true);
+        Launcher.getInstance().checkForUpdate(false, true);
       } else if (command.startsWith("xmas ")) {
         int randomStart = (int) System.currentTimeMillis();
         if (randomStart < 0) {
@@ -2287,18 +2408,18 @@ public class Client {
         Client.members = true;
         if ((servertype & 2) != 0) { // members + veterans
           // "You need a veteran Classic members account to use this server"
-          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[233]);
+          Client.setCustomServerTypeMessage(strings[233]);
           Client.veterans = true;
         } else {
           // "You need a members account to use this server"
-          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[230]);
+          Client.setCustomServerTypeMessage(strings[230]);
           Client.veterans = false;
         }
       } else { // free
         Client.members = false;
         if ((servertype & 2) != 0) { // free + veterans
           // "You need a veteran Classic account to use this server"
-          Panel.setControlText(Client.panelWelcome, Client.controlServerType, strings[238]);
+          Client.setCustomServerTypeMessage(strings[238]);
           Client.veterans = true;
         } else {
           // "You need an account to use this server"
@@ -2386,32 +2507,6 @@ public class Client {
     try {
       Reflection.lastMouseAction.set(Client.instance, val);
     } catch (Exception e) {
-    }
-  }
-
-  /** Send over the instruction of sleep, if player has sleeping bag with them */
-  public static void sleep() {
-    if (Settings.SPEEDRUNNER_MODE_ACTIVE.get(Settings.currentProfile)) return;
-    if (Reflection.itemClick == null) return;
-
-    try {
-      int idx = -1;
-      // inventory_items contains ids of items
-      for (int n = 0; n < max_inventory; n++) {
-        // id of sleeping bag
-        if (inventory_items[n] == 1263) {
-          idx = n;
-          break;
-        }
-      }
-      if (idx != -1 && !Client.isInterfaceOpen() && !Client.isInCombat()) {
-        // method to sleep here
-        sleepCmdSent = true;
-        sleepBagIdx = idx;
-        Reflection.itemClick.invoke(Client.instance, false, 0);
-      }
-    } catch (Exception e) {
-
     }
   }
 
@@ -2525,75 +2620,6 @@ public class Client {
     try {
       Reflection.resetTimings.invoke(Client.instance, -28492);
     } catch (Exception e) {
-    }
-  }
-
-  /**
-   * Fetches the value of {@link Settings#VERSION_NUMBER} in the master branch on GitHub.
-   *
-   * <p>Used to check the newest version of the client.
-   *
-   * @return the current version number
-   */
-  public static Double fetchLatestVersionNumber() {
-    try {
-      Double currentVersion = 0.0;
-      URL updateURL =
-          new URL(
-              "https://raw.githubusercontent.com/RSCPlus/rscplus/master/src/Client/Settings.java");
-
-      // Open connection
-      URLConnection connection = updateURL.openConnection();
-      connection.setConnectTimeout(3000);
-      connection.setReadTimeout(3000);
-      BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      // in our current client version, we are looking at the source file of Settings.java in the
-      // main repository
-      // in order to parse what the current version number is.
-      String line;
-      while ((line = in.readLine()) != null) {
-        if (line.contains("VERSION_NUMBER")) {
-          currentVersion =
-              Double.parseDouble(line.substring(line.indexOf('=') + 1, line.indexOf(';')));
-          Logger.Info(String.format("@|green Current Version: %f|@", currentVersion));
-          break;
-        }
-      }
-
-      // Close connection
-      in.close();
-      return currentVersion;
-    } catch (Exception e) {
-      displayMessage("@dre@Error checking latest version", 0);
-      return Settings.VERSION_NUMBER;
-    }
-  }
-
-  /**
-   * Compares the local value of {@link Settings#VERSION_NUMBER} to the value on the GitHub master
-   * branch.
-   *
-   * <p>Used to check if there is a newer version of the client available.
-   *
-   * @param announceIfUpToDate if a message should be displayed in chat if the client is up-to-date
-   */
-  public static void checkForUpdate(boolean announceIfUpToDate) {
-    double latestVersion = fetchLatestVersionNumber();
-    if (latestVersion > Settings.VERSION_NUMBER) {
-      displayMessage("@gre@A new version of RSC+ is available!", CHAT_QUEST);
-      // TODO: before Y10K update this to %9.6f
-      displayMessage(
-          "The latest version is @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
-      displayMessage(
-          "~034~ Your version is @red@" + String.format("%8.6f", Settings.VERSION_NUMBER),
-          CHAT_QUEST);
-      if (Settings.CHECK_UPDATES.get(Settings.currentProfile)) {
-        displayMessage(
-            "~034~ You will receive the update next time you restart RSCPlus", CHAT_QUEST);
-      }
-    } else if (announceIfUpToDate) {
-      displayMessage(
-          "You're up to date: @gre@" + String.format("%8.6f", latestVersion), CHAT_QUEST);
     }
   }
 
@@ -2794,6 +2820,13 @@ public class Client {
       menu_timer = System.currentTimeMillis() + 3500L;
       lastAction = actionString;
       Logger.Info(actionString);
+    }
+  }
+
+  /** Disables the auto camera mode setting during new account creation */
+  public static void disableAutoCameraNewAcc() {
+    if (on_tut_island && Settings.DISABLE_AUTO_CAMERA.get(Settings.currentProfile)) {
+      sendClientSettingsPacket(0, false);
     }
   }
 
@@ -3773,23 +3806,48 @@ public class Client {
     return show_welcome;
   }
 
+  /**
+   * Set a custom welcome message
+   *
+   * @param welcomeMessage Text to set or {@code null} to use the default text
+   */
+  public static void setCustomWelcomeMessage(String welcomeMessage) {
+    // Ensure client strings are loaded before attempting to set
+    if (Client.strings == null) {
+      return;
+    }
+
+    // Default text
+    if (welcomeMessage == null) {
+      Panel.setControlText(
+          panelWelcome, controlWelcomeType, strings[237]); // "Welcome to RuneScape Classic"
+    } else {
+      Panel.setControlText(panelWelcome, controlWelcomeType, welcomeMessage);
+    }
+  }
+
+  /**
+   * Set a custom server type message
+   *
+   * @param serverTypeMessage Text to set
+   */
+  public static void setCustomServerTypeMessage(String serverTypeMessage) {
+    Panel.setControlText(panelWelcome, controlServerType, serverTypeMessage);
+  }
+
+  /** @return {@code boolean} indicating whether the login screen is showing two lines of text */
+  public static boolean isLoginScreenShowingTwoLines() {
+    final String panelTopText = Panel.getControlText(panelLogin, controlLoginTop);
+    return login_screen == SCREEN_USERNAME_PASSWORD_LOGIN && Util.isNotBlank(panelTopText);
+  }
+
   /** Writes {@link #strings} to a file. */
   private static void dumpStrings() {
-    BufferedWriter writer = null;
-
-    try {
-      File file = new File(Settings.Dir.DUMP + "/strings.dump");
-      writer = new BufferedWriter(new FileWriter(file));
-
+    File file = new File(Settings.Dir.DUMP + "/strings.dump");
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
       writer.write("Client:\n\n");
       for (int i = 0; i < strings.length; i++) writer.write(i + ": " + strings[i] + "\n");
-
-      writer.close();
     } catch (Exception e) {
-      try {
-        writer.close();
-      } catch (Exception e2) {
-      }
     }
   }
 
@@ -3831,15 +3889,51 @@ public class Client {
     // A coward dies a thousand deaths, but the valiant tastes death but once.
     displayMessage(color + "You are beautiful today, " + player_name + ".", CHAT_QUEST);
   }
+
+  public static void resetBankAugmentationDrawFlag() {
+    bank_interface_drawn = false;
+  }
+
+  /** Prints a warning message to the user to double-check their combat style */
+  public static void printCombatStyleWarning() {
+    final String delimiter =
+        "**********************************************************************";
+    final String combatStyleWarning = "A client error occurred! DOUBLE-CHECK YOUR COMBAT STYLE";
+
+    Client.displayMessage("@yel@" + delimiter, Client.CHAT_QUEST);
+    Client.displayMessage("@or3@" + combatStyleWarning, Client.CHAT_QUEST);
+    Client.displayMessage("@gr3@" + combatStyleWarning, Client.CHAT_QUEST);
+    Client.displayMessage("@cya@" + combatStyleWarning, Client.CHAT_QUEST);
+    Client.displayMessage("@mag@" + combatStyleWarning, Client.CHAT_QUEST);
+    Client.displayMessage("@yel@" + delimiter, Client.CHAT_QUEST);
+  }
 }
 
 // set Client.loginMessageBottom/Top before calling if you want something else to show up
 class LoginMessageHandler implements Runnable {
+  private final boolean extensionMismatch;
+
+  public LoginMessageHandler(boolean extensionMismatch) {
+    this.extensionMismatch = extensionMismatch;
+  }
+
   @Override
   public void run() {
     try {
       Thread.sleep(5);
-      Client.setResponseMessage(Client.loginMessageBottom, Client.loginMessageTop);
+
+      if (extensionMismatch) {
+        if (Launcher.shouldDownloadWorlds()) {
+          Client.setResponseMessage(
+              Client.connectionMismatchMessageBottomWithSub, Client.connectionMismatchMessageTop);
+        } else {
+          Client.setResponseMessage(
+              Client.connectionMismatchMessageBottom, Client.connectionMismatchMessageTop);
+        }
+      } else {
+        Client.showingNoWorldsMessage = true;
+        Client.setResponseMessage(Client.loginMessageBottom, Client.loginMessageTop);
+      }
     } catch (InterruptedException e) {
       Logger.Error(
           "The login message thread was interrupted unexpectedly! Perhaps the game crashed or was killed?");
