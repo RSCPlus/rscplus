@@ -522,6 +522,7 @@ public class ConfigWindow {
 
   //// Authors tab
   public JLabel RSCPlusText;
+  public JLabel aboutText;
 
   // Search index caching and processing
   private HashMap<ConfigTab, List<SearchItem>> searchItemsMap;
@@ -5140,26 +5141,8 @@ public class ConfigWindow {
 
     cR.gridy = 1;
 
-    JLabel aboutText =
-        new JLabel(
-            String.format(
-                "<html><head><style>p{font-size:%dpx; padding-top:%dpx;}ul{list-style-type:none;padding-left:0px;margin-left:0px;}</style></head>"
-                    + "<p><b>RSC</b>Plus is a RuneLite-like client "
-                    + "based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>"
-                    + "Thanks to the authors who made this software possible:<br/><ul>"
-                    + "<li><b>● Ornox</b>, for creating the client & most of its features</li>"
-                    + "<li><b>● Logg</b>, currently maintains RSC+, new interfaces & improvements</li>"
-                    + "<li><b>● conker</b>, client scaling, fonts, general UX, & many other improvements</li>"
-                    + "<li><b>● Brian</b>, who laid a lot of the groundwork for the user interface</li>"
-                    + "<li><b>● Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li>"
-                    + "<li><b>● Talkarcabbage</b>, generic notifications, UI backend, & keybind overhaul</li>"
-                    + "<li><b>● nickzuber</b>, fixed some bugs, highlight/block items</li>"
-                    + "<li><b>● Ryan</b>, keybind to reset camera zoom, toggle statuses in corner always</li>"
-                    + "<li><b>● Yumeko</b>, fixed Twitch chat integration in 2023</li>"
-                    + "<li><b>● sammy123k</b>, added an option to center the XP progress bar</li>"
-                    + "<li><b>● The Jagex team of 2000 to 2004</b></li>"
-                    + "</ul></p></html>",
-                osScaleMul(10), osScaleMul(15)));
+    aboutText = new JLabel();
+    updateAuthorTabAboutText();
 
     rightPane.add(aboutText, cR);
     c.gridx = 2;
@@ -7738,6 +7721,39 @@ public class ConfigWindow {
     frame.repaint();
   }
 
+  public void updateAuthorTabAboutText() {
+    StringBuilder authorText = new StringBuilder(String.format("<html><head><style>p{font-size:%dpx; padding-top:%dpx;}ul{list-style-type:none;padding-left:0px;margin-left:0px;}</style></head>",osScaleMul(10), osScaleMul(15)));
+    authorText.append("<p><b>RSC</b>Plus is a RuneLite-like client ")
+            .append("based on the 234 RSC client.<br/> Learn more at https://rsc.plus.<br/><br/>")
+            .append("Thanks to the authors who made this software possible:<br/><ul>");
+    if (Launcher.binaryPrefix.equals("Open")) {
+      authorText.append("<li><b>● conker</b>, for creating the OpenRSC+ client and native binaries</li>")
+                .append("<li><b>● Ornox</b>, for creating the RSC+ base client & most of its features</li>");
+    } else {
+      authorText.append("<li><b>● Ornox</b>, for creating the RSC+ client & most of its features</li>");
+    }
+    authorText.append("<li><b>● Logg</b>, currently maintains the RSC+ project, new interfaces & improvements</li>");
+    if (Launcher.binaryPrefix.equals("Open")) {
+      authorText.append("<li><b>● conker again</b>, client scaling, fonts, general UX, & many other improvements</li>");
+    } else if (Launcher.binaryPrefix.isEmpty()) {
+      authorText.append("<li><b>● conker</b>, binaries, client scaling, fonts, general UX, & many other improvements</li>");
+    } else {
+      authorText.append("<li><b>● conker</b>, server extensions, client scaling, fonts, general UX, & many other improvements</li>");
+    }
+    authorText.append("<li><b>● Brian</b>, who laid a lot of the groundwork for the user interface</li>")
+            .append("<li><b>● Luis</b>, who found a lot of important hooks & fixed a lot of bugs</li>")
+            .append("<li><b>● Talkarcabbage</b>, generic notifications, UI backend, & keybind overhaul</li>")
+            .append("<li><b>● nickzuber</b>, fixed some bugs, highlight/block items</li>")
+            .append("<li><b>● Ryan</b>, keybind to reset camera zoom, toggle statuses in corner always</li>")
+            .append("<li><b>● Yumeko</b>, fixed Twitch chat integration in 2023</li>")
+            .append("<li><b>● sammy123k</b>, added an option to center the XP progress bar</li>")
+            .append("<li><b>● The Jagex team of 2000 to 2004</b></li>")
+            .append("</ul></p></html>");
+
+    reindexSearch(() -> aboutText.setText(authorText.toString()));
+    frame.revalidate();
+    frame.repaint();
+  }
   /** Shows or hides the "All" presets slider option based on the DEBUG setting */
   public void togglePresetSliderAllOption() {
     if (presetsPanelPresetSlider == null || Settings.DEBUG.isEmpty()) {

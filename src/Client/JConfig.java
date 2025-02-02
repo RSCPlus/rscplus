@@ -273,6 +273,7 @@ public class JConfig {
     // Re-render the config window when server-specific extensions are changed
     if (!previousServerExtension.equals(ServerExtensions.getActiveExtension())) {
       SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateRSCPlusDescription());
+      SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateAuthorTabAboutText());
     }
   }
 

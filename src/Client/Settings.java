@@ -62,7 +62,7 @@ public class Settings {
   public static boolean renderingScalarUpdateRequired;
   public static boolean versionCheckRequired = true;
   public static int javaVersion = 0;
-  public static final double VERSION_NUMBER = 20231225.000000;
+  public static final double VERSION_NUMBER = 20250202.060000;
 
   static String CONFIG_FILE = null;
   static boolean successfullyInitted = false;
@@ -3569,6 +3569,7 @@ public class Settings {
       saveNoPresetModification();
 
       SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateRSCPlusDescription());
+      SwingUtilities.invokeLater(() -> Launcher.getConfigWindow().updateAuthorTabAboutText());
     }
 
     Launcher.getConfigWindow().synchronizeWorldTab();
