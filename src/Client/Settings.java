@@ -152,6 +152,7 @@ public class Settings {
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> PER_CHAR_SCREENSHOTS = new HashMap<String, Boolean>();
   public static HashMap<String, String> SCREENSHOTS_STORAGE_PATH = new HashMap<String, String>();
   public static HashMap<String, Boolean> RS2HD_SKY = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> CUSTOM_SKYBOX_OVERWORLD_ENABLED =
@@ -972,6 +973,8 @@ public class Settings {
     AUTO_SCREENSHOT.put("all", true);
     AUTO_SCREENSHOT.put(
         "custom", getPropBoolean(props, "auto_screenshot", AUTO_SCREENSHOT.get("default")));
+
+    defineStaticPreset(PER_CHAR_SCREENSHOTS, getPropBoolean(props, "per_char_screenshots", true));
 
     defineStaticPreset(
         SCREENSHOTS_STORAGE_PATH,
@@ -2811,8 +2814,7 @@ public class Settings {
                 JOptionPane.INFORMATION_MESSAGE,
                 null,
                 options,
-                null
-                );
+                null);
 
         if (response == JOptionPane.YES_OPTION) {
           String portableModeAcceptMessage =
@@ -3753,6 +3755,7 @@ public class Settings {
       props.setProperty(
           "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
+      props.setProperty("per_char_screenshots", Boolean.toString(PER_CHAR_SCREENSHOTS.get(preset)));
       props.setProperty("screenshots_storage_path", SCREENSHOTS_STORAGE_PATH.get(preset));
       props.setProperty("rs2hd_sky", Boolean.toString(RS2HD_SKY.get(preset)));
       props.setProperty(
