@@ -234,13 +234,11 @@ public class Renderer {
 
     // Load fonts
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    try (InputStream hIS = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf");
-        InputStream tIS = Launcher.getResourceAsStream("/assets/TimesRoman.ttf")) {
+    try (InputStream hIS = Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf")) {
       Font font = Font.createFont(Font.TRUETYPE_FONT, hIS);
       ge.registerFont(font);
       font_main = font.deriveFont(Font.PLAIN, 11.0f);
       font_big = font.deriveFont(Font.PLAIN, 22.0f);
-      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, tIS));
     } catch (Exception e) {
       e.printStackTrace();
     }

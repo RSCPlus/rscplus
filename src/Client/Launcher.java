@@ -2006,7 +2006,7 @@ public class Launcher extends JFrame implements Runnable {
 
     // Current font is not suitable, using our fallback
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    try (InputStream is = getResourceAsStream("/assets/Symbola_Hinted.ttf")) {
+    try (InputStream is = getResourceAsStream("/assets/Symbola-trim-playback-buttons.ttf")) {
       ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, is));
       font = new Font("Symbola", Font.PLAIN, osScaleMul(18));
 

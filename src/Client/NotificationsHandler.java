@@ -300,10 +300,10 @@ public class NotificationsHandler {
     try {
       Font font =
           Font.createFont(
-              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/OpenSans-Regular.ttf"));
+              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/arial.ttf"));
       Font boldFont =
           Font.createFont(
-              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/OpenSans-Bold.ttf"));
+              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf"));
 
       notificationTitle.setFont(boldFont.deriveFont(Font.BOLD, osScaleMul(18)));
       notificationTextArea.setFont(font.deriveFont(Font.PLAIN, osScaleMul(16)));
