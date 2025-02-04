@@ -1805,6 +1805,8 @@ public class ConfigWindow {
             "Organize screenshots into separate subfolders for each character", generalPanel);
     generalPanelPerCharScreenshotCheckbox.setToolTipText(
         "Automatically creates separate screenshot subfolders for every unique character name");
+    SearchUtils.addSearchMetadata(
+        generalPanelPerCharScreenshotCheckbox, CommonMetadata.DIR.getText());
 
     /// Screenshots directory
 
