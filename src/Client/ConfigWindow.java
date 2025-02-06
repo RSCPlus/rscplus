@@ -2625,6 +2625,11 @@ public class ConfigWindow {
     SearchUtils.addSearchMetadata(
         overlayPanelInvCountColoursCheckbox, CommonMetadata.COLOUR.getText());
 
+    overlayPanelFoodHealingCheckbox = addCheckbox("Show food healing overlay", overlayPanel);
+    overlayPanelFoodHealingCheckbox.setToolTipText(
+        "When hovering on food in your inventory, shows the HP a consumable recovers");
+    SearchUtils.addSearchMetadata(overlayPanelFoodHealingCheckbox, CommonMetadata.HP.getText());
+
     overlayPanelRemoveReportAbuseButtonHbarCheckbox =
         addCheckbox("Remove Report Abuse Button (Similar to prior to 2002-09-11)", overlayPanel);
     overlayPanelRemoveReportAbuseButtonHbarCheckbox.setToolTipText(
@@ -2653,14 +2658,6 @@ public class ConfigWindow {
         "When there's a problem with your connection, "
             + Launcher.appName
             + " will tell you in the bottom right");
-
-    overlayPanelFoodHealingCheckbox =
-        addCheckbox("Show food healing overlay (Not implemented yet)", overlayPanel);
-    overlayPanelFoodHealingCheckbox.setToolTipText(
-        "When hovering on food, shows the HP a consumable recovers");
-    SearchUtils.addSearchMetadata(overlayPanelFoodHealingCheckbox, CommonMetadata.HP.getText());
-    // TODO: Remove this line when food healing overlay is implemented
-    overlayPanelFoodHealingCheckbox.setEnabled(false);
 
     overlayPanelHPRegenTimerCheckbox =
         addCheckbox("Display time until next HP regeneration (Not implemented yet)", overlayPanel);
@@ -4410,6 +4407,12 @@ public class ConfigWindow {
         KeyModifier.ALT,
         KeyEvent.VK_T,
         "colors");
+    addKeybindSet(
+        keybindContainerPanel,
+        "Toggle food healing overlay",
+        "toggle_food_heal_overlay",
+        KeyModifier.ALT,
+        KeyEvent.VK_O);
     addKeybindSet(
         keybindContainerPanel,
         "Toggle position overlay",
@@ -6444,8 +6447,7 @@ public class ConfigWindow {
     overlayPanelLagIndicatorCheckbox.setSelected(
         Settings.LAG_INDICATOR.get(Settings.currentProfile));
     overlayPanelFoodHealingCheckbox.setSelected(
-        Settings.SHOW_FOOD_HEAL_OVERLAY.get(
-            Settings.currentProfile)); // TODO: Implement this feature
+        Settings.SHOW_FOOD_HEAL_OVERLAY.get(Settings.currentProfile));
     overlayPanelHPRegenTimerCheckbox.setSelected(
         Settings.SHOW_TIME_UNTIL_HP_REGEN.get(
             Settings.currentProfile)); // TODO: Implement this feature

@@ -1554,6 +1554,12 @@ public class Renderer {
             false);
       }
 
+      // Draw consumable healing amounts over inventory items
+      if (Settings.SHOW_FOOD_HEAL_OVERLAY.get(Settings.currentProfile)
+          && Client.onlyShowingInventory()) {
+        drawConsumableLabels(g2);
+      }
+
       // Mouseover hover handling
       if (Settings.SHOW_MOUSE_TOOLTIP.get(Settings.currentProfile)
           && !Client.isInterfaceOpen()
@@ -2606,9 +2612,11 @@ public class Renderer {
     // Note: This function many not be entirely authentic because we don't
     // currently know if certain items besides stackable items were
     // always dropped on death, such as the quest item "Liquid Honey"
-    Map<Integer, Integer> inventoryValues = new HashMap<>();
+    if (Client.inventory_count < 1) {
+      return;
+    }
 
-    if (Client.inventory_count < 1) return;
+    Map<Integer, Integer> inventoryValues = new HashMap<>();
 
     int protectItemOffset = Client.prayers_on[8] ? 1 : 0;
     int numItemsToKeep = (Client.getPlayerSkulled() ? 0 : 3) + protectItemOffset;
@@ -2648,6 +2656,82 @@ public class Renderer {
 
               g2.drawImage(image_small_skull, x, y, null);
             });
+  }
+
+  /** Draws consumable item healing amounts over inventory items on hover */
+  private static void drawConsumableLabels(Graphics2D g2) {
+    if (Client.inventory_count < 1) {
+      return;
+    }
+
+    // Loop through inventory
+    for (int i = 0; i < Client.inventory_count; i++) {
+      // Only consider drawing when hovering over an inventory item
+      int x = width - 245 + ((i % 5) * 49);
+      int y = 47 + ((i / 5) * 34);
+
+      final Rectangle currentItem = new Rectangle(x - 2, y - 10, 47, 32);
+      if (!currentItem.contains(MouseHandler.x, MouseHandler.y)) {
+        continue;
+      }
+
+      // Set label properties
+      final Color labelColor;
+      final String healLabel;
+
+      final int itemID = Client.inventory_items[i];
+
+      /* Dynamic values */
+      if (itemID == 1086) {
+        // Nightshade
+        healLabel = ConsumableHeals.getNightShadeValue();
+        labelColor = color_low;
+      } else if (itemID == 963 || itemID == 964 || itemID == 965) {
+        // Zamorak potion
+        healLabel = ConsumableHeals.getZamorakPotValue();
+        labelColor = color_low;
+      } else if (itemID == 739) {
+        // Tea
+        healLabel = ConsumableHeals.getTeaValue();
+        labelColor = color_hp;
+      }
+      /* Static values */
+      else {
+        healLabel = ConsumableHeals.getValue(itemID);
+
+        // Determine color
+        if (itemID == 210 || itemID == 737) {
+          // Mystery items (kebab, poison chalice)
+          labelColor = Color.magenta;
+        } else {
+          // Everything else
+          labelColor = color_hp;
+        }
+      }
+
+      // No label found, exit
+      if (healLabel == null) {
+        continue;
+      }
+
+      // Don't draw if it overlaps with the right-click menu
+      if (showingRightClickMenu) {
+        final Dimension healBounds = Renderer.getStringBounds(g2, healLabel);
+        final Rectangle drawBounds =
+            new Rectangle(x, y - healBounds.height, healBounds.width, healBounds.height);
+
+        final Rectangle menuBounds =
+            new Rectangle(
+                rightClickMenuX, rightClickMenuY, rightClickMenuWidth, rightClickMenuHeight);
+
+        if (drawBounds.intersects(menuBounds)) {
+          continue;
+        }
+      }
+
+      // Draw the label
+      drawShadowText(g2, healLabel, x, y, labelColor, false);
+    }
   }
 
   private static Color getInventoryCountColor() {
