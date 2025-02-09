@@ -243,6 +243,7 @@ public class ConfigWindow {
   private JCheckBox generalPanelLogTimestampsCheckbox;
   private JCheckBox generalPanelLogForceLevelCheckbox;
   private JCheckBox generalPanelPrefersXdgOpenCheckbox;
+  private JCheckBox generalPanelMacOSConfirmQuitCheckBox;
   private JCheckBox generalPanelLogForceTimestampsCheckbox;
   private JCheckBox generalPanelDisableNatureRuneAlchCheckbox;
   private JCheckBox generalPanelCommandPatchQuestCheckbox;
@@ -1793,6 +1794,15 @@ public class ConfigWindow {
         addCheckbox("Use xdg-open to open URLs on Linux", generalPanel);
     generalPanelPrefersXdgOpenCheckbox.setToolTipText(
         "Does nothing on Windows or Mac, may improve URL opening experience on Linux");
+
+    if (Util.isMacOS()) {
+      generalPanelMacOSConfirmQuitCheckBox =
+          addCheckbox("Ask for confirmation when pressing cmd-Q on macOS", generalPanel);
+      generalPanelMacOSConfirmQuitCheckBox.setToolTipText(
+          "Prevents the application from immediately closing with cmd-Q by asking for confirmation");
+      SearchUtils.addSearchMetadata(
+          generalPanelMacOSConfirmQuitCheckBox, "command", "quit", "exit", "imac", "darwin");
+    }
 
     generalPanelAutoScreenshotCheckbox =
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
@@ -6273,6 +6283,10 @@ public class ConfigWindow {
     generalPanelLimitRanFPSSpinner.setValue(
         Settings.RAN_EFFECT_TARGET_FPS.get(Settings.currentProfile));
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
+    if (Util.isMacOS()) {
+      generalPanelMacOSConfirmQuitCheckBox.setSelected(
+          Settings.MACOS_CONFIRM_QUIT.get(Settings.currentProfile));
+    }
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
     generalPanelScreenshotsDirTextField.setText(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
@@ -6813,6 +6827,10 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelShiftScrollCameraRotationCheckbox.isSelected());
     Settings.TRACKPAD_ROTATION_SENSITIVITY.put(
         Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
+    if (Util.isMacOS()) {
+      Settings.MACOS_CONFIRM_QUIT.put(
+          Settings.currentProfile, generalPanelMacOSConfirmQuitCheckBox.isSelected());
+    }
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
     Settings.SCREENSHOTS_STORAGE_PATH.put(

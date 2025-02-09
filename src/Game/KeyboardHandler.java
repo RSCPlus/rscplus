@@ -21,6 +21,7 @@ package Game;
 import Client.KeybindSet;
 import Client.KeybindSet.KeyModifier;
 import Client.Settings;
+import Client.Util;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -102,6 +103,11 @@ public class KeyboardHandler implements KeyListener {
           }
         }
       }
+
+      // Handle ⌘ modifier on macOS
+    } else if (e.isMetaDown() && Util.isMacOS()) {
+      // Not supported for keybinds, so always consume
+      e.consume();
 
       // Handle all other keys
     } else {
