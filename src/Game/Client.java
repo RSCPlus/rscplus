@@ -1331,6 +1331,9 @@ public class Client {
   public static void init_game() {
     boolean errorOnInit = false;
 
+    // Reset login button click state
+    Panel.setControlClicked(panelLogin, loginPassInput, false);
+
     try {
       Camera.init();
 
