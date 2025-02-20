@@ -2,9 +2,11 @@ package Game;
 
 import Client.Launcher;
 import Client.Logger;
+import Client.NotificationsHandler;
 import Client.Settings;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -216,6 +218,34 @@ public class SoundEffects {
       }
     } catch (Exception e) {
       Logger.Error("Error adjusting the sfx volume");
+      e.printStackTrace();
+    }
+  }
+
+  public static void adjustNotificationsVolume() {
+    Clip notifClip = NotificationsHandler.getNotificationSoundClip();
+    Clip sadNotifClip = NotificationsHandler.getSadNotificationSoundClip();
+
+    if (notifClip == null || sadNotifClip == null) {
+      return;
+    }
+
+    FloatControl notifControl = (FloatControl) notifClip.getControl(FloatControl.Type.MASTER_GAIN);
+    FloatControl sadNotifControl =
+        (FloatControl) sadNotifClip.getControl(FloatControl.Type.MASTER_GAIN);
+
+    adjustClipVolume(notifControl);
+    adjustClipVolume(sadNotifControl);
+  }
+
+  private static void adjustClipVolume(FloatControl gainControl) {
+    try {
+      float volumePercent = Settings.NOTIF_VOLUME.get(Settings.currentProfile);
+      float volumeInDecibels = 20f * (float) Math.log10(volumePercent / 100f);
+
+      gainControl.setValue(volumeInDecibels);
+    } catch (Exception e) {
+      Logger.Error("Error adjusting the notifications volume");
       e.printStackTrace();
     }
   }

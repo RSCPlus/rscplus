@@ -371,6 +371,7 @@ public class ConfigWindow {
   private JRadioButton audioPanelOverrideAudioSettingOffButton;
   private JCheckBox audioPanelFixSpiderWebDummySoundCheckbox;
   private JCheckBox audioPanelFixSfxDelayCheckbox;
+  private JSlider audioPanelNotifVolumeSlider;
   private JCheckBox soundEffectAdvanceCheckbox;
   private JCheckBox soundEffectAnvilCheckbox;
   private JCheckBox soundEffectChiselCheckbox;
@@ -3210,6 +3211,43 @@ public class ConfigWindow {
         "Fixes a bug where sound effects were delayed by a significant amount.");
     SearchUtils.addSearchMetadata(audioPanelFixSfxDelayCheckbox, CommonMetadata.SFX.getText());
 
+    JPanel audioPanelNotifVolumePanel = new JPanel();
+    audioPanel.add(audioPanelNotifVolumePanel);
+    audioPanelNotifVolumePanel.setLayout(
+        new BoxLayout(audioPanelNotifVolumePanel, BoxLayout.Y_AXIS));
+    audioPanelNotifVolumePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelNotifVolumePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, osScaleMul(10), 0));
+
+    JLabel audioPanelNotifVolumeLabel =
+        new JLabel(Launcher.binaryPrefix + "RSC+ notifications volume");
+    audioPanelNotifVolumeLabel.setToolTipText(
+        "Sets the volume for the " + Launcher.binaryPrefix + "RSC+ notification sounds");
+    audioPanelNotifVolumePanel.add(audioPanelNotifVolumeLabel);
+    audioPanelNotifVolumeLabel.setAlignmentY(1.0f);
+    SearchUtils.addSearchMetadata(audioPanelNotifVolumeLabel, CommonMetadata.ALERT.getText());
+
+    audioPanelNotifVolumePanel.add(Box.createRigidArea(osScaleMul(new Dimension(0, 5))));
+
+    audioPanelNotifVolumeSlider = new JSlider();
+
+    audioPanelNotifVolumePanel.add(audioPanelNotifVolumeSlider);
+    audioPanelNotifVolumeSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    audioPanelNotifVolumeSlider.setMaximumSize(osScaleMul(new Dimension(350, 55)));
+    audioPanelNotifVolumeSlider.setMinorTickSpacing(5);
+    audioPanelNotifVolumeSlider.setMajorTickSpacing(10);
+    audioPanelNotifVolumeSlider.setMinimum(0);
+    audioPanelNotifVolumeSlider.setMaximum(100);
+    audioPanelNotifVolumeSlider.setPaintTicks(true);
+
+    Hashtable<Integer, JLabel> audioPanelNotifVolumeTable = new Hashtable<Integer, JLabel>();
+    audioPanelNotifVolumeTable.put(new Integer(0), new JLabel("0"));
+    audioPanelNotifVolumeTable.put(new Integer(25), new JLabel("25"));
+    audioPanelNotifVolumeTable.put(new Integer(50), new JLabel("50"));
+    audioPanelNotifVolumeTable.put(new Integer(75), new JLabel("75"));
+    audioPanelNotifVolumeTable.put(new Integer(100), new JLabel("100"));
+    audioPanelNotifVolumeSlider.setLabelTable(audioPanelNotifVolumeTable);
+    audioPanelNotifVolumeSlider.setPaintLabels(true);
+
     addSettingsHeader(audioPanel, "Toggle individual sound effects");
 
     JPanel audioPanelEnableAllSfxPanel = new JPanel();
@@ -3768,8 +3806,12 @@ public class ConfigWindow {
     notificationPanelNotifSoundsPanel.setLayout(
         new BoxLayout(notificationPanelNotifSoundsPanel, BoxLayout.Y_AXIS));
     notificationPanelNotifSoundsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    SearchUtils.addSearchMetadata(
+        notificationPanelNotifSoundsPanel, CommonMetadata.ALERT.getText());
     notificationPanelNotifSoundsCheckbox =
-        addCheckbox("Enable notification sounds", notificationPanelNotifSoundsPanel);
+        addCheckbox(
+            "Enable notification sounds (adjust volume in Audio settings)",
+            notificationPanelNotifSoundsPanel);
     notificationPanelNotifSoundsCheckbox.setBorder(
         BorderFactory.createEmptyBorder(0, 0, osScaleMul(7), 0));
     notificationPanelNotifSoundsCheckbox.setToolTipText(
@@ -3995,6 +4037,8 @@ public class ConfigWindow {
         addCheckbox("Mute the alert sound even if it's an important message", notificationPanel);
     notificationPanelMuteImportantMessageSoundsCheckbox.setToolTipText(
         "Muting for Important Messages (defined in text fields above)");
+    SearchUtils.addSearchMetadata(
+        notificationPanelMuteImportantMessageSoundsCheckbox, CommonMetadata.ALERT.getText());
 
     addPanelBottomGlue(notificationPanel);
 
@@ -5330,7 +5374,8 @@ public class ConfigWindow {
     COLOUR("colours", "colors", "coloured", "colored"),
     PVP("pvp", "pk"),
     PM("private", "messages", "pms", "dms", "msgs"),
-    DIR("folders", "dirs", "directory", "directories", "files");
+    DIR("folders", "dirs", "directory", "directories", "files"),
+    ALERT("alerts", "dings", "notifications");
 
     public final String text;
 
@@ -6487,6 +6532,7 @@ public class ConfigWindow {
     audioPanelFixSpiderWebDummySoundCheckbox.setSelected(
         Settings.SOUND_EFFECT_COMBAT1.get(Settings.currentProfile));
     audioPanelFixSfxDelayCheckbox.setSelected(Settings.FIX_SFX_DELAY.get(Settings.currentProfile));
+    audioPanelNotifVolumeSlider.setValue(Settings.NOTIF_VOLUME.get(Settings.currentProfile));
     soundEffectAdvanceCheckbox.setSelected(
         Settings.SOUND_EFFECT_ADVANCE.get(Settings.currentProfile));
     soundEffectAnvilCheckbox.setSelected(Settings.SOUND_EFFECT_ANVIL.get(Settings.currentProfile));
@@ -6960,6 +7006,7 @@ public class ConfigWindow {
     Settings.SOUND_EFFECT_COMBAT1.put(
         Settings.currentProfile, audioPanelFixSpiderWebDummySoundCheckbox.isSelected());
     Settings.FIX_SFX_DELAY.put(Settings.currentProfile, audioPanelFixSfxDelayCheckbox.isSelected());
+    Settings.NOTIF_VOLUME.put(Settings.currentProfile, audioPanelNotifVolumeSlider.getValue());
     Settings.SOUND_EFFECT_ADVANCE.put(
         Settings.currentProfile, soundEffectAdvanceCheckbox.isSelected());
     Settings.SOUND_EFFECT_ANVIL.put(Settings.currentProfile, soundEffectAnvilCheckbox.isSelected());
@@ -7278,6 +7325,7 @@ public class ConfigWindow {
           Item.patchItemCommands();
           GameApplet.syncFontSetting();
           SoundEffects.adjustMudClientSfxVolume();
+          SoundEffects.adjustNotificationsVolume();
         });
   }
 

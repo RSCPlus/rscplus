@@ -655,6 +655,14 @@ public class NotificationsHandler {
   private static Clip notificationSoundClip;
   private static Clip sadNotificationSoundClip;
 
+  public static Clip getNotificationSoundClip() {
+    return notificationSoundClip;
+  }
+
+  public static Clip getSadNotificationSoundClip() {
+    return sadNotificationSoundClip;
+  }
+
   public static void loadNotificationSound() {
     try {
       notificationAudioIn =
