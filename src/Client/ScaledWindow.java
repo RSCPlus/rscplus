@@ -494,6 +494,7 @@ public class ScaledWindow extends JFrame
     KeyboardHandler.keyLeft = false;
     KeyboardHandler.keyRight = false;
     KeyboardHandler.keyShift = false;
+    KeyboardHandler.dialogue_option = -1;
   }
 
   /*
