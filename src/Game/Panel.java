@@ -248,6 +248,15 @@ public class Panel {
     }
   }
 
+  public static void setControlClicked(Object panelSource, int controlId, boolean isClicked) {
+    try {
+      boolean[] clicked = (boolean[]) Reflection.menuClicked.get(panelSource);
+      clicked[controlId] = isClicked;
+      Reflection.menuClicked.set(panelSource, clicked);
+    } catch (Exception e) {
+    }
+  }
+
   public static int addCenterTextTo(
       Object panelSource,
       int xPos,
