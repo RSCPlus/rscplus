@@ -151,6 +151,7 @@ public class Settings {
   public static HashMap<String, RanOverrideEffectType> CUSTOM_RAN_CHAT_EFFECT =
       new HashMap<String, RanOverrideEffectType>();
   public static HashMap<String, Integer> RAN_EFFECT_TARGET_FPS = new HashMap<String, Integer>();
+  public static HashMap<String, Boolean> MACOS_CONFIRM_QUIT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> AUTO_SCREENSHOT = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> PER_CHAR_SCREENSHOTS = new HashMap<String, Boolean>();
   public static HashMap<String, String> SCREENSHOTS_STORAGE_PATH = new HashMap<String, String>();
@@ -964,6 +965,8 @@ public class Settings {
     VIEW_DISTANCE.put("heavy", 20000);
     VIEW_DISTANCE.put("all", 20000);
     VIEW_DISTANCE.put("custom", getPropInt(props, "view_distance", VIEW_DISTANCE.get("default")));
+
+    defineStaticPreset(MACOS_CONFIRM_QUIT, getPropBoolean(props, "macos_confirm_quit", true));
 
     AUTO_SCREENSHOT.put("vanilla", true);
     AUTO_SCREENSHOT.put("vanilla_resizable", true);
@@ -3754,6 +3757,7 @@ public class Settings {
           "custom_ran_chat_effect", Integer.toString(CUSTOM_RAN_CHAT_EFFECT.get(preset).id()));
       props.setProperty(
           "ran_effect_target_fps", Integer.toString(RAN_EFFECT_TARGET_FPS.get(preset)));
+      props.setProperty("macos_confirm_quit", Boolean.toString(MACOS_CONFIRM_QUIT.get(preset)));
       props.setProperty("auto_screenshot", Boolean.toString(AUTO_SCREENSHOT.get(preset)));
       props.setProperty("per_char_screenshots", Boolean.toString(PER_CHAR_SCREENSHOTS.get(preset)));
       props.setProperty("screenshots_storage_path", SCREENSHOTS_STORAGE_PATH.get(preset));

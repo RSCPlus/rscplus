@@ -20,6 +20,8 @@ package Game;
 
 import Client.ConfigWindow;
 import Client.Launcher;
+import Client.Settings;
+import Client.Util;
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.Application;
@@ -27,6 +29,8 @@ import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /** macOS-specific application handling */
 public class MacOSHandler implements QuitHandler, AboutHandler {
@@ -67,6 +71,27 @@ public class MacOSHandler implements QuitHandler, AboutHandler {
   @Override
   public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent, QuitResponse quitResponse) {
     // Used to handle the macOS ⌘Q event, to replicate the same behavior as closing the window
+    if (Settings.MACOS_CONFIRM_QUIT.get(Settings.currentProfile)) {
+      final Object[] options = {"Yes", "No"};
+      JPanel confirmQuitPanel =
+          Util.createOptionMessagePanel("Really quit " + Launcher.binaryPrefix + "RSCPlus?");
+      int choice =
+          JOptionPane.showOptionDialog(
+              Launcher.getInstance(),
+              confirmQuitPanel, // message
+              "Confirm Quit", // title
+              JOptionPane.YES_NO_OPTION,
+              JOptionPane.QUESTION_MESSAGE,
+              null,
+              options,
+              options[1]);
+
+      if (choice == JOptionPane.CLOSED_OPTION || choice == JOptionPane.NO_OPTION) {
+        quitResponse.cancelQuit();
+        return;
+      }
+    }
+
     gameFrame.dispatchEvent(new WindowEvent(gameFrame, WindowEvent.WINDOW_CLOSING));
   }
 }
