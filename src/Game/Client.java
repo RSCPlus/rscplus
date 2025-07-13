@@ -958,6 +958,7 @@ public class Client {
     // Set the mudclient volume
     if (!customSfxVolumeSet) {
       SoundEffects.adjustMudClientSfxVolume();
+      SoundEffects.adjustNotificationsVolume();
       customSfxVolumeSet = true;
     }
 
@@ -2184,6 +2185,11 @@ public class Client {
         case "sfx_volume":
           if (commandArray.length > 1) {
             Settings.setSfxVolume(commandArray[1]);
+          }
+          break;
+        case "notif_volume":
+          if (commandArray.length > 1) {
+            Settings.setNotifVolume(commandArray[1]);
           }
           break;
         case "overlayfont":

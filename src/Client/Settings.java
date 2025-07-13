@@ -189,6 +189,7 @@ public class Settings {
   public static HashMap<String, Boolean> OVERRIDE_AUDIO_SETTING_SETTING_ON =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> FIX_SFX_DELAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Integer> NOTIF_VOLUME = new HashMap<String, Integer>();
   public static HashMap<String, Boolean> SOUND_EFFECT_COMBAT1 = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SOUND_EFFECT_ADVANCE = new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SOUND_EFFECT_ANVIL = new HashMap<String, Boolean>();
@@ -1235,6 +1236,15 @@ public class Settings {
     FIX_SFX_DELAY.put("all", true);
     FIX_SFX_DELAY.put(
         "custom", getPropBoolean(props, "fix_sfx_delay", FIX_SFX_DELAY.get("default")));
+
+    NOTIF_VOLUME.put("vanilla", 100);
+    NOTIF_VOLUME.put("vanilla_resizable", 100);
+    NOTIF_VOLUME.put("lite", 100);
+    NOTIF_VOLUME.put("default", 100);
+    NOTIF_VOLUME.put("heavy", 100);
+    NOTIF_VOLUME.put("all", 100);
+    NOTIF_VOLUME.put("custom", 100);
+    NOTIF_VOLUME.put("custom", getPropInt(props, "notif_volume", NOTIF_VOLUME.get("default")));
 
     SOUND_EFFECT_ADVANCE.put("vanilla", true);
     SOUND_EFFECT_ADVANCE.put("vanilla_resizable", true);
@@ -2654,6 +2664,14 @@ public class Settings {
       foundInvalidSetting = true;
     }
 
+    if (NOTIF_VOLUME.get("custom") < 0) {
+      NOTIF_VOLUME.put("custom", 0);
+      foundInvalidSetting = true;
+    } else if (NOTIF_VOLUME.get("custom") > 100) {
+      NOTIF_VOLUME.put("custom", 100);
+      foundInvalidSetting = true;
+    }
+
     if (VIEW_DISTANCE.get("custom") < 2300) {
       VIEW_DISTANCE.put("custom", 2300);
       foundInvalidSetting = true;
@@ -3802,6 +3820,7 @@ public class Settings {
           Boolean.toString(OVERRIDE_AUDIO_SETTING_SETTING_ON.get(preset)));
       props.setProperty("sound_effect_combat1", Boolean.toString(SOUND_EFFECT_COMBAT1.get(preset)));
       props.setProperty("fix_sfx_delay", Boolean.toString(FIX_SFX_DELAY.get(preset)));
+      props.setProperty("notif_volume", Integer.toString(NOTIF_VOLUME.get(preset)));
       props.setProperty("sound_effect_advance", Boolean.toString(SOUND_EFFECT_ADVANCE.get(preset)));
       props.setProperty("sound_effect_anvil", Boolean.toString(SOUND_EFFECT_ANVIL.get(preset)));
       props.setProperty("sound_effect_chisel", Boolean.toString(SOUND_EFFECT_CHISEL.get(preset)));
@@ -4893,6 +4912,26 @@ public class Settings {
   }
 
   public static void setSfxVolume(String volumeLevel) {
+    setVolume(
+        SFX_VOLUME,
+        volumeLevel,
+        true,
+        "@cya@Volume of sound effects was changed to " + volumeLevel + "%");
+  }
+
+  public static void setNotifVolume(String volumeLevel) {
+    setVolume(
+        NOTIF_VOLUME,
+        volumeLevel,
+        false,
+        "@cya@Volume of notifications was changed to " + volumeLevel + "%");
+  }
+
+  private static void setVolume(
+      HashMap<String, Integer> volumeSetting,
+      String volumeLevel,
+      boolean forMudClient,
+      String successMessage) {
     String outOfBoundsMessage =
         "@whi@Please use an @lre@integer@whi@ between 0 and 100 (default = 100)";
 
@@ -4905,10 +4944,15 @@ public class Settings {
         return;
       }
 
-      SFX_VOLUME.put(currentProfile, newVolume);
-      SoundEffects.adjustMudClientSfxVolume();
-      Client.displayMessage(
-          "@cya@Volume of sound effects was changed to " + volumeLevel + "%", Client.CHAT_NONE);
+      volumeSetting.put(currentProfile, newVolume);
+
+      if (forMudClient) {
+        SoundEffects.adjustMudClientSfxVolume();
+      } else {
+        SoundEffects.adjustNotificationsVolume();
+      }
+
+      Client.displayMessage(successMessage, Client.CHAT_NONE);
 
       Launcher.getConfigWindow().synchronizeGuiValues();
     } catch (Exception e) {
