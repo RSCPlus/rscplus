@@ -1932,6 +1932,12 @@ public class Launcher extends JFrame implements Runnable {
         "/lib/jinput-natives/jinput-raw_64.dll",
         new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-raw_64.dll"));
     extractResource(
+        "/lib/jinput-natives/jinput-dx8.dll",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-dx8.dll"));
+    extractResource(
+        "/lib/jinput-natives/jinput-raw.dll",
+        new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-raw.dll"));
+    extractResource(
         "/lib/jinput-natives/jinput-wintab.dll",
         new File(Settings.Dir.JINPUTNATIVELIB + "/jinput-wintab.dll"));
     extractResource(
