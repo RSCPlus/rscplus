@@ -3217,7 +3217,7 @@ public class Settings {
         }
       }
 
-      // 08/16/2023 - toggle_food_heal_overlay was removed
+      // 08/16/2023 - Original toggle_food_heal_overlay was removed
       if (keybind.getCommandName().equals("toggle_food_heal_overlay")) {
         if (keybind.getModifier().equals(KeyModifier.CTRL) && keybind.getKey() == KeyEvent.VK_G) {
           keybind.setModifier(null);
@@ -4809,13 +4809,12 @@ public class Settings {
   }
 
   private static void toggleFoodOverlay() {
-    // TODO: This toggles the variable but does nothing yet
     SHOW_FOOD_HEAL_OVERLAY.put(currentProfile, !SHOW_FOOD_HEAL_OVERLAY.get(currentProfile));
 
     if (SHOW_FOOD_HEAL_OVERLAY.get(currentProfile)) {
-      Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+      Client.displayMessage("@cya@Showing item heal amounts on hover", Client.CHAT_NONE);
     } else {
-      Client.displayMessage("@cya@Not yet implemented, sorry!", Client.CHAT_NONE);
+      Client.displayMessage("@cya@No longer showing item heal amounts on hover", Client.CHAT_NONE);
     }
 
     save();
