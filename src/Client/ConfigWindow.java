@@ -283,6 +283,7 @@ public class ConfigWindow {
   private JSpinner generalPanelLimitFPSSpinner;
   private JSpinner generalPanelLimitRanFPSSpinner;
   private JCheckBox generalPanelAutoScreenshotCheckbox;
+  private JCheckBox generalPanelPerCharScreenshotCheckbox;
   private JTextField generalPanelScreenshotsDirTextField;
   private JCheckBox generalPanelRS2HDSkyCheckbox;
   private JCheckBox generalPanelCustomSkyboxOverworldCheckbox;
@@ -1798,6 +1799,14 @@ public class ConfigWindow {
         addCheckbox("Take a screenshot when you level up or complete a quest", generalPanel);
     generalPanelAutoScreenshotCheckbox.setToolTipText(
         "Takes a screenshot for you for level ups and on quest completion");
+
+    generalPanelPerCharScreenshotCheckbox =
+        addCheckbox(
+            "Organize screenshots into separate subfolders for each character", generalPanel);
+    generalPanelPerCharScreenshotCheckbox.setToolTipText(
+        "Automatically creates separate screenshot subfolders for every unique character name");
+    SearchUtils.addSearchMetadata(
+        generalPanelPerCharScreenshotCheckbox, CommonMetadata.DIR.getText());
 
     /// Screenshots directory
 
@@ -6275,6 +6284,8 @@ public class ConfigWindow {
     generalPanelLimitFPSSpinner.setValue(Settings.FPS_LIMIT.get(Settings.currentProfile));
     generalPanelAutoScreenshotCheckbox.setSelected(
         Settings.AUTO_SCREENSHOT.get(Settings.currentProfile));
+    generalPanelPerCharScreenshotCheckbox.setSelected(
+        Settings.PER_CHAR_SCREENSHOTS.get(Settings.currentProfile));
     generalPanelScreenshotsDirTextField.setText(Settings.SCREENSHOTS_STORAGE_PATH.get("custom"));
     generalPanelRS2HDSkyCheckbox.setSelected(Settings.RS2HD_SKY.get(Settings.currentProfile));
     generalPanelCustomSkyboxOverworldCheckbox.setSelected(
@@ -6815,6 +6826,8 @@ public class ConfigWindow {
         Settings.currentProfile, generalPanelTrackpadRotationSlider.getValue());
     Settings.AUTO_SCREENSHOT.put(
         Settings.currentProfile, generalPanelAutoScreenshotCheckbox.isSelected());
+    Settings.PER_CHAR_SCREENSHOTS.put(
+        Settings.currentProfile, generalPanelPerCharScreenshotCheckbox.isSelected());
     Settings.SCREENSHOTS_STORAGE_PATH.put(
         Settings.currentProfile,
         Settings.validateCustomDir(

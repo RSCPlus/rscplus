@@ -2406,8 +2406,9 @@ public class Renderer {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
         String fbase = Settings.SCREENSHOTS_STORAGE_PATH.get("custom");
 
-        // Use a subdirectory when the player is logged in
-        if (!Client.player_name.isEmpty()
+        // Use a subdirectory when the player is logged in and has enabled the convenient option
+        if (Settings.PER_CHAR_SCREENSHOTS.get(Settings.currentProfile)
+            && !Client.player_name.isEmpty()
             && !Client.username_login.equals(Replay.excludeUsername)) {
           fbase += Util.formatPlayerName(Client.player_name);
         }

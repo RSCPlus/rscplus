@@ -139,7 +139,7 @@ be downloaded to the user's device. Certain misconfigurations, such as the dupli
 situations where RSC+ may mishandle world files. Others, such as an incorrectly-specified `server_extension`, will
 outright prevent the user from attempting to submit their credentials to the server endpoint. Furthermore, it is
 recommended that all JSON endpoints are hosted at the same domain, as partial download failures may block client
-connections under certain conditions or otherwise break certain non-critical extension-related functionalityies.
+connections under certain conditions or otherwise break certain non-critical extension-related functionalities.
 
 Note that functionality exists to handle situations wherein a server's host domain _MUST_ change in response to an
 emergency such as a domain hijacking. See the documentation for the `addFormerHostUrl` method within the
