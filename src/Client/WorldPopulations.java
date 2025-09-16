@@ -152,12 +152,12 @@ public class WorldPopulations {
       } catch (UnknownHostException uhe) {
         Arrays.fill(worldOnlineTexts, "You're offline");
       } catch (SocketTimeoutException ste) {
-        Arrays.fill(worldOnlineTexts, "Socket timeout");
+        Arrays.fill(worldOnlineTexts, "? online");
       } catch (IOException ioe) {
         if (ioe.toString().contains("Server returned HTTP response code: 521")) {
-          Arrays.fill(worldOnlineTexts, "Webserver offline");
+          Arrays.fill(worldOnlineTexts, "offline");
         } else {
-          Arrays.fill(worldOnlineTexts, "Webserver offline?");
+          Arrays.fill(worldOnlineTexts, "?? online");
         }
       } finally {
         running = false;

@@ -1762,8 +1762,13 @@ public class Renderer {
           setAlpha(g2, 1.0f);
           g2.setColor(Color.WHITE);
           drawShadowText(
-              g2, errorInfo1, 7, height - 23 - (int) errorInfoBounds.getHeight(), Color.red, false);
-          drawShadowText(g2, errorInfo2, 7, height - 23, Color.red, false);
+              g2,
+              errorInfo1,
+              7,
+              height - 23 - (int) errorInfoBounds.getHeight(),
+              Color.orange,
+              false);
+          drawShadowText(g2, errorInfo2, 7, height - 23, Color.orange, false);
         }
       }
 
