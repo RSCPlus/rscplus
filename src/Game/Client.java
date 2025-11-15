@@ -65,6 +65,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class prepares the client for login, handles chat messages, and performs player related
@@ -74,6 +79,9 @@ public class Client {
 
   // Game's client instance
   public static Object instance;
+
+  // Create an executor for scheduling future actions. (Pool size of 1 for a single-threaded scheduler)
+  public static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
   public static Map<String, LinkedList<String>> tracerInstructions =
       new LinkedHashMap<String, LinkedList<String>>();
@@ -502,6 +510,13 @@ public class Client {
       strings[662] = "from: ";
     }
   }
+
+  public static Callable<Void> takeLevelUpScreenshot = () -> {
+    // Add the screenshot to the queue
+    Renderer.takeScreenshot(true);
+    
+    return null;
+  };
 
   public static int shadowSleepCount;
 
@@ -3395,7 +3410,8 @@ public class Client {
     if (screenshotMessage
         && Settings.AUTO_SCREENSHOT.get(Settings.currentProfile)
         && !Replay.isPlaying) {
-      Renderer.takeScreenshot(true);
+      // Take the screenshot after a 1 second delay
+      executor.schedule(takeLevelUpScreenshot, 1, TimeUnit.SECONDS);
     }
 
     if (blueMessage) { // this is one of the messages which we must overwrite expected color for
