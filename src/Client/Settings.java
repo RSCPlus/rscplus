@@ -255,6 +255,8 @@ public class Settings {
   public static HashMap<String, Boolean> REMOVE_REPORT_ABUSE_BUTTON_HBAR =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY = new HashMap<String, Boolean>();
+  public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY_BOLD =
+      new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY =
       new HashMap<String, Boolean>();
   public static HashMap<String, Boolean> SHOW_PLAYER_NAME_OVERLAY = new HashMap<String, Boolean>();
@@ -1795,6 +1797,9 @@ public class Settings {
     SHOW_ITEM_GROUND_OVERLAY.put("all", true);
     SHOW_ITEM_GROUND_OVERLAY.put(
         "custom", getPropBoolean(props, "show_iteminfo", SHOW_ITEM_GROUND_OVERLAY.get("default")));
+
+    defineStaticPreset(
+        SHOW_ITEM_GROUND_OVERLAY_BOLD, getPropBoolean(props, "show_iteminfo_bold", true));
 
     SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("vanilla", false);
     SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.put("vanilla_resizable", false);
@@ -3895,6 +3900,8 @@ public class Settings {
           "toggle_xp_bar_on_stats_button",
           Boolean.toString(TOGGLE_XP_BAR_ON_STATS_BUTTON.get(preset)));
       props.setProperty("show_iteminfo", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY.get(preset)));
+      props.setProperty(
+          "show_iteminfo_bold", Boolean.toString(SHOW_ITEM_GROUND_OVERLAY_BOLD.get(preset)));
       props.setProperty(
           "show_iteminfo_highlighted",
           Boolean.toString(SHOW_ITEM_GROUND_OVERLAY_HIGHLIGHTED_ONLY.get(preset)));

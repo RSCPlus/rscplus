@@ -18,6 +18,7 @@
  */
 package Game;
 
+import static Game.Renderer.getPlainStringBounds;
 import static Game.Renderer.getStringBounds;
 
 import Client.Launcher;
@@ -103,7 +104,15 @@ public class SpecialStar {
     int correctedY = y;
 
     // Adjust for centering
-    Dimension bounds = getStringBounds(g, text);
+    final Dimension bounds;
+    if (Settings.SHOW_ITEM_GROUND_OVERLAY_BOLD.get(Settings.currentProfile)
+        || Settings.OVERLAY_FONT_STYLE.get(Settings.currentProfile)
+            == Renderer.OverlayFontStyle.LEGACY.getValue()) {
+      bounds = getStringBounds(g, text);
+    } else {
+      bounds = getPlainStringBounds(g, text);
+    }
+
     correctedX -= (bounds.width / 2);
     correctedY += (bounds.height / 2);
 

@@ -51,6 +51,7 @@ public class GameApplet {
   private static byte[] h11b;
   private static byte[] h22b;
 
+  public static GlyphData h11pGlyphData;
   public static GlyphData h11bGlyphData;
   public static GlyphData h22bGlyphData;
 
@@ -208,6 +209,7 @@ public class GameApplet {
 
   /** Load {@link Glyph} data for Jagex fonts */
   public static void loadGlyphData() {
+    h11pGlyphData = generateGlyphData(h11p);
     h11bGlyphData = generateGlyphData(h11b);
     h22bGlyphData = generateGlyphData(h22b);
   }

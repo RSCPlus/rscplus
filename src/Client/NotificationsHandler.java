@@ -299,8 +299,7 @@ public class NotificationsHandler {
 
     try {
       Font font =
-          Font.createFont(
-              Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/arial.ttf"));
+          Font.createFont(Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/arial.ttf"));
       Font boldFont =
           Font.createFont(
               Font.TRUETYPE_FONT, Launcher.getResourceAsStream("/assets/Helvetica-Bold.ttf"));

@@ -144,6 +144,7 @@ public class Renderer {
   private static Item last_item;
 
   public static Font font_main;
+  public static Font font_main_plain;
   public static Font font_big;
 
   private static int frames = 0;
@@ -239,6 +240,14 @@ public class Renderer {
       ge.registerFont(font);
       font_main = font.deriveFont(Font.PLAIN, 11.0f);
       font_big = font.deriveFont(Font.PLAIN, 22.0f);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    try (InputStream hIS = Launcher.getResourceAsStream("/assets/Helvetica.ttf")) {
+      Font font = Font.createFont(Font.TRUETYPE_FONT, hIS);
+      ge.registerFont(font);
+      font_main_plain = font.deriveFont(Font.PLAIN, 11.0f);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -685,7 +694,11 @@ public class Renderer {
               // Note that it is not possible to show how many of a
               //   stackable item are in a stack on the ground.
               // That information is not transmitted in RSC, just that the item ID is there.
-              drawShadowText(g2, itemText, x, y, itemColor, true);
+              if (Settings.SHOW_ITEM_GROUND_OVERLAY_BOLD.get(Settings.currentProfile)) {
+                drawShadowText(g2, itemText, x, y, itemColor, true);
+              } else {
+                drawShadowTextPlain(g2, itemText, x, y, itemColor, true);
+              }
             }
             last_item = item; // Done with item this loop, can save it as last_item
           }
@@ -2897,7 +2910,12 @@ public class Renderer {
 
   public static void drawShadowText(
       Graphics2D g, String text, int x, int y, Color textColor, boolean center) {
-    drawShadowText(g, text, x, y, textColor, center, true, false);
+    drawShadowText(g, text, x, y, textColor, center, true, true, false);
+  }
+
+  public static void drawShadowTextPlain(
+      Graphics2D g, String text, int x, int y, Color textColor, boolean center) {
+    drawShadowText(g, text, x, y, textColor, center, true, false, false);
   }
 
   public static void drawShadowText(
@@ -2908,7 +2926,7 @@ public class Renderer {
       Color textColor,
       boolean center,
       boolean hideForRightClickMenu) {
-    drawShadowText(g, text, x, y, textColor, center, hideForRightClickMenu, false);
+    drawShadowText(g, text, x, y, textColor, center, hideForRightClickMenu, true, false);
   }
 
   public static void drawShadowText(
@@ -2919,6 +2937,7 @@ public class Renderer {
       Color textColor,
       boolean center,
       boolean hideForRightClickMenu,
+      boolean drawBold,
       boolean forceLegacyFont) {
 
     final OverlayFontStyle overlayFontStyle;
@@ -2936,17 +2955,18 @@ public class Renderer {
 
     final GameApplet.GlyphData glyphData;
 
-    // Defaults to h11b unless it's explicitly using font_big
     if (g.getFont().equals(font_big)) {
+      // Defaults to h22b when using font_big
       glyphData = GameApplet.h22bGlyphData;
     } else {
-      glyphData = GameApplet.h11bGlyphData;
+      glyphData = drawBold || !isJagexFont ? GameApplet.h11bGlyphData : GameApplet.h11pGlyphData;
     }
 
     int textX = x;
     int textY = y - (isJagexFont ? glyphData.getBaseLine() : 0);
 
-    Dimension bounds = getStringBounds(g, text);
+    Dimension bounds =
+        drawBold || !isJagexFont ? getStringBounds(g, text) : getPlainStringBounds(g, text);
 
     if (center) {
       textX -= (bounds.width / 2);
@@ -3457,6 +3477,12 @@ public class Renderer {
   static Dimension getStringBounds(Graphics2D g, String str) {
     FontRenderContext context = g.getFontRenderContext();
     Rectangle2D bounds = g.getFont().getStringBounds(str, context);
+    return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());
+  }
+
+  static Dimension getPlainStringBounds(Graphics2D g, String str) {
+    FontRenderContext context = g.getFontRenderContext();
+    Rectangle2D bounds = font_main_plain.getStringBounds(str, context);
     return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());
   }
 

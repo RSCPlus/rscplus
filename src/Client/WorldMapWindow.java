@@ -441,6 +441,7 @@ public class WorldMapWindow {
         Renderer.color_text,
         true,
         false,
+        true,
         true);
   }
 
@@ -591,6 +592,7 @@ public class WorldMapWindow {
         searchColor,
         false,
         false,
+        true,
         true);
 
     if (searchResults != null || searchOverflow) {
@@ -641,6 +643,7 @@ public class WorldMapWindow {
             resultColor,
             false,
             false,
+            true,
             true);
 
         // Only 1 result
@@ -656,6 +659,7 @@ public class WorldMapWindow {
             Renderer.color_text,
             false,
             false,
+            true,
             true);
       } else if (searchResults.length == 0) {
         Renderer.drawShadowText(
@@ -666,6 +670,7 @@ public class WorldMapWindow {
             Renderer.color_text,
             false,
             false,
+            true,
             true);
       } else {
         if (searchResults.length > SEARCH_RESULTS_MAX) {
@@ -680,6 +685,7 @@ public class WorldMapWindow {
               Renderer.color_text,
               false,
               false,
+              true,
               true);
         }
       }
@@ -1686,7 +1692,7 @@ public class WorldMapWindow {
 
       // Don't scale map labels
       Renderer.drawShadowText(
-          g, line, x - offsetX + width / 2, y + offsetY, labelColor, false, false, true);
+          g, line, x - offsetX + width / 2, y + offsetY, labelColor, false, false, true, true);
       y += height;
     }
   }
@@ -1819,6 +1825,7 @@ public class WorldMapWindow {
             Renderer.color_low,
             true,
             false,
+            true,
             true);
         setAlpha(g, 1.0f);
       }
@@ -1848,6 +1855,7 @@ public class WorldMapWindow {
             Renderer.color_item_highlighted,
             true,
             false,
+            true,
             true);
         setAlpha(g, 1.0f);
       }
@@ -1866,6 +1874,7 @@ public class WorldMapWindow {
             Renderer.color_text,
             false,
             false,
+            true,
             true);
         renderY += osScaleMul(16);
       }
@@ -1877,6 +1886,7 @@ public class WorldMapWindow {
           Renderer.color_fatigue,
           false,
           false,
+          true,
           true);
 
       drawButton(g, "^", floorUpBounds);
@@ -1899,6 +1909,7 @@ public class WorldMapWindow {
           Renderer.color_text,
           true,
           false,
+          true,
           true);
       Renderer.drawShadowText(
           g,
@@ -1908,6 +1919,7 @@ public class WorldMapWindow {
           Renderer.color_text,
           true,
           false,
+          true,
           true);
 
       if (renderChunkLabelling) {
@@ -1999,6 +2011,7 @@ public class WorldMapWindow {
               Renderer.color_text,
               false,
               false,
+              true,
               true);
           offsetY += osScaleMul(16);
           if (offsetY >= maxY) {
